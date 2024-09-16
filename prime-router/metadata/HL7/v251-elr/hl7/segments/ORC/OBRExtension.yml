@@ -1,0 +1,340 @@
+# $schema: ./../../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
+
+url:
+  type: SYSTEM_URL
+  value: obr-observation-request
+
+extension:
+  generateList: true
+  expressionType: nested
+  expressions:
+    - expressionType: nested
+      vars:
+        obr2: STRING_ALL, OBR.2
+        orc2: STRING_ALL, ORC.2
+      condition: $orc2 NOT_NULL && $obr2 NOT_NULL
+      expressionsMap:
+        url:
+          type: STRING
+          value: OBR.2
+        valueIdentifier:
+          valueOf: ../../datatypes/v251/hl7/datatypes/EI/Identifier
+          expressionType: resource
+          specs: OBR.2
+    - expressionType: nested
+      vars:
+        obr3: STRING_ALL, OBR.3
+        orc3: STRING_ALL, ORC.3
+      condition: $orc3 NOT_NULL && $obr3 NOT_NULL
+      expressionsMap:
+        url:
+          type: STRING
+          value: OBR.3
+        valueIdentifier:
+          valueOf: ../../datatypes/v251/hl7/datatypes/EI/Identifier
+          expressionType: resource
+          specs: OBR.3
+    - expressionType: nested
+      vars:
+        obr10: STRING_ALL, OBR.10
+      condition: $obr10 NOT_NULL
+      specs: OBR.10 *
+      generateList: true
+      expressionsMap:
+        url:
+          type: STRING
+          value: OBR.10
+        valueReference:
+          expressionType: reference
+          valueOf: ../../datatypes/v251/hl7/datatypes/XCN/Practitioner
+    - expressionType: nested
+      vars:
+        obr11: STRING, OBR.11
+      condition: $obr11 NOT_NULL
+      expressionsMap:
+        url:
+          type: STRING
+          value: OBR.11
+        valueString:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: OBR.11
+    - expressionType: nested
+      vars:
+        obr12: STRING_ALL, OBR.12
+      condition: $obr12 NOT_NULL
+      expressionsMap:
+        url:
+          type: STRING
+          value: OBR.12
+        valueCodeableConcept:
+          expressionType: resource
+          valueOf: ../../datatypes/v251/hl7/datatypes/CWE/CodeableConcept
+          specs: OBR.12
+    - expressionType: nested
+      vars:
+        obr13: STRING_ALL, OBR.13
+      condition: $obr13 NOT_NULL
+      expressionsMap:
+        url:
+          type: STRING
+          value: OBR.13
+        valueString:
+          expressionType: HL7Spec
+          type: STRING
+          valueOf: OBR.13
+    - expressionType: nested
+      vars:
+        obr16: STRING_ALL, OBR.16
+      condition: $obr16 NOT_NULL
+      specs: OBR.16 *
+      generateList: true
+      expressionsMap:
+        url:
+          type: STRING
+          value: OBR.16
+        valueReference:
+          expressionType: reference
+          valueOf: ../../datatypes/v251/hl7/datatypes/XCN/Practitioner
+    - condition: $orc14 NOT_NULL && $obr17 NOT_NULL
+      vars:
+        orc14: STRING_ALL, ORC.14
+        obr17: STRING_ALL, OBR.17
+      expressionType: nested
+      specs: OBR.17 *
+      generateList: true
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: callback-number
+        valueContactPoint:
+          valueOf: ../../datatypes/v251/hl7/datatypes/XTN/ContactPoint
+          expressionType: resource
+          constants:
+            hl7v2Field: "OBR.17"
+    - expressionType: nested
+      vars:
+        obr18: OBR.18
+      condition: $obr18 NOT_NULL
+      expressionsMap:
+        url:
+          type: STRING
+          value: OBR.18
+        valueString:
+          type: STRING
+          valueOf: OBR.18
+          expressionType: HL7Spec
+    - expressionType: nested
+      vars:
+        obr19: OBR.19
+      condition: $obr19 NOT_NULL
+      expressionsMap:
+        url:
+          type: STRING
+          value: OBR.19
+        valueString:
+          type: STRING
+          valueOf: OBR.19
+          expressionType: HL7Spec
+    - expressionType: nested
+      vars:
+        obr20: OBR.20
+      condition: $obr20 NOT_NULL
+      expressionsMap:
+        url:
+          type: STRING
+          value: OBR.20
+        valueString:
+          type: STRING
+          valueOf: OBR.20
+          expressionType: HL7Spec
+    - expressionType: nested
+      vars:
+        obr21: OBR.21
+      condition: $obr21 NOT_NULL
+      expressionsMap:
+        url:
+          type: STRING
+          value: OBR.21
+        valueString:
+          type: STRING
+          valueOf: OBR.21
+          expressionType: HL7Spec
+    - expressionType: nested
+      vars:
+        obr22: OBR.22
+      condition: $obr22 NOT_NULL
+      expressionsMap:
+        url:
+          type: STRING
+          value: OBR.22
+        valueString:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: OBR.22
+    - expressionType: resource
+      valueOf: ../../datatypes/v251/hl7/datatypes/MOC/Extension
+      vars:
+        obr23: STRING_ALL, OBR.23
+      condition: $obr23 NOT_NULL
+      specs: OBR.23
+      constants:
+        mocExtensionName: OBR.23
+    - expressionType: nested
+      vars:
+        obr24: OBR.24
+      condition: $obr24 NOT_NULL
+      expressionsMap:
+        url:
+          type: STRING
+          value: OBR.24
+        valueId:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: OBR.24
+    - expressionType: nested
+      vars:
+        obr25: OBR.25
+      condition: $obr25 NOT_NULL
+      expressionsMap:
+        url:
+          type: STRING
+          value: OBR.25
+        valueId:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: OBR.25
+    - expressionType: resource
+      vars:
+        obr26: STRING_ALL, OBR.26
+      condition: $obr26 NOT_NULL
+      valueOf: datatypes/PRL_ELR/Extension
+      specs: OBR.26
+      constants:
+        prlExtensionName: OBR.26
+    - expressionType: nested
+      vars:
+        obr28: STRING_ALL, OBR.28
+      condition: $obr28 NOT_NULL
+      specs: OBR.28 *
+      generateList: true
+      expressionsMap:
+        url:
+          type: STRING
+          value: OBR.28
+        valueReference:
+          expressionType: reference
+          valueOf: ../../datatypes/v251/hl7/datatypes/XCN/Practitioner
+    - expressionType: nested
+      vars:
+        obr29: STRING_ALL, OBR.29
+      condition: $obr29 NOT_NULL
+      expressionsMap:
+        url:
+          type: STRING
+          value: OBR.29
+        valueIdentifier:
+          valueOf: ../../datatypes/v251/hl7/datatypes/EIP/Identifier-PlacerAssignedIdentifier
+          expressionType: resource
+          specs: OBR.29
+          constants:
+            backupExtension: "filler-assigned-identifier"
+    - expressionType: nested
+      vars:
+        obr33: STRING_ALL, OBR.33
+      condition: $obr33 NOT_NULL
+      specs: OBR.33 *
+      generateList: true
+      expressionsMap:
+        url:
+          type: STRING
+          value: OBR.33
+        valueReference:
+          valueOf: ../../datatypes/v251/hl7/datatypes/NDL/PractitionerRole
+          expressionType: reference
+    - expressionType: nested
+      vars:
+        obr36: STRING, OBR.36
+      condition: $obr36 NOT_NULL
+      expressionsMap:
+        url:
+          type: STRING
+          value: OBR.36
+        valueString:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: OBR.36
+    - expressionType: nested
+      vars:
+        obr39: STRING_ALL, OBR.39
+      condition: $obr39 NOT_NULL
+      specs: OBR.39 *
+      generateList: true
+      expressionsMap:
+        url:
+          type: STRING
+          value: OBR.39
+        valueCodeableConcept:
+          valueOf: ../../datatypes/v251/hl7/datatypes/CWE/CodeableConcept
+          expressionType: resource
+    - expressionType: nested
+      vars:
+        obr44: STRING_ALL, OBR.44
+      condition: $obr44 NOT_NULL
+      expressionsMap:
+        url:
+          type: STRING
+          value: OBR.44
+        valueCodeableConcept:
+          valueOf: ../../datatypes/v251/hl7/datatypes/CNE/CodeableConcept
+          expressionType: resource
+          specs: OBR.44
+    - expressionType: nested
+      vars:
+        obr45: STRING_ALL, OBR.45
+      condition: $obr45 NOT_NULL
+      specs: OBR.45 *
+      generateList: true
+      expressionsMap:
+        url:
+          type: STRING
+          value: obr-45-procedure-code-modifier
+        valueCodeableConcept:
+          valueOf: ../../datatypes/v251/hl7/datatypes/CNE/CodeableConcept
+          expressionType: resource
+    - expressionType: nested
+      vars:
+        obr48: STRING_ALL, OBR.48
+      condition: $obr48 NOT_NULL
+      expressionsMap:
+        url:
+          type: STRING
+          value: OBR.48
+        valueCodeableConcept:
+          valueOf: ../../datatypes/v251/hl7/datatypes/CWE/CodeableConcept
+          expressionType: resource
+          specs: OBR.48
+    - expressionType: nested
+      vars:
+        obr49: STRING_ALL, OBR.49
+      condition: $obr49 NOT_NULL
+      expressionsMap:
+        url:
+          type: STRING
+          value: OBR.49
+        valueString:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: OBR.49
+    - expressionType: nested
+      vars:
+        obr50: STRING_ALL, OBR.50
+      condition: $obr50 NOT_NULL
+      expressionsMap:
+        url:
+          type: STRING
+          value: OBR.50
+        valueCodeableConcept:
+          expressionType: resource
+          valueOf: ../../datatypes/v251/hl7/datatypes/CWE/CodeableConcept
+          specs: OBR.50

@@ -1,8 +1,6 @@
 package gov.cdc.prime.router.fhirengine.engine
 
 import fhirengine.engine.CustomFhirPathFunctions
-import gov.cdc.prime.reportstream.shared.BlobUtils
-import gov.cdc.prime.reportstream.shared.QueueMessage
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.Metadata
@@ -90,7 +88,7 @@ class FHIRDestinationFilter(
      * [actionHistory] ensures all activities are logged.
      */
     private fun fhirEngineRunResults(
-        queueMessage: FhirDestinationFilterQueueMessage,
+        queueMessage: ReportPipelineMessage,
         actionHistory: ActionHistory,
     ): List<FHIREngineRunResult> {
         val contextMap = mapOf(
@@ -108,7 +106,7 @@ class FHIRDestinationFilter(
             val fhirJson = LogMeasuredTime.measureAndLogDurationWithReturnedValue(
                 "Downloaded content from queue message"
             ) {
-                BlobAccess.downloadBlob(queueMessage.blobURL, queueMessage.digest)
+                queueMessage.downloadContent()
             }
             val bundle = FhirTranscoder.decode(fhirJson)
             val bodyString = FhirTranscoder.encode(bundle)
@@ -209,7 +207,7 @@ class FHIRDestinationFilter(
                             FhirReceiverFilterQueueMessage(
                                 report.id,
                                 blobInfo.blobUrl,
-                                BlobUtils.digestToString(blobInfo.digest),
+                                BlobAccess.digestToString(blobInfo.digest),
                                 queueMessage.blobSubFolderName,
                                 queueMessage.topic,
                                 receiver.fullName

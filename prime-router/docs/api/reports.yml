@@ -118,36 +118,6 @@ paths:
                   $ref: '#/components/schemas/Report'
         '500':
           description: Internal Server Error
-  /reports/download:
-    get:
-      summary: Downloads a message based on the report id
-      security:
-        - OAuth2: [ system_admin ]
-      parameters:
-        - in: query
-          name: reportId
-          description: The report id to look for to download.
-          schema:
-            type: string
-          required: true
-          example: e491f4fb-f2c5-4473-8db2-206ea04991e8
-        - in: query
-          name: removePII
-          description: Boolean that determines if PII will be removed from the message. If missing will default to true.
-            Required to be true if prod env.
-          required: false
-          schema:
-            type: boolean
-          example: true
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Report'
-        '500':
-          description: Internal Server Error
 # Building
 components:
   schemas:

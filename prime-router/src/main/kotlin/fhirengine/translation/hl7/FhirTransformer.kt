@@ -36,7 +36,7 @@ class FhirTransformer(
         schema: String,
         blobConnectionInfo: BlobAccess.BlobContainerMetadata = BlobAccess.BlobContainerMetadata.build(
             "metadata",
-            Environment.get().storageEnvVar
+            Environment.get().blobEnvVar
         ),
     ) : this(
         schemaRef = fhirTransformSchemaFromFile(schema, blobConnectionInfo),

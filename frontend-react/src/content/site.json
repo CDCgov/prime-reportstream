@@ -48,7 +48,7 @@
             "path": "/assets/csv/ReportStream-StandardCSV-ExampleData-20220509.csv"
         },
         "programmersGuidePdf": {
-            "path": "/assets/pdf/ReportStream-Programmers-Guide-v4.6.pdf"
+            "path": "/assets/pdf/ReportStream-Programmers-Guide-v4.5.pdf"
         },
         "exampleHl7": {
             "path": "/assets/hl7/Example-hl7-file.hl7"

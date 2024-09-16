@@ -1,0 +1,331 @@
+## HL7 Extensions
+
+- id: "mothersMaidenName"
+  url: "http://hl7.org/fhir/StructureDefinition/patient-mothersMaidenName"
+- id: "birthPlace"
+  url: "http://hl7.org/fhir/StructureDefinition/patient-birthPlace"
+- id: "birthTime"
+  url: "http://hl7.org/fhir/StructureDefinition/patient-birthTime"
+- id: "religion"
+  url: "http://hl7.org/fhir/StructureDefinition/patient-religion"
+- id: "event-performerFunction"
+  url: "http://hl7.org/fhir/StructureDefinition/event-performerFunction"
+- id: "humanname-own-prefix"
+  url: "http://hl7.org/fhir/StructureDefinition/humanname-own-prefix"
+- id: "humanname-own-name"
+  url: "http://hl7.org/fhir/StructureDefinition/humanname-own-name"
+- id: "humanname-partner-prefix"
+  url: "http://hl7.org/fhir/StructureDefinition/humanname-partner-prefix"
+- id: "humanname-partner-name"
+  url: "http://hl7.org/fhir/StructureDefinition/humanname-partner-name"
+- id: "humanname-assembly-order"
+  url: "http://hl7.org/fhir/StructureDefinition/humanname-assembly-order"
+- id: "patient-congregation"
+  url: "http://hl7.org/fhir/StructureDefinition/patient-congregation"
+- id: "patient-disability"
+  url: "http://hl7.org/fhir/StructureDefinition/patient-disability"
+- id: "data-absent-reason"
+  url: "http://hl7.org/fhir/StructureDefinition/data-absent-reason"
+- id: "contactpoint-country"
+  url: "http://hl7.org/fhir/StructureDefinition/contactpoint-country"
+- id: "contactpoint-area"
+  url: "http://hl7.org/fhir/StructureDefinition/contactpoint-area"
+- id: "contactpoint-local"
+  url: "http://hl7.org/fhir/StructureDefinition/contactpoint-local"
+- id: "contactpoint-extension"
+  url: "http://hl7.org/fhir/StructureDefinition/contactpoint-extension"
+- id: "patient-citizenship"
+  url: "http://hl7.org/fhir/StructureDefinition/patient-citizenship"
+- id: "patient-nationality"
+  url: "http://hl7.org/fhir/StructureDefinition/patient-nationality"
+- id: "iso21090-AD-use"
+  url: "http://hl7.org/fhir/StructureDefinition/iso21090-AD-use"
+- id: "iso21090-ADXP-censusTract"
+  url: "http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-censusTract"
+- id: "observation-value-attachment"
+  url: "https://hl7.org/fhir/R5/StructureDefinition/observation-value-attachment"
+- id: "identifier-check-digit"
+  url: "http://hl7.org/fhir/StructureDefinition/identifier-checkDigit"
+- id: "naming-system-check-digit"
+  url: "http://hl7.org/fhir/StructureDefinition/namingsystem-checkDigit"
+- id: "patient-animal"
+  url: "http://hl7.org/fhir/StructureDefinition/patient-animal"
+- id: "relationship"
+  url: "https://hl7.org/fhir/StructureDefinition/relationship"
+
+## Datatypes
+
+# XON -> Organization
+- id: "name-representation-code"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/name-representation-code"
+- id: "identifier-location"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/identifier-location"
+- id: "organization-name-type"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/organization-name-type"
+- id: "xon-organization"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xon-organization"
+
+# CX -> Identifier
+- id: "assigning-facility"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility"
+- id: "cx-identifier"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/cx-identifier"
+
+# CE/CWE -> Coding
+- id: "coding-system-oid"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/coding-system-oid"
+- id: "cwe-coding"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding"
+- id: "cwe-coding-system"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system"
+- id: "ce-coding"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/ce-coding"
+- id: "ce-coding-system"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/ce-coding-system"
+- id: "cne-coding"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/cne-coding"
+- id: "cne-coding-system"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/cne-coding-system"
+- id: "code"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/code"
+
+# XTN -> ContactPoint
+- id: "xtn-contact-point"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn-contact-point"
+
+# CWE -> Annotation
+- id: "cwe-annotation"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-annotation"
+
+# CNN -> Practitioner
+- id: "cnn-practitioner"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/cnn-practitioner"
+
+# XAD -> Address
+- id: "xad-address"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xad-address"
+- id: "sad-address-line"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/sad-address-line"
+
+# XCN -> Practitioner
+- id: "xcn-practitioner"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn-practitioner"
+
+# XPN -> HumanName
+- id: "xpn-human-name"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn-human-name"
+
+# PL -> Location
+- id: "pl6-person-location-type"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/pl6-person-location-type"
+
+# DLD -> Location
+- id: "dld2-effective-date"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/dld2-effective-date"
+
+# CQ -> Quantity
+- id: "cq-units"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/cq-units"
+
+# EI -> ExtensionEI
+- id: "entity-identifier"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/entity-identifier"
+- id: "placer-assigned-identifier"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/placer-assigned-identifier"
+- id: "filler-assigned-identifier"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/filler-assigned-identifier"
+
+# EI -> Identifier
+- id: "ei-assigner-organization-type"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/ei-assigner-organization-type"
+
+# ID -> CodeableConcept
+- id: "codeable-concept-id"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/codeable-concept-id"
+
+# CWE -> Organization
+- id: "cwe-organization"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-organization"
+
+# ED -> Attachment
+- id: "ed-attachment"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/ed-attachment"
+
+## Segments
+
+# MSH
+- id: "encoding-characters"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/encoding-characters"
+- id: "character-set"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/character-set"
+- id: "msh-message-header"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/msh-message-header"
+
+# SFT
+- id: "software-binary-id"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/software-binary-id"
+- id: "source-software-description"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/source-software-description"
+- id: "software-install-date"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/software-install-date"
+- id: "software-vendor-org"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/software-vendor-org"
+
+# PID -> Patient
+- id: "last-updated-facility-namespace-id"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id"
+- id: "ethnic-group"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/ethnic-group"
+- id: "veteran-military-status"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/veteran-military-status"
+- id: "identity-unknown"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/identity-unknown"
+- id: "pid-patient"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/pid-patient"
+
+# PD1 -> Patient
+- id: "pd1-patient-additional-demographic"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/pd1-patient-additional-demographic"
+- id: "studentStatus"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/studentStatus"
+- id: "livingWill"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/livingWill"
+
+# NTE -> Patient
+- id: "patient-notes"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/patient-notes"
+
+# OBX -> Observation
+- id: "sub-id"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/sub-id"
+- id: "observation-sub-type"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/observation-sub-type"
+- id: "obx-5-value-sn"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/obx-5-value-sn"
+- id: "nature-of-abnormal-test"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/nature-of-abnormal-test"
+- id: "analysis-date-time"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/analysis-date-time"
+- id: "obx-observation"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/obx-observation"
+
+# SPM -> Specimen
+- id: "specimen-source-site-modifier"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/specimen-source-site-modifier"
+- id: "spm-specimen"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/spm-specimen"
+- id: "reject-reason"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/reject-reason"
+- id: "bodySiteModifier"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/bodySiteModifier"
+
+# NK1 -> RelatedPerson
+- id: "nk1-related-person"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/nk1-related-person"
+- id: "nk1-15-administrative-sex"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/nk1-15-administrative-sex"
+
+# ORC/OBR -> ServiceRequest/DiagnosticReport
+- id: "orc-common-order"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/orc-common-order"
+- id: "obr-observation-request"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/obr-observation-request"
+- id: "status-modifier"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/status-modifier"
+- id: "callback-number"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/callback-number"
+- id: "business-event"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/business-event"
+
+# PV1/PV2 -> Encounter
+- id: "admission-level-of-care"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/admission-level-of-care"
+- id: "publicity-code"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/publicity-code"
+- id: "estimated-length"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/estimated-length"
+- id: "planned-discharge-date"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/planned-discharge-date"
+- id: "planned-start-date"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/planned-start-date"
+- id: "visit-user-code"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/visit-user-code"
+- id: "temporary-location"
+  url: "https://hl7.org/fhir/StructureDefinition/temporary-location"
+- id: "episode-of-care-name"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/episode-of-care-name"
+- id: "pv1-patient-visit"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/pv1-patient-visit"
+- id: "pv2-patient-visit-additional-information"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/pv2-patient-visit-additional-information"
+- id: "pv1-2-patient-class"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/pv1-2-patient-class"
+- id: "pv2-visit-description"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/pv2-visit-description"
+
+# NTE -> Annotation
+- id: "note-source"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/note-source"
+# Comment
+- id: "note-comment"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/note-comment"
+# Comment type
+- id: "note-type"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/note-type"
+
+## Generic
+
+# internal indicator of sender, usable for filtering
+- id: "sender-id"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/sender-id"
+
+# The following extensions are also used to store in the bundle where particular pieces of
+# data should be placed in an HL7 message
+- id: "hl7v2Segment"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Segment"
+- id: "hl7v2Field"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field"
+- id: "hl7v2Component"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Component"
+
+# Date time as hl7v2 string
+# This extension exists because HL7 dates have very little restrictions (i.e. YYYY-MM, YYYY-MM-DD HH, YYYY-MM-DD HH:MM)
+# are all valid, but the FHIR specs has much stricter rules.  In order to reliably generate the same HL7 message, this extension
+# is used to capture what was in the original HL7 message and then exclusively used when mapping FHIR->HL7
+- id: "hl7v2-date-time"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time"
+
+# These extensions are also used to store the unique identifiers
+- id: "assigning-authority"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority"
+- id: "namespace-id"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id"
+- id: "universal-id"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id"
+- id: "universal-id-type"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type"
+# Unknown Universal ID Type
+# This extension is used when mapping specifies only populating the universal-id-type extension for certain values
+- id: "universal-id-unknown-type"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-unknown-type"
+- id: "location-physical-type-poc"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/location-physical-type-poc"
+
+## Deprecated
+
+# TODO: #13288
+- id: "hl7-use"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use"
+- id: "code-index-name"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name"
+
+## Used by simple report
+
+# NOTE: this URL is not live, but this is is what simple report sends us
+# TODO: #{Ticket to work with SR to clean their FHIR bundle}
+- id: "race"
+  url: "http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd"
+
+# SR Extension used to convey the order effective date
+- id: "order-effective-date"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/order-effective-date"

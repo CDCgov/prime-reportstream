@@ -1,14 +1,11 @@
 import { expect, Locator } from "@playwright/test";
 import { endOfDay, format, startOfDay, subDays } from "date-fns";
-import type { RSOrganizationSettings } from "../../../../src/config/endpoints/settings";
 import { RSReceiverStatus } from "../../../../src/hooks/api/UseReceiversConnectionStatus/UseReceiversConnectionStatus";
 import {
     createStatusTimePeriodData,
     SUCCESS_RATE_CLASSNAME_MAP,
-    SuccessRate,
 } from "../../../../src/pages/admin/receiver-dashboard/utils";
-import { DatePair, dateShortFormat, durationFormatShort } from "../../../../src/utils/DateTimeUtils";
-import { formatDate } from "../../../../src/utils/misc";
+import { DatePair, dateShortFormat } from "../../../../src/utils/DateTimeUtils";
 import { createMockGetReceiverStatus } from "../../../mocks/receiverStatus";
 import { BasePage, BasePageTestArgs, type ResponseHandlerEntry, type RouteHandlerFulfillEntry } from "../../BasePage";
 
@@ -313,7 +310,8 @@ export class AdminReceiverStatusPage extends BasePage {
         if (!isRequestAwaitedBool) return undefined as void;
 
         const req = await p;
-        return req ? new URL(req.url()) : undefined;
+        const reqUrl = req ? new URL(req.url()) : undefined;
+        return reqUrl;
     }
 
     async updateFilterDateRange(start: Date, end: Date, inputMethod: "textbox" | "calendar" = "textbox") {
@@ -402,7 +400,7 @@ export class AdminReceiverStatusPage extends BasePage {
         return a[0] !== b[0] && a[1] !== b[1];
     }
 
-    async testReceiverStatusDisplay(isSmoke = false) {
+    async testReceiverStatusDisplay() {
         const [startDate, endDate] = this.filterFormInputs.dateRange.value;
         const statusRows = this.receiverStatusRowsLocator;
         await expect(statusRows).toHaveCount(new Set(this.receiverStatus?.map((r) => r.receiverId)).size);
@@ -445,192 +443,6 @@ export class AdminReceiverStatusPage extends BasePage {
                     await expect(sliceEle).toBeVisible();
                     await expect(sliceEle).toHaveClass(expectedClass);
                 }
-            }
-
-            if (isSmoke && i === 0) {
-                break;
-            }
-        }
-
-        return true;
-    }
-
-    async testReceiverName() {
-        const { organizationName, receiverName, successRate } =
-            this.timePeriodData[1];
-
-        const receiversStatusRows = this.receiverStatusRowsLocator;
-        const expectedReceiverStatusRow = receiversStatusRows.nthCustom(0);
-        const expectedReceiverStatusRowTitle =
-            this.getExpectedReceiverStatusRowTitle(
-                organizationName,
-                receiverName,
-                successRate,
-            );
-
-        await expect(receiversStatusRows).toHaveCount(this.timePeriodData.length);
-
-        await this.updateFilters({
-            receiverName,
-        });
-
-        await expect(receiversStatusRows).toHaveCount(1);
-        await expect(expectedReceiverStatusRow).toBeVisible();
-        await expect(expectedReceiverStatusRow.title).toHaveText(expectedReceiverStatusRowTitle);
-
-        await this.resetFilters();
-
-        await expect(receiversStatusRows).toHaveCount(this.timePeriodData.length);
-
-        return true;
-    }
-
-    async testReceiverMessage() {
-        // get first entry's result from all-fail receiver's first day -> third time period
-        const receiverI = 0;
-        const dayI = 0;
-        const timePeriodI = 2;
-        const entryI = 0;
-        const {days} = this.timePeriodData[receiverI];
-        const {connectionCheckResult} = days[dayI].timePeriods[timePeriodI].entries[entryI];
-
-        const receiversStatusRows = this.receiverStatusRowsLocator;
-
-        await this.updateFilters({
-            resultMessage: connectionCheckResult,
-        });
-
-        for (const [i, {days}] of this.timePeriodData.entries()) {
-            const isRowExpected = i === receiverI;
-            const row = receiversStatusRows.nthCustom(i);
-
-            for (const [i, {timePeriods}] of days.entries()) {
-                const isDayExpected = isRowExpected && i === dayI;
-                const rowDay = row.days.nthCustom(i);
-
-                for (const [i] of timePeriods.entries()) {
-                    const isTimePeriodExpected = isDayExpected && i === timePeriodI;
-                    const expectedClass = !isTimePeriodExpected
-                        ? /success-result-hidden/
-                        : /^((?!success-result-hidden).)*$/;
-                    const rowDayTimePeriod = rowDay.timePeriods.nth(i);
-
-                    await expect(rowDayTimePeriod).toBeVisible();
-                    await expect(rowDayTimePeriod).toHaveClass(expectedClass);
-                }
-            }
-        }
-
-        await this.resetFilters();
-
-        await this.testReceiverStatusDisplay();
-
-        return true;
-    }
-
-    async testReceiverOrgLinks(isSmoke = false) {
-        const rows = this.receiverStatusRowsLocator;
-
-        for (const [i, { organizationName }] of this.timePeriodData.entries()) {
-            const row = rows.nthCustom(i);
-
-            const link = row.title.getByRole("link", { name: organizationName, exact: true }).first();
-            const expectedUrl = this.getExpectedStatusOrganizationUrl(i);
-            await expect(link).toBeVisible();
-            const p = this.page.route(
-                `/api/settings/organizations/${organizationName}`,
-                (route) =>
-                    route.fulfill({
-                        json: {
-                            description: "fake",
-                            filters: [],
-                            name: organizationName,
-                            jurisdiction: "fake",
-                            version: 0,
-                            createdAt: "",
-                            createdBy: "",
-                        } satisfies RSOrganizationSettings,
-                    }),
-            );
-            await link.click();
-            await expect(this.page).toHaveURL(expectedUrl);
-            await p;
-            await this.page.goBack();
-
-            if (isSmoke && i === 0) {
-                break;
-            }
-        }
-
-        return true;
-    }
-
-    async testReceiverTimePeriodModals(isSmoke = false) {
-        const overlay = this.filterFormInputs.dateRange.modalOverlay;
-
-        for (const [i, { days }] of this.timePeriodData.entries()) {
-            const { days: daysLoc } = this.receiverStatusRowsLocator.nthCustom(i);
-
-            for (const [dayI, day] of days.entries()) {
-                for (const [i, { successRateType, entries }] of day.timePeriods.entries()) {
-                    // only first entry in time period is currently displayed
-                    const {
-                        organizationName,
-                        organizationId,
-                        receiverId,
-                        receiverName,
-                        connectionCheckSuccessful,
-                        connectionCheckStartedAt,
-                        connectionCheckCompletedAt,
-                        connectionCheckResult,
-                    } = entries[0] ?? {};
-                    const sliceEle = daysLoc.nthCustom(dayI).timePeriods.nth(i);
-
-                    const isModalExpectedVisible = successRateType !== SuccessRate.UNDEFINED;
-
-                    await sliceEle.click({ force: true });
-                    await expect(overlay).toBeAttached({
-                        attached: isModalExpectedVisible,
-                    });
-
-                    if (isModalExpectedVisible) {
-                        const expectedResultText = connectionCheckSuccessful ? "success" : "failed";
-                        const expectedModalText = `Results for connection verification checkOrg:${organizationName} (id: ${organizationId})Receiver:${receiverName} (id: ${receiverId})Result:${expectedResultText}Started At:${formatDate(connectionCheckStartedAt)}${connectionCheckStartedAt.toISOString()}Time to complete:${durationFormatShort(connectionCheckCompletedAt, connectionCheckStartedAt)}Result message:${connectionCheckResult}`;
-
-                        await expect(overlay).toBeVisible();
-                        await expect(overlay).toHaveText(expectedModalText);
-
-                        await overlay.press("Escape");
-                    }
-                }
-            }
-
-            if (isSmoke && i === 0) {
-                break;
-            }
-        }
-
-        return true;
-    }
-
-    async testReceiverLinks(isSmoke = false) {
-        const rows = this.receiverStatusRowsLocator;
-
-        for (const [i, { receiverName }] of this.timePeriodData.entries()) {
-            const row = rows.nthCustom(i);
-
-            const link = row.title.getByRole("link", {
-                name: receiverName,
-            });
-            await expect(link).toBeVisible();
-            await link.click();
-            await expect(this.page).toHaveURL(
-                this.getExpectedStatusReceiverUrl(i),
-            );
-            await this.page.goBack();
-
-            if (isSmoke && i === 0) {
-                break;
             }
         }
 

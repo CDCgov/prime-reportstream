@@ -28,7 +28,7 @@ class ProcessFunction : Logging {
 
         try {
             workflowEngine = WorkflowEngine()
-            event = Event.parsePrimeRouterQueueMessage(message) as ProcessEvent
+            event = Event.parseQueueMessage(message) as ProcessEvent
 
             if (event.eventAction != Event.EventAction.PROCESS) {
                 logger.error("Process function received a message of the incorrect type: $message")

@@ -35,7 +35,7 @@ class CovidBatchFunction(
     ) {
         try {
             logger.trace("CovidBatchFunction starting.  Message: $message")
-            val event = Event.parsePrimeRouterQueueMessage(message) as BatchEvent
+            val event = Event.parseQueueMessage(message) as BatchEvent
             if (event.eventAction != Event.EventAction.BATCH) {
                 logger.error("CovidBatchFunction received a $message")
                 return

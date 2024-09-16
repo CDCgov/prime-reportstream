@@ -27,18 +27,10 @@ class AzureConfig {
 
     @Bean
     fun blobContainerClient(): BlobContainerClient {
-        val blobServiceClient = BlobServiceClientBuilder()
+        return BlobServiceClientBuilder()
             .connectionString(connectionString)
             .buildClient()
-
-        val blobContainerClient = blobServiceClient.getBlobContainerClient(containerName)
-
-        // Create the container if it doesn't exist
-        if (!blobContainerClient.exists()) {
-            blobContainerClient.create()
-        }
-
-        return blobContainerClient
+            .getBlobContainerClient(containerName)
     }
 
     @Bean

@@ -12,7 +12,7 @@ class EventTest {
     fun `test reportEvent encode and decode`() {
         val event = ReportEvent(Event.EventAction.SEND, UUID.randomUUID(), false)
         val message = event.toQueueMessage()
-        val returnEvent = Event.parsePrimeRouterQueueMessage(message)
+        val returnEvent = Event.parseQueueMessage(message)
         assertThat(returnEvent).isEqualTo(event)
     }
 
@@ -20,7 +20,7 @@ class EventTest {
     fun `test reportEvent encode and decode with time`() {
         val event = ReportEvent(Event.EventAction.SEND, UUID.randomUUID(), false, OffsetDateTime.now())
         val message = event.toQueueMessage()
-        val returnEvent = Event.parsePrimeRouterQueueMessage(message)
+        val returnEvent = Event.parseQueueMessage(message)
         assertThat(returnEvent).isEqualTo(event)
     }
 
@@ -28,7 +28,7 @@ class EventTest {
     fun `test reportEvent encode and decode as empty`() {
         val event = ReportEvent(Event.EventAction.SEND, UUID.randomUUID(), true)
         val message = event.toQueueMessage()
-        val returnEvent = Event.parsePrimeRouterQueueMessage(message)
+        val returnEvent = Event.parseQueueMessage(message)
         assertThat(returnEvent).isEqualTo(event)
     }
 
@@ -36,7 +36,7 @@ class EventTest {
     fun `test reportEvent encode and decode as empty with time`() {
         val event = ReportEvent(Event.EventAction.SEND, UUID.randomUUID(), true, OffsetDateTime.now())
         val message = event.toQueueMessage()
-        val returnEvent = Event.parsePrimeRouterQueueMessage(message)
+        val returnEvent = Event.parseQueueMessage(message)
         assertThat(returnEvent).isEqualTo(event)
     }
 
@@ -44,7 +44,7 @@ class EventTest {
     fun `test receiverEvent encode and decode`() {
         val event = BatchEvent(Event.EventAction.BATCH, "test", false)
         val message = event.toQueueMessage()
-        val returnEvent = Event.parsePrimeRouterQueueMessage(message)
+        val returnEvent = Event.parseQueueMessage(message)
         assertThat(returnEvent).isEqualTo(event)
     }
 
@@ -52,7 +52,7 @@ class EventTest {
     fun `test batchEvent encode and decode with time`() {
         val event = BatchEvent(Event.EventAction.BATCH, "test", false, OffsetDateTime.now())
         val message = event.toQueueMessage()
-        val returnEvent = Event.parsePrimeRouterQueueMessage(message)
+        val returnEvent = Event.parseQueueMessage(message)
         assertThat(returnEvent).isEqualTo(event)
     }
 
@@ -60,7 +60,7 @@ class EventTest {
     fun `test batchEvent encode and decode as empty`() {
         val event = BatchEvent(Event.EventAction.BATCH, "test", true)
         val message = event.toQueueMessage()
-        val returnEvent = Event.parsePrimeRouterQueueMessage(message)
+        val returnEvent = Event.parseQueueMessage(message)
         assertThat(returnEvent).isEqualTo(event)
     }
 
@@ -68,7 +68,7 @@ class EventTest {
     fun `test batchEvent encode and decode as empty with time`() {
         val event = BatchEvent(Event.EventAction.BATCH, "test", true, OffsetDateTime.now())
         val message = event.toQueueMessage()
-        val returnEvent = Event.parsePrimeRouterQueueMessage(message)
+        val returnEvent = Event.parseQueueMessage(message)
         assertThat(returnEvent).isEqualTo(event)
     }
 
@@ -78,7 +78,7 @@ class EventTest {
         val reportId = UUID.randomUUID()
         val event = ProcessEvent(Event.EventAction.PROCESS, reportId, Options.None, emptyMap(), emptyList(), at)
         val message = event.toQueueMessage()
-        val returnEvent = Event.parsePrimeRouterQueueMessage(message)
+        val returnEvent = Event.parseQueueMessage(message)
         assertThat(returnEvent).isEqualTo(event)
     }
 }

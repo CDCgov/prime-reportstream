@@ -4,7 +4,6 @@ import com.microsoft.azure.functions.annotation.BindingName
 import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.QueueTrigger
 import com.microsoft.azure.functions.annotation.StorageAccount
-import gov.cdc.prime.reportstream.shared.QueueMessage
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.DataAccessTransaction
@@ -16,13 +15,10 @@ import gov.cdc.prime.router.common.BaseEngine
 import gov.cdc.prime.router.fhirengine.engine.FHIRConverter
 import gov.cdc.prime.router.fhirengine.engine.FHIRDestinationFilter
 import gov.cdc.prime.router.fhirengine.engine.FHIREngine
-import gov.cdc.prime.router.fhirengine.engine.FHIRReceiver
 import gov.cdc.prime.router.fhirengine.engine.FHIRReceiverFilter
 import gov.cdc.prime.router.fhirengine.engine.FHIRTranslator
-import gov.cdc.prime.router.fhirengine.engine.FhirReceiveQueueMessage
-import gov.cdc.prime.router.fhirengine.engine.PrimeRouterQueueMessage
+import gov.cdc.prime.router.fhirengine.engine.QueueMessage
 import gov.cdc.prime.router.fhirengine.engine.ReportPipelineMessage
-import gov.cdc.prime.router.fhirengine.engine.initializeQueueMessages
 import org.apache.commons.lang3.StringUtils
 import org.apache.logging.log4j.kotlin.Logging
 
@@ -32,23 +28,6 @@ class FHIRFunctions(
     private val databaseAccess: DatabaseAccess = BaseEngine.databaseAccessSingleton,
     private val queueAccess: QueueAccess = QueueAccess,
 ) : Logging {
-
-    /**
-     * An azure function for ingesting and recording submissions
-     */
-    @FunctionName("receive-fhir")
-    @StorageAccount("AzureWebJobsStorage")
-    fun receive(
-        @QueueTrigger(name = "message", queueName = QueueMessage.elrReceiveQueueName)
-        message: String,
-        // Number of times this message has been dequeued
-        @BindingName("DequeueCount") dequeueCount: Int = 1,
-    ) {
-        logger.info(
-            "message consumed from elr-fhir-receive queue"
-        )
-        process(message, dequeueCount, FHIRReceiver(), ActionHistory(TaskAction.receive))
-    }
 
     /**
      * An azure function for ingesting full-ELR HL7 data and converting it to FHIR
@@ -120,7 +99,7 @@ class FHIRFunctions(
     ) {
         val messagesToDispatch = runFhirEngine(message, dequeueCount, fhirEngine, actionHistory)
         messagesToDispatch.forEach {
-            (it as PrimeRouterQueueMessage).send(queueAccess)
+            it.send(queueAccess)
         }
     }
 
@@ -158,23 +137,8 @@ class FHIRFunctions(
         logger.debug(
             "${StringUtils.removeEnd(engineType, "e")}ing message: $message for the $dequeueCount time"
         )
-        // initialize the json types in PrimeRouterQueueMessage
-        initializeQueueMessages()
 
-        return when (val queueMessage = QueueMessage.deserialize(message)) {
-            is QueueMessage.ReceiveQueueMessage -> {
-                FhirReceiveQueueMessage(
-                    queueMessage.reportId,
-                    queueMessage.blobURL,
-                    queueMessage.digest,
-                    queueMessage.blobSubFolderName,
-                    queueMessage.headers
-                )
-            }
-            else -> {
-                queueMessage as ReportPipelineMessage
-            }
-        }
+        return QueueMessage.deserialize(message) as ReportPipelineMessage
     }
 
     /**

@@ -2,8 +2,6 @@ package gov.cdc.prime.router.fhirengine.engine
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import fhirengine.engine.CustomFhirPathFunctions
-import gov.cdc.prime.reportstream.shared.BlobUtils
-import gov.cdc.prime.reportstream.shared.QueueMessage
 import gov.cdc.prime.router.ActionLogDetail
 import gov.cdc.prime.router.ActionLogScope
 import gov.cdc.prime.router.ActionLogger
@@ -342,7 +340,7 @@ class FHIRReceiverFilter(
             // download and parse FHIR document
             val fhirJson = LogMeasuredTime.measureAndLogDurationWithReturnedValue(
                 "Downloaded content from queue message"
-            ) { BlobAccess.downloadBlob(queueMessage.blobURL, queueMessage.digest) }
+            ) { queueMessage.downloadContent() }
             val bundle = FhirTranscoder.decode(fhirJson)
 
             actionHistory.trackActionReceiverInfo(receiver.organizationName, receiver.name)
@@ -391,7 +389,7 @@ class FHIRReceiverFilter(
                             FhirTranslateQueueMessage(
                                 report.id,
                                 blobInfo.blobUrl,
-                                BlobUtils.digestToString(blobInfo.digest),
+                                BlobAccess.digestToString(blobInfo.digest),
                                 queueMessage.blobSubFolderName,
                                 queueMessage.topic,
                                 receiver.fullName

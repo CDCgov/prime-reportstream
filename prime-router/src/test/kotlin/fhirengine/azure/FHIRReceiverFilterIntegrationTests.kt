@@ -9,8 +9,6 @@ import assertk.assertions.isInstanceOf
 import assertk.assertions.isNull
 import assertk.assertions.isZero
 import assertk.assertions.matchesPredicate
-import gov.cdc.prime.reportstream.shared.BlobUtils
-import gov.cdc.prime.reportstream.shared.QueueMessage
 import gov.cdc.prime.router.ActionLog
 import gov.cdc.prime.router.ActionLogLevel
 import gov.cdc.prime.router.ActionLogScope
@@ -48,6 +46,7 @@ import gov.cdc.prime.router.db.ReportStreamTestDatabaseContainer
 import gov.cdc.prime.router.db.ReportStreamTestDatabaseSetupExtension
 import gov.cdc.prime.router.fhirengine.engine.FHIRReceiverFilter
 import gov.cdc.prime.router.fhirengine.engine.FhirTranslateQueueMessage
+import gov.cdc.prime.router.fhirengine.engine.QueueMessage
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.fhirengine.utils.deleteResource
 import gov.cdc.prime.router.fhirengine.utils.getObservations
@@ -228,7 +227,7 @@ class FHIRReceiverFilterIntegrationTests : Logging {
                 "type": "${TaskAction.receiver_filter.literal}",
                 "reportId": "${report.id}",
                 "blobURL": "${report.bodyURL}",
-                "digest": "${BlobUtils.digestToString(BlobUtils.sha256Digest(blobContents.toByteArray()))}",
+                "digest": "${BlobAccess.digestToString(BlobAccess.sha256Digest(blobContents.toByteArray()))}",
                 "blobSubFolderName": "${sender.fullName}",
                 "topic": "${sender.topic.jsonVal}",
                 "receiverFullName": "$receiverName" 
@@ -305,7 +304,7 @@ class FHIRReceiverFilterIntegrationTests : Logging {
             val expectedRouteQueueMessage = FhirTranslateQueueMessage(
                 routedReport.reportId,
                 routedReport.bodyUrl,
-                BlobUtils.digestToString(routedReport.blobDigest),
+                BlobAccess.digestToString(routedReport.blobDigest),
                 "phd.fhir-elr-no-transform",
                Topic.FULL_ELR,
                 receiver.fullName
@@ -477,7 +476,7 @@ class FHIRReceiverFilterIntegrationTests : Logging {
             val expectedQueueMessage = FhirTranslateQueueMessage(
                 routedReport.reportId,
                 routedReport.bodyUrl,
-                BlobUtils.digestToString(routedReport.blobDigest),
+                BlobAccess.digestToString(routedReport.blobDigest),
                 "phd.fhir-elr-no-transform",
                Topic.FULL_ELR,
                 receiver.fullName
@@ -667,7 +666,7 @@ class FHIRReceiverFilterIntegrationTests : Logging {
             val expectedRouteQueueMessage = FhirTranslateQueueMessage(
                 routedReport.reportId,
                 routedReport.bodyUrl,
-                BlobUtils.digestToString(routedReport.blobDigest),
+                BlobAccess.digestToString(routedReport.blobDigest),
                 "phd.fhir-elr-no-transform",
                 Topic.FULL_ELR,
                 receiver.fullName
@@ -953,7 +952,7 @@ class FHIRReceiverFilterIntegrationTests : Logging {
             val expectedRouteQueueMessage = FhirTranslateQueueMessage(
                 routedReport.reportId,
                 routedReport.bodyUrl,
-                BlobUtils.digestToString(routedReport.blobDigest),
+                BlobAccess.digestToString(routedReport.blobDigest),
                 "phd.fhir-elr-no-transform",
                Topic.FULL_ELR,
                 receiver.fullName
@@ -1028,7 +1027,7 @@ class FHIRReceiverFilterIntegrationTests : Logging {
             val expectedRouteQueueMessage = FhirTranslateQueueMessage(
                 routedReport.reportId,
                 routedReport.bodyUrl,
-                BlobUtils.digestToString(routedReport.blobDigest),
+                BlobAccess.digestToString(routedReport.blobDigest),
                 "phd.fhir-elr-no-transform",
                Topic.FULL_ELR,
                 "phd.x"

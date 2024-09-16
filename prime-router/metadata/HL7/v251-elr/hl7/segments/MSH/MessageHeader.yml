@@ -1,0 +1,116 @@
+# $schema: ./../../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
+
+resourceType: MessageHeader
+
+id:
+  type: NAMED_UUID
+  valueOf: MSH.10
+  expressionType: HL7Spec
+
+eventCoding:
+  expressionType: resource
+  valueOf: ../../datatypes/v251/hl7/datatypes/MSG/Coding
+  specs: MSH.9
+  required: true
+
+meta:
+  expressionType: resource
+  valueOf: ../../datatypes/v251/hl7/datatypes/PT/Meta
+  specs: MSH.11
+  vars:
+    metaSecurity: STRING, MSH.8
+
+source:
+  expressionType: nested
+  vars:
+    msh3: STRING_ALL, MSH.3
+  expressions:
+    - constants:
+        messageHeaderSourceField: MSH.3
+      condition: $msh3 NOT_NULL
+      valueOf: segments/MSH/datatypes/HD/Source
+      expressionType: resource
+      specs: MSH.3
+
+sender:
+  condition: $msh4 NOT_NULL || $organizationCountry NOT_NULL
+  valueOf: ../../datatypes/v251/hl7/datatypes/HD/Organization
+  expressionType: reference
+  generateList: true
+  specs: MSH.4
+  vars:
+    organizationCountry: MSH.17
+    msh4: STRING_ALL, MSH.4
+
+destination:
+  vars:
+    msh6: MSH.6
+    msh5: STRING_ALL, MSH.5
+  expressionType: nested
+  generateList: true
+  expressions:
+    - constants:
+        messageHeaderDestinationField: MSH.5
+      condition: $msh5 NOT_NULL
+      expressionType: resource
+      valueOf: segments/MSH/datatypes/HD/Destination
+      specs: MSH.5
+    - expressionType: nested
+      condition: $msh6 NOT_NULL && $msh5 NULL
+      constants:
+        hdOrganizationHL7Field: MSH.6
+      expressionsMap:
+        receiver:
+          expressionType: reference
+          valueOf: ../../datatypes/v251/hl7/datatypes/HD/Organization
+          specs: MSH.6
+
+language:
+  vars:
+    cwe1: MSH.19.1
+  expressionType: nested
+  expressions:
+    - condition: $cwe1 NOT_NULL
+      valueOf: MSH.19.1
+      type: STRING
+      expressionType: HL7Spec
+    - condition: $cwe1 NULL
+      valueOf: MSH.19.4
+      type: STRING
+      expressionType: HL7Spec
+
+# MSH.10 is captured in Bundle.Identifier
+# MSH.12 is hardcoded to 2.5.1
+extension_messageHeader:
+  generateList: true
+  expressionType: nested
+  expressions:
+    - condition: $msh2 NOT_NULL && $msh2 EQUALS_STRING ^~\&#
+      expressionType: nested
+      vars:
+        msh2: String, MSH.2
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: encoding-characters
+        valueString:
+          type: STRING
+          valueOf: MSH.2
+          expressionType: HL7Spec
+    - condition: $msh18 NOT_NULL
+      expressionType: nested
+      vars:
+        msh18: STRING_ALL, MSH.18
+      specs: MSH.18 *
+      generateList: true
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: character-set
+        valueString:
+          generateList: true
+          type: STRING
+          valueOf: $BASE_VALUE
+          expressionType: HL7Spec
+    - expressionType: resource
+      valueOf: segments/MSH/MSHExtension

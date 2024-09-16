@@ -74,8 +74,6 @@ class ConvertFileCommands(
             inputFile.inputStream(),
             FileSource(inputFile.nameWithoutExtension)
         ).report
-        // Throws exception if itemCount is null
-        checkNotNull(report.itemCount) { "Input file has no items" }
         val fields = fieldNames.split(",")
         val rows = mutableListOf<Array<String>>()
         for (i in 0 until report.itemCount) {
