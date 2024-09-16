@@ -9,7 +9,7 @@ import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.ConverterSchemaElement
 import org.apache.logging.log4j.kotlin.Logging
 import org.hl7.fhir.r4.fhirpath.ExpressionNode
-import org.hl7.fhir.r4.fhirpath.FHIRLexer.FHIRLexerException
+import org.hl7.fhir.r4.fhirpath.FHIRLexer
 import org.hl7.fhir.r4.fhirpath.FHIRPathEngine
 import org.hl7.fhir.r4.hapi.ctx.HapiWorkerContext
 import org.hl7.fhir.r4.model.Base
@@ -97,7 +97,7 @@ object FhirPathUtils : Logging {
             } else {
                 pathEngine.evaluate(appContext, focusResource, bundle, bundle, expressionNode)
             }
-        } catch (e: FHIRLexerException) {
+        } catch (e: FHIRLexer.FHIRLexerException) {
             logger.error("${e.javaClass.name}: Syntax error in FHIR Path $expression.")
             emptyList()
         } catch (e: IndexOutOfBoundsException) {
@@ -145,7 +145,7 @@ object FhirPathUtils : Logging {
             }
         } catch (e: Exception) {
             val msg = when (e) {
-                is FHIRLexerException -> "Syntax error in FHIR Path expression $expression"
+                is FHIRLexer.FHIRLexerException -> "Syntax error in FHIR Path expression $expression"
                 is SchemaException -> e.message.toString()
                 else ->
                     "Unknown error while evaluating FHIR Path expression $expression for condition. " +
