@@ -26,6 +26,8 @@ class ReportGraphBuilder {
     private lateinit var theFormat: MimeFormat
     private lateinit var theSender: Sender
 
+    private var createTime: OffsetDateTime = OffsetDateTime.now()
+
     fun topic(topic: Topic) {
         this.theTopic = topic
     }
@@ -81,6 +83,8 @@ class ReportGraphBuilder {
                 .setExternalName("test-external-name")
                 .setBodyUrl(theSubmission.theReportBlobUrl)
                 .setNextAction(theSubmission.reportGraphNodes.firstOrNull()?.theAction)
+                .setCreatedAt(createTime)
+            createTime = createTime.plusMinutes(1)
             dbAccess.insertReportFile(
                 reportFile, txn, action
             )
@@ -131,6 +135,8 @@ class ReportGraphBuilder {
             .setBodyUrl(node.theReportBlobUrl)
             .setTransportResult(node.theTransportResult)
             .setNextAction(node.reportGraphNodes.firstOrNull()?.theAction)
+            .setCreatedAt(createTime)
+        createTime = createTime.plusMinutes(1)
 
         if (node.receiver != null) {
             childReportFile.setReceivingOrg(node.receiver!!.organizationName)

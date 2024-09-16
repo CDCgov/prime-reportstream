@@ -165,7 +165,7 @@ class FHIRConverter(
                                 ),
                                 metadata = this.metadata,
                                 topic = queueMessage.topic,
-                                nextAction = TaskAction.none
+                                nextAction = TaskAction.destination_filter
                             )
                             val noneEvent = ProcessEvent(
                                 Event.EventAction.NONE,

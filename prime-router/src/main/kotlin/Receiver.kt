@@ -99,6 +99,7 @@ open class Receiver(
         mappedConditionFilter: ReportStreamConditionFilter = emptyList(),
         reverseTheQualityFilter: Boolean = false,
         enrichmentSchemaNames: List<String> = emptyList(),
+        transport: TransportType? = null,
     ) : this(
         name,
         organizationName,
@@ -115,7 +116,8 @@ open class Receiver(
         timeZone = timeZone,
         dateTimeFormat = dateTimeFormat,
         reverseTheQualityFilter = reverseTheQualityFilter,
-        enrichmentSchemaNames = enrichmentSchemaNames
+        enrichmentSchemaNames = enrichmentSchemaNames,
+        transport = transport
     )
 
     /** A copy constructor for the receiver */

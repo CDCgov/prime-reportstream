@@ -14,6 +14,7 @@ import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportStreamConditionFilter
 import gov.cdc.prime.router.Topic
+import gov.cdc.prime.router.TransportType
 import gov.cdc.prime.router.UniversalPipelineSender
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DataAccessTransaction
@@ -330,6 +331,7 @@ object UniversalPipelineTestUtils {
         val format: MimeFormat = MimeFormat.CSV,
         val schemaName: String = "classpath:/metadata/hl7_mapping/ORU_R01/ORU_R01-base.yml",
         val enrichmentSchemaNames: List<String> = emptyList(),
+        val transportType: TransportType? = null,
     )
 
     fun createReceivers(receiverSetupDataList: List<ReceiverSetupData>): List<Receiver> {
@@ -348,7 +350,8 @@ object UniversalPipelineTestUtils {
                 conditionFilter = it.conditionFilter,
                 mappedConditionFilter = it.mappedConditionFilter,
                 format = it.format,
-                enrichmentSchemaNames = it.enrichmentSchemaNames
+                enrichmentSchemaNames = it.enrichmentSchemaNames,
+                transport = it.transportType
             )
         }
     }
