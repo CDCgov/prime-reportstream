@@ -600,7 +600,7 @@ class FHIRConverter(
         stream: Stream<ProcessedItemType>,
         message: String,
     ): Stream<ProcessedItemType> =
-        if (streamSize > sequentialLimit) {
+        if (streamSize > SEQUENTIAL_LIMIT) {
             withLoggingContext(mapOf("numberOfItems" to streamSize.toString())) {
                 logger.info("$message parallel")
             }

@@ -48,8 +48,17 @@ plugins {
     id("io.swagger.core.v3.swagger-gradle-plugin") version "2.2.23"
 }
 
+val commitId = {
+    val stdout = ByteArrayOutputStream()
+    exec {
+        commandLine("git", "rev-parse", "--short", "HEAD")
+        standardOutput = stdout
+    }
+    stdout.toString(StandardCharsets.UTF_8).trim()
+}
+
 group = "gov.cdc.prime.reportstream"
-version = "0.2-SNAPSHOT"
+version = "0.2-SNAPSHOT-$commitId"
 description = "prime-router"
 val azureAppName = "prime-data-hub-router"
 val azureFunctionsDir = "azure-functions"
@@ -502,13 +511,7 @@ tasks.azureFunctionsPackage {
 
 tasks.register("generateVersionFile") {
     doLast {
-        val stdout = ByteArrayOutputStream()
-        exec {
-            commandLine("git", "rev-parse", "--short", "HEAD")
-            standardOutput = stdout
-        }
-        val currentCommit = stdout.toString(StandardCharsets.UTF_8).trim()
-        File(buildDir, "$azureFunctionsDir/$azureAppName/version.json").writeText("{\"commitId\": \"$currentCommit\"}")
+        File(buildDir, "$azureFunctionsDir/$azureAppName/version.json").writeText("{\"commitId\": \"$commitId\"}")
     }
 }
 
