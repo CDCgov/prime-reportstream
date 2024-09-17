@@ -1,7 +1,8 @@
 package fhirengine.translation.hl7.utils
 
+import org.hl7.fhir.r4.fhirpath.FHIRPathUtilityClasses.FunctionDetails
 import org.hl7.fhir.r4.model.Base
-import org.hl7.fhir.r4.utils.FHIRPathUtilityClasses.FunctionDetails
+
 /**
  * This interface contains the required method signatures required to implement custom FHIR functions
  */
