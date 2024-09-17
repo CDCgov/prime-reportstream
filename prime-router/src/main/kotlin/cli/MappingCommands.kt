@@ -94,6 +94,12 @@ class MappingCommands :
             } else {
                 echo("The following files are not referenced by any other files:")
                 unreferencedFiles.forEach { echo(it.absolutePath) }
+                echo(
+                    """
+                        
+                        Reminder: The paths are relative to the input directory. The input dir should be the top level of the mapping suite
+                    """.trimIndent()
+                    )
             }
         } else {
             echo("All files are referenced.")
@@ -114,7 +120,11 @@ class MappingCommands :
 
             // Search for relative paths without extensions
             relativePathsWithoutExtension.forEach { relativePath ->
-                if (relativePath in content) {
+                // Build regex: match the path if it's followed by a path delimiter (/) or end of word
+                val regex = Regex("\\b$relativePath\\b(\\s|/|$)")
+
+                // If the pattern is found, add the relative path to referenced files
+                if (regex.containsMatchIn(content)) {
                     referencedFiles.add(relativePath)
                 }
             }
