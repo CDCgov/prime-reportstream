@@ -10,9 +10,9 @@ elements:
 
   # todo OBR Specimen, allgedly is mapped in ORU, cannot find FHIR->HL7 Mappings
 
-  - name: observation-request-note
-    resource: '%resource.note'
-    schema: classpath:/metadata/hl7_mapping/datatypes/annotation/NTE.yml
-    resourceIndex: noteIndex
-    constants:
-      hl7NotePath: '/ORDER(%{orderIndex})/OBSERVATION_REQUEST/NTE'
+#  - name: observation-request-note
+#    resource: '%resource.note' # this correct?
+#    resourceIndex: noteIndex
+#    schema: classpath:/metadata/hl7_mapping/datatypes/annotation/NTE.yml
+#    constants:
+#      hl7NotePath: '/ORDER(%{orderIndex})/OBSERVATION_REQUEST/NTE'

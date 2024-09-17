@@ -18,7 +18,7 @@ class OMLO21Full {
         )
     }
 
-    @Test
+    @Test // todo delete
     fun `test OML_O21 all segments HL7 to FHIR to HL7 O L D`() {
         assert(
             verifyHL7ToFHIRToHL7Mapping(
@@ -31,7 +31,7 @@ class OMLO21Full {
         )
     }
 
-    @Test
+    @Test // todo delete
     fun `test OML_O21 all segments FHIR to HL7 O L D`() {
         assert(
             verifyHL7ToFHIRToHL7Mapping(

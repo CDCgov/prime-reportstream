@@ -11,6 +11,5 @@ elements:
 
   - name: observation-request-specimen
     resource: '%resource.specimen.resolve()'
-    #    condition: oftype specimen
     resourceIndex: specimenIndex
     schema: classpath:/metadata/hl7_mapping/OML_O21/base/order/observation-request/specimen/specimen.yml

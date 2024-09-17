@@ -1,5 +1,5 @@
 # $schema: ./../../../../../../../metadata/json_schema/fhir/fhir-to-hl7-mapping.json
-
+# todo delete
 constants:
   fieldPath: '%{hl7SegmentGroup}/OBR'
 elements:

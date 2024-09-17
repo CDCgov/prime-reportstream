@@ -3,7 +3,7 @@
 elements:
 
   - name: common-order
-    required: false # todo revert
+    required: true
     schema: classpath:/metadata/hl7_mapping/resources/ServiceRequest/ORC.yml
     constants:
       hl7Order: '/ORDER(%{orderIndex})/ORC'
