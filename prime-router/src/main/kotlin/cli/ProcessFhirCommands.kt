@@ -164,7 +164,7 @@ class ProcessFhirCommands : CliktCommand(
                         bundle,
                         filter
                     )
-                    if (result.isEmpty()) {
+                    if (result.isEmpty() || (result[0].isBooleanPrimitive && result[0].primitiveValue() == "false")) {
                         throw CliktError("Filter '$filter' filtered out everything, nothing to return.")
                     }
                 }
@@ -351,7 +351,8 @@ class ProcessFhirCommands : CliktCommand(
                 ).process(bundle)
             }
             receiver != null && receiver.schemaName.isNotBlank() -> {
-                val bundle = applySenderTransforms(fhirMessage)
+                var bundle = applySenderTransforms(fhirMessage)
+                bundle = applyConditionFilter(receiver, bundle)
                 FhirToHl7Converter(
                     receiver.schemaName,
                     BlobAccess.BlobContainerMetadata.build("metadata", Environment.get().storageEnvVar),
