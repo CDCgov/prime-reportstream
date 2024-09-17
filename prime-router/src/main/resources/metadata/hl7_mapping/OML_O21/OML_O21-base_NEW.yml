@@ -19,21 +19,18 @@ elements:
     required: true
     schema: classpath:/metadata/hl7_mapping/resources/MessageHeader/MSH.yml
 
-  - name: software-segment # spec allows for multiple SFTs, need to worry about?
+  - name: software-segment
     resource: 'Bundle.entry.resource.ofType(Provenance).where(entity.exists()).entity.what.resolve()'
     schema: classpath:/metadata/hl7_mapping/resources/Device/SFT.yml
 
-  - name: software-segment-legacy # necessary for OML? i guess
-    condition: >
-      Bundle.entry.resource.ofType(MessageHeader).exists() and
-      Bundle.entry.resource.ofType(MessageHeader).source.extension(%`rsext-software-vendor-org`).exists()
+  - name: software-segment-legacy
+    condition: Bundle.entry.resource.ofType(MessageHeader).exists()
     resource: 'Bundle.entry.resource.ofType(MessageHeader)'
     schema: classpath:/metadata/hl7_mapping/resources/MessageHeader/SFT.yml
 
   - name: patient-base
     resource: 'Bundle.entry.resource.ofType(Patient)'
-    condition: '%resource.count() = 1' # ie no more than one, optional but multiples not allowed
-    # IMPORTANT, PATIENT NOT REQ SO CAN'T BUILD INTO LOGIC ELSEWHERE
+    condition: '%resource.count() < 2' # ie no more than one, optional but multiples not allowed
     schema: classpath:/metadata/hl7_mapping/OML_O21/base/patient/patient-base.yml
     resourceIndex: patientIndex
 
@@ -43,6 +40,3 @@ elements:
     required: false # todo
     schema: classpath:/metadata/hl7_mapping/OML_O21/base/order/order-base.yml
     resourceIndex: orderIndex
-
-  # todo, how to ensure cardinality? required is ez, but how to ensure no repeats? also the condition is placing
-  # conditions on the fhir resources, not cardinality of hl7 resources :shrug:

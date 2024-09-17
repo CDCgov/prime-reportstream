@@ -91,7 +91,4 @@ resources:
       - PATIENT.PATIENT_VISIT.PV1
       - MSH
       - PATIENT.PID
-#      - .OBSERVATION_REQUEST.SPECIMEN.SPM
       - .OBSERVATION_REQUEST.OBSERVATION.OBX
-#      - .OBSERVATION_REQUEST.OBSERVATION.NTE if we add this so the supporting info observation gets notes
-# then service request also gets the notes :/ might need to modify sr.note or something? hopefully brick can fix

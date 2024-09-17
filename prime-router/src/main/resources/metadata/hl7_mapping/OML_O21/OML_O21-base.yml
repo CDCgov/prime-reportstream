@@ -1,7 +1,7 @@
 # $schema: ./../../../../../../metadata/json_schema/fhir/fhir-to-hl7-mapping.json
-
+# TODO DELETE
 hl7Class: ca.uhn.hl7v2.model.v251.message.OML_O21
-#hl7Class: ca.uhn.hl7v2.model.v27.message.OML_O21
+
 constants:
   # Prefix for RS custom extension URLs
   rsext: '"https://reportstream.cdc.gov/fhir/StructureDefinition/"'
@@ -15,8 +15,6 @@ elements:
     required: true
     schema: classpath:/metadata/hl7_mapping/resources/MessageHeader/MSH.yml
 
-  # r01 is looking at provenance and pulling this from a Device/SFT schema
-  # todo, verify in mapping inventory that this do diverge
   - name: software-segment
     condition: 'Bundle.entry.resource.ofType(MessageHeader).exists()'
     resource: 'Bundle.entry.resource.ofType(MessageHeader)'
@@ -28,27 +26,27 @@ elements:
     required: true
     constants:
       hl7SegmentGroup: '/PATIENT'
-    schema: classpath:/metadata/hl7_mapping/common/patient.yml # TODO update
+    schema: classpath:/metadata/hl7_mapping/common/patient.yml
 
   - name: patient-contact
     resource: 'Bundle.entry.resource.ofType(Patient).contact'
     condition: '%resource.exists()'
     constants:
       hl7SegmentGroup: '/PATIENT'
-    schema: classpath:/metadata/hl7_mapping/common/patient-contact.yml # TODO update
+    schema: classpath:/metadata/hl7_mapping/common/patient-contact.yml
 
   - name: patient-visit
     resource: 'Bundle.entry.resource.ofType(Encounter)'
     condition: '%resource.count() = 1'
     constants:
       hl7SegmentGroup: '/PATIENT/PATIENT_VISIT'
-    schema: classpath:/metadata/hl7_mapping/common/patient-visit.yml # TODO update
+    schema: classpath:/metadata/hl7_mapping/common/patient-visit.yml
 
   - name: order
     resource: Bundle.entry.resource.ofType(ServiceRequest)
     condition: '%resource.count() > 0'
     required: true
-    schema: classpath:/metadata/hl7_mapping/OML_O21/base/service-request-order.yml # TODO update
+    schema: classpath:/metadata/hl7_mapping/OML_O21/base/service-request-order.yml
     constants:
       hl7SegmentGroup: '/ORDER'
 
@@ -58,14 +56,14 @@ elements:
     required: true
     constants:
       hl7SegmentGroup: '/ORDER/OBSERVATION_REQUEST'
-    schema: classpath:/metadata/hl7_mapping/OML_O21/base/service-request-order-observation.yml # TODO update
+    schema: classpath:/metadata/hl7_mapping/OML_O21/base/service-request-order-observation.yml
     resourceIndex: orderIndex
 
   - name: order-observation-result
     resource: Bundle.entry.resource.ofType(Observation)
     condition: '%resource.count() > 0'
     required: true
-    schema: classpath:/metadata/hl7_mapping/common/observation-result.yml # TODO update
+    schema: classpath:/metadata/hl7_mapping/common/observation-result.yml
     constants:
       hl7SegmentGroup: '/ORDER/OBSERVATION_REQUEST/OBSERVATION(%{resultIndex})'
       hl7OBXField: '%{hl7SegmentGroup}/OBX'
@@ -75,6 +73,6 @@ elements:
     resource: Bundle.entry.resource.ofType(Specimen)
     condition: '%resource.count() = 1'
     required: true
-    schema: classpath:/metadata/hl7_mapping/common/specimen.yml # TODO update
+    schema: classpath:/metadata/hl7_mapping/common/specimen.yml
     constants:
       hl7SpecimenFieldPath: /ORDER/OBSERVATION_REQUEST/SPECIMEN/SPM

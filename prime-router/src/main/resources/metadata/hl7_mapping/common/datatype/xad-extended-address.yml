@@ -54,5 +54,3 @@ elements:
     schema: classpath:/metadata/hl7_mapping/resources/Patient/DR.yml
     constants:
       hl7DRField: '%{hl7XADField}-12'
-
-      # defect, but also withdrawn field
