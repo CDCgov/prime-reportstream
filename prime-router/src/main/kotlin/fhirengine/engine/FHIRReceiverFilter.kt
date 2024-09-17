@@ -2,6 +2,8 @@ package gov.cdc.prime.router.fhirengine.engine
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import fhirengine.engine.CustomFhirPathFunctions
+import gov.cdc.prime.reportstream.shared.BlobUtils
+import gov.cdc.prime.reportstream.shared.QueueMessage
 import gov.cdc.prime.router.ActionLogDetail
 import gov.cdc.prime.router.ActionLogScope
 import gov.cdc.prime.router.ActionLogger
@@ -11,6 +13,7 @@ import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
+import gov.cdc.prime.router.ReportStreamFilterResult
 import gov.cdc.prime.router.ReportStreamFilterType
 import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.azure.ActionHistory
@@ -27,6 +30,7 @@ import gov.cdc.prime.router.azure.observability.context.MDCUtils
 import gov.cdc.prime.router.azure.observability.context.withLoggingContext
 import gov.cdc.prime.router.azure.observability.event.AzureEventService
 import gov.cdc.prime.router.azure.observability.event.AzureEventServiceImpl
+import gov.cdc.prime.router.azure.observability.event.AzureEventUtils
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventName
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventProperties
 import gov.cdc.prime.router.codes
@@ -333,6 +337,7 @@ class FHIRReceiverFilter(
 
             // track input report
             actionHistory.trackExistingInputReport(queueMessage.reportId)
+            actionLogger.setReportId(queueMessage.reportId)
 
             // gather receiver and sender objects
             val receiver = settings.receivers.first { it.fullName == queueMessage.receiverFullName }
@@ -340,7 +345,7 @@ class FHIRReceiverFilter(
             // download and parse FHIR document
             val fhirJson = LogMeasuredTime.measureAndLogDurationWithReturnedValue(
                 "Downloaded content from queue message"
-            ) { queueMessage.downloadContent() }
+            ) { BlobAccess.downloadBlob(queueMessage.blobURL, queueMessage.digest) }
             val bundle = FhirTranscoder.decode(fhirJson)
 
             actionHistory.trackActionReceiverInfo(receiver.organizationName, receiver.name)
@@ -357,6 +362,7 @@ class FHIRReceiverFilter(
                         ),
                         metadata = this.metadata,
                         topic = queueMessage.topic,
+                        destination = receiver,
                         nextAction = TaskAction.translate
                     )
 
@@ -388,7 +394,7 @@ class FHIRReceiverFilter(
                             FhirTranslateQueueMessage(
                                 report.id,
                                 blobInfo.blobUrl,
-                                BlobAccess.digestToString(blobInfo.digest),
+                                BlobUtils.digestToString(blobInfo.digest),
                                 queueMessage.blobSubFolderName,
                                 queueMessage.topic,
                                 receiver.fullName
@@ -413,7 +419,8 @@ class FHIRReceiverFilter(
                         emptyList(),
                         1,
                         metadata = this.metadata,
-                        topic = queueMessage.topic
+                        topic = queueMessage.topic,
+                        destination = receiver
                     )
 
                     // create item lineage
@@ -428,6 +435,19 @@ class FHIRReceiverFilter(
                             null,
                             null,
                             emptyReport.getItemHashForRow(1)
+                        )
+                    )
+
+                    // add filter results
+                    emptyReport.filteringResults.add(
+                        ReportStreamFilterResult(
+                            receiver.fullName,
+                            db.fetchReportFile(queueMessage.reportId).itemCount,
+                            filterResult.failingFilter.filters.joinToString("\n"),
+                            emptyList(),
+                            AzureEventUtils.getIdentifier(bundle).value ?: "",
+                            filterResult.failingFilter.filterType,
+                            scope = ActionLogScope.report
                         )
                     )
 

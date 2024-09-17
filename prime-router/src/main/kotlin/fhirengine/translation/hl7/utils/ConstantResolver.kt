@@ -9,14 +9,14 @@ import org.apache.commons.text.StringSubstitutor
 import org.apache.commons.text.lookup.StringLookup
 import org.apache.logging.log4j.kotlin.Logging
 import org.hl7.fhir.exceptions.PathEngineException
+import org.hl7.fhir.r4.fhirpath.FHIRPathEngine
+import org.hl7.fhir.r4.fhirpath.FHIRPathUtilityClasses
+import org.hl7.fhir.r4.fhirpath.TypeDetails
 import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.Bundle
 import org.hl7.fhir.r4.model.IntegerType
 import org.hl7.fhir.r4.model.StringType
-import org.hl7.fhir.r4.model.TypeDetails
 import org.hl7.fhir.r4.model.ValueSet
-import org.hl7.fhir.r4.utils.FHIRPathEngine
-import org.hl7.fhir.r4.utils.FHIRPathUtilityClasses.FunctionDetails
 import java.lang.IllegalArgumentException
 import java.lang.NumberFormatException
 
@@ -145,7 +145,13 @@ class ConstantSubstitutor {
  */
 class FhirPathCustomResolver(private val customFhirFunctions: FhirPathFunctions? = null) :
     FHIRPathEngine.IEvaluationContext, Logging {
-    override fun resolveConstant(appContext: Any?, name: String?, beforeContext: Boolean): List<Base> {
+    override fun resolveConstant(
+        engine: FHIRPathEngine?,
+        appContext: Any?,
+        name: String?,
+        beforeContext: Boolean,
+        explicitConstant: Boolean,
+    ): List<Base> {
         // Name is always passed in from the FHIR path engine
         require(!name.isNullOrBlank())
 
@@ -210,7 +216,12 @@ class FhirPathCustomResolver(private val customFhirFunctions: FhirPathFunctions?
         }
     }
 
-    override fun resolveConstantType(appContext: Any?, name: String?): TypeDetails {
+    override fun resolveConstantType(
+        engine: FHIRPathEngine?,
+        appContext: Any?,
+        name: String?,
+        explicitConstant: Boolean,
+    ): TypeDetails {
         throw NotImplementedError("Not implemented")
     }
 
@@ -218,19 +229,25 @@ class FhirPathCustomResolver(private val customFhirFunctions: FhirPathFunctions?
         throw NotImplementedError("Not implemented")
     }
 
-    override fun resolveFunction(functionName: String?): FunctionDetails? {
+    override fun resolveFunction(
+        engine: FHIRPathEngine?,
+        functionName: String?,
+    ): FHIRPathUtilityClasses.FunctionDetails? {
         return CustomFHIRFunctions.resolveFunction(functionName, customFhirFunctions)
     }
 
     override fun checkFunction(
+        engine: FHIRPathEngine?,
         appContext: Any?,
         functionName: String?,
+        focus: TypeDetails?,
         parameters: MutableList<TypeDetails>?,
     ): TypeDetails {
         throw NotImplementedError("Not implemented")
     }
 
     override fun executeFunction(
+        engine: FHIRPathEngine?,
         appContext: Any?,
         focus: MutableList<Base>?,
         functionName: String?,
@@ -246,7 +263,7 @@ class FhirPathCustomResolver(private val customFhirFunctions: FhirPathFunctions?
         }
     }
 
-    override fun resolveReference(appContext: Any?, url: String?, refContext: Base?): Base? {
+    override fun resolveReference(engine: FHIRPathEngine?, appContext: Any?, url: String?, refContext: Base?): Base? {
         // Name is always passed in from the FHIR path engine
         require(!url.isNullOrBlank())
 
@@ -256,11 +273,11 @@ class FhirPathCustomResolver(private val customFhirFunctions: FhirPathFunctions?
         }
     }
 
-    override fun conformsToProfile(appContext: Any?, item: Base?, url: String?): Boolean {
+    override fun conformsToProfile(engine: FHIRPathEngine?, appContext: Any?, item: Base?, url: String?): Boolean {
         throw NotImplementedError("Not implemented")
     }
 
-    override fun resolveValueSet(appContext: Any?, url: String?): ValueSet {
+    override fun resolveValueSet(engine: FHIRPathEngine?, appContext: Any?, url: String?): ValueSet {
         throw NotImplementedError("Not implemented")
     }
 }

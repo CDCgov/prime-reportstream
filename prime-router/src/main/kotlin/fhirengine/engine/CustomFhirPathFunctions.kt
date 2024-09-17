@@ -10,13 +10,15 @@ import gov.cdc.prime.router.common.NPIUtilities
 import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
 import gov.cdc.prime.router.metadata.GeoData
 import gov.cdc.prime.router.metadata.LivdLookup
+import org.hl7.fhir.r4.fhirpath.FHIRPathUtilityClasses.FunctionDetails
 import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.Device
 import org.hl7.fhir.r4.model.Observation
 import org.hl7.fhir.r4.model.StringType
-import org.hl7.fhir.r4.utils.FHIRPathUtilityClasses.FunctionDetails
+import java.time.LocalDate
 import java.util.Date
 import java.util.UUID
+import java.util.concurrent.ThreadLocalRandom
 import kotlin.math.abs
 import kotlin.random.Random
 
@@ -194,7 +196,7 @@ class CustomFhirPathFunctions : FhirPathFunctions {
             if (parameters.size != 2) {
                 throw SchemaException(
                     "Must call the getFakeValueForElement function for city or postal code with" +
-                    " a state specified."
+                        " a state specified."
                 )
             }
         }
@@ -213,7 +215,7 @@ class CustomFhirPathFunctions : FhirPathFunctions {
                         metadata
                     )
                     GeoData.DataTypes.TESTING_LAB -> "Any lab USA"
-                    GeoData.DataTypes.SENDER_IDENTIFIER -> UUID.randomUUID().toString()
+                    GeoData.DataTypes.UUID -> UUID.randomUUID().toString()
                     GeoData.DataTypes.FACILITY_NAME -> "Any facility USA"
                     GeoData.DataTypes.NAME_OF_SCHOOL -> "Any Fake School"
                     GeoData.DataTypes.REFERENCE_RANGE -> randomChoice("", "Normal", "Abnormal", "Negative")
@@ -228,9 +230,9 @@ class CustomFhirPathFunctions : FhirPathFunctions {
                         metadata
                     )
                     GeoData.DataTypes.EQUIPMENT_MODEL_NAME -> randomChoice(
-                            "LumiraDx SARS-CoV-2 Ag Test",
-                            "BD Veritor System for Rapid Detection of SARS-CoV-2"
-                        )
+                        "LumiraDx SARS-CoV-2 Ag Test",
+                        "BD Veritor System for Rapid Detection of SARS-CoV-2"
+                    )
                     GeoData.DataTypes.TEST_PERFORMED_CODE -> randomChoice(
                         "95209-3",
                         "94558-4"
@@ -239,14 +241,18 @@ class CustomFhirPathFunctions : FhirPathFunctions {
                     GeoData.DataTypes.BLANK -> ""
                     GeoData.DataTypes.TEXT_OR_BLANK -> randomChoice("I am some random text", "")
                     GeoData.DataTypes.NUMBER -> Random.nextInt().toString().replace("-", "")
-                    GeoData.DataTypes.DATE -> DateUtilities.getDateAsFormattedString(
-                        getRandomDate().toInstant(),
-                        DateUtilities.datePattern
-                    )
-                    GeoData.DataTypes.BIRTHDAY -> DateUtilities.getDateAsFormattedString(
-                        getRandomDate().toInstant(),
-                        DateUtilities.datePattern
-                    )
+                    GeoData.DataTypes.DATE -> {
+                        val minDay: Long = LocalDate.of(2000, 1, 1).toEpochDay()
+                        val maxDay: Long = LocalDate.of(2023, 12, 31).toEpochDay()
+                        val randomDay = ThreadLocalRandom.current().nextLong(minDay, maxDay)
+                        LocalDate.ofEpochDay(randomDay).toString()
+                    }
+                    GeoData.DataTypes.BIRTHDAY -> {
+                        val minDay: Long = LocalDate.of(1950, 1, 1).toEpochDay()
+                        val maxDay: Long = LocalDate.of(2023, 12, 31).toEpochDay()
+                        val randomDay = ThreadLocalRandom.current().nextLong(minDay, maxDay)
+                        LocalDate.ofEpochDay(randomDay).toString()
+                    }
                     GeoData.DataTypes.DATETIME -> DateUtilities.getDateAsFormattedString(
                         getRandomDate().toInstant(),
                         DateUtilities.datetimePattern
@@ -259,7 +265,14 @@ class CustomFhirPathFunctions : FhirPathFunctions {
                     GeoData.DataTypes.ID_SSN -> Faker().idNumber().validSvSeSsn()
                     GeoData.DataTypes.ID_NPI -> NPIUtilities.generateRandomNPI(Faker())
                     GeoData.DataTypes.STREET -> Faker().address().streetAddress()
-                    GeoData.DataTypes.PERSON_NAME -> Faker().name().fullName()
+                    GeoData.DataTypes.PERSON_GIVEN_NAME -> {
+                        val fullName = Faker().name().fullName()
+                        fullName.substring(0, fullName.indexOf(" "))
+                    }
+                    GeoData.DataTypes.PERSON_FAMILY_NAME -> {
+                        val fullName = Faker().name().fullName()
+                        fullName.substring(fullName.lastIndexOf(' '), fullName.length)
+                    }
                     GeoData.DataTypes.TELEPHONE -> Faker().numerify("12#########")
                     GeoData.DataTypes.EMAIL -> Faker().name().fullName()
                         .replace(" ", "")
@@ -269,7 +282,7 @@ class CustomFhirPathFunctions : FhirPathFunctions {
                     GeoData.DataTypes.PROCESSING_MODE_CODE -> "P"
                     GeoData.DataTypes.VALUE_TYPE -> "CWE"
                     GeoData.DataTypes.TEST_RESULT -> randomChoice("260373001", "260415000", "419984006")
-                    GeoData.DataTypes.PATIENT_STREET_ADDRESS_2 -> randomChoice("Apt. 305", "Suite 22", "Building 2")
+                    GeoData.DataTypes.STREET_ADDRESS_2 -> randomChoice("Apt. 305", "Suite 22", "Building 2")
                     GeoData.DataTypes.ID_NUMBER -> randomChoice("ABC123", "123LKJ", "bjh098")
                     GeoData.DataTypes.SOURCE_OF_COMMENT -> randomChoice("L", "O", "P")
                 }
