@@ -50,7 +50,7 @@ resources:
       - .PV2
       - MSH
 
-  - resourceName: Observation
+  - resourceName: OMLObservation
     segment: .OBSERVATION_REQUEST.OBSERVATION.OBX
     group: ORDER
     resourcePath: segments/OBX/Observation
@@ -70,7 +70,7 @@ resources:
 #    isReferenced: true
 #    repeats: true
 
-  - resourceName: Specimen
+  - resourceName: OMLSpecimen
     segment: .OBSERVATION_REQUEST.SPECIMEN.SPM
     group: ORDER
     resourcePath: segments/SPM/Specimen

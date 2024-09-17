@@ -38,7 +38,8 @@ elements:
     resourceIndex: patientIndex
 
   - name: order-base
-    resource: 'Bundle.entry.resource.ofType(ServiceRequest).where(subject.resolve().id = Bundle.entry.resource.ofType(Patient).id'
+#    resource: 'Bundle.entry.resource.ofType(ServiceRequest).where(subject.resolve().id = Bundle.entry.resource.ofType(Patient).id'
+    resource: 'Bundle.entry.resource.ofType(ServiceRequest)'
     required: false # todo
     schema: classpath:/metadata/hl7_mapping/OML_O21/base/order/order-base.yml
     resourceIndex: orderIndex

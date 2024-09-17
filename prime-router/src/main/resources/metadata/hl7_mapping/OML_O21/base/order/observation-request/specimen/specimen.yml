@@ -2,35 +2,14 @@
 
 elements:
 
-  # Specimen => SPM; Single :: Required
-  # NOTHING ELSE MAPPED
-
-  # PROBLEM this SPM should be derived from SR.specimen and that field doesn't appear to be populated by us??
-  # corrollary, if simple report is only fhir sender in prod, and etor's workflow involves sending fhir.. what's the deal?
   - name: specimen
-    resource: '%resource.specimen.resolve()'
-#    resourceIndex: specimenIndex
     required: true
     schema: classpath:/metadata/hl7_mapping/resources/Specimen/SPM.yml
     constants:
-      hl7SpecimenFieldPath: /ORDER/OBSERVATION_REQUEST/SPECIMEN/SPM
+      hl7SpecimenFieldPath: '/ORDER(%{orderIndex})/OBSERVATION_REQUEST/SPECIMEN(%{specimenIndex})/SPM'
 
   - name: specimen-extension
-    resource: '%resource.specimen.resolve().extension(%`rsext-spm-specimen`)'
+    resource: '%resource.extension(%`rsext-spm-specimen`)'
     schema: classpath:/metadata/hl7_mapping/resources/Specimen/SPMExtension.yml
     constants:
-      hl7SpecimenFieldPath: /ORDER/OBSERVATION_REQUEST/SPECIMEN/SPM
-
-      # so oru is using "resource.specimen.resolve" in order-observation-base.yml when looking for specimen
-      # resource here is DiagnosticReport where subject = pid declared in patient-result.yml
-      # why do they expect DR.specimen to be populated, we do not appear to populate that?
-      # my OML fhir doesn't *EVEN* have diagnostic report populated... WHY THE FUCK NOT???
-      # could just be that mappings for ORU said to use DR and OML wants to use SR for whatever reason
-      # so might just have to create some new path to map the specimen... todo investigate how dr.specimen gets pop'd.
-      # oh yeah, so we were totally populating DR.specimen, and i tried copying that over, and didn't seem to change
-      # anything, but it might be because my dumbass fhir->hl7 mappings were dumb and needed to be fixed first
-      # not sure if I pulled the fhir output after adding it.
-      # so it's still not pop'ing SR.specimen, maybe because $specimen vairable isn't doing shit
-      # it's because this is ORC -> SR. For some reason this doesn't see our SPM as it's SPM.
-      #moving spm above obx cut off the observation ofc because that ordering is semantic and putting it in another orc
-      # but still didn't link the spm and the SR
+      hl7SpecimenFieldPath: '/ORDER(%{orderIndex})/OBSERVATION_REQUEST/SPECIMEN(%{specimenIndex})/SPM'

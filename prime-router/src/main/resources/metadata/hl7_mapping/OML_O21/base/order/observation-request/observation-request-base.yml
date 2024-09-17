@@ -6,10 +6,11 @@ elements:
     required: true
     schema: classpath:/metadata/hl7_mapping/OML_O21/base/order/observation-request/observation-request.yml
 
-# no observations are populated from here
   - name: observation-request-observation
     schema: classpath:/metadata/hl7_mapping/OML_O21/base/order/observation-request/observation/observation.yml
 
-# spm is populated from here
-  - name: observation-request-specimen # i think this whole yml is fucked for some reason
+  - name: observation-request-specimen
+    resource: '%resource.specimen.resolve()'
+    #    condition: oftype specimen
+    resourceIndex: specimenIndex
     schema: classpath:/metadata/hl7_mapping/OML_O21/base/order/observation-request/specimen/specimen.yml

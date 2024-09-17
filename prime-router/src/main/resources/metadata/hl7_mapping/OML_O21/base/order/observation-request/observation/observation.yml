@@ -1,27 +1,24 @@
 # $schema: ./../../../../../../../../../metadata/json_schema/fhir/fhir-to-hl7-mapping.json
 
-elements:
-    # FOR MONDAY was going through my mappings with a fine tooth comb,
-  # and this is as far as i got. I think for now the question of "what about aoe obseravations etc. is basically moot.
-# i think i should just use the logic from the mapping inventory and let that be the final word
-
-# todo going to need to ask for help with this one. wtf is aoe observations etc.
-  - name: observation-result
+constants:
+  observationPath: '%resource.supportingInfo.resolve()'
 #    resource: '%resource.supportingInfo.resolve().where(subject.resolve().id = %resource.subject.resolve().id)'
+
+elements:
+
+  - name: observation-result
     resource: '%resource.supportingInfo.resolve()'
-    condition: '%resource.resourceType = "Observation"' # todo, if fhir sender, supportinginfo could be any type
+    # todo this conditional was causing observations to not get converted back??
+#    condition: '%resource.resourceType = "Observation"' # todo, if fhir sender, supportinginfo could be any type
     required: false # todo set back to true # todo how to ensure it's only true when we're coming down in here? condition when calling the base?
     schema: classpath:/metadata/hl7_mapping/resources/Observation/OBX.yml
     resourceIndex: resultIndex
     constants:
-      hl7OBXField: '/ORDER/OBSERVATION_REQUEST/OBSERVATION(%{resultIndex})/OBX'
-      hl7ObservationPath: '/ORDER/OBSERVATION_REQUEST/OBSERVATION'
-      #current state: the obx-nte doesn't populate because supportinginfo uses the linked one built which is missing it
+      hl7OBXField: '/ORDER(%{orderIndex})/OBSERVATION_REQUEST/OBSERVATION(%{resultIndex})/OBX'
+      hl7ObservationPath: '/ORDER(%{orderIndex})/OBSERVATION_REQUEST/OBSERVATION(%{resultIndex})'
 
-# multiple allowed
   - name: observation-participation-information
-    resource: 'Bundle.entry.resource.ofType(Device).where(udiCarrier.exists())' # correct?
+    resource: '%observationPath.device.resolve().where(udiCarrier.exists())' # correct?
     constants:
-      hl7SegmentGroup: '/ORDER/OBSERVATION_REQUEST/OBSERVATION'
+      hl7SegmentGroup: '/ORDER(%{orderIndex})/OBSERVATION_REQUEST/OBSERVATION(%{resultIndex})'
     schema: classpath:/metadata/hl7_mapping/resources/Device/PRT.yml
-    #    resourceIndex: prtDeviceIndex # needed?

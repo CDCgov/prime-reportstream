@@ -10,7 +10,7 @@ elements:
 
   - name: common-order-diagnostic-report
     resource: '%resource'
-    schema: classpath:/metadata/hl7_mapping/resaources/DiagnosticReport/ORC.yml
+    schema: classpath:/metadata/hl7_mapping/resources/DiagnosticReport/ORC.yml
     constants:
       hl7Order: /PATIENT_RESULT(%{patientIndex})/ORDER_OBSERVATION(%{orderIndex})/ORC
 
