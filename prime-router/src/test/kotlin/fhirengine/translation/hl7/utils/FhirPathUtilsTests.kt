@@ -28,6 +28,7 @@ import io.mockk.spyk
 import io.mockk.verify
 import org.apache.logging.log4j.kotlin.KotlinLogger
 import org.hl7.fhir.exceptions.PathEngineException
+import org.hl7.fhir.r4.fhirpath.FHIRLexer
 import org.hl7.fhir.r4.model.Bundle
 import org.hl7.fhir.r4.model.DateTimeType
 import org.hl7.fhir.r4.model.DateType
@@ -37,7 +38,6 @@ import org.hl7.fhir.r4.model.InstantType
 import org.hl7.fhir.r4.model.Observation
 import org.hl7.fhir.r4.model.ServiceRequest
 import org.hl7.fhir.r4.model.TimeType
-import org.hl7.fhir.r4.utils.FHIRLexer.FHIRLexerException
 import org.junit.jupiter.api.BeforeEach
 import java.util.Date
 import kotlin.test.Test
@@ -69,7 +69,7 @@ class FhirPathUtilsTests {
         assertThat(FhirPathUtils.parsePath("")).isNull()
 
         // Invalid fhir path syntax
-        assertFailsWith<FHIRLexerException> { FhirPathUtils.parsePath("Bundle.#*($&id.exists()") }
+        assertFailsWith<FHIRLexer.FHIRLexerException> { FhirPathUtils.parsePath("Bundle.#*($&id.exists()") }
     }
 
     @Test
@@ -101,7 +101,7 @@ class FhirPathUtilsTests {
             FhirPathUtils.evaluateCondition(null, bundle, bundle, bundle, path)
         } catch (e: Exception) {
             assertThat(e).isInstanceOf<SchemaException>()
-            assertThat(e.cause).isNotNull().isInstanceOf<FHIRLexerException>()
+            assertThat(e.cause).isNotNull().isInstanceOf<FHIRLexer.FHIRLexerException>()
         }
     }
 
@@ -193,7 +193,7 @@ class FhirPathUtilsTests {
 
         verify {
             mockedLogger.error(
-                "org.hl7.fhir.r4.utils.FHIRLexer\$FHIRLexerException: " +
+                "org.hl7.fhir.r4.fhirpath.FHIRLexer\$FHIRLexerException: " +
                     "Syntax error in FHIR Path Bundle.#*(\$&id.exists()."
             )
         }
