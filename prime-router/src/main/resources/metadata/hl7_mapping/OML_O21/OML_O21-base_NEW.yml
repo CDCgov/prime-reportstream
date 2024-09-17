@@ -24,7 +24,10 @@ elements:
     schema: classpath:/metadata/hl7_mapping/resources/Device/SFT.yml
 
   - name: software-segment-legacy
-    condition: Bundle.entry.resource.ofType(MessageHeader).exists()
+    condition: >
+      Bundle.entry.resource.ofType(MessageHeader).exists() and
+      (Bundle.entry.resource.ofType(MessageHeader).source.extension(%`rsext-software-vendor-org`).exists() or
+       Bundle.entry.resource.ofType(Provenance).exists().not())
     resource: 'Bundle.entry.resource.ofType(MessageHeader)'
     schema: classpath:/metadata/hl7_mapping/resources/MessageHeader/SFT.yml
 

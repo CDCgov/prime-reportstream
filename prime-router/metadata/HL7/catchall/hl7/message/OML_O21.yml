@@ -11,7 +11,6 @@ resources:
   - resourceName: Provenance
     segment: MSH
     resourcePath: segments/MSH/Provenance-Source
-    # segments/SFT/Device gets populated here through this, so why don't we need to declare SFT under addtnl segmetns?
 
   - resourceName: Provenance
     segment: MSH
