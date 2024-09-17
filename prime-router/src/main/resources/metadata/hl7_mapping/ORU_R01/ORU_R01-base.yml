@@ -6,7 +6,7 @@ constants:
   rsext: '"https://reportstream.cdc.gov/fhir/StructureDefinition/"'
 
 elements:
-  # todo check ordering of fields here and on oml new base
+
   - name: message-header
     condition: >
       Bundle.entry.resource.ofType(MessageHeader).exists() and
