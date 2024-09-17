@@ -19,8 +19,8 @@ class SecurityConfig {
         http
             .authorizeHttpRequests { authorize ->
                 authorize
-//                    .requestMatchers("/authorized/**").authenticated()
-                    .anyRequest().permitAll()
+                    // TODO: add routes which require authentication here when required
+                    .anyRequest().permitAll() // currently allow all requests unauthenticated
             }
             .oauth2ResourceServer {
                 it.jwt { }
