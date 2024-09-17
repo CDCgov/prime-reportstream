@@ -1,0 +1,14 @@
+# $schema: ./../../../../../../../../../metadata/json_schema/fhir/fhir-to-hl7-mapping.json
+
+elements:
+
+  - name: observation-request-service-request
+    required: true
+    schema: classpath:/metadata/hl7_mapping/resources/ServiceRequest/OBR.yml
+    constants:
+      obrFieldPath: '/ORDER(%{orderIndex})/OBSERVATION_REQUEST/OBR'
+
+#  - name: observation-request-note
+# todo in second pass, for ORU this is mapped through Observation.note; OML maps through ServiceRequest.note
+# this is already mapped into fhir via ORC/ServiceRequest... where is fhir -> hl7?
+# todo add scearnio in full oml test for an OBSERVATION_REQUEST.NTE
