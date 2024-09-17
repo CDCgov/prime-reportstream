@@ -29,7 +29,6 @@ container:
               expressionType: HL7Spec
 
 collection:
-  condition: $spm7 NOT_NULL
   expressionType: nested
   generateList: true
   expressionsMap:
@@ -62,6 +61,24 @@ collection:
           type: STRING
           valueOf: "GeneralUtils.dateTimeWithZoneId(dateTimeIn,ZONEID)"
           expressionType: JEXL
+    _collectedDateTime:
+      condition: $dateTimeIn NOT_NULL && $end NULL
+      expressionType: nested
+      vars:
+        dateTimeIn: OBR.7
+        end: OBR.8
+      expressionsMap:
+        extension_1:
+          generateList: true
+          expressionType: nested
+          expressionsMap:
+            url:
+              type: SYSTEM_URL
+              value: hl7v2-date-time
+            valueString:
+              type: STRING
+              valueOf: $dateTimeIn
+              expressionType: HL7Spec
     collector:
       condition: $obr10 NOT_NULL
       vars:
