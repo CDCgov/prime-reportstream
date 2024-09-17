@@ -147,27 +147,35 @@ class ProcessFhirCommands : CliktCommand(
             reportStreamFilters.add(receiver.routingFilter)
             reportStreamFilters.add(receiver.processingModeFilter)
 
+            val validationErrors = mutableListOf<String>()
             reportStreamFilters.forEach { reportStreamFilter ->
                 reportStreamFilter.forEach { filter ->
                     val validation = OrganizationValidation.validateFilter(filter)
                     if (!validation) {
-                        throw CliktError("Filter '$filter' is not valid.")
-                    }
-                    val result = FhirPathUtils.evaluate(
-                        CustomContext(
+                        validationErrors.add("Filter '$filter' is not valid.")
+                    } else {
+                        val result = FhirPathUtils.evaluate(
+                            CustomContext(
+                                bundle,
+                                bundle,
+                                FHIRConverter().loadFhirPathShorthandLookupTable(),
+                                CustomFhirPathFunctions()
+                            ),
                             bundle,
                             bundle,
-                            FHIRConverter().loadFhirPathShorthandLookupTable(),
-                            CustomFhirPathFunctions()
-                        ),
-                        bundle,
-                        bundle,
-                        filter
-                    )
-                    if (result.isEmpty() || (result[0].isBooleanPrimitive && result[0].primitiveValue() == "false")) {
-                        throw CliktError("Filter '$filter' filtered out everything, nothing to return.")
+                            filter
+                        )
+                        if (result.isEmpty() ||
+                            (result[0].isBooleanPrimitive && result[0].primitiveValue() == "false")
+                        ) {
+                            throw CliktError("Filter '$filter' filtered out everything, nothing to return.")
+                        }
                     }
                 }
+            }
+
+            if (validationErrors.isNotEmpty()) {
+                throw CliktError(validationErrors.joinToString("\n"))
             }
 
             receiver.conditionFilter.forEach { conditionFilter ->
