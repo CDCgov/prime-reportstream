@@ -1,7 +1,7 @@
 /* eslint-disable playwright/no-networkidle */
 import axios, { AxiosError } from "axios";
 import * as fs from "fs";
-import { pageNotFound } from "../../../src/pages/error/legacy-content/ErrorNoPage";
+import { pageNotFound } from "../../../src/content/error/ErrorMessages";
 import { test as baseTest, expect } from "../../test";
 
 const test = baseTest.extend({});
@@ -52,7 +52,7 @@ test.describe("Evaluate links on public facing pages", { tag: "@warning" }, () =
         frontendWarningsLogPath,
         isFrontendWarningsLog,
     }) => {
-        let aggregateHref = ["/opfsefopkfokpepofks"];
+        let aggregateHref = [];
         // Set test timeout to be 1 minute instead of 30 seconds
         test.setTimeout(60000);
         for (const path of urlPaths) {

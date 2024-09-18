@@ -2,9 +2,8 @@ import { Button } from "@trussworks/react-uswds";
 import { Helmet } from "react-helmet-async";
 import { useNavigate } from "react-router-dom";
 
+import { pageNotFound } from "../../../content/error/ErrorMessages";
 import site from "../../../content/site.json";
-
-export const pageNotFound = "Page not found";
 
 export const ErrorNoPage = () => {
     const navigate = useNavigate();

@@ -11,8 +11,7 @@ export interface ParagraphWithTitle {
 export type ErrorDisplayMessage = ParagraphWithTitle | string;
 
 /** Default message for an error  */
-export const GENERIC_ERROR_STRING =
-    "Our apologies, there was an error loading this content.";
+export const GENERIC_ERROR_STRING = "Our apologies, there was an error loading this content.";
 /** Default content for an error page */
 export const GENERIC_ERROR_PAGE_CONFIG: ErrorDisplayMessage = {
     header: "An error has occurred",
@@ -21,3 +20,5 @@ export const GENERIC_ERROR_PAGE_CONFIG: ErrorDisplayMessage = {
     have been automatically notified and will be looking into this with the utmost 
     urgency.`,
 };
+
+export const pageNotFound = "Page not found";
