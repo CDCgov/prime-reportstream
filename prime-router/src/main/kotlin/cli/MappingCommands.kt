@@ -121,7 +121,9 @@ class MappingCommands :
             // Search for relative paths without extensions
             relativePathsWithoutExtension.forEach { relativePath ->
                 // Build regex: match the path if it's followed by a path delimiter (/) or end of word
-                val regex = Regex("\\b$relativePath\\b(\\s|/|$)")
+                val regex = Regex(
+                    "\\b$relativePath(\\.\\w+)?\\b" // Match with or without file extension
+                    )
 
                 // If the pattern is found, add the relative path to referenced files
                 if (regex.containsMatchIn(content)) {
