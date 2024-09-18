@@ -9,6 +9,7 @@ resource "azurerm_storage_account" "storage_account_candidate" {
   min_tls_version                 = "TLS1_2"
   allow_nested_items_to_be_public = false
   enable_https_traffic_only       = true
+  local_user_enabled              = false
 
   network_rules {
     default_action = var.is_temp_env == true ? "Allow" : "Deny"
