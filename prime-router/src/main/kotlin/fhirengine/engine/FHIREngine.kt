@@ -1,6 +1,6 @@
 package gov.cdc.prime.router.fhirengine.engine
 
-import gov.cdc.prime.reportstream.shared.QueueMessage
+import gov.cdc.prime.reportstream.shared.queue_message.QueueMessage
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.InvalidReportMessage
 import gov.cdc.prime.router.Metadata

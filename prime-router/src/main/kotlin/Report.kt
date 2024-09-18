@@ -1,6 +1,9 @@
 package gov.cdc.prime.router
 
+import gov.cdc.prime.reportstream.shared.EventAction
+import gov.cdc.prime.reportstream.shared.ReportOptions
 import gov.cdc.prime.reportstream.shared.StringUtilities.trimToNull
+import gov.cdc.prime.reportstream.shared.queue_message.ITopic
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.Event
@@ -60,56 +63,56 @@ const val REPORT_MAX_ERRORS = 100
 const val ROUTE_TO_SEPARATOR = ","
 const val DEFAULT_SEPARATOR = ":"
 
-// options are used to process and route the report
-enum class Options {
-    None,
-    ValidatePayload,
-    CheckConnections,
-    SkipSend,
-    SendImmediately,
-
-    @OptionDeprecated
-    SkipInvalidItems,
-
-    ;
-
-    class InvalidOptionException(message: String) : Exception(message)
-
-    /**
-     * Checks to see if the enum constant has an @OptionDeprecated annotation.
-     * If the annotation is present, the constant is no longer in use.
-     */
-
-    val isDeprecated = this.declaringJavaClass.getField(this.name)
-        .getAnnotation(OptionDeprecated::class.java) != null
-
-    companion object {
-        /**
-         * ActiveValues is a list of the non-deprecated options that can be used when submitting a report
-         */
-
-        val activeValues = mutableListOf<Options>()
-
-        init {
-            Options.values().forEach {
-                if (!it.isDeprecated) activeValues.add(it)
-            }
-        }
-
-        /**
-         * Handles invalid values, which are technically not allowed in an enum. In this case if the [input]
-         *  is not one that is supported, it will be set to None.
-         */
-        fun valueOfOrNone(input: String): Options = try {
-                valueOf(input)
-            } catch (ex: IllegalArgumentException) {
-                val msg = "$input is not a valid Option. Valid options: ${Options.activeValues.joinToString()}"
-                throw InvalidOptionException(msg)
-            }
-    }
-}
-
-annotation class OptionDeprecated
+//// options are used to process and route the report
+//enum class Options {
+//    None,
+//    ValidatePayload,
+//    CheckConnections,
+//    SkipSend,
+//    SendImmediately,
+//
+//    @OptionDeprecated
+//    SkipInvalidItems,
+//
+//    ;
+//
+//    class InvalidOptionException(message: String) : Exception(message)
+//
+//    /**
+//     * Checks to see if the enum constant has an @OptionDeprecated annotation.
+//     * If the annotation is present, the constant is no longer in use.
+//     */
+//
+//    val isDeprecated = this.declaringJavaClass.getField(this.name)
+//        .getAnnotation(OptionDeprecated::class.java) != null
+//
+//    companion object {
+//        /**
+//         * ActiveValues is a list of the non-deprecated options that can be used when submitting a report
+//         */
+//
+//        val activeValues = mutableListOf<Options>()
+//
+//        init {
+//            Options.values().forEach {
+//                if (!it.isDeprecated) activeValues.add(it)
+//            }
+//        }
+//
+//        /**
+//         * Handles invalid values, which are technically not allowed in an enum. In this case if the [input]
+//         *  is not one that is supported, it will be set to None.
+//         */
+//        fun valueOfOrNone(input: String): Options = try {
+//                valueOf(input)
+//            } catch (ex: IllegalArgumentException) {
+//                val msg = "$input is not a valid Option. Valid options: ${Options.activeValues.joinToString()}"
+//                throw InvalidOptionException(msg)
+//            }
+//    }
+//}
+//
+//annotation class OptionDeprecated
 
 /**
  * ReportStreamFilterResult records useful information about rows filtered by one filter call.  One filter
@@ -349,7 +352,7 @@ class Report : Logging {
         itemLineage: List<ItemLineage>? = null,
         destination: Receiver? = null,
         nextAction: TaskAction = TaskAction.process,
-        topic: Topic,
+        topic: ITopic,
         id: UUID = UUID.randomUUID(),
         bodyURL: String = "",
     ) {
@@ -390,7 +393,7 @@ class Report : Logging {
         parentItemLineageData: List<ParentItemLineageData>,
         destination: Receiver? = null,
         nextAction: TaskAction,
-        topic: Topic,
+        topic: ITopic,
     ) {
         this.id = UUID.randomUUID()
         // UP submissions do not need a schema, but it is required by the database to maintain legacy functionality
@@ -1522,7 +1525,7 @@ class Report : Logging {
                 MimeFormat.valueOfIgnoreCase(header.reportFile.bodyFormat),
                 header.reportFile.createdAt,
                 metadata = metadata ?: Metadata.getInstance(),
-                translationConfig = header.receiver.translation,
+                translationConfig = header.receiver!!.translation,
                 nameFormat = header.receiver.translation.nameFormat
             )
         } else if (header.reportFile.externalName != null) {
@@ -1603,13 +1606,13 @@ class Report : Logging {
          * @return the newly generated Report, nextAction event, and blobInfo
          */
         fun generateReportAndUploadBlob(
-            nextAction: Event.EventAction,
+            nextAction: EventAction,
             messageBody: ByteArray,
             sourceReportIds: List<ReportId>,
             receiver: Receiver,
             metadata: Metadata,
             actionHistory: ActionHistory,
-            topic: Topic,
+            topic: ITopic,
             format: MimeFormat? = null,
             externalName: String? = null,
         ): Triple<Report, Event, BlobAccess.BlobInfo> {
@@ -1660,7 +1663,7 @@ class Report : Logging {
             val time = receiver.timing?.nextTime()
             // this is hacky and needs to be fixed, but that would have to happen as part of a refactor
             val event: Event =
-                if (nextAction == Event.EventAction.SEND) {
+                if (nextAction == EventAction.SEND) {
                     ReportEvent(
                         nextAction,
                         report.id,
@@ -1670,7 +1673,7 @@ class Report : Logging {
                     ProcessEvent(
                         nextAction,
                         report.id,
-                        Options.None,
+                        ReportOptions.None,
                         emptyMap(),
                         emptyList(),
                         at = time
@@ -1686,7 +1689,7 @@ class Report : Logging {
                 event.eventAction
             )
             report.bodyURL = blobInfo.blobUrl
-            report.nextAction = event.eventAction.toTaskAction()
+            report.nextAction = event.toTaskAction()
 
             // track generated reports, one per receiver
             actionHistory.trackCreatedReport(event, report, blobInfo = blobInfo, externalName = externalName)

@@ -1,7 +1,7 @@
 package gov.cdc.prime.router
 
 import gov.cdc.prime.reportstream.shared.BlobUtils
-import gov.cdc.prime.reportstream.shared.QueueMessage
+import gov.cdc.prime.reportstream.shared.queue_message.QueueMessage
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.Event
 import gov.cdc.prime.router.azure.ProcessEvent

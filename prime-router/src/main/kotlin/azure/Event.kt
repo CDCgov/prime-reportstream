@@ -1,13 +1,14 @@
 package gov.cdc.prime.router.azure
 
 import com.fasterxml.jackson.module.kotlin.readValue
-import gov.cdc.prime.router.Options
+import gov.cdc.prime.reportstream.shared.EventAction
+import gov.cdc.prime.reportstream.shared.ReportOptions
+import gov.cdc.prime.reportstream.shared.queue_message.BatchEventQueueMessage
+import gov.cdc.prime.reportstream.shared.queue_message.ProcessEventQueueMessage
+import gov.cdc.prime.reportstream.shared.queue_message.QueueMessage
+import gov.cdc.prime.reportstream.shared.queue_message.ReportEventQueueMessage
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.common.JacksonMapperUtilities
-import gov.cdc.prime.router.fhirengine.engine.BatchEventQueueMessage
-import gov.cdc.prime.router.fhirengine.engine.PrimeRouterQueueMessage
-import gov.cdc.prime.router.fhirengine.engine.ProcessEventQueueMessage
-import gov.cdc.prime.router.fhirengine.engine.ReportEventQueueMessage
 import gov.cdc.prime.router.transport.RetryToken
 import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
@@ -22,87 +23,35 @@ const val messageDelimiter = "&"
 abstract class Event(val eventAction: EventAction, val at: OffsetDateTime?) {
     abstract fun toQueueMessage(): String
 
-    enum class EventAction {
-        PROCESS, // for when a message goes into a queue to be processed
-        PROCESS_WARNING, // when an attempt at a process action fails, but will be retried
-        PROCESS_ERROR, // when an attempt at a process action fails permanently
-        DESTINATION_FILTER,
-        RECEIVER_FILTER,
-        RECEIVE,
-        CONVERT, // for universal pipeline converting to FHIR
-        ROUTE, // Deprecated (has become DESTINATION_FILTER->RECEIVER_FILTER)
-        TRANSLATE,
-        BATCH,
-        SEND,
-        WIPE, // Deprecated
-        NONE,
-        BATCH_ERROR,
-        SEND_ERROR,
-        WIPE_ERROR, // Deprecated
-        RESEND,
-        REBATCH,
-        OTHER, // a default/unknown
-        ;
-
-        fun toTaskAction(): TaskAction {
-            return when (this) {
-                PROCESS -> TaskAction.process
-                PROCESS_WARNING -> TaskAction.process_warning
-                PROCESS_ERROR -> TaskAction.process_error
-                DESTINATION_FILTER -> TaskAction.destination_filter
-                RECEIVER_FILTER -> TaskAction.receiver_filter
-                RECEIVE -> TaskAction.receive
-                CONVERT -> TaskAction.convert
-                ROUTE -> TaskAction.route
-                TRANSLATE -> TaskAction.translate
-                BATCH -> TaskAction.batch
-                SEND -> TaskAction.send
-                WIPE -> TaskAction.wipe
-                NONE -> TaskAction.none
-                BATCH_ERROR -> TaskAction.batch_error
-                SEND_ERROR -> TaskAction.send_error
-                WIPE_ERROR -> TaskAction.wipe_error
-                RESEND -> TaskAction.resend
-                REBATCH -> TaskAction.rebatch
-                // OTHER is not an expected value, more of a logical fallback/default used in BlobAccess.uploadBody
-                OTHER -> TaskAction.other
-            }
-        }
-
-        fun toQueueName(): String? {
-            return when (this) {
-                PROCESS,
-                TRANSLATE,
-                BATCH,
-                SEND,
-                WIPE,
-                -> this.toString().lowercase()
-                else -> null
-            }
-        }
-
-        companion object {
-            fun parseQueueMessage(action: String): EventAction {
-                return when (action.lowercase()) {
-                    "process" -> PROCESS
-                    "receive" -> RECEIVE
-                    "translate" -> TRANSLATE
-                    "batch" -> BATCH
-                    "send" -> SEND
-                    "wipe" -> WIPE
-                    "none" -> NONE
-                    "batch_error" -> BATCH_ERROR
-                    "send_error" -> SEND_ERROR
-                    "wipe_error" -> WIPE_ERROR
-                    else -> error("Internal Error: $action does not match known action names")
-                }
-            }
+    fun toTaskAction(): TaskAction {
+        return when (eventAction) {
+            EventAction.PROCESS -> TaskAction.process
+            EventAction.PROCESS_WARNING -> TaskAction.process_warning
+            EventAction.PROCESS_ERROR -> TaskAction.process_error
+            EventAction.DESTINATION_FILTER -> TaskAction.destination_filter
+            EventAction.RECEIVER_FILTER -> TaskAction.receiver_filter
+            EventAction.RECEIVE -> TaskAction.receive
+            EventAction.CONVERT -> TaskAction.convert
+            EventAction.ROUTE -> TaskAction.route
+            EventAction.TRANSLATE -> TaskAction.translate
+            EventAction.BATCH -> TaskAction.batch
+            EventAction.SEND -> TaskAction.send
+            EventAction.WIPE -> TaskAction.wipe
+            EventAction.NONE -> TaskAction.none
+            EventAction.BATCH_ERROR -> TaskAction.batch_error
+            EventAction.SEND_ERROR -> TaskAction.send_error
+            EventAction.WIPE_ERROR -> TaskAction.wipe_error
+            EventAction.RESEND -> TaskAction.resend
+            EventAction.REBATCH -> TaskAction.rebatch
+            // OTHER is not an expected value, more of a logical fallback/default used in BlobAccess.uploadBody
+            EventAction.OTHER -> TaskAction.other
+            else -> { TaskAction.other }
         }
     }
 
     companion object {
         fun parsePrimeRouterQueueMessage(event: String): Event {
-            return when (val message = JacksonMapperUtilities.defaultMapper.readValue<PrimeRouterQueueMessage>(event)) {
+            return when (val message = JacksonMapperUtilities.defaultMapper.readValue<QueueMessage>(event)) {
                 is ReportEventQueueMessage -> {
                     val at = if (message.at.isNotEmpty()) {
                         OffsetDateTime.parse(message.at)
@@ -163,7 +112,7 @@ abstract class Event(val eventAction: EventAction, val at: OffsetDateTime?) {
 class ProcessEvent(
     eventAction: EventAction,
     val reportId: UUID,
-    val options: Options,
+    val options: ReportOptions,
     val defaults: Map<String, String>,
     val routeTo: List<String>,
     at: OffsetDateTime? = null,

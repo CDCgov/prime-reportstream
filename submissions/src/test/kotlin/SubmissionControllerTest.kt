@@ -8,8 +8,8 @@ import com.azure.storage.queue.models.SendMessageResult
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import gov.cdc.prime.reportstream.shared.QueueMessage
-import gov.cdc.prime.reportstream.shared.QueueMessage.ObjectMapperProvider
+import gov.cdc.prime.reportstream.shared.queue_message.QueueMessage
+import gov.cdc.prime.reportstream.shared.queue_message.QueueMessage.ObjectMapperProvider
 import gov.cdc.prime.reportstream.submissions.TelemetryService
 import gov.cdc.prime.reportstream.submissions.config.AzureConfig
 import org.junit.jupiter.api.AfterEach

@@ -1,6 +1,7 @@
-package gov.cdc.prime.reportstream.shared
+package gov.cdc.prime.reportstream.shared.queue_message
 
 import com.fasterxml.jackson.annotation.JsonTypeName
+import gov.cdc.prime.reportstream.shared.Topic
 import java.util.UUID
 
 @JsonTypeName("destination-filter")

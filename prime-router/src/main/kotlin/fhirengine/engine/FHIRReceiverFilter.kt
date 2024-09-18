@@ -3,7 +3,7 @@ package gov.cdc.prime.router.fhirengine.engine
 import com.fasterxml.jackson.annotation.JsonProperty
 import fhirengine.engine.CustomFhirPathFunctions
 import gov.cdc.prime.reportstream.shared.BlobUtils
-import gov.cdc.prime.reportstream.shared.QueueMessage
+import gov.cdc.prime.reportstream.shared.queue_message.QueueMessage
 import gov.cdc.prime.router.ActionLogDetail
 import gov.cdc.prime.router.ActionLogScope
 import gov.cdc.prime.router.ActionLogger

@@ -1,6 +1,7 @@
 package gov.cdc.prime.reportstream.shared
 
 import com.fasterxml.jackson.annotation.JsonValue
+import gov.cdc.prime.reportstream.shared.queue_message.ITopic
 
 /**
  * A submission with topic FULL_ELR will be processed using the full ELR pipeline (fhir engine), submissions

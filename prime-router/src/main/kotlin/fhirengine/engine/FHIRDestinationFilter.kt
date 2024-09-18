@@ -2,7 +2,7 @@ package gov.cdc.prime.router.fhirengine.engine
 
 import fhirengine.engine.CustomFhirPathFunctions
 import gov.cdc.prime.reportstream.shared.BlobUtils
-import gov.cdc.prime.reportstream.shared.QueueMessage
+import gov.cdc.prime.reportstream.shared.queue_message.QueueMessage
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.Metadata

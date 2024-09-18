@@ -1,16 +1,15 @@
-package gov.cdc.prime.reportstream.shared
+package gov.cdc.prime.reportstream.shared.queue_message
 
 import com.fasterxml.jackson.annotation.JsonTypeName
 import java.util.UUID
 
-@JsonTypeName("convert")
-data class FhirConvertQueueMessage (
+@JsonTypeName("receive")
+data class FhirReceiveQueueMessage (
     override val reportId: UUID,
     override val blobURL: String,
     override val digest: String,
     override val blobSubFolderName: String,
-    var topic: Topic,
-    var schemaName: String = "",
-) : QueueMessage, QueueMessage.ReportInformation {
+    override val headers: Map<String, String> = emptyMap()
+) : QueueMessage, QueueMessage.ReportInformation, QueueMessage.ReceiveInformation {
     override val messageQueueName = QueueMessage.elrReceiveQueueName
 }

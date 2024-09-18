@@ -1,4 +1,4 @@
-package gov.cdc.prime.reportstream.shared
+package gov.cdc.prime.reportstream.shared.queue_message
 
 interface ITopic {
 

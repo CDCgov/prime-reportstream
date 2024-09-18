@@ -1,8 +1,7 @@
-package gov.cdc.prime.reportstream.shared
+package gov.cdc.prime.reportstream.shared.queue_message
 
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
-import com.fasterxml.jackson.annotation.JsonTypeName
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.json.JsonMapper
@@ -23,7 +22,7 @@ private const val MESSAGE_SIZE_LIMIT = 64 * 1000
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonSubTypes(
-    JsonSubTypes.Type(QueueMessage.ReceiveQueueMessage::class, name = "receive"),
+    JsonSubTypes.Type(FhirReceiveQueueMessage::class, name = "receive"),
     JsonSubTypes.Type(FhirConvertQueueMessage::class, name = "convert"),
     JsonSubTypes.Type(FhirDestinationFilterQueueMessage::class, name = "destination-filter"),
     JsonSubTypes.Type(FhirReceiverFilterQueueMessage::class, name = "receiver-filter"),
@@ -59,15 +58,15 @@ interface QueueMessage {
         val mapper: JsonMapper = ObjectMapperProvider.mapper
 
         /**
-         * Deserializes a Base64 encoded JSON string into a gov.cdc.prime.reportstream.shared.QueueMessage object.
+         * Deserializes a Base64 encoded JSON string into a gov.cdc.prime.reportstream.shared.queue_message.QueueMessage object.
          *
          * @param s Base64 encoded string representing the message.
-         * @return Deserialized gov.cdc.prime.reportstream.shared.QueueMessage object.
+         * @return Deserialized gov.cdc.prime.reportstream.shared.queue_message.QueueMessage object.
          */
         fun deserialize(s: String): QueueMessage = mapper.readValue(s)
 
         /**
-         * Returns a JSON string representation of the gov.cdc.prime.reportstream.shared.QueueMessage object.
+         * Returns a JSON string representation of the gov.cdc.prime.reportstream.shared.queue_message.QueueMessage object.
          *
          * @return JSON string representation.
          */
@@ -147,7 +146,7 @@ interface QueueMessage {
     object ObjectMapperProvider {
 
         /**
-         * Polymorphic Type Validator to allow base and subtypes for gov.cdc.prime.reportstream.shared.QueueMessage.
+         * Polymorphic Type Validator to allow base and subtypes for gov.cdc.prime.reportstream.shared.queue_message.QueueMessage.
          */
         private val ptv = BasicPolymorphicTypeValidator.builder()
             .allowIfBaseType(QueueMessage::class.java)
@@ -164,7 +163,7 @@ interface QueueMessage {
             .build()
 
         /**
-         * Registers additional subtypes for gov.cdc.prime.reportstream.shared.QueueMessage deserialization.
+         * Registers additional subtypes for gov.cdc.prime.reportstream.shared.queue_message.QueueMessage deserialization.
          *
          * @param subtypes Additional subtypes to be registered.
          */

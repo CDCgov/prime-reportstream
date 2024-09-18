@@ -1,15 +1,13 @@
 package gov.cdc.prime.router
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.fasterxml.jackson.annotation.JsonValue
+import gov.cdc.prime.reportstream.shared.queue_message.ITopic
 import gov.cdc.prime.router.CustomerStatus.ACTIVE
 import gov.cdc.prime.router.CustomerStatus.INACTIVE
 import gov.cdc.prime.router.CustomerStatus.TESTING
-import gov.cdc.prime.router.fhirengine.utils.HL7Reader
-import gov.cdc.prime.router.validation.IItemValidator
+import gov.cdc.prime.router.validation.AbstractItemValidator
 import gov.cdc.prime.router.validation.MarsOtcElrOnboardingValidator
 import gov.cdc.prime.router.validation.MarsOtcElrValidator
-import gov.cdc.prime.router.validation.NoopItemValidator
 
 /**
  * Used by the engine to find orgs, senders and receivers
@@ -46,23 +44,34 @@ enum class CustomerStatus {
     ACTIVE,
 }
 
-/**
- * A submission with topic FULL_ELR will be processed using the full ELR pipeline (fhir engine), submissions
- * from a sender with topic COVID_19 will be processed using the covid-19 pipeline.
- */
-enum class Topic(
-    @JsonValue val jsonVal: String,
-    val isUniversalPipeline: Boolean = true,
-    val isSendOriginal: Boolean = false,
-    val validator: IItemValidator = NoopItemValidator(),
-    val hl7ParseConfiguration: HL7Reader.Companion.HL7MessageParseAndConvertConfiguration? = null,
-) {
-    FULL_ELR("full-elr", true, false),
-    ETOR_TI("etor-ti", true, false),
-    ELR_ELIMS("elr-elims", true, true),
-    COVID_19("covid-19", false, false),
-    MONKEYPOX("monkeypox", false, false),
-    TEST("test", false, false),
-    MARS_OTC_ELR("mars-otc-elr", true, false, MarsOtcElrValidator()),
-    MARS_OTC_ELR_ONBOARDING("mars-otc-elr-onboarding", true, false, MarsOtcElrOnboardingValidator()),
+
+interface ITopicWithValidator: ITopic {
+    fun validator(): AbstractItemValidator
 }
+
+enum class TopicWithValidator: ITopicWithValidator {
+    MARS_OTC_ELR {
+        override fun jsonVal(): String { return "mars-otc-elr" }
+        override fun isUniversalPipeline(): Boolean { return true }
+        override fun isSendOriginal(): Boolean { return false }
+        override fun validator(): AbstractItemValidator { return MarsOtcElrValidator() }
+    },
+    MARS_OTC_ELR_ONBOARDING {
+        override fun jsonVal(): String { return "mars-otc-elr-onboarding" }
+        override fun isUniversalPipeline(): Boolean { return true }
+        override fun isSendOriginal(): Boolean { return false }
+        override fun validator(): AbstractItemValidator { return MarsOtcElrOnboardingValidator() }
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
