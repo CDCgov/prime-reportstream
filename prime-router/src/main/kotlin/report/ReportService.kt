@@ -2,6 +2,7 @@ package gov.cdc.prime.router.report
 
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.azure.DatabaseAccess
+import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.common.BaseEngine
 import gov.cdc.prime.router.history.db.ReportGraph
@@ -47,7 +48,13 @@ class ReportService(
      * @return List of ReportFile objects of the root reports
      */
     fun getRootReports(childReportId: ReportId): List<ReportFile> {
-        return reportGraph.getRootReports(childReportId)
+        return reportGraph.getRootReports(childReportId).distinctBy { it.reportId }
+    }
+
+    fun getReportsForStep(childReportId: ReportId, childIndex: Int, task: TaskAction): ReportFile? {
+        return db.transactReturning { txn ->
+             reportGraph.getAncestorReports(txn, childReportId, childIndex, setOf(task))
+        }
     }
 
     /**

@@ -116,7 +116,7 @@ class SendFunctionTests {
             val header = makeHeader()
             nextEvent = block(header, null, null)
         }
-        every { sftpTransport.send(any(), any(), any(), any(), any(), any(), any(), any()) }.returns(null)
+        every { sftpTransport.send(any(), any(), any(), any(), any(), any(), any(), any(), any(),) }.returns(null)
         every { workflowEngine.recordAction(any()) }.returns(Unit)
         every { workflowEngine.azureEventService.trackEvent(any()) }.returns(Unit)
         every { workflowEngine.reportService.getRootReports(any()) } returns reportList
@@ -148,7 +148,7 @@ class SendFunctionTests {
             nextEvent = block(header, null, null)
         }
         setupWorkflow()
-        every { sftpTransport.send(any(), any(), any(), any(), any(), any(), any(), any()) }
+        every { sftpTransport.send(any(), any(), any(), any(), any(), any(), any(), any(), any(),) }
             .returns(RetryToken.allItems)
         every { workflowEngine.recordAction(any()) }.returns(Unit)
         every { workflowEngine.db } returns mockk<DatabaseAccess>()
@@ -181,7 +181,7 @@ class SendFunctionTests {
             )
         }
         setupWorkflow()
-        every { sftpTransport.send(any(), any(), any(), any(), any(), any(), any(), any()) }
+        every { sftpTransport.send(any(), any(), any(), any(), any(), any(), any(), any(), any(),) }
             .returns(RetryToken.allItems)
         every { workflowEngine.recordAction(any()) }.returns(Unit)
         every { workflowEngine.db } returns mockk<DatabaseAccess>()
@@ -218,7 +218,7 @@ class SendFunctionTests {
             )
         }
         setupWorkflow()
-        every { sftpTransport.send(any(), any(), any(), any(), any(), any(), any(), any()) }
+        every { sftpTransport.send(any(), any(), any(), any(), any(), any(), any(), any(), any(),) }
             .returns(RetryToken.allItems)
         every { workflowEngine.recordAction(any()) }.returns(Unit)
         every { workflowEngine.db } returns mockk<DatabaseAccess>(relaxed = true)

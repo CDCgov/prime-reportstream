@@ -87,6 +87,7 @@ enum class ReportStreamEventName {
     ITEM_ROUTED,
     REPORT_LAST_MILE_FAILURE,
     REPORT_NOT_PROCESSABLE,
+    ITEM_SENT,
 }
 
 /**

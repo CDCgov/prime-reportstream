@@ -6,6 +6,8 @@ import com.microsoft.azure.functions.HttpRequestMessage
 import com.microsoft.azure.functions.HttpResponseMessage
 import com.microsoft.azure.functions.HttpStatusType
 import com.networknt.org.apache.commons.validator.routines.InetAddressValidator
+import fhirengine.engine.CustomFhirPathFunctions
+import gov.cdc.prime.reportstream.shared.BlobUtils
 import gov.cdc.prime.router.ActionLog
 import gov.cdc.prime.router.ActionLogLevel
 import gov.cdc.prime.router.ClientSource
@@ -25,11 +27,16 @@ import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportLineage
 import gov.cdc.prime.router.azure.db.tables.pojos.Task
+import gov.cdc.prime.router.azure.observability.bundleDigest.BundleDigestExtractor
+import gov.cdc.prime.router.azure.observability.bundleDigest.FhirPathBundleDigestLabResultExtractorStrategy
 import gov.cdc.prime.router.azure.observability.event.IReportStreamEventService
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventName
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventProperties
 import gov.cdc.prime.router.common.AzureHttpUtils.getSenderIP
 import gov.cdc.prime.router.common.JacksonMapperUtilities
+import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
+import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
+import gov.cdc.prime.router.report.ReportService
 import io.ktor.http.HttpStatusCode
 import org.apache.logging.log4j.kotlin.Logging
 import org.jooq.impl.SQLDataType
@@ -565,6 +572,7 @@ class ActionHistory(
         result: String,
         header: WorkflowEngine.Header,
         reportEventService: IReportStreamEventService,
+        reportService: ReportService,
         transportType: String,
     ) {
         if (isReportAlreadyTracked(sentReportId)) {
@@ -616,6 +624,45 @@ class ActionHistory(
             )
         }
 
+        val lineages = Report.createItemLineagesFromDb(header, sentReportId)
+        lineages?.forEach { itemLineage ->
+            val receiverFilterReportFile = reportService.getReportsForStep(
+                itemLineage.parentReportId,
+                itemLineage.parentIndex,
+                TaskAction.receiver_filter
+            )
+            if (receiverFilterReportFile != null) {
+                val blob = BlobAccess.downloadBlob(
+                    receiverFilterReportFile.bodyUrl,
+                    BlobUtils.digestToString(receiverFilterReportFile.blobDigest)
+                )
+                val bundle = FhirTranscoder.decode(blob)
+                val bundleDigestExtractor = BundleDigestExtractor(
+                    FhirPathBundleDigestLabResultExtractorStrategy(
+                        CustomContext(
+                            bundle,
+                            bundle,
+                            mutableMapOf(),
+                            CustomFhirPathFunctions()
+                        )
+                    )
+                )
+                reportEventService.sendItemEvent(ReportStreamEventName.ITEM_SENT, reportFile, TaskAction.send) {
+                    trackingId(bundle)
+                    parentReportId(header.reportFile.reportId)
+                    childItemIndex(itemLineage.childIndex)
+                    params(
+                        mapOf(
+                            ReportStreamEventProperties.BUNDLE_DIGEST
+                                to bundleDigestExtractor.generateDigest(bundle),
+                            ReportStreamEventProperties.RECEIVER_NAME to receiver.fullName,
+                        )
+                    )
+                }
+            } else {
+                logger.error("No translate report found for sent item.")
+            }
+        }
         reportsOut[reportFile.reportId] = reportFile
     }
 
