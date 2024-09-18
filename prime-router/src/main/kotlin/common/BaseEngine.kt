@@ -22,7 +22,7 @@ abstract class BaseEngine(
     val queue: QueueAccess = QueueAccess,
 ) : Logging {
     companion object {
-        const val SEQUENTIAL_LIMIT = 500
+        val sequentialLimit = 500
 
         // initialize the json types in PrimeRouterQueueMessage
         init {
