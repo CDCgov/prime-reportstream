@@ -84,7 +84,7 @@ class MappingCommands :
         // Find unreferenced files by checking which relative paths weren't found
         val unreferencedFiles = allFiles.filter {
             it.relativeTo(directory).path.removeSuffix(".${it.extension}") !in referencedFiles
-        }
+        }.sorted()
 
         // Output the result
         if (unreferencedFiles.isNotEmpty()) {
