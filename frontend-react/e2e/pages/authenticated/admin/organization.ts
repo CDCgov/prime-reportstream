@@ -1,7 +1,7 @@
 import { expect } from "@playwright/test";
-import { RSOrganizationSettings } from "../../../src/config/endpoints/settings";
-import { MOCK_GET_ORGANIZATION_SETTINGS_LIST } from "../../mocks/organizations";
-import { BasePage, BasePageTestArgs, type RouteHandlerFulfillEntry } from "../BasePage";
+import { RSOrganizationSettings } from "../../../../src/config/endpoints/settings";
+import { MOCK_GET_ORGANIZATION_SETTINGS_LIST } from "../../../mocks/organizations";
+import { BasePage, BasePageTestArgs, type RouteHandlerFulfillEntry } from "../../BasePage";
 
 export class OrganizationPage extends BasePage {
     static readonly API_ORGANIZATIONS = "/api/settings/organizations";
