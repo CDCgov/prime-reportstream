@@ -23,7 +23,14 @@ private const val MESSAGE_SIZE_LIMIT = 64 * 1000
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonSubTypes(
-    JsonSubTypes.Type(QueueMessage.ReceiveQueueMessage::class, name = "receive")
+    JsonSubTypes.Type(QueueMessage.ReceiveQueueMessage::class, name = "receive"),
+    JsonSubTypes.Type(FhirConvertQueueMessage::class, name = "convert"),
+    JsonSubTypes.Type(FhirDestinationFilterQueueMessage::class, name = "destination-filter"),
+    JsonSubTypes.Type(FhirReceiverFilterQueueMessage::class, name = "receiver-filter"),
+    JsonSubTypes.Type(FhirTranslateQueueMessage::class, name = "translate"),
+    JsonSubTypes.Type(BatchEventQueueMessage::class, name = "batch"),
+    JsonSubTypes.Type(ProcessEventQueueMessage::class, name = "process"),
+    JsonSubTypes.Type(ReportEventQueueMessage::class, name = "report")
 )
 interface QueueMessage {
 
@@ -45,6 +52,7 @@ interface QueueMessage {
     }
 
     companion object {
+
         /**
          * Jackson JSON mapper configured to handle polymorphic types.
          */
@@ -132,30 +140,6 @@ interface QueueMessage {
     }
 
     /**
-     * Data class representing a specific type of gov.cdc.prime.reportstream.shared.QueueMessage meant for receiving
-     * FHIR (Fast Healthcare Interoperability Resources) data. It implements both
-     * ReportInformation and ReceiveInformation interfaces.
-     *
-     * @property blobURL The URL of the blob storage containing the report.
-     * @property digest The digest (hash) of the report.
-     * @property blobSubFolderName The subfolder name in the blob storage.
-     * @property reportId The unique identifier of the report.
-     * @property headers Additional headers associated with the message.
-     */
-    @JsonTypeName("receive-fhir")
-    data class ReceiveQueueMessage(
-        override val blobURL: String,
-        override val digest: String,
-        override val blobSubFolderName: String,
-        override val reportId: UUID,
-        override val headers: Map<String, String>,
-    ) : QueueMessage,
-        ReportInformation,
-        ReceiveInformation {
-        override val messageQueueName = elrReceiveQueueName
-    }
-
-    /**
      * Singleton object responsible for providing and configuring the Jackson ObjectMapper
      * used for serializing and deserializing QueueMessages. The ObjectMapper is configured
      * to support polymorphic types.
@@ -190,7 +174,14 @@ interface QueueMessage {
 
         init {
             // Register common subtypes here. In this case, registering ReceiveQueueMessage.
-            mapper.registerSubtypes(ReceiveQueueMessage::class.java)
+            mapper.registerSubtypes(FhirReceiveQueueMessage::class.java)
+            mapper.registerSubtypes(FhirConvertQueueMessage::class.java)
+            mapper.registerSubtypes(FhirDestinationFilterQueueMessage::class.java)
+            mapper.registerSubtypes(FhirReceiverFilterQueueMessage::class.java)
+            mapper.registerSubtypes(FhirTranslateQueueMessage::class.java)
+            mapper.registerSubtypes(BatchEventQueueMessage::class.java)
+            mapper.registerSubtypes(ProcessEventQueueMessage::class.java)
+            mapper.registerSubtypes(ReportEventQueueMessage::class.java)
         }
     }
 }

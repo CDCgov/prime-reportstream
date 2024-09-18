@@ -36,77 +36,77 @@ abstract class ReportPipelineMessage :
     QueueMessage.ReportInformation,
     PrimeRouterQueueMessage()
 
-@JsonTypeName("receive")
-data class FhirReceiveQueueMessage(
-    override val reportId: ReportId,
-    override val blobURL: String,
-    override val digest: String,
-    override val blobSubFolderName: String,
-    override val headers: Map<String, String> = emptyMap(),
-) : ReportPipelineMessage(), QueueMessage.ReceiveInformation {
-    override val messageQueueName = QueueMessage.Companion.elrReceiveQueueName
-}
+//@JsonTypeName("receive")
+//data class FhirReceiveQueueMessage(
+//    override val reportId: ReportId,
+//    override val blobURL: String,
+//    override val digest: String,
+//    override val blobSubFolderName: String,
+//    override val headers: Map<String, String> = emptyMap(),
+//) : ReportPipelineMessage(), QueueMessage.ReceiveInformation {
+//    override val messageQueueName = QueueMessage.Companion.elrReceiveQueueName
+//}
+//
+//@JsonTypeName("convert")
+//data class FhirConvertQueueMessage(
+//    override val reportId: ReportId,
+//    override val blobURL: String,
+//    override val digest: String,
+//    override val blobSubFolderName: String,
+//    var topic: Topic,
+//    var schemaName: String = "",
+//) : ReportPipelineMessage() {
+//    override val messageQueueName = QueueMessage.Companion.elrConvertQueueName
+//}
+//
+//@JsonTypeName("destination-filter")
+//data class FhirDestinationFilterQueueMessage(
+//    override val reportId: ReportId,
+//    override val blobURL: String,
+//    override val digest: String,
+//    override val blobSubFolderName: String,
+//    val topic: Topic,
+//) : ReportPipelineMessage() {
+//    override val messageQueueName = QueueMessage.Companion.elrDestinationFilterQueueName
+//}
+//
+//@JsonTypeName("receiver-filter")
+//data class FhirReceiverFilterQueueMessage(
+//    override val reportId: ReportId,
+//    override val blobURL: String,
+//    override val digest: String,
+//    override val blobSubFolderName: String,
+//    val topic: Topic,
+//    val receiverFullName: String,
+//) : ReportPipelineMessage() {
+//    override val messageQueueName = QueueMessage.Companion.elrReceiverFilterQueueName
+//}
+//
+//@JsonTypeName("translate")
+//data class FhirTranslateQueueMessage(
+//    override val reportId: ReportId,
+//    override val blobURL: String,
+//    override val digest: String,
+//    override val blobSubFolderName: String,
+//    val topic: Topic,
+//    val receiverFullName: String,
+//) : ReportPipelineMessage() {
+//    override val messageQueueName = QueueMessage.Companion.elrTranslationQueueName
+//}
 
-@JsonTypeName("convert")
-data class FhirConvertQueueMessage(
-    override val reportId: ReportId,
-    override val blobURL: String,
-    override val digest: String,
-    override val blobSubFolderName: String,
-    var topic: Topic,
-    var schemaName: String = "",
-) : ReportPipelineMessage() {
-    override val messageQueueName = QueueMessage.Companion.elrConvertQueueName
-}
-
-@JsonTypeName("destination-filter")
-data class FhirDestinationFilterQueueMessage(
-    override val reportId: ReportId,
-    override val blobURL: String,
-    override val digest: String,
-    override val blobSubFolderName: String,
-    val topic: Topic,
-) : ReportPipelineMessage() {
-    override val messageQueueName = QueueMessage.Companion.elrDestinationFilterQueueName
-}
-
-@JsonTypeName("receiver-filter")
-data class FhirReceiverFilterQueueMessage(
-    override val reportId: ReportId,
-    override val blobURL: String,
-    override val digest: String,
-    override val blobSubFolderName: String,
-    val topic: Topic,
-    val receiverFullName: String,
-) : ReportPipelineMessage() {
-    override val messageQueueName = QueueMessage.Companion.elrReceiverFilterQueueName
-}
-
-@JsonTypeName("translate")
-data class FhirTranslateQueueMessage(
-    override val reportId: ReportId,
-    override val blobURL: String,
-    override val digest: String,
-    override val blobSubFolderName: String,
-    val topic: Topic,
-    val receiverFullName: String,
-) : ReportPipelineMessage() {
-    override val messageQueueName = QueueMessage.Companion.elrTranslationQueueName
-}
-
-abstract class WithEventAction : PrimeRouterQueueMessage() {
-    abstract val eventAction: Event.EventAction
-}
-
-@JsonTypeName("batch")
-data class BatchEventQueueMessage(
-    override val eventAction: Event.EventAction,
-    val receiverName: String,
-    val emptyBatch: Boolean,
-    val at: String,
-) : WithEventAction() {
-    override val messageQueueName = ""
-}
+//abstract class WithEventAction : PrimeRouterQueueMessage() {
+//    abstract val eventAction: Event.EventAction
+//}
+//
+//@JsonTypeName("batch")
+//data class BatchEventQueueMessage(
+//    override val eventAction: Event.EventAction,
+//    val receiverName: String,
+//    val emptyBatch: Boolean,
+//    val at: String,
+//) : WithEventAction() {
+//    override val messageQueueName = ""
+//}
 
 @JsonTypeName("report")
 data class ReportEventQueueMessage(
@@ -130,20 +130,20 @@ data class ProcessEventQueueMessage(
     override val messageQueueName = ""
 }
 
-// Register submodule subtypes
-fun registerPrimeRouterQueueMessageSubtypes() {
-    QueueMessage.ObjectMapperProvider.registerSubtypes(
-        FhirConvertQueueMessage::class.java,
-        FhirDestinationFilterQueueMessage::class.java,
-        FhirReceiverFilterQueueMessage::class.java,
-        FhirTranslateQueueMessage::class.java,
-        BatchEventQueueMessage::class.java,
-        ProcessEventQueueMessage::class.java,
-        ReportEventQueueMessage::class.java
-    )
-}
-
-// Call this function at the appropriate initialization point
-fun initializeQueueMessages() {
-    registerPrimeRouterQueueMessageSubtypes()
-}
+//// Register submodule subtypes
+//fun registerPrimeRouterQueueMessageSubtypes() {
+//    QueueMessage.ObjectMapperProvider.registerSubtypes(
+//        FhirConvertQueueMessage::class.java,
+//        FhirDestinationFilterQueueMessage::class.java,
+//        FhirReceiverFilterQueueMessage::class.java,
+//        FhirTranslateQueueMessage::class.java,
+//        BatchEventQueueMessage::class.java,
+//        ProcessEventQueueMessage::class.java,
+//        ReportEventQueueMessage::class.java
+//    )
+//}
+//
+//// Call this function at the appropriate initialization point
+//fun initializeQueueMessages() {
+//    registerPrimeRouterQueueMessageSubtypes()
+//}
