@@ -1,8 +1,10 @@
 package gov.cdc.prime.reportstream.shared.queue_message
 
+import com.fasterxml.jackson.annotation.JsonValue
+
 interface ITopic {
 
-    fun jsonVal(): String
+    @JsonValue fun jsonVal(): String
 
     fun isUniversalPipeline(): Boolean
 
