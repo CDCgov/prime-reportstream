@@ -7,6 +7,7 @@ resource "azurerm_storage_account" "sftp" {
   account_replication_type        = "GRS"
   min_tls_version                 = "TLS1_2"
   allow_nested_items_to_be_public = false
+  local_user_enabled              = false
 
   network_rules {
     default_action = "Allow"
