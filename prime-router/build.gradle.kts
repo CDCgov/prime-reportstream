@@ -48,6 +48,7 @@ plugins {
     id("io.swagger.core.v3.swagger-gradle-plugin") version "2.2.23"
 }
 
+// retrieve the current commit hash
 val commitId by lazy {
     val stdout = ByteArrayOutputStream()
     exec {
@@ -58,7 +59,7 @@ val commitId by lazy {
 }
 
 group = "gov.cdc.prime.reportstream"
-version = "0.2-SNAPSHOT-$commitId"
+version = "0.2-SNAPSHOT"
 description = "prime-router"
 val azureAppName = "prime-data-hub-router"
 val azureFunctionsDir = "azure-functions"
@@ -270,6 +271,9 @@ sourceSets.create("testIntegration") {
     runtimeClasspath += sourceSets["main"].output
 }
 
+// Add generated version object
+sourceSets["main"].java.srcDir("$buildDir/generated-src/version")
+
 val compileTestIntegrationKotlin: KotlinCompile by tasks
 compileTestIntegrationKotlin.kotlinOptions.jvmTarget = appJvmTarget
 
@@ -349,6 +353,7 @@ tasks.withType<Test>().configureEach {
 }
 
 tasks.processResources {
+    dependsOn("generateVersionObject")
     // Set the proper build values in the build.properties file
     filesMatching("build.properties") {
         val dateFormatter = DateTimeFormatter.ofPattern("yyyyMMdd")
@@ -511,8 +516,27 @@ tasks.azureFunctionsPackage {
 
 tasks.register("generateVersionFile") {
     doLast {
-        File(buildDir, "$azureFunctionsDir/$azureAppName/version.json").writeText("{\"commitId\": \"$commitId\"}")
+        file("$buildDir/$azureFunctionsDir/$azureAppName/version.json").writeText("{\"commitId\": \"$commitId\"}")
     }
+}
+
+tasks.register("generateVersionObject") {
+    val sourceDir = file("$buildDir/generated-src/version")
+    val sourceFile = file("$sourceDir/Version.kt")
+    sourceDir.mkdirs()
+    sourceFile.writeText(
+        """
+        package gov.cdc.prime.router.version
+        
+        /**
+         * Supplies information for the current build.
+         * This file is generated via Gradle task prior to compile time and should always contain the current commit hash.
+         */
+        object Version {
+          const val commitId = "$commitId"
+        }
+    """.trimIndent()
+    )
 }
 
 val azureResourcesTmpDir = File(buildDir, "$azureFunctionsDir-resources/$azureAppName")
