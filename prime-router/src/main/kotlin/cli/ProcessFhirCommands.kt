@@ -31,7 +31,6 @@ import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.config.validation.OrganizationValidation
 import gov.cdc.prime.router.fhirengine.config.HL7TranslationConfig
-import gov.cdc.prime.router.fhirengine.engine.FHIRConverter
 import gov.cdc.prime.router.fhirengine.engine.FHIRReceiverFilter
 import gov.cdc.prime.router.fhirengine.engine.FHIRReceiverFilter.ReceiverFilterEvaluationResult
 import gov.cdc.prime.router.fhirengine.engine.encodePreserveEncodingChars
@@ -184,7 +183,7 @@ class ProcessFhirCommands : CliktCommand(
                             CustomContext(
                                 bundle,
                                 bundle,
-                                FHIRConverter().loadFhirPathShorthandLookupTable(),
+                                mutableMapOf(),
                                 CustomFhirPathFunctions()
                             ),
                             bundle,

@@ -166,16 +166,6 @@ class ReportFunction(
                 out.write(request.body)
             }
 
-//            var i = 0
-//            val requestBodyLength = request.body.toString().length
-//            if(requestBodyLength > 1024) {
-//                while(i+1024 < requestBodyLength) {
-//                    FileWriter(file).append(request.body!!, i, i+1024)
-//                    i += 1024
-//                }
-//            }
-//            FileWriter(file).append(request.body!!, i, requestBodyLength)
-
             try {
                 val result = ProcessFhirCommands().processFhirDataRequest(
                     file,
@@ -186,9 +176,9 @@ class ReportFunction(
                     false
                 )
                 if (result.message != null) {
-                    HttpUtilities.okResponse(request, result.message.toString())
+                    return HttpUtilities.okResponse(request, result.message.toString())
                 } else if (result.bundle != null) {
-                    HttpUtilities.okJSONResponse(request, result.bundle)
+                    return HttpUtilities.okJSONResponse(request, result.bundle)
                 }
             } catch (exception: CliktError) {
                 return HttpUtilities.badRequestResponse(request, "${exception.message}")
