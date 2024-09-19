@@ -13,4 +13,4 @@ sourceControl {
     }
 }
 rootProject.name = "prime-reportstream"
-include("shared", "submissions", "prime-router")
+include("shared", "submissions", "prime-router", "auth")
