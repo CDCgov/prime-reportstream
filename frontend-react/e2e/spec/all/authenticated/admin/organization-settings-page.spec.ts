@@ -43,35 +43,35 @@ const test = baseTest.extend<OrganizationPageFixtures>({
 
 test.describe("Admin Organization Settings Page", () => {
     test.describe("not authenticated", () => {
-        test("redirects to login", async ({organizationPage}) => {
+        test("redirects to login", async ({ organizationPage }) => {
             await expect(organizationPage.page).toHaveURL("/login");
         });
     });
 
     test.describe("receiver user", () => {
-        test.use({storageState: "e2e/.auth/receiver.json"});
-        test("returns Page Not Found", async ({organizationPage}) => {
+        test.use({ storageState: "e2e/.auth/receiver.json" });
+        test("returns Page Not Found", async ({ organizationPage }) => {
             await expect(organizationPage.page).toHaveTitle(/Page Not Found/);
         });
     });
 
     test.describe("sender user", () => {
-        test.use({storageState: "e2e/.auth/sender.json"});
-        test("returns Page Not Found", async ({organizationPage}) => {
+        test.use({ storageState: "e2e/.auth/sender.json" });
+        test("returns Page Not Found", async ({ organizationPage }) => {
             await expect(organizationPage.page).toHaveTitle(/Page Not Found/);
         });
     });
 
     test.describe("admin user", () => {
-        test.use({storageState: "e2e/.auth/admin.json"});
+        test.use({ storageState: "e2e/.auth/admin.json" });
 
         test.describe("header", () => {
-            test("has correct title + heading", async ({organizationPage}) => {
+            test("has correct title + heading", async ({ organizationPage }) => {
                 await organizationPage.testHeader();
             });
         });
 
-        test("if there is an error, the error is shown on the page", async ({organizationPage}) => {
+        test("if there is an error, the error is shown on the page", async ({ organizationPage }) => {
             organizationPage.mockError = true;
             await organizationPage.reload();
             await expect(organizationPage.page.getByText("there was an error")).toBeVisible();
@@ -79,29 +79,29 @@ test.describe("Admin Organization Settings Page", () => {
 
         test.describe("when there is no error", () => {
             test("nav contains the 'Admin tools' dropdown with 'Organization Settings' option", async ({
-               organizationPage,
-           }) => {
-const navItems = organizationPage.page.locator(".usa-nav  li");
-await expect(navItems).toContainText(["Admin tools"]);
+                                                                                                           organizationPage,
+                                                                                                       }) => {
+                const navItems = organizationPage.page.locator(".usa-nav  li");
+                await expect(navItems).toContainText(["Admin tools"]);
 
-await organizationPage.page
-.getByTestId("auth-header")
-.getByTestId("navDropDownButton")
-.getByText("Admin tools")
-.click();
+                await organizationPage.page
+                    .getByTestId("auth-header")
+                    .getByTestId("navDropDownButton")
+                    .getByText("Admin tools")
+                    .click();
 
-expect(organizationPage.page.getByText("Organization Settings")).toBeTruthy();
+                expect(organizationPage.page.getByText("Organization Settings")).toBeTruthy();
 
-await organizationPage.page.getByText("Organization Settings").click();
-await expect(organizationPage.page).toHaveURL("/admin/settings");
-});
+                await organizationPage.page.getByText("Organization Settings").click();
+                await expect(organizationPage.page).toHaveURL("/admin/settings");
+            });
 
-            test("has correct title", async ({organizationPage}) => {
+            test("has correct title", async ({ organizationPage }) => {
                 await expect(organizationPage.page).toHaveURL(/settings/);
                 await expect(organizationPage.page).toHaveTitle(/Admin-Organizations/);
             });
 
-            test("displays data", async ({organizationPage}) => {
+            test("displays data", async ({ organizationPage }) => {
                 // Heading with result length
                 await expect(
                     organizationPage.page.getByRole("heading", {
@@ -122,7 +122,7 @@ await expect(organizationPage.page).toHaveURL("/admin/settings");
                     const cols = await row.getByRole("cell").allTextContents();
                     expect(cols).toHaveLength(colHeaders.length);
 
-                    const {description, jurisdiction, name, stateCode} =
+                    const { description, jurisdiction, name, stateCode } =
                         i === 0
                             ? MOCK_GET_ORGANIZATION_SETTINGS_LIST[0]
                             : (MOCK_GET_ORGANIZATION_SETTINGS_LIST.find((i) => i.name === cols[0]) ?? {
@@ -141,7 +141,7 @@ await expect(organizationPage.page).toHaveURL("/admin/settings");
                 }
             });
 
-            test("create new organization navigation works", async ({organizationPage}) => {
+            test("create new organization navigation works", async ({ organizationPage }) => {
                 const link = organizationPage.page.getByRole("link", {
                     name: "Create New Organization",
                 });
@@ -155,7 +155,7 @@ await expect(organizationPage.page).toHaveURL("/admin/settings");
                 expect(organizationPage.page.url()).toContain(expectedUrl);
             });
 
-            test("save CSV button downloads a file", async ({organizationPage}) => {
+            test("save CSV button downloads a file", async ({ organizationPage }) => {
                 const downloadProm = organizationPage.page.waitForEvent("download");
                 const saveButton = organizationPage.page.getByRole("button", {
                     name: "Save List to CSV",
@@ -174,9 +174,9 @@ await expect(organizationPage.page).toHaveURL("/admin/settings");
                 expect(download.suggestedFilename()).toBe("prime-orgs.csv");
             });
 
-            test("filtering works", async ({organizationPage}) => {
+            test("filtering works", async ({ organizationPage }) => {
                 const table = organizationPage.page.getByRole("table");
-                const {description, name, jurisdiction, stateCode} = MOCK_GET_ORGANIZATION_SETTINGS_LIST[2];
+                const { description, name, jurisdiction, stateCode } = MOCK_GET_ORGANIZATION_SETTINGS_LIST[2];
                 const filterBox = organizationPage.page.getByRole("textbox", {
                     name: "Filter:",
                 });
@@ -201,7 +201,7 @@ await expect(organizationPage.page).toHaveURL("/admin/settings");
                 }
             });
 
-            test('clicking "Set" updates link label', async ({organizationPage}) => {
+            test('clicking "Set" updates link label', async ({ organizationPage }) => {
                 const firstDataRow = organizationPage.page.getByRole("table").getByRole("row").nth(1);
                 const firstDataRowName = (await firstDataRow.getByRole("cell").nth(0).textContent()) ?? "INVALID";
                 const setButton = firstDataRow.getByRole("button", {
@@ -218,7 +218,7 @@ await expect(organizationPage.page).toHaveURL("/admin/settings");
                 await expect(orgLink).toHaveAttribute("href", "/admin/settings");
             });
 
-            test("edit navigation works", async ({organizationPage}) => {
+            test("edit navigation works", async ({ organizationPage }) => {
                 const firstDataRow = organizationPage.page.getByRole("table").getByRole("row").nth(1);
                 const firstDataRowName = (await firstDataRow.getByRole("cell").nth(0).textContent()) ?? "INVALID";
                 const expectedUrl = `/admin/orgsettings/org/${firstDataRowName}`;
@@ -237,7 +237,7 @@ await expect(organizationPage.page).toHaveURL("/admin/settings");
     });
 
     test.describe("footer", () => {
-        test("has footer and explicit scroll to footer and scroll to top", async ({organizationPage}) => {
+        test("has footer and explicit scroll to footer and scroll to top", async ({ organizationPage }) => {
             await organizationPage.testFooter();
         });
     });
