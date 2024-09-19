@@ -1525,7 +1525,7 @@ class Report : Logging {
                 MimeFormat.valueOfIgnoreCase(header.reportFile.bodyFormat),
                 header.reportFile.createdAt,
                 metadata = metadata ?: Metadata.getInstance(),
-                translationConfig = header.receiver!!.translation,
+                translationConfig = header.receiver.translation,
                 nameFormat = header.receiver.translation.nameFormat
             )
         } else if (header.reportFile.externalName != null) {
