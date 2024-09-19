@@ -4,7 +4,7 @@ import assertk.assertThat
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotNull
-import gov.cdc.prime.router.Topic
+import gov.cdc.prime.reportstream.shared.Topic
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.observability.event.ItemEventData
 import gov.cdc.prime.router.azure.observability.event.ReportEventData
@@ -104,7 +104,7 @@ class MDCUtilsTest {
         withLoggingContext(event) {
             val context = MDC.getCopyOfContextMap()
             assertThat(context["parentReportId"]).isNotNull()
-            assertThat(context["topic"]).isEqualTo(Topic.FULL_ELR.jsonVal)
+            assertThat(context["topic"]).isEqualTo(Topic.FULL_ELR.jsonVal())
             assertThat(context["pipelineStepName"]).isEqualTo("send")
             assertThat(context["timestamp"]).isNotNull()
             assertThat(context["params"]).isEqualTo("{\"filename\":\"filename\"}")
@@ -138,7 +138,7 @@ class MDCUtilsTest {
         withLoggingContext(event) {
             val context = MDC.getCopyOfContextMap()
             assertThat(context["parentReportId"]).isNotNull()
-            assertThat(context["topic"]).isEqualTo(Topic.FULL_ELR.jsonVal)
+            assertThat(context["topic"]).isEqualTo(Topic.FULL_ELR.jsonVal())
             assertThat(context["pipelineStepName"]).isEqualTo("send")
             assertThat(context["timestamp"]).isNotNull()
             assertThat(context["params"]).isEqualTo("{\"filename\":\"filename\"}")

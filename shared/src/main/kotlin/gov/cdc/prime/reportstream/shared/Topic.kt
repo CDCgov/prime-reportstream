@@ -1,0 +1,49 @@
+package gov.cdc.prime.reportstream.shared
+
+import com.fasterxml.jackson.annotation.JsonValue
+import gov.cdc.prime.reportstream.shared.queue_message.ITopic
+
+/**
+ * A submission with topic FULL_ELR will be processed using the full ELR pipeline (fhir engine), submissions
+ * from a sender with topic COVID_19 will be processed using the covid-19 pipeline.
+ */
+enum class Topic: ITopic {
+
+    FULL_ELR {
+        @JsonValue override fun jsonVal(): String { return "full-elr" }
+        override fun isUniversalPipeline(): Boolean { return true }
+        override fun isSendOriginal(): Boolean { return false }
+        override fun validator(): Any { return Unit }
+    },
+    ETOR_TI {
+        @JsonValue override fun jsonVal(): String { return "etor-ti" }
+        override fun isUniversalPipeline(): Boolean { return true }
+        override fun isSendOriginal(): Boolean { return false }
+        override fun validator(): Any { return Unit }
+    },
+    ELR_ELIMS {
+        @JsonValue override fun jsonVal(): String { return "elr-elims" }
+        override fun isUniversalPipeline(): Boolean { return true }
+        override fun isSendOriginal(): Boolean { return true }
+        override fun validator(): Any { return Unit }
+    },
+    COVID_19 {
+        @JsonValue override fun jsonVal(): String { return "covid-19" }
+        override fun isUniversalPipeline(): Boolean { return false }
+        override fun isSendOriginal(): Boolean { return false }
+        override fun validator(): Any { return Unit }
+    },
+    MONKEYPOX {
+        @JsonValue override fun jsonVal(): String { return "monkeypox" }
+        override fun isUniversalPipeline(): Boolean { return false }
+        override fun isSendOriginal(): Boolean { return false }
+        override fun validator(): Any { return Unit }
+    },
+    TEST {
+        @JsonValue override fun jsonVal(): String { return "test" }
+        override fun isUniversalPipeline(): Boolean { return false }
+        override fun isSendOriginal(): Boolean { return false }
+        override fun validator(): Any { return Unit }
+    }
+
+}

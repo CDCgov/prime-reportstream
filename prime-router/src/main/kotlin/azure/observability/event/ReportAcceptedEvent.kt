@@ -1,7 +1,7 @@
 package gov.cdc.prime.router.azure.observability.event
 
+import gov.cdc.prime.reportstream.shared.Topic
 import gov.cdc.prime.router.ReportId
-import gov.cdc.prime.router.Topic
 
 /**
  * Event definition for when a report is ready to be processed per receiver

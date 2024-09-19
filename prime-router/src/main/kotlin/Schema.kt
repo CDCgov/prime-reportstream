@@ -1,5 +1,6 @@
 package gov.cdc.prime.router
 
+import gov.cdc.prime.reportstream.shared.Topic
 import gov.cdc.prime.router.metadata.LIVDLookupMapper
 
 /**

@@ -9,6 +9,7 @@ import assertk.assertions.isEqualTo
 import assertk.assertions.isTrue
 import assertk.assertions.support.expected
 import assertk.assertions.support.show
+import gov.cdc.prime.reportstream.shared.Topic
 import tech.tablesaw.api.StringColumn
 import tech.tablesaw.api.Table
 import kotlin.test.Test

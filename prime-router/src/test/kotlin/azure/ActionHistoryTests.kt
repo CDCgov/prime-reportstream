@@ -10,6 +10,8 @@ import assertk.assertions.isNull
 import assertk.assertions.isTrue
 import com.microsoft.azure.functions.HttpMethod
 import gov.cdc.prime.reportstream.shared.BlobUtils
+import gov.cdc.prime.reportstream.shared.EventAction
+import gov.cdc.prime.reportstream.shared.Topic
 import gov.cdc.prime.router.ActionLog
 import gov.cdc.prime.router.ActionLogLevel
 import gov.cdc.prime.router.ClientSource
@@ -21,7 +23,6 @@ import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Schema
-import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.azure.observability.event.AzureEventService
@@ -158,7 +159,7 @@ class ActionHistoryTests {
 
     @Test
     fun `test trackGeneratedEmptyReport`() {
-        val event1 = ReportEvent(Event.EventAction.TRANSLATE, UUID.randomUUID(), false, OffsetDateTime.now())
+        val event1 = ReportEvent(EventAction.TRANSLATE, UUID.randomUUID(), false, OffsetDateTime.now())
         val one = Schema(name = "one", topic = Topic.TEST, elements = listOf())
         val report1 = Report(
             one, listOf(),
@@ -192,7 +193,7 @@ class ActionHistoryTests {
 
     @Test
     fun `test trackCreatedReport`() {
-        val event1 = ReportEvent(Event.EventAction.TRANSLATE, UUID.randomUUID(), false, OffsetDateTime.now())
+        val event1 = ReportEvent(EventAction.TRANSLATE, UUID.randomUUID(), false, OffsetDateTime.now())
         val schema1 = Schema(name = "schema1", topic = Topic.TEST, elements = listOf())
         val report1 = Report(
             schema1, listOf(), sources = listOf(ClientSource("myOrg", "myClient")),
@@ -230,7 +231,7 @@ class ActionHistoryTests {
 
     @Test
     fun `test trackCreatedReport (no receiver parameter)`() {
-        val event1 = ReportEvent(Event.EventAction.TRANSLATE, UUID.randomUUID(), false, OffsetDateTime.now())
+        val event1 = ReportEvent(EventAction.TRANSLATE, UUID.randomUUID(), false, OffsetDateTime.now())
         val schema1 = Schema(name = "schema1", topic = Topic.TEST, elements = listOf())
         val receiver = Receiver(
             "myService",
@@ -270,7 +271,7 @@ class ActionHistoryTests {
 
     @Test
     fun `test trackCreatedReport (no receiver parameter, null receiver and blob)`() {
-        val event1 = ReportEvent(Event.EventAction.TRANSLATE, UUID.randomUUID(), false, OffsetDateTime.now())
+        val event1 = ReportEvent(EventAction.TRANSLATE, UUID.randomUUID(), false, OffsetDateTime.now())
         val schema1 = Schema(name = "schema1", topic = Topic.TEST, elements = listOf())
         val report1 = Report(
             schema1, listOf(), sources = listOf(ClientSource("myOrg", "myClient")),
@@ -329,7 +330,7 @@ class ActionHistoryTests {
                 )
             )
         mockkObject(BlobAccess.Companion)
-        every { BlobAccess.uploadBody(any(), any(), any(), any(), Event.EventAction.NONE) } returns BlobAccess.BlobInfo(
+        every { BlobAccess.uploadBody(any(), any(), any(), any(), EventAction.NONE) } returns BlobAccess.BlobInfo(
             MimeFormat.HL7,
             "http://blobUrl",
             "".toByteArray()
@@ -459,7 +460,7 @@ class ActionHistoryTests {
         val blobUrls = mutableListOf<String>()
         every { BlobAccess.uploadBlob(capture(blobUrls), any()) } returns "http://blobUrl"
         every { BlobUtils.sha256Digest(any<ByteArray>()) } returns byteArrayOf()
-        every { BlobAccess.uploadBody(any(), any(), any(), any(), Event.EventAction.NONE) } answers { callOriginal() }
+        every { BlobAccess.uploadBody(any(), any(), any(), any(), EventAction.NONE) } answers { callOriginal() }
         val header = mockk<WorkflowEngine.Header>()
         every {
             mockReportEventService.sendReportEvent(any(), any<ReportFile>(), any(), any())
@@ -699,7 +700,7 @@ class ActionHistoryTests {
         val blobUrls = mutableListOf<String>()
         every { BlobAccess.uploadBlob(capture(blobUrls), any()) } returns "http://blobUrl"
         every { BlobUtils.sha256Digest(any()) } returns byteArrayOf()
-        every { BlobAccess.uploadBody(any(), any(), any(), any(), Event.EventAction.NONE) } answers { callOriginal() }
+        every { BlobAccess.uploadBody(any(), any(), any(), any(), EventAction.NONE) } answers { callOriginal() }
         val header = mockk<WorkflowEngine.Header>()
         every {
             mockReportEventService.sendReportEvent(any(), any<ReportFile>(), any(), any())

@@ -4,6 +4,7 @@ import com.microsoft.azure.functions.ExecutionContext
 import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.StorageAccount
 import com.microsoft.azure.functions.annotation.TimerTrigger
+import gov.cdc.prime.reportstream.shared.EventAction
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.azure.BatchEvent
 import gov.cdc.prime.router.azure.DataAccessTransaction
@@ -49,8 +50,8 @@ class BatchDeciderFunction(private val workflowEngine: WorkflowEngine = Workflow
 
                         repeat(queueMessages) {
                             // build 'batch' event
-                            val event = BatchEvent(Event.EventAction.BATCH, rec.fullName, isEmpty)
-                            val queueName = if (rec.topic.isUniversalPipeline) {
+                            val event = BatchEvent(EventAction.BATCH, rec.fullName, isEmpty)
+                            val queueName = if (rec.topic.isUniversalPipeline()) {
                                 BatchConstants.Queue.UNIVERSAL_BATCH_QUEUE
                             } else {
                                 BatchConstants.Queue.COVID_BATCH_QUEUE

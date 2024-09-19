@@ -3,8 +3,8 @@ package gov.cdc.prime.router.azure.observability.event
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import assertk.assertions.isEqualToIgnoringGivenProperties
+import gov.cdc.prime.reportstream.shared.Topic
 import gov.cdc.prime.router.MimeFormat
-import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.common.ReportNodeBuilder.Companion.reportGraph
 import gov.cdc.prime.router.common.UniversalPipelineTestUtils

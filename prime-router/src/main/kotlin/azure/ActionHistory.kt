@@ -6,6 +6,7 @@ import com.microsoft.azure.functions.HttpRequestMessage
 import com.microsoft.azure.functions.HttpResponseMessage
 import com.microsoft.azure.functions.HttpStatusType
 import com.networknt.org.apache.commons.validator.routines.InetAddressValidator
+import gov.cdc.prime.reportstream.shared.EventAction
 import gov.cdc.prime.router.ActionLog
 import gov.cdc.prime.router.ActionLogLevel
 import gov.cdc.prime.router.ClientSource
@@ -14,7 +15,6 @@ import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.Sender
-import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.ActionHistory.ReceivedReportSenderParameters.Companion.removeExcludedParameters
 import gov.cdc.prime.router.azure.db.Tables.ACTION
 import gov.cdc.prime.router.azure.db.enums.TaskAction
@@ -30,6 +30,7 @@ import gov.cdc.prime.router.azure.observability.event.ReportStreamEventName
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventProperties
 import gov.cdc.prime.router.common.AzureHttpUtils.getSenderIP
 import gov.cdc.prime.router.common.JacksonMapperUtilities
+import gov.cdc.prime.reportstream.shared.Topic
 import io.ktor.http.HttpStatusCode
 import org.apache.logging.log4j.kotlin.Logging
 import org.jooq.impl.SQLDataType
@@ -464,10 +465,10 @@ class ActionHistory(
         // TODO: Need to update this process to have a better way to determine what messages should be sent
         //  automatically as part of queueMessages and what are being send manually as part of the parent function.
         //  The automatic queueing uses the action name as the queue name, and this is not the case for FHIR actions
-        if (event.eventAction != Event.EventAction.BATCH &&
-            event.eventAction != Event.EventAction.DESTINATION_FILTER &&
-            event.eventAction != Event.EventAction.RECEIVER_FILTER &&
-            event.eventAction != Event.EventAction.TRANSLATE
+        if (event.eventAction != EventAction.BATCH &&
+            event.eventAction != EventAction.DESTINATION_FILTER &&
+            event.eventAction != EventAction.RECEIVER_FILTER &&
+            event.eventAction != EventAction.TRANSLATE
         ) {
             trackEvent(event)
         }
@@ -517,7 +518,7 @@ class ActionHistory(
         reportFile.schemaTopic = report.schema.topic
         reportFile.itemCountBeforeQualFilter = report.itemCountBeforeQualFilter
 
-        reportFile.nextAction = event.eventAction.toTaskAction()
+        reportFile.nextAction = event.toTaskAction()
         reportFile.nextActionAt = event.at
         reportFile.externalName = externalName
 
@@ -548,10 +549,10 @@ class ActionHistory(
         // TODO: Need to update this process to have a better way to determine what messages should be sent
         //  automatically as part of queueMessages and what are being send manually as part of the parent function.
         //  The automatic queueing uses the action name as the queue name, and this is not the case for FHIR actions
-        if (event.eventAction != Event.EventAction.BATCH &&
-            event.eventAction != Event.EventAction.DESTINATION_FILTER &&
-            event.eventAction != Event.EventAction.RECEIVER_FILTER &&
-            event.eventAction != Event.EventAction.TRANSLATE
+        if (event.eventAction != EventAction.BATCH &&
+            event.eventAction != EventAction.DESTINATION_FILTER &&
+            event.eventAction != EventAction.RECEIVER_FILTER &&
+            event.eventAction != EventAction.TRANSLATE
         ) {
             trackEvent(event) // to be sent to queue later.
         }
@@ -583,7 +584,7 @@ class ActionHistory(
             header.content,
             sentReportId.toString(),
             receiver.fullName,
-            Event.EventAction.NONE
+            EventAction.NONE
         )
 
         val reportFile = ReportFile()

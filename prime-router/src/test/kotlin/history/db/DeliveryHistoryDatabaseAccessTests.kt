@@ -6,8 +6,8 @@ import assertk.assertions.endsWith
 import assertk.assertions.hasSize
 import assertk.assertions.isNotNull
 import assertk.assertions.startsWith
+import gov.cdc.prime.reportstream.shared.Topic
 import gov.cdc.prime.router.MimeFormat
-import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.OrganizationAPI
 import gov.cdc.prime.router.azure.ReceiverAPI
 import gov.cdc.prime.router.azure.SettingsFacade

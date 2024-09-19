@@ -7,10 +7,10 @@ import assertk.assertions.isEqualTo
 import assertk.assertions.isEqualToIgnoringGivenProperties
 import assertk.assertions.isNull
 import gov.cdc.prime.reportstream.shared.BlobUtils
+import gov.cdc.prime.reportstream.shared.Topic
 import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.Sender
-import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.QueueAccess

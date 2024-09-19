@@ -10,6 +10,9 @@ import assertk.assertions.isNotEqualTo
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
 import assertk.assertions.isTrue
+import gov.cdc.prime.reportstream.shared.EventAction
+import gov.cdc.prime.reportstream.shared.ReportOptions
+import gov.cdc.prime.reportstream.shared.Topic
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.Event
@@ -917,7 +920,7 @@ class ReportTests {
         // No message body
         assertFailure {
             Report.generateReportAndUploadBlob(
-                Event.EventAction.BATCH,
+                EventAction.BATCH,
                 "".toByteArray(),
                 listOf(UUID.randomUUID()),
                 rcvr,
@@ -930,7 +933,7 @@ class ReportTests {
         // No report ID
         assertFailure {
             Report.generateReportAndUploadBlob(
-                Event.EventAction.BATCH,
+                EventAction.BATCH,
                 UUID.randomUUID().toString().toByteArray(),
                 listOf(),
                 rcvr,
@@ -943,7 +946,7 @@ class ReportTests {
         // Invalid receiver type
         assertFailure {
             Report.generateReportAndUploadBlob(
-                Event.EventAction.BATCH,
+                EventAction.BATCH,
                 UUID.randomUUID().toString().toByteArray(),
                 listOf(UUID.randomUUID()),
                 rcvr,
@@ -990,7 +993,7 @@ class ReportTests {
         // Now test single report
         var reportIds = listOf(ReportId.randomUUID())
         val (report, event, blobInfo) = Report.generateReportAndUploadBlob(
-            Event.EventAction.PROCESS, fhirMockData, reportIds, receiver, mockMetadata, mockActionHistory,
+            EventAction.PROCESS, fhirMockData, reportIds, receiver, mockMetadata, mockActionHistory,
             topic = Topic.FULL_ELR,
         )
         val blobUrl = "/devstoreaccount1/container1/process%2Forg.name%2F${report.id}.${report.bodyFormat.ext}"
@@ -1001,7 +1004,7 @@ class ReportTests {
         assertThat(report.destination!!.name).isEqualTo(receiver.name)
         assertThat(report.itemLineages).isNotNull()
         assertThat(report.itemLineages!!.size).isEqualTo(1)
-        assertThat(event.eventAction).isEqualTo(Event.EventAction.PROCESS)
+        assertThat(event.eventAction).isEqualTo(EventAction.PROCESS)
         assertThat(blobInfo.blobUrl).endsWith(blobUrl)
         assertThat(BlobAccess.downloadBlobAsByteArray(blobInfo.blobUrl, blobContainerMetadata))
             .isEqualTo(fhirMockData)
@@ -1009,14 +1012,14 @@ class ReportTests {
         // Multiple reports
         reportIds = listOf(ReportId.randomUUID(), ReportId.randomUUID(), ReportId.randomUUID())
         val (report2, event2, _) = Report.generateReportAndUploadBlob(
-            Event.EventAction.SEND, fhirMockData, reportIds, receiver, mockMetadata, mockActionHistory,
+            EventAction.SEND, fhirMockData, reportIds, receiver, mockMetadata, mockActionHistory,
             topic = Topic.FULL_ELR,
         )
         assertThat(report2.bodyFormat).isEqualTo(MimeFormat.FHIR)
         assertThat(report2.itemCount).isEqualTo(3)
         assertThat(report2.itemLineages).isNotNull()
         assertThat(report2.itemLineages!!.size).isEqualTo(3)
-        assertThat(event2.eventAction).isEqualTo(Event.EventAction.SEND)
+        assertThat(event2.eventAction).isEqualTo(EventAction.SEND)
     }
 
     @Test
@@ -1058,7 +1061,7 @@ class ReportTests {
 
         var reportIds = listOf(ReportId.randomUUID())
         val (report, event, blobInfo) = Report.generateReportAndUploadBlob(
-            Event.EventAction.PROCESS, hl7MockData, reportIds, receiver, mockMetadata, mockActionHistory,
+            EventAction.PROCESS, hl7MockData, reportIds, receiver, mockMetadata, mockActionHistory,
             topic = Topic.FULL_ELR
         )
         val blobUrl = "/devstoreaccount1/container1/process%2Forg.name%2F${report.id}.${report.bodyFormat.ext}"
@@ -1069,7 +1072,7 @@ class ReportTests {
         assertThat(report.destination!!.name).isEqualTo(receiver.name)
         assertThat(report.itemLineages).isNotNull()
         assertThat(report.itemLineages!!.size).isEqualTo(1)
-        assertThat(event.eventAction).isEqualTo(Event.EventAction.PROCESS)
+        assertThat(event.eventAction).isEqualTo(EventAction.PROCESS)
         assertThat(blobInfo.blobUrl).endsWith(blobUrl)
         assertThat(BlobAccess.downloadBlobAsByteArray(blobInfo.blobUrl, blobContainerMetadata))
             .isEqualTo(hl7MockData)
@@ -1077,7 +1080,7 @@ class ReportTests {
         // Multiple reports
         reportIds = listOf(ReportId.randomUUID(), ReportId.randomUUID(), ReportId.randomUUID())
         val (report2, event2, _) = Report.generateReportAndUploadBlob(
-            Event.EventAction.SEND, hl7MockData, reportIds, receiver, mockMetadata, mockActionHistory,
+            EventAction.SEND, hl7MockData, reportIds, receiver, mockMetadata, mockActionHistory,
             topic = Topic.FULL_ELR,
         )
         unmockkObject(BlobAccess)
@@ -1085,7 +1088,7 @@ class ReportTests {
         assertThat(report2.itemCount).isEqualTo(3)
         assertThat(report2.itemLineages).isNotNull()
         assertThat(report2.itemLineages!!.size).isEqualTo(3)
-        assertThat(event2.eventAction).isEqualTo(Event.EventAction.SEND)
+        assertThat(event2.eventAction).isEqualTo(EventAction.SEND)
     }
 
     @Test
@@ -1128,7 +1131,7 @@ class ReportTests {
         val reportIds = listOf(ReportId.randomUUID())
         val externalReportName = "TestExternalName.hl7"
         val (report, _, blobInfo) = Report.generateReportAndUploadBlob(
-            Event.EventAction.PROCESS, hl7MockData, reportIds, receiver, mockMetadata, mockActionHistory,
+            EventAction.PROCESS, hl7MockData, reportIds, receiver, mockMetadata, mockActionHistory,
             topic = Topic.FULL_ELR, externalName = externalReportName
         )
 
@@ -1251,25 +1254,25 @@ class ReportTests {
 class OptionTests {
     @Test
     fun `test valueOfOrNone`() {
-        val option = Options.valueOfOrNone("SkipSend")
-        assertThat(option).equals(Options.SkipSend)
+        val option = ReportOptions.valueOfOrNone("SkipSend")
+        assertThat(option).equals(ReportOptions.SkipSend)
 
-        val deprecatedOption = Options.valueOfOrNone("SkipInvalidItems")
-        assertThat(deprecatedOption).equals(Options.SkipInvalidItems)
+        val deprecatedOption = ReportOptions.valueOfOrNone("SkipInvalidItems")
+        assertThat(deprecatedOption).equals(ReportOptions.SkipInvalidItems)
 
-        val noneOption = Options.valueOfOrNone("None")
-        assertThat(noneOption).equals(Options.None)
+        val noneOption = ReportOptions.valueOfOrNone("None")
+        assertThat(noneOption).equals(ReportOptions.None)
 
         val invalidOption = "INVALID OPTION"
-        assertFailsWith<Options.InvalidOptionException> { Options.valueOfOrNone(invalidOption) }
+        assertFailsWith<ReportOptions.InvalidOptionException> { ReportOptions.valueOfOrNone(invalidOption) }
     }
 
     @Test
     fun `test isDeprecated`() {
-        val deprecatedOption = Options.valueOfOrNone("SkipInvalidItems")
+        val deprecatedOption = ReportOptions.valueOfOrNone("SkipInvalidItems")
         assertThat(deprecatedOption.isDeprecated).isTrue()
 
-        val option = Options.valueOfOrNone("SkipSend")
+        val option = ReportOptions.valueOfOrNone("SkipSend")
         assertThat(option.isDeprecated).isFalse()
     }
 }

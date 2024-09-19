@@ -12,12 +12,12 @@ import com.microsoft.azure.functions.annotation.AuthorizationLevel
 import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.HttpTrigger
 import com.microsoft.azure.functions.annotation.StorageAccount
+import gov.cdc.prime.reportstream.shared.ReportOptions
 import gov.cdc.prime.router.ActionError
 import gov.cdc.prime.router.ActionLog
 import gov.cdc.prime.router.ActionLogLevel
 import gov.cdc.prime.router.InvalidParamMessage
 import gov.cdc.prime.router.InvalidReportMessage
-import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.Sender.ProcessingType
@@ -290,13 +290,13 @@ class ReportFunction(
         val optionsText = request.queryParameters.getOrDefault(OPTION_PARAMETER, "None")
         val httpStatus: HttpStatus =
             try {
-                val option = Options.valueOfOrNone(optionsText)
+                val option = ReportOptions.valueOfOrNone(optionsText)
                 if (option.isDeprecated) {
                     actionHistory.trackLogs(
                         ActionLog(
                             InvalidParamMessage(
                                 "Url Options Parameter, $optionsText has been deprecated. " +
-                                    "Valid options: ${Options.activeValues.joinToString()}"
+                                    "Valid options: ${ReportOptions.activeValues.joinToString()}"
                             ),
                             type = ActionLogLevel.warning
                         )
@@ -316,7 +316,7 @@ class ReportFunction(
                     }
 
                 // Only process the report if we are not checking for connection or validation.
-                if (option != Options.CheckConnections && option != Options.ValidatePayload) {
+                if (option != ReportOptions.CheckConnections && option != ReportOptions.ValidatePayload) {
                     val receiver = SubmissionReceiver.getSubmissionReceiver(sender, workflowEngine, actionHistory)
                     val content =
                         if (receiver is UniversalPipelineReceiver) {
@@ -373,7 +373,7 @@ class ReportFunction(
                     ActionLog(InvalidReportMessage(e.message ?: "Invalid request."), type = ActionLogLevel.error)
                 )
                 HttpStatus.BAD_REQUEST
-            } catch (e: Options.InvalidOptionException) {
+            } catch (e: ReportOptions.InvalidOptionException) {
                 actionHistory.trackLogs(
                     ActionLog(InvalidParamMessage(e.message ?: "Invalid request."), type = ActionLogLevel.error)
                 )

@@ -4,6 +4,7 @@ import com.microsoft.azure.functions.annotation.BindingName
 import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.QueueTrigger
 import com.microsoft.azure.functions.annotation.StorageAccount
+import gov.cdc.prime.reportstream.shared.EventAction
 import org.apache.logging.log4j.kotlin.Logging
 
 private const val azureQueueName = "process"
@@ -30,12 +31,12 @@ class ProcessFunction : Logging {
             workflowEngine = WorkflowEngine()
             event = Event.parsePrimeRouterQueueMessage(message) as ProcessEvent
 
-            if (event.eventAction != Event.EventAction.PROCESS) {
+            if (event.eventAction != EventAction.PROCESS) {
                 logger.error("Process function received a message of the incorrect type: $message")
                 return
             }
 
-            actionHistory = ActionHistory(event.eventAction.toTaskAction())
+            actionHistory = ActionHistory(event.toTaskAction())
             actionHistory.trackActionParams(message)
 
             workflowEngine.handleProcessEvent(event, actionHistory)

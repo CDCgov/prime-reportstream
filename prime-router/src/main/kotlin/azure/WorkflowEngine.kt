@@ -1,5 +1,7 @@
 package gov.cdc.prime.router.azure
 
+import gov.cdc.prime.reportstream.shared.EventAction
+import gov.cdc.prime.reportstream.shared.ReportOptions
 import gov.cdc.prime.router.ActionError
 import gov.cdc.prime.router.ActionLog
 import gov.cdc.prime.router.ClientSource
@@ -8,7 +10,6 @@ import gov.cdc.prime.router.InvalidReportMessage
 import gov.cdc.prime.router.LegacyPipelineSender
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.MimeFormat
-import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
@@ -184,7 +185,7 @@ class WorkflowEngine(
     ): BlobAccess.BlobInfo {
         // Save a copy of the original report
         val reportFormat =
-            if (sender.topic.isUniversalPipeline) {
+            if (sender.topic.isUniversalPipeline()) {
                 report.bodyFormat
             } else {
                 MimeFormat.safeValueOf(sender.format.toString())
@@ -195,7 +196,7 @@ class WorkflowEngine(
             rawBody,
             report.id.toString(),
             sender.fullName,
-            Event.EventAction.RECEIVE
+            EventAction.RECEIVE
         )
 
         actionHistory.trackExternalInputReport(
@@ -297,7 +298,7 @@ class WorkflowEngine(
             ActionHistory.sanityCheckReport(task, reportFile, false)
             val itemLineages = db.fetchItemLineagesForReport(reportId, reportFile.itemCount, txn)
             val header = createHeader(task, reportFile, itemLineages, organization, receiver)
-            val currentEventAction = Event.EventAction.parseQueueMessage(header.task.nextAction.literal)
+            val currentEventAction = EventAction.parseQueueMessage(header.task.nextAction.literal)
             // Ignore messages that are not consistent with the current header
             if (currentEventAction != messageEvent.eventAction) {
                 logger.warn(
@@ -334,7 +335,7 @@ class WorkflowEngine(
     ) {
         // Send immediately.
         var doSendQueue = false // set to true if all the required actions complete
-        val nextEvent = ReportEvent(Event.EventAction.SEND, reportId, at = null, isEmptyBatch = false)
+        val nextEvent = ReportEvent(EventAction.SEND, reportId, at = null, isEmptyBatch = false)
         db.transact { txn ->
             db.fetchAndLockTask(reportId, txn) // Required, it creates lock.
             val organization = settings.findOrganization(receiver.organizationName)
@@ -374,7 +375,7 @@ class WorkflowEngine(
                 if (!isTest) {
                     updateHeader(
                         reportId,
-                        Event.EventAction.RESEND,
+                        EventAction.RESEND,
                         nextEvent.eventAction,
                         nextEvent.at,
                         RetryToken(0, retryItems).toJSON(), // retryCount=0 will start at [1]
@@ -414,7 +415,7 @@ class WorkflowEngine(
 
         // set the empty report to be sent to the receiver
         this.db.transact { txn ->
-            val sendEvent = ReportEvent(Event.EventAction.SEND, emptyReport.id, true)
+            val sendEvent = ReportEvent(EventAction.SEND, emptyReport.id, true)
             this.dispatchReport(sendEvent, emptyReport, actionHistory, receiver, txn, true)
         }
     }
@@ -422,7 +423,7 @@ class WorkflowEngine(
     // routeReport does all filtering and translating per receiver, generating one file per receiver to then be batched
     fun routeReport(
         report: Report,
-        options: Options,
+        options: ReportOptions,
         defaults: Map<String, String>,
         routeTo: List<String>,
         actionHistory: ActionHistory,
@@ -479,24 +480,24 @@ class WorkflowEngine(
     private fun sendToDestination(
         report: Report,
         receiver: Receiver,
-        options: Options,
+        options: ReportOptions,
         actionHistory: ActionHistory,
         txn: DataAccessTransaction,
     ) {
         val loggerMsg: String
         when {
-            options == Options.SkipSend -> {
+            options == ReportOptions.SkipSend -> {
                 // Note that SkipSend should really be called SkipBothTimingAndSend  ;)
-                val event = ReportEvent(Event.EventAction.NONE, report.id, actionHistory.generatingEmptyReport)
+                val event = ReportEvent(EventAction.NONE, report.id, actionHistory.generatingEmptyReport)
                 this.dispatchReport(event, report, actionHistory, receiver, txn)
                 loggerMsg = "Queue: ${event.toQueueMessage()}"
             }
 
-            receiver.timing != null && options != Options.SendImmediately -> {
+            receiver.timing != null && options != ReportOptions.SendImmediately -> {
                 val time = receiver.timing.nextTime()
                 // Always force a batched report to be saved in our INTERNAL format
                 val batchReport = report.copy(bodyFormat = MimeFormat.INTERNAL)
-                val event = BatchEvent(Event.EventAction.BATCH, receiver.fullName, false, time)
+                val event = BatchEvent(EventAction.BATCH, receiver.fullName, false, time)
                 this.dispatchReport(event, batchReport, actionHistory, receiver, txn)
                 loggerMsg = "Queue: ${event.toQueueMessage()}"
             }
@@ -518,14 +519,14 @@ class WorkflowEngine(
                 report
                     .split()
                     .forEach {
-                        val event = ReportEvent(Event.EventAction.SEND, it.id, actionHistory.generatingEmptyReport)
+                        val event = ReportEvent(EventAction.SEND, it.id, actionHistory.generatingEmptyReport)
                         this.dispatchReport(event, it, actionHistory, receiver, txn)
                     }
                 loggerMsg = "Queued to send immediately: HL7 split into ${report.itemCount} individual reports"
             }
 
             else -> {
-                val event = ReportEvent(Event.EventAction.SEND, report.id, actionHistory.generatingEmptyReport)
+                val event = ReportEvent(EventAction.SEND, report.id, actionHistory.generatingEmptyReport)
                 this.dispatchReport(event, report, actionHistory, receiver, txn)
                 loggerMsg = "Queued to send immediately: ${event.toQueueMessage()}"
             }
@@ -576,8 +577,8 @@ class WorkflowEngine(
         db.transact { txn ->
             val task = db.fetchAndLockTask(messageEvent.reportId, txn)
 
-            val currentAction = Event.EventAction.parseQueueMessage(task.nextAction.literal)
-            if (currentAction != Event.EventAction.PROCESS) {
+            val currentAction = EventAction.parseQueueMessage(task.nextAction.literal)
+            if (currentAction != EventAction.PROCESS) {
                 // As of this writing we are not sure why this bug occurs.  However, this at least prevents it from
                 // causing trouble.
                 logger.error(
@@ -622,7 +623,7 @@ class WorkflowEngine(
             updateHeader(
                 messageEvent.reportId,
                 currentAction,
-                Event.EventAction.NONE,
+                EventAction.NONE,
                 nextActionAt = null,
                 retryToken = null,
                 txn
@@ -732,11 +733,11 @@ class WorkflowEngine(
             // So even TASK entries whose report_id is missing from REPORT_FILE are marked as done,
             // because missing report_id is an unrecoverable error. @todo  See #2185 for better solution.
             tasks.forEach {
-                val currentAction = Event.EventAction.parseQueueMessage(it.nextAction.literal)
+                val currentAction = EventAction.parseQueueMessage(it.nextAction.literal)
                 updateHeader(
                     it.reportId,
                     currentAction,
-                    Event.EventAction.NONE,
+                    EventAction.NONE,
                     nextActionAt = null,
                     retryToken = null,
                     txn
@@ -877,43 +878,43 @@ class WorkflowEngine(
      */
     private fun updateHeader(
         reportId: ReportId,
-        currentEventAction: Event.EventAction,
-        nextEventAction: Event.EventAction,
+        currentEventAction: EventAction,
+        nextEventAction: EventAction,
         nextActionAt: OffsetDateTime? = null,
         retryToken: String? = null,
         txn: DataAccessTransaction,
     ) {
-        fun finishedField(currentEventAction: Event.EventAction): Field<OffsetDateTime> {
+        fun finishedField(currentEventAction: EventAction): Field<OffsetDateTime> {
             return when (currentEventAction) {
-                Event.EventAction.RECEIVE -> Tables.TASK.TRANSLATED_AT
-                Event.EventAction.PROCESS -> Tables.TASK.PROCESSED_AT
+                EventAction.RECEIVE -> Tables.TASK.TRANSLATED_AT
+                EventAction.PROCESS -> Tables.TASK.PROCESSED_AT
                 // we don't really use these  *_AT columns for anything at this point, and 'convert' is another name
                 //  for 'process' ... but 'process' is just too vague
-                Event.EventAction.CONVERT -> Tables.TASK.PROCESSED_AT
-                Event.EventAction.ROUTE -> Tables.TASK.ROUTED_AT
-                Event.EventAction.DESTINATION_FILTER -> Tables.TASK.DESTINATION_FILTERED_AT
-                Event.EventAction.RECEIVER_FILTER -> Tables.TASK.RECEIVER_FILTERED_AT
-                Event.EventAction.TRANSLATE -> Tables.TASK.TRANSLATED_AT
-                Event.EventAction.REBATCH -> Tables.TASK.TRANSLATED_AT // overwrites prior date
-                Event.EventAction.BATCH -> Tables.TASK.BATCHED_AT
-                Event.EventAction.RESEND -> Tables.TASK.BATCHED_AT // overwrites prior date
-                Event.EventAction.SEND -> Tables.TASK.SENT_AT
-                Event.EventAction.WIPE -> Tables.TASK.WIPED_AT
+                EventAction.CONVERT -> Tables.TASK.PROCESSED_AT
+                EventAction.ROUTE -> Tables.TASK.ROUTED_AT
+                EventAction.DESTINATION_FILTER -> Tables.TASK.DESTINATION_FILTERED_AT
+                EventAction.RECEIVER_FILTER -> Tables.TASK.RECEIVER_FILTERED_AT
+                EventAction.TRANSLATE -> Tables.TASK.TRANSLATED_AT
+                EventAction.REBATCH -> Tables.TASK.TRANSLATED_AT // overwrites prior date
+                EventAction.BATCH -> Tables.TASK.BATCHED_AT
+                EventAction.RESEND -> Tables.TASK.BATCHED_AT // overwrites prior date
+                EventAction.SEND -> Tables.TASK.SENT_AT
+                EventAction.WIPE -> Tables.TASK.WIPED_AT
 
-                Event.EventAction.BATCH_ERROR,
-                Event.EventAction.SEND_ERROR,
-                Event.EventAction.PROCESS_ERROR,
-                Event.EventAction.PROCESS_WARNING,
-                Event.EventAction.WIPE_ERROR,
+                EventAction.BATCH_ERROR,
+                EventAction.SEND_ERROR,
+                EventAction.PROCESS_ERROR,
+                EventAction.PROCESS_WARNING,
+                EventAction.WIPE_ERROR,
                 -> Tables.TASK.ERRORED_AT
 
-                Event.EventAction.NONE -> error("Internal Error: NONE currentAction")
-                Event.EventAction.OTHER -> error("Internal Error: OTHER currentAction")
+                EventAction.NONE -> error("Internal Error: NONE currentAction")
+                EventAction.OTHER -> error("Internal Error: OTHER currentAction")
             }
         }
         db.updateTask(
             reportId,
-            nextEventAction.toTaskAction(),
+            Event.toTaskAction(nextEventAction),
             nextActionAt,
             retryToken,
             finishedField(currentEventAction),

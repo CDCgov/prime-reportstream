@@ -6,9 +6,10 @@ import assertk.assertions.isNotNull
 import assertk.assertions.isNull
 import assertk.assertions.isTrue
 import com.microsoft.azure.functions.ExecutionContext
+import gov.cdc.prime.reportstream.shared.EventAction
+import gov.cdc.prime.reportstream.shared.Topic
 import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.Report
-import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.azure.db.tables.pojos.Task
@@ -125,12 +126,12 @@ class SendFunctionTests {
         every { Report.formExternalFilename(any(), any(), any(), any(), any(), any(), any()) } returns ""
 
         // Invoke
-        val event = ReportEvent(Event.EventAction.SEND, reportId, false)
+        val event = ReportEvent(EventAction.SEND, reportId, false)
         SendFunction(workflowEngine).run(event.toQueueMessage(), context)
 
         // Verify
         assertThat(nextEvent).isNotNull()
-        assertThat(nextEvent!!.eventAction).isEqualTo(Event.EventAction.NONE)
+        assertThat(nextEvent!!.eventAction).isEqualTo(EventAction.NONE)
         assertThat(nextEvent!!.retryToken).isNull()
     }
 
@@ -153,12 +154,12 @@ class SendFunctionTests {
         every { workflowEngine.recordAction(any()) }.returns(Unit)
         every { workflowEngine.db } returns mockk<DatabaseAccess>()
         // Invoke
-        val event = ReportEvent(Event.EventAction.SEND, reportId, false)
+        val event = ReportEvent(EventAction.SEND, reportId, false)
         SendFunction(workflowEngine).run(event.toQueueMessage(), context)
 
         // Verify
         assertThat(nextEvent).isNotNull()
-        assertThat(nextEvent!!.eventAction).isEqualTo(Event.EventAction.SEND)
+        assertThat(nextEvent!!.eventAction).isEqualTo(EventAction.SEND)
         assertThat(nextEvent!!.retryToken).isNotNull()
         assertThat(nextEvent!!.retryToken?.retryCount).isEqualTo(1)
         verify(exactly = 1) { anyConstructed<ActionHistory>().setActionType(TaskAction.send_warning) }
@@ -187,12 +188,12 @@ class SendFunctionTests {
         every { workflowEngine.db } returns mockk<DatabaseAccess>()
 
         // Invoke
-        val event = ReportEvent(Event.EventAction.SEND, reportId, false)
+        val event = ReportEvent(EventAction.SEND, reportId, false)
         SendFunction(workflowEngine).run(event.toQueueMessage(), context)
 
         // Verify
         assertThat(nextEvent).isNotNull()
-        assertThat(nextEvent!!.eventAction).isEqualTo(Event.EventAction.SEND)
+        assertThat(nextEvent!!.eventAction).isEqualTo(EventAction.SEND)
         assertThat(nextEvent!!.retryToken).isNotNull()
         assertThat(nextEvent!!.retryToken?.retryCount).isEqualTo(3)
         assertThat(nextEvent!!.at!!.isAfter(OffsetDateTime.now().plusMinutes(2))).isTrue()
@@ -224,12 +225,12 @@ class SendFunctionTests {
         every { workflowEngine.db } returns mockk<DatabaseAccess>(relaxed = true)
 
         // Invoke
-        val event = ReportEvent(Event.EventAction.SEND, reportId, false)
+        val event = ReportEvent(EventAction.SEND, reportId, false)
         SendFunction(workflowEngine).run(event.toQueueMessage(), context)
 
         // Verify
         assertThat(nextEvent).isNotNull()
-        assertThat(nextEvent!!.eventAction).isEqualTo(Event.EventAction.SEND_ERROR)
+        assertThat(nextEvent!!.eventAction).isEqualTo(EventAction.SEND_ERROR)
         assertThat(nextEvent!!.retryToken).isNull()
         verify { anyConstructed<ActionHistory>().setActionType(TaskAction.send_error) }
     }
