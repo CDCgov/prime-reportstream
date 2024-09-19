@@ -48,7 +48,7 @@ plugins {
     id("io.swagger.core.v3.swagger-gradle-plugin") version "2.2.23"
 }
 
-val commitId = {
+val commitId by lazy {
     val stdout = ByteArrayOutputStream()
     exec {
         commandLine("git", "rev-parse", "--short", "HEAD")
