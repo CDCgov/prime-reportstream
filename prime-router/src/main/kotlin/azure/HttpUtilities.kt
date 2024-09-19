@@ -4,8 +4,8 @@ import com.google.common.net.HttpHeaders
 import com.microsoft.azure.functions.HttpRequestMessage
 import com.microsoft.azure.functions.HttpResponseMessage
 import com.microsoft.azure.functions.HttpStatus
+import gov.cdc.prime.reportstream.shared.ReportOptions
 import gov.cdc.prime.router.MimeFormat
-import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.PAYLOAD_MAX_BYTES
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.common.Environment
@@ -279,7 +279,7 @@ class HttpUtilities {
             sendingOrgClient: Sender,
             asyncProcessMode: Boolean = false,
             key: String? = null,
-            option: Options? = null,
+            option: ReportOptions? = null,
             payloadName: String? = null,
         ): Pair<Int, String> {
             if (!file.exists()) error("Unable to find file ${file.absolutePath}")
@@ -315,7 +315,7 @@ class HttpUtilities {
             bytes: ByteArray,
             sendingOrgClient: Sender,
             key: String?,
-            option: Options? = null,
+            option: ReportOptions? = null,
             asyncProcessMode: Boolean = false,
             payloadName: String? = null,
         ): Pair<Int, String> {
@@ -354,7 +354,7 @@ class HttpUtilities {
             bytes: ByteArray,
             sendingOrgClient: Sender,
             token: String? = null,
-            option: Options? = null,
+            option: ReportOptions? = null,
         ): Pair<Int, String> {
             val headers = mutableListOf<Pair<String, String>>()
             when (sendingOrgClient.format) {

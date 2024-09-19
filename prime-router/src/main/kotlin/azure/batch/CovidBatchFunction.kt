@@ -4,6 +4,7 @@ import com.microsoft.azure.functions.ExecutionContext
 import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.QueueTrigger
 import com.microsoft.azure.functions.annotation.StorageAccount
+import gov.cdc.prime.reportstream.shared.EventAction
 import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
@@ -36,12 +37,12 @@ class CovidBatchFunction(
         try {
             logger.trace("CovidBatchFunction starting.  Message: $message")
             val event = Event.parsePrimeRouterQueueMessage(message) as BatchEvent
-            if (event.eventAction != Event.EventAction.BATCH) {
+            if (event.eventAction != EventAction.BATCH) {
                 logger.error("CovidBatchFunction received a $message")
                 return
             }
             val actionHistory = ActionHistory(
-                event.eventAction.toTaskAction(),
+                event.toTaskAction(),
                 event.isEmptyBatch
             )
             doBatch(message, event, actionHistory)
@@ -125,7 +126,7 @@ class CovidBatchFunction(
                     outReports.forEach {
                         val outReport = it.copy(destination = receiver, bodyFormat = receiver.format)
                         val outEvent = ReportEvent(
-                            Event.EventAction.SEND,
+                            EventAction.SEND,
                             outReport.id,
                             actionHistory.generatingEmptyReport
                         )

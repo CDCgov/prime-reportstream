@@ -1485,7 +1485,7 @@ class DatabaseAccess(val create: DSLContext) : Logging {
         ): TaskRecord {
             return TaskRecord(
                 report.id,
-                nextAction.eventAction.toTaskAction(),
+                nextAction.toTaskAction(),
                 nextAction.at,
                 report.schema.name,
                 report.destination?.fullName ?: "",
@@ -1514,7 +1514,7 @@ class DatabaseAccess(val create: DSLContext) : Logging {
         ): Task {
             return Task(
                 report.id,
-                nextAction.eventAction.toTaskAction(),
+                nextAction.toTaskAction(),
                 nextAction.at,
                 report.schema.name,
                 report.destination?.fullName ?: "",

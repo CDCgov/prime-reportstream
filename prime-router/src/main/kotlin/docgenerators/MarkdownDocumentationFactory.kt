@@ -125,7 +125,7 @@ object MarkdownDocumentationFactory : StringBasedDocumentationFactory(), Logging
         yield(
             """
             ### Schema: ${schema.name}
-            ### Topic: ${schema.topic.jsonVal}
+            ### Topic: ${schema.topic.jsonVal()}
             ### Tracking Element: $schemaTrackingName
             ### Base On: $schemaBasedOn
             ### Extends: $schemaExtends

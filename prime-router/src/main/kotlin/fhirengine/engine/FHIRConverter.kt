@@ -12,6 +12,10 @@ import fhirengine.engine.IProcessedItem
 import fhirengine.engine.ProcessedFHIRItem
 import fhirengine.engine.ProcessedHL7Item
 import gov.cdc.prime.reportstream.shared.BlobUtils
+import gov.cdc.prime.reportstream.shared.EventAction
+import gov.cdc.prime.reportstream.shared.ReportOptions
+import gov.cdc.prime.reportstream.shared.queue_message.FhirConvertQueueMessage
+import gov.cdc.prime.reportstream.shared.queue_message.FhirDestinationFilterQueueMessage
 import gov.cdc.prime.reportstream.shared.queue_message.QueueMessage
 import gov.cdc.prime.router.ActionLogDetail
 import gov.cdc.prime.router.ActionLogScope
@@ -20,7 +24,6 @@ import gov.cdc.prime.router.ErrorCode
 import gov.cdc.prime.router.InvalidReportMessage
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.MimeFormat
-import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.UnmappableConditionMessage
@@ -53,6 +56,7 @@ import gov.cdc.prime.router.fhirengine.utils.getObservations
 import gov.cdc.prime.router.logging.LogMeasuredTime
 import gov.cdc.prime.router.report.ReportService
 import gov.cdc.prime.router.validation.IItemValidator
+import gov.cdc.prime.router.validation.NoopItemValidator
 import io.github.oshai.kotlinlogging.withLoggingContext
 import org.apache.commons.lang3.exception.ExceptionUtils
 import org.hl7.fhir.r4.model.Bundle
@@ -168,9 +172,9 @@ class FHIRConverter(
                                 nextAction = TaskAction.none
                             )
                             val noneEvent = ProcessEvent(
-                                Event.EventAction.NONE,
+                                EventAction.NONE,
                                 report.id,
-                                Options.None,
+                                ReportOptions.None,
                                 emptyMap(),
                                 emptyList()
                             )
@@ -186,9 +190,10 @@ class FHIRConverter(
                                     parentItemIndex(itemIndex.toInt() + 1)
                                     params(
                                         mapOf(
-                                            ReportStreamEventProperties.ITEM_FORMAT to format,
-                                            ReportStreamEventProperties.VALIDATION_PROFILE
-                                                to queueMessage.topic.validator.validatorProfileName
+                                            ReportStreamEventProperties.ITEM_FORMAT to format
+// there is no validator for this kind of queue message or the topic associated with it
+//                                            ReportStreamEventProperties.VALIDATION_PROFILE
+//                                                to queueMessage.topic.validator.validatorProfileName
                                         )
                                     )
                                 }
@@ -213,9 +218,9 @@ class FHIRConverter(
 
                             // create route event
                             val routeEvent = ProcessEvent(
-                                Event.EventAction.DESTINATION_FILTER,
+                                EventAction.DESTINATION_FILTER,
                                 report.id,
-                                Options.None,
+                                ReportOptions.None,
                                 emptyMap(),
                                 emptyList()
                             )
@@ -278,9 +283,9 @@ class FHIRConverter(
                 }
             } else {
                 val nextEvent = ProcessEvent(
-                    Event.EventAction.NONE,
+                    EventAction.NONE,
                     queueMessage.reportId,
-                    Options.None,
+                    ReportOptions.None,
                     emptyMap(),
                     emptyList()
                 )
@@ -354,7 +359,8 @@ class FHIRConverter(
         actionLogger: ActionLogger,
         routeReportWithInvalidItems: Boolean = true,
     ): List<IProcessedItem<*>> {
-        val validator = queueMessage.topic.validator
+// there is no validator for this kind of queue message or the topic associated with it
+//        val validator = queueMessage.topic.validator
         val rawReport = BlobAccess.downloadBlob(queueMessage.blobURL, queueMessage.digest)
         return if (rawReport.isBlank()) {
             actionLogger.error(InvalidReportMessage("Provided raw data is empty."))
@@ -369,7 +375,7 @@ class FHIRConverter(
                                 "format" to format.name
                             )
                         ) {
-                            getBundlesFromRawHL7(rawReport, validator, queueMessage.topic.hl7ParseConfiguration)
+                            getBundlesFromRawHL7(rawReport=rawReport, hL7MessageParseAndConvertConfiguration = null)
                         }
                     } catch (ex: ParseFailureError) {
                         actionLogger.error(
@@ -386,7 +392,7 @@ class FHIRConverter(
                             "format" to format.name
                         )
                     ) {
-                        getBundlesFromRawFHIR(rawReport, validator)
+                        getBundlesFromRawFHIR(rawReport)
                     }
                 }
 
@@ -457,7 +463,7 @@ class FHIRConverter(
      */
     private fun getBundlesFromRawHL7(
         rawReport: String,
-        validator: IItemValidator,
+        validator: IItemValidator = NoopItemValidator(),
         hL7MessageParseAndConvertConfiguration: HL7Reader.Companion.HL7MessageParseAndConvertConfiguration?,
     ): List<IProcessedItem<Message>> {
         val itemStream =
@@ -538,7 +544,7 @@ class FHIRConverter(
      */
     private fun getBundlesFromRawFHIR(
         rawReport: String,
-        validator: IItemValidator,
+        validator: IItemValidator = NoopItemValidator(),
     ): MutableList<IProcessedItem<Bundle>> {
         val lines = rawReport.lines()
         return maybeParallelize(

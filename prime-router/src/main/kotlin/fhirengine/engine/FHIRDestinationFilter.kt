@@ -2,16 +2,19 @@ package gov.cdc.prime.router.fhirengine.engine
 
 import fhirengine.engine.CustomFhirPathFunctions
 import gov.cdc.prime.reportstream.shared.BlobUtils
+import gov.cdc.prime.reportstream.shared.EventAction
+import gov.cdc.prime.reportstream.shared.ReportOptions
+import gov.cdc.prime.reportstream.shared.Topic
+import gov.cdc.prime.reportstream.shared.queue_message.FhirDestinationFilterQueueMessage
+import gov.cdc.prime.reportstream.shared.queue_message.FhirReceiverFilterQueueMessage
 import gov.cdc.prime.reportstream.shared.queue_message.QueueMessage
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.MimeFormat
-import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.SettingsProvider
-import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseAccess
@@ -71,7 +74,7 @@ class FHIRDestinationFilter(
     ): List<FHIREngineRunResult> {
         return when (message) {
             is FhirDestinationFilterQueueMessage -> {
-                check(message.topic.isUniversalPipeline) {
+                check(message.topic.isUniversalPipeline()) {
                     "Unexpected topic $message.topic in the Universal Pipeline routing step."
                 }
                 fhirEngineRunResults(message, actionHistory)
@@ -156,9 +159,9 @@ class FHIRDestinationFilter(
                     )
 
                     val nextEvent = ProcessEvent(
-                        Event.EventAction.RECEIVER_FILTER,
+                        EventAction.RECEIVER_FILTER,
                         report.id,
-                        Options.None,
+                        ReportOptions.None,
                         emptyMap(),
                         emptyList()
                     )
@@ -222,9 +225,9 @@ class FHIRDestinationFilter(
                 // this bundle does not have receivers; only perform the work necessary to track the routing action
                 // create none event
                 val nextEvent = ProcessEvent(
-                    Event.EventAction.NONE,
+                    EventAction.NONE,
                     queueMessage.reportId,
-                    Options.None,
+                    ReportOptions.None,
                     emptyMap(),
                     emptyList()
                 )

@@ -4,9 +4,9 @@ import com.azure.storage.blob.models.BlobStorageException
 import com.fasterxml.jackson.databind.node.ArrayNode
 import com.fasterxml.jackson.databind.node.ObjectNode
 import com.google.common.base.CharMatcher
+import gov.cdc.prime.reportstream.shared.ReportOptions
 import gov.cdc.prime.router.CovidSender
 import gov.cdc.prime.router.MimeFormat
-import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.REPORT_MAX_ITEM_COLUMNS
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.ReportId
@@ -47,7 +47,7 @@ class Ping : CoolTest() {
             "x".toByteArray(),
             simpleRepSender,
             options.key,
-            Options.CheckConnections,
+            ReportOptions.CheckConnections,
             payloadName = "$name ${status.description}",
         )
         echo("Response to POST: $responseCode")

@@ -1,7 +1,7 @@
 package gov.cdc.prime.router.azure.observability.event
 
+import gov.cdc.prime.reportstream.shared.Topic
 import gov.cdc.prime.router.Report
-import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.azure.observability.context.withLoggingContext

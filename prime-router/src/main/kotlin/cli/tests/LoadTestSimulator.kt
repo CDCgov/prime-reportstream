@@ -1,7 +1,7 @@
 package gov.cdc.prime.router.cli.tests
 
+import gov.cdc.prime.reportstream.shared.ReportOptions
 import gov.cdc.prime.router.CovidSender
-import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.azure.HttpUtilities
 import gov.cdc.prime.router.azure.WorkflowEngine
@@ -175,7 +175,7 @@ abstract class LoadTestSimulator : CoolTest() {
             simulation.sender,
             options.asyncProcessMode,
             options.key,
-            (if (simulation.doBatchAndSend) null else Options.SkipSend)
+            (if (simulation.doBatchAndSend) null else ReportOptions.SkipSend)
         )
     }
 

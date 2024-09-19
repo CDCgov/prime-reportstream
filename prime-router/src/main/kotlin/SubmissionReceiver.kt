@@ -1,14 +1,15 @@
 package gov.cdc.prime.router
 
 import gov.cdc.prime.reportstream.shared.BlobUtils
+import gov.cdc.prime.reportstream.shared.EventAction
+import gov.cdc.prime.reportstream.shared.ReportOptions
+import gov.cdc.prime.reportstream.shared.queue_message.FhirConvertQueueMessage
 import gov.cdc.prime.reportstream.shared.queue_message.QueueMessage
 import gov.cdc.prime.router.azure.ActionHistory
-import gov.cdc.prime.router.azure.Event
 import gov.cdc.prime.router.azure.ProcessEvent
 import gov.cdc.prime.router.azure.ReportWriter
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
-import gov.cdc.prime.router.fhirengine.engine.FhirConvertQueueMessage
 import gov.cdc.prime.router.fhirengine.engine.MessageType
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.fhirengine.utils.HL7Reader
@@ -42,7 +43,7 @@ abstract class SubmissionReceiver(
         sender: Sender,
         content: String,
         defaults: Map<String, String>,
-        options: Options,
+        options: ReportOptions,
         routeTo: List<String>,
         isAsync: Boolean,
         allowDuplicates: Boolean,
@@ -144,7 +145,7 @@ class TopicReceiver : SubmissionReceiver {
         sender: Sender,
         content: String,
         defaults: Map<String, String>,
-        options: Options,
+        options: ReportOptions,
         routeTo: List<String>,
         isAsync: Boolean,
         allowDuplicates: Boolean,
@@ -214,7 +215,7 @@ class TopicReceiver : SubmissionReceiver {
      */
     internal fun processAsync(
         parsedReport: Report,
-        options: Options,
+        options: ReportOptions,
         defaults: Map<String, String>,
         routeTo: List<String>,
     ) {
@@ -227,7 +228,7 @@ class TopicReceiver : SubmissionReceiver {
             error("Processing a non internal report async.")
         }
 
-        val processEvent = ProcessEvent(Event.EventAction.PROCESS, report.id, options, defaults, routeTo)
+        val processEvent = ProcessEvent(EventAction.PROCESS, report.id, options, defaults, routeTo)
 
         val bodyBytes = ReportWriter.getBodyBytes(report)
         val blobInfo = workflowEngine.blob.uploadReport(report, bodyBytes, senderName, processEvent.eventAction)
@@ -251,7 +252,7 @@ class UniversalPipelineReceiver : SubmissionReceiver {
         sender: Sender,
         content: String,
         defaults: Map<String, String>,
-        options: Options,
+        options: ReportOptions,
         routeTo: List<String>,
         isAsync: Boolean,
         allowDuplicates: Boolean,
@@ -325,9 +326,9 @@ class UniversalPipelineReceiver : SubmissionReceiver {
         // is properly stored in the report in the DB
         val eventAction = if (sender.customerStatus == CustomerStatus.INACTIVE) {
             report.nextAction = TaskAction.none
-            Event.EventAction.NONE
+            EventAction.NONE
         } else {
-            Event.EventAction.CONVERT
+            EventAction.CONVERT
         }
 
         // record that the submission was received

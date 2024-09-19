@@ -8,6 +8,7 @@ import com.github.ajalt.clikt.parameters.options.convert
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.int
+import gov.cdc.prime.reportstream.shared.Topic
 import gov.cdc.prime.router.ActionLog
 import gov.cdc.prime.router.CustomConfiguration
 import gov.cdc.prime.router.CustomerStatus
@@ -24,7 +25,6 @@ import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.SettingsProvider
-import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.Translator
 import gov.cdc.prime.router.serializers.CsvSerializer
 import gov.cdc.prime.router.serializers.Hl7Serializer

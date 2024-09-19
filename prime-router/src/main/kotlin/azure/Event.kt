@@ -24,32 +24,37 @@ abstract class Event(val eventAction: EventAction, val at: OffsetDateTime?) {
     abstract fun toQueueMessage(): String
 
     fun toTaskAction(): TaskAction {
-        return when (eventAction) {
-            EventAction.PROCESS -> TaskAction.process
-            EventAction.PROCESS_WARNING -> TaskAction.process_warning
-            EventAction.PROCESS_ERROR -> TaskAction.process_error
-            EventAction.DESTINATION_FILTER -> TaskAction.destination_filter
-            EventAction.RECEIVER_FILTER -> TaskAction.receiver_filter
-            EventAction.RECEIVE -> TaskAction.receive
-            EventAction.CONVERT -> TaskAction.convert
-            EventAction.ROUTE -> TaskAction.route
-            EventAction.TRANSLATE -> TaskAction.translate
-            EventAction.BATCH -> TaskAction.batch
-            EventAction.SEND -> TaskAction.send
-            EventAction.WIPE -> TaskAction.wipe
-            EventAction.NONE -> TaskAction.none
-            EventAction.BATCH_ERROR -> TaskAction.batch_error
-            EventAction.SEND_ERROR -> TaskAction.send_error
-            EventAction.WIPE_ERROR -> TaskAction.wipe_error
-            EventAction.RESEND -> TaskAction.resend
-            EventAction.REBATCH -> TaskAction.rebatch
-            // OTHER is not an expected value, more of a logical fallback/default used in BlobAccess.uploadBody
-            EventAction.OTHER -> TaskAction.other
-            else -> { TaskAction.other }
-        }
+        return toTaskAction(this.eventAction)
     }
 
     companion object {
+
+        fun toTaskAction(eventAction: EventAction): TaskAction {
+            return when (eventAction) {
+                EventAction.PROCESS -> TaskAction.process
+                EventAction.PROCESS_WARNING -> TaskAction.process_warning
+                EventAction.PROCESS_ERROR -> TaskAction.process_error
+                EventAction.DESTINATION_FILTER -> TaskAction.destination_filter
+                EventAction.RECEIVER_FILTER -> TaskAction.receiver_filter
+                EventAction.RECEIVE -> TaskAction.receive
+                EventAction.CONVERT -> TaskAction.convert
+                EventAction.ROUTE -> TaskAction.route
+                EventAction.TRANSLATE -> TaskAction.translate
+                EventAction.BATCH -> TaskAction.batch
+                EventAction.SEND -> TaskAction.send
+                EventAction.WIPE -> TaskAction.wipe
+                EventAction.NONE -> TaskAction.none
+                EventAction.BATCH_ERROR -> TaskAction.batch_error
+                EventAction.SEND_ERROR -> TaskAction.send_error
+                EventAction.WIPE_ERROR -> TaskAction.wipe_error
+                EventAction.RESEND -> TaskAction.resend
+                EventAction.REBATCH -> TaskAction.rebatch
+                // OTHER is not an expected value, more of a logical fallback/default used in BlobAccess.uploadBody
+                EventAction.OTHER -> TaskAction.other
+                else -> { TaskAction.other }
+            }
+        }
+
         fun parsePrimeRouterQueueMessage(event: String): Event {
             return when (val message = JacksonMapperUtilities.defaultMapper.readValue<QueueMessage>(event)) {
                 is ReportEventQueueMessage -> {

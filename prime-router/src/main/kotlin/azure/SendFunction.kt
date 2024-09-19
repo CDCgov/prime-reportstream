@@ -5,6 +5,7 @@ import com.microsoft.azure.functions.annotation.BindingName
 import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.QueueTrigger
 import com.microsoft.azure.functions.annotation.StorageAccount
+import gov.cdc.prime.reportstream.shared.EventAction
 import gov.cdc.prime.router.AS2TransportType
 import gov.cdc.prime.router.BlobStoreTransportType
 import gov.cdc.prime.router.CustomerStatus
@@ -89,7 +90,7 @@ class SendFunction(
                 " nextVisibleTime=$nextVisibleTime, insertionTime=$insertionTime"
         )
         try {
-            if (event.eventAction != Event.EventAction.SEND) {
+            if (event.eventAction != EventAction.SEND) {
                 logger.warn("Send function received a message of incorrect type: $message")
                 return
             }
@@ -180,7 +181,7 @@ class SendFunction(
             return if (nextRetryItems.isEmpty()) {
                 // All OK
                 logger.info("Successfully sent report: $report.reportId to ${receiver.fullName}")
-                ReportEvent(Event.EventAction.NONE, report.reportId, isEmptyBatch)
+                ReportEvent(EventAction.NONE, report.reportId, isEmptyBatch)
             } else {
                 // mapOf() in kotlin is `1` based (not `0`), but always +1
                 val nextRetryCount = (retryToken?.retryCount ?: 0) + 1
@@ -222,7 +223,7 @@ class SendFunction(
                     }
 
                     // required for pipeline processing
-                    ReportEvent(Event.EventAction.SEND_ERROR, report.reportId, isEmptyBatch)
+                    ReportEvent(EventAction.SEND_ERROR, report.reportId, isEmptyBatch)
                 } else {
                     // retry using a back-off strategy
                     val waitMinutes = retryDurationInMin.getOrDefault(nextRetryCount, defaultMaxDurationValue)
@@ -234,7 +235,7 @@ class SendFunction(
                     logger.warn(msg)
                     actionHistory.setActionType(TaskAction.send_warning)
                     actionHistory.trackActionResult(msg)
-                    ReportEvent(Event.EventAction.SEND, report.reportId, isEmptyBatch, nextRetryTime, nextRetryToken)
+                    ReportEvent(EventAction.SEND, report.reportId, isEmptyBatch, nextRetryTime, nextRetryToken)
                 }
             }
         }

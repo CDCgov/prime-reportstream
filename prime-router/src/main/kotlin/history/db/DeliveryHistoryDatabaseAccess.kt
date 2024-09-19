@@ -1,11 +1,11 @@
 package gov.cdc.prime.router.history.db
 
 import com.fasterxml.jackson.annotation.JsonIgnore
+import gov.cdc.prime.reportstream.shared.Topic
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
-import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.ApiFilter
 import gov.cdc.prime.router.azure.ApiFilterNames
 import gov.cdc.prime.router.azure.ApiFilters

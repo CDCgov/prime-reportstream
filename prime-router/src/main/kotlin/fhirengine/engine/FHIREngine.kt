@@ -5,6 +5,7 @@ import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.InvalidReportMessage
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Report
+import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
@@ -23,6 +24,7 @@ import gov.cdc.prime.router.serializers.CsvSerializer
 import gov.cdc.prime.router.serializers.Hl7Serializer
 import org.jooq.Field
 import java.time.OffsetDateTime
+import java.util.UUID
 
 /**
  * All logical processing for full ELR / FHIR processing should be within this class.
@@ -217,7 +219,7 @@ abstract class FHIREngine(
      *
      */
     fun run(
-        queueMessage: ReportPipelineMessage,
+        queueMessage: QueueMessage,
         actionLogger: ActionLogger,
         actionHistory: ActionHistory,
         txn: DataAccessTransaction,
@@ -231,9 +233,16 @@ abstract class FHIREngine(
                 db.insertTask(it.report, it.report.bodyFormat.toString(), it.reportUrl, it.nextEvent, txn)
             }
 
+            // nothing here should be any other kind of queue message
+            // we need to check because interface QueueMessage does not have field 'reportId'
+            // we need the if (a) b else c call because ReportId can't be null and this makes the compiler a
+            // happy panda.
+            assert(queueMessage is QueueMessage.ReportInformation)
+            var reportId: ReportId = if (queueMessage is QueueMessage.ReportInformation) queueMessage.reportId else UUID.randomUUID()
+
             // Nullify the previous task
             db.updateTask(
-                queueMessage.reportId,
+                reportId,
                 TaskAction.none,
                 null,
                 null,

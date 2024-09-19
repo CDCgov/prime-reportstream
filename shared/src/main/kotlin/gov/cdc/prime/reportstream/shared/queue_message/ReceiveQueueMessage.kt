@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonTypeName
 import java.util.UUID
 
 @JsonTypeName("receive")
-data class FhirReceiveQueueMessage (
+data class ReceiveQueueMessage (
     override val reportId: UUID,
     override val blobURL: String,
     override val digest: String,

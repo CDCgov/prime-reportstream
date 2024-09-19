@@ -4,6 +4,7 @@ import com.microsoft.azure.functions.ExecutionContext
 import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.QueueTrigger
 import com.microsoft.azure.functions.annotation.StorageAccount
+import gov.cdc.prime.reportstream.shared.EventAction
 import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
@@ -38,12 +39,12 @@ class UniversalBatchFunction(
         try {
             logger.trace("UniversalBatchFunction starting.  Message: $message")
             val event = Event.parsePrimeRouterQueueMessage(message) as BatchEvent
-            if (event.eventAction != Event.EventAction.BATCH) {
+            if (event.eventAction != EventAction.BATCH) {
                 logger.error("UniversalBatchFunction received a $message")
                 return
             }
             val actionHistory = ActionHistory(
-                event.eventAction.toTaskAction(),
+                event.toTaskAction(),
                 event.isEmptyBatch
             )
             doBatch(message, event, actionHistory)
@@ -138,7 +139,7 @@ class UniversalBatchFunction(
 
                 // get a Report from the message
                 val (report, sendEvent, blobInfo) = Report.generateReportAndUploadBlob(
-                    Event.EventAction.SEND,
+                    EventAction.SEND,
                     it.content!!,
                     listOf(it.task.reportId),
                     receiver,
@@ -177,7 +178,7 @@ class UniversalBatchFunction(
 
             // get a Report from the message
             val (report, sendEvent, blobInfo) = Report.generateReportAndUploadBlob(
-                Event.EventAction.SEND,
+                EventAction.SEND,
                 batchMessage.toByteArray(),
                 validHeaders.map { it.task.reportId },
                 receiver,

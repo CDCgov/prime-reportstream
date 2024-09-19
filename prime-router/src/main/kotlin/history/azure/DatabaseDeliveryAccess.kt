@@ -1,7 +1,7 @@
 package gov.cdc.prime.router.history.azure
 
+import gov.cdc.prime.reportstream.shared.Topic
 import gov.cdc.prime.router.ReportId
-import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.db.Tables.ACTION
 import gov.cdc.prime.router.azure.db.Tables.REPORT_FACILITIES

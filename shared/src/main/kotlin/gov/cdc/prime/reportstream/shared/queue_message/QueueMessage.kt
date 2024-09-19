@@ -22,7 +22,7 @@ private const val MESSAGE_SIZE_LIMIT = 64 * 1000
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonSubTypes(
-    JsonSubTypes.Type(FhirReceiveQueueMessage::class, name = "receive"),
+    JsonSubTypes.Type(ReceiveQueueMessage::class, name = "receive"),
     JsonSubTypes.Type(FhirConvertQueueMessage::class, name = "convert"),
     JsonSubTypes.Type(FhirDestinationFilterQueueMessage::class, name = "destination-filter"),
     JsonSubTypes.Type(FhirReceiverFilterQueueMessage::class, name = "receiver-filter"),
@@ -171,9 +171,9 @@ interface QueueMessage {
             mapper.registerSubtypes(*subtypes)
         }
 
-        init {
+        fun init() {
             // Register common subtypes here. In this case, registering ReceiveQueueMessage.
-            mapper.registerSubtypes(FhirReceiveQueueMessage::class.java)
+            mapper.registerSubtypes(ReceiveQueueMessage::class.java)
             mapper.registerSubtypes(FhirConvertQueueMessage::class.java)
             mapper.registerSubtypes(FhirDestinationFilterQueueMessage::class.java)
             mapper.registerSubtypes(FhirReceiverFilterQueueMessage::class.java)

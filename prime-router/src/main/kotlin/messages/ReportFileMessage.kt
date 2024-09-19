@@ -1,6 +1,7 @@
 package gov.cdc.prime.router.messages
 
-import gov.cdc.prime.router.Topic
+import gov.cdc.prime.reportstream.shared.Topic
+
 
 /**
  * The report content message contains the content of a report that is kept in the service. This message

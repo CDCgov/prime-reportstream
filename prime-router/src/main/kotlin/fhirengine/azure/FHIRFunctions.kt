@@ -4,6 +4,7 @@ import com.microsoft.azure.functions.annotation.BindingName
 import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.QueueTrigger
 import com.microsoft.azure.functions.annotation.StorageAccount
+import gov.cdc.prime.reportstream.shared.queue_message.ReceiveQueueMessage
 import gov.cdc.prime.reportstream.shared.queue_message.QueueMessage
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.azure.ActionHistory
@@ -19,10 +20,6 @@ import gov.cdc.prime.router.fhirengine.engine.FHIREngine
 import gov.cdc.prime.router.fhirengine.engine.FHIRReceiver
 import gov.cdc.prime.router.fhirengine.engine.FHIRReceiverFilter
 import gov.cdc.prime.router.fhirengine.engine.FHIRTranslator
-import gov.cdc.prime.router.fhirengine.engine.FhirReceiveQueueMessage
-import gov.cdc.prime.router.fhirengine.engine.PrimeRouterQueueMessage
-import gov.cdc.prime.router.fhirengine.engine.ReportPipelineMessage
-import gov.cdc.prime.router.fhirengine.engine.initializeQueueMessages
 import org.apache.commons.lang3.StringUtils
 import org.apache.logging.log4j.kotlin.Logging
 
@@ -120,7 +117,7 @@ class FHIRFunctions(
     ) {
         val messagesToDispatch = runFhirEngine(message, dequeueCount, fhirEngine, actionHistory)
         messagesToDispatch.forEach {
-            (it as PrimeRouterQueueMessage).send(queueAccess)
+            queueAccess.sendMessage(it.messageQueueName, it.serialize());
         }
     }
 
@@ -154,16 +151,16 @@ class FHIRFunctions(
      * Deserializes the [message] into a Fhir Convert/Route/Translate Message, verifies it is of the correct type.
      * Logs the [engineType] and [dequeueCount]
      */
-    private fun readMessage(engineType: String, message: String, dequeueCount: Int): ReportPipelineMessage {
+    private fun readMessage(engineType: String, message: String, dequeueCount: Int): QueueMessage {
         logger.debug(
             "${StringUtils.removeEnd(engineType, "e")}ing message: $message for the $dequeueCount time"
         )
         // initialize the json types in PrimeRouterQueueMessage
-        initializeQueueMessages()
+        QueueMessage.ObjectMapperProvider.init()
 
         return when (val queueMessage = QueueMessage.deserialize(message)) {
-            is QueueMessage.ReceiveQueueMessage -> {
-                FhirReceiveQueueMessage(
+            is ReceiveQueueMessage -> {
+                ReceiveQueueMessage(
                     queueMessage.reportId,
                     queueMessage.blobURL,
                     queueMessage.digest,
@@ -172,7 +169,7 @@ class FHIRFunctions(
                 )
             }
             else -> {
-                queueMessage as ReportPipelineMessage
+                queueMessage
             }
         }
     }

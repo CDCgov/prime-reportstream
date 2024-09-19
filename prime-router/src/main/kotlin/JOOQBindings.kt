@@ -1,6 +1,7 @@
 package gov.cdc.prime.router
 
 import com.fasterxml.jackson.databind.node.TextNode
+import gov.cdc.prime.reportstream.shared.Topic
 import gov.cdc.prime.router.common.JacksonMapperUtilities
 import org.jooq.BindingGetResultSetContext
 import org.jooq.BindingSQLContext
@@ -89,7 +90,7 @@ class TopicConverter : Converter<String, Topic> {
             mapper.convertValue(TextNode(it), Topic::class.java)
         }
 
-    override fun to(topic: Topic?): String? = topic?.jsonVal
+    override fun to(topic: Topic?): String? = topic?.jsonVal()
 
     override fun fromType(): Class<String> {
         return String::class.java

@@ -13,6 +13,7 @@ import com.azure.storage.blob.models.DownloadRetryOptions
 import com.azure.storage.blob.models.ListBlobsOptions
 import gov.cdc.prime.reportstream.shared.BlobUtils
 import gov.cdc.prime.reportstream.shared.BlobUtils.sha256Digest
+import gov.cdc.prime.reportstream.shared.EventAction
 import gov.cdc.prime.router.BlobStoreTransportType
 import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.Report
@@ -128,7 +129,7 @@ class BlobAccess() : Logging {
         report: Report,
         blobBytes: ByteArray,
         subfolderName: String? = null,
-        action: Event.EventAction = Event.EventAction.NONE,
+        action: EventAction = EventAction.NONE,
     ): BlobInfo {
         return uploadBody(report.bodyFormat, blobBytes, report.id.toString(), subfolderName, action)
     }
@@ -153,18 +154,18 @@ class BlobAccess() : Logging {
         /**
          * Gets the root directory name for storing a blob associated with an EventAction
          */
-        internal fun directoryForAction(action: Event.EventAction?): String =
+        internal fun directoryForAction(action: EventAction?): String =
 
          when (action) {
-            Event.EventAction.RECEIVE -> "receive"
-            Event.EventAction.BATCH -> "batch"
-            Event.EventAction.PROCESS -> "process"
-            Event.EventAction.DESTINATION_FILTER -> "destination-filter"
-            Event.EventAction.RECEIVER_FILTER -> "receiver-filter"
-            Event.EventAction.ROUTE -> "route"
-            Event.EventAction.TRANSLATE -> "translate"
-            Event.EventAction.NONE -> "none"
-            Event.EventAction.SEND -> "ready"
+            EventAction.RECEIVE -> "receive"
+            EventAction.BATCH -> "batch"
+            EventAction.PROCESS -> "process"
+            EventAction.DESTINATION_FILTER -> "destination-filter"
+            EventAction.RECEIVER_FILTER -> "receiver-filter"
+            EventAction.ROUTE -> "route"
+            EventAction.TRANSLATE -> "translate"
+            EventAction.NONE -> "none"
+            EventAction.SEND -> "ready"
             else -> "other"
         }
 
@@ -179,7 +180,7 @@ class BlobAccess() : Logging {
             blobBytes: ByteArray,
             reportName: String,
             subfolderName: String? = null,
-            action: Event.EventAction = Event.EventAction.OTHER,
+            action: EventAction = EventAction.OTHER,
         ): BlobInfo {
             val subfolderNameChecked = if (subfolderName.isNullOrBlank()) "" else "$subfolderName/"
             val blobName = "${directoryForAction(action)}/$subfolderNameChecked$reportName.${bodyFormat.ext}"

@@ -2,8 +2,12 @@ package gov.cdc.prime.router.fhirengine.engine
 
 import ca.uhn.hl7v2.model.Message
 import com.microsoft.azure.functions.HttpStatus
+import gov.cdc.prime.reportstream.shared.EventAction
+import gov.cdc.prime.reportstream.shared.ReportOptions
 import gov.cdc.prime.reportstream.shared.queue_message.QueueMessage
 import gov.cdc.prime.reportstream.shared.Submission
+import gov.cdc.prime.reportstream.shared.queue_message.FhirConvertQueueMessage
+import gov.cdc.prime.reportstream.shared.queue_message.ReceiveQueueMessage
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.ClientSource
 import gov.cdc.prime.router.CustomerStatus
@@ -11,14 +15,12 @@ import gov.cdc.prime.router.InvalidParamMessage
 import gov.cdc.prime.router.InvalidReportMessage
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.MimeFormat
-import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseAccess
-import gov.cdc.prime.router.azure.Event
 import gov.cdc.prime.router.azure.ProcessEvent
 import gov.cdc.prime.router.azure.SubmissionTableService
 import gov.cdc.prime.router.azure.db.Tables
@@ -79,7 +81,7 @@ class FHIRReceiver(
         actionLogger: ActionLogger,
         actionHistory: ActionHistory,
     ): List<FHIREngineRunResult> = when (message) {
-            is FhirReceiveQueueMessage -> processFhirReceiveQueueMessage(message, actionLogger, actionHistory)
+            is ReceiveQueueMessage -> processFhirReceiveQueueMessage(message, actionLogger, actionHistory)
             else -> throw RuntimeException("Message was not a FhirReceive and cannot be processed: $message")
         }
 
@@ -92,7 +94,7 @@ class FHIRReceiver(
      * @return A list of FHIR engine run results.
      */
     private fun processFhirReceiveQueueMessage(
-        queueMessage: FhirReceiveQueueMessage,
+        queueMessage: ReceiveQueueMessage,
         actionLogger: ActionLogger,
         actionHistory: ActionHistory,
     ): List<FHIREngineRunResult> {
@@ -115,7 +117,7 @@ class FHIRReceiver(
      * @return The logging context map.
      */
     private fun createLoggingContextMap(
-        queueMessage: FhirReceiveQueueMessage,
+        queueMessage: ReceiveQueueMessage,
         actionHistory: ActionHistory,
     ): Map<MDCUtils.MDCProperty, Any> = mapOf(
             MDCUtils.MDCProperty.ACTION_NAME to actionHistory.action.actionName.name,
@@ -132,7 +134,7 @@ class FHIRReceiver(
      * @return The sender, or null if the sender was not found or is inactive.
      */
     private fun getSender(
-        queueMessage: FhirReceiveQueueMessage,
+        queueMessage: ReceiveQueueMessage,
         actionLogger: ActionLogger,
         actionHistory: ActionHistory,
     ): Sender? {
@@ -196,7 +198,7 @@ class FHIRReceiver(
      * @return A list of FHIR engine run results.
      */
     private fun handleSuccessfulProcessing(
-        queueMessage: FhirReceiveQueueMessage,
+        queueMessage: ReceiveQueueMessage,
         sender: Sender,
         actionLogger: ActionLogger,
         actionHistory: ActionHistory,
@@ -267,7 +269,7 @@ class FHIRReceiver(
             emptyList()
         } else {
             // Create a route event
-            val routeEvent = ProcessEvent(Event.EventAction.CONVERT, report.id, Options.None, emptyMap(), emptyList())
+            val routeEvent = ProcessEvent(EventAction.CONVERT, report.id, ReportOptions.None, emptyMap(), emptyList())
 
             // Return the result of the FHIR engine run
             listOf(
@@ -291,7 +293,7 @@ class FHIRReceiver(
     private fun validateSubmissionMessage(
         sender: Sender,
         actionLogger: ActionLogger,
-        queueMessage: FhirReceiveQueueMessage,
+        queueMessage: ReceiveQueueMessage,
     ): Report? {
         val rawReport = BlobAccess.downloadBlob(queueMessage.blobURL, queueMessage.digest)
         return if (rawReport.isBlank()) {

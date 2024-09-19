@@ -3,7 +3,7 @@ package gov.cdc.prime.router
 import gov.cdc.prime.reportstream.shared.EventAction
 import gov.cdc.prime.reportstream.shared.ReportOptions
 import gov.cdc.prime.reportstream.shared.StringUtilities.trimToNull
-import gov.cdc.prime.reportstream.shared.queue_message.ITopic
+import gov.cdc.prime.reportstream.shared.Topic
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.Event
@@ -352,7 +352,7 @@ class Report : Logging {
         itemLineage: List<ItemLineage>? = null,
         destination: Receiver? = null,
         nextAction: TaskAction = TaskAction.process,
-        topic: ITopic,
+        topic: Topic,
         id: UUID = UUID.randomUUID(),
         bodyURL: String = "",
     ) {
@@ -393,7 +393,7 @@ class Report : Logging {
         parentItemLineageData: List<ParentItemLineageData>,
         destination: Receiver? = null,
         nextAction: TaskAction,
-        topic: ITopic,
+        topic: Topic,
     ) {
         this.id = UUID.randomUUID()
         // UP submissions do not need a schema, but it is required by the database to maintain legacy functionality
@@ -1517,7 +1517,7 @@ class Report : Logging {
             header: WorkflowEngine.Header,
             reportService: ReportService,
             metadata: Metadata? = null,
-        ): String = if (header.receiver?.topic?.isSendOriginal == true) {
+        ): String = if (header.receiver?.topic?.isSendOriginal() == true) {
             // the externalName of the root report should equal the submission payload name parameter
             reportService.getRootReport(header.reportFile.reportId).externalName ?: formExternalFilename(
                 header.reportFile.reportId,
@@ -1612,7 +1612,7 @@ class Report : Logging {
             receiver: Receiver,
             metadata: Metadata,
             actionHistory: ActionHistory,
-            topic: ITopic,
+            topic: Topic,
             format: MimeFormat? = null,
             externalName: String? = null,
         ): Triple<Report, Event, BlobAccess.BlobInfo> {

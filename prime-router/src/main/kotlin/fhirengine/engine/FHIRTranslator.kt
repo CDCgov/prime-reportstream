@@ -6,6 +6,7 @@ import ca.uhn.hl7v2.model.Segment
 import ca.uhn.hl7v2.util.Terser
 import fhirengine.engine.CustomFhirPathFunctions
 import fhirengine.engine.CustomTranslationFunctions
+import gov.cdc.prime.reportstream.shared.queue_message.FhirTranslateQueueMessage
 import gov.cdc.prime.reportstream.shared.queue_message.QueueMessage
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.CustomerStatus
@@ -33,6 +34,8 @@ import gov.cdc.prime.router.fhirengine.translation.hl7.utils.HL7Utils.defaultHl7
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.HL7Utils.defaultHl7EncodingFourChars
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.report.ReportService
+import gov.cdc.prime.reportstream.shared.EventAction
+import gov.cdc.prime.reportstream.shared.queue_message.ReportEventQueueMessage
 import org.hl7.fhir.r4.model.Bundle
 import org.jooq.Field
 import java.time.OffsetDateTime
@@ -78,7 +81,7 @@ class FHIRTranslator(
                     val receiver = settings.findReceiver(message.receiverFullName)
                         ?: throw RuntimeException("Receiver with name ${message.receiverFullName} was not found")
                     actionHistory.trackActionReceiverInfo(receiver.organizationName, receiver.name)
-                    return if (message.topic.isSendOriginal) {
+                    return if (message.topic.isSendOriginal()) {
                         listOf(sendOriginal(message, receiver, actionHistory))
                     } else {
                         listOf(sendTranslated(message, receiver, actionHistory))
@@ -114,7 +117,7 @@ class FHIRTranslator(
 
         // get a Report from the message
         val (report, event, blobInfo) = Report.generateReportAndUploadBlob(
-            Event.EventAction.SEND,
+            EventAction.SEND,
             bodyBytes,
             listOf(message.reportId),
             receiver,
@@ -128,7 +131,7 @@ class FHIRTranslator(
             event,
             report,
             blobInfo.blobUrl,
-            ReportEventQueueMessage(Event.EventAction.SEND, false, report.id, OffsetDateTime.now().toString())
+            ReportEventQueueMessage(EventAction.SEND, false, report.id, OffsetDateTime.now().toString())
         )
     }
 
@@ -151,7 +154,7 @@ class FHIRTranslator(
             )
 
         val (report, event, blobInfo) = Report.generateReportAndUploadBlob(
-            Event.EventAction.BATCH,
+            EventAction.BATCH,
             bodyBytes,
             listOf(message.reportId),
             receiver,
