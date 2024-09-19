@@ -14,7 +14,6 @@ import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.authorization.AuthorizationDeniedException
-import org.springframework.security.oauth2.server.resource.authentication.BearerTokenAuthentication
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken
 import org.springframework.web.bind.MissingRequestHeaderException
 import org.springframework.web.bind.annotation.ControllerAdvice
@@ -179,7 +178,7 @@ class SubmissionController(
         @ExceptionHandler(AuthorizationDeniedException::class)
         fun handleAuthorizationException(
             e: AuthorizationDeniedException,
-            auth: JwtAuthenticationToken
+            auth: JwtAuthenticationToken,
         ): ResponseEntity<Unit> {
             logger.warn("Authorization denied for token attributes: ${auth.tokenAttributes}", e)
 
