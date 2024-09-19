@@ -5,6 +5,8 @@ import assertk.assertions.hasSize
 import assertk.assertions.isEqualTo
 import com.microsoft.azure.functions.HttpStatus
 import gov.cdc.prime.reportstream.shared.Submission
+import gov.cdc.prime.reportstream.shared.Topic
+import gov.cdc.prime.reportstream.shared.queue_message.ReceiveQueueMessage
 import gov.cdc.prime.router.ActionLog
 import gov.cdc.prime.router.ActionLogDetail
 import gov.cdc.prime.router.ActionLogger
@@ -19,7 +21,6 @@ import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.SettingsProvider
-import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseAccess
@@ -92,7 +93,7 @@ class FHIRReceiverTest {
         val engine: FHIRReceiver,
         val actionLogger: ActionLogger,
         val actionHistory: ActionHistory,
-        val message: FhirReceiveQueueMessage,
+        val message: ReceiveQueueMessage,
     )
 
     private fun setupMocksForProcessingTest(
@@ -115,7 +116,7 @@ class FHIRReceiverTest {
         )
 
         val engine = spyk(makeFhirReceiver(metadata, settings))
-        val message = mockk<FhirReceiveQueueMessage>(relaxed = true)
+        val message = mockk<ReceiveQueueMessage>(relaxed = true)
         val action = Action()
         action.actionName = TaskAction.receive
 

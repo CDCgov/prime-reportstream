@@ -21,13 +21,14 @@ import com.azure.storage.blob.models.BlobDownloadContentResponse
 import com.azure.storage.blob.models.BlobDownloadResponse
 import com.azure.storage.blob.models.BlobItem
 import gov.cdc.prime.reportstream.shared.BlobUtils
+import gov.cdc.prime.reportstream.shared.EventAction
+import gov.cdc.prime.reportstream.shared.Topic
 import gov.cdc.prime.router.BlobStoreTransportType
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.TestSource
-import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.common.TestcontainersUtils
 import io.mockk.CapturingSlot
@@ -547,7 +548,7 @@ class BlobAccessTests {
         every {
             BlobAccess.uploadBody(
                 report1.bodyFormat, testBytes, report1.id.toString(), null,
-                Event.EventAction.NONE
+                EventAction.NONE
             )
         } returns
             BlobAccess.BlobInfo(report1.bodyFormat, testUrl, BlobUtils.sha256Digest(testBytes))
@@ -568,16 +569,16 @@ class BlobAccessTests {
         val testBytes = "testbytes".toByteArray()
         val testFolder = "testfolder"
         val testEnv = "testenvvar"
-        val testEvents: List<Event.EventAction?> = listOf(
-            Event.EventAction.RECEIVE,
-            Event.EventAction.SEND,
-            Event.EventAction.BATCH,
-            Event.EventAction.PROCESS,
-            Event.EventAction.DESTINATION_FILTER,
-            Event.EventAction.RECEIVER_FILTER,
-            Event.EventAction.TRANSLATE,
-            Event.EventAction.NONE,
-            Event.EventAction.CONVERT,
+        val testEvents: List<EventAction?> = listOf(
+            EventAction.RECEIVE,
+            EventAction.SEND,
+            EventAction.BATCH,
+            EventAction.PROCESS,
+            EventAction.DESTINATION_FILTER,
+            EventAction.RECEIVER_FILTER,
+            EventAction.TRANSLATE,
+            EventAction.NONE,
+            EventAction.CONVERT,
             null
         )
 
@@ -591,7 +592,7 @@ class BlobAccessTests {
             val result = when (it) {
                 null -> BlobAccess.uploadBody(testFormat, testBytes, testid, "")
                 // testing with and without reportName passed in to improve code coverage
-                Event.EventAction.CONVERT -> BlobAccess.uploadBody(testFormat, testBytes, testid, action = it)
+                EventAction.CONVERT -> BlobAccess.uploadBody(testFormat, testBytes, testid, action = it)
                 else -> BlobAccess.uploadBody(testFormat, testBytes, testid, testFolder, it)
             }
 

@@ -15,6 +15,7 @@ import assertk.assertions.isNull
 import assertk.assertions.isTrue
 import assertk.assertions.size
 import assertk.assertions.startsWith
+import gov.cdc.prime.reportstream.shared.Topic
 import gov.cdc.prime.router.common.DateUtilities
 import gov.cdc.prime.router.metadata.ConcatenateMapper
 import gov.cdc.prime.router.metadata.ElementAndValue

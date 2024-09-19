@@ -9,8 +9,8 @@ import assertk.assertions.isNull
 import assertk.assertions.isNullOrEmpty
 import com.google.common.net.HttpHeaders
 import com.microsoft.azure.functions.HttpRequestMessage
+import gov.cdc.prime.reportstream.shared.Topic
 import gov.cdc.prime.router.ReportId
-import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.CovidResultMetadata
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile

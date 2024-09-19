@@ -3,7 +3,7 @@ package gov.cdc.prime.router.history
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNull
-import gov.cdc.prime.router.Topic
+import gov.cdc.prime.reportstream.shared.Topic
 import java.time.OffsetDateTime
 import kotlin.test.Test
 

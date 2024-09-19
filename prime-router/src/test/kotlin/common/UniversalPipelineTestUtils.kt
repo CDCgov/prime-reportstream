@@ -1,19 +1,23 @@
+@file:Suppress("CAST_NEVER_SUCCEEDS")
+
 package gov.cdc.prime.router.common
 
 import assertk.assertThat
 import assertk.assertions.hasSize
 import assertk.assertions.isEqualTo
+import gov.cdc.prime.reportstream.shared.EventAction
+import gov.cdc.prime.reportstream.shared.ReportOptions
+import gov.cdc.prime.reportstream.shared.Topic
 import gov.cdc.prime.router.ClientSource
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.DeepOrganization
 import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.MimeFormat
-import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportStreamConditionFilter
-import gov.cdc.prime.router.Topic
+import gov.cdc.prime.router.TopicWithValidator
 import gov.cdc.prime.router.UniversalPipelineSender
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DataAccessTransaction
@@ -219,7 +223,7 @@ object UniversalPipelineTestUtils {
         "phd",
         MimeFormat.HL7,
         CustomerStatus.ACTIVE,
-        topic = Topic.MARS_OTC_ELR,
+        topic = TopicWithValidator.MARS_OTC_ELR as Topic
     )
     val universalPipelineOrganization = DeepOrganization(
         "phd", "test", Organization.Jurisdiction.FEDERAL,
@@ -405,7 +409,7 @@ object UniversalPipelineTestUtils {
     fun createReport(
         reportContents: String,
         action: TaskAction,
-        event: Event.EventAction,
+        event: EventAction,
         azuriteContainer: GenericContainer<*>,
         previousAction: TaskAction = TaskAction.receive,
         parentReport: Report? = null,
@@ -432,7 +436,7 @@ object UniversalPipelineTestUtils {
         fileFormat: MimeFormat,
         currentAction: TaskAction,
         nextAction: TaskAction,
-        nextEventAction: Event.EventAction,
+        nextEventAction: EventAction,
         topic: Topic,
         parentReport: Report? = null,
         bodyURL: String? = null,
@@ -490,7 +494,7 @@ object UniversalPipelineTestUtils {
                 nextAction = ProcessEvent(
                     nextEventAction,
                     report.id,
-                    Options.None,
+                    ReportOptions.None,
                     emptyMap(),
                     emptyList()
                 ),

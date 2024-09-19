@@ -9,6 +9,7 @@ import assertk.assertions.isNull
 import assertk.assertions.isNullOrEmpty
 import assertk.assertions.isTrue
 import com.microsoft.azure.functions.HttpStatus
+import gov.cdc.prime.reportstream.shared.Topic
 import gov.cdc.prime.router.ActionLogLevel
 import gov.cdc.prime.router.ActionLogScope
 import gov.cdc.prime.router.ClientSource
@@ -19,7 +20,6 @@ import gov.cdc.prime.router.InvalidTranslationMessage
 import gov.cdc.prime.router.MissingFieldMessage
 import gov.cdc.prime.router.ReportStreamFilterResult
 import gov.cdc.prime.router.ReportStreamFilterType
-import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import java.time.OffsetDateTime
 import java.util.UUID

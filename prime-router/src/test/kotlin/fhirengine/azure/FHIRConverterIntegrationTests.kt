@@ -8,14 +8,17 @@ import assertk.assertions.isEqualTo
 import assertk.assertions.isEqualToIgnoringGivenProperties
 import assertk.assertions.matchesPredicate
 import gov.cdc.prime.reportstream.shared.BlobUtils
+import gov.cdc.prime.reportstream.shared.EventAction
+import gov.cdc.prime.reportstream.shared.ReportOptions
+import gov.cdc.prime.reportstream.shared.Topic
+import gov.cdc.prime.reportstream.shared.queue_message.FhirDestinationFilterQueueMessage
 import gov.cdc.prime.reportstream.shared.queue_message.QueueMessage
 import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.MimeFormat
-import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Sender
-import gov.cdc.prime.router.Topic
+import gov.cdc.prime.router.TopicWithValidator
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseLookupTableAccess
@@ -63,7 +66,6 @@ import gov.cdc.prime.router.common.validRadxMarsHL7MessageConverted
 import gov.cdc.prime.router.db.ReportStreamTestDatabaseContainer
 import gov.cdc.prime.router.db.ReportStreamTestDatabaseSetupExtension
 import gov.cdc.prime.router.fhirengine.engine.FHIRConverter
-import gov.cdc.prime.router.fhirengine.engine.FhirDestinationFilterQueueMessage
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.history.DetailedActionLog
 import gov.cdc.prime.router.metadata.LookupTable
@@ -86,6 +88,7 @@ import tech.tablesaw.api.Table
 import java.nio.charset.Charset
 import java.time.OffsetDateTime
 
+@Suppress("CAST_NEVER_SUCCEEDS")
 @Testcontainers
 @ExtendWith(ReportStreamTestDatabaseSetupExtension::class)
 class FHIRConverterIntegrationTests {
@@ -146,7 +149,7 @@ class FHIRConverterIntegrationTests {
             "blobURL": "${report.bodyURL}",
             "digest": "${BlobUtils.digestToString(BlobUtils.sha256Digest(blobContents.toByteArray()))}",
             "blobSubFolderName": "${sender.fullName}",
-            "topic": "${sender.topic.jsonVal}",
+            "topic": "${sender.topic.jsonVal()}",
             "schemaName": "${sender.schemaName}"
             ${if (headersString.isNotEmpty()) ",\n$headersString" else ""}
         }
@@ -224,9 +227,9 @@ class FHIRConverterIntegrationTests {
                 format.toString().lowercase(),
                 report.bodyURL,
                 nextAction = ProcessEvent(
-                    Event.EventAction.CONVERT,
+                    EventAction.CONVERT,
                     report.id,
-                    Options.None,
+                    ReportOptions.None,
                     emptyMap(),
                     emptyList()
                 ),
@@ -589,7 +592,7 @@ class FHIRConverterIntegrationTests {
                 assertThat(this.receivingOrg).isEqualTo(null)
                 assertThat(this.receivingOrgSvc).isEqualTo(null)
                 assertThat(this.schemaName).isEqualTo("None")
-                assertThat(this.schemaTopic).isEqualTo(Topic.MARS_OTC_ELR)
+                assertThat(this.schemaTopic).isEqualTo(TopicWithValidator.MARS_OTC_ELR)
                 assertThat(this.bodyFormat).isEqualTo("FHIR")
             }
             with(notRouted.single()) {
@@ -597,7 +600,7 @@ class FHIRConverterIntegrationTests {
                 assertThat(this.receivingOrg).isEqualTo(null)
                 assertThat(this.receivingOrgSvc).isEqualTo(null)
                 assertThat(this.schemaName).isEqualTo("None")
-                assertThat(this.schemaTopic).isEqualTo(Topic.MARS_OTC_ELR)
+                assertThat(this.schemaTopic).isEqualTo(TopicWithValidator.MARS_OTC_ELR)
                 assertThat(this.bodyFormat).isEqualTo("FHIR")
             }
 
@@ -661,7 +664,7 @@ class FHIRConverterIntegrationTests {
                     notRouted.first().reportId,
                     receiveReport.id,
                     listOf(receiveReport.id),
-                    Topic.MARS_OTC_ELR,
+                    TopicWithValidator.MARS_OTC_ELR as Topic,
                     "",
                     TaskAction.convert,
                     OffsetDateTime.now()
@@ -681,7 +684,7 @@ class FHIRConverterIntegrationTests {
             assertThat(event.params).isEqualTo(
                 mapOf(
                     ReportStreamEventProperties.ITEM_FORMAT to MimeFormat.HL7,
-                    ReportStreamEventProperties.VALIDATION_PROFILE to Topic.MARS_OTC_ELR.validator.validatorProfileName,
+                    ReportStreamEventProperties.VALIDATION_PROFILE to TopicWithValidator.MARS_OTC_ELR.validator().validatorProfileName,
                     @Suppress("ktlint:standard:max-line-length")
                     ReportStreamEventProperties.PROCESSING_ERROR
                     to "Item 2 in the report was not valid. Reason: HL7 was not valid at MSH[1]-21[1].3 for validator: RADx MARS"

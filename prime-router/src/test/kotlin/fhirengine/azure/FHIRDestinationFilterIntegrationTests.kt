@@ -9,6 +9,9 @@ import assertk.assertions.isEqualToIgnoringGivenProperties
 import assertk.assertions.isInstanceOf
 import assertk.assertions.isNull
 import gov.cdc.prime.reportstream.shared.BlobUtils
+import gov.cdc.prime.reportstream.shared.EventAction
+import gov.cdc.prime.reportstream.shared.Topic
+import gov.cdc.prime.reportstream.shared.queue_message.FhirReceiverFilterQueueMessage
 import gov.cdc.prime.reportstream.shared.queue_message.QueueMessage
 import gov.cdc.prime.router.ActionLog
 import gov.cdc.prime.router.CustomerStatus
@@ -17,7 +20,6 @@ import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportStreamFilter
 import gov.cdc.prime.router.Sender
-import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseLookupTableAccess
@@ -41,7 +43,6 @@ import gov.cdc.prime.router.common.validFHIRRecord1
 import gov.cdc.prime.router.db.ReportStreamTestDatabaseContainer
 import gov.cdc.prime.router.db.ReportStreamTestDatabaseSetupExtension
 import gov.cdc.prime.router.fhirengine.engine.FHIRDestinationFilter
-import gov.cdc.prime.router.fhirengine.engine.FhirReceiverFilterQueueMessage
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.history.db.ReportGraph
 import gov.cdc.prime.router.metadata.LookupTable
@@ -131,7 +132,7 @@ class FHIRDestinationFilterIntegrationTests : Logging {
                 "blobURL": "${report.bodyURL}",
                 "digest": "${BlobUtils.digestToString(BlobUtils.sha256Digest(blobContents.toByteArray()))}",
                 "blobSubFolderName": "${sender.fullName}",
-                "topic": "${sender.topic.jsonVal}",
+                "topic": "${sender.topic.jsonVal()}",
                 "schemaName": "${sender.schemaName}" 
             }
         """.trimIndent()
@@ -144,7 +145,7 @@ class FHIRDestinationFilterIntegrationTests : Logging {
         val report = UniversalPipelineTestUtils.createReport(
             reportContents,
             TaskAction.destination_filter,
-            Event.EventAction.DESTINATION_FILTER,
+            EventAction.DESTINATION_FILTER,
             azuriteContainer
         )
         val queueMessage = generateQueueMessage(
@@ -273,7 +274,7 @@ class FHIRDestinationFilterIntegrationTests : Logging {
         val report = UniversalPipelineTestUtils.createReport(
             reportContents,
             TaskAction.destination_filter,
-            Event.EventAction.DESTINATION_FILTER,
+            EventAction.DESTINATION_FILTER,
             azuriteContainer
         )
         val queueMessage = generateQueueMessage(
@@ -387,7 +388,7 @@ class FHIRDestinationFilterIntegrationTests : Logging {
         val report = UniversalPipelineTestUtils.createReport(
             reportContents,
             TaskAction.destination_filter,
-            Event.EventAction.DESTINATION_FILTER,
+            EventAction.DESTINATION_FILTER,
             azuriteContainer
         )
         val queueMessage = generateQueueMessage(

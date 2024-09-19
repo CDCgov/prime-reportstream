@@ -2,6 +2,9 @@ package gov.cdc.prime.router.azure
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
+import gov.cdc.prime.reportstream.shared.EventAction
+import gov.cdc.prime.reportstream.shared.ReportOptions
+import gov.cdc.prime.reportstream.shared.Topic
 import gov.cdc.prime.router.CovidSender
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.DeepOrganization
@@ -9,14 +12,12 @@ import gov.cdc.prime.router.Element
 import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.MimeFormat
-import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.TestSource
-import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.common.BaseEngine
 import gov.cdc.prime.router.serializers.CsvSerializer
@@ -71,7 +72,7 @@ class WorkflowEngineTests {
         val metadata = Metadata(schema = one)
         val settings = FileSettings().loadOrganizations(oneOrganization)
         val report1 = Report(one, listOf(listOf("1", "2"), listOf("3", "4")), source = TestSource, metadata = metadata)
-        val event = ReportEvent(Event.EventAction.NONE, UUID.randomUUID(), false)
+        val event = ReportEvent(EventAction.NONE, UUID.randomUUID(), false)
         val bodyFormat = MimeFormat.CSV
         val bodyUrl = "http://anyblob.com"
         val actionHistory = mockk<ActionHistory>()
@@ -113,7 +114,7 @@ class WorkflowEngineTests {
         val metadata = Metadata(schema = one)
         val settings = FileSettings().loadOrganizations(oneOrganization)
         val report1 = Report(one, listOf(listOf("1", "2"), listOf("3", "4")), source = TestSource, metadata = metadata)
-        val event = ReportEvent(Event.EventAction.NONE, UUID.randomUUID(), false)
+        val event = ReportEvent(EventAction.NONE, UUID.randomUUID(), false)
         val bodyFormat = MimeFormat.CSV
         val bodyUrl = "http://anyblob.com"
         val actionHistory = mockk<ActionHistory>()
@@ -156,7 +157,7 @@ class WorkflowEngineTests {
         val metadata = Metadata(schema = one)
         val settings = FileSettings().loadOrganizations(oneOrganization)
         val report1 = Report(one, listOf(listOf("1", "2"), listOf("3", "4")), source = TestSource, metadata = metadata)
-        val event = ReportEvent(Event.EventAction.NONE, report1.id, false)
+        val event = ReportEvent(EventAction.NONE, report1.id, false)
         val bodyFormat = MimeFormat.CSV
         val bodyUrl = "http://anyblob.com"
         val actionHistory = mockk<ActionHistory>()
@@ -218,7 +219,7 @@ class WorkflowEngineTests {
                 any(),
                 any(),
                 sender.fullName,
-                Event.EventAction.RECEIVE
+                EventAction.RECEIVE
             )
         }.returns(BlobAccess.BlobInfo(MimeFormat.CSV, "http://anyblob.com", "".toByteArray()))
         every { actionHistory.trackExternalInputReport(any(), any(), any()) }.returns(Unit)
@@ -247,8 +248,8 @@ class WorkflowEngineTests {
         )
         val bodyFormat = "CSV"
         val bodyUrl = "http://anyblob.com"
-        val event = ReportEvent(Event.EventAction.SEND, report1.id, false)
-        val nextAction = ReportEvent(Event.EventAction.NONE, report1.id, false)
+        val event = ReportEvent(EventAction.SEND, report1.id, false)
+        val nextAction = ReportEvent(EventAction.NONE, report1.id, false)
         val task = DatabaseAccess.createTask(report1, bodyFormat, bodyUrl, event)
         val actionHistoryMock = mockk<ActionHistory>()
         mockkObject(ActionHistory.Companion)
@@ -262,7 +263,7 @@ class WorkflowEngineTests {
         every {
             accessSpy.updateTask(
                 reportId = eq(report1.id),
-                eq(event.eventAction.toTaskAction()),
+                eq(event.toTaskAction()),
                 any(),
                 any(),
                 any(),
@@ -308,9 +309,9 @@ class WorkflowEngineTests {
         val bodyFormat = "CSV"
         val bodyUrl = "http://anyblob.com"
         // The event in the queue is a Process event.
-        val processEvent = ProcessEvent(Event.EventAction.PROCESS, report1.id, Options.None, emptyMap(), emptyList())
+        val processEvent = ProcessEvent(EventAction.PROCESS, report1.id, ReportOptions.None, emptyMap(), emptyList())
         // Mismatch:  The event in the TASK table is a NONE event.
-        val mismatchedNotProcessEvent = ReportEvent(Event.EventAction.NONE, report1.id, false)
+        val mismatchedNotProcessEvent = ReportEvent(EventAction.NONE, report1.id, false)
         val mismatchedNotProcessTask = DatabaseAccess.createTask(
             report1, bodyFormat, bodyUrl, mismatchedNotProcessEvent
         )

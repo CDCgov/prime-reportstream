@@ -6,6 +6,7 @@ import assertk.assertions.isNotEqualTo
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
 import assertk.assertions.isNullOrEmpty
+import gov.cdc.prime.reportstream.shared.Topic
 import gov.cdc.prime.router.metadata.ConcatenateMapper
 import gov.cdc.prime.router.metadata.ElementNames
 import gov.cdc.prime.router.metadata.LIVDLookupMapper

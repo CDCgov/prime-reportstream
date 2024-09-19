@@ -3,6 +3,8 @@ package gov.cdc.prime.router
 import assertk.assertFailure
 import assertk.assertThat
 import assertk.assertions.isInstanceOf
+import gov.cdc.prime.reportstream.shared.ReportOptions
+import gov.cdc.prime.reportstream.shared.Topic
 import gov.cdc.prime.reportstream.shared.queue_message.QueueMessage
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
@@ -545,7 +547,7 @@ class SubmissionReceiverTests {
         // act
         receiver.processAsync(
             report,
-            Options.None,
+            ReportOptions.None,
             emptyMap(),
             emptyList()
         )
@@ -600,7 +602,7 @@ class SubmissionReceiverTests {
         try {
             receiver.processAsync(
                 report,
-                Options.None,
+                ReportOptions.None,
                 emptyMap(),
                 emptyList()
             )
@@ -657,7 +659,7 @@ class SubmissionReceiverTests {
             sender,
             csvString_2Records,
             emptyMap(),
-            Options.None,
+            ReportOptions.None,
             emptyList(),
             true,
             true,
@@ -722,7 +724,7 @@ class SubmissionReceiverTests {
             sender,
             csvString_2Records,
             emptyMap(),
-            Options.None,
+            ReportOptions.None,
             emptyList(),
             false,
             false,
@@ -794,7 +796,7 @@ class SubmissionReceiverTests {
             sender,
             hl7_record,
             emptyMap(),
-            Options.None,
+            ReportOptions.None,
             emptyList(),
             true,
             false,
@@ -877,7 +879,7 @@ class SubmissionReceiverTests {
             sender,
             content,
             emptyMap(),
-            Options.None,
+            ReportOptions.None,
             emptyList(),
             true,
             false,
@@ -948,7 +950,7 @@ class SubmissionReceiverTests {
             sender,
             File("src/test/resources/fhirengine/engine/valid_data.fhir").readText(),
             emptyMap(),
-            Options.None,
+            ReportOptions.None,
             emptyList(),
             true,
             false,
@@ -1018,7 +1020,7 @@ class SubmissionReceiverTests {
             sender,
             File("src/test/resources/fhirengine/engine/bulk_valid_data.fhir").readText(),
             emptyMap(),
-            Options.None,
+            ReportOptions.None,
             emptyList(),
             true,
             false,
@@ -1089,7 +1091,7 @@ class SubmissionReceiverTests {
                 sender,
                 "bad_data",
                 emptyMap(),
-                Options.None,
+                ReportOptions.None,
                 emptyList(),
                 true,
                 true,
@@ -1161,7 +1163,7 @@ class SubmissionReceiverTests {
                 sender,
                 hl7_record_bad_type,
                 emptyMap(),
-                Options.None,
+                ReportOptions.None,
                 emptyList(),
                 true,
                 true,

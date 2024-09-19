@@ -3,13 +3,13 @@ package gov.cdc.prime.router.config.validation
 import assertk.assertThat
 import assertk.assertions.contains
 import assertk.assertions.isInstanceOf
+import gov.cdc.prime.reportstream.shared.Topic
 import gov.cdc.prime.router.ConditionLookupConditionFilter
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.DeepOrganization
 import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Receiver
-import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.common.JacksonMapperUtilities
 import java.io.File
 import kotlin.test.Test

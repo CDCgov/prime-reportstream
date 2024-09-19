@@ -8,8 +8,8 @@ import assertk.assertions.isFalse
 import assertk.assertions.isNotNull
 import assertk.assertions.isTrue
 import com.google.common.net.HttpHeaders
+import gov.cdc.prime.reportstream.shared.Topic
 import gov.cdc.prime.router.ReportId
-import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.MockHttpRequestMessage
 import gov.cdc.prime.router.azure.db.tables.pojos.Action

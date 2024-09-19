@@ -46,7 +46,7 @@ enum class CustomerStatus {
 
 
 interface ITopicWithValidator: ITopic {
-    fun validator(): AbstractItemValidator
+    override fun validator(): AbstractItemValidator
 }
 
 enum class TopicWithValidator: ITopicWithValidator {

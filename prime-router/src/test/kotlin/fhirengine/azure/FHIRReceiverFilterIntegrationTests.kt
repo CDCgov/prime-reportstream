@@ -9,6 +9,9 @@ import assertk.assertions.isNull
 import assertk.assertions.isZero
 import assertk.assertions.matchesPredicate
 import gov.cdc.prime.reportstream.shared.BlobUtils
+import gov.cdc.prime.reportstream.shared.EventAction
+import gov.cdc.prime.reportstream.shared.Topic
+import gov.cdc.prime.reportstream.shared.queue_message.FhirTranslateQueueMessage
 import gov.cdc.prime.reportstream.shared.queue_message.QueueMessage
 import gov.cdc.prime.router.ActionLog
 import gov.cdc.prime.router.ActionLogLevel
@@ -21,7 +24,6 @@ import gov.cdc.prime.router.ReportStreamFilter
 import gov.cdc.prime.router.ReportStreamFilterResult
 import gov.cdc.prime.router.ReportStreamFilterType
 import gov.cdc.prime.router.Sender
-import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.ConditionStamper
@@ -47,7 +49,6 @@ import gov.cdc.prime.router.common.validFHIRRecord1Identifier
 import gov.cdc.prime.router.db.ReportStreamTestDatabaseContainer
 import gov.cdc.prime.router.db.ReportStreamTestDatabaseSetupExtension
 import gov.cdc.prime.router.fhirengine.engine.FHIRReceiverFilter
-import gov.cdc.prime.router.fhirengine.engine.FhirTranslateQueueMessage
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.fhirengine.utils.deleteResource
 import gov.cdc.prime.router.fhirengine.utils.getObservations
@@ -230,7 +231,7 @@ class FHIRReceiverFilterIntegrationTests : Logging {
                 "blobURL": "${report.bodyURL}",
                 "digest": "${BlobUtils.digestToString(BlobUtils.sha256Digest(blobContents.toByteArray()))}",
                 "blobSubFolderName": "${sender.fullName}",
-                "topic": "${sender.topic.jsonVal}",
+                "topic": "${sender.topic.jsonVal()}",
                 "receiverFullName": "$receiverName" 
             }
         """.trimIndent()
@@ -256,7 +257,7 @@ class FHIRReceiverFilterIntegrationTests : Logging {
         val report = UniversalPipelineTestUtils.createReport(
             reportContents,
             TaskAction.receiver_filter,
-            Event.EventAction.RECEIVER_FILTER,
+            EventAction.RECEIVER_FILTER,
             azuriteContainer
         )
         val queueMessage = generateQueueMessage(
@@ -344,7 +345,7 @@ class FHIRReceiverFilterIntegrationTests : Logging {
         val report = UniversalPipelineTestUtils.createReport(
             reportContents,
             TaskAction.receiver_filter,
-            Event.EventAction.RECEIVER_FILTER,
+            EventAction.RECEIVER_FILTER,
             azuriteContainer
         )
         val queueMessage = generateQueueMessage(
@@ -441,7 +442,7 @@ class FHIRReceiverFilterIntegrationTests : Logging {
         val report = UniversalPipelineTestUtils.createReport(
             reportContents,
             TaskAction.receiver_filter,
-            Event.EventAction.RECEIVER_FILTER,
+            EventAction.RECEIVER_FILTER,
             azuriteContainer
         )
         val queueMessage = generateQueueMessage(
@@ -518,7 +519,7 @@ class FHIRReceiverFilterIntegrationTests : Logging {
         val report = UniversalPipelineTestUtils.createReport(
             reportContents,
             TaskAction.receiver_filter,
-            Event.EventAction.RECEIVER_FILTER,
+            EventAction.RECEIVER_FILTER,
             azuriteContainer
         )
         val queueMessage = generateQueueMessage(
@@ -619,7 +620,7 @@ class FHIRReceiverFilterIntegrationTests : Logging {
         val report = UniversalPipelineTestUtils.createReport(
             stampedReportContents,
             TaskAction.receiver_filter,
-            Event.EventAction.RECEIVER_FILTER,
+            EventAction.RECEIVER_FILTER,
             azuriteContainer
         )
         val queueMessage = generateQueueMessage(
@@ -706,7 +707,7 @@ class FHIRReceiverFilterIntegrationTests : Logging {
         val report = UniversalPipelineTestUtils.createReport(
             reportContents,
             TaskAction.receiver_filter,
-            Event.EventAction.RECEIVER_FILTER,
+            EventAction.RECEIVER_FILTER,
             azuriteContainer
         )
         val queueMessage = generateQueueMessage(
@@ -801,7 +802,7 @@ class FHIRReceiverFilterIntegrationTests : Logging {
         val report = UniversalPipelineTestUtils.createReport(
             reportContents,
             TaskAction.receiver_filter,
-            Event.EventAction.RECEIVER_FILTER,
+            EventAction.RECEIVER_FILTER,
             azuriteContainer
         )
         val queueMessage = generateQueueMessage(
@@ -929,7 +930,7 @@ class FHIRReceiverFilterIntegrationTests : Logging {
         val report = UniversalPipelineTestUtils.createReport(
             reportContents,
             TaskAction.receiver_filter,
-            Event.EventAction.RECEIVER_FILTER,
+            EventAction.RECEIVER_FILTER,
             azuriteContainer
         )
         val queueMessage = generateQueueMessage(
@@ -1006,7 +1007,7 @@ class FHIRReceiverFilterIntegrationTests : Logging {
         val report = UniversalPipelineTestUtils.createReport(
             reportContents,
             TaskAction.receiver_filter,
-            Event.EventAction.RECEIVER_FILTER,
+            EventAction.RECEIVER_FILTER,
             azuriteContainer
         )
         val queueMessage = generateQueueMessage(
@@ -1079,7 +1080,7 @@ class FHIRReceiverFilterIntegrationTests : Logging {
         val report = UniversalPipelineTestUtils.createReport(
             reportContents,
             TaskAction.receiver_filter,
-            Event.EventAction.RECEIVER_FILTER,
+            EventAction.RECEIVER_FILTER,
             azuriteContainer
         )
         val queueMessage = generateQueueMessage(

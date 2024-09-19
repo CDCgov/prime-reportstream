@@ -2,6 +2,8 @@ package gov.cdc.prime.router.azure.batch
 
 import assertk.assertFailure
 import assertk.assertions.hasClass
+import gov.cdc.prime.reportstream.shared.EventAction
+import gov.cdc.prime.reportstream.shared.Topic
 import gov.cdc.prime.router.CustomConfiguration
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.DeepOrganization
@@ -16,7 +18,6 @@ import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.SettingsProvider
-import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BatchEvent
 import gov.cdc.prime.router.azure.BlobAccess
@@ -96,7 +97,7 @@ class UniversalBatchFunctionTests {
         every { engine.generateEmptyReport(any(), any()) } returns Unit
 
         // the message that will be passed to batchFunction
-        val message = BatchEvent(Event.EventAction.BATCH, "phd.elr", true)
+        val message = BatchEvent(EventAction.BATCH, "phd.elr", true)
 
         // Invoke batch function run
         UniversalBatchFunction(engine).run(message.toQueueMessage(), context = null)
@@ -454,10 +455,10 @@ class UniversalBatchFunctionTests {
         every { engine.db.fetchReportFile(any(), any(), any()) } returns mockReportFile
         every { BlobAccess.Companion.exists(any()) } returns true
         mockkObject(Topic.COVID_19)
-        every { Topic.COVID_19.isUniversalPipeline } returns true
+        every { Topic.COVID_19.isUniversalPipeline() } returns true
 
         // the message that will be passed to batchFunction
-        val message = BatchEvent(Event.EventAction.BATCH, "phd.elr", false)
+        val message = BatchEvent(EventAction.BATCH, "phd.elr", false)
 
         // Invoke batch function run for universal pipeline
         UniversalBatchFunction(engine).run(message.toQueueMessage(), context = null)

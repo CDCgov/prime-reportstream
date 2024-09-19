@@ -7,13 +7,14 @@ import assertk.assertions.isNotNull
 import assertk.assertions.isNull
 import assertk.assertions.isTrue
 import gov.cdc.prime.reportstream.shared.BlobUtils
+import gov.cdc.prime.reportstream.shared.EventAction
+import gov.cdc.prime.reportstream.shared.Topic
 import gov.cdc.prime.reportstream.shared.queue_message.QueueMessage
 import gov.cdc.prime.router.DeepOrganization
 import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Sender
-import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.Event
@@ -119,7 +120,7 @@ class FHIRTranslatorIntegrationTests : Logging {
                 "blobURL": "${report.bodyURL}",
                 "digest": "${BlobUtils.digestToString(BlobUtils.sha256Digest(blobContents.toByteArray()))}",
                 "blobSubFolderName": "${sender.fullName}",
-                "topic": "${sender.topic.jsonVal}",
+                "topic": "${sender.topic.jsonVal()}",
                 "receiverFullName": "$receiverName" 
             }
         """.trimIndent()
@@ -145,7 +146,7 @@ class FHIRTranslatorIntegrationTests : Logging {
         val receiveReport = UniversalPipelineTestUtils.createReport(
             reportContents,
             TaskAction.receive,
-            Event.EventAction.CONVERT,
+            EventAction.CONVERT,
             azuriteContainer
         )
 
@@ -243,7 +244,7 @@ class FHIRTranslatorIntegrationTests : Logging {
         val receiveReport = UniversalPipelineTestUtils.createReport(
             reportContents,
             TaskAction.receive,
-            Event.EventAction.CONVERT,
+            EventAction.CONVERT,
             azuriteContainer
         )
 
@@ -337,7 +338,7 @@ class FHIRTranslatorIntegrationTests : Logging {
         val receiveReport = UniversalPipelineTestUtils.createReport(
             reportContents,
             TaskAction.receive,
-            Event.EventAction.CONVERT,
+            EventAction.CONVERT,
             azuriteContainer
         )
         val queueMessage = generateQueueMessage(
@@ -422,7 +423,7 @@ class FHIRTranslatorIntegrationTests : Logging {
         val receiveReport = UniversalPipelineTestUtils.createReport(
             reportContents,
             TaskAction.receive,
-            Event.EventAction.CONVERT,
+            EventAction.CONVERT,
             azuriteContainer
         )
         val queueMessage = generateQueueMessage(
@@ -506,7 +507,7 @@ class FHIRTranslatorIntegrationTests : Logging {
         val receiveReport = UniversalPipelineTestUtils.createReport(
             reportContents,
             TaskAction.receive,
-            Event.EventAction.CONVERT,
+            EventAction.CONVERT,
             azuriteContainer,
             fileName = "originalhl7.hl7"
         )
@@ -586,7 +587,7 @@ class FHIRTranslatorIntegrationTests : Logging {
         val receiveReport = UniversalPipelineTestUtils.createReport(
             reportContents,
             TaskAction.receive,
-            Event.EventAction.CONVERT,
+            EventAction.CONVERT,
             azuriteContainer,
             fileName = "originalhl7.hl7"
         )
@@ -666,7 +667,7 @@ class FHIRTranslatorIntegrationTests : Logging {
         val receiveReport = UniversalPipelineTestUtils.createReport(
             reportContents,
             TaskAction.receive,
-            Event.EventAction.CONVERT,
+            EventAction.CONVERT,
             azuriteContainer
         )
 

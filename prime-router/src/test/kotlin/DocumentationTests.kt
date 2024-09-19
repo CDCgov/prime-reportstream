@@ -2,6 +2,7 @@ package gov.cdc.prime.router
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
+import gov.cdc.prime.reportstream.shared.Topic
 import gov.cdc.prime.router.docgenerators.DocumentationFactory
 import gov.cdc.prime.router.docgenerators.MarkdownDocumentationFactory
 import java.time.LocalDate

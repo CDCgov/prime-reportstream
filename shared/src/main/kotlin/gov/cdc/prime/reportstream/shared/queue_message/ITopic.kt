@@ -7,4 +7,6 @@ interface ITopic {
     fun isUniversalPipeline(): Boolean
 
     fun isSendOriginal(): Boolean
+
+    fun validator(): Any
 }
