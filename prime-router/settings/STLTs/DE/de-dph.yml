@@ -71,7 +71,24 @@
         customLengthHl7Fields: {}
     jurisdictionalFilter:
       - "(Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state = 'DE') or (Bundle.entry.resource.ofType(Patient).address.state = 'DE')"
-    qualityFilter: []
+    qualityFilter: [
+        # "hasAtLeastOneOf(order_test_date,specimen_collection_date_time,test_result_date)",
+        - "Bundle.entry.resource.ofType(DiagnosticReport).where(basedOn.resolve().extension('https://reportstream.cdc.gov/fhir/StructureDefinition/effective-date').empty() and specimen.resolve().collection.collected.empty() and effective.empty() and issued.empty() and result.resolve().effective.empty()).count() = 0",
+        # - "hasAtLeastOneOf(patient_street,patient_zip_code,patient_phone_number,patient_email)",
+        - "Bundle.entry.resource.ofType(Patient).where(address.line[0].empty() and address.postalCode.empty() and telecom.where(system = 'phone').value.empty() and telecom.where(system = 'email').value.empty()).count() = 0",
+        # hasValidData(ordering_provider_id)
+        - "Bundle.entry.resource.ofType(Practitioner).identifier[0].empty().not()",
+        # hasValidData(patient_last_name, patient_first_name, patient_dob)
+        - "Bundle.entry.resource.ofType(Patient).where(name.family.empty() or name.given.empty() or birthDate.empty()).count() = 0",
+        #- "hasValidDataFor(specimen_type)
+        - "Bundle.entry.resource.ofType(Specimen).where(type.empty()).count() = 0",
+        # hasValidData(message_id)
+        - "Bundle.identifier.value.empty().not()",
+        # "hasValidDataFor(equipment_model_name,test_result)
+        - "Bundle.entry.resource.ofType(DiagnosticReport).result.resolve().where(method.empty() or value.coding.code.empty()).count() = 0",
+        # - "isValidCLIA(testing_lab_clia)"
+        - "Bundle.entry.resource.ofType(ServiceRequest).performer.resolve().identifier.where(type.coding.code = 'CLIA').value.getIdType() = 'CLIA'"
+    ]
     routingFilter:
       # Message id is not empty (MSH-10)
       - "Bundle.identifier.value.exists()"
@@ -84,11 +101,14 @@
       - "Bundle.entry.resource.ofType(Patient).where(address.line[0].empty() and address.postalCode.empty() and telecom.where(system = 'phone').value.empty() and telecom.where(system = 'email').value.empty()).count() = 0"
       - "((Bundle.entry.resource.ofType(Specimen).collection.collectedPeriod.exists() or Bundle.entry.resource.ofType(Specimen).collection.collected.exists())
             or (Bundle.entry.resource.ofType(ServiceRequest).occurrence.exists() or Bundle.entry.resource.ofType(Observation).effective.exists()))"
-    processingModeFilter: []
+    processingModeFilter: [
+#        "doesNotMatch(processing_mode_code,T,D)",
+        - "Bundle.entry.resource.ofType(MessageHeader).meta.tag.where(system = 'http://terminology.hl7.org/CodeSystem/v2-0103').code.exists() and Bundle.entry.resource.ofType(MessageHeader).meta.tag.where(system = 'http://terminology.hl7.org/CodeSystem/v2-0103').code != 'T' and Bundle.entry.resource.ofType(MessageHeader).meta.tag.where(system = 'http://terminology.hl7.org/CodeSystem/v2-0103').code != 'D'"
+    ]
     reverseTheQualityFilter: false
     conditionFilter:
-      # Accept COVID only
-      - "(%resource.code.coding.extension('https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code').value.where(code in ('840539006')).exists())"
+      # Accept COVID, RSV and FLU. PCR and Antigen positive only
+      - "%resource.code.coding.extension('https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code').value.where(code  in ('840539006'|'55735004'|'6142004')).exists() and %resource.interpretation.coding.code = 'A'"
     mappedConditionFilter: []
     deidentify: false
     deidentifiedValue: ""
@@ -104,9 +124,9 @@
     description: ""
     transport:
       type: SFTP
-      host: sftp
+      host: mft.dhss.delaware.gov
       port: 22
-      filePath: ./upload
+      filePath: ./TS_PRIME
       credentialName: DEFAULT-SFTP
     externalName: "Primary Feed"
     enrichmentSchemaNames: []
