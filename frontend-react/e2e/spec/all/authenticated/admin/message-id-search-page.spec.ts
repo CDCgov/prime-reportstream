@@ -1,6 +1,6 @@
 import { noData, tableRows } from "../../../../helpers/utils";
 import { MOCK_GET_MESSAGES } from "../../../../mocks/messages";
-import { MessageIDSearchPage } from "../../../../pages/authenticated/message-id-search";
+import { MessageIDSearchPage } from "../../../../pages/authenticated/admin/message-id-search";
 import { openReportIdDetailPage } from "../../../../pages/authenticated/submission-history";
 
 import { test as baseTest, expect } from "../../../../test";

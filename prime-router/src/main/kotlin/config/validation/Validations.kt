@@ -61,7 +61,7 @@ object OrganizationValidation : KonformValidation<List<DeepOrganization>>() {
         }
 
     // Check to see if we have a valid filter structure
-    private fun validateFilter(filter: String): Boolean {
+    fun validateFilter(filter: String): Boolean {
         val isReportStreamFormat = allowedFilters.any { filter.startsWith(it) }
         return isReportStreamFormat || validFhirPath(filter)
     }
