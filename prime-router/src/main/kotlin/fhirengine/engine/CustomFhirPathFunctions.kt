@@ -10,11 +10,11 @@ import gov.cdc.prime.router.common.NPIUtilities
 import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
 import gov.cdc.prime.router.metadata.GeoData
 import gov.cdc.prime.router.metadata.LivdLookup
+import org.hl7.fhir.r4.fhirpath.FHIRPathUtilityClasses.FunctionDetails
 import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.Device
 import org.hl7.fhir.r4.model.Observation
 import org.hl7.fhir.r4.model.StringType
-import org.hl7.fhir.r4.utils.FHIRPathUtilityClasses.FunctionDetails
 import java.time.LocalDate
 import java.util.Date
 import java.util.UUID

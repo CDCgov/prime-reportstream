@@ -465,12 +465,6 @@
         "dataAbsentReason" : {
           "coding" : [
             {
-              "extension" : [
-                {
-                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
-                  "valueString" : "identifier"
-                }
-              ],
               "system" : "http://terminology.hl7.org/CodeSystem/data-absent-reason",
               "code" : "unknown"
             }
@@ -1469,12 +1463,6 @@
         "dataAbsentReason" : {
           "coding" : [
             {
-              "extension" : [
-                {
-                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
-                  "valueString" : "identifier"
-                }
-              ],
               "system" : "http://terminology.hl7.org/CodeSystem/data-absent-reason",
               "code" : "unknown"
             }
@@ -4841,12 +4829,6 @@
         "dataAbsentReason" : {
           "coding" : [
             {
-              "extension" : [
-                {
-                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
-                  "valueString" : "identifier"
-                }
-              ],
               "system" : "http://terminology.hl7.org/CodeSystem/data-absent-reason",
               "code" : "unknown"
             }
