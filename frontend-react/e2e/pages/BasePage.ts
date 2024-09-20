@@ -89,8 +89,8 @@ export abstract class BasePage {
             typeof err === "function" || typeof err === "object"
                 ? err
                 : {
-                      status: typeof err === "number" ? err : 500,
-                  };
+                    status: typeof err === "number" ? err : 500,
+                };
     }
 
     /**
@@ -134,9 +134,11 @@ export abstract class BasePage {
         );
     }
 
-    async testHeader() {
+    async testHeader(hasHeading = true) {
         await expect(this.page).toHaveTitle(this.title);
-        await expect(this.heading).toBeVisible();
+        if (hasHeading) {
+            await expect(this.heading).toBeVisible();
+        }
     }
 
     async testCard(card: { name: string }) {
