@@ -2,7 +2,8 @@
 import axios, { AxiosError } from "axios";
 import * as fs from "fs";
 import { pageNotFound } from "../../../src/content/error/ErrorMessages";
-import { test as baseTest, expect } from "../../test";
+import { isAbsoluteURL, isAssetURL } from "../../helpers/utils";
+import { test as baseTest, Browser, chromium, expect } from "../../test";
 
 const test = baseTest.extend({});
 
@@ -17,7 +18,6 @@ const test = baseTest.extend({});
 
 test.describe("Evaluate links on public facing pages", { tag: "@warning" }, () => {
     let urlPaths: string[] = [];
-    const normalizeUrl = (href: string, baseUrl: string) => new URL(href, baseUrl).toString();
 
     // Using our sitemap.xml, we'll create a pathnames array
     // We cannot use our POM, we must
@@ -51,6 +51,7 @@ test.describe("Evaluate links on public facing pages", { tag: "@warning" }, () =
         page,
         frontendWarningsLogPath,
         isFrontendWarningsLog,
+        baseURL,
     }) => {
         let aggregateHref = [];
         // Set test timeout to be 1 minute instead of 30 seconds
@@ -59,7 +60,6 @@ test.describe("Evaluate links on public facing pages", { tag: "@warning" }, () =
             await page.goto(path, {
                 waitUntil: "networkidle",
             });
-            const baseUrl = new URL(page.url()).origin;
 
             const allATags = await page.getByRole("link", { includeHidden: true }).elementHandles();
 
@@ -67,11 +67,12 @@ test.describe("Evaluate links on public facing pages", { tag: "@warning" }, () =
                 const href = await aTag.getAttribute("href");
                 // ONLY include http, https and relative path names
                 if (href && /^(https?:|\/)/.test(href)) {
-                    aggregateHref.push(normalizeUrl(href, baseUrl));
+                    aggregateHref.push(href);
                 }
             }
         }
-        // Remove any link duplicates to save resources
+
+        // Remove duplicate links
         aggregateHref = [...new Set(aggregateHref)];
 
         const axiosInstance = axios.create({
@@ -80,39 +81,61 @@ test.describe("Evaluate links on public facing pages", { tag: "@warning" }, () =
 
         const warnings: { url: string; message: string }[] = [];
 
-        const validateLink = async (url: string) => {
-            try {
-                const response = await axiosInstance.get(url);
-                const pageContent = response.data;
-
-                // For internal links, we cannot check for a 400 response code directly
-                // and must check if the content includes the "Page not found" string
-                if (pageContent.includes(pageNotFound) && pageContent.includes('data-testid="error-page-wrapper"')) {
-                    const errorString = "Internal link: Page not found";
-                    console.error(`Error accessing ${url}:`, errorString);
-                    const warning = { url: url, message: errorString };
-                    warnings.push(warning);
-                    return { url, status: 404 };
+        const validateLink = async (browser: Browser, url: string) => {
+            // Our app does not properly handle 200 vs 400 HTTP codes for our pages
+            // so we cannot simply use Axios since it's an HTTP client only.
+            // This means we must actually navigate to the page(s) with Playwright
+            // to then decipher the rendered HTML DOM content to then determine
+            // if the page is valid or not. isAbsoluteURL determines if the page
+            // is an internal link or external one by determining if it's an
+            // absolute URL or a relative URL.
+            if (isAbsoluteURL(url) || isAssetURL(url)) {
+                try {
+                    const normalizedURL = new URL(url, baseURL).toString();
+                    const response = await axiosInstance.get(normalizedURL);
+                    return { url, status: response.status };
+                } catch (error) {
+                    const e = error as AxiosError;
+                    console.error(`Error accessing external link ${url}:`, e.message);
+                    warnings.push({ url, message: e.message });
+                    return { url, status: e.response ? e.response.status : 400 };
                 }
+            } else {
+                const page = await browser.newPage();
 
-                // Return the status if everything is fine
-                return { url, status: response.status };
-            } catch (error) {
-                const e = error as AxiosError;
+                try {
+                    await page.goto(url, { waitUntil: "networkidle" });
 
-                // Log the error message and status for failed requests (4xx or 5xx)
-                console.error(`Error accessing ${url}:`, e.message);
-                const warning = { url: url, message: e.message };
-                warnings.push(warning);
+                    const pageContent = await page.content();
+                    const hasPageNotFoundText = pageContent.includes(pageNotFound);
+                    const isErrorWrapperVisible = await page.locator('[data-testid="error-page-wrapper"]').isVisible();
 
-                return {
-                    url,
-                    status: e.response ? e.response.status : "Request failed",
-                };
+                    if (hasPageNotFoundText && isErrorWrapperVisible) {
+                        console.error(`Error accessing ${url}: Page not found`);
+                        warnings.push({ url, message: "Internal link: Page not found" });
+                        return { url, status: 404 };
+                    }
+
+                    return { url, status: 200 };
+                } catch (error) {
+                    console.error(`Error accessing internal link ${url}: Page error`);
+                    warnings.push({ url, message: "Internal link: Page error" });
+                    return { url, status: 400 };
+                } finally {
+                    await page.close();
+                }
             }
         };
 
-        const results = await Promise.all(aggregateHref.map((href) => validateLink(href)));
+        // Since we're trying to parallelize these tests by using Promise.all
+        // we need multiple, separate instances of the Playwright browser
+        const browser = await chromium.launch();
+        let results;
+        try {
+            results = await Promise.all(aggregateHref.map((href) => validateLink(browser, href)));
+        } finally {
+            await browser.close();
+        }
 
         if (isFrontendWarningsLog && warnings.length > 0) {
             fs.writeFileSync(frontendWarningsLogPath, `${JSON.stringify(warnings)}\n`);
