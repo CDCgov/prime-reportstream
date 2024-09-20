@@ -63,7 +63,7 @@ test.describe("Organization Edit Page", () => {
 
         test.describe("header", () => {
             test("has correct title", async ({ organizationEditPage }) => {
-                await expect(organizationEditPage.page).toHaveTitle(organizationEditPage.title);
+                await organizationEditPage.testHeader(false);
             });
         });
 
@@ -77,8 +77,7 @@ test.describe("Organization Edit Page", () => {
 
         test.describe("when there is no error", () => {
             test("has correct title", async ({ organizationEditPage }) => {
-                await expect(organizationEditPage.page).toHaveURL(organizationEditPage.url);
-                await expect(organizationEditPage.page).toHaveTitle(organizationEditPage.title);
+                await organizationEditPage.testHeader(false);
             });
 
             test.describe("edit section", () => {
