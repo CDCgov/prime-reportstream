@@ -1,8 +1,8 @@
 import { expect, Locator } from "@playwright/test";
 import { startOfDay, subDays } from "date-fns";
-import { tableRows } from "../../helpers/utils";
-import { MOCK_GET_RESEND, MOCK_GET_SEND_FAILURES } from "../../mocks/lastMilefailures";
-import { BasePage, BasePageTestArgs, RouteHandlerFulfillEntry } from "../BasePage";
+import { tableRows } from "../../../helpers/utils";
+import { MOCK_GET_RESEND, MOCK_GET_SEND_FAILURES } from "../../../mocks/lastMilefailures";
+import { BasePage, BasePageTestArgs, RouteHandlerFulfillEntry } from "../../BasePage";
 
 export class LastMileFailuresPage extends BasePage {
     static readonly URL_LAST_MILE = "/admin/lastmile";
