@@ -1,5 +1,5 @@
-import { MOCK_GET_MESSAGE, MOCK_GET_MESSAGES } from "../../mocks/messages";
-import { BasePage, BasePageTestArgs, RouteHandlerFulfillEntry } from "../BasePage";
+import { MOCK_GET_MESSAGE, MOCK_GET_MESSAGES } from "../../../mocks/messages";
+import { BasePage, BasePageTestArgs, RouteHandlerFulfillEntry } from "../../BasePage";
 
 export class MessageIDSearchPage extends BasePage {
     static readonly URL_MESSAGE_ID_SEARCH = "/admin/message-tracker";

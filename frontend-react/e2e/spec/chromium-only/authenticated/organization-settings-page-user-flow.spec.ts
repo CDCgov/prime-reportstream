@@ -1,7 +1,7 @@
 import { expect } from "@playwright/test";
 import { tableRows } from "../../../helpers/utils";
 import { MOCK_GET_ORGANIZATION_SETTINGS_LIST } from "../../../mocks/organizations";
-import { OrganizationPage } from "../../../pages/authenticated/organization";
+import { OrganizationPage } from "../../../pages/authenticated/admin/organization";
 import { test as baseTest } from "../../../test";
 
 
