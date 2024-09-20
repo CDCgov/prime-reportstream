@@ -1,7 +1,7 @@
 import { MessageIDSearchPage } from "./message-id-search";
-import { MOCK_GET_MESSAGE } from "../../mocks/messages";
+import { MOCK_GET_MESSAGE } from "../../../mocks/messages";
 
-import { BasePage, BasePageTestArgs, RouteHandlerFulfillEntry } from "../BasePage";
+import { BasePage, BasePageTestArgs, RouteHandlerFulfillEntry } from "../../BasePage";
 
 export class MessageDetailsPage extends BasePage {
     static readonly URL_MESSAGE_DETAILS = `/message-details/${MessageIDSearchPage.MESSAGE_ID}`;
