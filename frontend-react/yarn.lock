@@ -2438,9 +2438,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@okta/okta-signin-widget@npm:^7.23.0":
-  version: 7.23.0
-  resolution: "@okta/okta-signin-widget@npm:7.23.0"
+"@okta/okta-signin-widget@npm:^7.23.1":
+  version: 7.23.1
+  resolution: "@okta/okta-signin-widget@npm:7.23.1"
   dependencies:
     "@okta/okta-auth-js": ^7.8.0
     "@sindresorhus/to-milliseconds": ^1.0.0
@@ -2464,7 +2464,7 @@ __metadata:
   dependenciesMeta:
     fsevents:
       optional: true
-  checksum: 5b55d5fc39412778505d262810ab3a87c2bf557a55a59e4f041f77393b6344e35a96477603a40e80cae325f0bd534aa61c95f0b154b659e647b35e55346d4b90
+  checksum: 4201699705428fdd85bd395004973c34b77113ebbb751834a1d4aa027926a11336941dab64301741cbd2bb464e1c589fe3864136be759966deaa2cff7db04007
   languageName: node
   linkType: hard
 
@@ -12187,7 +12187,7 @@ __metadata:
     "@microsoft/applicationinsights-react-js": ^17.3.2
     "@microsoft/applicationinsights-web": ^3.3.2
     "@okta/okta-react": ^6.9.0
-    "@okta/okta-signin-widget": ^7.23.0
+    "@okta/okta-signin-widget": ^7.23.1
     "@playwright/test": ^1.47.0
     "@rest-hooks/rest": ^3.0.3
     "@rest-hooks/test": ^7.3.1
