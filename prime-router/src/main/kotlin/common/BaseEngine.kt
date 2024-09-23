@@ -7,6 +7,7 @@ import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.QueueAccess
 import gov.cdc.prime.router.azure.SettingsFacade
+import gov.cdc.prime.router.fhirengine.engine.initializeQueueMessages
 import gov.cdc.prime.router.serializers.CsvSerializer
 import gov.cdc.prime.router.serializers.Hl7Serializer
 import org.apache.logging.log4j.kotlin.Logging
@@ -22,6 +23,11 @@ abstract class BaseEngine(
 ) : Logging {
     companion object {
         val sequentialLimit = 500
+
+        // initialize the json types in PrimeRouterQueueMessage
+        init {
+            initializeQueueMessages()
+        }
 
         /**
          * These are all potentially heavyweight objects that
