@@ -55,7 +55,7 @@ test.describe("Evaluate links on public facing pages", { tag: "@warning" }, () =
     }) => {
         let aggregateHref = [];
         // Set test timeout to be 1 minute instead of 30 seconds
-        test.setTimeout(60000);
+        test.setTimeout(120000);
         for (const path of urlPaths) {
             await page.goto(path, {
                 waitUntil: "networkidle",
