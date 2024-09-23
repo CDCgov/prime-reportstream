@@ -846,10 +846,6 @@
       "name" : "Hospital A",
       "physicalType" : {
         "coding" : [ {
-          "extension" : [ {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
-            "valueString" : "identifier"
-          } ],
           "system" : "http://terminology.hl7.org/CodeSystem/location-physical-type",
           "code" : "si"
         } ]
@@ -937,10 +933,6 @@
         } ],
         "type" : {
           "coding" : [ {
-            "extension" : [ {
-              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
-              "valueString" : "identifier"
-            } ],
             "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
             "code" : "MD"
           } ]
@@ -964,10 +956,6 @@
       "name" : "Hospital A",
       "physicalType" : {
         "coding" : [ {
-          "extension" : [ {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
-            "valueString" : "identifier"
-          } ],
           "system" : "http://terminology.hl7.org/CodeSystem/location-physical-type",
           "code" : "si"
         } ]
@@ -1055,10 +1043,6 @@
         } ],
         "type" : {
           "coding" : [ {
-            "extension" : [ {
-              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
-              "valueString" : "identifier"
-            } ],
             "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
             "code" : "MD"
           } ]
@@ -1134,10 +1118,6 @@
       "name" : "Hospital A",
       "physicalType" : {
         "coding" : [ {
-          "extension" : [ {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
-            "valueString" : "identifier"
-          } ],
           "system" : "http://terminology.hl7.org/CodeSystem/location-physical-type",
           "code" : "si"
         } ]
@@ -1231,10 +1211,6 @@
         } ],
         "type" : {
           "coding" : [ {
-            "extension" : [ {
-              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
-              "valueString" : "identifier"
-            } ],
             "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
             "code" : "MD"
           } ]
@@ -1257,10 +1233,6 @@
       "name" : "Hospital A",
       "physicalType" : {
         "coding" : [ {
-          "extension" : [ {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
-            "valueString" : "identifier"
-          } ],
           "system" : "http://terminology.hl7.org/CodeSystem/location-physical-type",
           "code" : "si"
         } ]
@@ -1354,10 +1326,6 @@
         } ],
         "type" : {
           "coding" : [ {
-            "extension" : [ {
-              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
-              "valueString" : "identifier"
-            } ],
             "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
             "code" : "MD"
           } ]
@@ -1396,6 +1364,13 @@
     "resource" : {
       "resourceType" : "ServiceRequest",
       "id" : "1710883425874846000.b6b78334-2fd1-4351-a274-4b61680a7e91",
+      "extension" : [ {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/obr-observation-request",
+        "extension" : [ {
+          "url" : "OBR.25",
+          "valueId" : "F"
+        } ]
+      } ],
       "status" : "unknown",
       "code" : {
         "coding" : [ {

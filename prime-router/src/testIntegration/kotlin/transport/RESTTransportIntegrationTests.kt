@@ -4,6 +4,7 @@ import assertk.assertThat
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
+import assertk.assertions.isTrue
 import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.MimeFormat
@@ -13,6 +14,7 @@ import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.Task
+import gov.cdc.prime.router.azure.observability.event.IReportStreamEventService
 import gov.cdc.prime.router.credentials.UserApiKeyCredential
 import gov.cdc.prime.router.credentials.UserAssertionCredential
 import gov.cdc.prime.router.credentials.UserPassCredential
@@ -41,6 +43,7 @@ import io.ktor.utils.io.core.ByteReadPacket
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.mockkClass
 import io.mockk.mockkObject
 import io.mockk.spyk
 import io.mockk.verify
@@ -48,6 +51,7 @@ import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.assertDoesNotThrow
+import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
 import java.util.logging.Logger
 import kotlin.coroutines.CoroutineContext
@@ -317,7 +321,16 @@ hnm8COa8Kr+bnTqzScpQuOfujHcFEtfcYUGfSS6HusxidwXx+lYi1A==
         )
         every { runBlocking { mockRestTransport.postReport(any(), any(), any(), any(), any(), any(), any()) } }
             .returns(mockPostReportResponse)
-        val retryItems = mockRestTransport.send(transportType, header, reportId, "test", null, context, actionHistory)
+        val retryItems = mockRestTransport.send(
+            transportType,
+            header,
+            reportId,
+            "test",
+            null,
+            context,
+            actionHistory,
+            mockk<IReportStreamEventService>(relaxed = true)
+        )
         assertThat(retryItems).isNull()
         assertThat(actionHistory.action.httpStatus).isNotNull()
     }
@@ -334,7 +347,16 @@ hnm8COa8Kr+bnTqzScpQuOfujHcFEtfcYUGfSS6HusxidwXx+lYi1A==
         )
         every { runBlocking { mockRestTransport.postReport(any(), any(), any(), any(), any(), any(), any()) } }
             .returns(mockPostReportResponse)
-        val retryItems = mockRestTransport.send(transportType, header, reportId, "test", null, context, actionHistory)
+        val retryItems = mockRestTransport.send(
+            transportType,
+            header,
+            reportId,
+            "test",
+            null,
+            context,
+            actionHistory,
+            mockk<IReportStreamEventService>(relaxed = true)
+        )
         assertThat(retryItems).isNull()
         assertThat(actionHistory.action.httpStatus).isNotNull()
     }
@@ -349,7 +371,16 @@ hnm8COa8Kr+bnTqzScpQuOfujHcFEtfcYUGfSS6HusxidwXx+lYi1A==
         )
         every { runBlocking { mockRestTransport.postReport(any(), any(), any(), any(), any(), any(), any()) } }
             .returns(mockPostReportResponse)
-        val retryItems = mockRestTransport.send(transportType, header, reportId, "test", null, context, actionHistory)
+        val retryItems = mockRestTransport.send(
+            transportType,
+            header,
+            reportId,
+            "test",
+            null,
+            context,
+            actionHistory,
+            mockk<IReportStreamEventService>(relaxed = true)
+        )
         assertThat(retryItems).isNull()
         assertThat(actionHistory.action.httpStatus).isNotNull()
     }
@@ -364,7 +395,16 @@ hnm8COa8Kr+bnTqzScpQuOfujHcFEtfcYUGfSS6HusxidwXx+lYi1A==
         )
         every { runBlocking { mockRestTransport.postReport(any(), any(), any(), any(), any(), any(), any()) } }
             .returns(mockPostReportResponse)
-        val retryItems = mockRestTransport.send(transportType, header, reportId, "test", null, context, actionHistory)
+        val retryItems = mockRestTransport.send(
+            transportType,
+            header,
+            reportId,
+            "test",
+            null,
+            context,
+            actionHistory,
+            mockk<IReportStreamEventService>(relaxed = true)
+        )
         assertThat(retryItems).isNull()
         assertThat(actionHistory.action.httpStatus).isNotNull()
     }
@@ -379,7 +419,16 @@ hnm8COa8Kr+bnTqzScpQuOfujHcFEtfcYUGfSS6HusxidwXx+lYi1A==
         )
         every { runBlocking { mockRestTransport.postReport(any(), any(), any(), any(), any(), any(), any()) } }
             .returns(mockPostReportResponse)
-        val retryItems = mockRestTransport.send(transportType, header, reportId, "test", null, context, actionHistory)
+        val retryItems = mockRestTransport.send(
+            transportType,
+            header,
+            reportId,
+            "test",
+            null,
+            context,
+            actionHistory,
+            mockk<IReportStreamEventService>(relaxed = true)
+        )
         assertThat(retryItems).isNotNull()
         assertThat(actionHistory.action.httpStatus).isNotNull()
     }
@@ -394,7 +443,16 @@ hnm8COa8Kr+bnTqzScpQuOfujHcFEtfcYUGfSS6HusxidwXx+lYi1A==
         )
         every { runBlocking { mockRestTransport.postReport(any(), any(), any(), any(), any(), any(), any()) } }
             .returns(mockPostReportResponse)
-        val retryItems = mockRestTransport.send(transportType, header, reportId, "test", null, context, actionHistory)
+        val retryItems = mockRestTransport.send(
+            transportType,
+            header,
+            reportId,
+            "test",
+            null,
+            context,
+            actionHistory,
+            mockk<IReportStreamEventService>(relaxed = true)
+        )
         assertThat(retryItems).isNull()
         assertThat(actionHistory.action.httpStatus).isNotNull()
     }
@@ -409,7 +467,16 @@ hnm8COa8Kr+bnTqzScpQuOfujHcFEtfcYUGfSS6HusxidwXx+lYi1A==
         every { runBlocking { mockRestTransport.getAuthTokenWithUserApiKey(any(), any(), any(), any()) } }.returns(
             TokenInfo("MockToken", 1000, "MockRefreshToken", null, "bearer")
         )
-        val retryItems = mockRestTransport.send(transportType, header, reportId, "test", null, context, actionHistory)
+        val retryItems = mockRestTransport.send(
+            transportType,
+            header,
+            reportId,
+            "test",
+            null,
+            context,
+            actionHistory,
+            mockk<IReportStreamEventService>(relaxed = true)
+        )
         assertThat(retryItems).isNull()
         assertThat(actionHistory.action.httpStatus).isNotNull()
     }
@@ -424,7 +491,16 @@ hnm8COa8Kr+bnTqzScpQuOfujHcFEtfcYUGfSS6HusxidwXx+lYi1A==
         every { runBlocking { mockRestTransport.getAuthTokenWithUserApiKey(any(), any(), any(), any()) } }.returns(
             TokenInfo("MockToken", 1000, "MockRefreshToken", null, "bearer")
         )
-        val retryItems = mockRestTransport.send(transportType, header, reportId, "test", null, context, actionHistory)
+        val retryItems = mockRestTransport.send(
+            transportType,
+            header,
+            reportId,
+            "test",
+            null,
+            context,
+            actionHistory,
+            mockk<IReportStreamEventService>(relaxed = true)
+        )
         assertThat(retryItems).isNotNull()
         assertThat(actionHistory.action.httpStatus).isNotNull()
     }
@@ -439,7 +515,16 @@ hnm8COa8Kr+bnTqzScpQuOfujHcFEtfcYUGfSS6HusxidwXx+lYi1A==
         every { runBlocking { mockRestTransport.getAuthTokenWithUserApiKey(any(), any(), any(), any()) } }.returns(
             TokenInfo("MockToken", 1000, "MockRefreshToken", null, "bearer")
         )
-        val retryItems = mockRestTransport.send(transportType, header, reportId, "test", null, context, actionHistory)
+        val retryItems = mockRestTransport.send(
+            transportType,
+            header,
+            reportId,
+            "test",
+            null,
+            context,
+            actionHistory,
+            mockk<IReportStreamEventService>(relaxed = true)
+        )
         assertThat(retryItems).isNotNull()
         assertThat(actionHistory.action.httpStatus).isNotNull()
     }
@@ -451,7 +536,16 @@ hnm8COa8Kr+bnTqzScpQuOfujHcFEtfcYUGfSS6HusxidwXx+lYi1A==
         every { mockRestTransport.lookupDefaultCredential(any()) }.returns(
             UserApiKeyCredential("test-user", "test-key")
         )
-        val retryItems = mockRestTransport.send(transportType, header, reportId, "test", null, context, actionHistory)
+        val retryItems = mockRestTransport.send(
+            transportType,
+            header,
+            reportId,
+            "test",
+            null,
+            context,
+            actionHistory,
+            mockk<IReportStreamEventService>(relaxed = true)
+        )
         assertThat(retryItems).isNotNull()
     }
 
@@ -474,7 +568,7 @@ hnm8COa8Kr+bnTqzScpQuOfujHcFEtfcYUGfSS6HusxidwXx+lYi1A==
         //      RESTTransport is called WITH transport.parameters empty
         val retryItems = mockRestTransport.send(
             transportType, header, reportId, "test", null,
-            context, actionHistory
+            context, actionHistory, mockk<IReportStreamEventService>(relaxed = true)
         )
 
         // Then:
@@ -507,7 +601,7 @@ hnm8COa8Kr+bnTqzScpQuOfujHcFEtfcYUGfSS6HusxidwXx+lYi1A==
         //      RESTTransport is called WITH flexionRestTransportType which has transport.parameters
         val retryItems = mockRestTransport.send(
             flexionRestTransportType, header, reportId, "test", null,
-            context, actionHistory
+            context, actionHistory, mockk<IReportStreamEventService>(relaxed = true)
         )
 
         // Then:
@@ -534,7 +628,7 @@ hnm8COa8Kr+bnTqzScpQuOfujHcFEtfcYUGfSS6HusxidwXx+lYi1A==
 
         val retryItems = mockRestTransport.send(
             flexionRestTransportType, header, reportId, "test", null,
-            context, actionHistory
+            context, actionHistory, mockk<IReportStreamEventService>(relaxed = true)
         )
         assertThat(retryItems).isNull()
     }
@@ -552,7 +646,7 @@ hnm8COa8Kr+bnTqzScpQuOfujHcFEtfcYUGfSS6HusxidwXx+lYi1A==
 
         val retryItems = mockRestTransport.send(
             flexionRestTransportTypeWithJwtParams, header, reportId, "test", null,
-            context, actionHistory
+            context, actionHistory, mockk<IReportStreamEventService>(relaxed = true)
         )
         assertThat(retryItems).isNull()
     }
@@ -596,7 +690,7 @@ hnm8COa8Kr+bnTqzScpQuOfujHcFEtfcYUGfSS6HusxidwXx+lYi1A==
         //      RESTTransport is called WITH transport.parameters empty
         val retryItems = mockRestTransport.send(
             nbsRestTransportTypeLive, header, reportId, "test", null,
-            context, actionHistory
+            context, actionHistory, mockk<IReportStreamEventService>(relaxed = true)
         )
 
         // Then:
@@ -622,7 +716,7 @@ hnm8COa8Kr+bnTqzScpQuOfujHcFEtfcYUGfSS6HusxidwXx+lYi1A==
         )
         val retryItems = mockRestTransport.send(
             nbsRestTransportTypeLive, header, reportId, "test", null,
-            context, actionHistory
+            context, actionHistory, mockk<IReportStreamEventService>(relaxed = true)
         )
         assertThat(retryItems).isNull()
     }
@@ -658,7 +752,7 @@ hnm8COa8Kr+bnTqzScpQuOfujHcFEtfcYUGfSS6HusxidwXx+lYi1A==
         //      RESTTransport is called WITH transport.parameters empty
         val retryItems = mockRestTransport.send(
             natusRestTransportTypeLive, header, reportId, "test", null,
-            context, actionHistory
+            context, actionHistory, mockk<IReportStreamEventService>(relaxed = true)
         )
 
         // Then:
@@ -707,7 +801,7 @@ hnm8COa8Kr+bnTqzScpQuOfujHcFEtfcYUGfSS6HusxidwXx+lYi1A==
         //      RESTTransport is called WITH transport.parameters empty
         val retryItems = mockRestTransport.send(
             natusRestTransportTypeLiveEncrypt, header, reportId, "test", null,
-            context, actionHistory
+            context, actionHistory, mockk<IReportStreamEventService>(relaxed = true)
         )
 
         assertThat(retryItems).isNull()
@@ -735,7 +829,14 @@ hnm8COa8Kr+bnTqzScpQuOfujHcFEtfcYUGfSS6HusxidwXx+lYi1A==
         // When:
         //      RESTTransport is called WITH transport.parameters empty
         val retryItems = mockRestTransport.send(
-            natusRestTransportTypeLive, header, reportId, expectedFileName, null, context, actionHistory
+            natusRestTransportTypeLive,
+            header,
+            reportId,
+            expectedFileName,
+            null,
+            context,
+            actionHistory,
+            mockk<IReportStreamEventService>(relaxed = true)
         )
 
         // Then:
@@ -768,7 +869,7 @@ hnm8COa8Kr+bnTqzScpQuOfujHcFEtfcYUGfSS6HusxidwXx+lYi1A==
         )
         val retryItems = mockRestTransport.send(
             natusRestTransportTypeLive, header, reportId, "test", null,
-            context, actionHistory
+            context, actionHistory, mockk<IReportStreamEventService>(relaxed = true)
         )
         assertThat(retryItems).isNull()
     }
@@ -821,7 +922,7 @@ hnm8COa8Kr+bnTqzScpQuOfujHcFEtfcYUGfSS6HusxidwXx+lYi1A==
 
         val retryItems = mockRestTransport.send(
             okRestTransportTypeLive, header, reportId, "test", null,
-            context, actionHistory
+            context, actionHistory, mockk<IReportStreamEventService>(relaxed = true)
         )
         assertThat(retryItems).isNull()
     }
@@ -839,5 +940,152 @@ hnm8COa8Kr+bnTqzScpQuOfujHcFEtfcYUGfSS6HusxidwXx+lYi1A==
         // Test with "Testing" BearerToken, it should return "Testing"
         restTransport = RESTTransportType("", "", headers = mapOf("BearerToken" to "Testing"))
         assertThat(RESTTransport.getAuthorizationHeader(restTransport)).isEqualTo("Testing")
+    }
+
+    // Epic localhost end-to-end testing
+    private val epicRestTransportTypeLive = RESTTransportType(
+        "https://sendURL",
+        "https://oauth2/token",
+        headers = mapOf(
+            "Content-Length" to "<calculated when request is sent>",
+            "Content-Type" to "application/hl7-v2",
+            "Host" to "hd1314496.epic.com"
+        )
+    )
+
+    @Test
+    fun `test transport postReport with valid message to epic-etor-nbs-results`() {
+        val header = makeHeader()
+        val mockRestTransport = spyk(RESTTransport(mockClientPostOk()))
+
+        every { mockRestTransport.lookupDefaultCredential(any()) }.returns(
+            UserPassCredential("mock-user", "mock-pass")
+        )
+        every { runBlocking { mockRestTransport.getAuthTokenWithUserPass(any(), any(), any(), any()) } }.returns(
+            TokenInfo(accessToken = "MockToken", tokenType = "bearer")
+        )
+
+        // When:
+        //      RESTTransport is called WITH transport.parameters empty
+        val retryItems = mockRestTransport.send(
+            epicRestTransportTypeLive, header, reportId, "test", null,
+            context, actionHistory, mockk<IReportStreamEventService>(relaxed = true)
+        )
+
+        // Then:
+        //      getAuthTokenWithUserApiKey should be called with transport.parameters empty
+        assertThat(retryItems).isNull()
+    }
+
+    // Epic localhost end-to-end testing
+    private val oracleRlNRestTransport = RESTTransportType(
+        "https://sendURL",
+        "",
+        authType = "apiKey",
+        headers = mapOf(
+            "Content-Type" to "text/plain",
+            "shared-api-key" to "From Vault"
+        )
+    )
+
+    val expectedHttpHeaders = mapOf(
+        "Content-Type" to "text/plain",
+        "shared-api-key" to "oracle123",
+        "System_ID" to "test-user",
+        "Key" to "oracle123"
+    )
+
+    @Test
+    fun `test transport postReport with valid message to oracle-rln--etor-nbs-results`() {
+        val header = makeHeader()
+        val mockRestTransport = spyk(RESTTransport(mockClientAuthOk()))
+
+        // Given:
+        //      lookupDefaultCredential returns mock UserApiKeyCredential object to allow
+        //      the getAuthTokenWIthUserApiKey() to be called.
+        every { mockRestTransport.lookupDefaultCredential(any()) }.returns(
+            UserApiKeyCredential(
+                "test-user",
+                "oracle123"
+            )
+        )
+
+        // When:
+        //      RESTTransport is called WITH flexionRestTransportType which has transport.parameters
+        val retryItems = mockRestTransport.send(
+            oracleRlNRestTransport, header, reportId, "test", null,
+            context, actionHistory, mockk<IReportStreamEventService>(relaxed = true)
+        )
+
+        // Then:
+        //      postReport should be called with correct httpheaders' values as given.
+        verify {
+            runBlocking {
+                mockRestTransport.postReport(
+                    any(),
+                    any(),
+                    any(),
+                    expectedHttpHeaders,
+                    any(),
+                    any(),
+                    any()
+                )
+            }
+        }
+        assertThat(retryItems).isNull()
+    }
+
+    @Test
+    fun `test post vs put http client`() {
+        val logger = mockkClass(Logger::class)
+        val mockedClient = mockk<HttpClient>(relaxed = true)
+        val mockRestTransport = spyk(RESTTransport(mockedClient))
+
+        val putHeaders = mapOf("method" to "PUT", "Content-Type" to "text/plain")
+        val postHeaders = mapOf("Content-Type" to "text/plain")
+        val now = OffsetDateTime.now()
+        val message = "test".toByteArray()
+        val testUrl = "https://api.example.com/data"
+        val fileName = "test"
+
+        every { logger.warning(any<String>()) } returns Unit
+        every { logger.info(any<String>()) } returns Unit
+
+        val putClient = HttpClient(MockEngine) {
+            engine {
+                addHandler { put ->
+                    when (put.url.toString()) {
+                        testUrl -> {
+                            respond("Put called", headers = headersOf("method", "PUT"))
+                        }
+                        else -> error("Unhandled ${put.url}")
+                    }
+                }
+            }
+        }
+
+        val postClient = HttpClient(MockEngine) {
+            engine {
+                addHandler { post ->
+                    when (post.url.toString()) {
+                        testUrl -> {
+                            respond("Post called", headers = headersOf("method", "POST"))
+                        }
+                        else -> error("Unhandled ${post.url}")
+                    }
+                }
+            }
+        }
+
+        val putResponse = runBlocking {
+            mockRestTransport.postReport(message, fileName, testUrl, putHeaders, logger, putClient, now)
+        }
+
+        val postResponse = runBlocking {
+            mockRestTransport.postReport(message, fileName, testUrl, postHeaders, logger, postClient, now)
+        }
+
+        assertThat(putResponse.headers.contains("method", "PUT")).isTrue()
+        assertThat(postResponse.headers.contains("method", "POST")).isTrue()
     }
 }

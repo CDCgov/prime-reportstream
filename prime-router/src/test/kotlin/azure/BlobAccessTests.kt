@@ -1,6 +1,7 @@
 package gov.cdc.prime.router.azure
 
 import assertk.assertThat
+import assertk.assertions.contains
 import assertk.assertions.hasSize
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotNull
@@ -19,6 +20,7 @@ import com.azure.storage.blob.BlobServiceClientBuilder
 import com.azure.storage.blob.models.BlobDownloadContentResponse
 import com.azure.storage.blob.models.BlobDownloadResponse
 import com.azure.storage.blob.models.BlobItem
+import gov.cdc.prime.reportstream.shared.BlobUtils
 import gov.cdc.prime.router.BlobStoreTransportType
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.MimeFormat
@@ -548,14 +550,14 @@ class BlobAccessTests {
                 Event.EventAction.NONE
             )
         } returns
-            BlobAccess.BlobInfo(report1.bodyFormat, testUrl, BlobAccess.sha256Digest(testBytes))
+            BlobAccess.BlobInfo(report1.bodyFormat, testUrl, BlobUtils.sha256Digest(testBytes))
 
         val testBlob = BlobAccess()
         val result = testBlob.uploadReport(report1, testBytes)
 
         assertThat(result.format).isEqualTo(testFormat)
         assertThat(result.blobUrl).isEqualTo(testUrl)
-        assertThat(result.digest).isEqualTo(BlobAccess.sha256Digest(testBytes))
+        assertThat(result.digest).isEqualTo(BlobUtils.sha256Digest(testBytes))
     }
 
     @Test
@@ -571,7 +573,8 @@ class BlobAccessTests {
             Event.EventAction.SEND,
             Event.EventAction.BATCH,
             Event.EventAction.PROCESS,
-            Event.EventAction.ROUTE,
+            Event.EventAction.DESTINATION_FILTER,
+            Event.EventAction.RECEIVER_FILTER,
             Event.EventAction.TRANSLATE,
             Event.EventAction.NONE,
             Event.EventAction.CONVERT,
@@ -594,17 +597,8 @@ class BlobAccessTests {
 
             assertThat(result.format).isEqualTo(testFormat)
             // test blobUrl is as expected for the EventAction
-            assertThat(
-                result.blobUrl.contains(
-                    when (it?.name) {
-                        null -> "other"
-                        "SEND" -> "ready"
-                        "CONVERT" -> "other"
-                        else -> it.name.lowercase()
-                    }
-                )
-            ).isTrue()
-            assertThat(result.digest).isEqualTo(BlobAccess.sha256Digest(testBytes))
+            assertThat(result.blobUrl).contains(BlobAccess.directoryForAction(it))
+            assertThat(result.digest).isEqualTo(BlobUtils.sha256Digest(testBytes))
         }
     }
 
@@ -784,7 +778,7 @@ class BlobAccessTests {
 
     @Test
     fun `test build container metadata`() {
-        val defaultEnvVar = Environment.get().blobEnvVar
+        val defaultEnvVar = Environment.get().storageEnvVar
         val testEnvVar = "testenv"
         val testContainer = "testcontainer"
 

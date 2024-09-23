@@ -11,6 +11,8 @@ import com.azure.storage.blob.models.BlobListDetails
 import com.azure.storage.blob.models.BlobStorageException
 import com.azure.storage.blob.models.DownloadRetryOptions
 import com.azure.storage.blob.models.ListBlobsOptions
+import gov.cdc.prime.reportstream.shared.BlobUtils
+import gov.cdc.prime.reportstream.shared.BlobUtils.sha256Digest
 import gov.cdc.prime.router.BlobStoreTransportType
 import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.Report
@@ -24,7 +26,6 @@ import java.io.File
 import java.net.URL
 import java.net.URLDecoder
 import java.nio.charset.Charset
-import java.security.MessageDigest
 import java.time.Duration
 
 const val defaultBlobContainerName = "reports"
@@ -134,7 +135,7 @@ class BlobAccess() : Logging {
 
     companion object : Logging {
         private const val defaultBlobDownloadRetryVar = "AzureBlobDownloadRetryCount"
-        private val defaultEnvVar = Environment.get().blobEnvVar
+        private val defaultEnvVar = Environment.get().storageEnvVar
         val defaultBlobMetadata by lazy {
             BlobContainerMetadata.build(
                 defaultBlobContainerName,
@@ -150,6 +151,24 @@ class BlobAccess() : Logging {
         private val blobContainerClients = mutableMapOf<BlobContainerMetadata, BlobContainerClient>()
 
         /**
+         * Gets the root directory name for storing a blob associated with an EventAction
+         */
+        internal fun directoryForAction(action: Event.EventAction?): String =
+
+         when (action) {
+            Event.EventAction.RECEIVE -> "receive"
+            Event.EventAction.BATCH -> "batch"
+            Event.EventAction.PROCESS -> "process"
+            Event.EventAction.DESTINATION_FILTER -> "destination-filter"
+            Event.EventAction.RECEIVER_FILTER -> "receiver-filter"
+            Event.EventAction.ROUTE -> "route"
+            Event.EventAction.TRANSLATE -> "translate"
+            Event.EventAction.NONE -> "none"
+            Event.EventAction.SEND -> "ready"
+            else -> "other"
+        }
+
+        /**
          * Upload a raw [blobBytes] in the [bodyFormat] for a given [reportName].
          * The [action] is used to determine the folder to store the blob in.
          * A [subfolderName] name is optional.
@@ -163,16 +182,8 @@ class BlobAccess() : Logging {
             action: Event.EventAction = Event.EventAction.OTHER,
         ): BlobInfo {
             val subfolderNameChecked = if (subfolderName.isNullOrBlank()) "" else "$subfolderName/"
-            val blobName = when (action) {
-                Event.EventAction.RECEIVE -> "receive/$subfolderNameChecked$reportName.${bodyFormat.ext}"
-                Event.EventAction.SEND -> "ready/$subfolderNameChecked$reportName.${bodyFormat.ext}"
-                Event.EventAction.BATCH -> "batch/$subfolderNameChecked$reportName.${bodyFormat.ext}"
-                Event.EventAction.PROCESS -> "process/$subfolderNameChecked$reportName.${bodyFormat.ext}"
-                Event.EventAction.ROUTE -> "route/$subfolderNameChecked$reportName.${bodyFormat.ext}"
-                Event.EventAction.TRANSLATE -> "translate/$subfolderNameChecked$reportName.${bodyFormat.ext}"
-                Event.EventAction.NONE -> "none/$subfolderNameChecked$reportName.${bodyFormat.ext}"
-                else -> "other/$subfolderNameChecked$reportName.${bodyFormat.ext}"
-            }
+            val blobName = "${directoryForAction(action)}/$subfolderNameChecked$reportName.${bodyFormat.ext}"
+
             val digest = sha256Digest(blobBytes)
             val blobUrl = uploadBlob(blobName, blobBytes)
             return BlobInfo(bodyFormat, blobUrl, digest)
@@ -310,6 +321,21 @@ class BlobAccess() : Logging {
                     BlobItemAndPreviousVersions(current, previousVersions)
                 }
             }
+        }
+
+        /**
+         * Download the file associated with a RawSubmission message
+         */
+        fun downloadBlob(
+            blobUrl: String,
+            digest: String,
+        ): String {
+            val blobContent = downloadBlobAsByteArray(blobUrl)
+            val localDigest = BlobUtils.digestToString(sha256Digest(blobContent))
+            check(digest == localDigest) {
+                "Downloaded file does not match expected file\n$digest | $localDigest"
+            }
+            return String(blobContent)
         }
 
         /**
@@ -492,29 +518,6 @@ class BlobAccess() : Logging {
                 }
                 containerClient
             }
-        }
-
-        /**
-         * Create a hex string style of a digest.
-         */
-        fun digestToString(digest: ByteArray): String {
-            return digest.joinToString(separator = "", limit = 40) { Integer.toHexString(it.toInt()) }
-        }
-
-        /**
-         * Hash a ByteArray [input] with SHA 256
-         */
-        fun sha256Digest(input: ByteArray): ByteArray {
-            return hashBytes("SHA-256", input)
-        }
-
-        /**
-         * Hash a ByteArray [input] with method [type]
-         */
-        private fun hashBytes(type: String, input: ByteArray): ByteArray {
-            return MessageDigest
-                .getInstance(type)
-                .digest(input)
         }
     }
 }

@@ -260,6 +260,10 @@
                 "valueId" : "OTH"
               },
               {
+                "url" : "OBR.25",
+                "valueId" : "F"
+              },
+              {
                 "url" : "OBR.26",
                 "extension" : [
                   {
@@ -3664,12 +3668,6 @@
             "valueCodeableConcept" : {
               "coding" : [
                 {
-                  "extension" : [
-                    {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
-                      "valueString" : "identifier"
-                    }
-                  ],
                   "system" : "http://terminology.hl7.org/CodeSystem/v3-ParticipationType",
                   "code" : "TRANS"
                 }
@@ -3970,12 +3968,6 @@
             "valueCodeableConcept" : {
               "coding" : [
                 {
-                  "extension" : [
-                    {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
-                      "valueString" : "identifier"
-                    }
-                  ],
                   "system" : "http://terminology.hl7.org/CodeSystem/v3-ParticipationType",
                   "code" : "TRANS"
                 }
@@ -4276,12 +4268,6 @@
             "valueCodeableConcept" : {
               "coding" : [
                 {
-                  "extension" : [
-                    {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
-                      "valueString" : "identifier"
-                    }
-                  ],
                   "system" : "http://terminology.hl7.org/CodeSystem/v3-ParticipationType",
                   "code" : "SPRF"
                 }
@@ -4582,12 +4568,6 @@
             "valueCodeableConcept" : {
               "coding" : [
                 {
-                  "extension" : [
-                    {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
-                      "valueString" : "identifier"
-                    }
-                  ],
                   "system" : "http://terminology.hl7.org/CodeSystem/v3-ParticipationType",
                   "code" : "SPRF"
                 }

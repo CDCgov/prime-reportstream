@@ -1,6 +1,8 @@
 package gov.cdc.prime.router.fhirengine.engine
 
 import fhirengine.engine.CustomFhirPathFunctions
+import gov.cdc.prime.reportstream.shared.BlobUtils
+import gov.cdc.prime.reportstream.shared.QueueMessage
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.Metadata
@@ -18,13 +20,14 @@ import gov.cdc.prime.router.azure.ProcessEvent
 import gov.cdc.prime.router.azure.db.Tables
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
+import gov.cdc.prime.router.azure.observability.bundleDigest.BundleDigestExtractor
+import gov.cdc.prime.router.azure.observability.bundleDigest.FhirPathBundleDigestLabResultExtractorStrategy
 import gov.cdc.prime.router.azure.observability.context.MDCUtils
 import gov.cdc.prime.router.azure.observability.context.withLoggingContext
 import gov.cdc.prime.router.azure.observability.event.AzureEventService
 import gov.cdc.prime.router.azure.observability.event.AzureEventServiceImpl
-import gov.cdc.prime.router.azure.observability.event.AzureEventUtils
-import gov.cdc.prime.router.azure.observability.event.ReportAcceptedEvent
-import gov.cdc.prime.router.azure.observability.event.ReportNotRoutedEvent
+import gov.cdc.prime.router.azure.observability.event.ReportStreamEventName
+import gov.cdc.prime.router.azure.observability.event.ReportStreamEventProperties
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
@@ -87,7 +90,7 @@ class FHIRDestinationFilter(
      * [actionHistory] ensures all activities are logged.
      */
     private fun fhirEngineRunResults(
-        queueMessage: ReportPipelineMessage,
+        queueMessage: FhirDestinationFilterQueueMessage,
         actionHistory: ActionHistory,
     ): List<FHIREngineRunResult> {
         val contextMap = mapOf(
@@ -105,28 +108,10 @@ class FHIRDestinationFilter(
             val fhirJson = LogMeasuredTime.measureAndLogDurationWithReturnedValue(
                 "Downloaded content from queue message"
             ) {
-                queueMessage.downloadContent()
+                BlobAccess.downloadBlob(queueMessage.blobURL, queueMessage.digest)
             }
             val bundle = FhirTranscoder.decode(fhirJson)
             val bodyString = FhirTranscoder.encode(bundle)
-
-            // go up the report lineage to get the sender of the root report
-            val rootReport = reportService.getRootReport(queueMessage.reportId)
-            val sender = "${rootReport.sendingOrg}.${rootReport.sendingOrgClient}"
-
-            // send event to Azure AppInsights
-            val observationSummary = AzureEventUtils.getObservationSummaries(bundle)
-            azureEventService.trackEvent(
-                ReportAcceptedEvent(
-                    queueMessage.reportId,
-                    rootReport.reportId,
-                    queueMessage.topic,
-                    sender,
-                    observationSummary,
-                    fhirJson.length,
-                    AzureEventUtils.getIdentifier(bundle)
-                )
-            )
 
             // get the receivers that this bundle should go to
             val receivers = findTopicReceivers(queueMessage.topic).filter { receiver ->
@@ -186,8 +171,35 @@ class FHIRDestinationFilter(
                         queueMessage.blobSubFolderName,
                         nextEvent.eventAction
                     )
+                    report.bodyURL = blobInfo.blobUrl
                     // ensure tracking is set
                     actionHistory.trackCreatedReport(nextEvent, report, blobInfo = blobInfo)
+
+                    val bundleDigestExtractor = BundleDigestExtractor(
+                        FhirPathBundleDigestLabResultExtractorStrategy(
+                            CustomContext(
+                                bundle,
+                                bundle,
+                                mutableMapOf(),
+                                CustomFhirPathFunctions()
+                            )
+                        )
+                    )
+                    reportEventService.sendItemEvent(
+                        eventName = ReportStreamEventName.ITEM_ROUTED,
+                        childReport = report,
+                        pipelineStepName = TaskAction.destination_filter
+                    ) {
+                        parentReportId(queueMessage.reportId)
+                        params(
+                            mapOf(
+                            ReportStreamEventProperties.RECEIVER_NAME to receiver.fullName,
+                            ReportStreamEventProperties.BUNDLE_DIGEST
+                                to bundleDigestExtractor.generateDigest(bundle)
+                        )
+                        )
+                        trackingId(bundle)
+                    }
 
                     listOf(
                         FHIREngineRunResult(
@@ -197,7 +209,7 @@ class FHIRDestinationFilter(
                             FhirReceiverFilterQueueMessage(
                                 report.id,
                                 blobInfo.blobUrl,
-                                BlobAccess.digestToString(blobInfo.digest),
+                                BlobUtils.digestToString(blobInfo.digest),
                                 queueMessage.blobSubFolderName,
                                 queueMessage.topic,
                                 receiver.fullName
@@ -242,18 +254,30 @@ class FHIRDestinationFilter(
                 // ensure tracking is set
                 actionHistory.trackCreatedReport(nextEvent, report)
 
-                // send event to Azure AppInsights
-                azureEventService.trackEvent(
-                    ReportNotRoutedEvent(
-                        report.id,
-                        queueMessage.reportId,
-                        rootReport.reportId,
-                        queueMessage.topic,
-                        sender,
-                        fhirJson.length,
-                        AzureEventUtils.getIdentifier(bundle)
+                val bundleDigestExtractor = BundleDigestExtractor(
+                    FhirPathBundleDigestLabResultExtractorStrategy(
+                        CustomContext(
+                            bundle,
+                            bundle,
+                            mutableMapOf(),
+                            CustomFhirPathFunctions()
+                        )
                     )
                 )
+                reportEventService.sendItemEvent(
+                    eventName = ReportStreamEventName.ITEM_NOT_ROUTED,
+                    childReport = report,
+                    pipelineStepName = TaskAction.destination_filter
+                ) {
+                    parentReportId(queueMessage.reportId)
+                    trackingId(bundle)
+                    params(
+                        mapOf(
+                            ReportStreamEventProperties.BUNDLE_DIGEST
+                                to bundleDigestExtractor.generateDigest(bundle)
+                        )
+                    )
+                }
 
                 return emptyList()
             }

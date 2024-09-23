@@ -25,6 +25,10 @@ import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportLineage
 import gov.cdc.prime.router.azure.db.tables.pojos.Task
+import gov.cdc.prime.router.azure.observability.event.IReportStreamEventService
+import gov.cdc.prime.router.azure.observability.event.ReportStreamEventName
+import gov.cdc.prime.router.azure.observability.event.ReportStreamEventProperties
+import gov.cdc.prime.router.common.AzureHttpUtils.getSenderIP
 import gov.cdc.prime.router.common.JacksonMapperUtilities
 import io.ktor.http.HttpStatusCode
 import org.apache.logging.log4j.kotlin.Logging
@@ -217,13 +221,7 @@ class ActionHistory(
             }
         }
         // capture the azure client IP but override with the first forwarded for if present
-        val senderIp =
-            (
-                (
-                    request.headers["x-forwarded-for"]?.split(",")
-                        ?.firstOrNull()
-                    )?.take(ACTION.SENDER_IP.dataType.length()) ?: request.headers["x-azure-clientip"]
-                )
+        val senderIp = getSenderIP(request)
         if (senderIp != null && InetAddressValidator.getInstance().isValid(senderIp)) {
             action.senderIp = senderIp
         }
@@ -386,7 +384,7 @@ class ActionHistory(
      */
     fun trackExistingInputReport(reportId: ReportId) {
         if (isReportAlreadyTracked(reportId)) {
-            error("Bug:  attempt to track history of a report ($reportId) we've already associated with this action")
+            error("Bug: attempt to track history of a report ($reportId) we've already associated with this action")
         }
         val reportFile = ReportFile()
         reportFile.reportId = reportId
@@ -396,9 +394,13 @@ class ActionHistory(
     /**
      * Use this to record history info about a new externally submitted report.
      */
-    fun trackExternalInputReport(report: Report, blobInfo: BlobAccess.BlobInfo, payloadName: String? = null) {
+    fun trackExternalInputReport(
+        report: Report,
+        blobInfo: BlobAccess.BlobInfo,
+        payloadName: String? = null,
+    ) {
         if (isReportAlreadyTracked(report.id)) {
-            error("Bug:  attempt to track history of a report ($report.id) we've already associated with this action")
+            error("Bug: attempt to track history of a report ($report.id) we've already associated with this action")
         }
 
         val reportFile = ReportFile()
@@ -458,12 +460,13 @@ class ActionHistory(
         reportFile.itemCount = report.itemCount
         reportsReceived[reportFile.reportId] = reportFile
 
-        // batch queue messages are added by the batchDecider, not ActionHistory.
+        // some event actions are tracked in the functions themselves, not ActionHistory.
         // TODO: Need to update this process to have a better way to determine what messages should be sent
         //  automatically as part of queueMessages and what are being send manually as part of the parent function.
         //  The automatic queueing uses the action name as the queue name, and this is not the case for FHIR actions
         if (event.eventAction != Event.EventAction.BATCH &&
-            event.eventAction != Event.EventAction.ROUTE &&
+            event.eventAction != Event.EventAction.DESTINATION_FILTER &&
+            event.eventAction != Event.EventAction.RECEIVER_FILTER &&
             event.eventAction != Event.EventAction.TRANSLATE
         ) {
             trackEvent(event)
@@ -541,12 +544,13 @@ class ActionHistory(
         trackFilteredItems(report)
         trackItemLineages(report)
 
-        // batch queue messages are added by the batchDecider, not ActionHistory
+        // some event actions are tracked in the functions themselves, not ActionHistory.
         // TODO: Need to update this process to have a better way to determine what messages should be sent
         //  automatically as part of queueMessages and what are being send manually as part of the parent function.
         //  The automatic queueing uses the action name as the queue name, and this is not the case for FHIR actions
         if (event.eventAction != Event.EventAction.BATCH &&
-            event.eventAction != Event.EventAction.ROUTE &&
+            event.eventAction != Event.EventAction.DESTINATION_FILTER &&
+            event.eventAction != Event.EventAction.RECEIVER_FILTER &&
             event.eventAction != Event.EventAction.TRANSLATE
         ) {
             trackEvent(event) // to be sent to queue later.
@@ -560,6 +564,8 @@ class ActionHistory(
         params: String,
         result: String,
         header: WorkflowEngine.Header,
+        reportEventService: IReportStreamEventService,
+        transportType: String,
     ) {
         if (isReportAlreadyTracked(sentReportId)) {
             error(
@@ -594,6 +600,21 @@ class ActionHistory(
         reportFile.itemCount = header.reportFile.itemCount
         reportFile.blobDigest = blobInfo.digest
         reportFile.bodyUrl = blobInfo.blobUrl
+
+        reportEventService.sendReportEvent(
+            childReport = reportFile,
+            eventName = ReportStreamEventName.REPORT_SENT,
+            pipelineStepName = TaskAction.send
+        ) {
+            parentReportId(header.reportFile.reportId)
+            params(
+                listOfNotNull(
+                    ReportStreamEventProperties.TRANSPORT_TYPE to transportType,
+                    ReportStreamEventProperties.RECEIVER_NAME to receiver.fullName,
+                    filename?.let { ReportStreamEventProperties.FILENAME to it }
+                ).toMap()
+            )
+        }
 
         reportsOut[reportFile.reportId] = reportFile
     }

@@ -27,12 +27,14 @@ import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
-import gov.cdc.prime.router.azure.observability.event.AzureEventUtils
+import gov.cdc.prime.router.azure.observability.bundleDigest.BundleDigestLabResult
 import gov.cdc.prime.router.azure.observability.event.CodeSummary
 import gov.cdc.prime.router.azure.observability.event.InMemoryAzureEventService
+import gov.cdc.prime.router.azure.observability.event.ItemEventData
 import gov.cdc.prime.router.azure.observability.event.ObservationSummary
-import gov.cdc.prime.router.azure.observability.event.ReportAcceptedEvent
-import gov.cdc.prime.router.azure.observability.event.ReportNotRoutedEvent
+import gov.cdc.prime.router.azure.observability.event.ReportEventData
+import gov.cdc.prime.router.azure.observability.event.ReportStreamEventProperties
+import gov.cdc.prime.router.azure.observability.event.ReportStreamItemEvent
 import gov.cdc.prime.router.azure.observability.event.TestSummary
 import gov.cdc.prime.router.metadata.LookupTable
 import gov.cdc.prime.router.report.ReportService
@@ -51,6 +53,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.TestInstance
 import java.io.ByteArrayInputStream
 import java.io.File
+import java.time.OffsetDateTime
 import java.util.UUID
 import kotlin.test.Test
 
@@ -74,7 +77,7 @@ class FhirDestinationFilterTests {
     val connection = MockConnection(dataProvider)
     val accessSpy = spyk(DatabaseAccess(connection))
     val blobMock = mockkClass(BlobAccess::class)
-    private val actionHistory = ActionHistory(TaskAction.route)
+    private val actionHistory = ActionHistory(TaskAction.destination_filter)
     private val azureEventService = InMemoryAzureEventService()
     private val reportServiceMock = mockk<ReportService>()
     private val submittedId = UUID.randomUUID()
@@ -237,6 +240,8 @@ class FhirDestinationFilterTests {
         every { rootReport.sendingOrg } returns "sendingOrg"
         every { rootReport.sendingOrgClient } returns "sendingOrgClient"
         every { reportServiceMock.getRootReport(any()) } returns rootReport
+        every { reportServiceMock.getRootReports(any()) } returns listOf(rootReport)
+        every { reportServiceMock.getRootItemIndex(any(), any()) } returns 1
 
         return FHIREngine.Builder()
             .metadata(metadata)
@@ -277,7 +282,7 @@ class FhirDestinationFilterTests {
 
         // mock setup
         mockkObject(BlobAccess)
-        every { message.downloadContent() }.returns(File(VALID_FHIR_URL).readText())
+        every { BlobAccess.downloadBlob(any(), any()) }.returns(File(VALID_FHIR_URL).readText())
         every { BlobAccess.uploadBlob(any(), any()) } returns "test"
         every { accessSpy.insertTask(any(), MimeFormat.FHIR.toString(), BODY_URL, any()) }.returns(Unit)
 
@@ -307,7 +312,7 @@ class FhirDestinationFilterTests {
 
         // mock setup
         mockkObject(BlobAccess)
-        every { message.downloadContent() }.returns(File(VALID_FHIR_URL).readText())
+        every { BlobAccess.downloadBlob(any(), any()) }.returns(File(VALID_FHIR_URL).readText())
         every { BlobAccess.uploadBlob(any(), any()) } returns "test"
         every { accessSpy.insertTask(any(), MimeFormat.FHIR.toString(), BODY_URL, any()) }.returns(Unit)
 
@@ -321,71 +326,93 @@ class FhirDestinationFilterTests {
 
             val azureEvents = azureEventService.getEvents()
 
-            val expectedAcceptedEvent = ReportAcceptedEvent(
-                message.reportId,
-                submittedId,
-                message.topic,
-                "sendingOrg.sendingOrgClient",
-                listOf(
-                    ObservationSummary(
-                        listOf(
-                            TestSummary(
-                                listOf(
-                                    CodeSummary(
-                                        snomedSystem,
-                                        "840539006",
-                                        "Disease caused by severe acute respiratory syndrome coronavirus 2 (disorder)"
-                                    )
-                                ),
-                                loincSystem,
-                                "94558-4",
-                            )
-                        )
-                    ),
-                    ObservationSummary(
-                        listOf(
-                            TestSummary(
-                                testPerformedCode = "95418-0",
-                                testPerformedSystem = loincSystem
-                            )
-                        )
-                    ),
-                    ObservationSummary(
-                        listOf(
-                            TestSummary(
-                                testPerformedCode = "95417-2",
-                                testPerformedSystem = loincSystem
-                            )
-                        )
-                    ),
-                    ObservationSummary(
-                        listOf(
-                            TestSummary(
-                                testPerformedCode = "95421-4",
-                                testPerformedSystem = loincSystem
-                            )
-                        )
-                    ),
-                    ObservationSummary(
-                        listOf(
-                            TestSummary(
-                                testPerformedCode = "95419-8",
-                                testPerformedSystem = loincSystem
-                            )
-                        )
-                    ),
-                ),
-                36995,
-                AzureEventUtils.MessageID(
-                    "1234d1d1-95fe-462c-8ac6-46728dba581c",
-                    "https://reportstream.cdc.gov/prime-router"
-                )
-            )
-
             assertThat(azureEvents).hasSize(1)
             assertThat(azureEvents.first())
-                .isInstanceOf<ReportAcceptedEvent>()
-                .isEqualTo(expectedAcceptedEvent)
+                .isInstanceOf<ReportStreamItemEvent>()
+            val event: ReportStreamItemEvent = azureEvents.first() as ReportStreamItemEvent
+            assertThat(event.reportEventData).isEqualToIgnoringGivenProperties(
+                ReportEventData(
+                    actionHistory.reportsOut.values.first().reportId,
+                    message.reportId,
+                    listOf(submittedId),
+                    Topic.FULL_ELR,
+                    "test",
+                    TaskAction.destination_filter,
+                    OffsetDateTime.now()
+                ),
+                ReportEventData::timestamp,
+            )
+            assertThat(event.itemEventData).isEqualTo(
+                ItemEventData(
+                    1,
+                    1,
+                    1,
+                    "1234d1d1-95fe-462c-8ac6-46728dba581c",
+                    "sendingOrg.sendingOrgClient"
+                )
+            )
+            assertThat(event.params)
+                .isEqualTo(
+                    mapOf(
+                    ReportStreamEventProperties.RECEIVER_NAME to "co-phd.full-elr-hl7",
+                    ReportStreamEventProperties.BUNDLE_DIGEST to BundleDigestLabResult(
+                        observationSummaries = listOf(
+                            ObservationSummary(
+                                listOf(
+                                    TestSummary(
+                                        listOf(
+                                            CodeSummary(
+                                                snomedSystem,
+                                                "840539006",
+                                                @Suppress("ktlint:standard:max-line-length")
+                                                "Disease caused by severe acute respiratory syndrome coronavirus 2 (disorder)"
+                                            )
+                                        ),
+                                        loincSystem,
+                                        "94558-4",
+                                    )
+                                )
+                            ),
+                            ObservationSummary(
+                                listOf(
+                                    TestSummary(
+                                        testPerformedCode = "95418-0",
+                                        testPerformedSystem = loincSystem
+                                    )
+                                )
+                            ),
+                            ObservationSummary(
+                                listOf(
+                                    TestSummary(
+                                        testPerformedCode = "95417-2",
+                                        testPerformedSystem = loincSystem
+                                    )
+                                )
+                            ),
+                            ObservationSummary(
+                                listOf(
+                                    TestSummary(
+                                        testPerformedCode = "95421-4",
+                                        testPerformedSystem = loincSystem
+                                    )
+                                )
+                            ),
+                            ObservationSummary(
+                                listOf(
+                                    TestSummary(
+                                        testPerformedCode = "95419-8",
+                                        testPerformedSystem = loincSystem
+                                    )
+                                )
+                            ),
+                        ),
+                        patientState = listOf("CA"),
+                        performerState = emptyList(),
+                        orderingFacilityState = listOf("CA"),
+                        eventType = "ORU/ACK - Unsolicited transmission of an observation message"
+                    )
+                )
+                )
         }
 
         // assert
@@ -413,7 +440,7 @@ class FhirDestinationFilterTests {
         // data + mock setup
         val fhirData = File(VALID_FHIR_URL).readText()
         mockkObject(BlobAccess)
-        every { message.downloadContent() }.returns(fhirData)
+        every { BlobAccess.downloadBlob(any(), any()) }.returns(fhirData)
         every { BlobAccess.uploadBlob(any(), any()) } returns "test"
         every { accessSpy.insertTask(any(), MimeFormat.FHIR.toString(), BODY_URL, any()) }.returns(Unit)
 
@@ -450,7 +477,7 @@ class FhirDestinationFilterTests {
 
         // mock setup
         mockkObject(BlobAccess)
-        every { message.downloadContent() }.returns(File(VALID_FHIR_URL).readText())
+        every { BlobAccess.downloadBlob(any(), any()) }.returns(File(VALID_FHIR_URL).readText())
         every { BlobAccess.uploadBlob(any(), any()) } returns "test"
         every { accessSpy.insertTask(any(), MimeFormat.FHIR.toString(), BODY_URL, any()) }.returns(Unit)
         every { engine.findTopicReceivers(any()) } returns emptyList()
@@ -463,88 +490,91 @@ class FhirDestinationFilterTests {
             assertThat(actionHistory.reportsOut).hasSize(1)
 
             val azureEvents = azureEventService.getEvents()
-            val expectedAcceptedEvent = ReportAcceptedEvent(
-                message.reportId,
-                submittedId,
-                message.topic,
-                "sendingOrg.sendingOrgClient",
-                listOf(
-                    ObservationSummary(
-                        listOf(
-                            TestSummary(
-                                listOf(
-                                    CodeSummary(
-                                        snomedSystem,
-                                        "840539006",
-                                        "Disease caused by severe acute respiratory syndrome coronavirus 2 (disorder)"
+            assertThat(azureEvents).hasSize(1)
+            assertThat(azureEvents.first())
+                .isInstanceOf(ReportStreamItemEvent::class)
+            val event: ReportStreamItemEvent = azureEvents.first() as ReportStreamItemEvent
+                assertThat(event.reportEventData).isEqualToIgnoringGivenProperties(
+                    ReportEventData(
+                        actionHistory.reportsOut.values.first().reportId,
+                        message.reportId,
+                        listOf(submittedId),
+                        Topic.FULL_ELR,
+                        "",
+                        TaskAction.destination_filter,
+                        OffsetDateTime.now()
+                    ),
+                    ReportEventData::timestamp
+                )
+                    assertThat(event.itemEventData).isEqualTo(
+                        ItemEventData(
+                            1,
+                            1,
+                            1,
+                            "1234d1d1-95fe-462c-8ac6-46728dba581c",
+                            "sendingOrg.sendingOrgClient"
+                        )
+                    )
+                    assertThat(event.params).isEqualTo(
+                        mapOf(
+                        ReportStreamEventProperties.BUNDLE_DIGEST to BundleDigestLabResult(
+                            observationSummaries = listOf(
+                                ObservationSummary(
+                                    listOf(
+                                        TestSummary(
+                                            listOf(
+                                                CodeSummary(
+                                                    snomedSystem,
+                                                    "840539006",
+                                                    @Suppress("ktlint:standard:max-line-length")
+                                                    "Disease caused by severe acute respiratory syndrome coronavirus 2 (disorder)"
+                                                )
+                                            ),
+                                            loincSystem,
+                                            "94558-4",
+                                        )
                                     )
                                 ),
-                                loincSystem,
-                                "94558-4",
-                            )
+                                ObservationSummary(
+                                    listOf(
+                                        TestSummary(
+                                            testPerformedCode = "95418-0",
+                                            testPerformedSystem = loincSystem
+                                        )
+                                    )
+                                ),
+                                ObservationSummary(
+                                    listOf(
+                                        TestSummary(
+                                            testPerformedCode = "95417-2",
+                                            testPerformedSystem = loincSystem
+                                        )
+                                    )
+                                ),
+                                ObservationSummary(
+                                    listOf(
+                                        TestSummary(
+                                            testPerformedCode = "95421-4",
+                                            testPerformedSystem = loincSystem
+                                        )
+                                    )
+                                ),
+                                ObservationSummary(
+                                    listOf(
+                                        TestSummary(
+                                            testPerformedCode = "95419-8",
+                                            testPerformedSystem = loincSystem
+                                        )
+                                    )
+                                ),
+                            ),
+                            patientState = listOf("CA"),
+                            performerState = emptyList(),
+                            orderingFacilityState = listOf("CA"),
+                            eventType = "ORU/ACK - Unsolicited transmission of an observation message"
                         )
-                    ),
-                    ObservationSummary(
-                        listOf(
-                            TestSummary(
-                                testPerformedCode = "95418-0",
-                                testPerformedSystem = loincSystem
-                            )
-                        )
-                    ),
-                    ObservationSummary(
-                        listOf(
-                            TestSummary(
-                                testPerformedCode = "95417-2",
-                                testPerformedSystem = loincSystem
-                            )
-                        )
-                    ),
-                    ObservationSummary(
-                        listOf(
-                            TestSummary(
-                                testPerformedCode = "95421-4",
-                                testPerformedSystem = loincSystem
-                            )
-                        )
-                    ),
-                    ObservationSummary(
-                        listOf(
-                            TestSummary(
-                                testPerformedCode = "95419-8",
-                                testPerformedSystem = loincSystem
-                            )
-                        )
-                    ),
-                ),
-                36995,
-                AzureEventUtils.MessageID(
-                    "1234d1d1-95fe-462c-8ac6-46728dba581c",
-                    "https://reportstream.cdc.gov/prime-router"
-                )
-            )
-            val expectedRoutedEvent = ReportNotRoutedEvent(
-                UUID.randomUUID(),
-                message.reportId,
-                submittedId,
-                message.topic,
-                "sendingOrg.sendingOrgClient",
-                36995,
-                AzureEventUtils.MessageID(
-                    "1234d1d1-95fe-462c-8ac6-46728dba581c",
-                    "https://reportstream.cdc.gov/prime-router"
-                )
-            )
-
-            assertThat(azureEvents).hasSize(2)
-            assertThat(azureEvents.first())
-                .isEqualTo(expectedAcceptedEvent)
-            assertThat(azureEvents[1])
-                .isInstanceOf<ReportNotRoutedEvent>()
-                .isEqualToIgnoringGivenProperties(
-                    expectedRoutedEvent,
-                    ReportNotRoutedEvent::reportId,
-                )
+                    )
+                    )
         }
 
         // assert

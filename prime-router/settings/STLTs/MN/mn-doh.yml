@@ -1,0 +1,103 @@
+# To submit this to localhost, run:
+#
+# ./prime multiple-settings set --input ./settings/STLTs/MN/mn-doh.yml
+#
+- name: "mn-doh"
+  description: "Minnesota Department of Health"
+  jurisdiction: "STATE"
+  stateCode: "MN"
+  countyName: null
+  filters: null
+  featureFlags: null
+  keys: null
+  senders: []
+  receivers:
+  - name: "full-elr"
+    organizationName: "mn-doh"
+    topic: "full-elr"
+    customerStatus: "active"
+    translation: !<HL7>
+      schemaName: "azure:/hl7_mapping/receivers/STLTs/MN/MN-receiver-transform.yml"
+      useTestProcessingMode: false
+      useBatchHeaders: false
+      receivingApplicationName: "MEDSS-ELR"
+      receivingApplicationOID: "2.16.840.1.114222.4.3.3.6.2.1"
+      receivingFacilityName: "MN DOH"
+      receivingFacilityOID: "2.16.840.1.114222.4.1.3661"
+      messageProfileId: null
+      replaceValue: {}
+      replaceValueAwithB: {}
+      reportingFacilityName: null
+      reportingFacilityId: null
+      reportingFacilityIdType: null
+      suppressQstForAoe: false
+      suppressHl7Fields: "SPM-2-1"
+      suppressAoe: false
+      defaultAoeToUnknown: false
+      replaceUnicodeWithAscii: false
+      useBlankInsteadOfUnknown: null
+      truncateHDNamespaceIds: false
+      truncateHl7Fields: null
+      usePid14ForPatientEmail: false
+      convertTimestampToDateTime: null
+      cliaForOutOfStateTesting: null
+      cliaForSender: {}
+      phoneNumberFormatting: "STANDARD"
+      suppressNonNPI: false
+      processingModeCode: null
+      replaceDiiWithOid: null
+      applyOTCDefault: false
+      useOrderingFacilityName: "STANDARD"
+      valueSetOverrides: {}
+      nameFormat: "STANDARD"
+      receivingOrganization: null
+      convertPositiveDateTimeOffsetToNegative: false
+      stripInvalidCharsRegex: null
+      convertDateTimesToReceiverLocalTime: false
+      useHighPrecisionHeaderDateTimeFormat: false
+      type: "HL7"
+      truncationConfig:
+        truncateHDNamespaceIds: false
+        truncateHl7Fields: []
+        customLengthHl7Fields: {}
+    jurisdictionalFilter:
+      - "(Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state = 'MN') or (Bundle.entry.resource.ofType(Patient).address.state = 'MN')"
+    qualityFilter:
+      - "((Bundle.entry.resource.ofType(Specimen).collection.collectedPeriod.exists() or Bundle.entry.resource.ofType(Specimen).collection.collected.exists()) or Bundle.entry.resource.ofType(serviceRequest).occurrence.exists() or Bundle.entry.resource.ofType(Observation).effective.exists())"
+      - "(Bundle.entry.resource.ofType(Patient).address.line.exists() or Bundle.entry.resource.ofType(Patient).address.postalCode.exists() or Bundle.entry.resource.ofType(Patient).telecom.exists())"
+      - "Bundle.entry.resource.ofType(MessageHeader).id.exists()"
+      - "Bundle.entry.resource.ofType(Patient).birthDate.exists()"
+      - "Bundle.entry.resource.ofType(Patient).name.family.exists()"
+      - "Bundle.entry.resource.ofType(Patient).name.given.count() > 0"
+      - "Bundle.entry.resource.ofType(Specimen).type.exists()"
+    routingFilter:
+      # marches(test_result_status, F, C, P)
+      - "Bundle.entry.resource.ofType(DiagnosticReport).where(status in 'final'|'corrected'|'preliminary'|'amended').exists()"
+    processingModeFilter: []
+    reverseTheQualityFilter: false
+    conditionFilter:
+      #  RSV: 55735004 (+), COVID: 840539006 (+), FLU (A or B by Antigen): 541131000124102, They also want MPOX but, we are not ready to send MPOX yet.
+      - "%resource.where(interpretation.coding.code = 'A').code.coding.extension('https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code').value.where(code in ('55735004'|'840539006')).exists()"
+    mappedConditionFilter: []
+    deidentify: false
+    deidentifiedValue: ""
+    timing:
+      operation: "MERGE"
+      numberPerDay: 1440
+      initialTime: "09:40"
+      timeZone: "EASTERN"
+      maxReportCount: 100
+      whenEmpty:
+        action: "NONE"
+        onlyOncePerDay: false
+    description: "ELR Primary for MN DOH"
+    transport: !<SFTP>
+      host: "172.17.6.20"
+      port: "22"
+      filePath: "./upload"
+      credentialName: null
+      type: "SFTP"
+    externalName: "ELR PRIMARY MN"
+    enrichmentSchemaNames: []
+    timeZone: null
+    dateTimeFormat: "OFFSET"

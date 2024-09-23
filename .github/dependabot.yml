@@ -115,6 +115,10 @@ updates:
     directory: "/.github/actions/az-cost"
     schedule:
       interval: "daily"
+  - package-ecosystem: "github-actions"
+    directory: "/.github/actions/build-submissions"
+    schedule:
+      interval: "daily"
 
   # Frontend
   - package-ecosystem: "npm"
@@ -298,6 +302,39 @@ updates:
     schedule:
       interval: "weekly"
 
+  # shared
+  - package-ecosystem: "gradle"
+    directory: "/shared"
+    open-pull-requests-limit: 100
+    schedule:
+      interval: "weekly"
+      day: "sunday"
+      time: "05:17"
+      timezone: "US/Eastern"
+    rebase-strategy: "disabled"
+
+  # submissions
+  - package-ecosystem: "gradle"
+    directory: "/submissions"
+    open-pull-requests-limit: 100
+    schedule:
+      interval: "weekly"
+      day: "sunday"
+      time: "04:17"
+      timezone: "US/Eastern"
+    rebase-strategy: "disabled"
+
+  # auth
+  - package-ecosystem: "gradle"
+    directory: "/auth"
+    open-pull-requests-limit: 100
+    schedule:
+      interval: "weekly"
+      day: "sunday"
+      time: "04:17"
+      timezone: "US/Eastern"
+    rebase-strategy: "disabled"
+    
   # Backend
   - package-ecosystem: "gradle"
     directory: "/prime-router"
@@ -321,9 +358,6 @@ updates:
       bouncycastle:
         patterns:
           - "org.bouncycastle:bc*"
-      testcontainers:
-        patterns:
-          - "org.testcontainers*"
       log4j:
         patterns:
           - "org.apache.logging.log4j:log4j*"
@@ -336,9 +370,6 @@ updates:
       jjwt:
         patterns:
           - "io.jsonwebtoken:jjwt*"
-      junit:
-        patterns:
-          - "org.junit.jupiter:junit*"
       flyway:
         patterns:
           - "org.flywaydb*"

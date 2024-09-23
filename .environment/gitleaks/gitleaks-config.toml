@@ -29,6 +29,7 @@ title = "PRIME ReportStream Gitleaks Configuration"
         'prime-router/build.gradle.kts',
         'prime-router/docs/dependency-graph-full/dependency-graph-full.txt',
         'prime-router/docs/schema_documentation/',
+        'prime-router/docs/design/design/auth/auth-design.md',
         'prime-router/docs/getting_started.md',
         'prime-router/frontend/src/assets/fonts',
         'prime-router/frontend/src/assets/img',
@@ -202,7 +203,11 @@ title = "PRIME ReportStream Gitleaks Configuration"
             'authority\", \"extension\"',                                                  # FHIR extension URL also shows up in normal FHIR test data
             'ApiKeyCredential\(\"flexion\"',
             'authType: \"two-legged\"',
+            'authType == "two-legged"',
+            '\"apiKey\"',
+            'api-key\" to \"oracle123\"',
             'Authorization-Type: \"username/password\"',
+            'cdctiautomated_sa'
         ]
         paths = [
             '.terraform/modules/',

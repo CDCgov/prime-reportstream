@@ -43,7 +43,7 @@ jobs:
       - name: Check out changes
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
       - name: Use Node.js with yarn
-        uses: actions/setup-node@1e60f620b9541d16bece96c5465dc8ee9832be0b
+        uses: actions/setup-node@0a44ba7841725637a19e28fa30b79a866c81b0a6
         with:
           node-version-file: frontend-react/.nvmrc
           cache: yarn
@@ -63,7 +63,7 @@ jobs:
       - name: Check out changes
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
       - name: Use Node.js with yarn
-        uses: actions/setup-node@1e60f620b9541d16bece96c5465dc8ee9832be0b
+        uses: actions/setup-node@0a44ba7841725637a19e28fa30b79a866c81b0a6
         with:
           node-version-file: "frontend-react/.nvmrc"
           cache: yarn
@@ -78,8 +78,8 @@ jobs:
     name: E2E tests
     needs: lint
     runs-on: ubuntu-latest
-    # Keep shards under 6 minutes (1 minute dedicated to playwright install, 5 to tests)
-    timeout-minutes: 7
+    # Keep shards under 10 minutes
+    timeout-minutes: 10
     strategy:
       fail-fast: false
       matrix:
@@ -100,7 +100,7 @@ jobs:
       - name: Check out changes
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
       - name: Use Node.js with yarn
-        uses: actions/setup-node@1e60f620b9541d16bece96c5465dc8ee9832be0b
+        uses: actions/setup-node@0a44ba7841725637a19e28fa30b79a866c81b0a6
         with:
           node-version-file: "frontend-react/.nvmrc"
           cache: yarn
@@ -114,7 +114,7 @@ jobs:
         run: yarn run test:e2e --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}
       - name: Upload blob report to GitHub Actions Artifacts
         if: ${{ !cancelled() }}
-        uses: actions/upload-artifact@0b2256b8c012f0828dc542b3febcab082c67f72b
+        uses: actions/upload-artifact@50769540e7f4bd5e21e526ee35c689e35e0d6874
         with:
           name: frontend-e2e-data--shard-${{ matrix.shardIndex }}
           path: frontend-react/e2e-data
@@ -151,14 +151,14 @@ jobs:
       - name: Check out changes
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
       - name: Use Node.js with yarn
-        uses: actions/setup-node@1e60f620b9541d16bece96c5465dc8ee9832be0b
+        uses: actions/setup-node@0a44ba7841725637a19e28fa30b79a866c81b0a6
         with:
           node-version-file: "frontend-react/.nvmrc"
           cache: yarn
           cache-dependency-path: frontend-react/yarn.lock
 
       - name: Download blob reports from GitHub Actions Artifacts
-        uses: actions/download-artifact@65a9edc5881444af0b9093a5e628f2fe47ea3b2e
+        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16
         with:
           path: frontend-react/e2e-data
           pattern: frontend-e2e-data--shard-*
@@ -170,7 +170,7 @@ jobs:
       - name: Merge folders
         run: mv ./playwright-report/* ./e2e-data/report && rmdir ./playwright-report && rm ./e2e-data/report/*.zip && rm -rf ./e2e-data/report/resources
       - name: Upload final e2e-data
-        uses: actions/upload-artifact@0b2256b8c012f0828dc542b3febcab082c67f72b
+        uses: actions/upload-artifact@50769540e7f4bd5e21e526ee35c689e35e0d6874
         with:
           name: frontend-e2e-data--attempt-${{ github.run_attempt }}
           path: frontend-react/e2e-data
@@ -237,7 +237,7 @@ jobs:
           # Hopefully by checking out the HEAD commit of a PR instead of the merge commit we can avoid some of those issues.
           ref: ${{ github.event.pull_request.head.sha }}
       - name: Use Node.js with yarn
-        uses: actions/setup-node@1e60f620b9541d16bece96c5465dc8ee9832be0b
+        uses: actions/setup-node@0a44ba7841725637a19e28fa30b79a866c81b0a6
         with:
           node-version-file: "frontend-react/.nvmrc"
           cache: yarn
@@ -247,7 +247,7 @@ jobs:
 
       - name: Run Chromatic
         id: chromatic
-        uses: chromaui/action@fbf458b6cd4dfd06cf25c06e937bea66b93a0587
+        uses: chromaui/action@6eca23b4399151ac2cfc17fa95190d807c7e9519
         with:
           workingDir: frontend-react
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -324,7 +324,7 @@ jobs:
   #       with:
   #         fetch-depth: 0
   #     - name: Use Node.js with yarn
-  #       uses: actions/setup-node@1e60f620b9541d16bece96c5465dc8ee9832be0b
+  #       uses: actions/setup-node@0a44ba7841725637a19e28fa30b79a866c81b0a6
   #       with:
   #         node-version-file: "frontend-react/.nvmrc"
   #         cache: yarn
@@ -356,7 +356,7 @@ jobs:
   #     - name: Check out changes
   #       uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
   #     - name: Use Node.js with yarn
-  #       uses: actions/setup-node@1e60f620b9541d16bece96c5465dc8ee9832be0b
+  #       uses: actions/setup-node@0a44ba7841725637a19e28fa30b79a866c81b0a6
   #       with:
   #         node-version-file: "frontend-react/.nvmrc"
   #         cache: yarn

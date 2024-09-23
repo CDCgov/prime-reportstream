@@ -1,0 +1,71 @@
+hl7Class: ca.uhn.hl7v2.model.v251.message.ORU_R01
+
+extends: classpath:/metadata/hl7_mapping/ORU_R01/ORU_R01-base.yml
+constants:
+  PID: '/PATIENT_RESULT/PATIENT/PID'
+  SPM: '/PATIENT_RESULT/ORDER_OBSERVATION/SPECIMEN/SPM'
+
+elements:
+
+  - name: mn-sending-application-namespace-id
+    condition: 'true'
+    value: [ '"CDC PRIME - Atlanta, Georgia (Dekalb)"' ]
+    hl7Spec: [ 'MSH-3-1' ]
+
+  - name: mn-OID-of-the-sending-application-universal-id
+    condition: 'true'
+    value: [ '"2.16.840.1.114222.4.1.237821"' ]
+    hl7Spec: [ 'MSH-3-2' ]
+
+  - name: mn-sending-application-universal-id-type
+    condition: 'true'
+    value: [ '"ISO"' ]
+    hl7Spec: [ 'MSH-3-3' ]
+
+  - name: mn-name-of-the-receiving-application
+    condition: 'true'
+    value: [ '"MEDSS-ELR"' ]
+    hl7Spec: [ 'MSH-5-1' ]
+
+  - name: mn-OID-of-the-receiving-application
+    condition: 'true'
+    value: [ '"2.16.840.1.114222.4.3.3.6.2.1"' ]
+    hl7Spec: [ 'MSH-5-2' ]
+
+  - name: mn-indicates-that-5.2-is-an-OID
+    condition: 'true'
+    value: [ '"ISO"' ]
+    hl7Spec: [ 'MSH-5-3' ]
+
+  - name: mn-receiving-facility-namespace-ID
+    condition: 'true'
+    value: [ '"MN DOH"' ]
+    hl7Spec: [ 'MSH-6-1' ]
+
+  - name: mn-receiving-facility-universal-ID
+    condition: 'true'
+    value: [ '"2.16.840.1.114222.4.1.3661"' ]
+    hl7Spec: [ 'MSH-6-2' ]
+
+  - name: mn-receiving-facility-universal-ID-Type
+    condition: 'true'
+    value: [ '"ISO"' ]
+    hl7Spec: [ 'MSH-6-3' ]
+
+  - name: mn-patient-race-coding-system
+    resource: 'Bundle.entry.resource.ofType(Patient).extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").value.coding'
+    condition: '%resource.code.exists()'
+    value: [ '%resource.system.getCodingSystemMapping()' ]
+    hl7Spec: [ '%{PID}-10-3' ]
+
+  - name: mn-suppress-HL7-Fields-SPM-2-1
+    condition: 'true'
+    value: ['""']
+    hl7Spec: ["%{SPM}-2-1-1", "%{SPM}-2-1-2", "%{SPM}-2-1-3", "%{SPM}-2-1-4"]
+
+  # If Patient's race (PID-10-1 = "UNK" or PID-10-2 = "Unknow" replace all PID-10 with "" (blank)
+  - name: mn-race-name-of-coding-system
+    resource: 'Bundle.entry.resource.ofType(Patient).extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").value'
+    condition: '%resource.coding.code.lower() = "unk" or %resource.text.lower() = "unknown"'
+    value: [ '""' ]
+    hl7Spec: [ '%{PID}-10-1', '%{PID}-10-2', '%{PID}-10-3', '%{PID}-10-7', '%{PID}-10-9' ]

@@ -107,7 +107,7 @@ v251. That presents the opportunity for reuse.
 
 1. Review existing data type mappings located in `prime-router/metadata/HL7/datatypes/` for reuse
 2. Add folder to `prime-router/metadata/HL7/` with a name indicating the new conformance profile
-3. Copy folder `fhir` from `prime-router/metadata/HL7/v251-elr` and add to your new mapping folder.
+3. Copy folder `fhir` from `prime-router/metadata/HL7/catchall` and add to your new mapping folder.
 4. Create folder `hl7` in your new mapping folder with the following sub-folders:
     - "message" - **required** - within that, add a yml file named with the HL7 message type (ex ORU_R01, ORM_O01,  
       ADT_A01, etc.)
@@ -158,7 +158,8 @@ underlying format/library.
 
 ## HL7v2 Validation Files
 
-ReportStream uses https://hl7v2-gvt.nist.gov/gvt/#/cf and its underlying scala library to validate HL7v2 messages against
+ReportStream uses https://hl7v2-gvt.nist.gov/gvt/#/cf and its underlying scala library to validate HL7v2 messages
+against
 a particular conformance profile. nist.gov has a built-in conformance profile building tool and published profiles can
 be located in the top-right drop down.
 
@@ -166,7 +167,8 @@ be located in the top-right drop down.
 
 Go to https://hl7v2-gvt.nist.gov/gvt/#/cf and:
 
-1. Select the profile the needs to be added or updated in the top right
+1. Select the Tool Scope for the profile the needs to be added or updated in the top right
+    - If the "Tool Scopes" dropdown doesn't appear, try refreshing
 2. Go to the documentation tab
 3. Select the profile specific sub-tab next to the "General Documents" sub-tab, like "RADx MARS HL7v2's Documents"
 4. Go to "Test Case Documentation" and download the files under the following columns:
