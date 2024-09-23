@@ -14,6 +14,9 @@ import org.hl7.fhir.r4.model.Bundle
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import gov.cdc.prime.reportstream.shared.validation.AbstractItemValidator
+import gov.cdc.prime.reportstream.shared.validation.FHIRValidationResult
+import gov.cdc.prime.reportstream.shared.validation.HL7ValidationResult
 
 private const val radxmarsProfileLocation = "metadata/hl7_validation/v251/radxmars/production"
 

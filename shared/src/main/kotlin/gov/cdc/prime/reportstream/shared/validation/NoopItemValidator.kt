@@ -1,4 +1,4 @@
-package gov.cdc.prime.router.validation
+package gov.cdc.prime.reportstream.shared.validation
 
 class NoopItemValidationResult : IItemValidationResult {
     override fun isValid(): Boolean {

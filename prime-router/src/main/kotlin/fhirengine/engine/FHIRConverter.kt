@@ -55,8 +55,8 @@ import gov.cdc.prime.router.fhirengine.utils.HL7Reader.Companion.parseHL7Message
 import gov.cdc.prime.router.fhirengine.utils.getObservations
 import gov.cdc.prime.router.logging.LogMeasuredTime
 import gov.cdc.prime.router.report.ReportService
-import gov.cdc.prime.router.validation.IItemValidator
-import gov.cdc.prime.router.validation.NoopItemValidator
+import gov.cdc.prime.reportstream.shared.validation.IItemValidator
+import gov.cdc.prime.reportstream.shared.validation.NoopItemValidator
 import io.github.oshai.kotlinlogging.withLoggingContext
 import org.apache.commons.lang3.exception.ExceptionUtils
 import org.hl7.fhir.r4.model.Bundle

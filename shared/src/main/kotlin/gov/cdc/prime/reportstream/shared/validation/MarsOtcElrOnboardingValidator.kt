@@ -1,4 +1,4 @@
-package gov.cdc.prime.router.validation
+package gov.cdc.prime.reportstream.shared.validation
 
 import org.hl7.fhir.r4.model.Bundle
 

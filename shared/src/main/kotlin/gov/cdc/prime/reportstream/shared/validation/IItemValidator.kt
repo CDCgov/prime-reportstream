@@ -1,10 +1,11 @@
-package gov.cdc.prime.router.validation
+package gov.cdc.prime.reportstream.shared.validation
 
 import ca.uhn.fhir.context.FhirContext
 import ca.uhn.fhir.validation.ResultSeverityEnum
 import ca.uhn.fhir.validation.ValidationResult
 import ca.uhn.hl7v2.model.Message
-import gov.cdc.prime.router.fhirengine.engine.encodePreserveEncodingChars
+import gov.cdc.prime.reportstream.shared.validation.encodePreserveEncodingChars
+//import gov.cdc.prime.router.fhirengine.engine.encodePreserveEncodingChars
 import gov.nist.validation.report.Entry
 import gov.nist.validation.report.Report
 import hl7.v2.validation.SyncHL7Validator

@@ -6,6 +6,7 @@ import assertk.assertions.isTrue
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.fhirengine.utils.HL7Reader
 import org.junit.jupiter.api.Test
+import gov.cdc.prime.reportstream.shared.validation.MarsOtcElrValidator
 
 class MarsOtcElrValidatorTests {
 

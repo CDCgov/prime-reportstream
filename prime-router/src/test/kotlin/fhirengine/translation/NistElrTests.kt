@@ -9,7 +9,7 @@ import ca.uhn.hl7v2.util.Hl7InputStreamMessageIterator
 import ca.uhn.hl7v2.validation.impl.ValidationContextFactory
 import fhirengine.translation.hl7.structures.fhirinventory.message.ORU_R01
 import fhirengine.utils.ReportStreamCanonicalModelClassFactory
-import gov.cdc.prime.router.fhirengine.engine.encodePreserveEncodingChars
+import gov.cdc.prime.reportstream.shared.validation.encodePreserveEncodingChars
 import kotlin.test.Test
 
 class NistElrTests {

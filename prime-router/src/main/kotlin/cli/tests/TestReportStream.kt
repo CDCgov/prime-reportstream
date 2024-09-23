@@ -15,7 +15,6 @@ import gov.cdc.prime.router.LegacyPipelineSender
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.ReportId
-import gov.cdc.prime.router.TopicWithValidator
 import gov.cdc.prime.router.UniversalPipelineSender
 import gov.cdc.prime.router.azure.DataAccessTransaction
 import gov.cdc.prime.router.azure.DatabaseAccess
@@ -822,7 +821,7 @@ abstract class CoolTest {
                         Topic.FULL_ELR.jsonVal(),
                         Topic.ETOR_TI.jsonVal(),
                         Topic.ELR_ELIMS.jsonVal(),
-                        TopicWithValidator.MARS_OTC_ELR.jsonVal()
+                        Topic.MARS_OTC_ELR.jsonVal()
                     ).contains(topic.textValue())
                     )
             ) {

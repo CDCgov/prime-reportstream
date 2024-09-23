@@ -40,10 +40,10 @@ import gov.cdc.prime.router.fhirengine.utils.HL7Reader
 import gov.cdc.prime.router.metadata.LookupTable
 import gov.cdc.prime.router.metadata.ObservationMappingConstants
 import gov.cdc.prime.router.report.ReportService
-import gov.cdc.prime.router.validation.AbstractItemValidator
-import gov.cdc.prime.router.validation.FHIRValidationResult
-import gov.cdc.prime.router.validation.HL7ValidationResult
-import gov.cdc.prime.router.validation.IItemValidator
+import gov.cdc.prime.reportstream.shared.validation.AbstractItemValidator
+import gov.cdc.prime.reportstream.shared.validation.FHIRValidationResult
+import gov.cdc.prime.reportstream.shared.validation.HL7ValidationResult
+import gov.cdc.prime.reportstream.shared.validation.IItemValidator
 import gov.nist.validation.report.Entry
 import io.mockk.clearAllMocks
 import io.mockk.every

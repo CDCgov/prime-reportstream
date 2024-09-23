@@ -5,9 +5,9 @@ import gov.cdc.prime.reportstream.shared.queue_message.ITopic
 import gov.cdc.prime.router.CustomerStatus.ACTIVE
 import gov.cdc.prime.router.CustomerStatus.INACTIVE
 import gov.cdc.prime.router.CustomerStatus.TESTING
-import gov.cdc.prime.router.validation.AbstractItemValidator
-import gov.cdc.prime.router.validation.MarsOtcElrOnboardingValidator
-import gov.cdc.prime.router.validation.MarsOtcElrValidator
+import gov.cdc.prime.reportstream.shared.validation.AbstractItemValidator
+import gov.cdc.prime.reportstream.shared.validation.MarsOtcElrOnboardingValidator
+import gov.cdc.prime.reportstream.shared.validation.MarsOtcElrValidator
 
 /**
  * Used by the engine to find orgs, senders and receivers
@@ -44,25 +44,6 @@ enum class CustomerStatus {
     ACTIVE,
 }
 
-
-interface ITopicWithValidator: ITopic {
-    override fun validator(): AbstractItemValidator
-}
-
-enum class TopicWithValidator: ITopicWithValidator {
-    MARS_OTC_ELR {
-        override fun jsonVal(): String { return "mars-otc-elr" }
-        override fun isUniversalPipeline(): Boolean { return true }
-        override fun isSendOriginal(): Boolean { return false }
-        override fun validator(): AbstractItemValidator { return MarsOtcElrValidator() }
-    },
-    MARS_OTC_ELR_ONBOARDING {
-        override fun jsonVal(): String { return "mars-otc-elr-onboarding" }
-        override fun isUniversalPipeline(): Boolean { return true }
-        override fun isSendOriginal(): Boolean { return false }
-        override fun validator(): AbstractItemValidator { return MarsOtcElrOnboardingValidator() }
-    }
-}
 
 
 

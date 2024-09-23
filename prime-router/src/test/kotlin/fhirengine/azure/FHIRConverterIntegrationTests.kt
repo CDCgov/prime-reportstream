@@ -18,7 +18,6 @@ import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Sender
-import gov.cdc.prime.router.TopicWithValidator
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseLookupTableAccess
@@ -592,7 +591,7 @@ class FHIRConverterIntegrationTests {
                 assertThat(this.receivingOrg).isEqualTo(null)
                 assertThat(this.receivingOrgSvc).isEqualTo(null)
                 assertThat(this.schemaName).isEqualTo("None")
-                assertThat(this.schemaTopic).isEqualTo(TopicWithValidator.MARS_OTC_ELR)
+                assertThat(this.schemaTopic).isEqualTo(Topic.MARS_OTC_ELR)
                 assertThat(this.bodyFormat).isEqualTo("FHIR")
             }
             with(notRouted.single()) {
@@ -600,7 +599,7 @@ class FHIRConverterIntegrationTests {
                 assertThat(this.receivingOrg).isEqualTo(null)
                 assertThat(this.receivingOrgSvc).isEqualTo(null)
                 assertThat(this.schemaName).isEqualTo("None")
-                assertThat(this.schemaTopic).isEqualTo(TopicWithValidator.MARS_OTC_ELR)
+                assertThat(this.schemaTopic).isEqualTo(Topic.MARS_OTC_ELR)
                 assertThat(this.bodyFormat).isEqualTo("FHIR")
             }
 
@@ -664,7 +663,7 @@ class FHIRConverterIntegrationTests {
                     notRouted.first().reportId,
                     receiveReport.id,
                     listOf(receiveReport.id),
-                    TopicWithValidator.MARS_OTC_ELR as Topic,
+                    Topic.MARS_OTC_ELR,
                     "",
                     TaskAction.convert,
                     OffsetDateTime.now()
@@ -684,7 +683,7 @@ class FHIRConverterIntegrationTests {
             assertThat(event.params).isEqualTo(
                 mapOf(
                     ReportStreamEventProperties.ITEM_FORMAT to MimeFormat.HL7,
-                    ReportStreamEventProperties.VALIDATION_PROFILE to TopicWithValidator.MARS_OTC_ELR.validator().validatorProfileName,
+                    ReportStreamEventProperties.VALIDATION_PROFILE to Topic.MARS_OTC_ELR.validator().validatorProfileName,
                     @Suppress("ktlint:standard:max-line-length")
                     ReportStreamEventProperties.PROCESSING_ERROR
                     to "Item 2 in the report was not valid. Reason: HL7 was not valid at MSH[1]-21[1].3 for validator: RADx MARS"

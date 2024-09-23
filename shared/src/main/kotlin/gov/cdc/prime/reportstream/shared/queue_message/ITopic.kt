@@ -1,6 +1,7 @@
 package gov.cdc.prime.reportstream.shared.queue_message
 
 import com.fasterxml.jackson.annotation.JsonValue
+import gov.cdc.prime.reportstream.shared.validation.IItemValidator
 
 interface ITopic {
 
@@ -10,5 +11,5 @@ interface ITopic {
 
     fun isSendOriginal(): Boolean
 
-    fun validator(): Any
+    fun validator(): IItemValidator
 }

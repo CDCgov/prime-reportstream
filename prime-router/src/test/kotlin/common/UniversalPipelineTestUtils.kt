@@ -1,5 +1,3 @@
-@file:Suppress("CAST_NEVER_SUCCEEDS")
-
 package gov.cdc.prime.router.common
 
 import assertk.assertThat
@@ -17,11 +15,9 @@ import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportStreamConditionFilter
-import gov.cdc.prime.router.TopicWithValidator
 import gov.cdc.prime.router.UniversalPipelineSender
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DataAccessTransaction
-import gov.cdc.prime.router.azure.Event
 import gov.cdc.prime.router.azure.ProcessEvent
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.Tables
@@ -223,7 +219,7 @@ object UniversalPipelineTestUtils {
         "phd",
         MimeFormat.HL7,
         CustomerStatus.ACTIVE,
-        topic = TopicWithValidator.MARS_OTC_ELR as Topic
+        topic = Topic.MARS_OTC_ELR
     )
     val universalPipelineOrganization = DeepOrganization(
         "phd", "test", Organization.Jurisdiction.FEDERAL,
