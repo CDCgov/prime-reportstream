@@ -76,8 +76,8 @@
     processingModeFilter: []
     reverseTheQualityFilter: false
     conditionFilter:
-      #  RSV: 55735004 (+), COVID: 840539006 (+), FLU (A or B by Antigen): 6142004 (+), FLU (A or B by Culture and Identification Method),: 541131000124102, They also want MPOX but, we are not ready to send MPOX yet.
-      - "%resource.where(interpretation.coding.code = 'A').code.coding.extension('https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code').value.where(code in ('55735004'|'840539006'|'6142004'|'541131000124102')).exists()"
+      #  RSV: 55735004 (+), COVID: 840539006 (+), FLU (A or B by Antigen): 541131000124102, They also want MPOX but, we are not ready to send MPOX yet.
+      - "%resource.where(interpretation.coding.code = 'A').code.coding.extension('https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code').value.where(code in ('55735004'|'840539006')).exists()"
     mappedConditionFilter: []
     deidentify: false
     deidentifiedValue: ""

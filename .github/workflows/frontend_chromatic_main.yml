@@ -23,7 +23,7 @@ jobs:
         with:
           fetch-depth: 0
       - name: Use Node.js with yarn
-        uses: actions/setup-node@1e60f620b9541d16bece96c5465dc8ee9832be0b
+        uses: actions/setup-node@0a44ba7841725637a19e28fa30b79a866c81b0a6
         with:
           node-version-file: "frontend-react/.nvmrc"
           cache: yarn
@@ -32,7 +32,7 @@ jobs:
         run: yarn install --immutable
 
       - name: Run Chromatic
-        uses: chromaui/action@c6e348fcea252c75f99c90db328cc5c98a7dd534
+        uses: chromaui/action@6eca23b4399151ac2cfc17fa95190d807c7e9519
         with:
           workingDir: frontend-react
           token: ${{ secrets.GITHUB_TOKEN }}
