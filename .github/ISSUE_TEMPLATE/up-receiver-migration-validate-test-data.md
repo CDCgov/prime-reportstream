@@ -2,10 +2,11 @@
 name: UP Migrating Receiver - Validate Test Data
 about: This is the fourth step in migrating a STLT to the UP 
 title: "[name of STLT] - UP Migration - Validate Test Data"
-labels: onboarding-ops, receiver
+labels: onboarding-ops, receiver, engineering, needs-refinement
 assignees: ''
 
 ---
+[STLT] = name of STLT
 
 ### User Story:
 As a developer, I want the [STLT] to validate test messages in staging, so that they can receive data in the format they expect.
@@ -27,4 +28,16 @@ As a developer, I want the [STLT] to validate test messages in staging, so that 
 
 ### Acceptance Criteria 
 - [ ] Created and sent data using Simple Report
-- [ ] Confirmed with STLT that data passes validation 
+- [ ] Confirmed with STLT that data passes validation
+- [ ] When finished, tag Mikaelah, Chris, and Glenn in a slack post stating:
+> [STLT] "Testing in Staging" is complete and will be moving on to "Monitor in Production"
+>
+> Connection Type: [REST, SFTP, SOAP, etc]
+>
+> Conditions tested: [List of Conditions]
+>
+> Positives set up to receive: [List of Conditions]
+>
+> Negatives set up to receive: [List of Conditions]
+>
+> Format receiving: [HL7 or FHIR]

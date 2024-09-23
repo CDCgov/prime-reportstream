@@ -1,0 +1,56 @@
+elements:
+#  telecoms will be removed via code since they are lists and this is more complicated
+  - name: pii-removal-patient-name
+    resource: 'Bundle.entry.resource.ofType(Patient).name'
+    resourceIndex: nameIndex
+    schema: classpath:/metadata/fhir_transforms/common/remove-pii-name.yml
+
+  - name: pii-removal-patient-dob
+    resource: 'Bundle.entry.resource.ofType(Patient)'
+    value: [ 'getFakeValueForElement("BIRTHDAY")' ]
+    bundleProperty: '%resource.birthDate'
+
+  - name: pii-removal-patient-address
+    resource: 'Bundle.entry.resource.ofType(Patient).address'
+    resourceIndex: addressIndex
+    schema: classpath:/metadata/fhir_transforms/common/remove-pii-address.yml
+
+  - name: pii-removal-ordering-provider-name
+    resource: 'Bundle.entry.resource.ofType(ServiceRequest).requester.resolve().practitioner.resolve().name'
+    resourceIndex: nameIndex
+    schema: classpath:/metadata/fhir_transforms/common/remove-pii-name.yml
+
+  - name: pii-removal-ordering-facility-address
+    resource: 'Bundle.entry.resource.ofType(ServiceRequest).requester.resolve().organization.resolve().address'
+    resourceIndex: addressIndex
+    schema: classpath:/metadata/fhir_transforms/common/remove-pii-address.yml
+
+  - name: pii-removal-service-request-note
+    resource: 'Bundle.entry.resource.ofType(ServiceRequest)'
+    value: [ 'getFakeValueForElement("OTHER_TEXT")' ]
+    bundleProperty: '%resource.note.text'
+
+  - name: pii-removal-observation-result-date-issued
+    resource: 'Bundle.entry.resource.ofType(Observation)'
+    value: [ 'getFakeValueForElement("DATETIME")' ]
+    bundleProperty: '%resource.issued'
+
+  - name: pii-removal-observation-result-date-effective
+    resource: 'Bundle.entry.resource.ofType(Observation)'
+    value: [ 'getFakeValueForElement("DATETIME")' ]
+    bundleProperty: '%resource.effective[x]'
+
+  - name: pii-removal-observation-note
+    resource: 'Bundle.entry.resource.ofType(Observation)'
+    value: [ 'getFakeValueForElement("OTHER_TEXT")' ]
+    bundleProperty: '%resource.note.text'
+
+  - name: pii-removal-specimen-note
+    resource: 'Bundle.entry.resource.ofType(Specimen)'
+    value: [ 'getFakeValueForElement("OTHER_TEXT")' ]
+    bundleProperty: '%resource.note.text'
+
+
+
+
+
