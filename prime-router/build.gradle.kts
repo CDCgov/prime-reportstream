@@ -617,10 +617,19 @@ task<Exec>("uploadSwaggerUI") {
 }
 
 tasks.register("killFunc") {
-    exec {
-        workingDir = project.rootDir
+    doLast {
         val processName = "func"
-        commandLine = listOf("sh", "-c", "pkill -9 $processName || true")
+        if (org.gradle.internal.os.OperatingSystem.current().isWindows) {
+            exec {
+                workingDir = project.rootDir
+                commandLine = listOf("cmd", "/c", "taskkill /F /IM $processName.exe || exit 0")
+            }
+        } else {
+            exec {
+                workingDir = project.rootDir
+                commandLine = listOf("sh", "-c", "pkill -9 $processName || true")
+            }
+        }
     }
 }
 
@@ -858,6 +867,9 @@ dependencies {
     // https://mvnrepository.com/artifact/ca.uhn.hapi.fhir/hapi-fhir-caching-caffeine
     implementation("ca.uhn.hapi.fhir:hapi-fhir-caching-caffeine:7.2.2")
     implementation("ca.uhn.hapi.fhir:hapi-fhir-client:7.2.2")
+    // pin
+    implementation("ca.uhn.hapi.fhir:org.hl7.fhir.utilities:6.3.24")
+    implementation("ca.uhn.hapi.fhir:org.hl7.fhir.r4:6.3.24")
     implementation("ca.uhn.hapi:hapi-base:2.5.1")
     implementation("ca.uhn.hapi:hapi-structures-v251:2.5.1")
     implementation("ca.uhn.hapi:hapi-structures-v27:2.5.1")
