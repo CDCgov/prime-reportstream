@@ -38,7 +38,7 @@ elements:
     hl7Spec: [ 'MSH-5-1' ]
 
   - name: mi-receiving-facility-namespace
-    value: [ '"MDSS"' ]
+    value: [ '"MDHHS"' ]
     hl7Spec: [ 'MSH-6-1' ]
 
   - name: mi-patient-race-coding-system
