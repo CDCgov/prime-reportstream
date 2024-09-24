@@ -1,7 +1,6 @@
 package gov.cdc.prime.router.fhirengine.azure
 
 import assertk.assertThat
-import assertk.assertions.hasSameSizeAs
 import assertk.assertions.hasSize
 import assertk.assertions.isEqualTo
 import assertk.assertions.isEqualToIgnoringGivenProperties
@@ -19,6 +18,7 @@ import gov.cdc.prime.router.DeepOrganization
 import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportStreamFilter
+import gov.cdc.prime.router.ReportStreamFilterResult
 import gov.cdc.prime.router.ReportStreamFilterType
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.Topic
@@ -56,6 +56,7 @@ import gov.cdc.prime.router.metadata.LookupTable
 import gov.cdc.prime.router.metadata.ObservationMappingConstants
 import gov.cdc.prime.router.report.ReportService
 import gov.cdc.prime.router.unittest.UnitTestUtils
+import gov.cdc.prime.router.version.Version
 import io.mockk.every
 import io.mockk.mockkConstructor
 import io.mockk.mockkObject
@@ -388,7 +389,8 @@ class FHIRReceiverFilterIntegrationTests : Logging {
                     Topic.FULL_ELR,
                     "",
                     TaskAction.receiver_filter,
-                    OffsetDateTime.now()
+                    OffsetDateTime.now(),
+                    Version.commitId
                 ),
                 ReportEventData::timestamp,
             )
@@ -562,7 +564,8 @@ class FHIRReceiverFilterIntegrationTests : Logging {
                     Topic.FULL_ELR,
                     "",
                     TaskAction.receiver_filter,
-                    OffsetDateTime.now()
+                    OffsetDateTime.now(),
+                    Version.commitId
                 ),
                 ReportEventData::timestamp,
             )
@@ -749,7 +752,8 @@ class FHIRReceiverFilterIntegrationTests : Logging {
                     Topic.FULL_ELR,
                     "",
                     TaskAction.receiver_filter,
-                    OffsetDateTime.now()
+                    OffsetDateTime.now(),
+                    Version.commitId
                 ),
                 ReportEventData::timestamp,
             )
@@ -839,9 +843,21 @@ class FHIRReceiverFilterIntegrationTests : Logging {
                 .from(Tables.ACTION_LOG)
                 .fetchInto(ActionLog::class.java)
 
-            assertThat(actionLogRecords).hasSameSizeAs(fullElrQualityFilterSample)
+            assertThat(actionLogRecords).hasSize(fullElrQualityFilterSample.size + 1)
 
-            actionLogRecords.forEachIndexed { index, actionLog ->
+            with(actionLogRecords.first()) {
+                assertThat(this.type).isEqualTo(ActionLogLevel.filter)
+                assertThat(this.scope).isEqualTo(ActionLogScope.report)
+                assertThat(this.trackingId).isEqualTo(validFHIRRecord1Identifier)
+                assertThat(this.detail).isInstanceOf<ReportStreamFilterResult>()
+                    .matchesPredicate {
+                        it.filterName == fullElrQualityFilterSample.joinToString("\n") &&
+                        it.filterType == ReportStreamFilterType.QUALITY_FILTER &&
+                        it.receiverName == receiver.fullName
+                    }
+            }
+
+            actionLogRecords.slice(1..<actionLogRecords.size).forEachIndexed { index, actionLog ->
                 assertThat(actionLog.trackingId).isEqualTo(validFHIRRecord1Identifier)
                 assertThat(actionLog.detail).isInstanceOf<FHIRReceiverFilter.ReceiverItemFilteredActionLogDetail>()
                     .matchesPredicate {
@@ -868,7 +884,8 @@ class FHIRReceiverFilterIntegrationTests : Logging {
                     Topic.FULL_ELR,
                     "",
                     TaskAction.receiver_filter,
-                    OffsetDateTime.now()
+                    OffsetDateTime.now(),
+                    Version.commitId
                 ),
                 ReportEventData::timestamp,
             )
@@ -1105,10 +1122,24 @@ class FHIRReceiverFilterIntegrationTests : Logging {
                 .from(Tables.ACTION_LOG)
                 .fetchInto(ActionLog::class.java)
 
-            assertThat(actionLogRecords).hasSize(1)
+            assertThat(actionLogRecords).hasSize(2)
 
-            with(actionLogRecords.single()) {
-                assertThat(this.trackingId).isEqualTo("MT_COCNB_ORU_NBPHELR.1.5348467")
+            val expectedTrackingId = AzureEventUtils.getIdentifier(FhirTranscoder.decode(reportContents)).value!!
+
+            with(actionLogRecords.first()) {
+                assertThat(this.type).isEqualTo(ActionLogLevel.filter)
+                assertThat(this.scope).isEqualTo(ActionLogScope.report)
+                assertThat(this.trackingId).isEqualTo(expectedTrackingId)
+                assertThat(this.detail).isInstanceOf<ReportStreamFilterResult>()
+                    .matchesPredicate {
+                        it.filterName == processingModeFilterDebugging.single() &&
+                        it.filterType == ReportStreamFilterType.PROCESSING_MODE_FILTER &&
+                        it.receiverName == receiver.fullName
+                    }
+            }
+
+            with(actionLogRecords.last()) {
+                assertThat(this.trackingId).isEqualTo(expectedTrackingId)
                 assertThat(this.type).isEqualTo(ActionLogLevel.warning)
                 assertThat(this.scope).isEqualTo(ActionLogScope.item)
                 assertThat(this.index).isEqualTo(1)
@@ -1137,7 +1168,8 @@ class FHIRReceiverFilterIntegrationTests : Logging {
                     Topic.FULL_ELR,
                     "",
                     TaskAction.receiver_filter,
-                    OffsetDateTime.now()
+                    OffsetDateTime.now(),
+                    Version.commitId
                 ),
                 ReportEventData::timestamp,
             )

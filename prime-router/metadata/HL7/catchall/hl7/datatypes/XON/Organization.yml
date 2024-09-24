@@ -35,12 +35,20 @@ identifier:
       valueOf: XON.10
     type:
       condition: $xon7 NOT_NULL
-      valueOf: datatype/CodeableConcept_var
-      expressionType: resource
-      vars:
-        code: String, XON.7
-      constants:
-        system: "http://terminology.hl7.org/CodeSystem/v2-0203"
+      expressionType: nested
+      generateList: true
+      expressionsMap:
+        coding:
+          expressionType: nested
+          generateList: true
+          expressionsMap:
+            code:
+              valueOf: XON.7
+              type: STRING
+              expressionType: HL7Spec
+            system:
+              type: STRING
+              value: "http://terminology.hl7.org/CodeSystem/v2-0203"
     extension_1-checkDigitSchema:
       condition: $xon5 NOT_NULL
       generateList: true

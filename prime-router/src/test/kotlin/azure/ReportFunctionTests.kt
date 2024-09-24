@@ -59,7 +59,6 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import java.time.OffsetDateTime
 import java.util.UUID
-import kotlin.test.assertFailsWith
 
 class ReportFunctionTests {
     val dataProvider = MockDataProvider { emptyArray<MockResult>() }
@@ -854,20 +853,17 @@ class ReportFunctionTests {
         val metadata = UnitTestUtils.simpleMetadata
         val settings = FileSettings().loadOrganizations(oneOrganization)
         val actionHistory = spyk(ActionHistory(TaskAction.receive))
-        assertFailsWith<IllegalStateException>(
-            block = {
-                ReportFunction(
-                    makeEngine(metadata, settings),
-                    actionHistory
-                ).processDownloadReport(
-                    MockHttpRequestMessage(),
-                    reportId,
-                    true,
-                    "local",
-                    mockDb
-                )
-            }
+        val result = ReportFunction(
+            makeEngine(metadata, settings),
+            actionHistory
+        ).processDownloadReport(
+            MockHttpRequestMessage(),
+            reportId,
+            true,
+            "local",
+            mockDb
         )
+        assert(result.status.value() == 400)
     }
 
     @Test

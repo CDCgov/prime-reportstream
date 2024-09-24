@@ -169,6 +169,7 @@ export const ConfirmSaveSettingModal = forwardRef(
                             aria-label="Check the settings JSON syntax"
                             key={`${uniquid}-validate-button`}
                             data-uniquid={uniquid}
+                            data-testid={"editCheckSyntaxButton"}
                             onClick={onCheckSyntaxClick}
                             type="button"
                         >

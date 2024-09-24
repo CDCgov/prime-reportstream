@@ -26,6 +26,7 @@ import gov.cdc.prime.router.UniversalPipelineReceiver
 import gov.cdc.prime.router.azure.BlobAccess.Companion.defaultBlobMetadata
 import gov.cdc.prime.router.azure.BlobAccess.Companion.getBlobContainer
 import gov.cdc.prime.router.azure.db.enums.TaskAction
+import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.azure.observability.event.IReportStreamEventService
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventName
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventProperties
@@ -40,7 +41,9 @@ import gov.cdc.prime.router.tokens.AuthenticatedClaims
 import gov.cdc.prime.router.tokens.Scope
 import gov.cdc.prime.router.tokens.authenticationFailure
 import gov.cdc.prime.router.tokens.authorizationFailure
+import kotlinx.serialization.json.Json
 import org.apache.logging.log4j.kotlin.Logging
+import java.nio.charset.StandardCharsets
 import java.util.UUID
 
 private const val PROCESSING_TYPE_PARAMETER = "processing"
@@ -199,7 +202,12 @@ class ReportFunction(
         databaseAccess: DatabaseAccess = DatabaseAccess(),
         piiRemovalCommands: PIIRemovalCommands = PIIRemovalCommands(),
     ): HttpResponseMessage {
-        val requestedReport = databaseAccess.fetchReportFile(reportId)
+        var requestedReport = ReportFile()
+        try {
+            requestedReport = databaseAccess.fetchReportFile(reportId)
+        } catch (e: Exception) {
+            HttpUtilities.badRequestResponse(request, "The requested report does not exist.")
+        }
 
         return if (requestedReport.bodyUrl != null && requestedReport.bodyUrl.toString().lowercase().endsWith("fhir")) {
             val contents = BlobAccess.downloadBlobAsByteArray(requestedReport.bodyUrl)
@@ -210,13 +218,10 @@ class ReportFunction(
                 if (envName == "prod") {
                     return HttpUtilities.badRequestResponse(request, "Must remove PII for messages from prod.")
                 }
-
-                val jsonObject = JacksonMapperUtilities.defaultMapper
-                    .readValue(contents.toString(Charsets.UTF_8), Any::class.java)
-                JacksonMapperUtilities.defaultMapper.writeValueAsString(jsonObject)
+                String(contents, StandardCharsets.UTF_8)
             }
 
-            HttpUtilities.okJSONResponse(request, content)
+            HttpUtilities.okJSONResponse(request, Json.parseToJsonElement(content))
         } else if (requestedReport.bodyUrl == null) {
             HttpUtilities.badRequestResponse(request, "The requested report does not exist.")
         } else {
