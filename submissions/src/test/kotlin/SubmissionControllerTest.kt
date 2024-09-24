@@ -12,6 +12,7 @@ import gov.cdc.prime.reportstream.shared.QueueMessage
 import gov.cdc.prime.reportstream.shared.QueueMessage.ObjectMapperProvider
 import gov.cdc.prime.reportstream.submissions.TelemetryService
 import gov.cdc.prime.reportstream.submissions.config.AzureConfig
+import gov.cdc.prime.reportstream.submissions.config.SecurityConfig
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -33,6 +34,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.context.annotation.Import
 import org.springframework.http.MediaType
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
@@ -42,7 +44,7 @@ import java.util.Base64
 import java.util.UUID
 
 @WebMvcTest(SubmissionController::class)
-@Import(AzureConfig::class)
+@Import(AzureConfig::class, SecurityConfig::class)
 class SubmissionControllerTest {
 
     @Autowired
@@ -126,6 +128,7 @@ class SubmissionControllerTest {
 
         mockMvc.perform(
             MockMvcRequestBuilders.post("/api/v1/reports")
+                .with(csrf())
                 .content(requestBody)
                 .contentType(MediaType.valueOf("application/hl7-v2"))
                 .header("client_id", "testClient")
@@ -172,6 +175,7 @@ class SubmissionControllerTest {
 
         mockMvc.perform(
             MockMvcRequestBuilders.post("/api/v1/reports")
+                .with(csrf())
                 .content(requestBody)
                 .contentType(MediaType.valueOf("application/fhir+ndjson"))
                 .header("client_id", "testClient")
@@ -203,6 +207,7 @@ class SubmissionControllerTest {
 
         mockMvc.perform(
             MockMvcRequestBuilders.post("/api/v1/reports")
+                .with(csrf())
                 .content(requestBody)
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("client_id", "testClient")
@@ -219,6 +224,7 @@ class SubmissionControllerTest {
 
         mockMvc.perform(
             MockMvcRequestBuilders.post("/api/v1/reports")
+                .with(csrf())
                 .content(requestBody)
                 .contentType(MediaType.valueOf("application/hl7-v2"))
                 .header("payloadname", "testPayload")
@@ -241,6 +247,7 @@ class SubmissionControllerTest {
 
         mockMvc.perform(
             MockMvcRequestBuilders.post("/api/v1/reports")
+                .with(csrf())
                 .content(requestBody)
                 .contentType(MediaType.parseMediaType("application/hl7-v2"))
                 .header("client_id", "testClient")
@@ -263,6 +270,7 @@ class SubmissionControllerTest {
 
         mockMvc.perform(
             MockMvcRequestBuilders.post("/api/v1/reports")
+                .with(csrf())
                 .content(requestBody)
                 .contentType(MediaType.parseMediaType("application/hl7-v2"))
                 .header("client_id", "testClient")
@@ -301,6 +309,7 @@ class SubmissionControllerTest {
 
         mockMvc.perform(
             MockMvcRequestBuilders.post("/api/v1/reports")
+                .with(csrf())
                 .content(requestBody)
                 .contentType(MediaType.valueOf("application/hl7-v2"))
                 .header("client_id", "testClient")
@@ -321,12 +330,19 @@ class SubmissionControllerTest {
         val eventDetails = objectMapper.readValue(capturedProperties["event"], Map::class.java)
         assert(eventDetails["reportId"] == reportId.toString())
         assert(eventDetails["blobUrl"] == expectedBlobUrl)
-        assert(eventDetails["senderIP"] == "127.0.0.1")
-        val headers = eventDetails["headers"] as Map<*, *>
+        assert(eventDetails["senderIp"] == "127.0.0.1")
+        assert(eventDetails["method"] == "POST")
+        assert(eventDetails["senderName"] == "testClient")
+        assert(eventDetails["pipelineStepName"] == "submission")
+        assert(eventDetails["url"] == "http://localhost/api/v1/reports")
+        val requestParameters = eventDetails["requestParameters"] as Map<*, *>
+        val headers = requestParameters["headers"] as Map<*, *>
         assert(headers["client_id"] == "testClient")
         assert(headers["Content-Type"] == "application/hl7-v2;charset=UTF-8")
         assert(headers["payloadname"] == "testPayload")
         assert(headers["x-azure-clientip"] == "127.0.0.1")
+        val queryParameters = requestParameters["queryParameters"] as Map<*, *>
+        assert(queryParameters.isEmpty())
 
         uuidMockedStatic.close()
     }

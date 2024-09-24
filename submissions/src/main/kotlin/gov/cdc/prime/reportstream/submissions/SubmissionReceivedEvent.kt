@@ -1,6 +1,5 @@
 package gov.cdc.prime.reportstream.submissions
 
-import com.azure.core.http.HttpMethod
 import java.time.Instant
 import java.util.UUID
 
@@ -16,7 +15,7 @@ data class SubmissionReceivedEvent(
     val senderIp: String,
     val fileLength: String,
     val blobUrl: String,
-    val pipelineStepName: String
+    val pipelineStepName: String,
 )
 
 data class SubmissionDetails(

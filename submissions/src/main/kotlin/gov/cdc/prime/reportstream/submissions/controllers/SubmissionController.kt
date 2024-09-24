@@ -68,7 +68,7 @@ class SubmissionController(
         @RequestHeader("x-azure-clientip") senderIp: String,
         @RequestHeader(value = "payloadName", required = false) payloadName: String?,
         @RequestBody data: String,
-        request: HttpServletRequest
+        request: HttpServletRequest,
     ): ResponseEntity<*> {
         val reportId = UUID.randomUUID()
         val reportReceivedTime = Instant.now()
