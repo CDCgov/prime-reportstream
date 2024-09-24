@@ -2,6 +2,7 @@ package gov.cdc.prime.reportstream.shared.queue_message
 
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
+import com.fasterxml.jackson.annotation.JsonTypeName
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.json.JsonMapper
@@ -140,6 +141,30 @@ interface QueueMessage {
          * Additional headers associated with the message.
          */
         val headers: Map<String, String>
+    }
+
+    /**
+     * Data class representing a specific type of gov.cdc.prime.reportstream.shared.QueueMessage meant for receiving
+     * FHIR (Fast Healthcare Interoperability Resources) data. It implements both
+     * ReportInformation and ReceiveInformation interfaces.
+     *
+     * @property blobURL The URL of the blob storage containing the report.
+     * @property digest The digest (hash) of the report.
+     * @property blobSubFolderName The subfolder name in the blob storage.
+     * @property reportId The unique identifier of the report.
+     * @property headers Additional headers associated with the message.
+     */
+    @JsonTypeName("receive-fhir")
+    data class ReceiveQueueMessage(
+        override val blobURL: String,
+        override val digest: String,
+        override val blobSubFolderName: String,
+        override val reportId: UUID,
+        override val headers: Map<String, String>,
+    ) : QueueMessage,
+        ReportInformation,
+        ReceiveInformation {
+        override val messageQueueName = elrReceiveQueueName
     }
 
     /**
