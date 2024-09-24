@@ -67,8 +67,16 @@ extension_3-universalIdType:
       valueOf: HD.3
 
 physicalType:
-  valueOf: datatype/CodeableConcept_var
-  expressionType: resource
-  constants:
-    code: si
-    system: "http://terminology.hl7.org/CodeSystem/location-physical-type"
+  expressionType: nested
+  generateList: true
+  expressionsMap:
+    coding:
+      expressionType: nested
+      generateList: true
+      expressionsMap:
+        code:
+          type: STRING
+          value: si
+        system:
+          type: STRING
+          value: "http://terminology.hl7.org/CodeSystem/location-physical-type"

@@ -22,7 +22,6 @@ import gov.cdc.prime.router.fhirengine.engine.FHIRTranslator
 import gov.cdc.prime.router.fhirengine.engine.FhirReceiveQueueMessage
 import gov.cdc.prime.router.fhirengine.engine.PrimeRouterQueueMessage
 import gov.cdc.prime.router.fhirengine.engine.ReportPipelineMessage
-import gov.cdc.prime.router.fhirengine.engine.initializeQueueMessages
 import org.apache.commons.lang3.StringUtils
 import org.apache.logging.log4j.kotlin.Logging
 
@@ -158,8 +157,6 @@ class FHIRFunctions(
         logger.debug(
             "${StringUtils.removeEnd(engineType, "e")}ing message: $message for the $dequeueCount time"
         )
-        // initialize the json types in PrimeRouterQueueMessage
-        initializeQueueMessages()
 
         return when (val queueMessage = QueueMessage.deserialize(message)) {
             is QueueMessage.ReceiveQueueMessage -> {
