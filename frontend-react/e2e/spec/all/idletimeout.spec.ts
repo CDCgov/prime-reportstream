@@ -1,7 +1,7 @@
 import { expect } from "@playwright/test";
 import process from "node:process";
 
-import { OrganizationPage } from "../../pages/authenticated/organization";
+import { OrganizationPage } from "../../pages/authenticated/admin/organization";
 import { test as baseTest } from "../../test";
 
 const timeout = parseInt(process.env.VITE_IDLE_TIMEOUT ?? "20000");

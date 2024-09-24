@@ -734,12 +734,6 @@
             "type" : {
               "coding" : [
                 {
-                  "extension" : [
-                    {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
-                      "valueString" : "identifier"
-                    }
-                  ],
                   "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
                   "code" : "NPI"
                 }
@@ -820,12 +814,6 @@
             "type" : {
               "coding" : [
                 {
-                  "extension" : [
-                    {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
-                      "valueString" : "identifier"
-                    }
-                  ],
                   "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
                   "code" : "NPI"
                 }
@@ -893,12 +881,6 @@
             "type" : {
               "coding" : [
                 {
-                  "extension" : [
-                    {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
-                      "valueString" : "identifier"
-                    }
-                  ],
                   "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
                   "code" : "NPI"
                 }
