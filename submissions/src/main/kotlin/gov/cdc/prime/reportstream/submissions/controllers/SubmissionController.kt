@@ -8,8 +8,10 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import gov.cdc.prime.reportstream.shared.BlobUtils
 import gov.cdc.prime.reportstream.shared.QueueMessage
 import gov.cdc.prime.reportstream.shared.Submission
+import gov.cdc.prime.reportstream.submissions.SubmissionDetails
 import gov.cdc.prime.reportstream.submissions.SubmissionReceivedEvent
 import gov.cdc.prime.reportstream.submissions.TelemetryService
+import jakarta.servlet.http.HttpServletRequest
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -54,6 +56,7 @@ class SubmissionController(
      * @param contentType the content type of the report (must be "application/hl7-v2" or "application/fhir+ndjson")
      * @param clientId the ID of the client submitting the report. Should represent org.senderName
      * @param data the report data
+     * @param request gives access to request details
      * @return a ResponseEntity containing the reportID, status, and timestamp
      */
     @PostMapping("/api/v1/reports", consumes = ["application/hl7-v2", "application/fhir+ndjson"])
@@ -65,6 +68,7 @@ class SubmissionController(
         @RequestHeader("x-azure-clientip") senderIp: String,
         @RequestHeader(value = "payloadName", required = false) payloadName: String?,
         @RequestBody data: String,
+        request: HttpServletRequest
     ): ResponseEntity<*> {
         val reportId = UUID.randomUUID()
         val reportReceivedTime = Instant.now()
@@ -98,11 +102,17 @@ class SubmissionController(
             reportId = reportId,
             parentReportId = reportId,
             rootReportId = reportId,
-            headers = filterHeaders(headers),
-            sender = clientId,
-            senderIP = senderIp,
-            fileSize = contentLength,
-            blobUrl = blobClient.blobUrl
+            requestParameters = SubmissionDetails(
+                filterHeaders(headers),
+                filterQueryParameters(request.parameterMap.mapValues { it.value.joinToString(",") })
+            ),
+            method = request.method,
+            url = request.requestURL.toString(),
+            senderName = clientId,
+            senderIp = senderIp,
+            fileLength = contentLength,
+            blobUrl = blobClient.blobUrl,
+            pipelineStepName = "submission"
         )
         logger.debug("Created SUBMISSION_RECEIVED")
 
@@ -235,6 +245,11 @@ class SubmissionController(
         val headersToInclude =
             listOf("client_id", "content-type", "payloadname", "x-azure-clientip", "content-length")
         return headers.filter { it.key.lowercase() in headersToInclude }
+    }
+
+    private fun filterQueryParameters(queryParameters: Map<String, String>): Map<String, String> {
+        val headersToInclude = emptyList<String>() // update this list as new QueryParameters are needed
+        return queryParameters.filter { it.key.lowercase() in headersToInclude }
     }
 
     private fun formBlobName(
