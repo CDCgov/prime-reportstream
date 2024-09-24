@@ -101,7 +101,8 @@ test.describe("Evaluate links on public facing pages", { tag: "@warning" }, () =
                     return { url, status: e.response ? e.response.status : 400 };
                 }
             } else {
-                const page = await browser.newPage();
+                const context = await browser.newContext();
+                const page = await context.newPage();
 
                 try {
                     await page.goto(url, { waitUntil: "networkidle" });
@@ -123,6 +124,7 @@ test.describe("Evaluate links on public facing pages", { tag: "@warning" }, () =
                     return { url, status: 400 };
                 } finally {
                     await page.close();
+                    await context.close();
                 }
             }
         };
@@ -138,15 +140,12 @@ test.describe("Evaluate links on public facing pages", { tag: "@warning" }, () =
         }
 
         if (isFrontendWarningsLog && warnings.length > 0) {
-            fs.writeFileSync(frontendWarningsLogPath, `${JSON.stringify(warnings)}\n`);
+            await fs.promises.writeFile(frontendWarningsLogPath, `${JSON.stringify(warnings)}\n`);
         }
 
         results.forEach((result) => {
-            try {
-                expect(result.status).toBe(200);
-            } catch (error) {
-                const e = error as AxiosError;
-                console.warn(`Non-fatal: ${e.message}`);
+            if (result.status !== 200) {
+                console.warn(`Warning: ${result.url} returned status ${result.status}`);
             }
         });
     });
