@@ -51,9 +51,19 @@ class ReportService(
         return reportGraph.getRootReports(childReportId).distinctBy { it.reportId }
     }
 
-    fun getReportsForStep(childReportId: ReportId, childIndex: Int, task: TaskAction): ReportFile? {
+    /**
+     * Accepts a descendant item (report id and index) and finds the ancestor report associated with the
+     * passed [TaskAction]
+     *
+     * @param childReportId the descendant child report
+     * @param childIndex the index of the item
+     * @param task the particular task to find the ancestor report for
+     *
+     * @return the [ReportFile] ancestor at the passed [TaskAction]
+     */
+    fun getReportForItemAtTask(childReportId: ReportId, childIndex: Int, task: TaskAction): ReportFile? {
         return db.transactReturning { txn ->
-             reportGraph.getAncestorReports(txn, childReportId, childIndex, setOf(task))
+             reportGraph.getAncestorReport(txn, childReportId, childIndex, task)
         }
     }
 

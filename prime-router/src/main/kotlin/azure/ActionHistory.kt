@@ -626,7 +626,7 @@ class ActionHistory(
 
         val lineages = Report.createItemLineagesFromDb(header, sentReportId)
         lineages?.forEach { itemLineage ->
-            val receiverFilterReportFile = reportService.getReportsForStep(
+            val receiverFilterReportFile = reportService.getReportForItemAtTask(
                 itemLineage.parentReportId,
                 itemLineage.parentIndex,
                 TaskAction.receiver_filter

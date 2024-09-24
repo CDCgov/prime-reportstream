@@ -354,7 +354,9 @@ class ActionHistoryTests {
         every { mockAzureEventService.trackEvent(any()) } returns Unit
         val mockReportEventService = mockk<ReportStreamEventService>()
         val mockReportService = mockk<ReportService>()
-        every { mockReportService.getReportsForStep(any(), any(), any()) } returns mockk<ReportFile>(relaxed = true)
+        every {
+            mockReportService.getReportForItemAtTask(any(), any(), any())
+        } returns mockk<ReportFile>(relaxed = true)
         every {
             mockReportEventService.getReportEventData(
                 any<UUID>(),
@@ -478,7 +480,9 @@ class ActionHistoryTests {
         every { mockAzureEventService.trackEvent(any()) } returns Unit
         val mockReportEventService = mockk<ReportStreamEventService>()
         val mockReportService = mockk<ReportService>()
-        every { mockReportService.getReportsForStep(any(), any(), any()) } returns mockk<ReportFile>(relaxed = true)
+        every {
+            mockReportService.getReportForItemAtTask(any(), any(), any())
+        } returns mockk<ReportFile>(relaxed = true)
         every {
             mockReportEventService.getReportEventData(
                 any<UUID>(),
@@ -743,7 +747,9 @@ class ActionHistoryTests {
         every { mockAzureEventService.trackEvent(any()) } returns Unit
         val mockReportEventService = mockk<ReportStreamEventService>()
         val mockReportService = mockk<ReportService>()
-        every { mockReportService.getReportsForStep(any(), any(), any()) } returns mockk<ReportFile>(relaxed = true)
+        every {
+            mockReportService.getReportForItemAtTask(any(), any(), any())
+        } returns mockk<ReportFile>(relaxed = true)
         every {
             mockReportEventService.getReportEventData(
                 any<UUID>(),

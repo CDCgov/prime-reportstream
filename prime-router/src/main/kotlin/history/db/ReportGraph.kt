@@ -19,6 +19,7 @@ import org.jooq.CommonTableExpression
 import org.jooq.DSLContext
 import org.jooq.Record
 import org.jooq.Record1
+import org.jooq.SelectConditionStep
 import org.jooq.SelectOnConditionStep
 import org.jooq.impl.CustomRecord
 import org.jooq.impl.CustomTable
@@ -212,15 +213,23 @@ class ReportGraph(
         return descendantReportRecords(txn, cte, searchedForTaskActions).fetchInto(ReportFile::class.java)
     }
 
-    fun getAncestorReports(
+    /**
+     * Retrieves ancestor report from a [TaskAction] for a particular item.
+     *
+     * @param txn the transaction to run the DB access under
+     * @param childReportId the reportId to search for ancestors of
+     * @param childIndex the index of the child
+     * @param searchedForTaskAction the task action associated with the desired ancestor report
+     * @return The ancestor report for that particular action
+     */
+    fun getAncestorReport(
         txn: DataAccessTransaction,
         childReportId: UUID,
         childIndex: Int,
-        searchedForTaskActions: Set<TaskAction>? = null,
+        searchedForTaskAction: TaskAction,
     ): ReportFile? {
         val cte = itemAncestorGraphCommonTableExpression(childReportId, childIndex)
-
-        return ancestorReportRecords(txn, cte, searchedForTaskActions).fetchOneInto(ReportFile::class.java)
+        return ancestorReportRecords(txn, cte, searchedForTaskAction).fetchOneInto(ReportFile::class.java)
     }
 
     /**
@@ -528,7 +537,7 @@ class ReportGraph(
     }
 
     /**
-     * Fetches all descendant report records in a recursive manner.
+     * Fetches all ancestor report records in a recursive manner.
      *
      * @param txn the data access transaction
      * @param cte the common table expression for report lineage
@@ -537,8 +546,8 @@ class ReportGraph(
     private fun ancestorReportRecords(
         txn: DataAccessTransaction,
         cte: CommonTableExpression<ItemGraphRecord>,
-        searchedForTaskActions: Set<TaskAction>?,
-    ): SelectOnConditionStep<Record> {
+        searchedForTaskAction: TaskAction,
+    ): SelectConditionStep<Record> {
         val select = DSL.using(txn)
             .withRecursive(cte)
             .select(REPORT_FILE.asterisk())
@@ -548,10 +557,7 @@ class ReportGraph(
             .on(REPORT_FILE.REPORT_ID.eq(ItemGraphTable.ITEM_GRAPH.PARENT_REPORT_ID))
             .join(ACTION)
             .on(ACTION.ACTION_ID.eq(REPORT_FILE.ACTION_ID))
-
-        if (searchedForTaskActions != null) {
-            select.where(ACTION.ACTION_NAME.`in`(searchedForTaskActions))
-        }
+            .where(ACTION.ACTION_NAME.eq(searchedForTaskAction))
 
         return select
     }
