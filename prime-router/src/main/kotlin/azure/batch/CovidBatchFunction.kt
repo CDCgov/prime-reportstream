@@ -4,6 +4,7 @@ import com.microsoft.azure.functions.ExecutionContext
 import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.QueueTrigger
 import com.microsoft.azure.functions.annotation.StorageAccount
+import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.azure.ActionHistory
@@ -34,7 +35,7 @@ class CovidBatchFunction(
     ) {
         try {
             logger.trace("CovidBatchFunction starting.  Message: $message")
-            val event = Event.parseQueueMessage(message) as BatchEvent
+            val event = Event.parsePrimeRouterQueueMessage(message) as BatchEvent
             if (event.eventAction != Event.EventAction.BATCH) {
                 logger.error("CovidBatchFunction received a $message")
                 return
@@ -80,7 +81,7 @@ class CovidBatchFunction(
                 //  upon format for what an 'empty' HL7 file looks like, and there are no receivers with this type
                 //  in prod as of now (2/2/2022). This short circuit is in case one somehow gets put in in the future
                 //  to prevent the application from hard crashing.
-                if (receiver.format == Report.Format.HL7) {
+                if (receiver.format == MimeFormat.HL7) {
                     logger.error(
                         "'Empty Batch' not supported for individual HL7 file. Only CSV/HL7_BATCH " +
                             "formats are supported."

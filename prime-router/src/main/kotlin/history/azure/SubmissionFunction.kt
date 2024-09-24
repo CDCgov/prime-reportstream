@@ -9,6 +9,7 @@ import com.microsoft.azure.functions.annotation.BindingName
 import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.HttpTrigger
 import gov.cdc.prime.router.Sender
+import gov.cdc.prime.router.azure.DataAccessTransaction
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
@@ -91,10 +92,20 @@ class SubmissionFunction(
      * @return
      */
     override fun singleDetailedHistory(
-        queryParams: MutableMap<String, String>,
+        id: String,
+        txn: DataAccessTransaction,
         action: Action,
     ): DetailedSubmissionHistory? {
-        return submissionsFacade.findDetailedSubmissionHistory(action)
+        val report = try {
+            val reportId = UUID.fromString(id)
+            submissionsFacade.findDetailedSubmissionHistory(txn, reportId, action)
+        } catch (ex: IllegalArgumentException) {
+            // We cannot consistently use this logic because the covid pipeline can process reports
+            // synchronously such that the intial action has multiple reports associated (i.e. receive and send)
+            val report = submissionsFacade.fetchReportForActionId(action.actionId, txn)
+            submissionsFacade.findDetailedSubmissionHistory(txn, report?.reportId, action)
+        }
+        return report
     }
 
     /**

@@ -326,12 +326,6 @@
             "type" : {
               "coding" : [
                 {
-                  "extension" : [
-                    {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
-                      "valueString" : "identifier"
-                    }
-                  ],
                   "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
                   "code" : "XX"
                 }
@@ -2980,22 +2974,6 @@
                 {
                   "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
                   "valueString" : "SCT"
-                },
-                {
-                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code",
-                  "valueCoding" : {
-                    "system" : "SNOMEDCT",
-                    "code" : "406575008",
-                    "display" : "Infection caused by vancomycin resistant enterococcus (disorder)"
-                  }
-                },
-                {
-                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code",
-                  "valueCoding" : {
-                    "system" : "SNOMEDCT",
-                    "code" : "406575008",
-                    "display" : "Infection caused by vancomycin resistant enterococcus (disorder)"
-                  }
                 }
               ],
               "system" : "http://snomed.info/sct",
@@ -3344,14 +3322,6 @@
                 {
                   "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
                   "valueString" : "SCT"
-                },
-                {
-                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code",
-                  "valueCoding" : {
-                    "system" : "SNOMEDCT",
-                    "code" : "45170000",
-                    "display" : "Encephalitis (disorder)"
-                  }
                 }
               ],
               "system" : "http://snomed.info/sct",
@@ -4667,12 +4637,6 @@
             "type" : {
               "coding" : [
                 {
-                  "extension" : [
-                    {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
-                      "valueString" : "identifier"
-                    }
-                  ],
                   "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
                   "code" : "XX"
                 }
@@ -5016,12 +4980,6 @@
             "type" : {
               "coding" : [
                 {
-                  "extension" : [
-                    {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
-                      "valueString" : "identifier"
-                    }
-                  ],
                   "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
                   "code" : "XX"
                 }
@@ -5401,12 +5359,6 @@
             "type" : {
               "coding" : [
                 {
-                  "extension" : [
-                    {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
-                      "valueString" : "identifier"
-                    }
-                  ],
                   "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
                   "code" : "XX"
                 }
@@ -5750,12 +5702,6 @@
             "type" : {
               "coding" : [
                 {
-                  "extension" : [
-                    {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
-                      "valueString" : "identifier"
-                    }
-                  ],
                   "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
                   "code" : "XX"
                 }
@@ -6135,12 +6081,6 @@
             "type" : {
               "coding" : [
                 {
-                  "extension" : [
-                    {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
-                      "valueString" : "identifier"
-                    }
-                  ],
                   "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
                   "code" : "XX"
                 }
@@ -6484,12 +6424,6 @@
             "type" : {
               "coding" : [
                 {
-                  "extension" : [
-                    {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
-                      "valueString" : "identifier"
-                    }
-                  ],
                   "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
                   "code" : "XX"
                 }
@@ -7914,12 +7848,6 @@
             "type" : {
               "coding" : [
                 {
-                  "extension" : [
-                    {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
-                      "valueString" : "identifier"
-                    }
-                  ],
                   "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
                   "code" : "XX"
                 }
@@ -8295,12 +8223,6 @@
             "type" : {
               "coding" : [
                 {
-                  "extension" : [
-                    {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
-                      "valueString" : "identifier"
-                    }
-                  ],
                   "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
                   "code" : "XX"
                 }
@@ -8650,12 +8572,6 @@
             "type" : {
               "coding" : [
                 {
-                  "extension" : [
-                    {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
-                      "valueString" : "identifier"
-                    }
-                  ],
                   "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
                   "code" : "XX"
                 }
@@ -9005,12 +8921,6 @@
             "type" : {
               "coding" : [
                 {
-                  "extension" : [
-                    {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
-                      "valueString" : "identifier"
-                    }
-                  ],
                   "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
                   "code" : "XX"
                 }
@@ -9367,12 +9277,6 @@
             "type" : {
               "coding" : [
                 {
-                  "extension" : [
-                    {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
-                      "valueString" : "identifier"
-                    }
-                  ],
                   "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
                   "code" : "XX"
                 }
@@ -9722,12 +9626,6 @@
             "type" : {
               "coding" : [
                 {
-                  "extension" : [
-                    {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
-                      "valueString" : "identifier"
-                    }
-                  ],
                   "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
                   "code" : "XX"
                 }
@@ -10077,12 +9975,6 @@
             "type" : {
               "coding" : [
                 {
-                  "extension" : [
-                    {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
-                      "valueString" : "identifier"
-                    }
-                  ],
                   "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
                   "code" : "XX"
                 }
@@ -10432,12 +10324,6 @@
             "type" : {
               "coding" : [
                 {
-                  "extension" : [
-                    {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
-                      "valueString" : "identifier"
-                    }
-                  ],
                   "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
                   "code" : "XX"
                 }
@@ -10787,12 +10673,6 @@
             "type" : {
               "coding" : [
                 {
-                  "extension" : [
-                    {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
-                      "valueString" : "identifier"
-                    }
-                  ],
                   "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
                   "code" : "XX"
                 }
@@ -11142,12 +11022,6 @@
             "type" : {
               "coding" : [
                 {
-                  "extension" : [
-                    {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
-                      "valueString" : "identifier"
-                    }
-                  ],
                   "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
                   "code" : "XX"
                 }
@@ -11497,12 +11371,6 @@
             "type" : {
               "coding" : [
                 {
-                  "extension" : [
-                    {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
-                      "valueString" : "identifier"
-                    }
-                  ],
                   "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
                   "code" : "XX"
                 }
@@ -13646,14 +13514,6 @@
                 {
                   "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
                   "valueString" : "LN"
-                },
-                {
-                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code",
-                  "valueCoding" : {
-                    "system" : "SNOMEDCT",
-                    "code" : "406604002",
-                    "display" : "Infection caused by vancomycin intermediate Staphylococcus aureus (disorder)"
-                  }
                 }
               ],
               "system" : "http://loinc.org",
@@ -15002,6 +14862,10 @@
                 "valueString" : "20210810062500-0600"
               },
               {
+                "url" : "OBR.25",
+                "valueId" : "P"
+              },
+              {
                 "url" : "OBR.10",
                 "valueReference" : {
                   "reference" : "Practitioner/1716965606858311000.5b833f4f-fb30-454a-8810-ef2afa8980d5"
@@ -15814,12 +15678,6 @@
             "type" : {
               "coding" : [
                 {
-                  "extension" : [
-                    {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
-                      "valueString" : "identifier"
-                    }
-                  ],
                   "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
                   "code" : "XX"
                 }
@@ -15984,12 +15842,6 @@
             "type" : {
               "coding" : [
                 {
-                  "extension" : [
-                    {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
-                      "valueString" : "identifier"
-                    }
-                  ],
                   "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
                   "code" : "XX"
                 }
@@ -16350,6 +16202,10 @@
               {
                 "url" : "OBR.22",
                 "valueString" : "20210810062500-0600"
+              },
+              {
+                "url" : "OBR.25",
+                "valueId" : "P"
               },
               {
                 "url" : "OBR.10",
@@ -17164,12 +17020,6 @@
             "type" : {
               "coding" : [
                 {
-                  "extension" : [
-                    {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
-                      "valueString" : "identifier"
-                    }
-                  ],
                   "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
                   "code" : "XX"
                 }
@@ -17334,12 +17184,6 @@
             "type" : {
               "coding" : [
                 {
-                  "extension" : [
-                    {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
-                      "valueString" : "identifier"
-                    }
-                  ],
                   "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
                   "code" : "XX"
                 }
@@ -17700,6 +17544,10 @@
               {
                 "url" : "OBR.22",
                 "valueString" : "20210810062500-0600"
+              },
+              {
+                "url" : "OBR.25",
+                "valueId" : "P"
               },
               {
                 "url" : "OBR.10",
@@ -18514,12 +18362,6 @@
             "type" : {
               "coding" : [
                 {
-                  "extension" : [
-                    {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
-                      "valueString" : "identifier"
-                    }
-                  ],
                   "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
                   "code" : "XX"
                 }
@@ -18684,12 +18526,6 @@
             "type" : {
               "coding" : [
                 {
-                  "extension" : [
-                    {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
-                      "valueString" : "identifier"
-                    }
-                  ],
                   "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
                   "code" : "XX"
                 }
@@ -18887,6 +18723,10 @@
               {
                 "url" : "OBR.22",
                 "valueString" : "20210810062500-0600"
+              },
+              {
+                "url" : "OBR.25",
+                "valueId" : "P"
               },
               {
                 "url" : "OBR.26",
@@ -19364,6 +19204,10 @@
               {
                 "url" : "OBR.22",
                 "valueString" : "20210810062500-0600"
+              },
+              {
+                "url" : "OBR.25",
+                "valueId" : "P"
               },
               {
                 "url" : "OBR.26",

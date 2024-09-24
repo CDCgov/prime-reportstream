@@ -47,7 +47,7 @@ runs:
   using: "composite"
   steps:
     - name: Use Node.js with yarn
-      uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8
+      uses: actions/setup-node@0a44ba7841725637a19e28fa30b79a866c81b0a6
       with:
         node-version-file: "frontend-react/.nvmrc"
 
@@ -113,7 +113,7 @@ runs:
       shell: bash
 
     - name: Store E2E Results
-      uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
+      uses: actions/upload-artifact@50769540e7f4bd5e21e526ee35c689e35e0d6874
       if: always() && ${{ !startsWith(inputs.env-name, 'trialfrontend') }}
       with:
         name: e2e-data
@@ -182,7 +182,7 @@ runs:
       run: tar -czf static-website-react.tar.gz build
 
     - name: Upload frontend artifact
-      uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
+      uses: actions/upload-artifact@50769540e7f4bd5e21e526ee35c689e35e0d6874
       with:
         name: static-website-react-${{ inputs.version }}
         path: frontend-react/static-website-react.tar.gz

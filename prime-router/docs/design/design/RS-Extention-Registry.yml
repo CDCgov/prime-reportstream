@@ -35,7 +35,6 @@
 # bundle. The use of extension "hl7v2Segment" would identify which RelatedPerson should map to NK1 and which to PID.21.
 # The same concept allies to "hl7v2Field" and "hl7v2Component".
 
-
 #Resource-Extensions
 
 - Resource: Device
@@ -63,6 +62,7 @@
           url: "https://reportstream.cdc.gov/fhir/StructureDefinition/software-vendor-org"
           valueType: Reference
           hl7Use: SFT.1
+
 - Resource: Encounter
   FHIR-Type: Extension
   HL7-Type:
@@ -1515,6 +1515,10 @@
                   {
                     "url": "CNN.7",
                     "valueString": "MD"
+                  },
+                  {
+                    "url": "CNN.8",
+                    "valueString": "J"
                   }
                 ]
               }
@@ -1543,6 +1547,10 @@
               url: "CNN.7"
               valueType: String
               hl7Use: CNN.7
+            - id: CNN.8
+              url: "CNN.8"
+              valueType: String
+              hl7Use: CNN.8
     XCN:
       Example:
         {
@@ -1733,6 +1741,40 @@
               url: "XCN.23"
               valueType: CodeableConcept
               hl7Use: XCN.23
+
+- Resource: PractitionerRole
+  FHIR-Type: Extension
+  HL7-Type:
+    NDL:
+      Example:
+        {
+          "fullUrl": "PractitionerRole/1710886566062815000.877bb9e3-f6d7-4d69-aa59-20738b2eea69",
+          "resource": {
+            "resourceType": "PractitionerRole",
+            "id": "1710886566062815000.877bb9e3-f6d7-4d69-aa59-20738b2eea69",
+            "extension": [
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/ndl-practitioner-role",
+                "extension": [
+                  {
+                    "url": "NDL.9",
+                    "valueString": "C"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      Extension:
+        - id: ndl-practitioner-role
+          url: "https://reportstream.cdc.gov/fhir/StructureDefinition/ndl-practitioner-role"
+          valueType: extension
+          hl7Use: NA
+          extension:
+            - id: NDL.9
+              url: "NDL.9"
+              valueType: String
+              hl7Use: NDL.9
 
 - Resource: RelatedPerson
   FHIR-Type: Extension
@@ -2140,6 +2182,10 @@
                     "valueId": "OTH"
                   },
                   {
+                    "url": "OBR.25",
+                    "valueId": "F"
+                  },
+                  {
                     "url": "OBR.26",
                     "extension": [
                       {
@@ -2343,8 +2389,12 @@
               url: "OBR.24"
               valueType: String
               hl7Use: OBR.24
-            - id: OBR.23
-              url: "OBR.23"
+            - id: OBR.25
+              url: "OBR.25"
+              valueType: String
+              hl7Use: OBR.25
+            - id: OBR.26
+              url: "OBR.26"
               valueType: Extension
               hl7Use: OBR.26
               extension:
@@ -3309,6 +3359,10 @@
                     "valueString": "(111)222-3333"
                   },
                   {
+                    "url": "XTN.11",
+                    "valueString": "4"
+                  },
+                  {
                     "url": "XTN.12",
                     "valueString": "+1 111 222 3333"
                   }
@@ -3355,6 +3409,10 @@
               url: "XTN.9"
               valueType: String
               hl7Use: XTN.9
+            - id: XTN.11
+              url: "XTN.11"
+              valueType: String
+              hl7Use: XTN.11
             - id: XTN.12
               url: "XTN.12"
               valueType: String

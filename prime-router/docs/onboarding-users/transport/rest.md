@@ -23,14 +23,15 @@ For authentication, you need to do both step a and step b.
 <ol type="a">
 <li>Generate the "Credential in JSON format" for authentication</li>
 
-Currently, RESTTransport uses the one of the three options:
+Currently, RESTTransport uses the one of the following options:
 
       i) UserPass, 
-     ii) UserApiKey with JKS, or 
+     ii) UserApiKey with JKS
     iii) UserApiKey with two-legged credential type to authenticate and obtain Bearer token from STLT. 
-User can use **primeCLI** command with credential-create option to generate the "Credential in JSON format" as given below.
+     iv) UserJks
+User can use the **primeCLI** command with credential-create option to generate the "Credential in JSON format" as given below.
 
-- With STLT's credential username and password given to us by STLT, user needs to run the following command to generate the UserPass credential type object:
+- With STLT's credential username and password given to us by the STLT, user needs to run the following command to generate the UserPass credential type object:
 
         Command:
             ./prime credential-create --type UserPass --user <username> --pass <password>
@@ -81,6 +82,7 @@ The receiver's RESTTransport includes the following fields:
     - reportUrl:      The URL to post to. e.g. https://api2.health.ny.gov/services/uphn/V1.0/ECLRSPRE.
     - authTokenUrl:   The URL to get the OAuth token. e.g. https://api2.health.ny.gov/services/uphn/V1.0/auth.
     - authType:       Authentication type i.e two-legged.  It is default to null (API shared key)
+    - jwtParams:      The map of parameters for two-legged authentication, consists of "issuer" and "audience" to customize the JWT 
     - tlsKeystore:    The name for the credential manager to get the JKS used in TLS/SSL
     - parameters:     The map of parameters to be sent in the message (use with two-legged OAuth.  See ETOR RESTTransport)
     - headers:        The map of headers to be sent in the message
@@ -117,14 +119,17 @@ The receiver's RESTTransport includes the following fields:
                   }"
               type: "REST"
 
-    c) See UserApiKey+Tow-legged RESTTransport setting Example below:
+    c) See UserApiKey+Two-legged RESTTransport setting Example below:
 
-        FLEXION--ETOR-SERVICE-RECEIVER uses UserApiKey + Tow-legged authentication type:
+        FLEXION--ETOR-SERVICE-RECEIVER uses UserApiKey + Two-legged authentication type:
         ================================================================================
             transport: !<REST>
               reportUrl: "https://sample.net/v1/etor/orders"
               authTokenUrl: "https://sample.net/v1/auth/token"
               authType: "two-legged"
+              jwtParams:
+                iss: "fake-issuer-123"
+                aud: "https://giveme.a/oauth2/token"
               tlsKeystore: null
               parameters:
                 scope: "report-stream"
@@ -133,6 +138,31 @@ The receiver's RESTTransport includes the following fields:
                 senderLabName: "CDC PRIME REPORTSTREAM"
                 RecordId: "header.reportFile.reportId"
                 sourceLabName: "CDC PRIME REPORTSTREAM"
+              type: "REST"
+
+    d) See UserApiKey without OAuth RESTTransport setting Example below:
+
+        FLEXION--ETOR-SERVICE-RECEIVER uses UserApiKey
+        ================================================================================
+            transport: !<REST>
+              reportUrl: "https://sample.net/v1/etor/orders"
+              authType: "apiKey"
+              tlsKeystore: null
+              headers:
+                Content-Type: "elims/json"
+              type: "REST"
+
+    e) See JKS without OAuth RESTTransport setting Example below:
+
+        CA-DPH--FULL-ELR-REST-JKS uses UserJKS
+        ================================================================================
+            transport: !<REST>
+              reportUrl: "https://sample.net/v1/etor/orders"
+              authType: "jks"
+              tlsKeystore: "jks"
+              tlsKeystore: "CA-DPH--FULL-ELR-REST-JKS"
+              headers:
+                Content-Type: "text/plain"
               type: "REST"
 
 ## 4. Final Step is to test/check the receiver's REST transport is connected successfully

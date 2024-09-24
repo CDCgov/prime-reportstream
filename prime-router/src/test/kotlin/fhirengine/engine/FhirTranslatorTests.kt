@@ -13,9 +13,9 @@ import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.DeepOrganization
 import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.Metadata
+import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Receiver
-import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.Topic
@@ -71,7 +71,7 @@ class FhirTranslatorTests {
                 Topic.FULL_ELR,
                 CustomerStatus.ACTIVE,
                 ORU_R01_SCHEMA,
-                format = Report.Format.HL7,
+                format = MimeFormat.HL7,
             )
         )
     )
@@ -118,11 +118,11 @@ class FhirTranslatorTests {
                 )
             )
 
-        val bodyFormat = Report.Format.FHIR
+        val bodyFormat = MimeFormat.FHIR
         val bodyUrl = BODY_URL
 
         every { actionLogger.hasErrors() } returns false
-        every { message.downloadContent() }
+        every { BlobAccess.downloadBlob(any(), any()) }
             .returns(File(VALID_DATA_URL).readText())
         every { BlobAccess.Companion.uploadBlob(any(), any()) } returns "test"
         every {
@@ -193,10 +193,10 @@ class FhirTranslatorTests {
             )
         )
 
-        val bodyFormat = Report.Format.FHIR
+        val bodyFormat = MimeFormat.FHIR
         val bodyUrl = BODY_URL
         every { actionLogger.hasErrors() } returns false
-        every { message.downloadContent() }
+        every { BlobAccess.downloadBlob(any(), any()) }
             .returns(File(VALID_DATA_URL).readText())
         every { BlobAccess.Companion.uploadBlob(any(), any()) } returns "test"
         every {
@@ -486,12 +486,12 @@ class FhirTranslatorTests {
             )
         )
 
-        val bodyFormat = Report.Format.FHIR
+        val bodyFormat = MimeFormat.FHIR
         val bodyUrl = BODY_URL
 
         every { actionLogger.hasErrors() } returns false
         every { actionLogger.error(any<ActionLogDetail>()) } returns Unit
-        every { message.downloadContent() }
+        every { BlobAccess.downloadBlob(any(), any()) }
             .returns(File("src/test/resources/fhirengine/engine/valid_data_with_extensions.fhir").readText())
         every { BlobAccess.Companion.uploadBlob(any(), any()) } returns "test"
         every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
@@ -540,14 +540,14 @@ class FhirTranslatorTests {
 
         val hl7v2Receiver = Receiver(
             RECEIVER_NAME, ORGANIZATION_NAME, Topic.FULL_ELR, CustomerStatus.ACTIVE,
-            ORU_R01_SCHEMA, format = Report.Format.HL7_BATCH,
+            ORU_R01_SCHEMA, format = MimeFormat.HL7_BATCH,
         )
         val fhirReceiver = Receiver(
             "full-elr-fhir", ORGANIZATION_NAME, Topic.FULL_ELR, CustomerStatus.ACTIVE,
-            "classpath:/metadata/fhir_transforms/receivers/fhir-transform-sample.yml", format = Report.Format.FHIR,
+            "classpath:/metadata/fhir_transforms/receivers/fhir-transform-sample.yml", format = MimeFormat.FHIR,
         )
         val csvReceiver = Receiver(
-            "full-elr-fhir", ORGANIZATION_NAME, Topic.FULL_ELR, CustomerStatus.ACTIVE, "", format = Report.Format.CSV,
+            "full-elr-fhir", ORGANIZATION_NAME, Topic.FULL_ELR, CustomerStatus.ACTIVE, "", format = MimeFormat.CSV,
         )
         val engine = makeFhirEngine()
 
@@ -571,7 +571,7 @@ class FhirTranslatorTests {
 
         val hl7v2Receiver = Receiver(
             RECEIVER_NAME, ORGANIZATION_NAME, Topic.FULL_ELR, CustomerStatus.ACTIVE,
-            ORU_R01_SCHEMA, format = Report.Format.HL7_BATCH,
+            ORU_R01_SCHEMA, format = MimeFormat.HL7_BATCH,
         )
         val engine = makeFhirEngine()
 

@@ -1,21 +1,17 @@
 package gov.cdc.prime.router
 
-import ca.uhn.hl7v2.model.Message
-import gov.cdc.prime.router.Report.Format
+import gov.cdc.prime.reportstream.shared.BlobUtils
+import gov.cdc.prime.reportstream.shared.QueueMessage
 import gov.cdc.prime.router.azure.ActionHistory
-import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.Event
 import gov.cdc.prime.router.azure.ProcessEvent
 import gov.cdc.prime.router.azure.ReportWriter
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.fhirengine.engine.FhirConvertQueueMessage
-import gov.cdc.prime.router.fhirengine.engine.elrConvertQueueName
+import gov.cdc.prime.router.fhirengine.engine.MessageType
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.fhirengine.utils.HL7Reader
-import ca.uhn.hl7v2.model.v251.segment.MSH as v251_MSH
-import ca.uhn.hl7v2.model.v27.segment.MSH as v27_MSH
-import fhirengine.translation.hl7.structures.nistelr251.segment.MSH as NIST_MSH
 
 /**
  * The base class for a 'receiver' type, currently just for COVID or full ELR submissions. This allows us a fan out
@@ -227,7 +223,7 @@ class TopicReceiver : SubmissionReceiver {
             ?: error("Unable to process report ${report.id} because sender sources collection is empty.")
         val senderName = (senderSource as ClientSource).name
 
-        if (report.bodyFormat != Format.INTERNAL) {
+        if (report.bodyFormat != MimeFormat.INTERNAL) {
             error("Processing a non internal report async.")
         }
 
@@ -271,13 +267,13 @@ class UniversalPipelineReceiver : SubmissionReceiver {
         val report: Report
 
         when (sender.format) {
-            Sender.Format.HL7 -> {
+            MimeFormat.HL7 -> {
                 val messages = HL7Reader(actionLogs).getMessages(content)
                 val isBatch = HL7Reader(actionLogs).isBatch(content, messages.size)
                 // create a Report for this incoming HL7 message to use for tracking in the database
 
                 report = Report(
-                    if (isBatch) Format.HL7_BATCH else Format.HL7,
+                    if (isBatch) MimeFormat.HL7_BATCH else MimeFormat.HL7,
                     sources,
                     messages.size,
                     metadata = metadata,
@@ -296,13 +292,16 @@ class UniversalPipelineReceiver : SubmissionReceiver {
 //                }
 
                 // check for valid message type
-                messages.forEachIndexed { idx, element -> checkValidMessageType(element, actionLogs, idx + 1) }
+                messages.forEachIndexed {
+                    idx, element ->
+                    MessageType.validateMessageType(element, actionLogs, idx + 1)
+                }
             }
 
-            Sender.Format.FHIR -> {
+            MimeFormat.FHIR -> {
                 val bundles = FhirTranscoder.getBundles(content, actionLogs)
                 report = Report(
-                    Format.FHIR,
+                    MimeFormat.FHIR,
                     sources,
                     bundles.size,
                     metadata = metadata,
@@ -339,6 +338,7 @@ class UniversalPipelineReceiver : SubmissionReceiver {
             actionHistory,
             payloadName
         )
+        report.bodyURL = blobInfo.blobUrl
 
         // track logs
         actionHistory.trackLogs(actionLogs.logs)
@@ -351,11 +351,11 @@ class UniversalPipelineReceiver : SubmissionReceiver {
         if (sender.customerStatus != CustomerStatus.INACTIVE) {
             // move to processing (send to <elrProcessQueueName> queue)
             workflowEngine.queue.sendMessage(
-                elrConvertQueueName,
+                QueueMessage.elrConvertQueueName,
                 FhirConvertQueueMessage(
                     report.id,
                     blobInfo.blobUrl,
-                    BlobAccess.digestToString(blobInfo.digest),
+                    BlobUtils.digestToString(blobInfo.digest),
                     sender.fullName,
                     sender.topic,
                     sender.schemaName
@@ -364,29 +364,5 @@ class UniversalPipelineReceiver : SubmissionReceiver {
         }
 
         return report
-    }
-
-    enum class MessageType {
-        ORU_R01,
-        ORM_O01,
-        OML_O21,
-    }
-
-    /**
-     * Checks that a [message] is of the supported type(s), and uses the [actionLogs] to add an error
-     * message for item with index [itemIndex] if it is not.
-     */
-    internal fun checkValidMessageType(message: Message, actionLogs: ActionLogger, itemIndex: Int) {
-        val messageType = when (val msh = message.get("MSH")) {
-            is NIST_MSH -> msh.messageType.messageStructure.toString()
-            is v251_MSH -> msh.messageType.messageStructure.toString()
-            is v27_MSH -> msh.messageType.messageStructure.toString()
-            else -> ""
-        }
-
-        if (!MessageType.values().map { it.toString() }.contains(messageType)) {
-            actionLogs.getItemLogger(itemIndex)
-                .error(InvalidHL7Message("Ignoring unsupported HL7 message type $messageType"))
-        }
     }
 }

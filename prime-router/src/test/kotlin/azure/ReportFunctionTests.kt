@@ -1,5 +1,17 @@
 package gov.cdc.prime.router.azure
 
+import assertk.assertThat
+import assertk.assertions.isEqualTo
+import com.azure.core.util.BinaryData
+import com.azure.storage.blob.BlobClient
+import com.azure.storage.blob.BlobContainerClient
+import com.azure.storage.blob.BlobServiceClientBuilder
+import com.azure.storage.blob.models.BlobItem
+import com.azure.storage.blob.models.BlobItemProperties
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.json.JsonMapper
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
+import com.google.common.net.HttpHeaders
 import com.microsoft.azure.functions.HttpStatus
 import gov.cdc.prime.router.ActionLog
 import gov.cdc.prime.router.ClientSource
@@ -9,6 +21,7 @@ import gov.cdc.prime.router.DeepOrganization
 import gov.cdc.prime.router.Element
 import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.Metadata
+import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
@@ -19,14 +32,22 @@ import gov.cdc.prime.router.SubmissionReceiver
 import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.TopicReceiver
 import gov.cdc.prime.router.UniversalPipelineSender
+import gov.cdc.prime.router.azure.BlobAccess.BlobContainerMetadata
 import gov.cdc.prime.router.azure.db.enums.TaskAction
+import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
+import gov.cdc.prime.router.cli.PIIRemovalCommands
+import gov.cdc.prime.router.history.DetailedSubmissionHistory
+import gov.cdc.prime.router.history.azure.SubmissionsFacade
 import gov.cdc.prime.router.serializers.Hl7Serializer
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
 import gov.cdc.prime.router.tokens.AuthenticationType
 import gov.cdc.prime.router.unittest.UnitTestUtils
+import io.ktor.utils.io.core.toByteArray
 import io.mockk.clearAllMocks
 import io.mockk.every
+import io.mockk.mockk
 import io.mockk.mockkClass
+import io.mockk.mockkConstructor
 import io.mockk.mockkObject
 import io.mockk.spyk
 import io.mockk.verify
@@ -36,6 +57,8 @@ import org.jooq.tools.jdbc.MockResult
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import java.time.OffsetDateTime
+import java.util.UUID
 
 class ReportFunctionTests {
     val dataProvider = MockDataProvider { emptyArray<MockResult>() }
@@ -163,6 +186,11 @@ class ReportFunctionTests {
         "05D2222542&ISO||445297001^Swab of internal nose^SCT^^^^2.67||||53342003^Internal nose structure" +
         " (body structure)^SCT^^^^2020-09-01|||||||||202108020000-0500|20210802000006.0000-0500"
 
+    @Suppress("ktlint:standard:max-line-length")
+    val fhirReport = """{"resourceType":"Bundle","id":"1667861767830636000.7db38d22-b713-49fc-abfa-2edba9c12347",
+        |"meta":{"lastUpdated":"2022-11-07T22:56:07.832+00:00"},"identifier":{"value":"1234d1d1-95fe-462c-8ac6-46728dba581c"},"type":"message","timestamp":"2021-08-03T13:15:11.015+00:00","entry":[{"fullUrl":"Observation/d683b42a-bf50-45e8-9fce-6c0531994f09","resource":{"resourceType":"Observation","id":"d683b42a-bf50-45e8-9fce-6c0531994f09","status":"final","code":{"coding":[{"system":"http://loinc.org","code":"80382-5"}],"text":"Flu A"},"subject":{"reference":"Patient/9473889b-b2b9-45ac-a8d8-191f27132912"},"performer":[{"reference":"Organization/1a0139b9-fc23-450b-9b6c-cd081e5cea9d"}],"valueCodeableConcept":{"coding":[{"system":"http://snomed.info/sct","code":"260373001","display":"Detected"}]},"interpretation":[{"coding":[{"system":"http://terminology.hl7.org/CodeSystem/v2-0078","code":"A","display":"Abnormal"}]}],"method":{"extension":[{"url":"https://reportstream.cdc.gov/fhir/StructureDefinition/testkit-name-id","valueCoding":{"code":"BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B_Becton, Dickinson and Company (BD)"}},{"url":"https://reportstream.cdc.gov/fhir/StructureDefinition/equipment-uid","valueCoding":{"code":"BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B_Becton, Dickinson and Company (BD)"}}],"coding":[{"display":"BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B*"}]},"specimen":{"reference":"Specimen/52a582e4-d389-42d0-b738-bee51cf5244d"},"device":{"reference":"Device/78dc4d98-2958-43a3-a445-76ceef8c0698"}}}]}
+""".trimMargin()
+
     private fun makeEngine(metadata: Metadata, settings: SettingsProvider): WorkflowEngine = spyk(
         WorkflowEngine.Builder().metadata(metadata).settingsProvider(settings).databaseAccess(accessSpy)
             .blobAccess(blobMock).queueAccess(queueMock).hl7Serializer(serializer).build()
@@ -194,7 +222,7 @@ class ReportFunctionTests {
         val metadata = UnitTestUtils.simpleMetadata
         val settings = FileSettings().loadOrganizations(oneOrganization)
         // does not matter what type of Sender it is for this test
-        val sender = CovidSender("default", "simple_report", Sender.Format.CSV, schemaName = "one")
+        val sender = CovidSender("default", "simple_report", MimeFormat.CSV, schemaName = "one")
         val req = MockHttpRequestMessage("test")
         val engine = makeEngine(metadata, settings)
         val actionHistory = spyk(ActionHistory(TaskAction.receive))
@@ -218,12 +246,12 @@ class ReportFunctionTests {
         val sender = CovidSender(
             "Test Sender",
             "test",
-            Sender.Format.CSV,
+            MimeFormat.CSV,
             schemaName =
             "one",
             allowDuplicates = false
         )
-        val blobInfo = BlobAccess.BlobInfo(Report.Format.CSV, "test", ByteArray(0))
+        val blobInfo = BlobAccess.BlobInfo(MimeFormat.CSV, "test", ByteArray(0))
         val report1 = Report(
             Schema(name = "one", topic = Topic.TEST, elements = listOf(Element("a"), Element("b"))), listOf(),
             sources = listOf(ClientSource("myOrg", "myClient")),
@@ -372,7 +400,7 @@ class ReportFunctionTests {
         val metadata = UnitTestUtils.simpleMetadata
         val settings = FileSettings().loadOrganizations(oneOrganization)
 
-        val sender = UniversalPipelineSender("Test ELR Sender", "test", Sender.Format.HL7, topic = Topic.FULL_ELR)
+        val sender = UniversalPipelineSender("Test ELR Sender", "test", MimeFormat.HL7, topic = Topic.FULL_ELR)
 
         val engine = makeEngine(metadata, settings)
         val actionHistory = spyk(ActionHistory(TaskAction.receive))
@@ -403,7 +431,7 @@ class ReportFunctionTests {
         // Setup
         val metadata = UnitTestUtils.simpleMetadata
         val settings = FileSettings().loadOrganizations(oneOrganization)
-        val sender = CovidSender("Test Sender", "test", Sender.Format.CSV, schemaName = "one")
+        val sender = CovidSender("Test Sender", "test", MimeFormat.CSV, schemaName = "one")
 
         val engine = makeEngine(metadata, settings)
         val actionHistory = spyk(ActionHistory(TaskAction.receive))
@@ -433,7 +461,7 @@ class ReportFunctionTests {
         // Setup
         val metadata = UnitTestUtils.simpleMetadata
         val settings = FileSettings().loadOrganizations(oneOrganization)
-        val sender = CovidSender("Test Sender", "test", Sender.Format.CSV, schemaName = "one")
+        val sender = CovidSender("Test Sender", "test", MimeFormat.CSV, schemaName = "one")
 
         val engine = makeEngine(metadata, settings)
         val actionHistory = spyk(ActionHistory(TaskAction.receive))
@@ -498,12 +526,12 @@ class ReportFunctionTests {
         val sender = CovidSender(
             "Test Sender",
             "test",
-            Sender.Format.CSV,
+            MimeFormat.CSV,
             schemaName =
             "one",
             allowDuplicates = false
         )
-        val blobInfo = BlobAccess.BlobInfo(Report.Format.CSV, "test", ByteArray(0))
+        val blobInfo = BlobAccess.BlobInfo(MimeFormat.CSV, "test", ByteArray(0))
 
         val req = MockHttpRequestMessage(csvString_2Records)
 
@@ -552,12 +580,12 @@ class ReportFunctionTests {
         val sender = CovidSender(
             "Test Sender",
             "test",
-            Sender.Format.HL7,
+            MimeFormat.HL7,
             schemaName =
             "one",
             allowDuplicates = false
         )
-        val blobInfo = BlobAccess.BlobInfo(Report.Format.HL7, "test", ByteArray(0))
+        val blobInfo = BlobAccess.BlobInfo(MimeFormat.HL7, "test", ByteArray(0))
 
         val req = MockHttpRequestMessage(hl7_valid)
 
@@ -584,6 +612,20 @@ class ReportFunctionTests {
 
         every { accessSpy.isDuplicateItem(any(), any()) } returns false
 
+        val mockSubmissionsFacade = mockk<SubmissionsFacade>()
+        mockkObject(SubmissionsFacade)
+        every { SubmissionsFacade.instance } returns mockSubmissionsFacade
+        val reportId = UUID.randomUUID()
+        val mockHistory = DetailedSubmissionHistory(
+            1,
+            TaskAction.receive,
+            OffsetDateTime.now(),
+            reports = mutableListOf(),
+            logs = emptyList()
+        )
+        mockHistory.reportId = reportId.toString()
+        every { mockSubmissionsFacade.findDetailedSubmissionHistory(any(), any(), any()) } returns mockHistory
+
         // act
         val resp = reportFunc.processRequest(req, sender)
 
@@ -591,6 +633,8 @@ class ReportFunctionTests {
         verify(exactly = 1) { engine.isDuplicateItem(any()) }
         verify(exactly = 1) { actionHistory.trackActionSenderInfo(any(), any()) }
         assert(resp.status.equals(HttpStatus.CREATED))
+        assertThat(resp.getHeader(HttpHeaders.LOCATION))
+            .isEqualTo("http://localhost/api/waters/report/$reportId/history")
     }
 
     // test processFunction when basic hl7 message with 5 separators is passed
@@ -606,12 +650,12 @@ class ReportFunctionTests {
         val sender = CovidSender(
             "Test Sender",
             "test",
-            Sender.Format.HL7,
+            MimeFormat.HL7,
             schemaName =
             "one",
             allowDuplicates = false
         )
-        val blobInfo = BlobAccess.BlobInfo(Report.Format.HL7, "test", ByteArray(0))
+        val blobInfo = BlobAccess.BlobInfo(MimeFormat.HL7, "test", ByteArray(0))
 
         val req = MockHttpRequestMessage(hl7_5_separator)
 
@@ -704,5 +748,235 @@ class ReportFunctionTests {
         assertThrows<RequestFunction.InvalidExternalPayloadException> {
             reportFunc.extractPayloadName(mockHttpRequest)
         }
+    }
+
+    @Test
+    fun `Test Bank Message Retrieval - Unauthorized `() {
+        val metadata = UnitTestUtils.simpleMetadata
+        val settings = FileSettings().loadOrganizations(oneOrganization)
+        val actionHistory = spyk(ActionHistory(TaskAction.receive))
+        mockkObject(AuthenticatedClaims)
+        every { AuthenticatedClaims.authenticate(any()) } returns null
+
+        val result = ReportFunction(
+            makeEngine(metadata, settings),
+            actionHistory
+        ).getMessagesFromTestBank(MockHttpRequestMessage())
+        assert(result.status == HttpStatus.UNAUTHORIZED)
+    }
+
+    @Test
+    fun `Test Bank Message Retrieval - Authorized, but no reports`() {
+        mockkClass(BlobAccess::class)
+        mockkObject(BlobAccess.Companion)
+        every { BlobAccess.Companion.getBlobConnection(any()) } returns "testconnection"
+        mockkConstructor(BlobServiceClientBuilder::class)
+        every { anyConstructed<BlobServiceClientBuilder>().connectionString(any()) } answers
+            { BlobServiceClientBuilder() }
+        every { anyConstructed<BlobServiceClientBuilder>().buildClient() } returns mockk()
+        val testBlobMetadata = BlobContainerMetadata.build("testcontainer", "test")
+        every { BlobAccess.Companion.listBlobs("", any()) } returns listOf()
+        every { BlobAccess.Companion.getBlobContainer(any()) } returns mockk()
+
+        val metadata = UnitTestUtils.simpleMetadata
+        val settings = FileSettings().loadOrganizations(oneOrganization)
+        val actionHistory = spyk(ActionHistory(TaskAction.receive))
+
+        val result = ReportFunction(makeEngine(metadata, settings), actionHistory).processGetMessageFromTestBankRequest(
+            MockHttpRequestMessage(),
+            BlobAccess.Companion,
+            testBlobMetadata
+        )
+        assert(result.status == HttpStatus.OK)
+        assert(result.body == "[]")
+    }
+
+    @Test
+    fun `Test Bank Message Retrieval - Authorized, reports`() {
+        mockkClass(BlobAccess::class)
+        mockkObject(BlobAccess.Companion)
+        every { BlobAccess.Companion.getBlobConnection(any()) } returns "testconnection"
+        mockkConstructor(BlobServiceClientBuilder::class)
+        every { anyConstructed<BlobServiceClientBuilder>().connectionString(any()) } answers
+            { BlobServiceClientBuilder() }
+        every { anyConstructed<BlobServiceClientBuilder>().buildClient() } returns mockk()
+        val testBlobMetadata = BlobContainerMetadata.build("testcontainer", "test")
+        val mockedBlobClient = mockkClass(BlobClient::class)
+        val mockedBlobContainerClient = mockkClass(BlobContainerClient::class)
+        every { mockedBlobContainerClient.getBlobClient(any()) } returns mockedBlobClient
+        every { BlobAccess.Companion.getBlobContainer(any()) } returns mockedBlobContainerClient
+
+        val dateCreated = OffsetDateTime.now()
+        val fileName = UUID.randomUUID().toString() + ".fhir"
+        val blob1 = BlobItem()
+        blob1.name = fileName
+        blob1.properties = BlobItemProperties()
+        blob1.properties.creationTime = dateCreated
+
+        every { mockedBlobClient.downloadContent() } returns BinaryData.fromBytes(fhirReport.toByteArray())
+
+        every { BlobAccess.Companion.listBlobs("", any()) } returns listOf(
+            BlobAccess.Companion.BlobItemAndPreviousVersions(
+            currentBlobItem = blob1, null
+        )
+        )
+
+        val metadata = UnitTestUtils.simpleMetadata
+        val settings = FileSettings().loadOrganizations(oneOrganization)
+        val actionHistory = spyk(ActionHistory(TaskAction.receive))
+
+        val result = ReportFunction(makeEngine(metadata, settings), actionHistory).processGetMessageFromTestBankRequest(
+            MockHttpRequestMessage(),
+            BlobAccess.Companion,
+            testBlobMetadata
+        )
+        assert(result.status == HttpStatus.OK)
+        val mapper: ObjectMapper = JsonMapper.builder()
+            .addModule(JavaTimeModule())
+            .build()
+        assert(
+            result.body == "[" + mapper.writeValueAsString(
+            ReportFunction.TestReportInfo(
+                dateCreated.toString(),
+                fileName,
+                fhirReport
+            )
+        ) + "]"
+        )
+    }
+
+    @Test
+    fun `No report`() {
+        val mockDb = mockk<DatabaseAccess>()
+        val reportId = UUID.randomUUID()
+        every { mockDb.fetchReportFile(reportId, null, null) } throws (IllegalStateException())
+        val metadata = UnitTestUtils.simpleMetadata
+        val settings = FileSettings().loadOrganizations(oneOrganization)
+        val actionHistory = spyk(ActionHistory(TaskAction.receive))
+        val result = ReportFunction(
+            makeEngine(metadata, settings),
+            actionHistory
+        ).processDownloadReport(
+            MockHttpRequestMessage(),
+            reportId,
+            true,
+            "local",
+            mockDb
+        )
+        assert(result.status.value() == 400)
+    }
+
+    @Test
+    fun `Report found, PII removal`() {
+        val reportFile = ReportFile()
+        reportFile.bodyUrl = "fakeurl.fhir"
+        mockkObject(AuthenticatedClaims)
+        val mockDb = mockk<DatabaseAccess>()
+        mockkClass(BlobAccess::class)
+        mockkObject(BlobAccess.Companion)
+        every { BlobAccess.Companion.getBlobConnection(any()) } returns "testconnection"
+        val blobConnectionInfo = mockk<BlobAccess.BlobContainerMetadata>()
+        every { blobConnectionInfo.getBlobEndpoint() } returns "http://endpoint/metadata"
+        every { BlobAccess.downloadBlobAsByteArray(any<String>()) } returns fhirReport.toByteArray(Charsets.UTF_8)
+        val reportId = UUID.randomUUID()
+        every { mockDb.fetchReportFile(reportId, null, null) } returns reportFile
+        val piiRemovalCommands = mockkClass(PIIRemovalCommands::class)
+        every { piiRemovalCommands.removePii(any()) } returns fhirReport
+
+        val metadata = UnitTestUtils.simpleMetadata
+        val settings = FileSettings().loadOrganizations(oneOrganization)
+        val actionHistory = spyk(ActionHistory(TaskAction.receive))
+
+        val result = ReportFunction(makeEngine(metadata, settings), actionHistory).processDownloadReport(
+            MockHttpRequestMessage(),
+            reportId,
+            true,
+            "local",
+            mockDb,
+            piiRemovalCommands
+        )
+
+        assert(result.body.toString().contains("1667861767830636000.7db38d22-b713-49fc-abfa-2edba9c12347"))
+    }
+
+    @Test
+    fun `Report found, asked for no removal on prod`() {
+        val reportFile = ReportFile()
+        reportFile.bodyUrl = "fakeurl.fhir"
+        mockkObject(AuthenticatedClaims)
+        val mockDb = mockk<DatabaseAccess>()
+        mockkClass(BlobAccess::class)
+        mockkObject(BlobAccess.Companion)
+        every { BlobAccess.Companion.getBlobConnection(any()) } returns "testconnection"
+        val blobConnectionInfo = mockk<BlobAccess.BlobContainerMetadata>()
+        every { blobConnectionInfo.getBlobEndpoint() } returns "http://endpoint/metadata"
+        every { BlobAccess.downloadBlobAsByteArray(any<String>()) } returns fhirReport.toByteArray(Charsets.UTF_8)
+        every { mockDb.fetchReportFile(reportId = any(), null, null) } returns reportFile
+
+        val metadata = UnitTestUtils.simpleMetadata
+        val settings = FileSettings().loadOrganizations(oneOrganization)
+        val actionHistory = spyk(ActionHistory(TaskAction.receive))
+
+        val result = ReportFunction(makeEngine(metadata, settings), actionHistory).processDownloadReport(
+            MockHttpRequestMessage(),
+            UUID.randomUUID(),
+            false,
+            "prod",
+            mockDb
+        )
+
+        assert(result.status.equals(HttpStatus.BAD_REQUEST))
+    }
+
+    @Test
+    fun `valid access token, report found, no PII removal`() {
+        val reportFile = ReportFile()
+        reportFile.bodyUrl = "fakeurl.fhir"
+        mockkObject(AuthenticatedClaims)
+        val mockDb = mockk<DatabaseAccess>()
+        mockkClass(BlobAccess::class)
+        mockkObject(BlobAccess.Companion)
+        every { BlobAccess.Companion.getBlobConnection(any()) } returns "testconnection"
+        val blobConnectionInfo = mockk<BlobAccess.BlobContainerMetadata>()
+        every { blobConnectionInfo.getBlobEndpoint() } returns "http://endpoint/metadata"
+        every { BlobAccess.downloadBlobAsByteArray(any<String>()) } returns fhirReport.toByteArray(Charsets.UTF_8)
+        every { mockDb.fetchReportFile(reportId = any(), null, null) } returns reportFile
+
+        val metadata = UnitTestUtils.simpleMetadata
+        val settings = FileSettings().loadOrganizations(oneOrganization)
+        val actionHistory = spyk(ActionHistory(TaskAction.receive))
+
+        val result = ReportFunction(makeEngine(metadata, settings), actionHistory).processDownloadReport(
+            MockHttpRequestMessage(),
+            UUID.randomUUID(),
+            false,
+            "local",
+            mockDb
+        )
+
+        assert(result.body.toString().contains("1667861767830636000.7db38d22-b713-49fc-abfa-2edba9c12347"))
+    }
+
+    @Test
+    fun `valid access token, report found, body URL not FHIR`() {
+        val reportFile = ReportFile()
+        reportFile.bodyUrl = "fakeurl.hl7"
+        mockkObject(AuthenticatedClaims)
+        val mockDb = mockk<DatabaseAccess>()
+        every { mockDb.fetchReportFile(reportId = any(), null, null) } returns reportFile
+
+        val metadata = UnitTestUtils.simpleMetadata
+        val settings = FileSettings().loadOrganizations(oneOrganization)
+        val actionHistory = spyk(ActionHistory(TaskAction.receive))
+
+        val result = ReportFunction(makeEngine(metadata, settings), actionHistory).processDownloadReport(
+            MockHttpRequestMessage(),
+            UUID.randomUUID(),
+            false,
+            "local",
+            mockDb
+        )
+
+        assert(result.status.equals(HttpStatus.BAD_REQUEST))
     }
 }

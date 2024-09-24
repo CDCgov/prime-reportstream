@@ -64,86 +64,86 @@
             }
           ]
         },
-        "keys" : {
+        "keys": {
           "anyOf": [
             {
-              "type" : "array",
-              "items" : {
-                "type" : "object",
-                "properties" : {
-                  "keys" : {
-                    "type" : "array",
-                    "items" : {
-                      "type" : "object",
-                      "properties" : {
-                        "alg" : {
-                          "type" : "string"
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "keys": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "alg": {
+                          "type": "string"
                         },
-                        "crv" : {
-                          "type" : "string"
+                        "crv": {
+                          "type": "string"
                         },
-                        "d" : {
-                          "type" : "string"
+                        "d": {
+                          "type": "string"
                         },
-                        "dp" : {
-                          "type" : "string"
+                        "dp": {
+                          "type": "string"
                         },
-                        "dq" : {
-                          "type" : "string"
+                        "dq": {
+                          "type": "string"
                         },
-                        "e" : {
-                          "type" : "string"
+                        "e": {
+                          "type": "string"
                         },
-                        "k" : {
-                          "type" : "string"
+                        "k": {
+                          "type": "string"
                         },
-                        "keyOps" : {
-                          "type" : "string"
+                        "keyOps": {
+                          "type": "string"
                         },
-                        "kid" : {
-                          "type" : "string"
+                        "kid": {
+                          "type": "string"
                         },
-                        "kty" : {
-                          "type" : "string"
+                        "kty": {
+                          "type": "string"
                         },
-                        "n" : {
-                          "type" : "string"
+                        "n": {
+                          "type": "string"
                         },
-                        "p" : {
-                          "type" : "string"
+                        "p": {
+                          "type": "string"
                         },
-                        "q" : {
-                          "type" : "string"
+                        "q": {
+                          "type": "string"
                         },
-                        "qi" : {
-                          "type" : "string"
+                        "qi": {
+                          "type": "string"
                         },
-                        "use" : {
-                          "type" : "string"
+                        "use": {
+                          "type": "string"
                         },
-                        "x" : {
-                          "type" : "string"
+                        "x": {
+                          "type": "string"
                         },
-                        "x5c" : {
-                          "type" : "array",
-                          "items" : {
-                            "type" : "string"
+                        "x5c": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
                           }
                         },
-                        "x5t" : {
-                          "type" : "string"
+                        "x5t": {
+                          "type": "string"
                         },
-                        "x5u" : {
-                          "type" : "string"
+                        "x5u": {
+                          "type": "string"
                         },
-                        "y" : {
-                          "type" : "string"
+                        "y": {
+                          "type": "string"
                         }
                       }
                     }
                   },
-                  "scope" : {
-                    "type" : "string"
+                  "scope": {
+                    "type": "string"
                   }
                 }
               }
@@ -177,79 +177,95 @@
       "type": "object",
       "additionalProperties": false,
       "properties": {
-        "allowDuplicates" : {
-          "type" : "boolean"
+        "allowDuplicates": {
+          "type": "boolean"
         },
-        "createdAt" : {
+        "createdAt": {
           "anyOf": [
             {
-              "type" : "string",
-              "format" : "date-time"
+              "type": "string",
+              "format": "date-time"
             },
             {
               "type": "null"
             }
           ]
         },
-        "createdBy" : {
+        "createdBy": {
           "anyOf": [
             {
-              "type" : "string"
+              "type": "string"
             },
             {
               "type": "null"
             }
           ]
         },
-        "customerStatus" : {
-          "$ref" : "#/definitions/CustomerStatus"
+        "customerStatus": {
+          "$ref": "#/definitions/CustomerStatus"
         },
-        "format" : {
-          "type" : "string",
-          "enum" : [ "CSV", "HL7", "FHIR", "HL7_BATCH" ]
+        "format": {
+          "type": "string",
+          "enum": [
+            "CSV",
+            "HL7",
+            "FHIR",
+            "HL7_BATCH"
+          ]
         },
-        "name" : {
-          "type" : "string"
+        "name": {
+          "type": "string"
         },
-        "organizationName" : {
-          "type" : "string"
+        "organizationName": {
+          "type": "string"
         },
-        "primarySubmissionMethod" : {
+        "primarySubmissionMethod": {
           "anyOf": [
             {
-              "type" : "string",
-              "enum" : [ "automated", "manual" ]
+              "type": "string",
+              "enum": [
+                "automated",
+                "manual"
+              ]
             },
             {
               "type": "null"
             }
           ]
         },
-        "processingType" : {
-          "type" : "string",
-          "enum" : [ "sync", "async" ]
+        "processingType": {
+          "type": "string",
+          "enum": [
+            "sync",
+            "async"
+          ]
         },
-        "schemaName" : {
-          "type" : "string"
+        "schemaName": {
+          "type": "string"
         },
-        "senderType" : {
+        "senderType": {
           "anyOf": [
             {
-              "type" : "string",
-              "enum" : [ "testManufacturer", "dataAggregator", "facility", "hospitalSystem" ]
+              "type": "string",
+              "enum": [
+                "testManufacturer",
+                "dataAggregator",
+                "facility",
+                "hospitalSystem"
+              ]
             },
             {
               "type": "null"
             }
           ]
         },
-        "topic" : {
-          "$ref" : "#/definitions/Topic"
+        "topic": {
+          "$ref": "#/definitions/Topic"
         },
-        "version" : {
+        "version": {
           "anyOf": [
             {
-              "type" : "integer"
+              "type": "integer"
             },
             {
               "type": "null"
@@ -375,19 +391,24 @@
             }
           ]
         },
-        "timeZone" : {
+        "timeZone": {
           "anyOf": [
             {
-              "$ref" : "#/definitions/USTimeZone"
+              "$ref": "#/definitions/USTimeZone"
             },
             {
               "type": "null"
             }
           ]
         },
-        "dateTimeFormat" : {
-          "type" : "string",
-          "enum" : [ "OFFSET", "LOCAL", "HIGH_PRECISION_OFFSET", "DATE_ONLY" ]
+        "dateTimeFormat": {
+          "type": "string",
+          "enum": [
+            "OFFSET",
+            "LOCAL",
+            "HIGH_PRECISION_OFFSET",
+            "DATE_ONLY"
+          ]
         },
         "conditionFilter": {
           "anyOf": [
@@ -407,7 +428,7 @@
             {
               "type": "array",
               "items": {
-                "$ref" : "#/definitions/MappedConditionFilter"
+                "$ref": "#/definitions/MappedConditionFilter"
               }
             },
             {
@@ -415,13 +436,13 @@
             }
           ]
         },
-        "deidentifiedValue" : {
-          "type" : "string"
+        "deidentifiedValue": {
+          "type": "string"
         },
-        "enrichmentSchemaNames" : {
-          "type" : "array",
-          "items" : {
-            "type" : "string"
+        "enrichmentSchemaNames": {
+          "type": "array",
+          "items": {
+            "type": "string"
           }
         }
       },
@@ -444,7 +465,8 @@
         "elr-elims",
         "monkeypox",
         "test",
-        "mars-otc-elr"
+        "mars-otc-elr",
+        "mars-otc-elr-onboarding"
       ],
       "title": "Topic"
     },
@@ -520,9 +542,9 @@
       ],
       "title": "SenderFormat"
     },
-    "USTimeZone" : {
-      "type" : "string",
-      "enum" : [
+    "USTimeZone": {
+      "type": "string",
+      "enum": [
         "PACIFIC",
         "MOUNTAIN",
         "ARIZONA",
@@ -542,7 +564,7 @@
       "type": "object",
       "additionalProperties": false,
       "properties": {
-        "conditionFilter" : {
+        "conditionFilter": {
           "anyOf": [
             {
               "type": "array",
@@ -555,7 +577,7 @@
             }
           ]
         },
-        "jurisdictionalFilter" : {
+        "jurisdictionalFilter": {
           "anyOf": [
             {
               "type": "array",
@@ -568,12 +590,12 @@
             }
           ]
         },
-        "mappedConditionFilter" : {
+        "mappedConditionFilter": {
           "anyOf": [
             {
               "type": "array",
               "items": {
-                "$ref" : "#/definitions/MappedConditionFilter"
+                "$ref": "#/definitions/MappedConditionFilter"
               }
             },
             {
@@ -581,20 +603,7 @@
             }
           ]
         },
-        "processingModeFilter" : {
-          "anyOf": [
-            {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "qualityFilter" : {
+        "processingModeFilter": {
           "anyOf": [
             {
               "type": "array",
@@ -607,7 +616,7 @@
             }
           ]
         },
-        "routingFilter" : {
+        "qualityFilter": {
           "anyOf": [
             {
               "type": "array",
@@ -620,8 +629,21 @@
             }
           ]
         },
-        "topic" : {
-          "$ref" : "#/definitions/Topic"
+        "routingFilter": {
+          "anyOf": [
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "topic": {
+          "$ref": "#/definitions/Topic"
         }
       },
       "required": [
@@ -651,38 +673,38 @@
       "type": "object",
       "additionalProperties": false,
       "properties": {
-        "initialTime" : {
-          "type" : "string",
-          "pattern" : "^\\d{2}:\\d{2}$"
+        "initialTime": {
+          "type": "string",
+          "pattern": "^\\d{2}:\\d{2}$"
         },
-        "maxReportCount" : {
-          "type" : "integer"
+        "maxReportCount": {
+          "type": "integer"
         },
-        "numberPerDay" : {
-          "type" : "integer"
+        "numberPerDay": {
+          "type": "integer"
         },
-        "operation" : {
-          "type" : "string",
-          "enum" : [
+        "operation": {
+          "type": "string",
+          "enum": [
             "NONE",
             "MERGE"
           ]
         },
-        "timeZone" : {
-          "$ref" : "#/definitions/USTimeZone"
+        "timeZone": {
+          "$ref": "#/definitions/USTimeZone"
         },
-        "whenEmpty" : {
-          "type" : "object",
-          "properties" : {
-            "action" : {
-              "type" : "string",
-              "enum" : [
+        "whenEmpty": {
+          "type": "object",
+          "properties": {
+            "action": {
+              "type": "string",
+              "enum": [
                 "NONE",
                 "SEND"
               ]
             },
-            "onlyOncePerDay" : {
-              "type" : "boolean"
+            "onlyOncePerDay": {
+              "type": "boolean"
             }
           }
         }
@@ -926,7 +948,11 @@
           "anyOf": [
             {
               "type": "string",
-              "enum" : [ "STANDARD", "ONLY_DIGITS_IN_COMPONENT_ONE", "AREA_LOCAL_IN_COMPONENT_ONE" ]
+              "enum": [
+                "STANDARD",
+                "ONLY_DIGITS_IN_COMPONENT_ONE",
+                "AREA_LOCAL_IN_COMPONENT_ONE"
+              ]
             },
             {
               "type": "null"
@@ -961,7 +987,11 @@
         },
         "useOrderingFacilityName": {
           "type": "string",
-          "enum": [ "STANDARD", "NCES", "ORGANIZATION_NAME" ]
+          "enum": [
+            "STANDARD",
+            "NCES",
+            "ORGANIZATION_NAME"
+          ]
         },
         "valueSetOverrides": {
           "type": "object"
@@ -991,11 +1021,11 @@
             },
             "customLengthHl7Fields": {
               "type": "object"
+            }
           }
         }
-      }
-    },
-    "required": [
+      },
+      "required": [
         "type"
       ],
       "title": "Translation"
@@ -1051,6 +1081,9 @@
         "encryptionKeyUrl": {
           "type": "string",
           "format": "uri"
+        },
+        "jwtParams": {
+          "type": "object"
         },
         "headers": {
           "type": "object"

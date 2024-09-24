@@ -134,8 +134,8 @@ data class ReportStreamFilterResult(
     val filteredTrackingElement: String,
     val filterType: ReportStreamFilterType?,
     val filteredObservationDetails: String? = null,
+    override val scope: ActionLogScope = ActionLogScope.translation,
 ) : ActionLogDetail {
-    override val scope = ActionLogScope.translation
     override val errorCode = ErrorCode.UNKNOWN
 
     companion object {
@@ -145,8 +145,8 @@ data class ReportStreamFilterResult(
 
     override val message = """
         For $receiverName, filter $filterName$filterArgs filtered out item $filteredTrackingElement. 
-        $filteredObservationDetails 
-    }
+        Filter Type: $filterType Filter Args: $filterArgs 
+        Filtered Observation Details: $filteredObservationDetails 
     """.trimIndent()
 
     // Used for deserializing to a JSON response
@@ -159,36 +159,6 @@ data class ReportStreamFilterResult(
  * unique id and name as well as list of sources for the creation of the report.
  */
 class Report : Logging {
-    enum class Format(val ext: String, val mimeType: String, val isSingleItemFormat: Boolean = false) {
-        INTERNAL("internal.csv", "text/csv"), // A format that serializes all elements of a Report.kt (in CSV)
-        CSV("csv", "text/csv"), // A CSV format the follows the csvFields
-        CSV_SINGLE("csv", "text/csv", true),
-        HL7("hl7", "application/hl7-v2", true), // HL7 with one result per file
-        HL7_BATCH("hl7", "application/hl7-v2"), // HL7 with BHS and FHS headers
-        FHIR("fhir", "application/fhir+ndjson"),
-        ;
-
-        companion object {
-            // Default to CSV if weird or unknown
-            fun safeValueOf(formatStr: String?): Format = try {
-                    valueOf(formatStr ?: "CSV")
-                } catch (e: IllegalArgumentException) {
-                    CSV
-                }
-
-            /**
-             * Returns a Format based on the [ext] provided, ignoring case.
-             */
-            fun valueOfFromExt(ext: String): Format = when (ext.lowercase()) {
-                    HL7.ext.lowercase() -> HL7
-                    FHIR.ext.lowercase() -> FHIR
-                    CSV.ext.lowercase() -> CSV
-                    else -> throw IllegalArgumentException("Unexpected extension $ext.")
-                }
-
-            fun valueOfIgnoreCase(bodyFormat: String): Format = valueOf(bodyFormat.uppercase())
-        }
-    }
 
     /**
      * the UUID for the report
@@ -258,7 +228,7 @@ class Report : Logging {
     /**
      * A format for the body or use the destination format
      */
-    val bodyFormat: Format
+    val bodyFormat: MimeFormat
 
     /**
      * A pointer to where the Report is stored.
@@ -297,7 +267,7 @@ class Report : Logging {
         values: List<List<String>>,
         sources: List<Source>,
         destination: Receiver? = null,
-        bodyFormat: Format? = null,
+        bodyFormat: MimeFormat? = null,
         itemLineage: List<ItemLineage>? = null,
         id: ReportId? = null, // If constructing from blob storage, must pass in its UUID here.  Otherwise, null.
         metadata: Metadata,
@@ -308,7 +278,7 @@ class Report : Logging {
         this.sources = sources
         this.createdDateTime = OffsetDateTime.now()
         this.destination = destination
-        this.bodyFormat = bodyFormat ?: destination?.format ?: Format.INTERNAL
+        this.bodyFormat = bodyFormat ?: destination?.format ?: MimeFormat.INTERNAL
         this.itemLineages = itemLineage
         this.table = createTable(schema, values)
         this.itemCount = this.table.rowCount()
@@ -322,7 +292,7 @@ class Report : Logging {
         values: List<List<String>>,
         source: TestSource,
         destination: Receiver? = null,
-        bodyFormat: Format? = null,
+        bodyFormat: MimeFormat? = null,
         itemLineage: List<ItemLineage>? = null,
         metadata: Metadata? = null,
         itemCountBeforeQualFilter: Int? = null,
@@ -331,7 +301,7 @@ class Report : Logging {
         this.schema = schema
         this.sources = listOf(source)
         this.destination = destination
-        this.bodyFormat = bodyFormat ?: destination?.format ?: Format.INTERNAL
+        this.bodyFormat = bodyFormat ?: destination?.format ?: MimeFormat.INTERNAL
         this.itemLineages = itemLineage
         this.createdDateTime = OffsetDateTime.now()
         this.table = createTable(schema, values)
@@ -345,7 +315,7 @@ class Report : Logging {
         values: Map<String, List<String>>,
         source: Source,
         destination: Receiver? = null,
-        bodyFormat: Format? = null,
+        bodyFormat: MimeFormat? = null,
         itemLineage: List<ItemLineage>? = null,
         metadata: Metadata,
         itemCountBeforeQualFilter: Int? = null,
@@ -353,7 +323,7 @@ class Report : Logging {
         this.id = UUID.randomUUID()
         this.schema = schema
         this.sources = listOf(source)
-        this.bodyFormat = bodyFormat ?: destination?.format ?: Format.INTERNAL
+        this.bodyFormat = bodyFormat ?: destination?.format ?: MimeFormat.INTERNAL
         this.destination = destination
         this.createdDateTime = OffsetDateTime.now()
         this.itemLineages = itemLineage
@@ -372,7 +342,7 @@ class Report : Logging {
      * [itemLineage] itemlineages for this report to track parent/child reports
      */
     constructor(
-        bodyFormat: Format,
+        bodyFormat: MimeFormat,
         sources: List<Source>,
         numberOfMessages: Int,
         metadata: Metadata? = null,
@@ -380,8 +350,10 @@ class Report : Logging {
         destination: Receiver? = null,
         nextAction: TaskAction = TaskAction.process,
         topic: Topic,
+        id: UUID = UUID.randomUUID(),
+        bodyURL: String = "",
     ) {
-        this.id = UUID.randomUUID()
+        this.id = id
         // UP submissions do not need a schema, but it is required by the database to maintain legacy functionality
         this.schema = Schema("None", topic)
         this.sources = sources
@@ -395,6 +367,7 @@ class Report : Logging {
         this.metadata = metadata ?: Metadata.getInstance()
         this.itemCountBeforeQualFilter = numberOfMessages
         this.nextAction = nextAction
+        this.bodyURL = bodyURL
     }
 
     data class ParentItemLineageData(val parentReportId: UUID, val parentReportIndex: Int)
@@ -411,7 +384,7 @@ class Report : Logging {
      * @param nextAction the next action to be performed on this report
      */
     constructor(
-        bodyFormat: Format,
+        bodyFormat: MimeFormat,
         sources: List<Source>,
         metadata: Metadata? = null,
         parentItemLineageData: List<ParentItemLineageData>,
@@ -452,7 +425,7 @@ class Report : Logging {
         table: Table,
         sources: List<Source>,
         destination: Receiver? = null,
-        bodyFormat: Format? = null,
+        bodyFormat: MimeFormat? = null,
         itemLineage: List<ItemLineage>? = null,
         metadata: Metadata? = null,
         itemCountBeforeQualFilter: Int? = null,
@@ -463,7 +436,7 @@ class Report : Logging {
         this.itemCount = this.table.rowCount()
         this.sources = sources
         this.destination = destination
-        this.bodyFormat = bodyFormat ?: destination?.format ?: Format.INTERNAL
+        this.bodyFormat = bodyFormat ?: destination?.format ?: MimeFormat.INTERNAL
         this.itemLineages = itemLineage
         this.createdDateTime = OffsetDateTime.now()
         this.metadata = metadata ?: Metadata.getInstance()
@@ -496,7 +469,7 @@ class Report : Logging {
      * Does a shallow copy of this report. Will have a new id and create date.
      * Copies the itemLineages and filteredItems as well.
      */
-    fun copy(destination: Receiver? = null, bodyFormat: Format? = null): Report {
+    fun copy(destination: Receiver? = null, bodyFormat: MimeFormat? = null): Report {
         // Dev Note: table is immutable, so no need to duplicate it
         val copy = Report(
             this.schema,
@@ -711,11 +684,12 @@ class Report : Logging {
                 // to reliably shuffle against. because shuffling is pseudo-random, it's possible that
                 // with something below a threshold we could end up leaking PII, therefore
                 // ignore the call to shuffle and just fake it
-                val synthesizeStrategy = if (itemCount < SHUFFLE_THRESHOLD && strategy == SynthesizeStrategy.SHUFFLE) {
-                    SynthesizeStrategy.FAKE
-                } else {
-                    strategy
-                }
+                val synthesizeStrategy =
+                    if (itemCount < SHUFFLE_THRESHOLD && strategy == SynthesizeStrategy.SHUFFLE) {
+                        SynthesizeStrategy.FAKE
+                    } else {
+                        strategy
+                    }
                 // look in the mapping parameter passed in for the current element
                 when (synthesizeStrategy) {
                     // examine the synthesizeStrategy for the field
@@ -1525,7 +1499,7 @@ class Report : Logging {
 
         fun formFilename(
             id: ReportId,
-            fileFormat: Format,
+            fileFormat: MimeFormat,
         ): String {
             val nameSuffix = fileFormat.ext
             return "$id.$nameSuffix"
@@ -1541,25 +1515,29 @@ class Report : Logging {
             reportService: ReportService,
             metadata: Metadata? = null,
         ): String = if (header.receiver?.topic?.isSendOriginal == true) {
-                // the externalName of the root report should equal the submission payload name parameter
-                reportService.getRootReport(header.reportFile.reportId).externalName ?: formExternalFilename(
-                    header.reportFile.reportId,
-                    header.reportFile.schemaName,
-                    Format.valueOfIgnoreCase(header.reportFile.bodyFormat),
-                    header.reportFile.createdAt,
-                    metadata = metadata ?: Metadata.getInstance()
-                )
-            } else if (header.reportFile.externalName != null) {
-                header.reportFile.externalName
-            } else {
-                formExternalFilename(
-                    header.reportFile.reportId,
-                    header.reportFile.schemaName,
-                    Format.valueOfIgnoreCase(header.reportFile.bodyFormat),
-                    header.reportFile.createdAt,
-                    metadata = metadata ?: Metadata.getInstance()
-                )
-            }
+            // the externalName of the root report should equal the submission payload name parameter
+            reportService.getRootReport(header.reportFile.reportId).externalName ?: formExternalFilename(
+                header.reportFile.reportId,
+                header.reportFile.schemaName,
+                MimeFormat.valueOfIgnoreCase(header.reportFile.bodyFormat),
+                header.reportFile.createdAt,
+                metadata = metadata ?: Metadata.getInstance(),
+                translationConfig = header.receiver.translation,
+                nameFormat = header.receiver.translation.nameFormat
+            )
+        } else if (header.reportFile.externalName != null) {
+            header.reportFile.externalName
+        } else {
+            formExternalFilename(
+                header.reportFile.reportId,
+                header.reportFile.schemaName,
+                MimeFormat.valueOfIgnoreCase(header.reportFile.bodyFormat),
+                header.reportFile.createdAt,
+                metadata = metadata ?: Metadata.getInstance(),
+                translationConfig = header.receiver?.translation,
+                nameFormat = header.receiver?.translation?.nameFormat
+            )
+        }
 
         /**
          * Form external filename for a given [bodyUrl], [reportId], [schemaName], [format] and [createdAt].
@@ -1568,19 +1546,18 @@ class Report : Logging {
         fun formExternalFilename(
             reportId: ReportId,
             schemaName: String,
-            format: Format,
+            format: MimeFormat,
             createdAt: OffsetDateTime,
             metadata: Metadata? = Metadata.getInstance(),
-            nameFormat: String = "standard",
+            nameFormat: String? = "standard",
             translationConfig: TranslatorConfiguration? = null,
         ): String {
             val nameSuffix = format.ext
+            val formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
             val fileName = if (translationConfig == null) {
-                val formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
                 "${Schema.formBaseName(schemaName)}-$reportId-${formatter.format(createdAt)}"
             } else {
-                val formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
-                metadata!!.fileNameTemplates[nameFormat.lowercase()].run {
+                metadata!!.fileNameTemplates[nameFormat?.lowercase()].run {
                     this?.getFileName(translationConfig, reportId)
                         ?: "${Schema.formBaseName(schemaName)}-$reportId-${formatter.format(createdAt)}"
                 }
@@ -1612,11 +1589,11 @@ class Report : Logging {
         /**
          * Gets a file format of a blob located at a [blobURL]
          *
-         * @return a Report.Format representing the appropriate format
+         * @return a MimeFormat representing the appropriate format
          */
-        fun getFormatFromBlobURL(blobURL: String): Format {
+        fun getFormatFromBlobURL(blobURL: String): MimeFormat {
             val extension = BlobAccess.BlobInfo.getBlobFileExtension(blobURL)
-            return Format.valueOfFromExt(extension)
+            return MimeFormat.valueOfFromExt(extension)
         }
 
         /**
@@ -1633,7 +1610,7 @@ class Report : Logging {
             metadata: Metadata,
             actionHistory: ActionHistory,
             topic: Topic,
-            format: Format? = null,
+            format: MimeFormat? = null,
             externalName: String? = null,
         ): Triple<Report, Event, BlobAccess.BlobInfo> {
             check(messageBody.isNotEmpty())
@@ -1643,15 +1620,15 @@ class Report : Logging {
             val sources = emptyList<Source>()
             // determine format based off the receiver's specified format if format is not specified
             val reportFormat = format ?: when (receiver.format) {
-                Report.Format.HL7, Report.Format.HL7_BATCH -> {
+                MimeFormat.HL7, MimeFormat.HL7_BATCH -> {
                     if (sourceReportIds.size > 1) {
-                        Report.Format.HL7_BATCH
+                        MimeFormat.HL7_BATCH
                     } else {
-                        Report.Format.HL7
+                        MimeFormat.HL7
                     }
                 }
 
-                Report.Format.FHIR -> Report.Format.FHIR
+                MimeFormat.FHIR -> MimeFormat.FHIR
                 else -> throw IllegalStateException("Unsupported receiver format ${receiver.format}")
             }
             val report = Report(

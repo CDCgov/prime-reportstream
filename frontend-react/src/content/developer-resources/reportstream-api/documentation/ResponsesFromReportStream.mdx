@@ -17,7 +17,7 @@ import Sidenav from "../Sidenav.mdx";
 
 <p className="usa-intro text-base">ReportStream responds to each API call with a response (JSON formatted) about the disposition of your data.</p>
 
-<p className="text-base">Last updated: 6/24/24</p>
+<p className="text-base">Last updated: 9/9/24</p>
 
 ***
 
@@ -52,11 +52,9 @@ Example ReportStream response to an async submission:
 }
 ```
 
-ReportStream features a History Details API that can be later queried to obtain the actual destinations and relevant detail. 
-If you’d like to use this API, let the ReportStream team know, and we’ll provide you with additional information about requirements 
-for Okta authentication.
+ReportStream features a History Details API that can be later queried to obtain the actual destinations and relevant detail using your existing private/public key pair.
 
-The request is made with the submissionId in the earlier example.:
+The request is made with the submissionId in the earlier example:
 
 ```
 https://prime.cdc.gov/api/history/simple_report/submissions/1588

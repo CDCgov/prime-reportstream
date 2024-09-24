@@ -7,6 +7,7 @@ import gov.cdc.prime.router.Hl7Configuration
 import gov.cdc.prime.router.InvalidReportMessage
 import gov.cdc.prime.router.LegacyPipelineSender
 import gov.cdc.prime.router.Metadata
+import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Receiver
@@ -186,7 +187,7 @@ class WorkflowEngine(
             if (sender.topic.isUniversalPipeline) {
                 report.bodyFormat
             } else {
-                Report.Format.safeValueOf(sender.format.toString())
+                MimeFormat.safeValueOf(sender.format.toString())
             }
 
         val blobInfo = BlobAccess.uploadBody(
@@ -197,7 +198,11 @@ class WorkflowEngine(
             Event.EventAction.RECEIVE
         )
 
-        actionHistory.trackExternalInputReport(report, blobInfo, payloadName)
+        actionHistory.trackExternalInputReport(
+            report,
+            blobInfo,
+            payloadName
+        )
         return blobInfo
     }
 
@@ -490,7 +495,7 @@ class WorkflowEngine(
             receiver.timing != null && options != Options.SendImmediately -> {
                 val time = receiver.timing.nextTime()
                 // Always force a batched report to be saved in our INTERNAL format
-                val batchReport = report.copy(bodyFormat = Report.Format.INTERNAL)
+                val batchReport = report.copy(bodyFormat = MimeFormat.INTERNAL)
                 val event = BatchEvent(Event.EventAction.BATCH, receiver.fullName, false, time)
                 this.dispatchReport(event, batchReport, actionHistory, receiver, txn)
                 loggerMsg = "Queue: ${event.toQueueMessage()}"
@@ -932,7 +937,7 @@ class WorkflowEngine(
         defaults: Map<String, String>,
     ): ReadResult {
         return when (sender.format) {
-            Sender.Format.CSV -> {
+            MimeFormat.CSV -> {
                 try {
                     this.csvSerializer.readExternal(
                         schemaName = sender.schemaName,
@@ -954,7 +959,7 @@ class WorkflowEngine(
                 }
             }
 
-            Sender.Format.HL7, Sender.Format.HL7_BATCH -> {
+            MimeFormat.HL7, MimeFormat.HL7_BATCH -> {
                 try {
                     this.hl7Serializer.readExternal(
                         schemaName = sender.schemaName,

@@ -9,16 +9,18 @@ import org.apache.commons.text.StringSubstitutor
 import org.apache.commons.text.lookup.StringLookup
 import org.apache.logging.log4j.kotlin.Logging
 import org.hl7.fhir.exceptions.PathEngineException
+import org.hl7.fhir.r4.fhirpath.FHIRPathEngine
+import org.hl7.fhir.r4.fhirpath.FHIRPathUtilityClasses
+import org.hl7.fhir.r4.fhirpath.TypeDetails
 import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.Bundle
 import org.hl7.fhir.r4.model.IntegerType
 import org.hl7.fhir.r4.model.StringType
-import org.hl7.fhir.r4.model.TypeDetails
 import org.hl7.fhir.r4.model.ValueSet
-import org.hl7.fhir.r4.utils.FHIRPathEngine
-import org.hl7.fhir.r4.utils.FHIRPathUtilityClasses.FunctionDetails
 import java.lang.IllegalArgumentException
 import java.lang.NumberFormatException
+
+private const val s = "appendToIndex"
 
 /**
  * Context used for resolving [constants] and custom FHIR functions. The class is for us to add our customer function
@@ -34,19 +36,38 @@ data class CustomContext(
     val translationFunctions: TranslationFunctions? = Hl7TranslationFunctions(),
 ) {
     companion object {
-
+        val appendToIndexKey = "appendToIndex"
         private val reservedConstantNames =
-            listOf("loinc", "ucum", "resource", "rootResource", "context", "us-zip", "`vs-", "`cs-", "`ext")
+            listOf(
+                "loinc",
+                "ucum",
+                "resource",
+                "rootResource",
+                "context",
+                "us-zip",
+                "`vs-",
+                "`cs-",
+                "`ext",
+                appendToIndexKey
+            )
 
         /**
          * Add [constants] to a context.
          * @return a new context with the [constants] added or the existing context if no new constants are specified
          */
         fun addConstants(constants: Map<String, String>, previousContext: CustomContext): CustomContext {
+            return addConstants(constants, previousContext, true)
+        }
+
+        private fun addConstants(
+            constants: Map<String, String>,
+            previousContext: CustomContext,
+            checkReservedNames: Boolean,
+        ): CustomContext {
             return if (constants.isEmpty()) {
                 previousContext
             } else {
-                if (constants.keys.any { reservedConstantNames.contains(it) }) {
+                if (checkReservedNames && constants.keys.any { reservedConstantNames.contains(it) }) {
                     throw SchemaException(
                         """Constants contained reserved name,
                         reserved constants are: $reservedConstantNames
@@ -71,7 +92,15 @@ data class CustomContext(
          * @return a new context with the constant added or the existing context of no new constant is specified
          */
         fun addConstant(key: String, value: String, previousContext: CustomContext): CustomContext {
-            return addConstants(mapOf(key to value), previousContext)
+            return addConstants(mapOf(key to value), previousContext, true)
+        }
+
+        fun setAppendToIndex(index: Int, previousContext: CustomContext): CustomContext {
+            return addConstants(mapOf(appendToIndexKey to index.toString()), previousContext, false)
+        }
+
+        fun getAppendToIndex(context: CustomContext): Int? {
+            return context.constants[appendToIndexKey]?.toInt()
         }
     }
 }
@@ -116,7 +145,13 @@ class ConstantSubstitutor {
  */
 class FhirPathCustomResolver(private val customFhirFunctions: FhirPathFunctions? = null) :
     FHIRPathEngine.IEvaluationContext, Logging {
-    override fun resolveConstant(appContext: Any?, name: String?, beforeContext: Boolean): List<Base> {
+    override fun resolveConstant(
+        engine: FHIRPathEngine?,
+        appContext: Any?,
+        name: String?,
+        beforeContext: Boolean,
+        explicitConstant: Boolean,
+    ): List<Base> {
         // Name is always passed in from the FHIR path engine
         require(!name.isNullOrBlank())
 
@@ -181,7 +216,12 @@ class FhirPathCustomResolver(private val customFhirFunctions: FhirPathFunctions?
         }
     }
 
-    override fun resolveConstantType(appContext: Any?, name: String?): TypeDetails {
+    override fun resolveConstantType(
+        engine: FHIRPathEngine?,
+        appContext: Any?,
+        name: String?,
+        explicitConstant: Boolean,
+    ): TypeDetails {
         throw NotImplementedError("Not implemented")
     }
 
@@ -189,19 +229,25 @@ class FhirPathCustomResolver(private val customFhirFunctions: FhirPathFunctions?
         throw NotImplementedError("Not implemented")
     }
 
-    override fun resolveFunction(functionName: String?): FunctionDetails? {
+    override fun resolveFunction(
+        engine: FHIRPathEngine?,
+        functionName: String?,
+    ): FHIRPathUtilityClasses.FunctionDetails? {
         return CustomFHIRFunctions.resolveFunction(functionName, customFhirFunctions)
     }
 
     override fun checkFunction(
+        engine: FHIRPathEngine?,
         appContext: Any?,
         functionName: String?,
+        focus: TypeDetails?,
         parameters: MutableList<TypeDetails>?,
     ): TypeDetails {
         throw NotImplementedError("Not implemented")
     }
 
     override fun executeFunction(
+        engine: FHIRPathEngine?,
         appContext: Any?,
         focus: MutableList<Base>?,
         functionName: String?,
@@ -217,7 +263,7 @@ class FhirPathCustomResolver(private val customFhirFunctions: FhirPathFunctions?
         }
     }
 
-    override fun resolveReference(appContext: Any?, url: String?, refContext: Base?): Base? {
+    override fun resolveReference(engine: FHIRPathEngine?, appContext: Any?, url: String?, refContext: Base?): Base? {
         // Name is always passed in from the FHIR path engine
         require(!url.isNullOrBlank())
 
@@ -227,11 +273,11 @@ class FhirPathCustomResolver(private val customFhirFunctions: FhirPathFunctions?
         }
     }
 
-    override fun conformsToProfile(appContext: Any?, item: Base?, url: String?): Boolean {
+    override fun conformsToProfile(engine: FHIRPathEngine?, appContext: Any?, item: Base?, url: String?): Boolean {
         throw NotImplementedError("Not implemented")
     }
 
-    override fun resolveValueSet(appContext: Any?, url: String?): ValueSet {
+    override fun resolveValueSet(engine: FHIRPathEngine?, appContext: Any?, url: String?): ValueSet {
         throw NotImplementedError("Not implemented")
     }
 }

@@ -4,7 +4,6 @@ import assertk.assertFailure
 import assertk.assertThat
 import assertk.assertions.hasSize
 import assertk.assertions.isEmpty
-import assertk.assertions.isEqualTo
 import assertk.assertions.isInstanceOf
 import assertk.assertions.matchesPredicate
 import ca.uhn.fhir.context.FhirContext
@@ -14,9 +13,11 @@ import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.DeepOrganization
 import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.Metadata
+import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
+import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.ReportStreamConditionFilter
 import gov.cdc.prime.router.ReportStreamFilter
 import gov.cdc.prime.router.ReportStreamFilterType
@@ -26,18 +27,14 @@ import gov.cdc.prime.router.TestSource
 import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
+import gov.cdc.prime.router.azure.ConditionStamper.Companion.conditionCodeExtensionURL
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
-import gov.cdc.prime.router.azure.observability.event.AzureEventUtils
-import gov.cdc.prime.router.azure.observability.event.CodeSummary
 import gov.cdc.prime.router.azure.observability.event.InMemoryAzureEventService
-import gov.cdc.prime.router.azure.observability.event.ObservationSummary
-import gov.cdc.prime.router.azure.observability.event.ReceiverFilterFailedEvent
-import gov.cdc.prime.router.azure.observability.event.ReportRouteEvent
-import gov.cdc.prime.router.azure.observability.event.TestSummary
+import gov.cdc.prime.router.azure.observability.event.ReportStreamEventProperties
+import gov.cdc.prime.router.azure.observability.event.ReportStreamItemEvent
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
-import gov.cdc.prime.router.fhirengine.utils.conditionCodeExtensionURL
 import gov.cdc.prime.router.fhirengine.utils.filterMappedObservations
 import gov.cdc.prime.router.fhirengine.utils.filterObservations
 import gov.cdc.prime.router.fhirengine.utils.getObservations
@@ -82,7 +79,7 @@ class FhirReceiverFilterTests {
     val connection = MockConnection(dataProvider)
     val accessSpy = spyk(DatabaseAccess(connection))
     val blobMock = mockkClass(BlobAccess::class)
-    private val actionHistory = ActionHistory(TaskAction.route)
+    private val actionHistory = ActionHistory(TaskAction.receiver_filter)
     private val azureEventService = InMemoryAzureEventService()
     private val reportServiceMock = mockk<ReportService>()
     private val submittedId = UUID.randomUUID()
@@ -115,6 +112,8 @@ class FhirReceiverFilterTests {
         every { rootReport.sendingOrg } returns "sendingOrg"
         every { rootReport.sendingOrgClient } returns "sendingOrgClient"
         every { reportServiceMock.getRootReport(any()) } returns rootReport
+        every { reportServiceMock.getRootReports(any()) } returns listOf(rootReport)
+        every { reportServiceMock.getRootItemIndex(any(), any()) } returns 1
 
         return FHIREngine.Builder()
             .metadata(metadata)
@@ -172,8 +171,10 @@ class FhirReceiverFilterTests {
         actionLogger = ActionLogger()
         actionHistory.reportsIn.clear()
         actionHistory.reportsOut.clear()
+        actionHistory.reportsReceived.clear()
         actionHistory.actionLogs.clear()
         azureEventService.clear()
+        mockkObject(BlobAccess)
         clearAllMocks()
     }
 
@@ -203,11 +204,19 @@ class FhirReceiverFilterTests {
         val fhirData = File(VALID_FHIR_FILEPATH).readText()
         mockkObject(BlobAccess)
         every { BlobAccess.uploadBlob(any(), any()) } returns "test"
-        every { accessSpy.insertTask(any(), Report.Format.FHIR.toString(), BODY_URL, any()) }.returns(Unit)
+        every { accessSpy.insertTask(any(), MimeFormat.FHIR.toString(), BODY_URL, any()) }.returns(Unit)
+        every { accessSpy.fetchReportFile(any<ReportId>()) } answers {
+            val reportId = firstArg<ReportId>()
+            if (reportId in messages.map { it.reportId }) {
+                ReportFile().setReportId(reportId).setItemCount(1)
+            } else {
+                callOriginal()
+            }
+        }
 
         // act on each message (with assert)
         messages.forEach { message ->
-            every { message.downloadContent() }.returns(fhirData)
+            every { BlobAccess.downloadBlob(any(), any()) }.returns(fhirData)
             // act + assert
             accessSpy.transact { txn ->
                 val results = engine.run(message, actionLogger, actionHistory, txn)
@@ -218,9 +227,10 @@ class FhirReceiverFilterTests {
         // assert
         azureEventService.getEvents().forEach { event ->
             assertThat(event)
-                .isInstanceOf<ReceiverFilterFailedEvent>()
+                .isInstanceOf<ReportStreamItemEvent>()
                 .matchesPredicate {
-                    it.failingFilters == FILTER_FAIL && it.failingFilterType == ReportStreamFilterType.QUALITY_FILTER
+                    it.params[ReportStreamEventProperties.FAILING_FILTERS] == FILTER_FAIL &&
+                        it.params[ReportStreamEventProperties.FILTER_TYPE] == ReportStreamFilterType.QUALITY_FILTER
                 }
         }
         assertThat(actionLogger.logs).hasSize(2)
@@ -255,11 +265,19 @@ class FhirReceiverFilterTests {
         val fhirData = File(VALID_FHIR_FILEPATH).readText()
         mockkObject(BlobAccess)
         every { BlobAccess.uploadBlob(any(), any()) } returns "test"
-        every { accessSpy.insertTask(any(), Report.Format.FHIR.toString(), BODY_URL, any()) }.returns(Unit)
+        every { accessSpy.insertTask(any(), MimeFormat.FHIR.toString(), BODY_URL, any()) }.returns(Unit)
+        every { accessSpy.fetchReportFile(any<ReportId>()) } answers {
+            val reportId = firstArg<ReportId>()
+            if (reportId in messages.map { it.reportId }) {
+                ReportFile().setReportId(reportId).setItemCount(1)
+            } else {
+                callOriginal()
+            }
+        }
 
         // act
         messages.forEach { message ->
-            every { message.downloadContent() }.returns(fhirData)
+            every { BlobAccess.downloadBlob(any(), any()) }.returns(fhirData)
             accessSpy.transact { txn ->
                 val results = engine.run(message, actionLogger, actionHistory, txn)
                 assertThat(results).isEmpty()
@@ -268,9 +286,10 @@ class FhirReceiverFilterTests {
 
         azureEventService.getEvents().forEach { event ->
             assertThat(event)
-                .isInstanceOf<ReceiverFilterFailedEvent>()
+                .isInstanceOf<ReportStreamItemEvent>()
                 .matchesPredicate {
-                    it.failingFilters == FILTER_FAIL && it.failingFilterType == ReportStreamFilterType.ROUTING_FILTER
+                    it.params[ReportStreamEventProperties.FAILING_FILTERS] == FILTER_FAIL &&
+                        it.params[ReportStreamEventProperties.FILTER_TYPE] == ReportStreamFilterType.ROUTING_FILTER
                 }
         }
 
@@ -306,11 +325,19 @@ class FhirReceiverFilterTests {
         val fhirData = File(VALID_FHIR_FILEPATH).readText()
         mockkObject(BlobAccess)
         every { BlobAccess.uploadBlob(any(), any()) } returns "test"
-        every { accessSpy.insertTask(any(), Report.Format.FHIR.toString(), BODY_URL, any()) }.returns(Unit)
+        every { accessSpy.insertTask(any(), MimeFormat.FHIR.toString(), BODY_URL, any()) }.returns(Unit)
+        every { accessSpy.fetchReportFile(any<ReportId>()) } answers {
+            val reportId = firstArg<ReportId>()
+            if (reportId in messages.map { it.reportId }) {
+                ReportFile().setReportId(reportId).setItemCount(1)
+            } else {
+                callOriginal()
+            }
+        }
 
         // act on each message (with assert)
         messages.forEach { message ->
-            every { message.downloadContent() }.returns(fhirData)
+            every { BlobAccess.downloadBlob(any(), any()) }.returns(fhirData)
             // act + assert
             accessSpy.transact { txn ->
                 val results = engine.run(message, actionLogger, actionHistory, txn)
@@ -321,10 +348,11 @@ class FhirReceiverFilterTests {
         // assert
         azureEventService.getEvents().forEach { event ->
             assertThat(event)
-                .isInstanceOf<ReceiverFilterFailedEvent>()
+                .isInstanceOf<ReportStreamItemEvent>()
                 .matchesPredicate {
-                    it.failingFilters == FILTER_FAIL &&
-                        it.failingFilterType == ReportStreamFilterType.PROCESSING_MODE_FILTER
+                    it.params[ReportStreamEventProperties.FAILING_FILTERS] == FILTER_FAIL &&
+                        it.params[ReportStreamEventProperties.FILTER_TYPE] ==
+                        ReportStreamFilterType.PROCESSING_MODE_FILTER
                 }
         }
         assertThat(actionLogger.logs).hasSize(2)
@@ -359,11 +387,19 @@ class FhirReceiverFilterTests {
         val fhirData = File(VALID_FHIR_FILEPATH).readText()
         mockkObject(BlobAccess)
         every { BlobAccess.uploadBlob(any(), any()) } returns "test"
-        every { accessSpy.insertTask(any(), Report.Format.FHIR.toString(), BODY_URL, any()) }.returns(Unit)
+        every { accessSpy.insertTask(any(), MimeFormat.FHIR.toString(), BODY_URL, any()) }.returns(Unit)
+        every { accessSpy.fetchReportFile(any<ReportId>()) } answers {
+            val reportId = firstArg<ReportId>()
+            if (reportId in messages.map { it.reportId }) {
+                ReportFile().setReportId(reportId).setItemCount(1)
+            } else {
+                callOriginal()
+            }
+        }
 
         // act on each message (with assert)
         messages.forEach { message ->
-            every { message.downloadContent() }.returns(fhirData)
+            every { BlobAccess.downloadBlob(any(), any()) }.returns(fhirData)
             // act + assert
             accessSpy.transact { txn ->
                 val results = engine.run(message, actionLogger, actionHistory, txn)
@@ -374,9 +410,10 @@ class FhirReceiverFilterTests {
         // assert
         azureEventService.getEvents().forEach { event ->
             assertThat(event)
-                .isInstanceOf<ReceiverFilterFailedEvent>()
+                .isInstanceOf<ReportStreamItemEvent>()
                 .matchesPredicate {
-                    it.failingFilters == FILTER_FAIL && it.failingFilterType == ReportStreamFilterType.CONDITION_FILTER
+                    it.params[ReportStreamEventProperties.FAILING_FILTERS] == FILTER_FAIL &&
+                        it.params[ReportStreamEventProperties.FILTER_TYPE] == ReportStreamFilterType.CONDITION_FILTER
                 }
         }
         assertThat(actionLogger.logs).hasSize(2)
@@ -409,9 +446,17 @@ class FhirReceiverFilterTests {
 
         // mock setup
         mockkObject(BlobAccess)
-        every { message.downloadContent() }.returns(File(VALID_FHIR_FILEPATH).readText())
+        every { BlobAccess.downloadBlob(any(), any()) }.returns(File(VALID_FHIR_FILEPATH).readText())
         every { BlobAccess.uploadBlob(any(), any()) } returns "test"
-        every { accessSpy.insertTask(any(), Report.Format.FHIR.toString(), BODY_URL, any()) }.returns(Unit)
+        every { accessSpy.insertTask(any(), MimeFormat.FHIR.toString(), BODY_URL, any()) }.returns(Unit)
+        every { accessSpy.fetchReportFile(any<ReportId>()) } answers {
+            val reportId = firstArg<ReportId>()
+            if (reportId == message.reportId) {
+                ReportFile().setReportId(reportId).setItemCount(1)
+            } else {
+                callOriginal()
+            }
+        }
 
         // act + assert
         accessSpy.transact { txn ->
@@ -420,10 +465,12 @@ class FhirReceiverFilterTests {
 
             azureEventService.getEvents().forEach { event ->
                 assertThat(event)
-                    .isInstanceOf<ReceiverFilterFailedEvent>()
+                    .isInstanceOf<ReportStreamItemEvent>()
                     .matchesPredicate {
-                        it.failingFilters == listOf(MAPPED_CONDITION_FILTER_FAIL.value) &&
-                            it.failingFilterType == ReportStreamFilterType.MAPPED_CONDITION_FILTER
+                        it.params[ReportStreamEventProperties.FAILING_FILTERS] ==
+                            listOf(MAPPED_CONDITION_FILTER_FAIL.value) &&
+                            it.params[ReportStreamEventProperties.FILTER_TYPE] ==
+                            ReportStreamFilterType.MAPPED_CONDITION_FILTER
                     }
             }
 
@@ -471,9 +518,17 @@ class FhirReceiverFilterTests {
 
         // mock setup
         mockkObject(BlobAccess)
-        every { message.downloadContent() }.returns(FhirTranscoder.encode(bundle))
+        every { BlobAccess.downloadBlob(any(), any()) }.returns(FhirTranscoder.encode(bundle))
         every { BlobAccess.uploadBlob(any(), any()) } returns "test"
-        every { accessSpy.insertTask(any(), Report.Format.FHIR.toString(), BODY_URL, any()) }.returns(Unit)
+        every { accessSpy.insertTask(any(), MimeFormat.FHIR.toString(), BODY_URL, any()) }.returns(Unit)
+        every { accessSpy.fetchReportFile(any<ReportId>()) } answers {
+            val reportId = firstArg<ReportId>()
+            if (reportId == message.reportId) {
+                ReportFile().setReportId(reportId).setItemCount(1)
+            } else {
+                callOriginal()
+            }
+        }
 
         // act + assert
         accessSpy.transact { _ ->
@@ -527,12 +582,12 @@ class FhirReceiverFilterTests {
         mockkObject(BlobAccess)
         mockkStatic(Bundle::filterObservations)
         every { BlobAccess.uploadBlob(any(), any()) } returns "test"
-        every { accessSpy.insertTask(any(), Report.Format.FHIR.toString(), BODY_URL, any()) }.returns(Unit)
+        every { accessSpy.insertTask(any(), MimeFormat.FHIR.toString(), BODY_URL, any()) }.returns(Unit)
         every { any<Bundle>().filterObservations(any(), any()) } returns bundle
 
         // act on each message (with assert)
         messages.forEachIndexed { i, message ->
-            every { message.downloadContent() }.returns(FhirTranscoder.encode(bundle))
+            every { BlobAccess.downloadBlob(any(), any()) }.returns(FhirTranscoder.encode(bundle))
             // act + assert
             accessSpy.transact { txn ->
                 val results = engine.run(message, actionLogger, actionHistory, txn)
@@ -580,9 +635,9 @@ class FhirReceiverFilterTests {
 
         // mock setup
         mockkObject(BlobAccess)
-        every { message.downloadContent() }.returns(fhirData)
+        every { BlobAccess.downloadBlob(any(), any()) }.returns(fhirData)
         every { BlobAccess.uploadBlob(any(), any()) } returns "test"
-        every { accessSpy.insertTask(any(), Report.Format.FHIR.toString(), BODY_URL, any()) }.returns(Unit)
+        every { accessSpy.insertTask(any(), MimeFormat.FHIR.toString(), BODY_URL, any()) }.returns(Unit)
 
         // act + assert
         accessSpy.transact { txn ->
@@ -639,9 +694,9 @@ class FhirReceiverFilterTests {
 
         // mock setup
         mockkObject(BlobAccess)
-        every { message.downloadContent() }.returns(FhirTranscoder.encode(bundle))
+        every { BlobAccess.downloadBlob(any(), any()) }.returns(FhirTranscoder.encode(bundle))
         every { BlobAccess.uploadBlob(any(), any()) } returns "test"
-        every { accessSpy.insertTask(any(), Report.Format.FHIR.toString(), BODY_URL, any()) }.returns(Unit)
+        every { accessSpy.insertTask(any(), MimeFormat.FHIR.toString(), BODY_URL, any()) }.returns(Unit)
 
         // act + assert
         accessSpy.transact { txn ->
@@ -651,45 +706,8 @@ class FhirReceiverFilterTests {
             assertThat(actionHistory.reportsIn).hasSize(1)
             assertThat(actionHistory.reportsOut).hasSize(1)
 
-            val reportId = (messages.first() as ReportPipelineMessage).reportId
-            val expectedObservationSummary = listOf(
-                ObservationSummary(
-                    listOf(
-                        TestSummary(
-                            listOf(
-                                CodeSummary(
-                                    "SNOMEDCT",
-                                    "6142004",
-                                    "Influenza (disorder)"
-                                ),
-                            ),
-                            testPerformedCode = "80382-5",
-                            testPerformedSystem = "http://loinc.org",
-                        )
-                    )
-                ),
-            )
-            val expectedAzureEvents = listOf(
-                ReportRouteEvent(
-                    reportId,
-                    message.reportId,
-                    submittedId,
-                    message.topic,
-                    "sendingOrg.sendingOrgClient",
-                    "$ORGANIZATION_NAME.$RECEIVER_NAME",
-                    expectedObservationSummary,
-                    emptyList(),
-                    1945,
-                    AzureEventUtils.MessageID(
-                        "1234d1d1-95fe-462c-8ac6-46728dba581c",
-                        null
-                    )
-                )
-            )
-
             val actualEvents = azureEventService.getEvents()
-            assertThat(actualEvents).hasSize(1)
-            assertThat(actualEvents).isEqualTo(expectedAzureEvents)
+            assertThat(actualEvents).hasSize(0)
         }
 
         // assert
@@ -721,9 +739,9 @@ class FhirReceiverFilterTests {
 
         // mock setup
         mockkObject(BlobAccess)
-        every { message.downloadContent() }.returns(fhirData)
+        every { BlobAccess.downloadBlob(any(), any()) }.returns(fhirData)
         every { BlobAccess.uploadBlob(any(), any()) } returns "test"
-        every { accessSpy.insertTask(any(), Report.Format.FHIR.toString(), BODY_URL, any()) }.returns(Unit)
+        every { accessSpy.insertTask(any(), MimeFormat.FHIR.toString(), BODY_URL, any()) }.returns(Unit)
 
         // act + assert
         accessSpy.transact { txn ->
@@ -762,9 +780,17 @@ class FhirReceiverFilterTests {
         // mock setup
         mockkObject(BlobAccess)
         mockkStatic(Bundle::filterObservations)
-        every { message.downloadContent() }.returns(fhirData)
+        every { BlobAccess.downloadBlob(any(), any()) }.returns(fhirData)
         every { BlobAccess.uploadBlob(any(), any()) } returns "test"
-        every { accessSpy.insertTask(any(), Report.Format.FHIR.toString(), BODY_URL, any()) }.returns(Unit)
+        every { accessSpy.insertTask(any(), MimeFormat.FHIR.toString(), BODY_URL, any()) }.returns(Unit)
+        every { accessSpy.fetchReportFile(any<ReportId>()) } answers {
+            val reportId = firstArg<ReportId>()
+            if (reportId == message.reportId) {
+                ReportFile().setReportId(reportId).setItemCount(1)
+            } else {
+                callOriginal()
+            }
+        }
         every { any<Bundle>().filterObservations(any(), any()) } returns FhirTranscoder.decode(fhirData)
 
         // act + assert
@@ -774,10 +800,10 @@ class FhirReceiverFilterTests {
 
             azureEventService.getEvents().forEach { event ->
                 assertThat(event)
-                    .isInstanceOf<ReceiverFilterFailedEvent>()
+                    .isInstanceOf<ReportStreamItemEvent>()
                     .matchesPredicate {
-                        it.failingFilters == FILTER_FAIL &&
-                            it.failingFilterType == ReportStreamFilterType.QUALITY_FILTER
+                        it.params[ReportStreamEventProperties.FAILING_FILTERS] == FILTER_FAIL &&
+                            it.params[ReportStreamEventProperties.FILTER_TYPE] == ReportStreamFilterType.QUALITY_FILTER
                     }
             }
         }
@@ -828,7 +854,15 @@ class FhirReceiverFilterTests {
         }
 
         // mock setup
-        every { message.downloadContent() }.returns(FhirTranscoder.encode(bundle))
+        every { BlobAccess.downloadBlob(any(), any()) }.returns(FhirTranscoder.encode(bundle))
+        every { accessSpy.fetchReportFile(any<ReportId>()) } answers {
+            val reportId = firstArg<ReportId>()
+            if (reportId == message.reportId) {
+                ReportFile().setReportId(reportId).setItemCount(1)
+            } else {
+                callOriginal()
+            }
+        }
 
         // act + assert
         accessSpy.transact { txn ->
@@ -839,10 +873,11 @@ class FhirReceiverFilterTests {
         // assert
         azureEventService.getEvents().forEach { event ->
             assertThat(event)
-                .isInstanceOf<ReceiverFilterFailedEvent>()
+                .isInstanceOf<ReportStreamItemEvent>()
                 .matchesPredicate {
-                    it.failingFilters == listOf(mappedConditionFilter.value) &&
-                        it.failingFilterType == ReportStreamFilterType.MAPPED_CONDITION_FILTER
+                    it.params[ReportStreamEventProperties.FAILING_FILTERS] == listOf(mappedConditionFilter.value) &&
+                        it.params[ReportStreamEventProperties.FILTER_TYPE] ==
+                        ReportStreamFilterType.MAPPED_CONDITION_FILTER
                 }
         }
         assertThat(actionLogger.logs).hasSize(1)
@@ -870,7 +905,15 @@ class FhirReceiverFilterTests {
         )
 
         // mock setup
-        every { message.downloadContent() }.returns(File(VALID_FHIR_FILEPATH).readText())
+        every { BlobAccess.downloadBlob(any(), any()) }.returns(File(VALID_FHIR_FILEPATH).readText())
+        every { accessSpy.fetchReportFile(any<ReportId>()) } answers {
+            val reportId = firstArg<ReportId>()
+            if (reportId == message.reportId) {
+                ReportFile().setReportId(reportId).setItemCount(1)
+            } else {
+                callOriginal()
+            }
+        }
 
         // act + assert
         accessSpy.transact { txn ->
@@ -907,7 +950,7 @@ class FhirReceiverFilterTests {
         )
 
         // mock setup
-        every { message.downloadContent() }.returns(File(VALID_FHIR_FILEPATH).readText())
+        every { BlobAccess.downloadBlob(any(), any()) }.returns(File(VALID_FHIR_FILEPATH).readText())
 
         // act + assert
         accessSpy.transact {

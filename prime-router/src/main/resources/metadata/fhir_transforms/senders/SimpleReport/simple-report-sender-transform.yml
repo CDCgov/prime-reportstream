@@ -49,7 +49,7 @@ elements:
     resource: 'Bundle.entry.resource.ofType(MessageHeader).sender.resolve()'
     bundleProperty: '%resource.identifier[1].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field").value[x]'
     value: [ '"HD.1"' ]
-  #
+
   - name: sr-sending-application-facility-identifier-value
     resource: 'Bundle.entry.resource.ofType(MessageHeader).sender.resolve()'
     bundleProperty: '%resource.identifier[1].value'
@@ -59,7 +59,6 @@ elements:
     resource: 'Bundle.entry.resource.ofType(MessageHeader).sender.resolve()'
     bundleProperty: '%resource.identifier[0].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field").value[x]'
     value: [ '"HD.2,HD.3"' ]
-
 
   - name: sr-message-event-code-code
     bundleProperty: 'Bundle.entry.resource.ofType(MessageHeader).event.display'
@@ -197,6 +196,11 @@ elements:
     bundleProperty: 'Bundle.entry.resource.ofType(Patient).identifier[0].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field").value[x]'
     value: [ '"PID.3"' ]
 
+  - name: sr-patient-identifier-not-provided
+    condition: 'Bundle.entry.resource.ofType(Patient).identifier[0].value.exists().not()'
+    bundleProperty: 'Bundle.entry.resource.ofType(Patient).identifier[0].value'
+    value: [ 'Bundle.entry.resource.ofType(DiagnosticReport).id.substring(0,15)']
+
   - name: sr-patient-identifier-assigner
     bundleProperty: 'Bundle.entry.resource.ofType(Patient).identifier[0].assigner'
     value: [ 'Bundle.entry.resource.ofType(Patient).managingOrganization' ]
@@ -274,7 +278,6 @@ elements:
     bundleProperty: '%resource.performer.resolve().ofType(Organization).identifier[0].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type").value[x]'
     value: [ '"ISO"' ]
 
-
   - name: sr-performing-organization-name-non-pracrole-namespace
     condition: 'Bundle.entry.resource.ofType(Observation).performer.resolve().ofType(Organization).exists()'
     resource: 'Bundle.entry.resource.ofType(Observation).performer.resolve().ofType(Organization).identifier.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority")'
@@ -309,6 +312,27 @@ elements:
     resource: 'Bundle.entry.resource.ofType(Observation)'
     bundleProperty: '%resource.code.coding[0].display'
     value: [ '%resource.code.text' ]
+
+  - name: sr-observation-result-description-lookup
+    condition: '%resource.value.coding.code.exists() and %resource.value.coding.display.empty()'
+    resource: 'Bundle.entry.resource.ofType(Observation)'
+    bundleProperty: '%resource.value.coding.display'
+    value: [ '%resource.value.coding.code' ]
+    valueSet:
+      values:
+        260385009: Negative
+        260415000: Not Detected
+        260373001: Detected
+        10828004: Positive
+        720735008: Presumptive positive
+        419984006: Inconclusive
+        42425007: Equivocal
+        895231008: Not detected in pooled specimen
+        462371000124108: Detected in pooled specimen
+        455371000124106: Invalid result
+        125154007: Specimen unsatisfactory for evaluation
+        373121007: Test not done
+        82334004: Indeterminate
 
   # Populating display based on text
   - name: sr-patient-race-display
@@ -461,7 +485,6 @@ elements:
     value: [ '%diagnosticReport.basedOn.resolve().performer.resolve().identifier[0].type.coding[0].code' ]
 
 
-
   # Service Request
 
   ## Placer Order
@@ -501,6 +524,7 @@ elements:
         tableName: LOINC
         keyColumn: LOINC_NUM
         valueColumn: LONG_COMMON_NAME
+
 
   ## Requester
   - name: sr-service-request-requester-telecom
@@ -581,6 +605,7 @@ elements:
     bundleProperty: '%resource.meta.tag.code'
     value: [ '"AOE"' ]
 
+
   # Diagnostic Report
 
   ## results-rpt-status-change-datetime
@@ -594,6 +619,19 @@ elements:
     bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time").value[x]'
     value: [ '%diagnosticReport.effective' ]
 
+  - name: sr-diagnostic-report-result-status
+    condition: '%diagnosticReport.basedOn.resolve().extension("https://reportstream.cdc.gov/fhir/StructureDefinition/obr-observation-request").extension("OBR.25").value.exists().not()'
+    bundleProperty: '%diagnosticReport.basedOn.resolve().extension("https://reportstream.cdc.gov/fhir/StructureDefinition/obr-observation-request").extension("OBR.25").value[x]'
+    value: [ '%diagnosticReport.status' ]
+    valueSet:
+      values:
+        partial: A
+        corrected: C
+        entered-in-error: C
+        amended: C
+        final: F
+        preliminary: P
+        cancelled: X
 
   # Observation
   - name: sr-observation-value-type-cwe

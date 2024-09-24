@@ -18,27 +18,38 @@ import fhirengine.engine.CustomFhirPathFunctions
 import fhirengine.engine.CustomTranslationFunctions
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.Hl7Configuration
-import gov.cdc.prime.router.Report
+import gov.cdc.prime.router.Metadata
+import gov.cdc.prime.router.MimeFormat
+import gov.cdc.prime.router.Receiver
+import gov.cdc.prime.router.ReportStreamFilter
 import gov.cdc.prime.router.azure.BlobAccess
+import gov.cdc.prime.router.azure.ConditionStamper
+import gov.cdc.prime.router.azure.LookupTableConditionMapper
+import gov.cdc.prime.router.cli.CommandUtilities.Companion.abort
 import gov.cdc.prime.router.cli.helpers.HL7DiffHelper
 import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.common.JacksonMapperUtilities
+import gov.cdc.prime.router.config.validation.OrganizationValidation
 import gov.cdc.prime.router.fhirengine.config.HL7TranslationConfig
+import gov.cdc.prime.router.fhirengine.engine.FHIRConverter
+import gov.cdc.prime.router.fhirengine.engine.FHIRReceiverFilter
+import gov.cdc.prime.router.fhirengine.engine.FHIRReceiverFilter.ReceiverFilterEvaluationResult
 import gov.cdc.prime.router.fhirengine.engine.encodePreserveEncodingChars
 import gov.cdc.prime.router.fhirengine.translation.HL7toFhirTranslator
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Context
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Converter
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirTransformer
-import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.fhirengine.utils.HL7Reader
+import gov.cdc.prime.router.fhirengine.utils.getObservations
+import org.hl7.fhir.r4.fhirpath.FHIRLexer.FHIRLexerException
 import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.Bundle
 import org.hl7.fhir.r4.model.Extension
 import org.hl7.fhir.r4.model.Reference
-import org.hl7.fhir.r4.utils.FHIRLexer.FHIRLexerException
+import java.util.UUID
 
 /**
  * Process data into/from FHIR.
@@ -64,7 +75,7 @@ class ProcessFhirCommands : CliktCommand(
      * The format to output the data.
      */
     private val outputFormat by option("--output-format", help = "output format")
-        .choice(Report.Format.HL7.toString(), Report.Format.FHIR.toString()).required()
+        .choice(MimeFormat.HL7.toString(), MimeFormat.FHIR.toString())
 
     /**
      * String of file names
@@ -87,6 +98,27 @@ class ProcessFhirCommands : CliktCommand(
     )
 
     /**
+     * Name of the receiver settings to use
+     */
+    private val receiverName by option(
+        "--receiver-name", help = "Name of the receiver settings to use"
+    )
+
+    /**
+     * Name of the org settings to use
+     */
+    private val orgName by option(
+        "--org", help = "Name of the org settings to use"
+    )
+
+    /**
+     * Environment that specifies where to get the receiver settings
+     */
+    private val environment by option(
+        "--receiver-setting-env", help = "Environment that specifies where to get the receiver settings"
+    )
+
+    /**
      * Sender schema location
      */
     private val senderSchema by option("-s", "--sender-schema", help = "Sender schema location")
@@ -104,30 +136,113 @@ class ProcessFhirCommands : CliktCommand(
         val actionLogger = ActionLogger()
         // Check on the extension of the file for supported operations
         val inputFileType = inputFile.extension.uppercase()
+        val receiver = getReceiver()
+
+        // If there is a receiver, check the filters
+        var bundle = FhirTranscoder.decode(contents)
+        if (receiver != null) {
+            val reportStreamFilters = mutableListOf<ReportStreamFilter>()
+            reportStreamFilters.add(receiver.jurisdictionalFilter)
+            reportStreamFilters.add(receiver.qualityFilter)
+            reportStreamFilters.add(receiver.routingFilter)
+            reportStreamFilters.add(receiver.processingModeFilter)
+
+            val validationErrors = mutableListOf<String>()
+            reportStreamFilters.forEach { reportStreamFilter ->
+                reportStreamFilter.forEach { filter ->
+                    val validation = OrganizationValidation.validateFilter(filter)
+                    if (!validation) {
+                        validationErrors.add("Filter '$filter' is not valid.")
+                    } else {
+                        val result = FhirPathUtils.evaluate(
+                            CustomContext(
+                                bundle,
+                                bundle,
+                                FHIRConverter().loadFhirPathShorthandLookupTable(),
+                                CustomFhirPathFunctions()
+                            ),
+                            bundle,
+                            bundle,
+                            filter
+                        )
+                        if (result.isEmpty() ||
+                            (result[0].isBooleanPrimitive && result[0].primitiveValue() == "false")
+                        ) {
+                            throw CliktError("Filter '$filter' filtered out everything, nothing to return.")
+                        }
+                    }
+                }
+            }
+
+            if (validationErrors.isNotEmpty()) {
+                throw CliktError(validationErrors.joinToString("\n"))
+            }
+
+            receiver.conditionFilter.forEach { conditionFilter ->
+                val validation = OrganizationValidation.validateFilter(conditionFilter)
+                if (!validation) {
+                    throw CliktError("Condition filter '$conditionFilter' is not valid.")
+                }
+            }
+        }
+
         when {
             // HL7 to FHIR conversion
-            inputFileType == "HL7" && outputFormat == Report.Format.FHIR.toString() -> {
-                var fhirMessage = convertHl7ToFhir(contents).first
+            inputFileType == "HL7" && (
+                outputFormat == MimeFormat.FHIR.toString() ||
+                (receiver != null && receiver.format == MimeFormat.FHIR)
+            ) -> {
+                var fhirMessage = convertHl7ToFhir(contents, receiver).first
                 fhirMessage = applyEnrichmentSchemas(fhirMessage)
+                if (receiver != null && receiver.enrichmentSchemaNames.isNotEmpty()) {
+                    receiver.enrichmentSchemaNames.forEach { currentSchema ->
+                        fhirMessage = FhirTransformer(currentSchema).process(fhirMessage)
+                    }
+                }
                 outputResult(
                     handleSenderAndReceiverTransforms(fhirMessage), actionLogger
                 )
             }
 
             // FHIR to HL7 conversion
-            (inputFileType == "FHIR" || inputFileType == "JSON") && outputFormat == Report.Format.HL7.toString() -> {
-                outputResult(convertFhirToHl7(contents))
+            (inputFileType == "FHIR" || inputFileType == "JSON") && (
+                outputFormat == MimeFormat.HL7.toString() ||
+                (receiver != null && (receiver.format == MimeFormat.HL7 || receiver.format == MimeFormat.HL7_BATCH))
+            ) -> {
+                    if (receiver == null) {
+                        return outputResult(convertFhirToHl7(contents))
+                    }
+
+                    bundle = FhirTranscoder.decode(contents)
+                    if (receiver.enrichmentSchemaNames.isNotEmpty()) {
+                        receiver.enrichmentSchemaNames.forEach { currentSchema ->
+                            bundle = FhirTransformer(currentSchema).process(bundle)
+                        }
+                    }
+                    outputResult(
+                        convertFhirToHl7(
+                            FhirTranscoder.encode(bundle),
+                            receiver.translation as Hl7Configuration,
+                            receiver
+                        )
+                    )
             }
 
             // FHIR to FHIR conversion
-            (inputFileType == "FHIR" || inputFileType == "JSON") && outputFormat == Report.Format.FHIR.toString() -> {
-                outputResult(convertFhirToFhir(contents), actionLogger)
+            (inputFileType == "FHIR" || inputFileType == "JSON") && (
+                outputFormat == MimeFormat.FHIR.toString() ||
+                (receiver != null && receiver.format == MimeFormat.FHIR)
+            ) -> {
+                outputResult(convertFhirToFhir(FhirTranscoder.encode(bundle), receiver), actionLogger)
             }
 
             // HL7 to FHIR to HL7 conversion
-            inputFileType == "HL7" && outputFormat == Report.Format.HL7.toString() -> {
-                val (bundle, inputMessage) = convertHl7ToFhir(contents)
-                val output = convertFhirToHl7(FhirTranscoder.encode(bundle))
+            inputFileType == "HL7" && (
+                outputFormat == MimeFormat.HL7.toString() ||
+                (receiver != null && (receiver.format == MimeFormat.HL7 || receiver.format == MimeFormat.HL7_BATCH))
+            ) -> {
+                val (bundle2, inputMessage) = convertHl7ToFhir(contents, receiver)
+                val output = convertFhirToHl7(FhirTranscoder.encode(bundle2))
                 outputResult(output)
                 if (diffHl7Output != null) {
                     val differences = hl7DiffHelper.diffHl7(output, inputMessage)
@@ -141,40 +256,126 @@ class ProcessFhirCommands : CliktCommand(
         }
     }
 
+    private fun applyConditionFilter(receiver: Receiver, bundle: Bundle): Bundle {
+        val trackingId = if (bundle.id != null) {
+            bundle.id
+        } else {
+            // this is just for logging so it is fine to just make it up
+            UUID.randomUUID().toString()
+        }
+        val result = FHIRReceiverFilter().evaluateObservationConditionFilters(
+            receiver,
+            bundle,
+            ActionLogger(),
+            trackingId
+        )
+        if (result is ReceiverFilterEvaluationResult.Success) {
+            return result.bundle
+        } else {
+            throw CliktError("Condition filter failed.")
+        }
+    }
+
+    private fun getReceiver(): Receiver? {
+        if (!environment.isNullOrBlank() && !receiverName.isNullOrBlank() && !orgName.isNullOrBlank()) {
+            if (!outputFormat.isNullOrBlank()) {
+                throw CliktError(
+                    "Please specify either a receiver OR an output format. Not both."
+                )
+            }
+            val foundEnvironment = Environment.get(environment!!)
+            val accessToken = OktaCommand.fetchAccessToken(foundEnvironment.oktaApp)
+                ?: abort(
+                    "Invalid access token. " +
+                        "Run ./prime login to fetch/refresh your access " +
+                        "token for the $foundEnvironment environment."
+                )
+            val organizations = GetMultipleSettings().getAll(
+                environment = foundEnvironment,
+                accessToken = accessToken,
+                specificOrg = orgName,
+                exactMatch = true
+            )
+
+            val receivers = organizations[0].receivers.filter { receiver -> receiver.name == receiverName }
+            if (receivers.isNotEmpty()) {
+                return receivers[0]
+            }
+        } else if (outputFormat.isNullOrBlank()) {
+            throw CliktError(
+                "Output format is required if the environment, receiver, and org " +
+                    "are not specified. "
+            )
+        }
+        return null
+    }
+
+    private val defaultHL7Configuration = Hl7Configuration(
+        receivingApplicationOID = null,
+        receivingFacilityOID = null,
+        messageProfileId = null,
+        receivingApplicationName = null,
+        receivingFacilityName = null,
+        receivingOrganization = null,
+    )
+
     /**
      * Convert a FHIR bundle as a [jsonString] to an HL7 message.
      * @return an HL7 message
      */
-    private fun convertFhirToHl7(jsonString: String): Message {
+    private fun convertFhirToHl7(
+        jsonString: String,
+        hl7Configuration: Hl7Configuration = defaultHL7Configuration,
+        receiver: Receiver? = null,
+    ): Message {
         var fhirMessage = FhirTranscoder.decode(jsonString)
         fhirMessage = applyEnrichmentSchemas(fhirMessage)
         return when {
-            receiverSchema == null ->
+            receiverSchema == null && (receiver == null || receiver.schemaName.isBlank()) ->
                 // Receiver schema required because if it's coming out as HL7, it would be getting any transform info
                 // for that from a receiver schema.
-                throw CliktError(" You must specify a receiver schema using --receiver-schema.")
+                throw CliktError("You must specify a receiver schema using --receiver-schema.")
 
-            else -> {
-                val bundle = applySenderTransforms(fhirMessage)
+            receiverSchema != null -> {
+                var bundle = applySenderTransforms(fhirMessage)
+                val stamper = ConditionStamper(LookupTableConditionMapper(Metadata.getInstance()))
+                bundle.getObservations().forEach { observation ->
+                    stamper.stampObservation(observation)
+                }
+                if (receiver != null) {
+                    bundle = applyConditionFilter(receiver, bundle)
+                }
                 FhirToHl7Converter(
                     receiverSchema!!,
-                    BlobAccess.BlobContainerMetadata.build("metadata", Environment.get().blobEnvVar),
+                    BlobAccess.BlobContainerMetadata.build("metadata", Environment.get().storageEnvVar),
                     context = FhirToHl7Context(
                         CustomFhirPathFunctions(),
                         config = HL7TranslationConfig(
-                            Hl7Configuration(
-                                receivingApplicationOID = null,
-                                receivingFacilityOID = null,
-                                messageProfileId = null,
-                                receivingApplicationName = null,
-                                receivingFacilityName = null,
-                                receivingOrganization = null,
-                            ),
-                            null
+                            hl7Configuration,
+                            receiver
                         ),
                         translationFunctions = CustomTranslationFunctions(),
                     )
                 ).process(bundle)
+            }
+            receiver != null && receiver.schemaName.isNotBlank() -> {
+                var bundle = applySenderTransforms(fhirMessage)
+                bundle = applyConditionFilter(receiver, bundle)
+                FhirToHl7Converter(
+                    receiver.schemaName,
+                    BlobAccess.BlobContainerMetadata.build("metadata", Environment.get().storageEnvVar),
+                    context = FhirToHl7Context(
+                        CustomFhirPathFunctions(),
+                        config = HL7TranslationConfig(
+                            hl7Configuration,
+                            receiver
+                        ),
+                        translationFunctions = CustomTranslationFunctions(),
+                    )
+                ).process(bundle)
+            }
+            else -> {
+                throw CliktError("Error state reached when trying to apply the transforms.")
             }
         }
     }
@@ -182,8 +383,20 @@ class ProcessFhirCommands : CliktCommand(
     /**
      * convert an FHIR message to FHIR message
      */
-    private fun convertFhirToFhir(jsonString: String): Bundle {
+    private fun convertFhirToFhir(jsonString: String, receiver: Receiver?): Bundle {
         var fhirMessage = FhirTranscoder.decode(jsonString)
+        val stamper = ConditionStamper(LookupTableConditionMapper(Metadata.getInstance()))
+        fhirMessage.getObservations().forEach { observation ->
+            stamper.stampObservation(observation)
+        }
+        if (receiver != null) {
+            fhirMessage = applyConditionFilter(receiver, fhirMessage)
+            if (receiver.enrichmentSchemaNames.isNotEmpty()) {
+                receiver.enrichmentSchemaNames.forEach { currentSchema ->
+                    fhirMessage = FhirTransformer(currentSchema).process(fhirMessage)
+                }
+            }
+        }
         fhirMessage = applyEnrichmentSchemas(fhirMessage)
         if (receiverSchema == null && senderSchema == null) {
             // Must have at least one schema or else why are you doing this
@@ -201,7 +414,7 @@ class ProcessFhirCommands : CliktCommand(
      * look like.
      * @return a FHIR bundle and the parsed HL7 input that represents the data in the one HL7 message
      */
-    private fun convertHl7ToFhir(hl7String: String): Pair<Bundle, Message> {
+    private fun convertHl7ToFhir(hl7String: String, receiver: Receiver?): Pair<Bundle, Message> {
         val hasFiveEncodingChars = hl7MessageHasFiveEncodingChars(hl7String)
         // Some HL7 2.5.1 implementations have adopted the truncation character # that was added in 2.7
         // However, the library used to encode the HL7 message throws an error it there are more than 4 encoding
@@ -221,10 +434,21 @@ class ProcessFhirCommands : CliktCommand(
         }
         val hl7profile = HL7Reader.getMessageProfile(hl7message.toString())
         // search hl7 profile map and create translator with config path if found
-        return when (val configPath = HL7Reader.profileDirectoryMap[hl7profile]) {
-            null -> Pair(HL7toFhirTranslator(inputSchema).translate(hl7message), hl7message)
-            else -> Pair(HL7toFhirTranslator(configPath).translate(hl7message), hl7message)
+        var fhirMessage = when (val configPath = HL7Reader.profileDirectoryMap[hl7profile]) {
+            null -> HL7toFhirTranslator(inputSchema).translate(hl7message)
+            else -> HL7toFhirTranslator(configPath).translate(hl7message)
         }
+
+        val stamper = ConditionStamper(LookupTableConditionMapper(Metadata.getInstance()))
+        fhirMessage.getObservations().forEach { observation ->
+            stamper.stampObservation(observation)
+        }
+
+        if (receiver != null) {
+            fhirMessage = applyConditionFilter(receiver, fhirMessage)
+        }
+
+        return Pair(fhirMessage, hl7message)
     }
 
     /**
@@ -402,43 +626,40 @@ class FhirPathCommand : CliktCommand(
         fhirPathContext = CustomContext(bundle, bundle, constantList, CustomFhirPathFunctions())
         printHelp()
 
-        // Loop until you press CTRL-C or ENTER at the prompt.
         var lastPath = ""
+
+        // Loop until you press CTRL-C or ENTER at the prompt.
         while (true) {
             echo("", true)
             echo("%resource = $focusPath")
             echo("Last path = $lastPath")
             print("FHIR path> ") // This needs to be a print as an echo does not show on the same line
+
             val input = readln()
 
-            try {
-                // Process the input checking for special/custom commands
-                when {
-                    input.isBlank() -> printHelp()
+            // Process the input checking for special/custom commands
+            when {
+                input.isBlank() -> printHelp()
 
-                    input == "quit" || input == "exit" ->
-                        throw ProgramResult(0)
+                input == "quit" || input == "exit" -> throw ProgramResult(0)
 
-                    input.startsWith("resource") -> setFocusResource(input, bundle)
+                input.startsWith("resource") -> setFocusResource(input, bundle)
 
-                    input == "reset" -> setFocusResource("Bundle", bundle)
+                input == "reset" -> setFocusResource("Bundle", bundle)
 
-                    else -> {
-                        val path = if (input.startsWith("!!")) {
-                            input.replace("!!", lastPath)
-                        } else {
-                            input
-                        }
-                        if (path.isBlank()) {
-                            printHelp()
-                        } else {
-                            evaluatePath(path, bundle)
-                            lastPath = path
-                        }
+                else -> {
+                    val path = if (input.startsWith("!!")) {
+                        input.replace("!!", lastPath)
+                    } else {
+                        input
+                    }
+                    if (path.isBlank()) {
+                        printHelp()
+                    } else {
+                        evaluatePath(path, bundle)
+                        lastPath = path
                     }
                 }
-            } catch (e: FhirPathExecutionException) {
-                echo("Invalid FHIR path specified.", true)
             }
         }
     }
@@ -462,8 +683,8 @@ class FhirPathCommand : CliktCommand(
         } else {
             try {
                 val path = inputParts[1].trim().trimStart('\'').trimEnd('\'')
-                val pathExpression =
-                    FhirPathUtils.parsePath(path) ?: throw FhirPathExecutionException("Invalid FHIR path")
+                val pathExpression = FhirPathUtils.parsePath(path)
+                    ?: throw FhirPathExecutionException("Invalid FHIR Path: null or blank")
                 val resourceList = FhirPathUtils.pathEngine.evaluate(
                     fhirPathContext, focusResource!!, bundle, bundle, pathExpression
                 )
@@ -489,15 +710,7 @@ class FhirPathCommand : CliktCommand(
     private fun evaluatePath(input: String, bundle: Bundle) {
         // Check the syntax for the FHIR path
         try {
-            val values = try {
-                FhirPathUtils.evaluate(fhirPathContext, focusResource!!, bundle, input)
-            } catch (e: IndexOutOfBoundsException) {
-                // This happens when a value for an extension is speced, but the extension does not exist.
-                emptyList()
-            } catch (e: SchemaException) {
-                echo("Error evaluating path: ${e.message}")
-                emptyList()
-            }
+            val values = FhirPathUtils.evaluate(fhirPathContext, focusResource!!, bundle, input)
 
             values.forEach {
                 // Print out the value, but add a dash to each collection entry if more than one

@@ -141,6 +141,13 @@
     "resource" : {
       "resourceType" : "ServiceRequest",
       "id" : "1710886566020456000.413e11c4-14db-43f8-bf16-74b602049ef1",
+      "extension" : [ {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/obr-observation-request",
+        "extension" : [ {
+          "url" : "OBR.25",
+          "valueId" : "F"
+        } ]
+      } ],
       "status" : "unknown",
       "code" : {
         "extension" : [ {
@@ -380,14 +387,16 @@
         "url" : "http://hl7.org/fhir/StructureDefinition/event-performerFunction",
         "valueCodeableConcept" : {
           "coding" : [ {
-            "extension" : [ {
-              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
-              "valueString" : "identifier"
-            } ],
             "system" : "http://terminology.hl7.org/CodeSystem/v3-ParticipationType",
             "code" : "TRANS"
           } ]
         }
+      }, {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/ndl-practitioner-role",
+        "extension" : [ {
+          "url" : "NDL.9",
+          "valueString" : "C"
+        } ]
       } ],
       "period" : {
         "start" : "2023-04-01T10:25:31-04:00",

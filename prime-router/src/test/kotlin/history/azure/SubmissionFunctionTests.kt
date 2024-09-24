@@ -11,11 +11,11 @@ import gov.cdc.prime.router.ClientSource
 import gov.cdc.prime.router.CovidSender
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.Metadata
+import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.RESTTransportType
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.Schema
-import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.TranslatorConfiguration
@@ -253,7 +253,7 @@ class SubmissionFunctionTests : Logging {
         val sender = CovidSender(
             name = "default",
             organizationName = organizationName,
-            format = Sender.Format.CSV,
+            format = MimeFormat.CSV,
             customerStatus = CustomerStatus.INACTIVE,
             schemaName = "one"
         )
@@ -329,7 +329,7 @@ class SubmissionFunctionTests : Logging {
         val sender = CovidSender(
             name = "default",
             organizationName = organizationName,
-            format = Sender.Format.CSV,
+            format = MimeFormat.CSV,
             customerStatus = CustomerStatus.INACTIVE,
             schemaName = "one"
         )
@@ -337,7 +337,7 @@ class SubmissionFunctionTests : Logging {
         val sender2 = CovidSender(
             name = "default",
             organizationName = otherOrganizationName,
-            format = Sender.Format.CSV,
+            format = MimeFormat.CSV,
             customerStatus = CustomerStatus.INACTIVE,
             schemaName = "one"
         )
@@ -457,7 +457,7 @@ class SubmissionFunctionTests : Logging {
         // Good return
         val returnBody = DetailedSubmissionHistory(
             550, TaskAction.receive, OffsetDateTime.now(), 201,
-            null
+            mutableListOf(), emptyList()
         )
         // Happy path with a good UUID
         val action = Action()
@@ -466,8 +466,9 @@ class SubmissionFunctionTests : Logging {
         action.actionName = TaskAction.receive
         every { mockSubmissionFacade.fetchActionForReportId(any()) } returns action
         every { mockSubmissionFacade.fetchAction(any()) } returns null // not used for a UUID
-        every { mockSubmissionFacade.findDetailedSubmissionHistory(any()) } returns returnBody
+        every { mockSubmissionFacade.findDetailedSubmissionHistory(any(), any(), any()) } returns returnBody
         every { mockSubmissionFacade.checkAccessAuthorizationForAction(any(), any(), any()) } returns true
+        every { mockSubmissionFacade.fetchReportForActionId(any(), any()) } returns null
         response = function.getReportDetailedHistory(mockRequest, goodUuid)
         assertThat(response.status).isEqualTo(HttpStatus.OK)
         var responseBody: DetailSubmissionHistoryResponse = mapper.readValue(response.body.toString())
@@ -498,7 +499,7 @@ class SubmissionFunctionTests : Logging {
         // Happy path with a good actionId
         every { mockSubmissionFacade.fetchActionForReportId(any()) } returns null // not used for an actionId
         every { mockSubmissionFacade.fetchAction(any()) } returns action
-        every { mockSubmissionFacade.findDetailedSubmissionHistory(any()) } returns returnBody
+        every { mockSubmissionFacade.findDetailedSubmissionHistory(any(), any(), any()) } returns returnBody
         every { mockSubmissionFacade.checkAccessAuthorizationForAction(any(), any(), any()) } returns true
         response = function.getReportDetailedHistory(mockRequest, goodActionId)
         assertThat(response.status).isEqualTo(HttpStatus.OK)
@@ -546,14 +547,25 @@ class SubmissionFunctionTests : Logging {
                 convertReport, txn, action
             )
 
-            action.actionName = TaskAction.route
+            action.actionName = TaskAction.destination_filter
 
-            val routeActionId = ReportStreamTestDatabaseContainer.testDatabaseAccess.insertAction(txn, action)
-            val routeReport = ReportFile().setSchemaTopic(Topic.ETOR_TI).setReportId(UUID.randomUUID())
-                .setActionId(routeActionId).setSchemaName("schema").setBodyFormat("hl7").setItemCount(1)
+            val destinationFilterActionId = ReportStreamTestDatabaseContainer
+                .testDatabaseAccess.insertAction(txn, action)
+            val destinationFilterReport = ReportFile().setSchemaTopic(Topic.ETOR_TI).setReportId(UUID.randomUUID())
+                .setActionId(destinationFilterActionId).setSchemaName("schema").setBodyFormat("hl7").setItemCount(1)
                 .setReceivingOrg("flexion")
             ReportStreamTestDatabaseContainer.testDatabaseAccess.insertReportFile(
-                routeReport, txn, action
+                destinationFilterReport, txn, action
+            )
+
+            action.actionName = TaskAction.receiver_filter
+
+            val receiverFilterActionId = ReportStreamTestDatabaseContainer.testDatabaseAccess.insertAction(txn, action)
+            val receiverFilterReport = ReportFile().setSchemaTopic(Topic.ETOR_TI).setReportId(UUID.randomUUID())
+                .setActionId(receiverFilterActionId).setSchemaName("schema").setBodyFormat("hl7").setItemCount(1)
+                .setReceivingOrg("flexion")
+            ReportStreamTestDatabaseContainer.testDatabaseAccess.insertReportFile(
+                receiverFilterReport, txn, action
             )
 
             action.actionName = TaskAction.translate
@@ -582,14 +594,19 @@ class SubmissionFunctionTests : Logging {
             reportLineage.parentReportId = receiveReport.reportId
             ReportStreamTestDatabaseContainer.testDatabaseAccess.insertReportLineage(reportLineage, txn)
 
-            reportLineage.actionId = routeActionId
-            reportLineage.childReportId = routeReport.reportId
+            reportLineage.actionId = destinationFilterActionId
+            reportLineage.childReportId = destinationFilterReport.reportId
             reportLineage.parentReportId = convertReport.reportId
+            ReportStreamTestDatabaseContainer.testDatabaseAccess.insertReportLineage(reportLineage, txn)
+
+            reportLineage.actionId = receiverFilterActionId
+            reportLineage.childReportId = receiverFilterReport.reportId
+            reportLineage.parentReportId = destinationFilterReport.reportId
             ReportStreamTestDatabaseContainer.testDatabaseAccess.insertReportLineage(reportLineage, txn)
 
             reportLineage.actionId = translateActionId
             reportLineage.childReportId = translateReport.reportId
-            reportLineage.parentReportId = routeReport.reportId
+            reportLineage.parentReportId = receiverFilterReport.reportId
             ReportStreamTestDatabaseContainer.testDatabaseAccess.insertReportLineage(reportLineage, txn)
 
             reportLineage.actionId = batchActionId
@@ -678,7 +695,7 @@ class SubmissionFunctionTests : Logging {
         every { anyConstructed<ReportGraph>().getDescendantReports(any(), any(), any()) } returns emptyList()
         every { mockSubmissionFacade.fetchActionForReportId(any()) } returns action
         every { mockSubmissionFacade.fetchAction(any()) } returns null // not used for a UUID
-        every { mockSubmissionFacade.findDetailedSubmissionHistory(any()) } returns null
+        every { mockSubmissionFacade.findDetailedSubmissionHistory(any(), any(), any()) } returns null
         every { mockSubmissionFacade.checkAccessAuthorizationForAction(any(), any(), any()) } returns true
 
         val restCreds = mockk<RestCredential>()
@@ -724,13 +741,15 @@ class SubmissionFunctionTests : Logging {
         val detailedReport = DetailedReport(
             UUID.randomUUID(),
             "flexion", "flexion", "lab", "lab", Topic.ETOR_TI, "external",
-            null, null, 1, 1, true
+            null, null, 1, 1, true, null,
+            null,
+            null
         )
 
         // Good return
         val returnBody = DetailedSubmissionHistory(
             550, TaskAction.receive, OffsetDateTime.now(), 201,
-            mutableListOf(detailedReport)
+            mutableListOf(detailedReport), emptyList()
         )
 
         returnBody.destinations = listOf(
@@ -762,7 +781,7 @@ class SubmissionFunctionTests : Logging {
         } returns listOf(firstReport, secondReport)
         every { mockSubmissionFacade.fetchActionForReportId(any()) } returns action
         every { mockSubmissionFacade.fetchAction(any()) } returns null // not used for a UUID
-        every { mockSubmissionFacade.findDetailedSubmissionHistory(any()) } returns returnBody
+        every { mockSubmissionFacade.findDetailedSubmissionHistory(any(), any(), any()) } returns returnBody
         every { mockSubmissionFacade.checkAccessAuthorizationForAction(any(), any(), any()) } returns true
 
         val restCreds = mockk<RestCredential>()
@@ -815,13 +834,15 @@ class SubmissionFunctionTests : Logging {
         val detailedReport = DetailedReport(
             UUID.randomUUID(),
             "flexion", "flexion", "lab", "lab", Topic.ETOR_TI, "external",
-            null, null, 1, 1, true
+            null, null, 1, 1, true, null,
+            null,
+            null
         )
 
         // Good return
         val returnBody = DetailedSubmissionHistory(
             550, TaskAction.receive, OffsetDateTime.now(), 201,
-            mutableListOf(detailedReport)
+            mutableListOf(detailedReport), emptyList()
         )
 
         returnBody.destinations = listOf(
@@ -853,7 +874,7 @@ class SubmissionFunctionTests : Logging {
         } returns listOf(firstReport, secondReport)
         every { mockSubmissionFacade.fetchActionForReportId(any()) } returns action
         every { mockSubmissionFacade.fetchAction(any()) } returns null // not used for a UUID
-        every { mockSubmissionFacade.findDetailedSubmissionHistory(any()) } returns returnBody
+        every { mockSubmissionFacade.findDetailedSubmissionHistory(any(), any(), any()) } returns returnBody
         every { mockSubmissionFacade.checkAccessAuthorizationForAction(any(), any(), any()) } returns true
 
         val restCreds = mockk<RestCredential>()

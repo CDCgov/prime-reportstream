@@ -23,6 +23,7 @@ hs_err_pid*
 **/build/**
 **/log/**
 **/dependency-reduced-pom.xml
+**/version.json
 
 # Frontend build output
 **/node_modules/**
@@ -124,3 +125,6 @@ gitleaks.log
 
 # Storybook
 storybook-static
+
+# dotnet
+**/.config

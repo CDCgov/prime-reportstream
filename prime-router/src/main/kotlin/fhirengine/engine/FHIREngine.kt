@@ -1,5 +1,6 @@
 package gov.cdc.prime.router.fhirengine.engine
 
+import gov.cdc.prime.reportstream.shared.QueueMessage
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.InvalidReportMessage
 import gov.cdc.prime.router.Metadata
@@ -13,19 +14,15 @@ import gov.cdc.prime.router.azure.Event
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.observability.event.AzureEventService
 import gov.cdc.prime.router.azure.observability.event.AzureEventServiceImpl
+import gov.cdc.prime.router.azure.observability.event.IReportStreamEventService
+import gov.cdc.prime.router.azure.observability.event.ReportStreamEventService
 import gov.cdc.prime.router.common.BaseEngine
+import gov.cdc.prime.router.history.db.ReportGraph
 import gov.cdc.prime.router.report.ReportService
 import gov.cdc.prime.router.serializers.CsvSerializer
 import gov.cdc.prime.router.serializers.Hl7Serializer
 import org.jooq.Field
 import java.time.OffsetDateTime
-
-const val elrConvertQueueName = "elr-fhir-convert"
-const val elrRoutingQueueName = "elr-fhir-route"
-const val elrDestinationFilterQueueName = "elr-fhir-destination-filter"
-const val elrReceiverFilterQueueName = "elr-fhir-receiver-filter"
-const val elrTranslationQueueName = "elr-fhir-translate"
-const val elrSendQueueName = "send"
 
 /**
  * All logical processing for full ELR / FHIR processing should be within this class.
@@ -41,7 +38,12 @@ abstract class FHIREngine(
     val db: DatabaseAccess = this.databaseAccessSingleton,
     val blob: BlobAccess = BlobAccess(),
     val azureEventService: AzureEventService = AzureEventServiceImpl(),
-    val reportService: ReportService = ReportService(),
+    val reportService: ReportService = ReportService(ReportGraph(db), db),
+    val reportEventService: IReportStreamEventService = ReportStreamEventService(
+        db,
+        azureEventService,
+        reportService
+    ),
 ) : BaseEngine() {
 
     /**
@@ -62,6 +64,7 @@ abstract class FHIREngine(
         var csvSerializer: CsvSerializer? = null,
         var azureEventService: AzureEventService? = null,
         var reportService: ReportService? = null,
+        var reportEventService: IReportStreamEventService? = null,
     ) {
         /**
          * Set the metadata instance.
@@ -103,6 +106,10 @@ abstract class FHIREngine(
             this.reportService = reportService
         }
 
+        fun reportEventService(reportEventService: ReportStreamEventService) = apply {
+            this.reportEventService = reportEventService
+        }
+
         /**
          * Build the fhir engine instance.
          * @return the fhir engine instance
@@ -116,14 +123,15 @@ abstract class FHIREngine(
 
             // create the correct FHIREngine type for the action being taken
             return when (taskAction) {
-                TaskAction.process -> FHIRConverter(
+                TaskAction.receive -> FHIRReceiver(
                     metadata ?: Metadata.getInstance(),
                     settingsProvider!!,
                     databaseAccess ?: databaseAccessSingleton,
                     blobAccess ?: BlobAccess(),
-                    azureEventService ?: AzureEventServiceImpl()
+                    azureEventService ?: AzureEventServiceImpl(),
+                    reportService ?: ReportService(),
                 )
-                TaskAction.route -> FHIRRouter(
+                TaskAction.process -> FHIRConverter(
                     metadata ?: Metadata.getInstance(),
                     settingsProvider!!,
                     databaseAccess ?: databaseAccessSingleton,
@@ -145,7 +153,7 @@ abstract class FHIREngine(
                     databaseAccess ?: databaseAccessSingleton,
                     blobAccess ?: BlobAccess(),
                     azureEventService ?: AzureEventServiceImpl(),
-                    reportService ?: ReportService()
+                    reportService ?: ReportService(),
                 )
                 TaskAction.translate -> FHIRTranslator(
                     metadata ?: Metadata.getInstance(),

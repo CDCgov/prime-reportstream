@@ -2,14 +2,18 @@ package gov.cdc.prime.router.fhirengine.engine
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import fhirengine.engine.CustomFhirPathFunctions
+import gov.cdc.prime.reportstream.shared.BlobUtils
+import gov.cdc.prime.reportstream.shared.QueueMessage
 import gov.cdc.prime.router.ActionLogDetail
 import gov.cdc.prime.router.ActionLogScope
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.ErrorCode
 import gov.cdc.prime.router.Metadata
+import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
+import gov.cdc.prime.router.ReportStreamFilterResult
 import gov.cdc.prime.router.ReportStreamFilterType
 import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.azure.ActionHistory
@@ -20,13 +24,15 @@ import gov.cdc.prime.router.azure.ProcessEvent
 import gov.cdc.prime.router.azure.db.Tables
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
+import gov.cdc.prime.router.azure.observability.bundleDigest.BundleDigestExtractor
+import gov.cdc.prime.router.azure.observability.bundleDigest.FhirPathBundleDigestLabResultExtractorStrategy
 import gov.cdc.prime.router.azure.observability.context.MDCUtils
 import gov.cdc.prime.router.azure.observability.context.withLoggingContext
 import gov.cdc.prime.router.azure.observability.event.AzureEventService
 import gov.cdc.prime.router.azure.observability.event.AzureEventServiceImpl
 import gov.cdc.prime.router.azure.observability.event.AzureEventUtils
-import gov.cdc.prime.router.azure.observability.event.ReceiverFilterFailedEvent
-import gov.cdc.prime.router.azure.observability.event.ReportRouteEvent
+import gov.cdc.prime.router.azure.observability.event.ReportStreamEventName
+import gov.cdc.prime.router.azure.observability.event.ReportStreamEventProperties
 import gov.cdc.prime.router.codes
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
@@ -36,6 +42,7 @@ import gov.cdc.prime.router.fhirengine.utils.filterObservations
 import gov.cdc.prime.router.fhirengine.utils.getMappedConditionCodes
 import gov.cdc.prime.router.fhirengine.utils.getObservations
 import gov.cdc.prime.router.fhirengine.utils.getObservationsWithCondition
+import gov.cdc.prime.router.history.db.ReportGraph
 import gov.cdc.prime.router.logging.LogMeasuredTime
 import gov.cdc.prime.router.report.ReportService
 import org.hl7.fhir.r4.model.Bundle
@@ -56,7 +63,7 @@ class FHIRReceiverFilter(
     db: DatabaseAccess = this.databaseAccessSingleton,
     blob: BlobAccess = BlobAccess(),
     azureEventService: AzureEventService = AzureEventServiceImpl(),
-    reportService: ReportService = ReportService(),
+    reportService: ReportService = ReportService(ReportGraph(db), db),
 ) : FHIREngine(metadata, settings, db, blob, azureEventService, reportService) {
     override val finishedField: Field<OffsetDateTime> = Tables.TASK.RECEIVER_FILTERED_AT
 
@@ -169,7 +176,7 @@ class FHIRReceiverFilter(
      *
      * [actionLogger] and [trackingId] facilitate logging
      */
-    private fun evaluateObservationConditionFilters(
+    fun evaluateObservationConditionFilters(
         receiver: Receiver,
         bundle: Bundle,
         actionLogger: ActionLogger,
@@ -197,7 +204,12 @@ class FHIRReceiverFilter(
                     )
                 }
             }
-            if (keptObservations.isEmpty()) {
+            val allRemainingObservationsAreAoe = keptObservations
+                .all {
+                    val conditions = it.getMappedConditionCodes()
+                    conditions.isNotEmpty() && conditions.all { code -> code == "AOE" }
+                }
+            if (keptObservations.isEmpty() || allRemainingObservationsAreAoe) {
                 actionLogger.getItemLogger(1, trackingId).warn(
                     ReceiverItemFilteredActionLogDetail(
                         conditionFilters.joinToString(","),
@@ -325,16 +337,15 @@ class FHIRReceiverFilter(
 
             // track input report
             actionHistory.trackExistingInputReport(queueMessage.reportId)
+            actionLogger.setReportId(queueMessage.reportId)
 
             // gather receiver and sender objects
             val receiver = settings.receivers.first { it.fullName == queueMessage.receiverFullName }
-            val rootReport = reportService.getRootReport(queueMessage.reportId)
-            val sender = "${rootReport.sendingOrg}.${rootReport.sendingOrgClient}"
 
             // download and parse FHIR document
             val fhirJson = LogMeasuredTime.measureAndLogDurationWithReturnedValue(
                 "Downloaded content from queue message"
-            ) { queueMessage.downloadContent() }
+            ) { BlobAccess.downloadBlob(queueMessage.blobURL, queueMessage.digest) }
             val bundle = FhirTranscoder.decode(fhirJson)
 
             actionHistory.trackActionReceiverInfo(receiver.organizationName, receiver.name)
@@ -344,13 +355,14 @@ class FHIRReceiverFilter(
                     logger.info("Bundle was returned after evaluating receiver filters.")
                     val receiverBundle = filterResult.bundle
                     val report = Report(
-                        Report.Format.FHIR,
+                        MimeFormat.FHIR,
                         emptyList(),
                         parentItemLineageData = listOf(
                             Report.ParentItemLineageData(queueMessage.reportId, 1)
                         ),
                         metadata = this.metadata,
                         topic = queueMessage.topic,
+                        destination = receiver,
                         nextAction = TaskAction.translate
                     )
 
@@ -365,7 +377,7 @@ class FHIRReceiverFilter(
                     // upload new copy to blobstore
                     val bodyString = FhirTranscoder.encode(receiverBundle)
                     val blobInfo = BlobAccess.uploadBody(
-                        Report.Format.FHIR,
+                        MimeFormat.FHIR,
                         bodyString.toByteArray(),
                         report.id.toString(),
                         queueMessage.blobSubFolderName,
@@ -373,34 +385,6 @@ class FHIRReceiverFilter(
                     )
                     // ensure tracking is set
                     actionHistory.trackCreatedReport(nextEvent, report, blobInfo = blobInfo)
-
-                    // send event to Azure AppInsights
-                    val receiverObservationSummary = AzureEventUtils.getObservationSummaries(receiverBundle)
-
-                    val filteredObservationSummary = AzureEventUtils.getObservationSummaries(
-                        bundle.getObservations().filter { observation ->
-                            receiverBundle.getObservations().none { receiverObservation ->
-                                observation == receiverObservation ||
-                                    observation.id == receiverObservation.id ||
-                                    observation.identifier == receiverObservation.identifier
-                            }
-                        }
-                    )
-
-                    azureEventService.trackEvent(
-                        ReportRouteEvent(
-                            report.id,
-                            queueMessage.reportId,
-                            rootReport.reportId,
-                            queueMessage.topic,
-                            sender,
-                            receiver.fullName,
-                            receiverObservationSummary,
-                            filteredObservationSummary,
-                            bodyString.length,
-                            AzureEventUtils.getIdentifier(receiverBundle)
-                        )
-                    )
 
                     return listOf(
                         FHIREngineRunResult(
@@ -410,7 +394,7 @@ class FHIRReceiverFilter(
                             FhirTranslateQueueMessage(
                                 report.id,
                                 blobInfo.blobUrl,
-                                BlobAccess.digestToString(blobInfo.digest),
+                                BlobUtils.digestToString(blobInfo.digest),
                                 queueMessage.blobSubFolderName,
                                 queueMessage.topic,
                                 receiver.fullName
@@ -431,11 +415,12 @@ class FHIRReceiverFilter(
                         emptyList()
                     )
                     val emptyReport = Report(
-                        Report.Format.FHIR,
+                        MimeFormat.FHIR,
                         emptyList(),
                         1,
                         metadata = this.metadata,
-                        topic = queueMessage.topic
+                        topic = queueMessage.topic,
+                        destination = receiver
                     )
 
                     // create item lineage
@@ -453,25 +438,49 @@ class FHIRReceiverFilter(
                         )
                     )
 
+                    // add filter results
+                    emptyReport.filteringResults.add(
+                        ReportStreamFilterResult(
+                            receiver.fullName,
+                            db.fetchReportFile(queueMessage.reportId).itemCount,
+                            filterResult.failingFilter.filters.joinToString("\n"),
+                            emptyList(),
+                            AzureEventUtils.getIdentifier(bundle).value ?: "",
+                            filterResult.failingFilter.filterType,
+                            scope = ActionLogScope.report
+                        )
+                    )
+
                     // ensure tracking is set
                     actionHistory.trackCreatedReport(nextEvent, emptyReport)
 
-                    val observationSummary = AzureEventUtils.getObservationSummaries(bundle)
-                    azureEventService.trackEvent(
-                        ReceiverFilterFailedEvent(
-                            emptyReport.id,
-                            queueMessage.reportId,
-                            rootReport.reportId,
-                            queueMessage.topic,
-                            sender,
-                            receiver.fullName,
-                            observationSummary,
-                            filterResult.failingFilter.filters,
-                            filterResult.failingFilter.filterType,
-                            fhirJson.length,
-                            AzureEventUtils.getIdentifier(bundle)
+                    val bundleDigestExtractor = BundleDigestExtractor(
+                        FhirPathBundleDigestLabResultExtractorStrategy(
+                            CustomContext(
+                                bundle,
+                                bundle,
+                                mutableMapOf(),
+                                CustomFhirPathFunctions()
+                            )
                         )
                     )
+                    reportEventService.sendItemEvent(
+                        eventName = ReportStreamEventName.ITEM_FILTER_FAILED,
+                        childReport = emptyReport,
+                        pipelineStepName = TaskAction.receiver_filter
+                    ) {
+                        parentReportId(queueMessage.reportId)
+                        trackingId(bundle)
+                        params(
+                            mapOf(
+                                ReportStreamEventProperties.FAILING_FILTERS to filterResult.failingFilter.filters,
+                                ReportStreamEventProperties.FILTER_TYPE to filterResult.failingFilter.filterType,
+                                ReportStreamEventProperties.RECEIVER_NAME to receiver.fullName,
+                                ReportStreamEventProperties.BUNDLE_DIGEST
+                                    to bundleDigestExtractor.generateDigest(bundle)
+                            )
+                        )
+                    }
 
                     return emptyList()
                 }

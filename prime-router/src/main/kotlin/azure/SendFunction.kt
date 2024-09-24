@@ -13,14 +13,17 @@ import gov.cdc.prime.router.NullTransportType
 import gov.cdc.prime.router.RESTTransportType
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
-import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.SFTPTransportType
 import gov.cdc.prime.router.SoapTransportType
 import gov.cdc.prime.router.TransportType
 import gov.cdc.prime.router.azure.db.enums.TaskAction
+import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.azure.observability.context.SendFunctionLoggingContext
 import gov.cdc.prime.router.azure.observability.context.withLoggingContext
-import gov.cdc.prime.router.azure.observability.event.ReportSentEvent
+import gov.cdc.prime.router.azure.observability.event.IReportStreamEventService
+import gov.cdc.prime.router.azure.observability.event.ReportStreamEventName
+import gov.cdc.prime.router.azure.observability.event.ReportStreamEventProperties
+import gov.cdc.prime.router.azure.observability.event.ReportStreamEventService
 import gov.cdc.prime.router.transport.ITransport
 import gov.cdc.prime.router.transport.NullTransport
 import gov.cdc.prime.router.transport.RetryToken
@@ -58,7 +61,14 @@ val retryDurationInMin = mapOf(
 // Use this for testing retries:
 // val retryDuration = mapOf(1 to 1L, 2 to 1L, 3 to 1L, 4 to 1L, 5 to 1L)
 
-class SendFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()) : Logging {
+class SendFunction(
+    private val workflowEngine: WorkflowEngine = WorkflowEngine(),
+    private val reportEventService: IReportStreamEventService = ReportStreamEventService(
+        workflowEngine.db,
+        workflowEngine.azureEventService,
+        workflowEngine.reportService
+    ),
+) : Logging {
     @FunctionName(send)
     @StorageAccount("AzureWebJobsStorage")
     fun run(
@@ -69,7 +79,7 @@ class SendFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()
         @BindingName("NextVisibleTime") nextVisibleTime: Date? = null,
         @BindingName("InsertionTime") insertionTime: Date? = null,
     ) {
-        val event = Event.parseQueueMessage(message) as ReportEvent
+        val event = Event.parsePrimeRouterQueueMessage(message) as ReportEvent
         val actionHistory = ActionHistory(TaskAction.send, event.isEmptyBatch)
         var receiverStatus: CustomerStatus = CustomerStatus.INACTIVE
         actionHistory.trackActionParams(message)
@@ -92,21 +102,13 @@ class SendFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()
                 actionHistory.trackExistingInputReport(inputReportId)
                 val serviceName = receiver.fullName
                 val nextRetryItems = mutableListOf<String>()
+                val externalFileName = Report.formExternalFilename(header, workflowEngine.reportService)
+                val sentReportId = UUID.randomUUID() // each sent report gets its own UUID
                 if (receiver.transport == null) {
                     actionHistory.setActionType(TaskAction.send_warning)
                     actionHistory.trackActionResult("Not sending $inputReportId to $serviceName: No transports defined")
-                    workflowEngine.azureEventService.trackEvent(
-                        ReportSentEvent(
-                            receiver,
-                            workflowEngine.reportService.getRootReports(inputReportId),
-                            inputReportId,
-                            BlobAccess.BlobInfo.getBlobFilename(header.reportFile.bodyUrl),
-                        )
-                    )
                 } else {
                     val retryItems = retryToken?.items
-                    val sentReportId = UUID.randomUUID() // each sent report gets its own UUID
-                    val externalFileName = Report.formExternalFilename(header, workflowEngine.reportService)
                     val nextRetry = getTransport(receiver.transport)?.send(
                         receiver.transport,
                         header,
@@ -115,6 +117,7 @@ class SendFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()
                         retryItems,
                         context,
                         actionHistory,
+                        reportEventService
                     )
                     if (nextRetry != null) {
                         nextRetryItems += nextRetry
@@ -123,12 +126,13 @@ class SendFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()
                 logger.info("For $inputReportId:  finished send().  Checking to see if a retry is needed.")
                 handleRetry(
                     nextRetryItems,
-                    inputReportId,
+                    header.reportFile,
                     receiver,
+                    header.content,
+                    externalFileName,
                     retryToken,
                     actionHistory,
-                    event.isEmptyBatch,
-                    header
+                    event.isEmptyBatch
                 )
             }
         } catch (t: Throwable) {
@@ -164,54 +168,73 @@ class SendFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()
 
     private fun handleRetry(
         nextRetryItems: List<String>,
-        reportId: ReportId,
+        report: ReportFile,
         receiver: Receiver,
+        content: ByteArray?,
+        externalFileName: String,
         retryToken: RetryToken?,
         actionHistory: ActionHistory,
         isEmptyBatch: Boolean,
-        header: WorkflowEngine.Header,
     ): ReportEvent {
-        withLoggingContext(SendFunctionLoggingContext(reportId, receiver.fullName)) {
+        withLoggingContext(SendFunctionLoggingContext(report.reportId, receiver.fullName)) {
             return if (nextRetryItems.isEmpty()) {
-                workflowEngine.azureEventService.trackEvent(
-                    ReportSentEvent(
-                        receiver,
-                        workflowEngine.reportService.getRootReports(reportId),
-                        reportId,
-                        Report.formExternalFilename(header, workflowEngine.reportService)
-                    )
-                )
                 // All OK
-                logger.info("Successfully sent report: $reportId to ${receiver.fullName}")
-                ReportEvent(Event.EventAction.NONE, reportId, isEmptyBatch)
+                logger.info("Successfully sent report: $report.reportId to ${receiver.fullName}")
+                ReportEvent(Event.EventAction.NONE, report.reportId, isEmptyBatch)
             } else {
                 // mapOf() in kotlin is `1` based (not `0`), but always +1
                 val nextRetryCount = (retryToken?.retryCount ?: 0) + 1
                 if (nextRetryCount > retryDurationInMin.size) {
                     // Stop retrying and just put the task into an error state
                     val msg = "All retries failed.  Manual Intervention Required.  " +
-                        "Send Error report for: $reportId to ${receiver.fullName}"
+                        "Send Error report for: $report.reportId to ${receiver.fullName}"
                     actionHistory.setActionType(TaskAction.send_error)
                     actionHistory.trackActionResult(msg)
-                    logger.warn("Failed to send report: $reportId to ${receiver.fullName}")
+                    logger.warn("Failed to send report: $report.reportId to ${receiver.fullName}")
                     if (receiver.customerStatus == CustomerStatus.ACTIVE) {
                         logger.fatal("${actionHistory.action.actionResult}")
                     } else {
                         logger.error("${actionHistory.action.actionResult}")
                     }
-                    ReportEvent(Event.EventAction.SEND_ERROR, reportId, isEmptyBatch)
+                    val fileSize = content?.size ?: 0
+                    // The last mile failure event has a slightly different pattern because we do not generate a child
+                    // report as an output for this event so the childReport is the input to the send step and the
+                    // parent report is the input to the batch step
+                    // TODO: https://github.com/CDCgov/prime-reportstream/issues/15369
+                    val parentReport = workflowEngine.db.fetchParentReport(report.reportId)
+                    reportEventService.sendReportEvent(
+                        eventName = ReportStreamEventName.REPORT_LAST_MILE_FAILURE,
+                        childReport = report,
+                        pipelineStepName = TaskAction.send,
+                    ) {
+                        params(
+                            mapOf(
+                                ReportStreamEventProperties.PROCESSING_ERROR to msg,
+                                ReportStreamEventProperties.RECEIVER_NAME to receiver.fullName,
+                                ReportStreamEventProperties.TRANSPORT_TYPE to receiver.transport.toString(),
+                                ReportStreamEventProperties.FILE_LENGTH to fileSize,
+                                ReportStreamEventProperties.FILENAME to externalFileName
+                            )
+                        )
+                        if (parentReport != null) {
+                            parentReportId(parentReport.reportId)
+                        }
+                    }
+
+                    // required for pipeline processing
+                    ReportEvent(Event.EventAction.SEND_ERROR, report.reportId, isEmptyBatch)
                 } else {
                     // retry using a back-off strategy
                     val waitMinutes = retryDurationInMin.getOrDefault(nextRetryCount, defaultMaxDurationValue)
                     val randomSeconds = Random.nextInt(ditherRetriesInSec * -1, ditherRetriesInSec)
                     val nextRetryTime = OffsetDateTime.now().plusSeconds(waitMinutes * 60 + randomSeconds)
                     val nextRetryToken = RetryToken(nextRetryCount, nextRetryItems)
-                    val msg = "Send Failed.  Will retry sending report: $reportId to ${receiver.fullName}" +
+                    val msg = "Send Failed.  Will retry sending report: $report.reportId to ${receiver.fullName}" +
                         " in $waitMinutes minutes and $randomSeconds seconds at $nextRetryTime"
                     logger.warn(msg)
                     actionHistory.setActionType(TaskAction.send_warning)
                     actionHistory.trackActionResult(msg)
-                    ReportEvent(Event.EventAction.SEND, reportId, isEmptyBatch, nextRetryTime, nextRetryToken)
+                    ReportEvent(Event.EventAction.SEND, report.reportId, isEmptyBatch, nextRetryTime, nextRetryToken)
                 }
             }
         }

@@ -140,6 +140,9 @@
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/obr-observation-request",
         "extension" : [ {
+          "url" : "OBR.25",
+          "valueId" : "F"
+        }, {
           "url" : "OBR.16",
           "valueReference" : {
             "reference" : "Practitioner/1710885279937526000.93434a3c-c342-4d81-b16e-2dcff9a23701"
@@ -314,10 +317,6 @@
       "name" : "Hospital A",
       "physicalType" : {
         "coding" : [ {
-          "extension" : [ {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
-            "valueString" : "identifier"
-          } ],
           "system" : "http://terminology.hl7.org/CodeSystem/location-physical-type",
           "code" : "si"
         } ]
@@ -405,10 +404,6 @@
         } ],
         "type" : {
           "coding" : [ {
-            "extension" : [ {
-              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
-              "valueString" : "identifier"
-            } ],
             "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
             "code" : "MD"
           } ]
@@ -452,10 +447,6 @@
       "name" : "Hospital A",
       "physicalType" : {
         "coding" : [ {
-          "extension" : [ {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
-            "valueString" : "identifier"
-          } ],
           "system" : "http://terminology.hl7.org/CodeSystem/location-physical-type",
           "code" : "si"
         } ]
@@ -543,10 +534,6 @@
         } ],
         "type" : {
           "coding" : [ {
-            "extension" : [ {
-              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
-              "valueString" : "identifier"
-            } ],
             "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
             "code" : "MD"
           } ]
@@ -705,7 +692,7 @@
       "basedOn" : [ {
         "reference" : "ServiceRequest/1710885279938838000.fcb13805-5725-4056-940c-ab19b42b46ac"
       } ],
-      "status" : "unknown",
+      "status" : "final",
       "subject" : {
         "reference" : "Patient/1710885279660179000.c91ef5ad-faba-48d3-ad2f-9c4a0e93d0a6"
       },

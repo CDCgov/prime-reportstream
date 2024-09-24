@@ -23,9 +23,7 @@ export default defineConfig({
     // Do not consume 100% cpu, as this will cause instability
     workers: isCi ? "75%" : undefined,
     // Tests sharded in CI runner and reported as blobs that are later turned into html report
-    reporter: isCi
-        ? [["blob", { outputDir: "e2e-data/report" }]]
-        : [["html", { outputFolder: "e2e-data/report" }]],
+    reporter: isCi ? [["blob", { outputDir: "e2e-data/report" }]] : [["html", { outputFolder: "e2e-data/report" }]],
     outputDir: "e2e-data/results",
     use: {
         // keep playwright and browser timezones aligned. set preferably UTC by env var
@@ -40,29 +38,27 @@ export default defineConfig({
         // We have a suite of tests that are ONLY checking links so to
         // save bandwidth, we only need to utilize a single browser
         {
-            name: "chromium-only",
-            use: { browserName: "chromium" },
-            // currently only uses public pages, uncomment when not the case
-            // dependencies: ["setup"],
-            testMatch: "spec/chromium-only/*.spec.ts",
-        },
-        {
             name: "chromium",
             use: { browserName: "chromium" },
             dependencies: ["setup"],
-            testMatch: "spec/all/**/*.spec.ts",
+            testMatch: [
+                "spec/all/*.spec.ts",
+                "spec/all/**/*.spec.ts",
+                "spec/chromium-only/*.spec.ts",
+                "spec/chromium-only/**/*.spec.ts",
+            ],
         },
         {
             name: "firefox",
             use: { browserName: "firefox" },
             dependencies: ["setup"],
-            testMatch: "spec/all/**/*.spec.ts",
+            testMatch: ["spec/all/*.spec.ts", "spec/all/**/*.spec.ts"],
         },
         {
             name: "webkit",
             use: { browserName: "webkit" },
             dependencies: ["setup"],
-            testMatch: "spec/all/**/*.spec.ts",
+            testMatch: ["spec/all/*.spec.ts", "spec/all/**/*.spec.ts"],
         },
     ],
     webServer: {

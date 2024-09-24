@@ -61,7 +61,7 @@ object OrganizationValidation : KonformValidation<List<DeepOrganization>>() {
         }
 
     // Check to see if we have a valid filter structure
-    private fun validateFilter(filter: String): Boolean {
+    fun validateFilter(filter: String): Boolean {
         val isReportStreamFormat = allowedFilters.any { filter.startsWith(it) }
         return isReportStreamFormat || validFhirPath(filter)
     }
@@ -84,6 +84,9 @@ object OrganizationValidation : KonformValidation<List<DeepOrganization>>() {
                 Receiver::conditionFilter onEach {
                     addConstraint("Invalid condition filter format: {value}", test = ::validateFilter)
                 }
+                addConstraint("Receiver must only configure one kind of condition filter", test = { receiver ->
+                    !(receiver.conditionFilter.isNotEmpty() && receiver.mappedConditionFilter.isNotEmpty())
+                })
             }
         }
     }

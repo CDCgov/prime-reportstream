@@ -11,11 +11,11 @@ import com.microsoft.azure.functions.HttpStatus
 import gov.cdc.prime.router.CovidSender
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.Metadata
+import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.RESTTransportType
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Schema
-import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.TranslatorConfiguration
@@ -262,7 +262,7 @@ class DeliveryFunctionTests : Logging {
         val sender = CovidSender(
             name = "default",
             organizationName = "simple_report",
-            format = Sender.Format.CSV,
+            format = MimeFormat.CSV,
             customerStatus = CustomerStatus.INACTIVE,
             schemaName = "one"
         )
@@ -347,7 +347,7 @@ class DeliveryFunctionTests : Logging {
         val sender = CovidSender(
             name = "default",
             organizationName = organizationName,
-            format = Sender.Format.CSV,
+            format = MimeFormat.CSV,
             customerStatus = CustomerStatus.INACTIVE,
             schemaName = "one"
         )
@@ -355,7 +355,7 @@ class DeliveryFunctionTests : Logging {
         val sender2 = CovidSender(
             name = "default",
             organizationName = otherOrganizationName,
-            format = Sender.Format.CSV,
+            format = MimeFormat.CSV,
             customerStatus = CustomerStatus.INACTIVE,
             schemaName = "one"
         )
@@ -847,7 +847,7 @@ class DeliveryFunctionTests : Logging {
     }
 
     @Nested
-    inner class TestGetSubmitters() {
+    inner class TestGetSubmitters {
         var settings = MockSettings()
         private val organization1 = Organization(
             "simple_report",
@@ -1990,7 +1990,7 @@ class DeliveryFunctionTests : Logging {
     }
 
     @Nested
-    inner class TestGetReportItems() {
+    inner class TestGetReportItems {
 
         @BeforeEach
         fun setUp() {

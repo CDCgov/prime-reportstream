@@ -78,7 +78,7 @@ object QueueAccess {
     fun receiveMessage(queueName: String): Event {
         // messageText is deprecated
         val message = createQueueClient(queueName).receiveMessage().body.toString()
-        return Event.parseQueueMessage(message)
+        return Event.parsePrimeRouterQueueMessage(message)
     }
 
     /**

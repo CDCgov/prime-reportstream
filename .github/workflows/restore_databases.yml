@@ -90,7 +90,7 @@ jobs:
           echo "SINK_BACKUP_STORAGE=pdh${{ env.SINK_ENV_NAME }}terraform" >> $GITHUB_ENV
 
       # Login to Azure
-      - uses: azure/login@6c251865b4e6290e7b78be643ea2d005bc51f69a
+      - uses: azure/login@a65d910e8af852a8061c627c456678983e180302
         with:
           creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
 
@@ -139,7 +139,7 @@ jobs:
       - name: Check out changes
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
 
-      - uses: azure/login@6c251865b4e6290e7b78be643ea2d005bc51f69a
+      - uses: azure/login@a65d910e8af852a8061c627c456678983e180302
         with:
           creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
 
@@ -230,7 +230,7 @@ jobs:
       - name: Check out changes
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
 
-      - uses: azure/login@6c251865b4e6290e7b78be643ea2d005bc51f69a
+      - uses: azure/login@a65d910e8af852a8061c627c456678983e180302
         with:
           creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
 
@@ -311,7 +311,7 @@ jobs:
         if: |
           needs.pre_job.outputs.sink_env_name != 'prod' &&
           (${{ matrix.db }} == 'prime_data_hub' || ${{ matrix.db }} == 'prime_data_hub_candidate')
-        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
+        uses: actions/upload-artifact@50769540e7f4bd5e21e526ee35c689e35e0d6874
         with:
           name: clean_output_${{ matrix.db }}
           path: clean_output_${{ matrix.db }}.html
