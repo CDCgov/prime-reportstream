@@ -74,7 +74,7 @@ class FHIRDestinationFilter(
     ): List<FHIREngineRunResult> {
         return when (message) {
             is FhirDestinationFilterQueueMessage -> {
-                check(message.topic.isUniversalPipeline()) {
+                check(message.topic.isUniversalPipeline) {
                     "Unexpected topic $message.topic in the Universal Pipeline routing step."
                 }
                 fhirEngineRunResults(message, actionHistory)

@@ -104,7 +104,7 @@ class MDCUtilsTest {
         withLoggingContext(event) {
             val context = MDC.getCopyOfContextMap()
             assertThat(context["parentReportId"]).isNotNull()
-            assertThat(context["topic"]).isEqualTo(Topic.FULL_ELR.jsonVal())
+            assertThat(context["topic"]).isEqualTo(Topic.FULL_ELR.jsonVal)
             assertThat(context["pipelineStepName"]).isEqualTo("send")
             assertThat(context["timestamp"]).isNotNull()
             assertThat(context["params"]).isEqualTo("{\"filename\":\"filename\"}")
@@ -138,7 +138,7 @@ class MDCUtilsTest {
         withLoggingContext(event) {
             val context = MDC.getCopyOfContextMap()
             assertThat(context["parentReportId"]).isNotNull()
-            assertThat(context["topic"]).isEqualTo(Topic.FULL_ELR.jsonVal())
+            assertThat(context["topic"]).isEqualTo(Topic.FULL_ELR.jsonVal)
             assertThat(context["pipelineStepName"]).isEqualTo("send")
             assertThat(context["timestamp"]).isNotNull()
             assertThat(context["params"]).isEqualTo("{\"filename\":\"filename\"}")

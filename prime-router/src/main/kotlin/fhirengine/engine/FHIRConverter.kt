@@ -13,6 +13,7 @@ import fhirengine.engine.ProcessedFHIRItem
 import fhirengine.engine.ProcessedHL7Item
 import gov.cdc.prime.reportstream.shared.BlobUtils
 import gov.cdc.prime.reportstream.shared.EventAction
+import gov.cdc.prime.reportstream.shared.HL7MessageParseAndConvertConfiguration
 import gov.cdc.prime.reportstream.shared.ReportOptions
 import gov.cdc.prime.reportstream.shared.queue_message.FhirConvertQueueMessage
 import gov.cdc.prime.reportstream.shared.queue_message.FhirDestinationFilterQueueMessage
@@ -464,7 +465,7 @@ class FHIRConverter(
     private fun getBundlesFromRawHL7(
         rawReport: String,
         validator: IItemValidator = NoopItemValidator(),
-        hL7MessageParseAndConvertConfiguration: HL7Reader.Companion.HL7MessageParseAndConvertConfiguration?,
+        hL7MessageParseAndConvertConfiguration: HL7MessageParseAndConvertConfiguration?,
     ): List<IProcessedItem<Message>> {
         val itemStream =
             Hl7InputStreamMessageStringIterator(rawReport.byteInputStream()).asSequence()
@@ -481,7 +482,7 @@ class FHIRConverter(
 
     private fun parseHL7Item(
         item: ProcessedHL7Item,
-        hL7MessageParseAndConvertConfiguration: HL7Reader.Companion.HL7MessageParseAndConvertConfiguration?,
+        hL7MessageParseAndConvertConfiguration: HL7MessageParseAndConvertConfiguration?,
     ) = try {
         val message = parseHL7Message(item.rawItem, hL7MessageParseAndConvertConfiguration)
         item.updateParsed(message)
@@ -498,7 +499,7 @@ class FHIRConverter(
     private fun validateAndConvertHL7Item(
         item: ProcessedHL7Item,
         validator: IItemValidator,
-        hL7MessageParseAndConvertConfiguration: HL7Reader.Companion.HL7MessageParseAndConvertConfiguration?,
+        hL7MessageParseAndConvertConfiguration: HL7MessageParseAndConvertConfiguration?,
     ): ProcessedHL7Item = if (item.parsedItem != null) {
         val validationResult = validator.validate(item.parsedItem)
         if (validationResult.isValid()) {

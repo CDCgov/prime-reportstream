@@ -1517,7 +1517,7 @@ class Report : Logging {
             header: WorkflowEngine.Header,
             reportService: ReportService,
             metadata: Metadata? = null,
-        ): String = if (header.receiver?.topic?.isSendOriginal() == true) {
+        ): String = if (header.receiver?.topic?.isSendOriginal == true) {
             // the externalName of the root report should equal the submission payload name parameter
             reportService.getRootReport(header.reportFile.reportId).externalName ?: formExternalFilename(
                 header.reportFile.reportId,

@@ -82,7 +82,7 @@ class FHIRTranslator(
                     val receiver = settings.findReceiver(message.receiverFullName)
                         ?: throw RuntimeException("Receiver with name ${message.receiverFullName} was not found")
                     actionHistory.trackActionReceiverInfo(receiver.organizationName, receiver.name)
-                    return if (message.topic.isSendOriginal()) {
+                    return if (message.topic.isSendOriginal) {
                         listOf(sendOriginal(message, receiver, actionHistory))
                     } else {
                         listOf(sendTranslated(message, receiver, actionHistory))

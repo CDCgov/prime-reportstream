@@ -120,7 +120,7 @@ class FHIRTranslatorIntegrationTests : Logging {
                 "blobURL": "${report.bodyURL}",
                 "digest": "${BlobUtils.digestToString(BlobUtils.sha256Digest(blobContents.toByteArray()))}",
                 "blobSubFolderName": "${sender.fullName}",
-                "topic": "${sender.topic.jsonVal()}",
+                "topic": "${sender.topic.jsonVal}",
                 "receiverFullName": "$receiverName" 
             }
         """.trimIndent()

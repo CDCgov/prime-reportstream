@@ -28,6 +28,7 @@ import ca.uhn.hl7v2.model.v27.message.ORU_R01 as v27_ORU_R01
 import ca.uhn.hl7v2.model.v27.segment.MSH as v27_MSH
 import fhirengine.translation.hl7.structures.nistelr251.message.ORU_R01 as NIST_ELR_ORU_R01
 import fhirengine.translation.hl7.structures.nistelr251.segment.MSH as NIST_MSH
+import gov.cdc.prime.reportstream.shared.HL7MessageParseAndConvertConfiguration
 
 private const val MSH_SEGMENT_NAME = "MSH"
 
@@ -228,17 +229,17 @@ class HL7Reader(private val actionLogger: ActionLogger) : Logging {
          */
         data class HL7MessageType(val msh93: String, val msh12: String, val msh213: String)
 
-        /**
-         * Configuration class that contains details on how to parse an HL7 message and then how
-         * to convert it to FHIR
-         *
-         * @param messageModelClass a class that inherits from [Message]
-         * @param hl7toFHIRMappingLocation the location of the mappings files to convert the message to FHIR
-         */
-        data class HL7MessageParseAndConvertConfiguration(
-            val messageModelClass: Class<out Message>,
-            val hl7toFHIRMappingLocation: String,
-        )
+//        /**
+//         * Configuration class that contains details on how to parse an HL7 message and then how
+//         * to convert it to FHIR
+//         *
+//         * @param messageModelClass a class that inherits from [Message]
+//         * @param hl7toFHIRMappingLocation the location of the mappings files to convert the message to FHIR
+//         */
+//        data class HL7MessageParseAndConvertConfiguration(
+//            val messageModelClass: Class<out Message>,
+//            val hl7toFHIRMappingLocation: String,
+//        )
 
         /**
          * Map of configured message types to their configuration

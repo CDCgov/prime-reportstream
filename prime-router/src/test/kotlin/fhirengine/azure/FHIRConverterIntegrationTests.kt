@@ -148,7 +148,7 @@ class FHIRConverterIntegrationTests {
             "blobURL": "${report.bodyURL}",
             "digest": "${BlobUtils.digestToString(BlobUtils.sha256Digest(blobContents.toByteArray()))}",
             "blobSubFolderName": "${sender.fullName}",
-            "topic": "${sender.topic.jsonVal()}",
+            "topic": "${sender.topic.jsonVal}",
             "schemaName": "${sender.schemaName}"
             ${if (headersString.isNotEmpty()) ",\n$headersString" else ""}
         }
@@ -683,7 +683,7 @@ class FHIRConverterIntegrationTests {
             assertThat(event.params).isEqualTo(
                 mapOf(
                     ReportStreamEventProperties.ITEM_FORMAT to MimeFormat.HL7,
-                    ReportStreamEventProperties.VALIDATION_PROFILE to Topic.MARS_OTC_ELR.validator().validatorProfileName,
+                    ReportStreamEventProperties.VALIDATION_PROFILE to Topic.MARS_OTC_ELR.validator.validatorProfileName,
                     @Suppress("ktlint:standard:max-line-length")
                     ReportStreamEventProperties.PROCESSING_ERROR
                     to "Item 2 in the report was not valid. Reason: HL7 was not valid at MSH[1]-21[1].3 for validator: RADx MARS"

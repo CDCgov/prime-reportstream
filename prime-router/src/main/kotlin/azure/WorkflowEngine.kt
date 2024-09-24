@@ -185,7 +185,7 @@ class WorkflowEngine(
     ): BlobAccess.BlobInfo {
         // Save a copy of the original report
         val reportFormat =
-            if (sender.topic.isUniversalPipeline()) {
+            if (sender.topic.isUniversalPipeline) {
                 report.bodyFormat
             } else {
                 MimeFormat.safeValueOf(sender.format.toString())

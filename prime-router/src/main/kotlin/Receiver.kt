@@ -248,13 +248,13 @@ open class Receiver(
      */
     fun consistencyErrorMessage(metadata: Metadata): String? {
         if (conditionFilter.isNotEmpty() || mappedConditionFilter.isNotEmpty()) {
-            if (!topic.isUniversalPipeline()) {
-                return "Condition filter(s) not allowed for receivers with topic '${topic.jsonVal()}'"
+            if (!topic.isUniversalPipeline) {
+                return "Condition filter(s) not allowed for receivers with topic '${topic.jsonVal}'"
             }
         }
 
         if (translation is CustomConfiguration) {
-            if (this.topic.isUniversalPipeline()) {
+            if (this.topic.isUniversalPipeline) {
                 try {
                     // This is already scheduled for deletion in https://github.com/CDCgov/prime-reportstream/pull/13313
                     FhirToHl7Converter(translation.schemaName, BlobAccess.defaultBlobMetadata)

@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.json.JsonMapper
 import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator
 import com.fasterxml.jackson.module.kotlin.jacksonMapperBuilder
 import com.fasterxml.jackson.module.kotlin.readValue
+import org.apache.logging.log4j.kotlin.logger
 import java.util.Base64
 import java.util.UUID
 
@@ -63,7 +64,10 @@ interface QueueMessage {
          * @param s Base64 encoded string representing the message.
          * @return Deserialized gov.cdc.prime.reportstream.shared.queue_message.QueueMessage object.
          */
-        fun deserialize(s: String): QueueMessage = mapper.readValue(s)
+        fun deserialize(s: String): QueueMessage {
+            logger.info("s is: ${s}")
+            return mapper.readValue(s)
+        }
 
         /**
          * Returns a JSON string representation of the gov.cdc.prime.reportstream.shared.queue_message.QueueMessage object.

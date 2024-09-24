@@ -51,7 +51,7 @@ class BatchDeciderFunction(private val workflowEngine: WorkflowEngine = Workflow
                         repeat(queueMessages) {
                             // build 'batch' event
                             val event = BatchEvent(EventAction.BATCH, rec.fullName, isEmpty)
-                            val queueName = if (rec.topic.isUniversalPipeline()) {
+                            val queueName = if (rec.topic.isUniversalPipeline) {
                                 BatchConstants.Queue.UNIVERSAL_BATCH_QUEUE
                             } else {
                                 BatchConstants.Queue.COVID_BATCH_QUEUE

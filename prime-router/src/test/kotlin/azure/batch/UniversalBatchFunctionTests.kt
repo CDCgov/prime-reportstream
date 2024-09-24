@@ -455,7 +455,7 @@ class UniversalBatchFunctionTests {
         every { engine.db.fetchReportFile(any(), any(), any()) } returns mockReportFile
         every { BlobAccess.Companion.exists(any()) } returns true
         mockkObject(Topic.COVID_19)
-        every { Topic.COVID_19.isUniversalPipeline() } returns true
+        every { Topic.COVID_19.isUniversalPipeline } returns true
 
         // the message that will be passed to batchFunction
         val message = BatchEvent(EventAction.BATCH, "phd.elr", false)

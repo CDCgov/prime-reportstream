@@ -90,7 +90,7 @@ class TopicConverter : Converter<String, Topic> {
             mapper.convertValue(TextNode(it), Topic::class.java)
         }
 
-    override fun to(topic: Topic?): String? = topic?.jsonVal()
+    override fun to(topic: Topic?): String? = topic?.jsonVal
 
     override fun fromType(): Class<String> {
         return String::class.java

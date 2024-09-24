@@ -12,6 +12,7 @@ import ca.uhn.fhir.validation.SingleValidationMessage
 import ca.uhn.fhir.validation.ValidationResult
 import ca.uhn.hl7v2.util.Hl7InputStreamMessageStringIterator
 import fhirengine.translation.hl7.structures.nistelr251.message.ORU_R01
+import gov.cdc.prime.reportstream.shared.HL7MessageParseAndConvertConfiguration
 import gov.cdc.prime.reportstream.shared.Topic
 import gov.cdc.prime.reportstream.shared.queue_message.FhirConvertQueueMessage
 import gov.cdc.prime.router.ActionLogDetail
@@ -639,7 +640,7 @@ class FhirConverterTests {
             val mockValidator = mockk<IItemValidator>()
             every { mockValidator.validate(any()) } returns FHIRValidationResult(fhirValidationResult)
             mockkObject(Topic.FULL_ELR)
-            every { Topic.FULL_ELR.validator() } returns mockValidator
+            every { Topic.FULL_ELR.validator } returns mockValidator
 
             val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process) as FHIRConverter)
             val actionLogger = ActionLogger()
@@ -692,7 +693,7 @@ class FhirConverterTests {
             every { mockValidator.validate(any()) } returns HL7ValidationResult(mockValidation)
             every { mockValidator.validatorProfileName } returns "MockValidator"
             mockkObject(Topic.FULL_ELR)
-            every { Topic.FULL_ELR.validator() } returns mockValidator
+            every { Topic.FULL_ELR.validator } returns mockValidator
 
             val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process) as FHIRConverter)
             val actionLogger = ActionLogger()
@@ -820,7 +821,7 @@ class FhirConverterTests {
                     "ORU_R01",
                     "2.5.1",
                     "2.16.840.1.113883.9.11"
-                ) to HL7Reader.Companion.HL7MessageParseAndConvertConfiguration(
+                ) to HL7MessageParseAndConvertConfiguration(
                     ORU_R01::class.java,
                     "./metadata/test_fhir_mapping"
                 )

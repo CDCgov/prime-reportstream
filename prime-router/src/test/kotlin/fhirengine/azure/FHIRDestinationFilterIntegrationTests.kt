@@ -132,7 +132,7 @@ class FHIRDestinationFilterIntegrationTests : Logging {
                 "blobURL": "${report.bodyURL}",
                 "digest": "${BlobUtils.digestToString(BlobUtils.sha256Digest(blobContents.toByteArray()))}",
                 "blobSubFolderName": "${sender.fullName}",
-                "topic": "${sender.topic.jsonVal()}",
+                "topic": "${sender.topic.jsonVal}",
                 "schemaName": "${sender.schemaName}" 
             }
         """.trimIndent()

@@ -735,13 +735,13 @@ abstract class CoolTest {
                 // Bug:  this is looking at local cli data, but might be querying staging or prod.
                 // The hope is that the 'ignore' org is same in local, staging, prod.
                 if (asyncProcessMode && receiver.topic == Topic.COVID_19) actionsList.add(TaskAction.process)
-                if (receiver.topic.isUniversalPipeline()) {
+                if (receiver.topic.isUniversalPipeline) {
                     actionsList.add(TaskAction.convert)
                     actionsList.add(TaskAction.destination_filter)
                     actionsList.add(TaskAction.receiver_filter)
                     actionsList.add(TaskAction.translate)
                 }
-                if (!receiver.topic.isSendOriginal() && receiver.timing != null) {
+                if (!receiver.topic.isSendOriginal && receiver.timing != null) {
                     actionsList.add(TaskAction.batch)
                 }
                 if (receiver.transport != null) actionsList.add(TaskAction.send)
@@ -817,11 +817,11 @@ abstract class CoolTest {
             if (topic != null && !topic.isNull &&
                 (
                     listOf(
-                        Topic.COVID_19.jsonVal(),
-                        Topic.FULL_ELR.jsonVal(),
-                        Topic.ETOR_TI.jsonVal(),
-                        Topic.ELR_ELIMS.jsonVal(),
-                        Topic.MARS_OTC_ELR.jsonVal()
+                        Topic.COVID_19.jsonVal,
+                        Topic.FULL_ELR.jsonVal,
+                        Topic.ETOR_TI.jsonVal,
+                        Topic.ELR_ELIMS.jsonVal,
+                        Topic.MARS_OTC_ELR.jsonVal
                     ).contains(topic.textValue())
                     )
             ) {
