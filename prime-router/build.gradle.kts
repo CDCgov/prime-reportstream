@@ -514,6 +514,7 @@ tasks.azureFunctionsPackage {
     finalizedBy("copyAzureScripts")
 }
 
+// TODO: remove after implementation of health check endpoint
 tasks.register("generateVersionFile") {
     doLast {
         file("$buildDir/$azureFunctionsDir/$azureAppName/version.json").writeText("{\"commitId\": \"$commitId\"}")
