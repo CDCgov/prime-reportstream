@@ -9,6 +9,7 @@ on:
       -  "prime-router/**"
       -  "submissions/**"
       -  "shared/**"
+      -  "auth/**"
 
 jobs:
   pre_job:
@@ -30,7 +31,7 @@ jobs:
     strategy:
         fail-fast: false
         matrix:
-            folder: [prime-router, submissions, shared]
+            folder: [prime-router, submissions, auth, shared]
     steps:
       - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
       - uses: snyk/actions/setup@b98d498629f1c368650224d6d212bf7dfa89e4bf

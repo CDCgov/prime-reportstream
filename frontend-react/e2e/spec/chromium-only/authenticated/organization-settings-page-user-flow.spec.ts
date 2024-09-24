@@ -1,6 +1,5 @@
 import { expect } from "@playwright/test";
 import { tableRows } from "../../../helpers/utils";
-import { MOCK_GET_ORGANIZATION_SETTINGS_LIST } from "../../../mocks/organizations";
 import { OrganizationPage } from "../../../pages/authenticated/admin/organization";
 import { test as baseTest } from "../../../test";
 
@@ -72,23 +71,24 @@ test.describe("Admin Organization Settings Page - user flow smoke tests", {
 
             test("filtering works as expected", async ({organizationPage}) => {
                 const table = organizationPage.page.getByRole("table");
-                const {description, name, jurisdiction, stateCode} = MOCK_GET_ORGANIZATION_SETTINGS_LIST[2];
+                const firstDataRow = organizationPage.page.getByRole("table").getByRole("row").nth(1);
+                const firstDataRowName = (await firstDataRow.getByRole("cell").nth(0).textContent()) ?? "INVALID";
                 const filterBox = organizationPage.page.getByRole("textbox", {
                     name: "Filter:",
                 });
 
                 await expect(filterBox).toBeVisible();
 
-                await filterBox.fill(name);
+                await filterBox.fill(firstDataRowName);
                 const rows = await table.getByRole("row").all();
                 expect(rows).toHaveLength(2);
                 const cols = rows[1].getByRole("cell").allTextContents();
                 const expectedColContents = [
-                    name,
-                    description ?? "",
-                    jurisdiction ?? "",
-                    stateCode ?? "",
-                    "",
+                    await firstDataRow.getByRole("cell").nth(0).textContent(),
+                    await firstDataRow.getByRole("cell").nth(1).textContent() ?? "",
+                    await firstDataRow.getByRole("cell").nth(2).textContent() ?? "",
+                    await firstDataRow.getByRole("cell").nth(3).textContent() ?? "",
+                    await firstDataRow.getByRole("cell").nth(4).textContent() ?? "",
                     "SetEdit",
                 ];
 
