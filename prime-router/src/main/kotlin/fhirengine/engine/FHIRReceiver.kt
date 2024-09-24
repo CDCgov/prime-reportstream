@@ -7,7 +7,6 @@ import gov.cdc.prime.reportstream.shared.ReportOptions
 import gov.cdc.prime.reportstream.shared.queue_message.QueueMessage
 import gov.cdc.prime.reportstream.shared.Submission
 import gov.cdc.prime.reportstream.shared.queue_message.FhirConvertQueueMessage
-import gov.cdc.prime.reportstream.shared.queue_message.ReceiveQueueMessage
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.ClientSource
 import gov.cdc.prime.router.CustomerStatus
@@ -81,7 +80,7 @@ class FHIRReceiver(
         actionLogger: ActionLogger,
         actionHistory: ActionHistory,
     ): List<FHIREngineRunResult> = when (message) {
-            is ReceiveQueueMessage -> processFhirReceiveQueueMessage(message, actionLogger, actionHistory)
+            is QueueMessage.ReceiveQueueMessage -> processFhirReceiveQueueMessage(message, actionLogger, actionHistory)
             else -> throw RuntimeException("Message was not a FhirReceive and cannot be processed: $message")
         }
 
@@ -94,7 +93,7 @@ class FHIRReceiver(
      * @return A list of FHIR engine run results.
      */
     private fun processFhirReceiveQueueMessage(
-        queueMessage: ReceiveQueueMessage,
+        queueMessage: QueueMessage.ReceiveQueueMessage,
         actionLogger: ActionLogger,
         actionHistory: ActionHistory,
     ): List<FHIREngineRunResult> {
@@ -117,7 +116,7 @@ class FHIRReceiver(
      * @return The logging context map.
      */
     private fun createLoggingContextMap(
-        queueMessage: ReceiveQueueMessage,
+        queueMessage: QueueMessage.ReceiveQueueMessage,
         actionHistory: ActionHistory,
     ): Map<MDCUtils.MDCProperty, Any> = mapOf(
             MDCUtils.MDCProperty.ACTION_NAME to actionHistory.action.actionName.name,
@@ -134,7 +133,7 @@ class FHIRReceiver(
      * @return The sender, or null if the sender was not found or is inactive.
      */
     private fun getSender(
-        queueMessage: ReceiveQueueMessage,
+        queueMessage: QueueMessage.ReceiveQueueMessage,
         actionLogger: ActionLogger,
         actionHistory: ActionHistory,
     ): Sender? {
@@ -198,7 +197,7 @@ class FHIRReceiver(
      * @return A list of FHIR engine run results.
      */
     private fun handleSuccessfulProcessing(
-        queueMessage: ReceiveQueueMessage,
+        queueMessage: QueueMessage.ReceiveQueueMessage,
         sender: Sender,
         actionLogger: ActionLogger,
         actionHistory: ActionHistory,
@@ -293,7 +292,7 @@ class FHIRReceiver(
     private fun validateSubmissionMessage(
         sender: Sender,
         actionLogger: ActionLogger,
-        queueMessage: ReceiveQueueMessage,
+        queueMessage: QueueMessage.ReceiveQueueMessage,
     ): Report? {
         val rawReport = BlobAccess.downloadBlob(queueMessage.blobURL, queueMessage.digest)
         return if (rawReport.isBlank()) {

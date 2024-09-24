@@ -24,7 +24,6 @@ private const val MESSAGE_SIZE_LIMIT = 64 * 1000
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonSubTypes(
-    JsonSubTypes.Type(ReceiveQueueMessage::class, name = "receive"),
     JsonSubTypes.Type(FhirConvertQueueMessage::class, name = "convert"),
     JsonSubTypes.Type(FhirDestinationFilterQueueMessage::class, name = "destination-filter"),
     JsonSubTypes.Type(FhirReceiverFilterQueueMessage::class, name = "receiver-filter"),
