@@ -16,9 +16,9 @@ jobs:
         id: scan
         with:
           github-token: ${{ secrets.RUNLEAKS_TOKEN }}
-          run-limit: 500
+          run-limit: 300
           min-days-old: 0
-          max-days-old: 2
+          max-days-old: 1
           patterns-path: ".github/runleaks/patterns.txt"
           exclusions-path: ".github/runleaks/exclusions.txt"
           fail-on-leak: false
