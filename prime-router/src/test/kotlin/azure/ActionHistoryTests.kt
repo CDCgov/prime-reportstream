@@ -352,7 +352,8 @@ class ActionHistoryTests {
             Topic.TEST,
             "http://blobUrl",
             TaskAction.send,
-            OffsetDateTime.now()
+            OffsetDateTime.now(),
+            ""
         )
         every {
             mockReportEventService.sendReportEvent(any(), any<ReportFile>(), any(), any())
@@ -452,7 +453,8 @@ class ActionHistoryTests {
             Topic.TEST,
             "http://blobUrl",
             TaskAction.send,
-            OffsetDateTime.now()
+            OffsetDateTime.now(),
+            ""
         )
         mockkObject(BlobAccess.Companion)
         mockkObject(BlobUtils)
@@ -692,7 +694,8 @@ class ActionHistoryTests {
             Topic.TEST,
             "http://blobUrl",
             TaskAction.send,
-            OffsetDateTime.now()
+            OffsetDateTime.now(),
+            ""
         )
         mockkObject(BlobAccess.Companion)
         mockkObject(BlobUtils)
