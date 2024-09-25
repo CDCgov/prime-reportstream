@@ -1091,6 +1091,43 @@
                 }
               }
             ],
+            "relationship" : [
+              {
+                "coding" : [
+                  {
+                    "extension" : [
+                      {
+                        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                        "valueString" : "coding"
+                      },
+                      {
+                        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                        "valueString" : "HL70063"
+                      }
+                    ],
+                    "version" : "2.5.1",
+                    "code" : "OTH",
+                    "display" : "Other"
+                  },
+                  {
+                    "extension" : [
+                      {
+                        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                        "valueString" : "alt-coding"
+                      },
+                      {
+                        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                        "valueString" : "L"
+                      }
+                    ],
+                    "system" : "https://terminology.hl7.org/CodeSystem-v2-0396.html#v2-0396-99zzzorL",
+                    "version" : "5.67",
+                    "code" : "OT",
+                    "display" : "OTHER RELATIONSHIP"
+                  }
+                ]
+              }
+            ],
             "name" : {
               "extension" : [
                 {
@@ -8011,21 +8048,21 @@
             "reference" : "PractitionerRole/1716965606277846000.0f708c16-acaa-4120-914e-deb0ab03c36d"
           }
         ],
-        "valueCodeableConcept": {
-          "coding": [
+        "valueCodeableConcept" : {
+          "coding" : [
             {
-              "extension": [
+              "extension" : [
                 {
-                  "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
-                  "valueString": "coding"
+                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                  "valueString" : "coding"
                 },
                 {
-                  "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
-                  "valueString": "L"
+                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                  "valueString" : "L"
                 }
               ],
-              "system": "https://terminology.hl7.org/CodeSystem-v2-0396.html#v2-0396-99zzzorL",
-              "code": "COM"
+              "system" : "https://terminology.hl7.org/CodeSystem-v2-0396.html#v2-0396-99zzzorL",
+              "code" : "COM"
             }
           ]
         }
@@ -13824,6 +13861,43 @@
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Segment",
             "valueString" : "OBR"
           }
+        ],
+        "collection" : {
+          "collector" : {
+            "reference" : "Practitioner/1727218084567636000.fd6e7eba-f4eb-4576-9581-63544d750ecb"
+          },
+          "collectedPeriod" : {
+            "start" : "2028-08-02T02:52:01-06:00",
+            "_start" : {
+              "extension" : [
+                {
+                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+                  "valueString" : "20280802025201-0600"
+                }
+              ]
+            },
+            "end" : "2028-08-02T02:52:01-06:00",
+            "_end" : {
+              "extension" : [
+                {
+                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+                  "valueString" : "20280802025201-0600"
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "fullUrl" : "Practitioner/1727218084567636000.fd6e7eba-f4eb-4576-9581-63544d750ecb",
+      "resource" : {
+        "resourceType" : "Practitioner",
+        "id" : "1727218084567636000.fd6e7eba-f4eb-4576-9581-63544d750ecb",
+        "identifier" : [
+          {
+            "value" : "ER"
+          }
         ]
       }
     },
@@ -13836,6 +13910,43 @@
           {
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Segment",
             "valueString" : "OBR"
+          }
+        ],
+        "collection" : {
+          "collector" : {
+            "reference" : "Practitioner/1727218084568577000.eb7e6168-ec3a-4826-9cf3-e1069ffe2fc2"
+          },
+          "collectedPeriod" : {
+            "start" : "2028-08-02T02:52:01-06:00",
+            "_start" : {
+              "extension" : [
+                {
+                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+                  "valueString" : "20280802025201-0600"
+                }
+              ]
+            },
+            "end" : "2028-08-02T02:52:01-06:00",
+            "_end" : {
+              "extension" : [
+                {
+                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+                  "valueString" : "20280802025201-0600"
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "fullUrl" : "Practitioner/1727218084568577000.eb7e6168-ec3a-4826-9cf3-e1069ffe2fc2",
+      "resource" : {
+        "resourceType" : "Practitioner",
+        "id" : "1727218084568577000.eb7e6168-ec3a-4826-9cf3-e1069ffe2fc2",
+        "identifier" : [
+          {
+            "value" : "ER"
           }
         ]
       }
@@ -13850,6 +13961,43 @@
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Segment",
             "valueString" : "OBR"
           }
+        ],
+        "collection" : {
+          "collector" : {
+            "reference" : "Practitioner/1727218084569516000.52bd6e17-aedf-4c1d-ab6c-d173829b97e1"
+          },
+          "collectedPeriod" : {
+            "start" : "2028-08-02T02:52:01-06:00",
+            "_start" : {
+              "extension" : [
+                {
+                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+                  "valueString" : "20280802025201-0600"
+                }
+              ]
+            },
+            "end" : "2028-08-02T02:52:01-06:00",
+            "_end" : {
+              "extension" : [
+                {
+                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+                  "valueString" : "20280802025201-0600"
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "fullUrl" : "Practitioner/1727218084569516000.52bd6e17-aedf-4c1d-ab6c-d173829b97e1",
+      "resource" : {
+        "resourceType" : "Practitioner",
+        "id" : "1727218084569516000.52bd6e17-aedf-4c1d-ab6c-d173829b97e1",
+        "identifier" : [
+          {
+            "value" : "ER"
+          }
         ]
       }
     },
@@ -13863,6 +14011,43 @@
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Segment",
             "valueString" : "OBR"
           }
+        ],
+        "collection" : {
+          "collector" : {
+            "reference" : "Practitioner/1727218084570457000.723ed71a-4a73-4dd7-8a49-85efbaf78fa1"
+          },
+          "collectedPeriod" : {
+            "start" : "2028-08-07T16:36:01-06:00",
+            "_start" : {
+              "extension" : [
+                {
+                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+                  "valueString" : "20280807163601-0600"
+                }
+              ]
+            },
+            "end" : "2028-08-07T16:36:01-06:00",
+            "_end" : {
+              "extension" : [
+                {
+                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+                  "valueString" : "20280807163601-0600"
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "fullUrl" : "Practitioner/1727218084570457000.723ed71a-4a73-4dd7-8a49-85efbaf78fa1",
+      "resource" : {
+        "resourceType" : "Practitioner",
+        "id" : "1727218084570457000.723ed71a-4a73-4dd7-8a49-85efbaf78fa1",
+        "identifier" : [
+          {
+            "value" : "ER"
+          }
         ]
       }
     },
@@ -13875,6 +14060,43 @@
           {
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Segment",
             "valueString" : "OBR"
+          }
+        ],
+        "collection" : {
+          "collector" : {
+            "reference" : "Practitioner/1727218084571406000.01fb8890-bcdc-47cc-ba9f-2614d0a1d918"
+          },
+          "collectedPeriod" : {
+            "start" : "2028-08-07T16:36:01-06:00",
+            "_start" : {
+              "extension" : [
+                {
+                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+                  "valueString" : "20280807163601-0600"
+                }
+              ]
+            },
+            "end" : "2028-08-07T16:36:01-06:00",
+            "_end" : {
+              "extension" : [
+                {
+                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+                  "valueString" : "20280807163601-0600"
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "fullUrl" : "Practitioner/1727218084571406000.01fb8890-bcdc-47cc-ba9f-2614d0a1d918",
+      "resource" : {
+        "resourceType" : "Practitioner",
+        "id" : "1727218084571406000.01fb8890-bcdc-47cc-ba9f-2614d0a1d918",
+        "identifier" : [
+          {
+            "value" : "ER"
           }
         ]
       }
