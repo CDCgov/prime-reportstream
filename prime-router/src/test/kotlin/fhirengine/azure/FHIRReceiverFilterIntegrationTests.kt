@@ -56,6 +56,7 @@ import gov.cdc.prime.router.metadata.LookupTable
 import gov.cdc.prime.router.metadata.ObservationMappingConstants
 import gov.cdc.prime.router.report.ReportService
 import gov.cdc.prime.router.unittest.UnitTestUtils
+import gov.cdc.prime.router.version.Version
 import io.mockk.every
 import io.mockk.mockkConstructor
 import io.mockk.mockkObject
@@ -388,7 +389,8 @@ class FHIRReceiverFilterIntegrationTests : Logging {
                     Topic.FULL_ELR,
                     "",
                     TaskAction.receiver_filter,
-                    OffsetDateTime.now()
+                    OffsetDateTime.now(),
+                    Version.commitId
                 ),
                 ReportEventData::timestamp,
             )
@@ -562,7 +564,8 @@ class FHIRReceiverFilterIntegrationTests : Logging {
                     Topic.FULL_ELR,
                     "",
                     TaskAction.receiver_filter,
-                    OffsetDateTime.now()
+                    OffsetDateTime.now(),
+                    Version.commitId
                 ),
                 ReportEventData::timestamp,
             )
@@ -749,7 +752,8 @@ class FHIRReceiverFilterIntegrationTests : Logging {
                     Topic.FULL_ELR,
                     "",
                     TaskAction.receiver_filter,
-                    OffsetDateTime.now()
+                    OffsetDateTime.now(),
+                    Version.commitId
                 ),
                 ReportEventData::timestamp,
             )
@@ -880,7 +884,8 @@ class FHIRReceiverFilterIntegrationTests : Logging {
                     Topic.FULL_ELR,
                     "",
                     TaskAction.receiver_filter,
-                    OffsetDateTime.now()
+                    OffsetDateTime.now(),
+                    Version.commitId
                 ),
                 ReportEventData::timestamp,
             )
@@ -1163,7 +1168,8 @@ class FHIRReceiverFilterIntegrationTests : Logging {
                     Topic.FULL_ELR,
                     "",
                     TaskAction.receiver_filter,
-                    OffsetDateTime.now()
+                    OffsetDateTime.now(),
+                    Version.commitId
                 ),
                 ReportEventData::timestamp,
             )

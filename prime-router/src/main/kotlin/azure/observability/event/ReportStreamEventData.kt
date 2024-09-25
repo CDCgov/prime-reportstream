@@ -27,6 +27,7 @@ data class ReportEventData(
     val blobUrl: String,
     val pipelineStepName: TaskAction,
     val timestamp: OffsetDateTime,
+    val commitId: String,
 )
 
 /**

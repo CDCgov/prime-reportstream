@@ -70,6 +70,20 @@ test.describe("Organization Edit Page", {
                 const rowCount = await organizationEditPage.page.locator("#orgsendersettings .usa-table tbody tr").count();
                 expect(rowCount).toBeGreaterThanOrEqual(1);
             });
+
+            test("can edit an organization sender", async ({ organizationEditPage }) => {
+                const firstOrgSender = await organizationEditPage.page.locator("#orgsendersettings").nth(0).locator("td").nth(0).innerText();
+                await organizationEditPage.page.locator('#orgsendersettings').getByRole('link', { name: 'Edit' }).nth(0).click();
+                await expect(organizationEditPage.page).toHaveURL(`/admin/orgsendersettings/org/ignore/sender/${firstOrgSender}/action/edit`);
+                await expect(organizationEditPage.page.getByText(`Org name: ignore`)).toBeVisible();
+                await expect(organizationEditPage.page.getByText(`Sender name: ${firstOrgSender}`)).toBeVisible();
+
+                await expect(organizationEditPage.page.getByTestId("name")).not.toBeEmpty();
+                await expect(organizationEditPage.page.getByTestId("format")).not.toBeEmpty();
+                await expect(organizationEditPage.page.getByTestId("topic")).not.toBeEmpty();
+                await expect(organizationEditPage.page.getByTestId("customerStatus")).not.toBeEmpty();
+                await expect(organizationEditPage.page.getByTestId("processingType")).not.toBeEmpty();
+            });
         });
 
         test.describe("'Organization Receiver Settings' section", () => {
