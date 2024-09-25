@@ -11,6 +11,7 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import gov.cdc.prime.reportstream.shared.QueueMessage
 import gov.cdc.prime.reportstream.shared.QueueMessage.ObjectMapperProvider
 import gov.cdc.prime.reportstream.submissions.TelemetryService
+import gov.cdc.prime.reportstream.submissions.config.AllowedParametersConfig
 import gov.cdc.prime.reportstream.submissions.config.AzureConfig
 import gov.cdc.prime.reportstream.submissions.config.SecurityConfig
 import org.junit.jupiter.api.AfterEach
@@ -44,7 +45,7 @@ import java.util.Base64
 import java.util.UUID
 
 @WebMvcTest(SubmissionController::class)
-@Import(AzureConfig::class, SecurityConfig::class)
+@Import(AzureConfig::class, SecurityConfig::class, AllowedParametersConfig::class)
 class SubmissionControllerTest {
 
     @Autowired
@@ -315,6 +316,8 @@ class SubmissionControllerTest {
                 .header("client_id", "testClient")
                 .header("payloadname", "testPayload")
                 .header("x-azure-clientip", "127.0.0.1")
+                .queryParam("processing", "test1", "test2")
+                .queryParam("test", "test2")
         )
             .andExpect(MockMvcResultMatchers.status().isCreated)
 

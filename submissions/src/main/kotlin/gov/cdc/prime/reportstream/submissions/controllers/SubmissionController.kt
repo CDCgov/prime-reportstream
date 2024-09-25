@@ -11,6 +11,7 @@ import gov.cdc.prime.reportstream.shared.Submission
 import gov.cdc.prime.reportstream.submissions.SubmissionDetails
 import gov.cdc.prime.reportstream.submissions.SubmissionReceivedEvent
 import gov.cdc.prime.reportstream.submissions.TelemetryService
+import gov.cdc.prime.reportstream.submissions.config.AllowedParametersConfig
 import jakarta.servlet.http.HttpServletRequest
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
@@ -44,6 +45,7 @@ class SubmissionController(
     private val queueClient: QueueClient,
     private val tableClient: TableClient,
     private val telemetryService: TelemetryService,
+    private val allowedParametersConfig: AllowedParametersConfig,
 ) {
     /**
      * Submits a report.
@@ -75,6 +77,12 @@ class SubmissionController(
         val contentTypeMime = contentType.substringBefore(';')
         val status = "Received"
         val objectMapper = jacksonObjectMapper().registerModule(JavaTimeModule())
+        // Filter request headers based on the allowed list
+        val filteredHeaders = filterHeaders(headers)
+
+        // Filter query parameters based on the allowed list (only keep 'processing' or others defined in application.properties)
+        val filteredQueryParameters = filterQueryParameters(request)
+
         logger.info(
             "Received report submission: reportId=$reportId, contentType=$contentTypeMime" +
             ", clientId=$clientId${payloadName?.let { ", payloadName=$it" } ?: ""}}"
@@ -103,8 +111,8 @@ class SubmissionController(
             parentReportId = reportId,
             rootReportId = reportId,
             requestParameters = SubmissionDetails(
-                filterHeaders(headers),
-                filterQueryParameters(request.parameterMap.mapValues { it.value.joinToString(",") })
+                filteredHeaders,
+                filteredQueryParameters
             ),
             method = request.method,
             url = request.requestURL.toString(),
@@ -131,7 +139,7 @@ class SubmissionController(
             BlobUtils.digestToString(digest),
             clientId.lowercase(),
             reportId,
-            filterHeaders(headers).toMap(),
+            filterHeaders(headers),
         ).serialize()
         logger.debug("Created message for queue")
 
@@ -241,15 +249,35 @@ class SubmissionController(
         }
     }
 
+    /**
+     * Filters the request headers based on the allowed headers configured in the application.properties.
+     */
     private fun filterHeaders(headers: Map<String, String>): Map<String, String> {
-        val headersToInclude =
-            listOf("client_id", "content-type", "payloadname", "x-azure-clientip", "content-length")
-        return headers.filter { it.key.lowercase() in headersToInclude }
+        val allowedHeaders = allowedParametersConfig.headers
+        return headers.filterKeys { key ->
+            allowedHeaders.values.map { it.lowercase() }.contains(key.lowercase())
+        }
     }
 
-    private fun filterQueryParameters(queryParameters: Map<String, String>): Map<String, String> {
-        val headersToInclude = emptyList<String>() // update this list as new QueryParameters are needed
-        return queryParameters.filter { it.key.lowercase() in headersToInclude }
+    /**
+     * Filters the query parameters based on the allowed query parameters configured in the application.properties.
+     * Handles multiple values for the same query parameter from HttpServletRequest.
+     */
+    private fun filterQueryParameters(request: HttpServletRequest): Map<String, List<String>> {
+        val allowedQueryParams = allowedParametersConfig.queryParameters
+
+        // Create a map to hold the filtered query parameters
+        val filteredParams = mutableMapOf<String, List<String>>()
+
+        // Loop over allowed parameters and get their values from the request
+        allowedQueryParams.forEach { (_, paramName) ->
+            val values = request.getParameterValues(paramName)
+            if (values != null) {
+                filteredParams[paramName] = values.toList() // Convert array to List<String>
+            }
+        }
+
+        return filteredParams
     }
 
     private fun formBlobName(
