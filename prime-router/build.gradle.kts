@@ -427,7 +427,7 @@ tasks.register<JavaExec>("primeCLI") {
     // Use arguments passed by another task in the project.extra["cliArgs"] property.
     doFirst {
         if (project.extra.has("cliArgs") && project.extra["cliArgs"] is List<*>) {
-            args = (project.extra["cliArgs"] as List<*>).filterIsInstance(String::class.java)
+            args = (project.extra["cliArgs"] as List<*>).filterIsInstance<String>()
         } else if (args.isNullOrEmpty()) {
             args = listOf("-h")
             println("primeCLI Gradle task usage: gradle primeCLI --args='<args>'")
@@ -888,7 +888,7 @@ dependencies {
     implementation("org.yaml:snakeyaml:2.3")
     implementation("io.github.linuxforhealth:hl7v2-fhir-converter") {
         version {
-            branch = "master"
+            branch = "snesm/fhirSnyk"
         }
     }
     implementation("ca.uhn.hapi.fhir:hapi-fhir-structures-r4:7.2.2")
