@@ -27,6 +27,27 @@ import org.springframework.stereotype.Component
 @Component
 @ConfigurationProperties(prefix = "allowed")
 class AllowedParametersConfig {
-    lateinit var headers: Map<String, String>
-    lateinit var queryParameters: Map<String, String>
+    /**
+     * A map of allowed HTTP headers that can be accepted by the API.
+     * The keys in this map correspond to internal property names, and the values represent the actual header names
+     * expected in the incoming request.
+     *
+     * For example, if the property is defined as `allowed.headers.client_id=client_id`, it will expect a header with
+     * the name `client_id` in the incoming HTTP request.
+     *
+     * Defaults to an empty map if not provided in the configuration.
+     */
+    var headers: Map<String, String> = emptyMap()
+
+    /**
+     * A map of allowed query parameters that the API can accept in incoming requests.
+     * The keys in this map correspond to internal property names, and the values represent the actual query parameter
+     * names expected in the incoming request.
+     *
+     * For example, if the property is defined as `allowed.queryParameters.param=test1`, it will allow the
+     * query parameter `param` to be used in the request, and multiple values can be passed (e.g., `?param=test1&param=test2`).
+     *
+     * Defaults to an empty map if not provided in the configuration.
+     */
+    var queryParameters: Map<String, String> = emptyMap()
 }
