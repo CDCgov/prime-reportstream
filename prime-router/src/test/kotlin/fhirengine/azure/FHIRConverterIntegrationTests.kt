@@ -69,6 +69,7 @@ import gov.cdc.prime.router.history.DetailedActionLog
 import gov.cdc.prime.router.metadata.LookupTable
 import gov.cdc.prime.router.metadata.ObservationMappingConstants
 import gov.cdc.prime.router.unittest.UnitTestUtils
+import gov.cdc.prime.router.version.Version
 import io.mockk.every
 import io.mockk.mockkConstructor
 import io.mockk.mockkObject
@@ -357,7 +358,8 @@ class FHIRConverterIntegrationTests {
                     Topic.FULL_ELR,
                     routedReports[1].bodyUrl,
                     TaskAction.convert,
-                    OffsetDateTime.now()
+                    OffsetDateTime.now(),
+                    Version.commitId
                 ),
                     ReportEventData::timestamp
             )
@@ -529,7 +531,8 @@ class FHIRConverterIntegrationTests {
                     Topic.FULL_ELR,
                     routedReports[1].bodyUrl,
                     TaskAction.convert,
-                    OffsetDateTime.now()
+                    OffsetDateTime.now(),
+                    Version.commitId
                 ),
                     ReportEventData::timestamp
             )
@@ -664,7 +667,8 @@ class FHIRConverterIntegrationTests {
                     Topic.MARS_OTC_ELR,
                     "",
                     TaskAction.convert,
-                    OffsetDateTime.now()
+                    OffsetDateTime.now(),
+                    Version.commitId
                 ),
                     ReportEventData::timestamp
             )
