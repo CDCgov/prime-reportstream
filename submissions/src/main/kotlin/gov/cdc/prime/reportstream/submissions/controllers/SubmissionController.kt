@@ -250,17 +250,20 @@ class SubmissionController(
     }
 
     /**
-     * Filters the request headers based on the allowed headers configured in the application.properties.
+     * Filters the request headers based on the allowed headers configured in the application.yml.
+     * Handles the case where allowed headers are defined as a list.
      */
     private fun filterHeaders(headers: Map<String, String>): Map<String, String> {
         val allowedHeaders = allowedParametersConfig.headers
+
+        // Filter the request headers to only include allowed headers
         return headers.filterKeys { key ->
-            allowedHeaders.values.map { it.lowercase() }.contains(key.lowercase())
+            allowedHeaders.map { it.lowercase() }.contains(key.lowercase())
         }
     }
 
     /**
-     * Filters the query parameters based on the allowed query parameters configured in the application.properties.
+     * Filters the query parameters based on the allowed query parameters configured in the application.yml.
      * Handles multiple values for the same query parameter from HttpServletRequest.
      */
     private fun filterQueryParameters(request: HttpServletRequest): Map<String, List<String>> {
@@ -270,15 +273,16 @@ class SubmissionController(
         val filteredParams = mutableMapOf<String, List<String>>()
 
         // Loop over allowed parameters and get their values from the request
-        allowedQueryParams.forEach { (_, paramName) ->
+        allowedQueryParams.forEach { paramName ->
             val values = request.getParameterValues(paramName)
             if (values != null) {
-                filteredParams[paramName] = values.toList() // Convert array to List<String>
+                filteredParams[paramName] = values.toList()  // Convert array to List<String>
             }
         }
 
         return filteredParams
     }
+
 
     private fun formBlobName(
         reportId: UUID,
