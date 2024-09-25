@@ -81,6 +81,7 @@ class ReportGraphBuilder {
                 .setExternalName("test-external-name")
                 .setBodyUrl(theSubmission.theReportBlobUrl)
                 .setNextAction(theSubmission.reportGraphNodes.firstOrNull()?.theAction)
+                .setCreatedAt(OffsetDateTime.now())
             dbAccess.insertReportFile(
                 reportFile, txn, action
             )
@@ -131,6 +132,7 @@ class ReportGraphBuilder {
             .setBodyUrl(node.theReportBlobUrl)
             .setTransportResult(node.theTransportResult)
             .setNextAction(node.reportGraphNodes.firstOrNull()?.theAction)
+            .setCreatedAt(graph.node.createdAt.plusMinutes(1))
 
         if (node.receiver != null) {
             childReportFile.setReceivingOrg(node.receiver!!.organizationName)

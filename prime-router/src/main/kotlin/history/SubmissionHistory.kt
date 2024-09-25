@@ -183,6 +183,12 @@ class DetailedSubmissionHistory(
     var nextActionScheduled = false
 
     /**
+     * Flag to check if there's a next action for the newest report in this submission
+     */
+    @JsonIgnore
+    var hasNextAction = false
+
+    /**
      * The step in the delivery process for a submission
      * Supported values:
      *     VALID - successfully validated, but not sent
@@ -297,16 +303,23 @@ class DetailedSubmissionHistory(
             // if there is ANY action scheduled on this submission history, ensure this flag is true
             if (report.nextActionAt != null) nextActionScheduled = true
         }
+        val sortedReports = reports.sortedBy { it.createdAt }
         destinations.forEach { destination ->
-            val reportsForDestination = reports.filter {
+            val reportsForDestination = sortedReports.filter {
                 destination.organizationId == it.receivingOrg && destination.service == it.receivingOrgSvc
-            }.sortedBy { it.createdAt }
-            val latestAction = reportsForDestination.first().nextAction
+            }
+            val latestAction = reportsForDestination.last().nextAction
             val reportsGroupedByLatestAction = reportsForDestination.groupBy { it.nextAction }
             val mostRecentReportsForDestination = reportsGroupedByLatestAction[latestAction] ?: emptyList()
             destination.itemCount = mostRecentReportsForDestination.sumOf { it.itemCount }
             destination.itemCountBeforeQualFilter =
                 mostRecentReportsForDestination.sumOf { it.itemCountBeforeQualFilter ?: 0 }
+        }
+        if (destinations.isEmpty() &&
+            sortedReports.isNotEmpty() &&
+            sortedReports.last().nextAction !in listOf(TaskAction.none, null)
+        ) {
+            hasNextAction = true
         }
         errors.addAll(consolidateLogs(ActionLogLevel.error))
         warnings.addAll(consolidateLogs(ActionLogLevel.warning))
@@ -384,7 +397,7 @@ class DetailedSubmissionHistory(
              * the receivers.
              */
             return if (
-                reports.size > 1
+                reports.size > 1 && !hasNextAction
             ) {
                 Status.NOT_DELIVERING
             } else {
