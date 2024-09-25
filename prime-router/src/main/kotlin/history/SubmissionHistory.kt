@@ -317,7 +317,7 @@ class DetailedSubmissionHistory(
         }
         if (destinations.isEmpty() &&
             sortedReports.isNotEmpty() &&
-            sortedReports.last().nextAction !in listOf(TaskAction.none, null)
+            sortedReports.last().nextAction != TaskAction.none
         ) {
             hasNextAction = true
         }

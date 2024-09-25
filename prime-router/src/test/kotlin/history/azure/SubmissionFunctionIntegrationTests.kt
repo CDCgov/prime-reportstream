@@ -232,9 +232,7 @@ class SubmissionFunctionIntegrationTests {
                     log(ActionLog(InvalidParamMessage("log"), type = ActionLogLevel.warning))
                     reportGraphNode {
                         action(TaskAction.destination_filter)
-                        reportGraphNode {
-                            action(TaskAction.none)
-                        }
+                        nextAction(TaskAction.none)
                     }
                 }
             }
@@ -271,9 +269,7 @@ class SubmissionFunctionIntegrationTests {
                     log(ActionLog(InvalidParamMessage("log"), type = ActionLogLevel.warning))
                     reportGraphNode {
                         action(TaskAction.route)
-                        reportGraphNode {
-                            action(TaskAction.none)
-                        }
+                        nextAction(TaskAction.none)
                     }
                 }
             }
