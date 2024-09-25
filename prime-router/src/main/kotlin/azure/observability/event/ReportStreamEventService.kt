@@ -7,6 +7,7 @@ import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.report.ReportService
+import gov.cdc.prime.router.version.Version
 import java.time.OffsetDateTime
 import java.util.UUID
 
@@ -412,7 +413,8 @@ class ReportStreamEventService(
             topic,
             childBodyUrl,
             pipelineStepName,
-            OffsetDateTime.now()
+            OffsetDateTime.now(),
+            Version.commitId
         )
     }
 
