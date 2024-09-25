@@ -136,11 +136,18 @@ extension:
           type: SYSTEM_URL
           value: event-performerFunction
         valueCodeableConcept:
-          valueOf: datatype/CodeableConcept_var
-          expressionType: resource
-          vars:
-            code: $performerParticipationType
-          constants:
-            system: "http://terminology.hl7.org/CodeSystem/v3-ParticipationType"
+          expressionType: nested
+          generateList: true
+          expressionsMap:
+            coding:
+              expressionType: nested
+              generateList: true
+              expressionsMap:
+                code:
+                  type: STRING
+                  value: $performerParticipationType
+                system:
+                  type: STRING
+                  value: "http://terminology.hl7.org/CodeSystem/v3-ParticipationType"
     - expressionType: resource
       valueOf: datatypes/NDL/NDLExtension

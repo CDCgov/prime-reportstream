@@ -17,7 +17,7 @@ jobs:
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
       
       # Login to Azure
-      - uses: azure/login@6c251865b4e6290e7b78be643ea2d005bc51f69a
+      - uses: azure/login@a65d910e8af852a8061c627c456678983e180302
         with:
           creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
 

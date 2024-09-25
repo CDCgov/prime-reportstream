@@ -29,7 +29,7 @@ class ValidateSchemasFunctions : Logging {
             path = "metadata/fhir_transforms/validating.txt"
         ) @Suppress("UNUSED_PARAMETER") content: Array<Byte>,
     ) {
-        val blobConnectionString = Environment.get().blobEnvVar
+        val blobConnectionString = Environment.get().storageEnvVar
         val blobContainerMetadata: BlobAccess.BlobContainerMetadata =
             BlobAccess.BlobContainerMetadata.build("metadata", blobConnectionString)
         validateSchemaChanges(TranslationSchemaManager.SchemaType.FHIR, blobContainerMetadata)
@@ -48,7 +48,7 @@ class ValidateSchemasFunctions : Logging {
             path = "metadata/hl7_mapping/validating.txt"
         ) @Suppress("UNUSED_PARAMETER") content: Array<Byte>,
     ) {
-        val blobConnectionString = Environment.get().blobEnvVar
+        val blobConnectionString = Environment.get().storageEnvVar
         val blobContainerMetadata: BlobAccess.BlobContainerMetadata =
             BlobAccess.BlobContainerMetadata.build("metadata", blobConnectionString)
         validateSchemaChanges(TranslationSchemaManager.SchemaType.HL7, blobContainerMetadata)

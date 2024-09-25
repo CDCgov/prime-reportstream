@@ -94,3 +94,9 @@ data "azurerm_key_vault_secret" "RS_OKTA_authKey" {
   key_vault_id = data.azurerm_key_vault.app_config.id
 
 }
+
+data "azurerm_key_vault_secret" "cdctiautomated_sa" {
+  name         = "functionapp-cdctiautomated"
+  key_vault_id = data.azurerm_key_vault.app_config.id
+
+}

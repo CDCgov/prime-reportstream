@@ -1,0 +1,13 @@
+MSH|^~\&|CDC PRIME - Atlanta^2.16.840.1.114222.4.1.237821^ISO|Simple Report^CDPH000085^CLIA|CDPH CA REDIE^2.16.840.1.114222.4.3.3.10.1.1^ISO|CDPH_CID^2.16.840.1.114222.4.1.214104^ISO|20240904223625+0000||ORU^R01^ORU_R01|8c66de45-62e3-453c-a5b2-90b6f90a407c|P|2.5.1|||NE|NE|USA|UNICODE UTF-8|ENG^English^ISO||PHLabReport-NoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO
+SFT|Centers for Disease Control and Prevention|0.2-SNAPSHOT|PRIME ReportStream|0.2-SNAPSHOT||20240903190830+0000
+PID|1||2f5d5a55-11c5-4e9f-92b0-418a0eb1fe1e^^^Testing Lab&12D4567890&CLIA^PI^Testing Lab&12D4567890&CLIA||Test^Patientfour^^^^^L||19940728|M||2131-1^other^HL70005^^^^2.5.1|456 SE Broadway^^Fresno^CA^93650^USA^^^Fresno||(340) 555 5555^PRS^CP^^1^340^5555555^^^^^(340) 555 5555|||||||||H^Hispanic or Latino^HL70189^^^^2.9||||||||N
+ORC|RE|8c66de45-62e3-453c-a5b2-90b6f90a407c^Testing Lab^12D4567890^CLIA|8c66de45-62e3-453c-a5b2-90b6f90a407c^Testing Lab^12D4567890^CLIA|||||||||1245319599^McTester^Phil^^^^^^NPI&2.16.840.1.113883.4.6&ISO^L^^^NPI||(530) 867 5309^WPN^PH^^1^530^8675309^^^^^(530) 867 5309|20240904223621+0000||||||Testing Lab^^^^^^XX|123 Beach Way^^Denver^CO^80210^USA|(530) 867 5309^WPN^PH^^1^530^8675309^^^^^(530) 867 5309|321 Ocean Drive^^Denver^CO^80210^USA
+OBR|1|8c66de45-62e3-453c-a5b2-90b6f90a407c^Testing Lab^12D4567890^CLIA|8c66de45-62e3-453c-a5b2-90b6f90a407c^Testing Lab^12D4567890^CLIA|94558-4^^LN|||20240904222121+0000|||||||||1245319599^McTester^Phil^^^^^^NPI&2.16.840.1.113883.4.6&ISO^L^^^NPI|(530) 867 5309^WPN^PH^^1^530^8675309^^^^^(530) 867 5309|||||20240904223625+0000|||C
+OBX|1|CE|94558-4^COVID-19^LN||260373001^Detected^SCT|||A^Abnormal^HL70078^^^^2.7|||W|||20240904222121+0000|12D4567890^Testing Lab^CLIA||^CareStart COVID-19 Antigen test^^^^^^^CareStart COVID-19 Antigen test|No Equipment|20240904223621+0000||||Testing Lab-12D4567890^L^^^^CLIA&2.16.840.1.113883.4.7&ISO^XX^^^12D4567890|123 Beach Way^^Denver^CO^80210^USA
+NTE|1|L
+NTE|2|L|95419-8 Has symptoms related to condition of interest: No N HL70136
+NTE|3|L|82810-3 Pregnancy status: Not pregnant 60001007 SCT
+NTE|4|L|95418-0 Employed in a healthcare setting: No N HL70136
+NTE|5|L|95421-4 Resides in a congregate care setting: No N HL70136
+NTE|6|L|76691-5 Gender identity: Asked But Declined asked-declined
+SPM|1|8c66de45-62e3-453c-a5b2-90b6f90a407c&Testing Lab&12D4567890&CLIA^8c66de45-62e3-453c-a5b2-90b6f90a407c&Testing Lab&12D4567890&CLIA||258500001^Nasopharyngeal swab^SCT^^^^2.67||||87100004^Topography unknown (body structure)^SCT^^^^^^Topography unknown (body structure)|||||||||20240904222121+0000|20240904222121+0000

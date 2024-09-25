@@ -27,6 +27,7 @@ data class ReportEventData(
     val blobUrl: String,
     val pipelineStepName: TaskAction,
     val timestamp: OffsetDateTime,
+    val commitId: String,
 )
 
 /**
@@ -83,6 +84,7 @@ enum class ReportStreamEventName {
     ITEM_FILTER_FAILED,
     REPORT_SENT,
     REPORT_RECEIVED,
+    REPORT_NOT_RECEIVABLE,
     ITEM_ROUTED,
     REPORT_LAST_MILE_FAILURE,
     REPORT_NOT_PROCESSABLE,

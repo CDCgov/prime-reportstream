@@ -1,17 +1,20 @@
 package gov.cdc.prime.reportstream.submissions.controllers
 
 import com.azure.data.tables.TableClient
-import com.azure.data.tables.models.TableEntity
 import com.azure.storage.blob.BlobContainerClient
 import com.azure.storage.queue.QueueClient
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import gov.cdc.prime.reportstream.shared.SubmissionQueueMessage
-import gov.cdc.prime.reportstream.submissions.ReportReceivedEvent
+import gov.cdc.prime.reportstream.shared.BlobUtils
+import gov.cdc.prime.reportstream.shared.QueueMessage
+import gov.cdc.prime.reportstream.shared.Submission
+import gov.cdc.prime.reportstream.submissions.SubmissionReceivedEvent
 import gov.cdc.prime.reportstream.submissions.TelemetryService
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.security.authorization.AuthorizationDeniedException
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken
 import org.springframework.web.bind.MissingRequestHeaderException
 import org.springframework.web.bind.annotation.ControllerAdvice
 import org.springframework.web.bind.annotation.ExceptionHandler
@@ -75,6 +78,7 @@ class SubmissionController(
 
         // Convert data to ByteArray
         val dataByteArray = data.toByteArray()
+        val digest = BlobUtils.sha256Digest(dataByteArray)
         logger.debug("Converted report data to ByteArray")
 
         // Upload to blob storage
@@ -84,18 +88,12 @@ class SubmissionController(
 
         // Insert into Table
         // TableEntity() sets PartitionKey and RowKey. Both are required by azure and combine to create the PK
-        val tableEntity = TableEntity(reportReceivedTime.toString(), reportId.toString())
-        val tableProperties = mapOf(
-            "report_received_time" to reportReceivedTime.toString(),
-            "report_accepted_time" to reportReceivedTime.toString(), // Will be updated when the report is accepted
-            "report_id" to reportId.toString(),
-            "status" to status
-        )
-        tableClient.createEntity(tableEntity.setProperties(tableProperties))
+        val tableEntity = Submission(reportId.toString(), status, blobClient.blobUrl).toTableEntity()
+        tableClient.createEntity(tableEntity)
         logger.info("Inserted report into table storage: reportId=$reportId")
 
         // Create and publish custom event
-        val reportReceivedEvent = ReportReceivedEvent(
+        val submissionReceivedEvent = SubmissionReceivedEvent(
             timeStamp = reportReceivedTime,
             reportId = reportId,
             parentReportId = reportId,
@@ -106,25 +104,30 @@ class SubmissionController(
             fileSize = contentLength,
             blobUrl = blobClient.blobUrl
         )
-        logger.debug("Created ReportReceivedEvent")
+        logger.debug("Created SUBMISSION_RECEIVED")
 
         // Log to Application Insights
         telemetryService.trackEvent(
-            "ReportReceivedEvent",
-            mapOf("event" to objectMapper.writeValueAsString(reportReceivedEvent)),
+            "SUBMISSION_RECEIVED",
+            mapOf("event" to objectMapper.writeValueAsString(submissionReceivedEvent)),
         )
         telemetryService.flush()
-        logger.info("Tracked ReportReceivedEvent with Application Insights")
+        logger.info("Tracked SUBMISSION_RECEIVED with Application Insights")
 
         // Queue upload should occur as the last step ensuring the other steps successfully process
         // Create the message for the queue
-        val message = SubmissionQueueMessage(reportId, blobClient.blobUrl, filterHeaders(headers))
-        val messageString = objectMapper.writeValueAsString(message)
+        val message = QueueMessage.ReceiveQueueMessage(
+            blobClient.blobUrl,
+            BlobUtils.digestToString(digest),
+            clientId.lowercase(),
+            reportId,
+            filterHeaders(headers).toMap(),
+        ).serialize()
         logger.debug("Created message for queue")
 
         // Upload to Queue
         queueClient.createIfNotExists()
-        queueClient.sendMessage(messageString)
+        queueClient.sendMessage(message)
         logger.info("Sent message to queue: queueName=${queueClient.queueName}")
 
         val response =
@@ -170,6 +173,16 @@ class SubmissionController(
 
             // Return a response entity with a generic error message and internal server error status
             return ResponseEntity("Internal Server Error: ${e.message}", HttpStatus.INTERNAL_SERVER_ERROR)
+        }
+
+        @ExceptionHandler(AuthorizationDeniedException::class)
+        fun handleAuthorizationException(
+            e: AuthorizationDeniedException,
+            auth: JwtAuthenticationToken,
+        ): ResponseEntity<Unit> {
+            logger.warn("Authorization denied for token attributes: ${auth.tokenAttributes}", e)
+
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build()
         }
 
         /**
@@ -219,8 +232,9 @@ class SubmissionController(
     }
 
     private fun filterHeaders(headers: Map<String, String>): Map<String, String> {
-        val headersToInclude = listOf("client_id", "Content-Type", "payloadname", "x-azure-clientip")
-        return headers.filter { it.key in headersToInclude }
+        val headersToInclude =
+            listOf("client_id", "content-type", "payloadname", "x-azure-clientip", "content-length")
+        return headers.filter { it.key.lowercase() in headersToInclude }
     }
 
     private fun formBlobName(
