@@ -926,18 +926,7 @@
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Segment",
             "valueString" : "OBR"
           }
-        ],
-        "collection" : {
-          "collectedDateTime" : "2024-04-03T12:00:00-04:00",
-          "_collectedDateTime" : {
-            "extension" : [
-              {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
-                "valueString" : "20240403120000-0400"
-              }
-            ]
-          }
-        }
+        ]
       }
     },
     {

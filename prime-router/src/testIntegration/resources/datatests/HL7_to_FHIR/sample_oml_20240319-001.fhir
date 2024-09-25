@@ -367,7 +367,20 @@
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/pid-patient",
             "extension" : [
               {
-                "url" : "PID.8"
+                "url" : "PID.8",
+                "valueCodeableConcept" : {
+                  "coding" : [
+                    {
+                      "extension" : [
+                        {
+                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                          "valueString" : "coding"
+                        }
+                      ],
+                      "code" : "M"
+                    }
+                  ]
+                }
               },
               {
                 "url" : "PID.24",
@@ -538,6 +551,51 @@
         "multipleBirthInteger" : 2,
         "contact" : [
           {
+            "extension" : [
+              {
+                "url" : "https://hl7.org/fhir/StructureDefinition/relationship",
+                "valueCodeableConcept" : {
+                  "coding" : [
+                    {
+                      "extension" : [
+                        {
+                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                          "valueString" : "coding"
+                        },
+                        {
+                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                          "valueString" : "HL70063"
+                        }
+                      ],
+                      "code" : "MTH",
+                      "display" : "Mother"
+                    }
+                  ],
+                  "text" : "Mother"
+                }
+              }
+            ],
+            "relationship" : [
+              {
+                "coding" : [
+                  {
+                    "extension" : [
+                      {
+                        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                        "valueString" : "coding"
+                      },
+                      {
+                        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                        "valueString" : "HL70063"
+                      }
+                    ],
+                    "code" : "MTH",
+                    "display" : "Mother"
+                  }
+                ],
+                "text" : "Mother"
+              }
+            ],
             "name" : {
               "extension" : [
                 {
@@ -722,7 +780,24 @@
                 "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
                 "valueString" : "NK1.3"
               }
-            ]
+            ],
+            "coding" : [
+              {
+                "extension" : [
+                  {
+                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                    "valueString" : "coding"
+                  },
+                  {
+                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                    "valueString" : "HL70063"
+                  }
+                ],
+                "code" : "MTH",
+                "display" : "Mother"
+              }
+            ],
+            "text" : "Mother"
           }
         ],
         "name" : [
@@ -855,7 +930,26 @@
                 "valueId" : "NM"
               },
               {
-                "url" : "OBX.6"
+                "url" : "OBX.6",
+                "valueCodeableConcept" : {
+                  "coding" : [
+                    {
+                      "extension" : [
+                        {
+                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                          "valueString" : "coding"
+                        },
+                        {
+                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                          "valueString" : "UCUM"
+                        }
+                      ],
+                      "system" : "http://unitsofmeasure.org",
+                      "code" : "g",
+                      "display" : "gram"
+                    }
+                  ]
+                }
               },
               {
                 "url" : "OBX.29",
@@ -869,6 +963,25 @@
           }
         ],
         "status" : "unknown",
+        "code" : {
+          "coding" : [
+            {
+              "extension" : [
+                {
+                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                  "valueString" : "coding"
+                },
+                {
+                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                  "valueString" : "LN"
+                }
+              ],
+              "system" : "http://loinc.org",
+              "code" : "8339-4",
+              "display" : "BIRTH WEIGHT MEASURED"
+            }
+          ]
+        },
         "subject" : {
           "reference" : "Patient/1726681492493392000.82a9acae-6ab9-467e-b92b-735a808cde8c"
         },
@@ -911,7 +1024,26 @@
                 "valueId" : "NM"
               },
               {
-                "url" : "OBX.6"
+                "url" : "OBX.6",
+                "valueCodeableConcept" : {
+                  "coding" : [
+                    {
+                      "extension" : [
+                        {
+                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                          "valueString" : "coding"
+                        },
+                        {
+                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                          "valueString" : "UCUM"
+                        }
+                      ],
+                      "system" : "http://unitsofmeasure.org",
+                      "code" : "wk",
+                      "display" : "week"
+                    }
+                  ]
+                }
               },
               {
                 "url" : "OBX.29",
@@ -925,6 +1057,25 @@
           }
         ],
         "status" : "unknown",
+        "code" : {
+          "coding" : [
+            {
+              "extension" : [
+                {
+                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                  "valueString" : "coding"
+                },
+                {
+                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                  "valueString" : "LN"
+                }
+              ],
+              "system" : "http://loinc.org",
+              "code" : "57714-8",
+              "display" : "OBSTETRIC ESTIMATION OF GESTATIONAL AGE"
+            }
+          ]
+        },
         "subject" : {
           "reference" : "Patient/1726681492493392000.82a9acae-6ab9-467e-b92b-735a808cde8c"
         },
@@ -978,6 +1129,25 @@
           }
         ],
         "status" : "unknown",
+        "code" : {
+          "coding" : [
+            {
+              "extension" : [
+                {
+                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                  "valueString" : "coding"
+                },
+                {
+                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                  "valueString" : "LN"
+                }
+              ],
+              "system" : "http://loinc.org",
+              "code" : "57713-0",
+              "display" : "INFANT FACTORS THAT AFFECT NEWBORN SCREENING INTERPRETATION"
+            }
+          ]
+        },
         "subject" : {
           "reference" : "Patient/1726681492493392000.82a9acae-6ab9-467e-b92b-735a808cde8c"
         },
@@ -1044,6 +1214,24 @@
           }
         ],
         "status" : "unknown",
+        "code" : {
+          "coding" : [
+            {
+              "extension" : [
+                {
+                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                  "valueString" : "coding"
+                },
+                {
+                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                  "valueString" : "99MDH"
+                }
+              ],
+              "code" : "MNDSIB",
+              "display" : "DOES THE BABY HAVE A DECEASED SIBLING?"
+            }
+          ]
+        },
         "subject" : {
           "reference" : "Patient/1726681492493392000.82a9acae-6ab9-467e-b92b-735a808cde8c"
         },
@@ -1109,6 +1297,24 @@
           }
         ],
         "status" : "unknown",
+        "code" : {
+          "coding" : [
+            {
+              "extension" : [
+                {
+                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                  "valueString" : "coding"
+                },
+                {
+                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                  "valueString" : "99MDH"
+                }
+              ],
+              "code" : "MNDEFECT",
+              "display" : "DOES THE BABY HAVE BIRTH DEFECTS?"
+            }
+          ]
+        },
         "subject" : {
           "reference" : "Patient/1726681492493392000.82a9acae-6ab9-467e-b92b-735a808cde8c"
         },
@@ -1174,6 +1380,24 @@
           }
         ],
         "status" : "unknown",
+        "code" : {
+          "coding" : [
+            {
+              "extension" : [
+                {
+                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                  "valueString" : "coding"
+                },
+                {
+                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                  "valueString" : "99MDH"
+                }
+              ],
+              "code" : "MNFAM",
+              "display" : "FAMILY HISTORY OF DISORDER ON MN SCREENING PANEL"
+            }
+          ]
+        },
         "subject" : {
           "reference" : "Patient/1726681492493392000.82a9acae-6ab9-467e-b92b-735a808cde8c"
         },
@@ -1239,6 +1463,25 @@
           }
         ],
         "status" : "unknown",
+        "code" : {
+          "coding" : [
+            {
+              "extension" : [
+                {
+                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                  "valueString" : "coding"
+                },
+                {
+                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                  "valueString" : "LN"
+                }
+              ],
+              "system" : "http://loinc.org",
+              "code" : "67704-7",
+              "display" : "FEEDING TYPES"
+            }
+          ]
+        },
         "subject" : {
           "reference" : "Patient/1726681492493392000.82a9acae-6ab9-467e-b92b-735a808cde8c"
         },
@@ -1305,6 +1548,25 @@
           }
         ],
         "status" : "unknown",
+        "code" : {
+          "coding" : [
+            {
+              "extension" : [
+                {
+                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                  "valueString" : "coding"
+                },
+                {
+                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                  "valueString" : "LN"
+                }
+              ],
+              "system" : "http://loinc.org",
+              "code" : "67704-7",
+              "display" : "FEEDING TYPES"
+            }
+          ]
+        },
         "subject" : {
           "reference" : "Patient/1726681492493392000.82a9acae-6ab9-467e-b92b-735a808cde8c"
         },
@@ -1371,6 +1633,25 @@
           }
         ],
         "status" : "unknown",
+        "code" : {
+          "coding" : [
+            {
+              "extension" : [
+                {
+                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                  "valueString" : "coding"
+                },
+                {
+                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                  "valueString" : "LN"
+                }
+              ],
+              "system" : "http://loinc.org",
+              "code" : "57723-9",
+              "display" : "UNIQUE BAR CODE NUMBER OF CURRENT SAMPLE"
+            }
+          ]
+        },
         "subject" : {
           "reference" : "Patient/1726681492493392000.82a9acae-6ab9-467e-b92b-735a808cde8c"
         },
@@ -1431,6 +1712,25 @@
           }
         ],
         "status" : "unknown",
+        "code" : {
+          "coding" : [
+            {
+              "extension" : [
+                {
+                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                  "valueString" : "coding"
+                },
+                {
+                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                  "valueString" : "LN"
+                }
+              ],
+              "system" : "http://loinc.org",
+              "code" : "62328-0",
+              "display" : "DISCHARGE PROVIDER PRACTICE PHONE NUMBER"
+            }
+          ]
+        },
         "subject" : {
           "reference" : "Patient/1726681492493392000.82a9acae-6ab9-467e-b92b-735a808cde8c"
         },
@@ -1479,6 +1779,25 @@
           }
         ],
         "status" : "unknown",
+        "code" : {
+          "coding" : [
+            {
+              "extension" : [
+                {
+                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                  "valueString" : "coding"
+                },
+                {
+                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                  "valueString" : "LN"
+                }
+              ],
+              "system" : "http://loinc.org",
+              "code" : "62324-9",
+              "display" : "POST-DISCHARGE PROVIDER NAME"
+            }
+          ]
+        },
         "subject" : {
           "reference" : "Patient/1726681492493392000.82a9acae-6ab9-467e-b92b-735a808cde8c"
         },
@@ -1527,6 +1846,25 @@
           }
         ],
         "status" : "unknown",
+        "code" : {
+          "coding" : [
+            {
+              "extension" : [
+                {
+                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                  "valueString" : "coding"
+                },
+                {
+                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                  "valueString" : "LN"
+                }
+              ],
+              "system" : "http://loinc.org",
+              "code" : "62326-4",
+              "display" : "POST-DISCHARGE PROVIDER PRACTICE NAME"
+            }
+          ]
+        },
         "subject" : {
           "reference" : "Patient/1726681492493392000.82a9acae-6ab9-467e-b92b-735a808cde8c"
         },
@@ -1543,10 +1881,45 @@
       }
     },
     {
-      "fullUrl" : "Specimen/1726681492638288000.b4d32b2f-d42f-4972-a5fd-3fc1c6ac26d5",
+      "fullUrl" : "Specimen/1727313792886618000.d45f77c7-ecb4-4a11-a10c-ae901a61957a",
       "resource" : {
         "resourceType" : "Specimen",
-        "id" : "1726681492638288000.b4d32b2f-d42f-4972-a5fd-3fc1c6ac26d5",
+        "id" : "1727313792886618000.d45f77c7-ecb4-4a11-a10c-ae901a61957a",
+        "extension" : [
+          {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Segment",
+            "valueString" : "OBR"
+          }
+        ],
+        "collection" : {
+          "collectedDateTime" : "2023-05-06T05:00:00Z",
+          "_collectedDateTime" : {
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+                "valueString" : "20230506050000"
+              }
+            ]
+          }
+        },
+        "note" : [
+          {
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Name",
+                "valueString" : "specimen-source"
+              }
+            ],
+            "text" : "440500007"
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl" : "Specimen/1727313792888577000.a67f4df4-1f53-4021-9d02-348da64f37b6",
+      "resource" : {
+        "resourceType" : "Specimen",
+        "id" : "1727313792888577000.a67f4df4-1f53-4021-9d02-348da64f37b6",
         "extension" : [
           {
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Segment",
@@ -1598,8 +1971,8 @@
                 }
               ],
               "system" : "http://snomed.info/sct",
-              "code" : "440500007",
-              "display" : "Blood spot specimen"
+              "code" : "440500042",
+              "display" : "Blood spatter specimen"
             }
           ]
         },
@@ -1721,6 +2094,25 @@
           }
         ],
         "status" : "unknown",
+        "code" : {
+          "coding" : [
+            {
+              "extension" : [
+                {
+                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                  "valueString" : "coding"
+                },
+                {
+                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                  "valueString" : "LN"
+                }
+              ],
+              "system" : "http://loinc.org",
+              "code" : "54089-8",
+              "display" : "Newborn screening panel American Health Information Community (AHIC)"
+            }
+          ]
+        },
         "subject" : {
           "reference" : "Patient/1726681492493392000.82a9acae-6ab9-467e-b92b-735a808cde8c"
         },
@@ -1776,7 +2168,10 @@
         ],
         "specimen" : [
           {
-            "reference" : "Specimen/1726681492638288000.b4d32b2f-d42f-4972-a5fd-3fc1c6ac26d5"
+            "reference" : "Specimen/1727313792888577000.a67f4df4-1f53-4021-9d02-348da64f37b6"
+          },
+          {
+            "reference" : "Specimen/1727313792886618000.d45f77c7-ecb4-4a11-a10c-ae901a61957a"
           }
         ]
       }
@@ -1888,10 +2283,22 @@
                         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
                         "valueString" : "XON.2"
                       }
+                    ],
+                    "coding" : [
+                      {
+                        "extension" : [
+                          {
+                            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                            "valueString" : "coding"
+                          }
+                        ],
+                        "code" : "L"
+                      }
                     ]
                   }
                 }
-              ]
+              ],
+              "code" : "L"
             }
           },
           {
@@ -1968,10 +2375,22 @@
                         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
                         "valueString" : "XON.2"
                       }
+                    ],
+                    "coding" : [
+                      {
+                        "extension" : [
+                          {
+                            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                            "valueString" : "coding"
+                          }
+                        ],
+                        "code" : "L"
+                      }
                     ]
                   }
                 }
-              ]
+              ],
+              "code" : "L"
             }
           },
           {
@@ -2035,10 +2454,22 @@
                         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
                         "valueString" : "XON.2"
                       }
+                    ],
+                    "coding" : [
+                      {
+                        "extension" : [
+                          {
+                            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                            "valueString" : "coding"
+                          }
+                        ],
+                        "code" : "L"
+                      }
                     ]
                   }
                 }
-              ]
+              ],
+              "code" : "L"
             }
           },
           {

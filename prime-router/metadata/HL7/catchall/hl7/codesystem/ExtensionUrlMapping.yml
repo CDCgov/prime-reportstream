@@ -295,6 +295,9 @@
 - id: "hl7v2-date-time"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time"
 
+- id: "hl7v2Name"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Name"
+
 # These extensions are also used to store the unique identifiers
 - id: "assigning-authority"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority"

@@ -29,6 +29,7 @@ container:
               expressionType: HL7Spec
 
 collection:
+  condition: $obr7 NOT_NULL || $obr8 NOT_NULL || $obr9 NOT_NULL || $obr10 NOT_NULL || $obr15 NOT_NULL
   expressionType: nested
   generateList: true
   expressionsMap:
