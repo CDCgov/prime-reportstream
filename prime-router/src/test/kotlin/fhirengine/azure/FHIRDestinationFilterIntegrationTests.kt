@@ -47,6 +47,7 @@ import gov.cdc.prime.router.history.db.ReportGraph
 import gov.cdc.prime.router.metadata.LookupTable
 import gov.cdc.prime.router.report.ReportService
 import gov.cdc.prime.router.unittest.UnitTestUtils
+import gov.cdc.prime.router.version.Version
 import io.mockk.every
 import io.mockk.mockkConstructor
 import io.mockk.mockkObject
@@ -349,7 +350,8 @@ class FHIRDestinationFilterIntegrationTests : Logging {
                     Topic.FULL_ELR,
                     routedReport.bodyUrl,
                     TaskAction.destination_filter,
-                    OffsetDateTime.now()
+                    OffsetDateTime.now(),
+                    Version.commitId
                 ),
                 ReportEventData::timestamp
             )
@@ -450,7 +452,8 @@ class FHIRDestinationFilterIntegrationTests : Logging {
                 Topic.FULL_ELR,
                 "",
                 TaskAction.destination_filter,
-                OffsetDateTime.now()
+                OffsetDateTime.now(),
+                Version.commitId
             ),
             ReportEventData::timestamp,
             ReportEventData::childReportId

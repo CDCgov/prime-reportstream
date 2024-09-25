@@ -94,7 +94,8 @@ class MDCUtilsTest {
                 Topic.FULL_ELR,
                 "",
                 TaskAction.send,
-                OffsetDateTime.now()
+                OffsetDateTime.now(),
+                ""
             ),
             mapOf(
                 ReportStreamEventProperties.FILENAME to "filename"
@@ -121,7 +122,8 @@ class MDCUtilsTest {
                 Topic.FULL_ELR,
                 "",
                 TaskAction.send,
-                OffsetDateTime.now()
+                OffsetDateTime.now(),
+                ""
             ),
             ItemEventData(
                 1,
