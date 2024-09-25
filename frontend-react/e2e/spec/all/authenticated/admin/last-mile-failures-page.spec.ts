@@ -1,5 +1,5 @@
 import { tableRows } from "../../../../helpers/utils";
-import { LastMileFailuresPage } from "../../../../pages/authenticated/last-mile-failures";
+import { LastMileFailuresPage } from "../../../../pages/authenticated/admin/last-mile-failures";
 import { test as baseTest, expect } from "../../../../test";
 
 export interface LastMileFailuresPageFixtures {
