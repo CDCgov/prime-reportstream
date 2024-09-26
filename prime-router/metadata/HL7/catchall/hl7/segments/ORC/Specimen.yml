@@ -32,6 +32,12 @@ collection:
   condition: $obr7 NOT_NULL || $obr8 NOT_NULL || $obr9 NOT_NULL || $obr10 NOT_NULL || $obr15 NOT_NULL
   expressionType: nested
   generateList: true
+  vars:
+    obr7: OBR.7
+    obr8: OBR.8
+    obr9: OBR.9
+    obr10: OBR.10
+    obr15: OBR.15
   expressionsMap:
     bodySite:
       valueOf: datatypes/CWE/CodeableConcept
