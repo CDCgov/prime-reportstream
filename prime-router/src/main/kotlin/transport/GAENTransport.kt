@@ -20,6 +20,7 @@ import gov.cdc.prime.router.common.HttpClientUtils
 import gov.cdc.prime.router.credentials.CredentialHelper
 import gov.cdc.prime.router.credentials.CredentialRequestReason
 import gov.cdc.prime.router.credentials.UserApiKeyCredential
+import gov.cdc.prime.router.report.ReportService
 import io.ktor.client.HttpClient
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
@@ -78,6 +79,7 @@ class GAENTransport(val httpClient: HttpClient? = null) : ITransport, Logging {
         context: ExecutionContext,
         actionHistory: ActionHistory,
         reportEventService: IReportStreamEventService,
+        reportService: ReportService,
     ): RetryItems? {
         val gaenTransportInfo = transportType as GAENTransportType
         val reportId = header.reportFile.reportId
@@ -106,7 +108,7 @@ class GAENTransport(val httpClient: HttpClient? = null) : ITransport, Logging {
 
             // Record the work in history and logs
             when (postResult) {
-                PostResult.SUCCESS -> recordFullSuccess(params, reportEventService)
+                PostResult.SUCCESS -> recordFullSuccess(params, reportEventService, reportService)
                 PostResult.RETRY -> recordFailureWithRetry(params)
                 PostResult.FAIL -> recordFailure(params)
             }
@@ -123,7 +125,11 @@ class GAENTransport(val httpClient: HttpClient? = null) : ITransport, Logging {
     /**
      * Record in [ActionHistory] the full success of this notification. Log an info message as well.
      */
-    private fun recordFullSuccess(params: SendParams, reportEventService: IReportStreamEventService) {
+    private fun recordFullSuccess(
+        params: SendParams,
+        reportEventService: IReportStreamEventService,
+        reportService: ReportService,
+    ) {
         val msg = "${params.receiver.fullName}: Successful exposure notifications of ${params.comboId}"
         val history = params.actionHistory
         params.context.logger.info(msg)
@@ -137,6 +143,7 @@ class GAENTransport(val httpClient: HttpClient? = null) : ITransport, Logging {
             msg,
             params.header,
             reportEventService,
+            reportService,
             this::class.java.simpleName
         )
         history.trackItemLineages(Report.createItemLineagesFromDb(params.header, params.sentReportId))
