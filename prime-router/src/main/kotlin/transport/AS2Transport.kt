@@ -22,6 +22,7 @@ import gov.cdc.prime.router.azure.observability.event.IReportStreamEventService
 import gov.cdc.prime.router.credentials.CredentialHelper
 import gov.cdc.prime.router.credentials.CredentialRequestReason
 import gov.cdc.prime.router.credentials.UserJksCredential
+import gov.cdc.prime.router.report.ReportService
 import org.apache.hc.core5.util.Timeout
 import org.apache.http.conn.ConnectTimeoutException
 import org.apache.logging.log4j.kotlin.Logging
@@ -50,6 +51,7 @@ class AS2Transport(val metadata: Metadata? = null) : ITransport, Logging {
         context: ExecutionContext,
         actionHistory: ActionHistory,
         reportEventService: IReportStreamEventService,
+        reportService: ReportService,
     ): RetryItems? {
         // DevNote: This code is similar to the SFTP code in structure
         //
@@ -78,6 +80,7 @@ class AS2Transport(val metadata: Metadata? = null) : ITransport, Logging {
                 msg,
                 header,
                 reportEventService,
+                reportService,
                 this::class.java.simpleName
             )
             actionHistory.trackItemLineages(Report.createItemLineagesFromDb(header, sentReportId))
