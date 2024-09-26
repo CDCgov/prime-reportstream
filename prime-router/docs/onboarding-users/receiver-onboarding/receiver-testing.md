@@ -20,20 +20,23 @@ Usage: prime fhirdata [<options>]
   Process data into/from FHIR
 
 Options:
-  -i, --input-file=<path>       Input file to process
-  -o, --output-file=<path>      output file
-  --output-format=(HL7|FHIR)    output format
-  --enrichment-schemas=<text>   comma separated enrichment schema name(s) from
-                                current directory
-  --diff-hl7-output=<text>      when true, diff the the input HL7 with the
-                                output, can only be used going HL7 -> FHIR ->
-                                HL7
-  -r, --receiver-schema=<text>  Receiver schema location. Required for HL7
-                                output.
-  -s, --sender-schema=<text>    Sender schema location
-  --input-schema=<text>         Mapping schema for input file
-  -h, --help                    Show this message and exit
-
+  -i, --input-file=<path>        Input file to process
+  -o, --output-file=<path>       output file
+  --output-format=(HL7|FHIR)     output format
+  --enrichment-schemas=<text>    comma separated enrichment schema name(s) from
+                                 current directory
+  --diff-hl7-output=<text>       when true, diff the the input HL7 with the
+                                 output, can only be used going HL7 -> FHIR ->
+                                 HL7
+  -r, --receiver-schema=<text>   Receiver schema location. Required for HL7
+                                 output.
+  --receiver-name=<text>         Name of the receiver settings to use
+  --org=<text>                   Name of the org settings to use
+  --receiver-setting-env=<text>  Environment that specifies where to get the
+                                 receiver settings
+  -s, --sender-schema=<text>     Sender schema location
+  --input-schema=<text>          Mapping schema for input file
+  -h, --help                     Show this message and exit
 ```
 The CLI command will also display any errors or warnings that the transform is generating. Example: 
 "{"message":"Element sr-patient-second-given-name is updating a bundle property, but did not specify a value","thread":"main","timestamp":"2024-09-09T21:21:35.665Z","level":"WARN","logger":"gov.cdc.prime.router.fhirengine.translation.hl7.FhirTransformer"}"
