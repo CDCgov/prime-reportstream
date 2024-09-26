@@ -14,6 +14,7 @@ import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.Task
 import gov.cdc.prime.router.azure.observability.event.IReportStreamEventService
 import gov.cdc.prime.router.credentials.UserPassCredential
+import gov.cdc.prime.router.report.ReportService
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
@@ -121,7 +122,7 @@ class SoapTransportIntegrationTests : TransportIntegrationTests() {
         )
         val retryItems = mockSoapTransport.send(
             transportType, header, reportId, "test", null, context, actionHistory,
-            mockk<IReportStreamEventService>(relaxed = true)
+            mockk<IReportStreamEventService>(relaxed = true), mockk<ReportService>(relaxed = true)
         )
         assertThat(retryItems).isNull()
     }
@@ -141,7 +142,8 @@ class SoapTransportIntegrationTests : TransportIntegrationTests() {
             null,
             context,
             actionHistory,
-            mockk<IReportStreamEventService>(relaxed = true)
+            mockk<IReportStreamEventService>(relaxed = true),
+            mockk<ReportService>(relaxed = true)
         )
         assertThat(retryItems).isNotNull()
     }
