@@ -6,6 +6,7 @@ import gov.cdc.prime.router.TransportType
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.observability.event.IReportStreamEventService
+import gov.cdc.prime.router.report.ReportService
 
 interface ITransport {
     /**
@@ -26,5 +27,6 @@ interface ITransport {
         context: ExecutionContext,
         actionHistory: ActionHistory,
         reportEventService: IReportStreamEventService,
+        reportService: ReportService,
     ): RetryItems?
 }
