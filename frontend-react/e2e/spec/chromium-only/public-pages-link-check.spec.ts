@@ -96,7 +96,6 @@ test.describe("Evaluate links on public facing pages", { tag: "@warning" }, () =
                     return { url, status: response.status };
                 } catch (error) {
                     const e = error as AxiosError;
-                    console.error(`Error accessing external link ${url}:`, e.message);
                     warnings.push({ url, message: e.message });
                     return { url, status: e.response ? e.response.status : 400 };
                 }
@@ -112,14 +111,12 @@ test.describe("Evaluate links on public facing pages", { tag: "@warning" }, () =
                     const isErrorWrapperVisible = await page.locator('[data-testid="error-page-wrapper"]').isVisible();
 
                     if (hasPageNotFoundText && isErrorWrapperVisible) {
-                        console.error(`Error accessing ${url}: Page not found`);
                         warnings.push({ url, message: "Internal link: Page not found" });
                         return { url, status: 404 };
                     }
 
                     return { url, status: 200 };
                 } catch (error) {
-                    console.error(`Error accessing internal link ${url}: Page error`);
                     warnings.push({ url, message: "Internal link: Page error" });
                     return { url, status: 400 };
                 } finally {
@@ -140,7 +137,7 @@ test.describe("Evaluate links on public facing pages", { tag: "@warning" }, () =
         }
 
         if (isFrontendWarningsLog && warnings.length > 0) {
-            await fs.promises.writeFile(frontendWarningsLogPath, `${JSON.stringify(warnings)}\n`);
+            fs.writeFileSync(frontendWarningsLogPath, `${JSON.stringify(warnings)}\n`);
         }
 
         results.forEach((result) => {
