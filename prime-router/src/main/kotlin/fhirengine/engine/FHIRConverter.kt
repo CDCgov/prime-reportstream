@@ -15,9 +15,11 @@ import gov.cdc.prime.reportstream.shared.BlobUtils
 import gov.cdc.prime.reportstream.shared.EventAction
 import gov.cdc.prime.reportstream.shared.HL7MessageParseAndConvertConfiguration
 import gov.cdc.prime.reportstream.shared.ReportOptions
-import gov.cdc.prime.reportstream.shared.queue_message.FhirConvertQueueMessage
-import gov.cdc.prime.reportstream.shared.queue_message.FhirDestinationFilterQueueMessage
-import gov.cdc.prime.reportstream.shared.queue_message.QueueMessage
+import gov.cdc.prime.reportstream.shared.queuemessage.FhirConvertQueueMessage
+import gov.cdc.prime.reportstream.shared.queuemessage.FhirDestinationFilterQueueMessage
+import gov.cdc.prime.reportstream.shared.queuemessage.QueueMessage
+import gov.cdc.prime.reportstream.shared.validation.IItemValidator
+import gov.cdc.prime.reportstream.shared.validation.NoopItemValidator
 import gov.cdc.prime.router.ActionLogDetail
 import gov.cdc.prime.router.ActionLogScope
 import gov.cdc.prime.router.ActionLogger
@@ -32,7 +34,6 @@ import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.ConditionStamper
 import gov.cdc.prime.router.azure.DatabaseAccess
-import gov.cdc.prime.router.azure.Event
 import gov.cdc.prime.router.azure.LookupTableConditionMapper
 import gov.cdc.prime.router.azure.ProcessEvent
 import gov.cdc.prime.router.azure.db.Tables
@@ -51,13 +52,10 @@ import gov.cdc.prime.router.fhirengine.translation.hl7.FhirTransformer
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
-import gov.cdc.prime.router.fhirengine.utils.HL7Reader
 import gov.cdc.prime.router.fhirengine.utils.HL7Reader.Companion.parseHL7Message
 import gov.cdc.prime.router.fhirengine.utils.getObservations
 import gov.cdc.prime.router.logging.LogMeasuredTime
 import gov.cdc.prime.router.report.ReportService
-import gov.cdc.prime.reportstream.shared.validation.IItemValidator
-import gov.cdc.prime.reportstream.shared.validation.NoopItemValidator
 import io.github.oshai.kotlinlogging.withLoggingContext
 import org.apache.commons.lang3.exception.ExceptionUtils
 import org.hl7.fhir.r4.model.Bundle
@@ -191,10 +189,9 @@ class FHIRConverter(
                                     parentItemIndex(itemIndex.toInt() + 1)
                                     params(
                                         mapOf(
-                                            ReportStreamEventProperties.ITEM_FORMAT to format
-// there is no validator for this kind of queue message or the topic associated with it
-//                                            ReportStreamEventProperties.VALIDATION_PROFILE
-//                                                to queueMessage.topic.validator.validatorProfileName
+                                            ReportStreamEventProperties.ITEM_FORMAT to format,
+                                            ReportStreamEventProperties.VALIDATION_PROFILE
+                                                to queueMessage.topic.validator.validatorProfileName
                                         )
                                     )
                                 }
@@ -375,7 +372,8 @@ class FHIRConverter(
                                 "format" to format.name
                             )
                         ) {
-                            getBundlesFromRawHL7(rawReport, validator, queueMessage.topic.hl7ParseConfiguration)                        }
+                            getBundlesFromRawHL7(rawReport, validator, queueMessage.topic.hl7ParseConfiguration)
+                        }
                     } catch (ex: ParseFailureError) {
                         actionLogger.error(
                             InvalidReportMessage("Parse error while attempting to iterate over HL7 raw message")

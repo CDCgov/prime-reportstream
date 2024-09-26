@@ -9,7 +9,7 @@ import assertk.assertions.isEqualTo
 import assertk.assertions.isEqualToIgnoringGivenProperties
 import assertk.assertions.isInstanceOf
 import gov.cdc.prime.reportstream.shared.Topic
-import gov.cdc.prime.reportstream.shared.queue_message.FhirDestinationFilterQueueMessage
+import gov.cdc.prime.reportstream.shared.queuemessage.FhirDestinationFilterQueueMessage
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.DeepOrganization

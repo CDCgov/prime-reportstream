@@ -15,6 +15,7 @@ import ca.uhn.hl7v2.validation.ValidationException
 import ca.uhn.hl7v2.validation.impl.ValidationContextFactory
 import fhirengine.translation.hl7.structures.fhirinventory.message.ORU_R01
 import fhirengine.utils.ReportStreamCanonicalModelClassFactory
+import gov.cdc.prime.reportstream.shared.HL7MessageParseAndConvertConfiguration
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.InvalidReportMessage
 import org.apache.commons.lang3.exception.ExceptionUtils
@@ -28,7 +29,6 @@ import ca.uhn.hl7v2.model.v27.message.ORU_R01 as v27_ORU_R01
 import ca.uhn.hl7v2.model.v27.segment.MSH as v27_MSH
 import fhirengine.translation.hl7.structures.nistelr251.message.ORU_R01 as NIST_ELR_ORU_R01
 import fhirengine.translation.hl7.structures.nistelr251.segment.MSH as NIST_MSH
-import gov.cdc.prime.reportstream.shared.HL7MessageParseAndConvertConfiguration
 
 private const val MSH_SEGMENT_NAME = "MSH"
 

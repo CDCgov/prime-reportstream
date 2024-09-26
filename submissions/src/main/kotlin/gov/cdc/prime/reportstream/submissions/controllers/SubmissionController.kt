@@ -6,8 +6,8 @@ import com.azure.storage.queue.QueueClient
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import gov.cdc.prime.reportstream.shared.BlobUtils
-import gov.cdc.prime.reportstream.shared.queue_message.QueueMessage
 import gov.cdc.prime.reportstream.shared.Submission
+import gov.cdc.prime.reportstream.shared.queuemessage.QueueMessage
 import gov.cdc.prime.reportstream.submissions.SubmissionReceivedEvent
 import gov.cdc.prime.reportstream.submissions.TelemetryService
 import org.slf4j.LoggerFactory
@@ -178,7 +178,7 @@ class SubmissionController(
         @ExceptionHandler(AuthorizationDeniedException::class)
         fun handleAuthorizationException(
             e: AuthorizationDeniedException,
-            auth: JwtAuthenticationToken
+            auth: JwtAuthenticationToken,
         ): ResponseEntity<Unit> {
             logger.warn("Authorization denied for token attributes: ${auth.tokenAttributes}", e)
 

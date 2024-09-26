@@ -14,7 +14,11 @@ import ca.uhn.hl7v2.util.Hl7InputStreamMessageStringIterator
 import fhirengine.translation.hl7.structures.nistelr251.message.ORU_R01
 import gov.cdc.prime.reportstream.shared.HL7MessageParseAndConvertConfiguration
 import gov.cdc.prime.reportstream.shared.Topic
-import gov.cdc.prime.reportstream.shared.queue_message.FhirConvertQueueMessage
+import gov.cdc.prime.reportstream.shared.queuemessage.FhirConvertQueueMessage
+import gov.cdc.prime.reportstream.shared.validation.AbstractItemValidator
+import gov.cdc.prime.reportstream.shared.validation.FHIRValidationResult
+import gov.cdc.prime.reportstream.shared.validation.HL7ValidationResult
+import gov.cdc.prime.reportstream.shared.validation.IItemValidator
 import gov.cdc.prime.router.ActionLogDetail
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.CustomerStatus
@@ -41,10 +45,6 @@ import gov.cdc.prime.router.fhirengine.utils.HL7Reader
 import gov.cdc.prime.router.metadata.LookupTable
 import gov.cdc.prime.router.metadata.ObservationMappingConstants
 import gov.cdc.prime.router.report.ReportService
-import gov.cdc.prime.reportstream.shared.validation.AbstractItemValidator
-import gov.cdc.prime.reportstream.shared.validation.FHIRValidationResult
-import gov.cdc.prime.reportstream.shared.validation.HL7ValidationResult
-import gov.cdc.prime.reportstream.shared.validation.IItemValidator
 import gov.nist.validation.report.Entry
 import io.mockk.clearAllMocks
 import io.mockk.every

@@ -11,8 +11,8 @@ import gov.cdc.prime.reportstream.shared.BlobUtils
 import gov.cdc.prime.reportstream.shared.EventAction
 import gov.cdc.prime.reportstream.shared.ReportOptions
 import gov.cdc.prime.reportstream.shared.Topic
-import gov.cdc.prime.reportstream.shared.queue_message.FhirDestinationFilterQueueMessage
-import gov.cdc.prime.reportstream.shared.queue_message.QueueMessage
+import gov.cdc.prime.reportstream.shared.queuemessage.FhirDestinationFilterQueueMessage
+import gov.cdc.prime.reportstream.shared.queuemessage.QueueMessage
 import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.MimeFormat
@@ -21,7 +21,6 @@ import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseLookupTableAccess
-import gov.cdc.prime.router.azure.Event
 import gov.cdc.prime.router.azure.ProcessEvent
 import gov.cdc.prime.router.azure.QueueAccess
 import gov.cdc.prime.router.azure.WorkflowEngine

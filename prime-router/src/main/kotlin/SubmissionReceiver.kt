@@ -3,8 +3,8 @@ package gov.cdc.prime.router
 import gov.cdc.prime.reportstream.shared.BlobUtils
 import gov.cdc.prime.reportstream.shared.EventAction
 import gov.cdc.prime.reportstream.shared.ReportOptions
-import gov.cdc.prime.reportstream.shared.queue_message.FhirConvertQueueMessage
-import gov.cdc.prime.reportstream.shared.queue_message.QueueMessage
+import gov.cdc.prime.reportstream.shared.queuemessage.FhirConvertQueueMessage
+import gov.cdc.prime.reportstream.shared.queuemessage.QueueMessage
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.ProcessEvent
 import gov.cdc.prime.router.azure.ReportWriter

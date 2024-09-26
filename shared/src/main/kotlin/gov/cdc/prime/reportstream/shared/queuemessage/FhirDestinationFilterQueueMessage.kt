@@ -1,17 +1,16 @@
-package gov.cdc.prime.reportstream.shared.queue_message
+package gov.cdc.prime.reportstream.shared.queuemessage
 
 import com.fasterxml.jackson.annotation.JsonTypeName
 import gov.cdc.prime.reportstream.shared.Topic
 import java.util.UUID
 
-@JsonTypeName("translate")
-data class FhirTranslateQueueMessage (
+@JsonTypeName("destination-filter")
+data class FhirDestinationFilterQueueMessage(
     override val reportId: UUID,
     override val blobURL: String,
     override val digest: String,
     override val blobSubFolderName: String,
     val topic: Topic,
-    val receiverFullName: String,
 ) : QueueMessage, QueueMessage.ReportInformation {
-    override val messageQueueName = QueueMessage.elrTranslationQueueName
+    override val messageQueueName = QueueMessage.elrDestinationFilterQueueName
 }

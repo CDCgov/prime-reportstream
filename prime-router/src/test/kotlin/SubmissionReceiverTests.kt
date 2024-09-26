@@ -5,7 +5,7 @@ import assertk.assertThat
 import assertk.assertions.isInstanceOf
 import gov.cdc.prime.reportstream.shared.ReportOptions
 import gov.cdc.prime.reportstream.shared.Topic
-import gov.cdc.prime.reportstream.shared.queue_message.QueueMessage
+import gov.cdc.prime.reportstream.shared.queuemessage.QueueMessage
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseAccess

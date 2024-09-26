@@ -63,8 +63,8 @@ const val REPORT_MAX_ERRORS = 100
 const val ROUTE_TO_SEPARATOR = ","
 const val DEFAULT_SEPARATOR = ":"
 
-//// options are used to process and route the report
-//enum class Options {
+// // options are used to process and route the report
+// enum class Options {
 //    None,
 //    ValidatePayload,
 //    CheckConnections,
@@ -110,9 +110,9 @@ const val DEFAULT_SEPARATOR = ":"
 //                throw InvalidOptionException(msg)
 //            }
 //    }
-//}
+// }
 //
-//annotation class OptionDeprecated
+// annotation class OptionDeprecated
 
 /**
  * ReportStreamFilterResult records useful information about rows filtered by one filter call.  One filter

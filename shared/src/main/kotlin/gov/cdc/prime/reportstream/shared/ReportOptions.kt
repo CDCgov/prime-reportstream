@@ -1,6 +1,5 @@
 package gov.cdc.prime.reportstream.shared
 
-
 annotation class OptionDeprecated
 
 enum class ReportOptions {
@@ -49,5 +48,4 @@ enum class ReportOptions {
             throw InvalidOptionException(msg)
         }
     }
-
 }

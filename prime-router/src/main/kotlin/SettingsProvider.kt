@@ -1,13 +1,9 @@
 package gov.cdc.prime.router
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import gov.cdc.prime.reportstream.shared.queue_message.ITopic
 import gov.cdc.prime.router.CustomerStatus.ACTIVE
 import gov.cdc.prime.router.CustomerStatus.INACTIVE
 import gov.cdc.prime.router.CustomerStatus.TESTING
-import gov.cdc.prime.reportstream.shared.validation.AbstractItemValidator
-import gov.cdc.prime.reportstream.shared.validation.MarsOtcElrOnboardingValidator
-import gov.cdc.prime.reportstream.shared.validation.MarsOtcElrValidator
 
 /**
  * Used by the engine to find orgs, senders and receivers
@@ -43,16 +39,3 @@ enum class CustomerStatus {
     @JsonProperty("active")
     ACTIVE,
 }
-
-
-
-
-
-
-
-
-
-
-
-
-

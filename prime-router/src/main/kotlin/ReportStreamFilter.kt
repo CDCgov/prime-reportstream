@@ -3,7 +3,6 @@ package gov.cdc.prime.router
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import gov.cdc.prime.reportstream.shared.Topic
-import gov.cdc.prime.reportstream.shared.queue_message.ITopic
 import kotlin.reflect.KProperty1
 import kotlin.reflect.full.memberProperties
 

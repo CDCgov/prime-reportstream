@@ -51,5 +51,4 @@ enum class EventAction {
             }
         }
     }
-
 }

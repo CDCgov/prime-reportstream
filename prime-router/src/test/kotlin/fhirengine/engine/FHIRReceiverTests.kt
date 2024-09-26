@@ -6,7 +6,7 @@ import assertk.assertions.isEqualTo
 import com.microsoft.azure.functions.HttpStatus
 import gov.cdc.prime.reportstream.shared.Submission
 import gov.cdc.prime.reportstream.shared.Topic
-import gov.cdc.prime.reportstream.shared.queue_message.QueueMessage
+import gov.cdc.prime.reportstream.shared.queuemessage.QueueMessage
 import gov.cdc.prime.router.ActionLog
 import gov.cdc.prime.router.ActionLogDetail
 import gov.cdc.prime.router.ActionLogger

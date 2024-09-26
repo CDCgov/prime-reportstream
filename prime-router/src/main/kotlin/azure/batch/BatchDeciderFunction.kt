@@ -8,7 +8,6 @@ import gov.cdc.prime.reportstream.shared.EventAction
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.azure.BatchEvent
 import gov.cdc.prime.router.azure.DataAccessTransaction
-import gov.cdc.prime.router.azure.Event
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.common.BaseEngine
 import org.apache.logging.log4j.kotlin.Logging

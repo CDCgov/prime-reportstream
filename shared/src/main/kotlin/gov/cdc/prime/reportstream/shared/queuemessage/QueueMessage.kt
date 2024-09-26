@@ -1,4 +1,4 @@
-package gov.cdc.prime.reportstream.shared.queue_message
+package gov.cdc.prime.reportstream.shared.queuemessage
 
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
@@ -65,7 +65,7 @@ interface QueueMessage {
          * @return Deserialized gov.cdc.prime.reportstream.shared.queue_message.QueueMessage object.
          */
         fun deserialize(s: String): QueueMessage {
-            logger.info("s is: ${s}")
+            logger.info("s is: $s")
             return mapper.readValue(s)
         }
 

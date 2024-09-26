@@ -1,14 +1,15 @@
 package gov.cdc.prime.router.fhirengine.engine
 
-import gov.cdc.prime.reportstream.shared.validation.encodePreserveEncodingChars
 import ca.uhn.fhir.context.FhirContext
 import ca.uhn.hl7v2.model.Message
-import ca.uhn.hl7v2.model.Segment
 import ca.uhn.hl7v2.util.Terser
 import fhirengine.engine.CustomFhirPathFunctions
 import fhirengine.engine.CustomTranslationFunctions
-import gov.cdc.prime.reportstream.shared.queue_message.FhirTranslateQueueMessage
-import gov.cdc.prime.reportstream.shared.queue_message.QueueMessage
+import gov.cdc.prime.reportstream.shared.EventAction
+import gov.cdc.prime.reportstream.shared.queuemessage.FhirTranslateQueueMessage
+import gov.cdc.prime.reportstream.shared.queuemessage.QueueMessage
+import gov.cdc.prime.reportstream.shared.queuemessage.ReportEventQueueMessage
+import gov.cdc.prime.reportstream.shared.validation.encodePreserveEncodingChars
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.Hl7Configuration
@@ -20,7 +21,6 @@ import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseAccess
-import gov.cdc.prime.router.azure.Event
 import gov.cdc.prime.router.azure.db.Tables
 import gov.cdc.prime.router.azure.observability.context.MDCUtils
 import gov.cdc.prime.router.azure.observability.context.withLoggingContext
@@ -31,12 +31,8 @@ import gov.cdc.prime.router.fhirengine.config.HL7TranslationConfig
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Context
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Converter
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirTransformer
-import gov.cdc.prime.router.fhirengine.translation.hl7.utils.HL7Utils.defaultHl7EncodingFiveChars
-import gov.cdc.prime.router.fhirengine.translation.hl7.utils.HL7Utils.defaultHl7EncodingFourChars
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.report.ReportService
-import gov.cdc.prime.reportstream.shared.EventAction
-import gov.cdc.prime.reportstream.shared.queue_message.ReportEventQueueMessage
 import org.hl7.fhir.r4.model.Bundle
 import org.jooq.Field
 import java.time.OffsetDateTime
@@ -247,12 +243,12 @@ class FHIRTranslator(
     }
 }
 
-///**
+// /**
 // * Encodes a message while avoiding an error when MSH-2 is five characters long
 // *
 // * @return the encoded message as a string
 // */
-//fun Message.encodePreserveEncodingChars(): String {
+// fun Message.encodePreserveEncodingChars(): String {
 //    // get encoding characters ...
 //    val msh = this.get("MSH") as Segment
 //    val encCharString = Terser.get(msh, 2, 0, 1, 1)
@@ -265,4 +261,4 @@ class FHIRTranslator(
 //        Terser.set(msh, 2, 0, 1, 1, defaultHl7EncodingFiveChars)
 //    }
 //    return encodedMsg
-//}
+// }

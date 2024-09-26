@@ -5,9 +5,9 @@ import fhirengine.engine.CustomFhirPathFunctions
 import gov.cdc.prime.reportstream.shared.BlobUtils
 import gov.cdc.prime.reportstream.shared.EventAction
 import gov.cdc.prime.reportstream.shared.ReportOptions
-import gov.cdc.prime.reportstream.shared.queue_message.FhirReceiverFilterQueueMessage
-import gov.cdc.prime.reportstream.shared.queue_message.FhirTranslateQueueMessage
-import gov.cdc.prime.reportstream.shared.queue_message.QueueMessage
+import gov.cdc.prime.reportstream.shared.queuemessage.FhirReceiverFilterQueueMessage
+import gov.cdc.prime.reportstream.shared.queuemessage.FhirTranslateQueueMessage
+import gov.cdc.prime.reportstream.shared.queuemessage.QueueMessage
 import gov.cdc.prime.router.ActionLogDetail
 import gov.cdc.prime.router.ActionLogScope
 import gov.cdc.prime.router.ActionLogger
@@ -22,7 +22,6 @@ import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseAccess
-import gov.cdc.prime.router.azure.Event
 import gov.cdc.prime.router.azure.ProcessEvent
 import gov.cdc.prime.router.azure.db.Tables
 import gov.cdc.prime.router.azure.db.enums.TaskAction

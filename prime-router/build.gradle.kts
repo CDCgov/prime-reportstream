@@ -692,7 +692,7 @@ jooq {
                                     .withIncludeTypes("JSONB"),
                                 ForcedType()
                                     // Specify the Java type of your custom type. This corresponds to the Binding's <U> type.
-                                    //.withUserType("gov.cdc.prime.router.Topic")
+                                    // .withUserType("gov.cdc.prime.router.Topic")
                                     .withUserType("gov.cdc.prime.reportstream.shared.Topic")
                                     // Associate that custom type with your binding.
                                     .withBinding("gov.cdc.prime.router.TopicBinding")

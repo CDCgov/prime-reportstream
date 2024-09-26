@@ -3,10 +3,10 @@ package gov.cdc.prime.router.azure
 import com.fasterxml.jackson.module.kotlin.readValue
 import gov.cdc.prime.reportstream.shared.EventAction
 import gov.cdc.prime.reportstream.shared.ReportOptions
-import gov.cdc.prime.reportstream.shared.queue_message.BatchEventQueueMessage
-import gov.cdc.prime.reportstream.shared.queue_message.ProcessEventQueueMessage
-import gov.cdc.prime.reportstream.shared.queue_message.QueueMessage
-import gov.cdc.prime.reportstream.shared.queue_message.ReportEventQueueMessage
+import gov.cdc.prime.reportstream.shared.queuemessage.BatchEventQueueMessage
+import gov.cdc.prime.reportstream.shared.queuemessage.ProcessEventQueueMessage
+import gov.cdc.prime.reportstream.shared.queuemessage.QueueMessage
+import gov.cdc.prime.reportstream.shared.queuemessage.ReportEventQueueMessage
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.transport.RetryToken
@@ -51,7 +51,9 @@ abstract class Event(val eventAction: EventAction, val at: OffsetDateTime?) {
                 EventAction.REBATCH -> TaskAction.rebatch
                 // OTHER is not an expected value, more of a logical fallback/default used in BlobAccess.uploadBody
                 EventAction.OTHER -> TaskAction.other
-                else -> { TaskAction.other }
+                else -> {
+                    TaskAction.other
+                }
             }
         }
 

@@ -4,7 +4,6 @@ import ca.uhn.hl7v2.model.Message
 import ca.uhn.hl7v2.model.Segment
 import ca.uhn.hl7v2.util.Terser
 
-
 /**
  * The default HL7 encoding characters.  Note that depending on the message version this will be 4 or 5 characters.
  */

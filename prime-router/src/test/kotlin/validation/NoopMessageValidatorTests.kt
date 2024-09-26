@@ -3,11 +3,11 @@ package gov.cdc.prime.router.validation
 import assertk.assertThat
 import assertk.assertions.isTrue
 import ca.uhn.hl7v2.model.Message
+import gov.cdc.prime.reportstream.shared.validation.NoopItemValidationResult
+import gov.cdc.prime.reportstream.shared.validation.NoopItemValidator
 import io.mockk.mockk
 import org.hl7.fhir.r4.model.Bundle
 import org.junit.jupiter.api.Test
-import gov.cdc.prime.reportstream.shared.validation.NoopItemValidationResult
-import gov.cdc.prime.reportstream.shared.validation.NoopItemValidator
 
 class NoopMessageValidatorTests {
 

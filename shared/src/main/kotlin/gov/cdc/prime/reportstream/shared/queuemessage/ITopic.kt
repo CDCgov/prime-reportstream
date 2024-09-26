@@ -1,4 +1,4 @@
-package gov.cdc.prime.reportstream.shared.queue_message
+package gov.cdc.prime.reportstream.shared.queuemessage
 
 import com.fasterxml.jackson.annotation.JsonValue
 import gov.cdc.prime.reportstream.shared.validation.IItemValidator

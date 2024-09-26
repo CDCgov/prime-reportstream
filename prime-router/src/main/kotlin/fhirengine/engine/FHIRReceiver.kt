@@ -4,9 +4,9 @@ import ca.uhn.hl7v2.model.Message
 import com.microsoft.azure.functions.HttpStatus
 import gov.cdc.prime.reportstream.shared.EventAction
 import gov.cdc.prime.reportstream.shared.ReportOptions
-import gov.cdc.prime.reportstream.shared.queue_message.QueueMessage
 import gov.cdc.prime.reportstream.shared.Submission
-import gov.cdc.prime.reportstream.shared.queue_message.FhirConvertQueueMessage
+import gov.cdc.prime.reportstream.shared.queuemessage.FhirConvertQueueMessage
+import gov.cdc.prime.reportstream.shared.queuemessage.QueueMessage
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.ClientSource
 import gov.cdc.prime.router.CustomerStatus

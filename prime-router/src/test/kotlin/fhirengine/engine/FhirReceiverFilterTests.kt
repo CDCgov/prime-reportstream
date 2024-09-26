@@ -8,8 +8,8 @@ import assertk.assertions.isInstanceOf
 import assertk.assertions.matchesPredicate
 import ca.uhn.fhir.context.FhirContext
 import gov.cdc.prime.reportstream.shared.Topic
-import gov.cdc.prime.reportstream.shared.queue_message.FhirReceiverFilterQueueMessage
-import gov.cdc.prime.reportstream.shared.queue_message.FhirTranslateQueueMessage
+import gov.cdc.prime.reportstream.shared.queuemessage.FhirReceiverFilterQueueMessage
+import gov.cdc.prime.reportstream.shared.queuemessage.FhirTranslateQueueMessage
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.CodeStringConditionFilter
 import gov.cdc.prime.router.CustomerStatus

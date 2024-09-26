@@ -8,7 +8,7 @@ import assertk.assertions.isTrue
 import ca.uhn.hl7v2.util.Hl7InputStreamMessageIterator
 import ca.uhn.hl7v2.util.Terser
 import gov.cdc.prime.reportstream.shared.Topic
-import gov.cdc.prime.reportstream.shared.queue_message.FhirTranslateQueueMessage
+import gov.cdc.prime.reportstream.shared.queuemessage.FhirTranslateQueueMessage
 import gov.cdc.prime.reportstream.shared.validation.encodePreserveEncodingChars
 import gov.cdc.prime.router.ActionLogDetail
 import gov.cdc.prime.router.ActionLogger

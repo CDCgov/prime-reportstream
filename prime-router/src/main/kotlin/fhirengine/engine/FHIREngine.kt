@@ -1,6 +1,6 @@
 package gov.cdc.prime.router.fhirengine.engine
 
-import gov.cdc.prime.reportstream.shared.queue_message.QueueMessage
+import gov.cdc.prime.reportstream.shared.queuemessage.QueueMessage
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.InvalidReportMessage
 import gov.cdc.prime.router.Metadata
@@ -238,7 +238,12 @@ abstract class FHIREngine(
             // we need the if (a) b else c call because ReportId can't be null and this makes the compiler a
             // happy panda.
             assert(queueMessage is QueueMessage.ReportInformation)
-            var reportId: ReportId = if (queueMessage is QueueMessage.ReportInformation) queueMessage.reportId else UUID.randomUUID()
+            var reportId: ReportId =
+                if (queueMessage is QueueMessage.ReportInformation) {
+                    queueMessage.reportId
+                } else {
+                    UUID.randomUUID()
+                }
 
             // Nullify the previous task
             db.updateTask(
