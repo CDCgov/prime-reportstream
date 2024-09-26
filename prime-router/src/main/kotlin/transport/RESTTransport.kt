@@ -20,6 +20,7 @@ import gov.cdc.prime.router.credentials.UserApiKeyCredential
 import gov.cdc.prime.router.credentials.UserAssertionCredential
 import gov.cdc.prime.router.credentials.UserJksCredential
 import gov.cdc.prime.router.credentials.UserPassCredential
+import gov.cdc.prime.router.report.ReportService
 import gov.cdc.prime.router.tokens.AuthUtils
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
@@ -93,6 +94,7 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
         context: ExecutionContext,
         actionHistory: ActionHistory,
         reportEventService: IReportStreamEventService,
+        reportService: ReportService,
     ): RetryItems? {
         val logger: Logger = context.logger
 
@@ -157,6 +159,7 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
                             msg,
                             header,
                             reportEventService,
+                            reportService,
                             this::class.java.simpleName
                         )
                         actionHistory.trackItemLineages(Report.createItemLineagesFromDb(header, sentReportId))
