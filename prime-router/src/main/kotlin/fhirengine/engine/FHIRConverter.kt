@@ -360,8 +360,7 @@ class FHIRConverter(
         actionLogger: ActionLogger,
         routeReportWithInvalidItems: Boolean = true,
     ): List<IProcessedItem<*>> {
-// there is no validator for this kind of queue message or the topic associated with it
-//        val validator = queueMessage.topic.validator
+        val validator = queueMessage.topic.validator
         val rawReport = BlobAccess.downloadBlob(queueMessage.blobURL, queueMessage.digest)
         return if (rawReport.isBlank()) {
             actionLogger.error(InvalidReportMessage("Provided raw data is empty."))
@@ -376,8 +375,7 @@ class FHIRConverter(
                                 "format" to format.name
                             )
                         ) {
-                            getBundlesFromRawHL7(rawReport=rawReport, hL7MessageParseAndConvertConfiguration = null)
-                        }
+                            getBundlesFromRawHL7(rawReport, validator, queueMessage.topic.hl7ParseConfiguration)                        }
                     } catch (ex: ParseFailureError) {
                         actionLogger.error(
                             InvalidReportMessage("Parse error while attempting to iterate over HL7 raw message")
@@ -393,7 +391,7 @@ class FHIRConverter(
                             "format" to format.name
                         )
                     ) {
-                        getBundlesFromRawFHIR(rawReport)
+                        getBundlesFromRawFHIR(rawReport, validator)
                     }
                 }
 
