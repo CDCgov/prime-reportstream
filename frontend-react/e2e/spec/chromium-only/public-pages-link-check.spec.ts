@@ -27,7 +27,7 @@ test.describe("Evaluate links on public facing pages", { tag: "@warning" }, () =
         const response = await page.goto("/sitemap.xml");
         const sitemapXml = await response!.text();
         // Since we don't want to use any external XML parsing libraries,
-        // we can use page.evaluate, but that creates it's own execution context
+        // we can use page.evaluate, but that creates its own execution context
         // wherein we need to explicitly return something, which is why
         // we have the convoluted
         // elem.textContent ? new URL(elem.textContent).pathname : null,
@@ -44,7 +44,7 @@ test.describe("Evaluate links on public facing pages", { tag: "@warning" }, () =
     });
 
     test("Check if paths were fetched", () => {
-        expect(urlPaths.length).toBeGreaterThan(0);
+        expect(urlPaths.length).toBeGreaterThan(0); // Ensure that paths were fetched correctly
     });
 
     test("Check all public-facing URLs and their links for a valid 200 response", async ({
@@ -145,5 +145,9 @@ test.describe("Evaluate links on public facing pages", { tag: "@warning" }, () =
                 console.warn(`Warning: ${result.url} returned status ${result.status}`);
             }
         });
+
+        // Required expect statement + if somehow the warnings and number of links
+        // are the same, that's a huge problem.
+        expect(warnings.length).toBeLessThan(aggregateHref.length);
     });
 });
