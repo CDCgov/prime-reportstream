@@ -21,4 +21,4 @@ export const GENERIC_ERROR_PAGE_CONFIG: ErrorDisplayMessage = {
     urgency.`,
 };
 
-export const pageNotFound = "Page Not Found";
+export const pageNotFound = "Page not found";
