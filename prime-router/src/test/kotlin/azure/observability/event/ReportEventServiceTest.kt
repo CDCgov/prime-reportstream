@@ -12,6 +12,7 @@ import gov.cdc.prime.router.db.ReportStreamTestDatabaseContainer
 import gov.cdc.prime.router.db.ReportStreamTestDatabaseSetupExtension
 import gov.cdc.prime.router.history.db.ReportGraph
 import gov.cdc.prime.router.report.ReportService
+import gov.cdc.prime.router.version.Version
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.testcontainers.junit.jupiter.Testcontainers
@@ -93,7 +94,8 @@ class ReportEventServiceTest {
                 Topic.FULL_ELR,
                 "",
                 TaskAction.send,
-                OffsetDateTime.now()
+                OffsetDateTime.now(),
+                Version.commitId
             ),
                 ReportEventData::timestamp
         )
@@ -136,7 +138,8 @@ class ReportEventServiceTest {
                 Topic.FULL_ELR,
                 "",
                 TaskAction.send,
-                OffsetDateTime.now()
+                OffsetDateTime.now(),
+                Version.commitId
             ),
                 ReportEventData::timestamp
         )

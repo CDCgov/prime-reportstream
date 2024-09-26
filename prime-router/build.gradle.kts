@@ -48,6 +48,16 @@ plugins {
     id("io.swagger.core.v3.swagger-gradle-plugin") version "2.2.23"
 }
 
+// retrieve the current commit hash
+val commitId by lazy {
+    val stdout = ByteArrayOutputStream()
+    exec {
+        commandLine("git", "rev-parse", "--short", "HEAD")
+        standardOutput = stdout
+    }
+    stdout.toString(StandardCharsets.UTF_8).trim()
+}
+
 group = "gov.cdc.prime.reportstream"
 version = "0.2-SNAPSHOT"
 description = "prime-router"
@@ -261,6 +271,9 @@ sourceSets.create("testIntegration") {
     runtimeClasspath += sourceSets["main"].output
 }
 
+// Add generated version object
+sourceSets["main"].java.srcDir("$buildDir/generated-src/version")
+
 val compileTestIntegrationKotlin: KotlinCompile by tasks
 compileTestIntegrationKotlin.kotlinOptions.jvmTarget = appJvmTarget
 
@@ -340,6 +353,7 @@ tasks.withType<Test>().configureEach {
 }
 
 tasks.processResources {
+    dependsOn("generateVersionObject")
     // Set the proper build values in the build.properties file
     filesMatching("build.properties") {
         val dateFormatter = DateTimeFormatter.ofPattern("yyyyMMdd")
@@ -500,16 +514,30 @@ tasks.azureFunctionsPackage {
     finalizedBy("copyAzureScripts")
 }
 
+// TODO: remove after implementation of health check endpoint
 tasks.register("generateVersionFile") {
     doLast {
-        val stdout = ByteArrayOutputStream()
-        exec {
-            commandLine("git", "rev-parse", "--short", "HEAD")
-            standardOutput = stdout
-        }
-        val currentCommit = stdout.toString(StandardCharsets.UTF_8).trim()
-        File(buildDir, "$azureFunctionsDir/$azureAppName/version.json").writeText("{\"commitId\": \"$currentCommit\"}")
+        file("$buildDir/$azureFunctionsDir/$azureAppName/version.json").writeText("{\"commitId\": \"$commitId\"}")
     }
+}
+
+tasks.register("generateVersionObject") {
+    val sourceDir = file("$buildDir/generated-src/version")
+    val sourceFile = file("$sourceDir/Version.kt")
+    sourceDir.mkdirs()
+    sourceFile.writeText(
+        """
+        package gov.cdc.prime.router.version
+        
+        /**
+         * Supplies information for the current build.
+         * This file is generated via Gradle task prior to compile time and should always contain the current commit hash.
+         */
+        object Version {
+          const val commitId = "$commitId"
+        }
+    """.trimIndent()
+    )
 }
 
 val azureResourcesTmpDir = File(buildDir, "$azureFunctionsDir-resources/$azureAppName")
