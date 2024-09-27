@@ -1,0 +1,49 @@
+name: Scan Action Logs
+
+on: [push]
+
+jobs:
+  scan_run_logs_1:
+    runs-on: ubuntu-latest
+    name: Scan repo run logs 1
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Scan run logs
+        uses: ./
+        id: scan
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-limit: 5
+          fail-on-leak: false
+      - name: Get scan exceptions
+        if: steps.scan.outputs.count > 0
+        run: | 
+          echo "count=${{ steps.scan.outputs.count }}"
+          exceptions='${{ steps.scan.outputs.exceptions }}'
+          echo ${exceptions//"%0A"/} | jq '.'
+      - name: Confirm no exceptions
+        if: steps.scan.outputs.count == 0
+        run: |
+          echo "No exceptions found!"
+  scan_run_logs_2:
+    runs-on: ubuntu-latest
+    name: Scan repo run logs 2
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Scan run logs
+        uses: ./
+        id: scan
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-limit: 5
+          patterns-path: ".github/runleaks/patterns_force_failure.txt"
+          exclusions-path: ".github/runleaks/exclusions.txt"
+          fail-on-leak: false
+      - name: Get scan exceptions
+        if: steps.scan.outputs.count > 0
+        run: | 
+          echo "count=${{ steps.scan.outputs.count }}"
+          exceptions='${{ steps.scan.outputs.exceptions }}'
+          echo ${exceptions//"%0A"/} | jq '.'
