@@ -95,6 +95,19 @@ test.describe("Organization Edit Page", {
                 const rowCount = await organizationEditPage.page.locator("#orgreceiversettings .usa-table tbody tr").count();
                 expect(rowCount).toBeGreaterThanOrEqual(1);
             });
+
+            test("can edit an organization receiver", async ({ organizationEditPage }) => {
+                const firstOrgReceiver = await organizationEditPage.page.locator("#orgreceiversettings").nth(0).locator("td").nth(0).innerText();
+                await organizationEditPage.page.locator('#orgreceiversettings').getByRole('link', { name: 'Edit' }).nth(0).click();
+                await expect(organizationEditPage.page).toHaveURL(`/admin/orgreceiversettings/org/ignore/receiver/${firstOrgReceiver}/action/edit`);
+                await expect(organizationEditPage.page.getByText(`Org name: ignore`)).toBeVisible();
+                await expect(organizationEditPage.page.getByText(`Receiver name: ${firstOrgReceiver}`)).toBeVisible();
+
+                await expect(organizationEditPage.page.getByTestId("name")).not.toBeEmpty();
+                await expect(organizationEditPage.page.getByTestId("topic")).not.toBeEmpty();
+                await expect(organizationEditPage.page.getByTestId("customerStatus")).not.toBeEmpty();
+                await expect(organizationEditPage.page.getByTestId("translation")).not.toBeEmpty();
+            });
         });
     });
 });
