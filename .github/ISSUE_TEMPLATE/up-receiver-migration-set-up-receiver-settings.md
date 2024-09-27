@@ -2,10 +2,11 @@
 name: UP Migrate Receiver - Receiver Migration Pre-Work
 about: This is the first step in migrating a STLT to the UP
 title: "[name of STLT] - UP Receiver Migration Pre-Work"
-labels: onboarding-ops, receiver
+labels: onboarding-ops, receiver, needs-refinement, engineering
 assignees: ''
 
 ---
+[STLT] = [name of STLT]
 
 ### User Story:
 As a developer, I want to compare the messages generated from the Covid and Universal pipelines, so that I can successfully onboard [STLT] to the UP
@@ -67,4 +68,17 @@ As a developer, I want to compare the messages generated from the Covid and Univ
 - [ ] Successfully generated a message with migrated UP receiver settings
 - [ ] Review transforms settings with the team
 - [ ] Compared messages from the covid and universal pipelines and documented differences and review with team
+- [ ] When finished, tag Mikaelah, Chris, and Glenn in a slack post stating:
+> [STLT] "Testing in Staging" is complete and will be moving on to "Monitor in Production"
+>
+> Connection Type: [REST, SFTP, SOAP, etc]
+>
+> Conditions tested: [List of Conditions]
+>
+> Positives set up to receive: [List of Conditions]
+>
+> Negatives set up to receive: [List of Conditions]
+>
+> Format receiving: [HL7 or FHIR]
+
 
