@@ -117,7 +117,8 @@ class SendFunction(
                         retryItems,
                         context,
                         actionHistory,
-                        reportEventService
+                        reportEventService,
+                        workflowEngine.reportService
                     )
                     if (nextRetry != null) {
                         nextRetryItems += nextRetry
