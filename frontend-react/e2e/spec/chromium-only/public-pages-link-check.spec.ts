@@ -1,5 +1,6 @@
 /* eslint-disable playwright/no-networkidle */
 import axios, { AxiosError } from "axios";
+import pLimit from "p-limit";
 import * as fs from "fs";
 import { pageNotFound } from "../../../src/content/error/ErrorMessages";
 import { isAbsoluteURL, isAssetURL } from "../../helpers/utils";
@@ -104,7 +105,8 @@ test.describe("Evaluate links on public facing pages", { tag: "@warning" }, () =
                 const page = await context.newPage();
 
                 try {
-                    await page.goto(url, { waitUntil: "networkidle" });
+                    const absoluteUrl = new URL(url, baseURL).toString();
+                    await page.goto(absoluteUrl, { waitUntil: "networkidle" });
 
                     const pageContent = await page.content();
                     const hasPageNotFoundText = pageContent.includes(pageNotFound);
@@ -129,13 +131,19 @@ test.describe("Evaluate links on public facing pages", { tag: "@warning" }, () =
         // Since we're trying to parallelize these tests by using Promise.all
         // we need multiple, separate instances of the Playwright browser
         const browser = await chromium.launch();
-        let results;
-        try {
-            results = await Promise.all(aggregateHref.map((href) => validateLink(browser, href)));
-        } finally {
-            await browser.close();
-        }
-
+        const limit = pLimit(10);
+        const results = await Promise.all(
+            aggregateHref.map((href) =>
+                limit(async () => {
+                    try {
+                        return await validateLink(browser, href);
+                    } catch (error) {
+                        console.error(`Error validating link: ${href}`, error);
+                        return { url: href, status: 500 };
+                    }
+                }),
+            ),
+        );
         if (isFrontendWarningsLog && warnings.length > 0) {
             fs.writeFileSync(frontendWarningsLogPath, `${JSON.stringify(warnings)}\n`);
         }
