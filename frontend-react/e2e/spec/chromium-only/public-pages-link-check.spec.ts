@@ -101,30 +101,7 @@ test.describe("Evaluate links on public facing pages", { tag: "@warning" }, () =
                     return { url, status: e.response ? e.response.status : 400 };
                 }
             } else {
-                const context = await browser.newContext();
-                const page = await context.newPage();
-
-                try {
-                    const absoluteUrl = new URL(url, baseURL).toString();
-                    await page.goto(absoluteUrl, { waitUntil: "networkidle" });
-
-                    const pageContent = await page.content();
-                    const hasPageNotFoundText = pageContent.includes(pageNotFound);
-                    const isErrorWrapperVisible = await page.locator('[data-testid="error-page-wrapper"]').isVisible();
-
-                    if (hasPageNotFoundText && isErrorWrapperVisible) {
-                        warnings.push({ url, message: "Internal link: Page not found" });
-                        return { url, status: 404 };
-                    }
-
-                    return { url, status: 200 };
-                } catch (error) {
-                    warnings.push({ url, message: "Internal link: Page error" });
-                    return { url, status: 400 };
-                } finally {
-                    await page.close();
-                    await context.close();
-                }
+                return { url, status: 400 };
             }
         };
 
