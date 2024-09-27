@@ -18,7 +18,7 @@ Please pay attention to [security related dependency PRs](https://github.com/CDC
 
 ## Steps
 1. Open the dependabot's pull request to be merged and identify if the PR is out of date from master.  If so, create a new comment in the PR with the text 
-`@dependabot rebase` to let dependabot rebase the branch for you.  If you use any other method, dependabot will not be able to keep track of the PR. If the PR has conflicts (and no manual commits were added), use `@dpendabot recreate` to recreate the PR from scratch.
+`@dependabot rebase` to let dependabot rebase the branch for you.  If you use any other method, dependabot will not be able to keep track of the PR. If the PR has conflicts (and no manual commits were added), use `@dependabot recreate` to recreate the PR from scratch.
 1. Verify that the build for the PR is successful.  Note that the unit, integration and smoke tests are run as part of the build.
 1. Read the updated library's changelog and identify and communicate any risks you find.  When in doubt ask! Library changes can affect many parts of the system.
 1. Identify any library version conflicts for the updated library. This may happen when other libraries are dependent on a different version of the same library.  See 

@@ -186,10 +186,10 @@ This filter will log messages to the console when:
 
 This step emits one of two events below _once_ each time it runs.
 
-| Event                                                                         | Trigger                                                          |
-|-------------------------------------------------------------------------------|------------------------------------------------------------------|
-| [ReportAcceptedEvent](../observability/azure-events.md#reportacceptedevent)   | when a report is received by this step (precludes all filtering) |
-| [ReportNotRoutedEvent](../observability/azure-events.md#reportnotroutedevent) | when a report is not valid for any receivers                     |
+| Event           | Trigger                                                          |
+|-----------------|------------------------------------------------------------------|
+| ITEM_ROUTED     | when a report is received by this step (precludes all filtering) |
+| ITEM_NOT_ROUTED | when a report is not valid for any receivers                     |
 
 ## Retries
 
