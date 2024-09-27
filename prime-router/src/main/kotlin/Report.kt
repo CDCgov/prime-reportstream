@@ -134,8 +134,8 @@ data class ReportStreamFilterResult(
     val filteredTrackingElement: String,
     val filterType: ReportStreamFilterType?,
     val filteredObservationDetails: String? = null,
+    override val scope: ActionLogScope = ActionLogScope.translation,
 ) : ActionLogDetail {
-    override val scope = ActionLogScope.translation
     override val errorCode = ErrorCode.UNKNOWN
 
     companion object {
@@ -145,8 +145,8 @@ data class ReportStreamFilterResult(
 
     override val message = """
         For $receiverName, filter $filterName$filterArgs filtered out item $filteredTrackingElement. 
-        $filteredObservationDetails 
-    }
+        Filter Type: $filterType Filter Args: $filterArgs 
+        Filtered Observation Details: $filteredObservationDetails 
     """.trimIndent()
 
     // Used for deserializing to a JSON response
@@ -350,8 +350,10 @@ class Report : Logging {
         destination: Receiver? = null,
         nextAction: TaskAction = TaskAction.process,
         topic: Topic,
+        id: UUID = UUID.randomUUID(),
+        bodyURL: String = "",
     ) {
-        this.id = UUID.randomUUID()
+        this.id = id
         // UP submissions do not need a schema, but it is required by the database to maintain legacy functionality
         this.schema = Schema("None", topic)
         this.sources = sources
@@ -365,6 +367,7 @@ class Report : Logging {
         this.metadata = metadata ?: Metadata.getInstance()
         this.itemCountBeforeQualFilter = numberOfMessages
         this.nextAction = nextAction
+        this.bodyURL = bodyURL
     }
 
     data class ParentItemLineageData(val parentReportId: UUID, val parentReportIndex: Int)
@@ -681,11 +684,12 @@ class Report : Logging {
                 // to reliably shuffle against. because shuffling is pseudo-random, it's possible that
                 // with something below a threshold we could end up leaking PII, therefore
                 // ignore the call to shuffle and just fake it
-                val synthesizeStrategy = if (itemCount < SHUFFLE_THRESHOLD && strategy == SynthesizeStrategy.SHUFFLE) {
-                    SynthesizeStrategy.FAKE
-                } else {
-                    strategy
-                }
+                val synthesizeStrategy =
+                    if (itemCount < SHUFFLE_THRESHOLD && strategy == SynthesizeStrategy.SHUFFLE) {
+                        SynthesizeStrategy.FAKE
+                    } else {
+                        strategy
+                    }
                 // look in the mapping parameter passed in for the current element
                 when (synthesizeStrategy) {
                     // examine the synthesizeStrategy for the field

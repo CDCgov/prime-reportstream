@@ -11,6 +11,8 @@ import fhirengine.engine.CustomFhirPathFunctions
 import fhirengine.engine.IProcessedItem
 import fhirengine.engine.ProcessedFHIRItem
 import fhirengine.engine.ProcessedHL7Item
+import gov.cdc.prime.reportstream.shared.BlobUtils
+import gov.cdc.prime.reportstream.shared.QueueMessage
 import gov.cdc.prime.router.ActionLogDetail
 import gov.cdc.prime.router.ActionLogScope
 import gov.cdc.prime.router.ActionLogger
@@ -92,22 +94,19 @@ class FHIRConverter(
         message: T,
         actionLogger: ActionLogger,
         actionHistory: ActionHistory,
-    ): List<FHIREngineRunResult> {
-        return when (message) {
-            is FhirConvertQueueMessage -> {
-                fhirEngineRunResults(message, message.schemaName, actionLogger, actionHistory)
-            }
-
-            else -> {
-                throw RuntimeException(
-                    "Message was not a FhirConvert and cannot be processed: $message"
-                )
-            }
+    ): List<FHIREngineRunResult> = when (message) {
+        is FhirConvertQueueMessage -> {
+            fhirEngineRunResults(message, message.schemaName, actionLogger, actionHistory)
+        }
+        else -> {
+            throw RuntimeException(
+                "Message was not a FhirConvert and cannot be processed: $message"
+            )
         }
     }
 
     private fun fhirEngineRunResults(
-        queueMessage: ReportPipelineMessage,
+        queueMessage: FhirConvertQueueMessage,
         schemaName: String,
         actionLogger: ActionLogger,
         actionHistory: ActionHistory,
@@ -262,14 +261,14 @@ class FHIRConverter(
                                 )
                             }
 
-                            FHIREngineRunResult(
+                        FHIREngineRunResult(
                                 routeEvent,
                                 report,
                                 blobInfo.blobUrl,
                                 FhirDestinationFilterQueueMessage(
                                     report.id,
                                     blobInfo.blobUrl,
-                                    BlobAccess.digestToString(blobInfo.digest),
+                                    BlobUtils.digestToString(blobInfo.digest),
                                     queueMessage.blobSubFolderName,
                                     queueMessage.topic
                                 )
@@ -351,12 +350,12 @@ class FHIRConverter(
      */
     internal fun process(
         format: MimeFormat,
-        queueMessage: ReportPipelineMessage,
+        queueMessage: FhirConvertQueueMessage,
         actionLogger: ActionLogger,
         routeReportWithInvalidItems: Boolean = true,
     ): List<IProcessedItem<*>> {
         val validator = queueMessage.topic.validator
-        val rawReport = queueMessage.downloadContent()
+        val rawReport = BlobAccess.downloadBlob(queueMessage.blobURL, queueMessage.digest)
         return if (rawReport.isBlank()) {
             actionLogger.error(InvalidReportMessage("Provided raw data is empty."))
             emptyList()
@@ -646,8 +645,7 @@ class FHIRConverter(
      * Using this function instead of calling the constructor directly simplifies the process of mocking the
      * transformer in tests.
      */
-    fun getTransformerFromSchema(schemaName: String): FhirTransformer? {
-        return if (schemaName.isNotBlank()) {
+    fun getTransformerFromSchema(schemaName: String): FhirTransformer? = if (schemaName.isNotBlank()) {
             withLoggingContext(mapOf("schemaName" to schemaName)) {
                 logger.info("Apply a sender transform to the items in the report")
             }
@@ -655,5 +653,4 @@ class FHIRConverter(
         } else {
             null
         }
-    }
 }

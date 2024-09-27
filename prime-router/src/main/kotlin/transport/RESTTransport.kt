@@ -20,6 +20,7 @@ import gov.cdc.prime.router.credentials.UserApiKeyCredential
 import gov.cdc.prime.router.credentials.UserAssertionCredential
 import gov.cdc.prime.router.credentials.UserJksCredential
 import gov.cdc.prime.router.credentials.UserPassCredential
+import gov.cdc.prime.router.report.ReportService
 import gov.cdc.prime.router.tokens.AuthUtils
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
@@ -93,6 +94,7 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
         context: ExecutionContext,
         actionHistory: ActionHistory,
         reportEventService: IReportStreamEventService,
+        reportService: ReportService,
     ): RetryItems? {
         val logger: Logger = context.logger
 
@@ -109,25 +111,14 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
                 launch {
                     try {
                         val httpHeaders = getHeaders(restTransportInfo, reportId)
-                        var accessToken: String? = null
 
-                        if (restTransportInfo.authType == "apiKey") {
-                            val apiKeyCredential = credential as UserApiKeyCredential
-                            httpHeaders["System_ID"] = apiKeyCredential.user
-                            httpHeaders["Key"] = apiKeyCredential.apiKey
-                            accessToken = apiKeyCredential.apiKey
-                        }
-
-                        if (restTransportInfo.authType == "two-legged" || restTransportInfo.authType == null) {
-                            // parse headers for any dynamic values, OK needs the report ID
-                            accessToken = getOAuthToken(
-                                restTransportInfo,
-                                jksCredential,
-                                credential,
-                                logger
-                            )
-                            logger.info("Token successfully added!")
-                        }
+                        val accessToken = getAccessToken(
+                            restTransportInfo,
+                            jksCredential,
+                            credential,
+                            httpHeaders,
+                            logger
+                        )
 
                         // If encryption is needed.
                         if (restTransportInfo.encryptionKeyUrl.isNotEmpty()) {
@@ -168,6 +159,7 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
                             msg,
                             header,
                             reportEventService,
+                            reportService,
                             this::class.java.simpleName
                         )
                         actionHistory.trackItemLineages(Report.createItemLineagesFromDb(header, sentReportId))
@@ -319,6 +311,43 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
                 it.value
             }
         }.toMutableMap()
+    }
+
+    /**
+     * Get the Accesstoken based on authType given in Restransport header
+     *
+     * @param restTransportInfo - Transport setting
+     * @param jksCredential The jks credential
+     */
+    suspend fun getAccessToken(
+        restTransportInfo: RESTTransportType,
+        jksCredential: UserJksCredential?,
+        credential: RestCredential,
+        httpHeaders: MutableMap<String, String>,
+        logger: Logger,
+    ): String? {
+        var accessToken: String? = null
+
+        if (restTransportInfo.authType == "apiKey") {
+            val apiKeyCredential = credential as UserApiKeyCredential
+            httpHeaders["shared-api-key"] = apiKeyCredential.apiKey
+            httpHeaders["System_ID"] = apiKeyCredential.user
+            httpHeaders["Key"] = apiKeyCredential.apiKey
+            accessToken = apiKeyCredential.apiKey
+        }
+
+        if (restTransportInfo.authType == "two-legged" || restTransportInfo.authType == null) {
+            // parse headers for any dynamic values, OK needs the report ID
+            accessToken = getOAuthToken(
+                restTransportInfo,
+                jksCredential,
+                credential,
+                logger
+            )
+            logger.info("Token successfully added!")
+        }
+
+        return accessToken
     }
 
     /**
@@ -620,7 +649,7 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
         }
 
         /** Our default Http Client, with an optional SSL context, and optional auth token */
-        private fun createDefaultHttpClient(
+        fun createDefaultHttpClient(
             jks: UserJksCredential?,
             accessToken: String?,
             restTransportInfo: RESTTransportType?,

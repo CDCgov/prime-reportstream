@@ -2,7 +2,7 @@
 
 ## Application
 
-[slack-boltjs-app](https://github.com/JosiahSiegel/slack-boltjs-app) is installed as a submodule under [operations/slack-boltjs-app](../../operations/slack-boltjs-app/).
+[slack-boltjs-app](https://github.com/focusconsulting/slack-boltjs-app) is installed as a submodule under [operations/slack-boltjs-app](../../operations/slack-boltjs-app/).
 
 To update the submodule, navigate to the subdirectory and `git pull`.
 

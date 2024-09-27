@@ -39,6 +39,7 @@ import gov.cdc.prime.router.azure.observability.event.TestSummary
 import gov.cdc.prime.router.metadata.LookupTable
 import gov.cdc.prime.router.report.ReportService
 import gov.cdc.prime.router.unittest.UnitTestUtils
+import gov.cdc.prime.router.version.Version
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
@@ -282,7 +283,7 @@ class FhirDestinationFilterTests {
 
         // mock setup
         mockkObject(BlobAccess)
-        every { message.downloadContent() }.returns(File(VALID_FHIR_URL).readText())
+        every { BlobAccess.downloadBlob(any(), any()) }.returns(File(VALID_FHIR_URL).readText())
         every { BlobAccess.uploadBlob(any(), any()) } returns "test"
         every { accessSpy.insertTask(any(), MimeFormat.FHIR.toString(), BODY_URL, any()) }.returns(Unit)
 
@@ -312,7 +313,7 @@ class FhirDestinationFilterTests {
 
         // mock setup
         mockkObject(BlobAccess)
-        every { message.downloadContent() }.returns(File(VALID_FHIR_URL).readText())
+        every { BlobAccess.downloadBlob(any(), any()) }.returns(File(VALID_FHIR_URL).readText())
         every { BlobAccess.uploadBlob(any(), any()) } returns "test"
         every { accessSpy.insertTask(any(), MimeFormat.FHIR.toString(), BODY_URL, any()) }.returns(Unit)
 
@@ -338,7 +339,8 @@ class FhirDestinationFilterTests {
                     Topic.FULL_ELR,
                     "test",
                     TaskAction.destination_filter,
-                    OffsetDateTime.now()
+                    OffsetDateTime.now(),
+                    Version.commitId
                 ),
                 ReportEventData::timestamp,
             )
@@ -440,7 +442,7 @@ class FhirDestinationFilterTests {
         // data + mock setup
         val fhirData = File(VALID_FHIR_URL).readText()
         mockkObject(BlobAccess)
-        every { message.downloadContent() }.returns(fhirData)
+        every { BlobAccess.downloadBlob(any(), any()) }.returns(fhirData)
         every { BlobAccess.uploadBlob(any(), any()) } returns "test"
         every { accessSpy.insertTask(any(), MimeFormat.FHIR.toString(), BODY_URL, any()) }.returns(Unit)
 
@@ -477,7 +479,7 @@ class FhirDestinationFilterTests {
 
         // mock setup
         mockkObject(BlobAccess)
-        every { message.downloadContent() }.returns(File(VALID_FHIR_URL).readText())
+        every { BlobAccess.downloadBlob(any(), any()) }.returns(File(VALID_FHIR_URL).readText())
         every { BlobAccess.uploadBlob(any(), any()) } returns "test"
         every { accessSpy.insertTask(any(), MimeFormat.FHIR.toString(), BODY_URL, any()) }.returns(Unit)
         every { engine.findTopicReceivers(any()) } returns emptyList()
@@ -502,7 +504,8 @@ class FhirDestinationFilterTests {
                         Topic.FULL_ELR,
                         "",
                         TaskAction.destination_filter,
-                        OffsetDateTime.now()
+                        OffsetDateTime.now(),
+                        Version.commitId
                     ),
                     ReportEventData::timestamp
                 )

@@ -1,17 +1,23 @@
 package gov.cdc.prime.reportstream.submissions.controllers
 
 import com.azure.data.tables.TableClient
-import com.azure.data.tables.models.TableEntity
 import com.azure.storage.blob.BlobContainerClient
 import com.azure.storage.queue.QueueClient
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import gov.cdc.prime.reportstream.shared.SubmissionQueueMessage
-import gov.cdc.prime.reportstream.submissions.ReportReceivedEvent
+import gov.cdc.prime.reportstream.shared.BlobUtils
+import gov.cdc.prime.reportstream.shared.QueueMessage
+import gov.cdc.prime.reportstream.shared.Submission
+import gov.cdc.prime.reportstream.submissions.SubmissionDetails
+import gov.cdc.prime.reportstream.submissions.SubmissionReceivedEvent
 import gov.cdc.prime.reportstream.submissions.TelemetryService
+import gov.cdc.prime.reportstream.submissions.config.AllowedParametersConfig
+import jakarta.servlet.http.HttpServletRequest
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.security.authorization.AuthorizationDeniedException
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken
 import org.springframework.web.bind.MissingRequestHeaderException
 import org.springframework.web.bind.annotation.ControllerAdvice
 import org.springframework.web.bind.annotation.ExceptionHandler
@@ -39,6 +45,7 @@ class SubmissionController(
     private val queueClient: QueueClient,
     private val tableClient: TableClient,
     private val telemetryService: TelemetryService,
+    private val allowedParametersConfig: AllowedParametersConfig,
 ) {
     /**
      * Submits a report.
@@ -51,6 +58,7 @@ class SubmissionController(
      * @param contentType the content type of the report (must be "application/hl7-v2" or "application/fhir+ndjson")
      * @param clientId the ID of the client submitting the report. Should represent org.senderName
      * @param data the report data
+     * @param request gives access to request details
      * @return a ResponseEntity containing the reportID, status, and timestamp
      */
     @PostMapping("/api/v1/reports", consumes = ["application/hl7-v2", "application/fhir+ndjson"])
@@ -62,12 +70,19 @@ class SubmissionController(
         @RequestHeader("x-azure-clientip") senderIp: String,
         @RequestHeader(value = "payloadName", required = false) payloadName: String?,
         @RequestBody data: String,
+        request: HttpServletRequest,
     ): ResponseEntity<*> {
         val reportId = UUID.randomUUID()
         val reportReceivedTime = Instant.now()
         val contentTypeMime = contentType.substringBefore(';')
         val status = "Received"
         val objectMapper = jacksonObjectMapper().registerModule(JavaTimeModule())
+        // Filter request headers based on the allowed list
+        val filteredHeaders = filterHeaders(headers)
+
+        // Filter query parameters based on the allowed list (only keep 'processing' or others defined in application.properties)
+        val filteredQueryParameters = filterQueryParameters(request)
+
         logger.info(
             "Received report submission: reportId=$reportId, contentType=$contentTypeMime" +
             ", clientId=$clientId${payloadName?.let { ", payloadName=$it" } ?: ""}}"
@@ -75,6 +90,7 @@ class SubmissionController(
 
         // Convert data to ByteArray
         val dataByteArray = data.toByteArray()
+        val digest = BlobUtils.sha256Digest(dataByteArray)
         logger.debug("Converted report data to ByteArray")
 
         // Upload to blob storage
@@ -84,47 +100,52 @@ class SubmissionController(
 
         // Insert into Table
         // TableEntity() sets PartitionKey and RowKey. Both are required by azure and combine to create the PK
-        val tableEntity = TableEntity(reportReceivedTime.toString(), reportId.toString())
-        val tableProperties = mapOf(
-            "report_received_time" to reportReceivedTime.toString(),
-            "report_accepted_time" to reportReceivedTime.toString(), // Will be updated when the report is accepted
-            "report_id" to reportId.toString(),
-            "status" to status
-        )
-        tableClient.createEntity(tableEntity.setProperties(tableProperties))
+        val tableEntity = Submission(reportId.toString(), status, blobClient.blobUrl).toTableEntity()
+        tableClient.createEntity(tableEntity)
         logger.info("Inserted report into table storage: reportId=$reportId")
 
         // Create and publish custom event
-        val reportReceivedEvent = ReportReceivedEvent(
+        val submissionReceivedEvent = SubmissionReceivedEvent(
             timeStamp = reportReceivedTime,
             reportId = reportId,
             parentReportId = reportId,
             rootReportId = reportId,
-            headers = filterHeaders(headers),
-            sender = clientId,
-            senderIP = senderIp,
-            fileSize = contentLength,
-            blobUrl = blobClient.blobUrl
+            requestParameters = SubmissionDetails(
+                filteredHeaders,
+                filteredQueryParameters
+            ),
+            method = request.method,
+            url = request.requestURL.toString(),
+            senderName = clientId,
+            senderIp = senderIp,
+            fileLength = contentLength,
+            blobUrl = blobClient.blobUrl,
+            pipelineStepName = "submission"
         )
-        logger.debug("Created ReportReceivedEvent")
+        logger.debug("Created SUBMISSION_RECEIVED")
 
         // Log to Application Insights
         telemetryService.trackEvent(
-            "ReportReceivedEvent",
-            mapOf("event" to objectMapper.writeValueAsString(reportReceivedEvent)),
+            "SUBMISSION_RECEIVED",
+            mapOf("event" to objectMapper.writeValueAsString(submissionReceivedEvent)),
         )
         telemetryService.flush()
-        logger.info("Tracked ReportReceivedEvent with Application Insights")
+        logger.info("Tracked SUBMISSION_RECEIVED with Application Insights")
 
         // Queue upload should occur as the last step ensuring the other steps successfully process
         // Create the message for the queue
-        val message = SubmissionQueueMessage(reportId, blobClient.blobUrl, filterHeaders(headers))
-        val messageString = objectMapper.writeValueAsString(message)
+        val message = QueueMessage.ReceiveQueueMessage(
+            blobClient.blobUrl,
+            BlobUtils.digestToString(digest),
+            clientId.lowercase(),
+            reportId,
+            filterHeaders(headers),
+        ).serialize()
         logger.debug("Created message for queue")
 
         // Upload to Queue
         queueClient.createIfNotExists()
-        queueClient.sendMessage(messageString)
+        queueClient.sendMessage(message)
         logger.info("Sent message to queue: queueName=${queueClient.queueName}")
 
         val response =
@@ -170,6 +191,16 @@ class SubmissionController(
 
             // Return a response entity with a generic error message and internal server error status
             return ResponseEntity("Internal Server Error: ${e.message}", HttpStatus.INTERNAL_SERVER_ERROR)
+        }
+
+        @ExceptionHandler(AuthorizationDeniedException::class)
+        fun handleAuthorizationException(
+            e: AuthorizationDeniedException,
+            auth: JwtAuthenticationToken,
+        ): ResponseEntity<Unit> {
+            logger.warn("Authorization denied for token attributes: ${auth.tokenAttributes}", e)
+
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build()
         }
 
         /**
@@ -218,9 +249,38 @@ class SubmissionController(
         }
     }
 
+    /**
+     * Filters the request headers based on the allowed headers configured in the application.yml.
+     * Handles the case where allowed headers are defined as a list.
+     */
     private fun filterHeaders(headers: Map<String, String>): Map<String, String> {
-        val headersToInclude = listOf("client_id", "Content-Type", "payloadname", "x-azure-clientip")
-        return headers.filter { it.key in headersToInclude }
+        val allowedHeaders = allowedParametersConfig.headers
+
+        // Filter the request headers to only include allowed headers
+        return headers.filterKeys { key ->
+            allowedHeaders.map { it.lowercase() }.contains(key.lowercase())
+        }
+    }
+
+    /**
+     * Filters the query parameters based on the allowed query parameters configured in the application.yml.
+     * Handles multiple values for the same query parameter from HttpServletRequest.
+     */
+    private fun filterQueryParameters(request: HttpServletRequest): Map<String, List<String>> {
+        val allowedQueryParams = allowedParametersConfig.queryParameters
+
+        // Create a map to hold the filtered query parameters
+        val filteredParams = mutableMapOf<String, List<String>>()
+
+        // Loop over allowed parameters and get their values from the request
+        allowedQueryParams.forEach { paramName ->
+            val values = request.getParameterValues(paramName)
+            if (values != null) {
+                filteredParams[paramName] = values.toList() // Convert array to List<String>
+            }
+        }
+
+        return filteredParams
     }
 
     private fun formBlobName(

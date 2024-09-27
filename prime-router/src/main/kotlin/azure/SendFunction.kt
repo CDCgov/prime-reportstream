@@ -79,7 +79,7 @@ class SendFunction(
         @BindingName("NextVisibleTime") nextVisibleTime: Date? = null,
         @BindingName("InsertionTime") insertionTime: Date? = null,
     ) {
-        val event = Event.parseQueueMessage(message) as ReportEvent
+        val event = Event.parsePrimeRouterQueueMessage(message) as ReportEvent
         val actionHistory = ActionHistory(TaskAction.send, event.isEmptyBatch)
         var receiverStatus: CustomerStatus = CustomerStatus.INACTIVE
         actionHistory.trackActionParams(message)
@@ -117,7 +117,8 @@ class SendFunction(
                         retryItems,
                         context,
                         actionHistory,
-                        reportEventService
+                        reportEventService,
+                        workflowEngine.reportService
                     )
                     if (nextRetry != null) {
                         nextRetryItems += nextRetry
