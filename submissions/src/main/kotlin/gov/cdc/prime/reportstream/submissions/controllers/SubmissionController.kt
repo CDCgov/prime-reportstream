@@ -276,13 +276,12 @@ class SubmissionController(
         allowedQueryParams.forEach { paramName ->
             val values = request.getParameterValues(paramName)
             if (values != null) {
-                filteredParams[paramName] = values.toList()  // Convert array to List<String>
+                filteredParams[paramName] = values.toList() // Convert array to List<String>
             }
         }
 
         return filteredParams
     }
-
 
     private fun formBlobName(
         reportId: UUID,
