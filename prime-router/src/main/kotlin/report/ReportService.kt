@@ -2,6 +2,7 @@ package gov.cdc.prime.router.report
 
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.azure.DatabaseAccess
+import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.common.BaseEngine
 import gov.cdc.prime.router.history.db.ReportGraph
@@ -47,7 +48,23 @@ class ReportService(
      * @return List of ReportFile objects of the root reports
      */
     fun getRootReports(childReportId: ReportId): List<ReportFile> {
-        return reportGraph.getRootReports(childReportId)
+        return reportGraph.getRootReports(childReportId).distinctBy { it.reportId }
+    }
+
+    /**
+     * Accepts a descendant item (report id and index) and finds the ancestor report associated with the
+     * passed [TaskAction]
+     *
+     * @param childReportId the descendant child report
+     * @param childIndex the index of the item
+     * @param task the particular task to find the ancestor report for
+     *
+     * @return the [ReportFile] ancestor at the passed [TaskAction]
+     */
+    fun getReportForItemAtTask(childReportId: ReportId, childIndex: Int, task: TaskAction): ReportFile? {
+        return db.transactReturning { txn ->
+             reportGraph.getAncestorReport(txn, childReportId, childIndex, task)
+        }
     }
 
     /**
