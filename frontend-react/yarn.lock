@@ -12300,7 +12300,7 @@ __metadata:
     undici: ^6.19.8
     use-deep-compare-effect: ^1.8.1
     uuid: ^10.0.0
-    vite: ^5.4.3
+    vite: ^5.4.6
     vite-plugin-checker: ^0.8.0
     vite-plugin-svgr: ^4.2.0
     vitest: ^2.0.5
@@ -15048,9 +15048,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"vite@npm:^5.4.3":
-  version: 5.4.3
-  resolution: "vite@npm:5.4.3"
+"vite@npm:^5.4.6":
+  version: 5.4.8
+  resolution: "vite@npm:5.4.8"
   dependencies:
     esbuild: ^0.21.3
     fsevents: ~2.3.3
@@ -15087,7 +15087,7 @@ __metadata:
       optional: true
   bin:
     vite: bin/vite.js
-  checksum: 3a28bcb09345030d2dba41b93b6b8a3aac8f19a9336c50e7e5f5e30931fbb16193cdd97814c5c0d1b5ade3b3e763b329eb881ea5cfe6e422c669d21a304f3295
+  checksum: b5686ff76a60d53092dc13a5c1e5627165226b8e3da7736931adf87bbe58d383bca386383cea134750108c2d42750c916db3f2314ac90a9477d693950145f140
   languageName: node
   linkType: hard
 
