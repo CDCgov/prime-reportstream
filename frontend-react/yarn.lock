@@ -4059,10 +4059,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/lodash@npm:^4.17.7":
-  version: 4.17.7
-  resolution: "@types/lodash@npm:4.17.7"
-  checksum: 09e58a119cd8a70acfb33f8623dc2fc54f74cdce3b3429b879fc2daac4807fe376190a04b9e024dd300f9a3ee1876d6623979cefe619f70654ca0fe0c47679a7
+"@types/lodash@npm:^4.17.9":
+  version: 4.17.9
+  resolution: "@types/lodash@npm:4.17.9"
+  checksum: 6d1bf3e77f0a54d97532755a74260d402d8972259c5451b74612c16cb983b73e0760e5bfe4f9e68ab15051511c867812b40715a01f9805afe6bc36c7dd676378
   languageName: node
   linkType: hard
 
@@ -12216,7 +12216,7 @@ __metadata:
     "@types/downloadjs": ^1.4.6
     "@types/github-slugger": ^1.3.0
     "@types/html-to-text": ^9.0.4
-    "@types/lodash": ^4.17.7
+    "@types/lodash": ^4.17.9
     "@types/mdx": ^2.0.13
     "@types/node": ^20.12.5
     "@types/react": 18.3.5
