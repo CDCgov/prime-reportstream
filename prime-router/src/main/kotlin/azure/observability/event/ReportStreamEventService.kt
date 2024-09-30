@@ -1,11 +1,13 @@
 package gov.cdc.prime.router.azure.observability.event
 
 import gov.cdc.prime.router.Report
+import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.report.ReportService
+import gov.cdc.prime.router.version.Version
 import java.time.OffsetDateTime
 import java.util.UUID
 
@@ -85,6 +87,25 @@ interface IReportStreamEventService {
     )
 
     /**
+     * Creates a general processing error event. This is not associated with a report or item.
+     *
+     * @param eventName the business event value from [ReportStreamEventName]
+     * @param pipelineStepName the pipeline step that is emitting the event
+     * @param error the error description
+     * @param submissionId the report id for the incoming report
+     * @param bodyUrl the blob url for the incoming report
+     * @param initializer additional data to initialize the creation of the event. See [AbstractReportStreamEventBuilder]
+     */
+    fun sendSubmissionProcessingError(
+        eventName: ReportStreamEventName,
+        pipelineStepName: TaskAction,
+        error: String,
+        submissionId: ReportId,
+        bodyUrl: String,
+        initializer: ReportStreamReportProcessingErrorEventBuilder.() -> Unit,
+    )
+
+    /**
      * Creates an item event from an [Report]
      *
      * @param eventName the business event value from [ReportStreamEventName]
@@ -152,7 +173,7 @@ interface IReportStreamEventService {
      * Retrieves data about the input and output report for a particular pipeline step
      *
      * @param childReportId the id of the ReportFile
-     * @param childBodyUrl the blob URL for the ouput report
+     * @param childBodyUrl the blob URL for the output report
      * @param parentReportId the optional parent report id.  A report outputted from the ReportFunction will not have a parent
      * @param pipelineStepName the pipeline step that is generated the child report
      * @param topic the [Topic] that the report is in
@@ -163,7 +184,7 @@ interface IReportStreamEventService {
         childBodyUrl: String,
         parentReportId: UUID?,
         pipelineStepName: TaskAction,
-        topic: Topic,
+        topic: Topic?,
     ): ReportEventData
 
     /**
@@ -275,6 +296,28 @@ class ReportStreamEventService(
         ).send()
     }
 
+    override fun sendSubmissionProcessingError(
+        eventName: ReportStreamEventName,
+        pipelineStepName: TaskAction,
+        error: String,
+        submissionId: ReportId,
+        bodyUrl: String,
+        initializer: ReportStreamReportProcessingErrorEventBuilder.() -> Unit,
+    ) {
+        ReportStreamReportProcessingErrorEventBuilder(
+            this,
+            azureEventService,
+            eventName,
+            submissionId,
+            bodyUrl,
+            theTopic = null,
+            pipelineStepName,
+            error
+        ).apply(
+            initializer
+        ).send()
+    }
+
     override fun sendItemEvent(
         eventName: ReportStreamEventName,
         childReport: Report,
@@ -352,7 +395,7 @@ class ReportStreamEventService(
         childBodyUrl: String,
         parentReportId: UUID?,
         pipelineStepName: TaskAction,
-        topic: Topic,
+        topic: Topic?,
     ): ReportEventData {
         val submittedReportIds = if (parentReportId != null) {
             val rootReports = reportService.getRootReports(parentReportId)
@@ -370,7 +413,8 @@ class ReportStreamEventService(
             topic,
             childBodyUrl,
             pipelineStepName,
-            OffsetDateTime.now()
+            OffsetDateTime.now(),
+            Version.commitId
         )
     }
 

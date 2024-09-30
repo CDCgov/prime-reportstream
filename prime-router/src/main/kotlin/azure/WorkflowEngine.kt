@@ -198,7 +198,11 @@ class WorkflowEngine(
             Event.EventAction.RECEIVE
         )
 
-        actionHistory.trackExternalInputReport(report, blobInfo, payloadName)
+        actionHistory.trackExternalInputReport(
+            report,
+            blobInfo,
+            payloadName
+        )
         return blobInfo
     }
 

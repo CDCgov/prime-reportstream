@@ -19,11 +19,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout - On Push Event
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
+        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938
         with:
           fetch-depth: 0
       - name: Use Node.js with yarn
-        uses: actions/setup-node@1e60f620b9541d16bece96c5465dc8ee9832be0b
+        uses: actions/setup-node@0a44ba7841725637a19e28fa30b79a866c81b0a6
         with:
           node-version-file: "frontend-react/.nvmrc"
           cache: yarn
@@ -32,7 +32,7 @@ jobs:
         run: yarn install --immutable
 
       - name: Run Chromatic
-        uses: chromaui/action@b984808b772126a9f44b2b7737b131b68a2ede32
+        uses: chromaui/action@f4e60a7072abcac4203f4ca50613f28e199a52ba
         with:
           workingDir: frontend-react
           token: ${{ secrets.GITHUB_TOKEN }}

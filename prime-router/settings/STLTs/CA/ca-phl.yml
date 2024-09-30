@@ -14,7 +14,7 @@
 - name: "ca-phl"
   description: "California Public Health Lab"
   jurisdiction: "STATE"
-  stateCode: "AL"
+  stateCode: "CA"
   senders:
     - name: "etor-nbs-results"
       organizationName: "ca-phl"

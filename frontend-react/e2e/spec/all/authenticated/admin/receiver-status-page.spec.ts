@@ -1,8 +1,5 @@
 import { addDays, endOfDay, startOfDay, subDays } from "date-fns";
-import type { RSOrganizationSettings } from "../../../../../src/config/endpoints/settings";
-import { SuccessRate } from "../../../../../src/pages/admin/receiver-dashboard/utils";
-import { durationFormatShort } from "../../../../../src/utils/DateTimeUtils";
-import { formatDate } from "../../../../../src/utils/misc";
+import { pageNotFound } from "../../../../../src/content/error/ErrorMessages";
 import { AdminReceiverStatusPage } from "../../../../pages/authenticated/admin/receiver-status";
 import { test as baseTest, expect, logins } from "../../../../test";
 
@@ -50,14 +47,14 @@ test.describe("Admin Receiver Status Page", () => {
     test.describe("authenticated receiver", () => {
         test.use({ storageState: logins.receiver.path });
         test("returns Page Not Found", async ({ adminReceiverStatusPage }) => {
-            await expect(adminReceiverStatusPage.page).toHaveTitle(/Page Not Found/);
+            await expect(adminReceiverStatusPage.page).toHaveTitle(new RegExp(pageNotFound));
         });
     });
 
     test.describe("authenticated sender", () => {
         test.use({ storageState: logins.sender.path });
         test("returns Page Not Found", async ({ adminReceiverStatusPage }) => {
-            await expect(adminReceiverStatusPage.page).toHaveTitle(/Page Not Found/);
+            await expect(adminReceiverStatusPage.page).toHaveTitle(new RegExp(pageNotFound));
         });
     });
 
@@ -72,74 +69,62 @@ test.describe("Admin Receiver Status Page", () => {
         });
 
         test.describe("Header", () => {
-            test(
-                "has correct title + heading",
-                {
-                    tag: "@smoke",
-                },
-                async ({ adminReceiverStatusPage }) => {
-                    await adminReceiverStatusPage.testHeader();
-                },
-            );
+            test("has correct title + heading", async ({ adminReceiverStatusPage }) => {
+                await adminReceiverStatusPage.testHeader();
+            });
         });
 
         test.describe("When there is no error", () => {
             test.describe("Displays correctly", () => {
-                test.describe(
-                    "filters",
-                    {
-                        tag: "@smoke",
-                    },
-                    () => {
-                        test("date range", async ({ adminReceiverStatusPage }) => {
-                            const { button, label, modalOverlay, valueDisplay } =
-                                adminReceiverStatusPage.filterFormInputs.dateRange;
-                            await expect(label).toBeVisible();
-                            await expect(button).toBeVisible();
-                            await expect(valueDisplay).toHaveText(adminReceiverStatusPage.expectedDateRangeLabelText);
-                            await expect(modalOverlay).toBeHidden();
-                        });
+                test.describe("filters", () => {
+                    test("date range", async ({ adminReceiverStatusPage }) => {
+                        const { button, label, modalOverlay, valueDisplay } =
+                            adminReceiverStatusPage.filterFormInputs.dateRange;
+                        await expect(label).toBeVisible();
+                        await expect(button).toBeVisible();
+                        await expect(valueDisplay).toHaveText(adminReceiverStatusPage.expectedDateRangeLabelText);
+                        await expect(modalOverlay).toBeHidden();
+                    });
 
-                        test("receiver name", async ({ adminReceiverStatusPage }) => {
-                            const { input, expectedTooltipText, label, tooltip, expectedDefaultValue } =
-                                adminReceiverStatusPage.filterFormInputs.receiverName;
-                            await expect(label).toBeVisible();
-                            await expect(input).toBeVisible();
-                            await expect(input).toHaveValue(expectedDefaultValue);
+                    test("receiver name", async ({ adminReceiverStatusPage }) => {
+                        const { input, expectedTooltipText, label, tooltip, expectedDefaultValue } =
+                            adminReceiverStatusPage.filterFormInputs.receiverName;
+                        await expect(label).toBeVisible();
+                        await expect(input).toBeVisible();
+                        await expect(input).toHaveValue(expectedDefaultValue);
 
-                            await expect(tooltip).toBeHidden();
-                            await input.hover();
-                            await expect(tooltip).toBeVisible();
-                            await expect(tooltip).toHaveText(expectedTooltipText);
-                        });
+                        await expect(tooltip).toBeHidden();
+                        await input.hover();
+                        await expect(tooltip).toBeVisible();
+                        await expect(tooltip).toHaveText(expectedTooltipText);
+                    });
 
-                        test("results message", async ({ adminReceiverStatusPage }) => {
-                            const { input, expectedTooltipText, label, tooltip, expectedDefaultValue } =
-                                adminReceiverStatusPage.filterFormInputs.resultMessage;
-                            await expect(label).toBeVisible();
-                            await expect(input).toBeVisible();
-                            await expect(input).toHaveValue(expectedDefaultValue);
+                    test("results message", async ({ adminReceiverStatusPage }) => {
+                        const { input, expectedTooltipText, label, tooltip, expectedDefaultValue } =
+                            adminReceiverStatusPage.filterFormInputs.resultMessage;
+                        await expect(label).toBeVisible();
+                        await expect(input).toBeVisible();
+                        await expect(input).toHaveValue(expectedDefaultValue);
 
-                            await expect(tooltip).toBeHidden();
-                            await input.hover();
-                            await expect(tooltip).toBeVisible();
-                            await expect(tooltip).toHaveText(expectedTooltipText);
-                        });
+                        await expect(tooltip).toBeHidden();
+                        await input.hover();
+                        await expect(tooltip).toBeVisible();
+                        await expect(tooltip).toHaveText(expectedTooltipText);
+                    });
 
-                        test("success type", async ({ adminReceiverStatusPage }) => {
-                            const { input, expectedTooltipText, label, tooltip, expectedDefaultValue } =
-                                adminReceiverStatusPage.filterFormInputs.successType;
-                            await expect(label).toBeVisible();
-                            await expect(input).toBeVisible();
-                            await expect(input).toHaveValue(expectedDefaultValue);
+                    test("success type", async ({ adminReceiverStatusPage }) => {
+                        const { input, expectedTooltipText, label, tooltip, expectedDefaultValue } =
+                            adminReceiverStatusPage.filterFormInputs.successType;
+                        await expect(label).toBeVisible();
+                        await expect(input).toBeVisible();
+                        await expect(input).toHaveValue(expectedDefaultValue);
 
-                            await expect(tooltip).toBeHidden();
-                            await input.hover();
-                            await expect(tooltip).toBeVisible();
-                            await expect(tooltip).toHaveText(expectedTooltipText);
-                        });
-                    },
-                );
+                        await expect(tooltip).toBeHidden();
+                        await input.hover();
+                        await expect(tooltip).toBeVisible();
+                        await expect(tooltip).toHaveText(expectedTooltipText);
+                    });
+                });
 
                 // Failures here indicate potential misalignment of playwright/browser timezone
                 test.describe("receiver statuses", () => {
@@ -160,59 +145,49 @@ test.describe("Admin Receiver Status Page", () => {
 
             test.describe("Functions correctly", () => {
                 test.describe("filters", () => {
-                    test.describe(
-                        "date range",
-                        {
-                            tag: "@smoke",
-                        },
-                        () => {
-                            test("works through calendar", async ({ adminReceiverStatusPage }) => {
-                                const { valueDisplay } = adminReceiverStatusPage.filterFormInputs.dateRange;
-                                const now = new Date();
-                                const targetFrom = startOfDay(subDays(now, 3));
-                                const targetTo = addDays(endOfDay(now), 1);
+                    test.describe("date range", () => {
+                        test("works through calendar", async ({ adminReceiverStatusPage }) => {
+                            const { valueDisplay } = adminReceiverStatusPage.filterFormInputs.dateRange;
+                            const now = new Date();
+                            const targetFrom = startOfDay(subDays(now, 3));
+                            const targetTo = addDays(endOfDay(now), 1);
 
-                                const reqUrl = await adminReceiverStatusPage.updateFilters({
-                                    dateRange: {
-                                        value: [targetFrom, targetTo],
-                                    },
-                                });
-                                expect(reqUrl).toBeDefined();
+                            const reqUrl = await adminReceiverStatusPage.updateFilters({
+                                dateRange: {
+                                    value: [targetFrom, targetTo],
+                                },
+                            });
+                            expect(reqUrl).toBeDefined();
 
-                                await expect(valueDisplay).toHaveText(
-                                    adminReceiverStatusPage.expectedDateRangeLabelText,
-                                );
-                                expect(Object.fromEntries(reqUrl!.searchParams.entries())).toMatchObject({
-                                    start_date: targetFrom.toISOString(),
-                                    end_date: targetTo.toISOString(),
-                                });
+                            await expect(valueDisplay).toHaveText(adminReceiverStatusPage.expectedDateRangeLabelText);
+                            expect(Object.fromEntries(reqUrl!.searchParams.entries())).toMatchObject({
+                                start_date: targetFrom.toISOString(),
+                                end_date: targetTo.toISOString(),
+                            });
+                        });
+
+                        test("works through textboxes", async ({ adminReceiverStatusPage }) => {
+                            const { valueDisplay } = adminReceiverStatusPage.filterFormInputs.dateRange;
+                            await expect(adminReceiverStatusPage.receiverStatusRowsLocator).not.toHaveCount(0);
+                            const now = new Date();
+                            const targetFrom = startOfDay(subDays(now, 3));
+                            const targetTo = addDays(endOfDay(now), 1);
+
+                            const reqUrl = await adminReceiverStatusPage.updateFilters({
+                                dateRange: {
+                                    value: [targetFrom, targetTo],
+                                },
                             });
 
-                            test("works through textboxes", async ({ adminReceiverStatusPage }) => {
-                                const { valueDisplay } = adminReceiverStatusPage.filterFormInputs.dateRange;
-                                await expect(adminReceiverStatusPage.receiverStatusRowsLocator).not.toHaveCount(0);
-                                const now = new Date();
-                                const targetFrom = startOfDay(subDays(now, 3));
-                                const targetTo = addDays(endOfDay(now), 1);
+                            expect(reqUrl).toBeDefined();
 
-                                const reqUrl = await adminReceiverStatusPage.updateFilters({
-                                    dateRange: {
-                                        value: [targetFrom, targetTo],
-                                    },
-                                });
-
-                                expect(reqUrl).toBeDefined();
-
-                                await expect(valueDisplay).toHaveText(
-                                    adminReceiverStatusPage.expectedDateRangeLabelText,
-                                );
-                                expect(Object.fromEntries(reqUrl!.searchParams.entries())).toMatchObject({
-                                    start_date: targetFrom.toISOString(),
-                                    end_date: targetTo.toISOString(),
-                                });
+                            await expect(valueDisplay).toHaveText(adminReceiverStatusPage.expectedDateRangeLabelText);
+                            expect(Object.fromEntries(reqUrl!.searchParams.entries())).toMatchObject({
+                                start_date: targetFrom.toISOString(),
+                                end_date: targetTo.toISOString(),
                             });
-                        },
-                    );
+                        });
+                    });
 
                     test("receiver name", async ({ adminReceiverStatusPage }) => {
                         const { organizationName, receiverName, successRate } =
@@ -243,44 +218,8 @@ test.describe("Admin Receiver Status Page", () => {
                     });
 
                     test("result message", async ({ adminReceiverStatusPage }) => {
-                        // get first entry's result from all-fail receiver's first day -> third time period
-                        const receiverI = 0;
-                        const dayI = 0;
-                        const timePeriodI = 2;
-                        const entryI = 0;
-                        const { days } = adminReceiverStatusPage.timePeriodData[receiverI];
-                        const { connectionCheckResult } = days[dayI].timePeriods[timePeriodI].entries[entryI];
-
-                        const receiversStatusRows = adminReceiverStatusPage.receiverStatusRowsLocator;
-
-                        await adminReceiverStatusPage.updateFilters({
-                            resultMessage: connectionCheckResult,
-                        });
-
-                        for (const [i, { days }] of adminReceiverStatusPage.timePeriodData.entries()) {
-                            const isRowExpected = i === receiverI;
-                            const row = receiversStatusRows.nthCustom(i);
-
-                            for (const [i, { timePeriods }] of days.entries()) {
-                                const isDayExpected = isRowExpected && i === dayI;
-                                const rowDay = row.days.nthCustom(i);
-
-                                for (const [i] of timePeriods.entries()) {
-                                    const isTimePeriodExpected = isDayExpected && i === timePeriodI;
-                                    const expectedClass = !isTimePeriodExpected
-                                        ? /success-result-hidden/
-                                        : /^((?!success-result-hidden).)*$/;
-                                    const rowDayTimePeriod = rowDay.timePeriods.nth(i);
-
-                                    await expect(rowDayTimePeriod).toBeVisible();
-                                    await expect(rowDayTimePeriod).toHaveClass(expectedClass);
-                                }
-                            }
-                        }
-
-                        await adminReceiverStatusPage.resetFilters();
-
-                        await adminReceiverStatusPage.testReceiverStatusDisplay();
+                        const result = await adminReceiverStatusPage.testReceiverMessage();
+                        expect(result).toBe(true);
                     });
 
                     test("success type", async ({ adminReceiverStatusPage }) => {
@@ -353,95 +292,18 @@ test.describe("Admin Receiver Status Page", () => {
                     });
 
                     test("time period modals", async ({ adminReceiverStatusPage }) => {
-                        const overlay = adminReceiverStatusPage.filterFormInputs.dateRange.modalOverlay;
-                        for (const [i, { days }] of adminReceiverStatusPage.timePeriodData.entries()) {
-                            const { days: daysLoc } = adminReceiverStatusPage.receiverStatusRowsLocator.nthCustom(i);
-
-                            for (const [dayI, day] of days.entries()) {
-                                for (const [i, { successRateType, entries }] of day.timePeriods.entries()) {
-                                    // only first entry in time period is currently displayed
-                                    const {
-                                        organizationName,
-                                        organizationId,
-                                        receiverId,
-                                        receiverName,
-                                        connectionCheckSuccessful,
-                                        connectionCheckStartedAt,
-                                        connectionCheckCompletedAt,
-                                        connectionCheckResult,
-                                    } = entries[0] ?? {};
-                                    const sliceEle = daysLoc.nthCustom(dayI).timePeriods.nth(i);
-
-                                    const isModalExpectedVisible = successRateType !== SuccessRate.UNDEFINED;
-
-                                    await sliceEle.click({ force: true });
-                                    await expect(overlay).toBeAttached({
-                                        attached: isModalExpectedVisible,
-                                    });
-
-                                    if (isModalExpectedVisible) {
-                                        const expectedResultText = connectionCheckSuccessful ? "success" : "failed";
-                                        const expectedModalText = `Results for connection verification checkOrg:${organizationName} (id: ${organizationId})Receiver:${receiverName} (id: ${receiverId})Result:${expectedResultText}Started At:${formatDate(connectionCheckStartedAt)}${connectionCheckStartedAt.toISOString()}Time to complete:${durationFormatShort(connectionCheckCompletedAt, connectionCheckStartedAt)}Result message:${connectionCheckResult}`;
-
-                                        await expect(overlay).toBeVisible();
-                                        await expect(overlay).toHaveText(expectedModalText);
-
-                                        await overlay.press("Escape");
-                                    }
-                                }
-                            }
-                        }
+                        const result = await adminReceiverStatusPage.testReceiverTimePeriodModals();
+                        expect(result).toBe(true);
                     });
 
                     test("receiver org links", async ({ adminReceiverStatusPage }) => {
-                        const rows = adminReceiverStatusPage.receiverStatusRowsLocator;
-
-                        for (const [i, { organizationName }] of adminReceiverStatusPage.timePeriodData.entries()) {
-                            const row = rows.nthCustom(i);
-
-                            const link = row.title.getByRole("link", {
-                                name: organizationName,
-                            });
-                            const expectedUrl = adminReceiverStatusPage.getExpectedStatusOrganizationUrl(i);
-                            await expect(link).toBeVisible();
-                            const p = adminReceiverStatusPage.page.route(
-                                `api/settings/organizations/${organizationName}`,
-                                (route) =>
-                                    route.fulfill({
-                                        json: {
-                                            description: "fake",
-                                            filters: [],
-                                            name: organizationName,
-                                            jurisdiction: "fake",
-                                            version: 0,
-                                            createdAt: "",
-                                            createdBy: "",
-                                        } satisfies RSOrganizationSettings,
-                                    }),
-                            );
-                            await link.click();
-                            await expect(adminReceiverStatusPage.page).toHaveURL(expectedUrl);
-                            await p;
-                            await adminReceiverStatusPage.page.goBack();
-                        }
+                        const result = await adminReceiverStatusPage.testReceiverOrgLinks();
+                        expect(result).toBe(true);
                     });
 
                     test("receiver links", async ({ adminReceiverStatusPage }) => {
-                        const rows = adminReceiverStatusPage.receiverStatusRowsLocator;
-
-                        for (const [i, { receiverName }] of adminReceiverStatusPage.timePeriodData.entries()) {
-                            const row = rows.nthCustom(i);
-
-                            const link = row.title.getByRole("link", {
-                                name: receiverName,
-                            });
-                            await expect(link).toBeVisible();
-                            await link.click();
-                            await expect(adminReceiverStatusPage.page).toHaveURL(
-                                adminReceiverStatusPage.getExpectedStatusReceiverUrl(i),
-                            );
-                            await adminReceiverStatusPage.page.goBack();
-                        }
+                        const result = await adminReceiverStatusPage.testReceiverLinks();
+                        expect(result).toBe(true);
                     });
                 });
             });

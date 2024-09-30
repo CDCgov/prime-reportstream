@@ -1,0 +1,110 @@
+- name: "nj-doh"
+  description: "New Jersey Department of Health"
+  jurisdiction: "STATE"
+  stateCode: "NJ"
+  countyName: null
+  filters: null
+  featureFlags: null
+  keys: null
+  senders: []
+  receivers:
+  - name: "full-elr"
+    organizationName: "nj-doh"
+    topic: "full-elr"
+    customerStatus: "active"
+    translation: !<HL7>
+      schemaName: "azure:/hl7_mapping/receivers/STLTs/NJ/NJ-receiver-transform.yml"
+      useTestProcessingMode: false
+      useBatchHeaders: true
+      receivingApplicationName: "ELRS"
+      receivingApplicationOID: "2.16.840.1.113883.3.1299.5.1.6.1"
+      receivingFacilityName: "NJDOH"
+      receivingFacilityOID: "2.16.840.1.113883.3.1299"
+      messageProfileId: null
+      replaceValue: { }
+      replaceValueAwithB: { }
+      reportingFacilityName: null
+      reportingFacilityId: null
+      reportingFacilityIdType: null
+      suppressQstForAoe: false
+      suppressHl7Fields: null
+      suppressAoe: false
+      defaultAoeToUnknown: false
+      replaceUnicodeWithAscii: false
+      useBlankInsteadOfUnknown: null
+      truncateHDNamespaceIds: true
+      truncateHl7Fields: "OBX-23-1,ORC-12-3,OBR-16-3,OBX-17-1,ORC-12-1,OBR-16-1"
+      usePid14ForPatientEmail: false
+      convertTimestampToDateTime: null
+      cliaForOutOfStateTesting: null
+      cliaForSender: { }
+      phoneNumberFormatting: "STANDARD"
+      suppressNonNPI: false
+      processingModeCode: null
+      replaceDiiWithOid: null
+      applyOTCDefault: false
+      useOrderingFacilityName: "STANDARD"
+      valueSetOverrides: { }
+      nameFormat: "STANDARD"
+      receivingOrganization: null
+      convertPositiveDateTimeOffsetToNegative: false
+      stripInvalidCharsRegex: null
+      convertDateTimesToReceiverLocalTime: false
+      useHighPrecisionHeaderDateTimeFormat: false
+      type: "HL7"
+      truncationConfig:
+        truncateHDNamespaceIds: true
+        truncateHl7Fields:
+          - "OBX-23-1"
+          - "ORC-12-3"
+          - "OBR-16-3"
+          - "OBX-17-1"
+          - "ORC-12-1"
+          - "OBR-16-1"
+        customLengthHl7Fields: { }
+    jurisdictionalFilter:
+      - "(Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state.exists() and Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state = 'NJ') or (Bundle.entry.resource.ofType(Patient).address.state.exists() and Bundle.entry.resource.ofType(Patient).address.state = 'NJ')"
+    qualityFilter:
+      # hasOneOf(patient_street, patient_zip_code, patient_phone_number, patient_email)
+      - "Bundle.entry.resource.ofType(Patient).where(address.line[0].empty() and address.postalCode.empty() and telecom.where(system = 'phone').value.empty() and telecom.where(system = 'email').value.empty()).count() = 0"
+      # hasOneOf(order_test_date, specimen_collection_date_time, test_result_date)
+      - "Bundle.entry.resource.ofType(DiagnosticReport).where(basedOn.resolve().extension('https://reportstream.cdc.gov/fhir/StructureDefinition/effective-date').empty() and specimen.resolve().collection.collected.empty() and effective.empty() and issued.empty() and result.resolve().effective.empty()).count() = 0"
+      # isValidClia(testing_lab_clia)
+      - "Bundle.entry.resource.ofType(ServiceRequest).performer.resolve().identifier.where(type.coding.code = 'CLIA').value.getIdType() = 'CLIA'"
+      # hasValidData(patient_last_name, patient_first_name, patient_dob)
+      - "Bundle.entry.resource.ofType(Patient).where(name.family.empty() or name.given.empty() or birthDate.empty()).count() = 0"
+      # hasValidData(specimen_type)
+      - "Bundle.entry.resource.ofType(Specimen).where(type.empty()).count() = 0"
+      # hasValidData(message_id)
+      - "Bundle.identifier.value.empty().not()"
+      # hasValidData(equipment_model_name, test_result)
+      - "Bundle.entry.resource.ofType(DiagnosticReport).result.resolve().where(method.empty() or value.coding.code.empty()).count() = 0"
+    routingFilter: [ ]
+    processingModeFilter:
+      # matches(processing_mode_code, P)
+      - "Bundle.entry.resource.ofType(MessageHeader).meta.tag.where(system = 'http://terminology.hl7.org/CodeSystem/v2-0103').code = 'P'"
+    reverseTheQualityFilter: false
+    deidentify: false
+    deidentifiedValue: ""
+    timing:
+      operation: "MERGE"
+      numberPerDay: 1440
+      initialTime: "09:40"
+      timeZone: "EASTERN"
+      maxReportCount: 100
+      whenEmpty:
+        action: "NONE"
+        onlyOncePerDay: false
+    description: ""
+    transport: !<SFTP>
+      type: SFTP
+      host: sftp
+      port: 22
+      filePath: ./upload
+      credentialName: DEFAULT-SFTP
+    conditionFilter: [ ]
+    mappedConditionFilter: [ ]
+    externalName: null
+    enrichmentSchemaNames: ["classpath:/metadata/fhir_transforms/common/suppress-device-information.yml" ]
+    timeZone: null
+    dateTimeFormat: "OFFSET"
