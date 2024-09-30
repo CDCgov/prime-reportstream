@@ -115,17 +115,19 @@ abstract class ConfigSchemaProcessor<
         focusResource: Base,
         schemaResource: Base,
         context: CustomContext,
-    ): Boolean {
-        return element.condition?.let {
+    ): String? {
+        element.condition?.let {
             try {
                 FhirPathUtils.evaluateCondition(context, focusResource, schemaResource, bundle, it)
             } catch (e: SchemaException) {
+                val warningMessage = "Condition for element ${element.name} did not evaluate to a boolean type, " +
+                    "so the condition failed. ${e.message}"
                 logger.warn(
-                    "Condition for element ${element.name} did not evaluate to a boolean type, " +
-                        "so the condition failed. ${e.message}"
+                    warningMessage
                 )
-                false
+                return warningMessage
             }
-        } ?: true
+        }
+        return null
     }
 }

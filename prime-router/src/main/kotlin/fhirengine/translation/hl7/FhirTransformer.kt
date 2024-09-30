@@ -51,6 +51,29 @@ class FhirTransformer(
         return input
     }
 
+    /**
+     * Transform the given [bundle]. The bundle passed in will be updated directly, and will also be returned with any
+     * warnings or errors
+     * @return the transformed bundle with any errors or warnings
+     */
+    fun processWithMessages(input: Bundle): BundleWithMessages {
+        val warnings = mutableListOf<String>()
+        val errors = mutableListOf<String>()
+        try {
+            warnings.addAll(transformWithSchema(schemaRef, bundle = input, focusResource = input))
+        } catch (e: Exception) {
+            errors.add(e.message!!)
+        }
+
+        return BundleWithMessages(input, warnings, errors)
+    }
+
+    class BundleWithMessages(
+        var bundle: Bundle,
+        val warnings: MutableList<String>,
+        val errors: MutableList<String>,
+    )
+
     override fun checkForEquality(converted: Bundle, expectedOutput: Bundle): Boolean {
         return converted.equalsDeep(expectedOutput)
     }
@@ -65,20 +88,24 @@ class FhirTransformer(
         focusResource: Base,
         context: CustomContext = CustomContext(bundle, focusResource, customFhirFunctions = CustomFhirPathFunctions()),
         debug: Boolean = false,
-    ) {
+    ): List<String> {
         val logLevel = if (debug) Level.INFO else Level.DEBUG
         logger.log(logLevel, "Processing schema: ${schema.name} with ${schema.elements.size} elements")
         // Add any schema level constants to the context
         // We need to create a new context, so constants exist only within their specific schema tree
         val schemaContext = CustomContext.addConstants(schema.constants, context)
 
+        val warnings = mutableListOf<String>()
         schema.elements.forEach { element ->
             try {
-                transformBasedOnElement(element, bundle, focusResource, schemaContext, debug)
+                val potentialWarnings = transformBasedOnElement(element, bundle, focusResource, schemaContext, debug)
+                warnings.addAll(potentialWarnings)
             } catch (ex: Exception) {
                 throw ConfigSchemaElementProcessingException(schema, element, ex)
             }
         }
+
+        return warnings
     }
 
     /**
@@ -91,7 +118,7 @@ class FhirTransformer(
         focusResource: Base,
         context: CustomContext,
         debug: Boolean = false,
-    ) {
+    ): List<String> {
         val logLevel = if (element.debug || debug) Level.INFO else Level.DEBUG
         logger.trace("Started processing of element ${element.name}...")
         // Add any element level constants to the context
@@ -107,8 +134,15 @@ class FhirTransformer(
             debugMsg += "resource: NONE"
         }
 
+        val warnings = mutableListOf<String>()
         val eligibleFocusResources =
-            focusResources.filter { canEvaluate(element, bundle, it, focusResource, elementContext) }
+            focusResources.filter {
+                val warning = canEvaluate(element, bundle, it, focusResource, elementContext)
+                if (warning != null) {
+                    warnings.add(warning)
+                }
+                warning == null
+            }
         when (element.action) {
             FhirTransformSchemaElementAction.SET -> {
                 eligibleFocusResources.forEach { singleFocusResource ->
@@ -127,6 +161,10 @@ class FhirTransformer(
                     } else {
                         logger.warn(
                             "Element ${element.name} is updating a bundle property, but did not specify a value"
+                        )
+                        warnings.add(
+                            "Element ${element.name} is updating a bundle property, " +
+                            "but did not specify a value"
                         )
                     }
                     debugMsg += "condition: true, resourceType: ${singleFocusResource.fhirType()}, " +
@@ -206,6 +244,7 @@ class FhirTransformer(
         // Only log for elements that require values
         if (element.schemaRef == null) logger.log(logLevel, debugMsg)
         logger.trace("End processing of element ${element.name}.")
+        return warnings
     }
 
     /**

@@ -5,6 +5,7 @@ import ca.uhn.hl7v2.model.Message
 import ca.uhn.hl7v2.util.Terser
 import fhirengine.translation.hl7.utils.FhirPathFunctions
 import gov.cdc.prime.router.azure.BlobAccess
+import gov.cdc.prime.router.cli.ProcessFhirCommands
 import gov.cdc.prime.router.fhirengine.engine.encodePreserveEncodingChars
 import gov.cdc.prime.router.fhirengine.translation.hl7.config.ContextConfig
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.ConfigSchemaElementProcessingException
@@ -89,6 +90,34 @@ class FhirToHl7Converter(
         terser = Terser(message)
         processSchema(schemaRef, input, input)
         return message
+    }
+
+    /**
+     * Convert the given [bundle] to an HL7 message.
+     * @return the HL7 message and warnings
+     */
+    fun processWithWarnings(input: Bundle): ProcessFhirCommands.MessageOrBundle {
+        // Sanity check, but the schema is assumed good to go here
+        check(!schemaRef.hl7Class.isNullOrBlank())
+        val message = HL7Utils.getMessageInstance(schemaRef.hl7Class!!)
+
+        terser = Terser(message)
+        val warnings = mutableListOf<String>()
+        val errors = mutableListOf<String>()
+        try {
+            processSchema(schemaRef, input, input)
+        } catch (e: Exception) {
+            if (e.message != null) {
+                errors.add(e.message!!)
+            }
+        }
+
+        return ProcessFhirCommands.MessageOrBundle(
+            message = message,
+            senderTransformPassed = errors.isEmpty(),
+            senderTransformErrors = errors,
+            senderTransformWarnings = warnings,
+        )
     }
 
     override fun checkForEquality(converted: Message, expectedOutput: Message): Boolean {
@@ -176,7 +205,7 @@ class FhirToHl7Converter(
         schemaResource: Base,
         context: CustomContext,
         debug: Boolean = false,
-    ) {
+    ): List<String> {
         val logLevel = if (element.debug || debug) Level.INFO else Level.DEBUG
         logger.trace("Started processing of element ${element.name}...")
         // Add any element level constants to the context
@@ -192,6 +221,7 @@ class FhirToHl7Converter(
             debugMsg += "resource: NONE"
         }
 
+        val warnings = mutableListOf<String>()
         focusResources.forEachIndexed { index, focusResource ->
             // The element context must now get the focus resource
             elementContext.focusResource = focusResource
@@ -204,7 +234,8 @@ class FhirToHl7Converter(
                     elementContext
                 )
             }
-            if (canEvaluate(element, bundle, focusResource, schemaResource, indexContext)) {
+            val warning = canEvaluate(element, bundle, focusResource, schemaResource, indexContext)
+            if (warning == null) {
                 when {
                     // If this is a schema then process it.
                     element.schemaRef != null -> {
@@ -247,6 +278,7 @@ class FhirToHl7Converter(
         // Only log for elements that require values
         if (element.schemaRef == null) logger.log(logLevel, debugMsg)
         logger.trace("End processing of element ${element.name}.")
+        return warnings
     }
 
     /**
