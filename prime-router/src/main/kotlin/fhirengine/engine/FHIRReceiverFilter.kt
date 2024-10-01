@@ -33,7 +33,6 @@ import gov.cdc.prime.router.azure.observability.event.AzureEventServiceImpl
 import gov.cdc.prime.router.azure.observability.event.AzureEventUtils
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventName
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventProperties
-import gov.cdc.prime.router.codes
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
@@ -41,7 +40,6 @@ import gov.cdc.prime.router.fhirengine.utils.filterMappedObservations
 import gov.cdc.prime.router.fhirengine.utils.filterObservations
 import gov.cdc.prime.router.fhirengine.utils.getMappedConditionCodes
 import gov.cdc.prime.router.fhirengine.utils.getObservations
-import gov.cdc.prime.router.fhirengine.utils.getObservationsWithCondition
 import gov.cdc.prime.router.history.db.ReportGraph
 import gov.cdc.prime.router.logging.LogMeasuredTime
 import gov.cdc.prime.router.report.ReportService
@@ -191,25 +189,25 @@ class FHIRReceiverFilter(
             throw MisconfiguredReceiverConditionFilters(receiver)
         }
 
-        val allObservations = bundle.getObservations()
-        val result: ReceiverFilterEvaluationResult = if (conditionFilters.isNotEmpty()) {
-            val (keptObservations, filteredObservations) = allObservations.partition { observation ->
-                conditionFilters.any { filter ->
-                    FhirPathUtils.evaluateCondition(
-                        CustomContext(bundle, observation, shorthandLookupTable, CustomFhirPathFunctions()),
-                        observation,
-                        bundle,
-                        bundle,
-                        filter
-                    )
-                }
-            }
-            val allRemainingObservationsAreAoe = keptObservations
+        val filteredBundle: Bundle
+        if (conditionFilters.isNotEmpty()) {
+            filteredBundle = bundle.filterObservations(conditionFilters, shorthandLookupTable)
+        } else if (mappedConditionFilters.isNotEmpty()) {
+            filteredBundle = bundle.filterMappedObservations(mappedConditionFilters).second
+        } else {
+            return ReceiverFilterEvaluationResult.Success(bundle)
+        }
+
+        val allRemainingObservationsAreAoe =
+            filteredBundle.getObservations()
                 .all {
                     val conditions = it.getMappedConditionCodes()
                     conditions.isNotEmpty() && conditions.all { code -> code == "AOE" }
                 }
-            if (keptObservations.isEmpty() || allRemainingObservationsAreAoe) {
+
+        // check for conditionFilter result failure
+        if (conditionFilters.isNotEmpty()) {
+            if (filteredBundle.getObservations().isEmpty() || allRemainingObservationsAreAoe) {
                 actionLogger.getItemLogger(1, trackingId).warn(
                     ReceiverItemFilteredActionLogDetail(
                         conditionFilters.joinToString(","),
@@ -219,27 +217,13 @@ class FHIRReceiverFilter(
                         1
                     )
                 )
-                ReceiverFilterEvaluationResult.Failure(
+                return ReceiverFilterEvaluationResult.Failure(
                     FilterDetails(conditionFilters, ReportStreamFilterType.CONDITION_FILTER)
                 )
-            } else {
-                filteredObservations.forEach { observation ->
-                    withLoggingContext(mapOf(MDCUtils.MDCProperty.OBSERVATION_ID to observation.id.toString())) {
-                        logger.info("Observations were filtered from the bundle")
-                    }
-                }
-                ReceiverFilterEvaluationResult.Success(
-                    bundle.filterObservations(conditionFilters, shorthandLookupTable)
-                )
             }
-        } else if (mappedConditionFilters.isNotEmpty()) {
-            val codes = mappedConditionFilters.codes()
-            val keptObservations = bundle.getObservationsWithCondition(codes)
-            if (keptObservations.isEmpty() ||
-                keptObservations.all {
-                    it.getMappedConditionCodes().all { code -> code == "AOE" }
-                }
-            ) {
+            // or a mappedConditionFilter result failure
+        } else {
+            if (filteredBundle.getObservations().isEmpty() || allRemainingObservationsAreAoe) {
                 actionLogger.getItemLogger(1, trackingId).warn(
                     ReceiverItemFilteredActionLogDetail(
                         mappedConditionFilters.joinToString(","),
@@ -249,28 +233,17 @@ class FHIRReceiverFilter(
                         1
                     )
                 )
-                ReceiverFilterEvaluationResult.Failure(
+                return ReceiverFilterEvaluationResult.Failure(
                     FilterDetails(
                         mappedConditionFilters.map { it.value },
                         ReportStreamFilterType.MAPPED_CONDITION_FILTER
                     )
                 )
-            } else {
-                val (filteredObservationIds, filteredBundle) = bundle.filterMappedObservations(
-                    receiver.mappedConditionFilter
-                )
-                filteredObservationIds.forEach { observationId ->
-                    withLoggingContext(mapOf(MDCUtils.MDCProperty.OBSERVATION_ID to observationId)) {
-                        logger.info("Observations were filtered from the bundle")
-                    }
-                }
-                ReceiverFilterEvaluationResult.Success(filteredBundle)
             }
-        } else {
-            ReceiverFilterEvaluationResult.Success(bundle)
         }
 
-        return result
+        // we survived the gauntlet - result success
+        return ReceiverFilterEvaluationResult.Success(filteredBundle)
     }
 
     /**
