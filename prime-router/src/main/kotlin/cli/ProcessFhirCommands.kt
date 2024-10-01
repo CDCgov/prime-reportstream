@@ -428,7 +428,9 @@ class ProcessFhirCommands : CliktCommand(
                 if (receiver != null) {
                     senderTransformMessages.bundle = applyConditionFilter(receiver, senderTransformMessages.bundle)
                 }
-                val messageOrBundle2 = FhirToHl7Converter(
+                val warnings = mutableListOf<String>()
+                val errors = mutableListOf<String>()
+                val message = FhirToHl7Converter(
                     receiverSchema!!,
                     BlobAccess.BlobContainerMetadata.build("metadata", Environment.get().storageEnvVar),
                     context = FhirToHl7Context(
@@ -439,16 +441,23 @@ class ProcessFhirCommands : CliktCommand(
                         ),
                         translationFunctions = CustomTranslationFunctions(),
                     )
-                ).processWithWarnings(senderTransformMessages.bundle)
-                messageOrBundle2.senderTransformPassed = senderTransformMessages.errors.isEmpty()
-                messageOrBundle2.senderTransformWarnings = senderTransformMessages.warnings
-                messageOrBundle2.senderTransformErrors = senderTransformMessages.errors
-                messageOrBundle2
+                ).process(senderTransformMessages.bundle, errors, warnings)
+                val messageOrBundle = MessageOrBundle()
+                messageOrBundle.senderTransformPassed = senderTransformMessages.errors.isEmpty()
+                messageOrBundle.senderTransformWarnings = senderTransformMessages.warnings
+                messageOrBundle.senderTransformErrors = senderTransformMessages.errors
+                messageOrBundle.message = message
+                messageOrBundle.receiverTransformWarnings = warnings
+                messageOrBundle.receiverTransformErrors = errors
+                messageOrBundle.receiverTransformPassed = errors.isEmpty()
+                messageOrBundle
             }
             receiver != null && receiver.schemaName.isNotBlank() -> {
                 val senderTransformBundleWithMessages = applySenderTransforms(fhirMessage, senderSchema)
                 val bundle = applyConditionFilter(receiver, senderTransformBundleWithMessages.bundle)
-                val messageOrBundle = FhirToHl7Converter(
+                val warnings = mutableListOf<String>()
+                val errors = mutableListOf<String>()
+                val message = FhirToHl7Converter(
                     receiver.schemaName,
                     BlobAccess.BlobContainerMetadata.build("metadata", Environment.get().storageEnvVar),
                     context = FhirToHl7Context(
@@ -459,11 +468,15 @@ class ProcessFhirCommands : CliktCommand(
                         ),
                         translationFunctions = CustomTranslationFunctions(),
                     )
-                ).processWithWarnings(bundle)
-                messageOrBundle.bundle = bundle
+                ).process(bundle, errors, warnings)
+                val messageOrBundle = MessageOrBundle()
+                messageOrBundle.message = message
                 messageOrBundle.senderTransformErrors = senderTransformBundleWithMessages.errors
                 messageOrBundle.senderTransformWarnings = senderTransformBundleWithMessages.warnings
                 messageOrBundle.senderTransformPassed = senderTransformBundleWithMessages.errors.isEmpty()
+                messageOrBundle.receiverTransformPassed = errors.isEmpty()
+                messageOrBundle.receiverTransformErrors = errors
+                messageOrBundle.receiverTransformWarnings = warnings
                 messageOrBundle
             }
             else -> {

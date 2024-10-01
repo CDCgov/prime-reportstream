@@ -5,7 +5,6 @@ import ca.uhn.hl7v2.model.Message
 import ca.uhn.hl7v2.util.Terser
 import fhirengine.translation.hl7.utils.FhirPathFunctions
 import gov.cdc.prime.router.azure.BlobAccess
-import gov.cdc.prime.router.cli.ProcessFhirCommands
 import gov.cdc.prime.router.fhirengine.engine.encodePreserveEncodingChars
 import gov.cdc.prime.router.fhirengine.translation.hl7.config.ContextConfig
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.ConfigSchemaElementProcessingException
@@ -82,42 +81,20 @@ class FhirToHl7Converter(
      * Convert the given [bundle] to an HL7 message.
      * @return the HL7 message
      */
-    override fun process(input: Bundle): Message {
+    override fun process(input: Bundle, errors: MutableList<String>, warnings: MutableList<String>): Message {
         // Sanity check, but the schema is assumed good to go here
         check(!schemaRef.hl7Class.isNullOrBlank())
         val message = HL7Utils.getMessageInstance(schemaRef.hl7Class!!)
 
         terser = Terser(message)
-        processSchema(schemaRef, input, input)
-        return message
-    }
-
-    /**
-     * Convert the given [bundle] to an HL7 message.
-     * @return the HL7 message and warnings
-     */
-    fun processWithWarnings(input: Bundle): ProcessFhirCommands.MessageOrBundle {
-        // Sanity check, but the schema is assumed good to go here
-        check(!schemaRef.hl7Class.isNullOrBlank())
-        val message = HL7Utils.getMessageInstance(schemaRef.hl7Class!!)
-
-        terser = Terser(message)
-        val warnings = mutableListOf<String>()
-        val errors = mutableListOf<String>()
         try {
-            processSchema(schemaRef, input, input)
+            warnings.addAll(processSchema(schemaRef, input, input))
         } catch (e: Exception) {
             if (e.message != null) {
                 errors.add(e.message!!)
             }
         }
-
-        return ProcessFhirCommands.MessageOrBundle(
-            message = message,
-            senderTransformPassed = errors.isEmpty(),
-            senderTransformErrors = errors,
-            senderTransformWarnings = warnings,
-        )
+        return message
     }
 
     override fun checkForEquality(converted: Message, expectedOutput: Message): Boolean {
@@ -179,20 +156,22 @@ class FhirToHl7Converter(
             translationFunctions = this.context?.translationFunctions
         ),
         debug: Boolean = false,
-    ) {
+    ): List<String> {
         val logLevel = if (debug) Level.INFO else Level.DEBUG
         logger.log(logLevel, "Processing schema: ${schema.name} with ${schema.elements.size} elements")
         // Add any schema level constants to the context
         // We need to create a new context, so constants exist only within their specific schema tree
         val schemaContext = CustomContext.addConstants(schema.constants, context)
 
+        val warnings = mutableListOf<String>()
         schema.elements.forEach { element ->
             try {
-                processElement(element, bundle, schemaResource, schemaContext, debug)
+                warnings.addAll(processElement(element, bundle, schemaResource, schemaContext, debug))
             } catch (ex: Exception) {
                 throw ConfigSchemaElementProcessingException(schema, element, ex)
             }
         }
+        return warnings
     }
 
     /**
