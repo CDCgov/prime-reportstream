@@ -46,6 +46,7 @@ plugins {
     id("org.jetbrains.kotlin.plugin.serialization") version "$kotlinVersion"
     id("com.nocwriter.runsql") version ("1.0.3")
     id("io.swagger.core.v3.swagger-gradle-plugin") version "2.2.23"
+    id("org.owasp.dependencycheck") version "10.0.3"
 }
 
 // retrieve the current commit hash
@@ -834,6 +835,7 @@ buildscript {
         classpath("net.minidev:json-smart:2.5.1")
         // as per flyway v10 docs the postgres flyway module must be on the project buildpath
         classpath("org.flywaydb:flyway-database-postgresql:10.18.0")
+        classpath("org.owasp:dependency-check-gradle:10.0.3")
     }
 }
 
