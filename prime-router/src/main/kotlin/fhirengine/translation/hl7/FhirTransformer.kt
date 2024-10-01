@@ -315,7 +315,7 @@ class FhirTransformer(
      * Updates a bundle by setting a value at a specified spot
      *
      * @param bundleProperty the property to update
-     * @param function a FHIR function to apply to the resolved [bundleProperty]
+     * @param value the value to set the property to
      * @param context the context to evaluate the bundle under
      * @param focusResource the focus resource for any FHIR path evaluations
      */
@@ -386,6 +386,21 @@ class FhirTransformer(
             appendToElements
         )
         setBundleProperty(bundlePenultimateElements, lastBundlePropertyElement, value, context)
+    }
+
+    private fun applyFunction(
+        elementsToUpdate: List<Base>,
+        propertyName: String,
+        function: String,
+        context: CustomContext,
+        bundle: Bundle,
+    ) {
+        elementsToUpdate.forEach { penultimateElement ->
+            val propertyInfo = extractChildProperty(propertyName, context, penultimateElement)
+            FhirPathUtils.evaluate(
+                context, penultimateElement, bundle, "%resource.${propertyInfo.propertyString}.$function"
+            )
+        }
     }
 
     /**
