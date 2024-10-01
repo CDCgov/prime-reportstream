@@ -147,12 +147,6 @@
         schemaName: "classpath:/metadata/hl7_mapping/ORU_R01/ORU_R01-base.yml"
         useTestProcessingMode: false
         useBatchHeaders: false
-      transport:
-        type: "SFTP"
-        host: "172.17.6.20" # use "sftp" if running locally
-        port: 22
-        filePath: "./upload"
-        credentialName: null # use "DEFAULT-SFTP" if running locally
     # Simulated State Public Health Lab Receiver: converts OML_O21 from FHIR to HL7 and routes the message to the SFTP folder
     - name: "simulated-lab"
       organizationName: "flexion"
@@ -173,12 +167,6 @@
         schemaName: "classpath:/metadata/hl7_mapping/receivers/Flexion/etor-oml-receiver-transform.yml"
         useTestProcessingMode: false
         useBatchHeaders: false
-      transport:
-        type: "SFTP"
-        host: "172.17.6.20" # use "sftp" if running locally
-        port: 22
-        filePath: "./upload"
-        credentialName: null # use "DEFAULT-SFTP" if running locally
     - name: "automated-staging-test-receiver-orders"
       organizationName: "flexion"
       topic: "etor-ti"
