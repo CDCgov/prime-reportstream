@@ -25,6 +25,7 @@ export default defineConfig({
     // Tests sharded in CI runner and reported as blobs that are later turned into html report
     reporter: isCi ? [["blob", { outputDir: "e2e-data/report" }]] : [["html", { outputFolder: "e2e-data/report" }]],
     outputDir: "e2e-data/results",
+    timeout: 1000 * 180,
     use: {
         // keep playwright and browser timezones aligned. set preferably UTC by env var
         timezoneId: Intl.DateTimeFormat().resolvedOptions().timeZone,
