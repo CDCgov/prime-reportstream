@@ -154,3 +154,14 @@ export function removeDateTime(filename: string) {
 
     return filename;
 }
+
+export function isAbsoluteURL(url: string): boolean {
+    return /^(https?|ftp|file|mailto):/.test(url);
+}
+
+export function isAssetURL(url: string): boolean {
+    // Regular expression to match common asset file extensions at the end of a URL
+    const assetExtensions = /\.(pdf|png|jpg|jpeg|gif|bmp|svg|webp|mp4|mp3|wav|ogg|avi|mov|mkv|zip|rar|tar|gz|iso)$/i;
+
+    return assetExtensions.test(url);
+}

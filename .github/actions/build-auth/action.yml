@@ -1,6 +1,6 @@
 # action.yml
-name: "Build Submissions"
-description: "Build submissions microservice"
+name: "Build Auth"
+description: "Build Auth microservice"
 inputs:
   version:
     description: "Version tag"
@@ -33,7 +33,7 @@ runs:
         sudo rm -rf /usr/local/lib/android
 
     - name: Set up JDK 17
-      uses: actions/setup-java@b36c23c0d998641eff861008f374ee103c25ac73
+      uses: actions/setup-java@2dfa2011c5b2a0f1489bf9e433881c92c1631f88
       with:
         java-version: "17"
         distribution: "temurin"
@@ -43,7 +43,7 @@ runs:
 
     - name: Lint
       if: inputs.run-integration-tests == 'true'
-      run: ./gradlew :submissions:ktlintCheck
+      run: ./gradlew :auth:ktlintCheck
       shell: bash
 
     - name: Spin up build containers
@@ -51,14 +51,14 @@ runs:
       shell: bash
       run: docker compose -f docker-compose.postgres.yml up -d
 
-    - name: Build Submissions Package
+    - name: Build auth Package
       uses: ./.github/actions/retry
       with:
         timeout_minutes: 10
         max_attempts: 2
         retry_wait_seconds: 30
         command: |
-          ./gradlew :submissions:build -x test
+          ./gradlew :auth:build -x test
         shell: bash
 
     - name: Cleanup Gradle Cache
