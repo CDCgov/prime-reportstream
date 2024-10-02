@@ -14,8 +14,9 @@ elements:
       hl7OBXField: '/ORDER(%{orderIndex})/OBSERVATION_REQUEST/OBSERVATION(%{resultIndex})/OBX'
       hl7ObservationPath: '/ORDER(%{orderIndex})/OBSERVATION_REQUEST/OBSERVATION(%{resultIndex})'
 
-  - name: observation-participation-information
-    resource: '%observationPath.device.resolve().where(udiCarrier.exists())' # correct?
-    schema: classpath:/metadata/hl7_mapping/resources/Device/PRT.yml
-    constants:
-      hl7SegmentGroup: '/ORDER(%{orderIndex})/OBSERVATION_REQUEST/OBSERVATION(%{resultIndex})'
+# todo
+#  - name: observation-participation-information
+#    resource: '%observationPath.device.resolve().where(udiCarrier.exists())'
+#    schema: classpath:/metadata/hl7_mapping/resources/Device/PRT.yml
+#    constants:
+#      hl7SegmentGroup: '/ORDER(%{orderIndex})/OBSERVATION_REQUEST/OBSERVATION(%{resultIndex})'
