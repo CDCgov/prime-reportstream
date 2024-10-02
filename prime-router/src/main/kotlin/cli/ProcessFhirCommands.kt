@@ -224,11 +224,15 @@ class ProcessFhirCommands : CliktCommand(
 
                 if (receiver != null && receiver.enrichmentSchemaNames.isNotEmpty()) {
                     receiver.enrichmentSchemaNames.forEach { currentSchema ->
-                        val enrichmentSchemaInfo2 =
-                            FhirTransformer(currentSchema).processWithMessages(messageOrBundle.bundle!!)
+                        val warnings = mutableListOf<String>()
+                        val errors = mutableListOf<String>()
+                        val returnedBundle =
+                            FhirTransformer(currentSchema).process(messageOrBundle.bundle!!, errors, warnings)
                         setEnrichmentSchemaFields(
                             messageOrBundle,
-                            enrichmentSchemaInfo2
+                            warnings,
+                            errors,
+                            returnedBundle
                         )
                     }
                 }
@@ -252,9 +256,11 @@ class ProcessFhirCommands : CliktCommand(
                 messageOrBundle.bundle = bundle
                 if (receiver.enrichmentSchemaNames.isNotEmpty()) {
                     receiver.enrichmentSchemaNames.forEach { currentSchema ->
-                        val bundleWithMessagesEnrichmentSchema =
-                            FhirTransformer(currentSchema).processWithMessages(bundle)
-                        setEnrichmentSchemaFields(messageOrBundle, bundleWithMessagesEnrichmentSchema)
+                        val warnings = mutableListOf<String>()
+                        val errors = mutableListOf<String>()
+                        val returnedBundle =
+                            FhirTransformer(currentSchema).process(bundle, errors, warnings)
+                        setEnrichmentSchemaFields(messageOrBundle, warnings, errors, returnedBundle)
                     }
                 }
 
@@ -311,6 +317,19 @@ class ProcessFhirCommands : CliktCommand(
         messageOrBundle.enrichmentSchemaErrors.addAll(enrichmentSchemaFields.errors)
         messageOrBundle.enrichmentSchemaPassed = enrichmentSchemaFields.errors.isEmpty()
         messageOrBundle.bundle = enrichmentSchemaFields.bundle
+        return messageOrBundle
+    }
+
+    private fun setEnrichmentSchemaFields(
+        messageOrBundle: MessageOrBundle,
+        warnings: MutableList<String>,
+        errors: MutableList<String>,
+        bundle: Bundle,
+    ): MessageOrBundle {
+        messageOrBundle.enrichmentSchemaWarnings.addAll(warnings)
+        messageOrBundle.enrichmentSchemaErrors.addAll(errors)
+        messageOrBundle.enrichmentSchemaPassed = errors.isEmpty()
+        messageOrBundle.bundle = bundle
         return messageOrBundle
     }
 
@@ -505,9 +524,14 @@ class ProcessFhirCommands : CliktCommand(
             fhirMessage = applyConditionFilter(receiver, fhirMessage)
             if (receiver.enrichmentSchemaNames.isNotEmpty()) {
                 receiver.enrichmentSchemaNames.forEach { currentSchema ->
+                    val warnings = mutableListOf<String>()
+                    val errors = mutableListOf<String>()
+                    val bundle = FhirTransformer(currentSchema).process(fhirMessage, errors, warnings)
                     setEnrichmentSchemaFields(
                         messageOrBundle,
-                        FhirTransformer(currentSchema).processWithMessages(fhirMessage)
+                        warnings,
+                        errors,
+                        bundle
                     )
                 }
             }
@@ -583,7 +607,10 @@ class ProcessFhirCommands : CliktCommand(
     private fun applySenderTransforms(bundle: Bundle, senderSchema: String?): FhirTransformer.BundleWithMessages {
         return when {
             senderSchema != null -> {
-                FhirTransformer(senderSchema).processWithMessages(bundle)
+                val warnings = mutableListOf<String>()
+                val errors = mutableListOf<String>()
+                val returnedBundle = FhirTransformer(senderSchema).process(bundle, errors, warnings)
+                FhirTransformer.BundleWithMessages(returnedBundle, warnings, errors)
             }
 
             else -> FhirTransformer.BundleWithMessages(bundle = bundle, mutableListOf(), mutableListOf())
@@ -600,11 +627,13 @@ class ProcessFhirCommands : CliktCommand(
         setEnrichmentSchemaFields(messageOrBundle, applyEnrichmentSchemas(bundle, isCli))
 
         if (receiverSchema != null) {
-            val receiverSchemaInfo = FhirTransformer(receiverSchema!!).processWithMessages(messageOrBundle.bundle!!)
-            messageOrBundle.receiverTransformWarnings.addAll(receiverSchemaInfo.warnings)
-            messageOrBundle.receiverTransformErrors.addAll(receiverSchemaInfo.errors)
-            messageOrBundle.receiverTransformPassed = receiverSchemaInfo.errors.isEmpty()
-            messageOrBundle.bundle = receiverSchemaInfo.bundle
+            val warnings = mutableListOf<String>()
+            val errors = mutableListOf<String>()
+            val returnedBundle = FhirTransformer(receiverSchema!!).process(messageOrBundle.bundle!!, errors, warnings)
+            messageOrBundle.receiverTransformWarnings.addAll(warnings)
+            messageOrBundle.receiverTransformErrors.addAll(errors)
+            messageOrBundle.receiverTransformPassed = errors.isEmpty()
+            messageOrBundle.bundle = returnedBundle
         }
 
         return messageOrBundle
@@ -619,10 +648,16 @@ class ProcessFhirCommands : CliktCommand(
         val errors = mutableListOf<String>()
         if (isCli && !enrichmentSchemaNames.isNullOrEmpty()) {
             enrichmentSchemaNames!!.split(",").forEach { currentEnrichmentSchemaName ->
-                val bundleAndMessages = FhirTransformer(currentEnrichmentSchemaName).processWithMessages(enrichedbundle)
-                errors.addAll(bundleAndMessages.errors)
-                warnings.addAll(bundleAndMessages.warnings)
-                enrichedbundle = bundleAndMessages.bundle
+                val localWarnings = mutableListOf<String>()
+                val localErrors = mutableListOf<String>()
+                val returnedBundle = FhirTransformer(currentEnrichmentSchemaName).process(
+                    enrichedbundle,
+                    localErrors,
+                    localWarnings
+                )
+                errors.addAll(errors)
+                warnings.addAll(warnings)
+                enrichedbundle = returnedBundle
             }
         }
         return FhirTransformer.BundleWithMessages(enrichedbundle, warnings, errors)

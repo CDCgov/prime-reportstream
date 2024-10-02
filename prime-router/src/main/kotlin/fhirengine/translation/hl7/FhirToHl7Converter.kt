@@ -88,7 +88,7 @@ class FhirToHl7Converter(
 
         terser = Terser(message)
         try {
-            warnings.addAll(processSchema(schemaRef, input, input))
+            processSchema(schemaRef, input, input)
         } catch (e: Exception) {
             if (e.message != null) {
                 errors.add(e.message!!)
@@ -156,14 +156,13 @@ class FhirToHl7Converter(
             translationFunctions = this.context?.translationFunctions
         ),
         debug: Boolean = false,
-    ): List<String> {
+    ) {
         val logLevel = if (debug) Level.INFO else Level.DEBUG
         logger.log(logLevel, "Processing schema: ${schema.name} with ${schema.elements.size} elements")
         // Add any schema level constants to the context
         // We need to create a new context, so constants exist only within their specific schema tree
         val schemaContext = CustomContext.addConstants(schema.constants, context)
 
-        val warnings = mutableListOf<String>()
         schema.elements.forEach { element ->
             try {
                 processElement(element, bundle, schemaResource, schemaContext, debug)
@@ -171,7 +170,6 @@ class FhirToHl7Converter(
                 throw ConfigSchemaElementProcessingException(schema, element, ex)
             }
         }
-        return warnings
     }
 
     /**

@@ -51,23 +51,6 @@ class FhirTransformer(
         return input
     }
 
-    /**
-     * Transform the given [bundle]. The bundle passed in will be updated directly, and will also be returned with any
-     * warnings or errors
-     * @return the transformed bundle with any errors or warnings
-     */
-    fun processWithMessages(input: Bundle): BundleWithMessages {
-        val warnings = mutableListOf<String>()
-        val errors = mutableListOf<String>()
-        try {
-            warnings.addAll(transformWithSchema(schemaRef, bundle = input, focusResource = input))
-        } catch (e: Exception) {
-            errors.add(e.message!!)
-        }
-
-        return BundleWithMessages(input, warnings, errors)
-    }
-
     class BundleWithMessages(
         var bundle: Bundle,
         val warnings: MutableList<String>,
