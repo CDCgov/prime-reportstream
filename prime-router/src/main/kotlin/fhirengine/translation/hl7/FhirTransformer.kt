@@ -24,7 +24,14 @@ import org.hl7.fhir.r4.model.Property
  */
 class FhirTransformer(
     private val schemaRef: FhirTransformSchema,
-) : ConfigSchemaProcessor<Bundle, Bundle, FhirTransformSchema, FhirTransformSchemaElement>(schemaRef) {
+    errors: MutableList<String> = mutableListOf(),
+    warnings: MutableList<String> = mutableListOf(),
+) : ConfigSchemaProcessor<
+        Bundle,
+        Bundle,
+        FhirTransformSchema,
+        FhirTransformSchemaElement
+    >(schemaRef, errors, warnings) {
     private val extensionRegex = """^extension\(["'](?<extensionUrl>[^'"]+)["']\)""".toRegex()
     private val valueXRegex = Regex("""value[A-Z][a-z]*""")
     private val indexRegex = Regex("""(?<child>.*)\[%?(?<indexVar>[0-9A-Za-z]*)\]""")
@@ -40,13 +47,15 @@ class FhirTransformer(
         ),
     ) : this(
         schemaRef = fhirTransformSchemaFromFile(schema, blobConnectionInfo),
+        mutableListOf<String>(),
+        mutableListOf<String>(),
     )
 
     /**
      * Transform the given [bundle]. The bundle passed in will be updated directly, and will also be returned.
      * @return the transformed bundle
      */
-    override fun process(input: Bundle, errors: MutableList<String>, warnings: MutableList<String>): Bundle {
+    override fun process(input: Bundle): Bundle {
         transformWithSchema(schemaRef, bundle = input, focusResource = input)
         return input
     }
@@ -71,24 +80,20 @@ class FhirTransformer(
         focusResource: Base,
         context: CustomContext = CustomContext(bundle, focusResource, customFhirFunctions = CustomFhirPathFunctions()),
         debug: Boolean = false,
-    ): List<String> {
+    ) {
         val logLevel = if (debug) Level.INFO else Level.DEBUG
         logger.log(logLevel, "Processing schema: ${schema.name} with ${schema.elements.size} elements")
         // Add any schema level constants to the context
         // We need to create a new context, so constants exist only within their specific schema tree
         val schemaContext = CustomContext.addConstants(schema.constants, context)
 
-        val warnings = mutableListOf<String>()
         schema.elements.forEach { element ->
             try {
-                val potentialWarnings = transformBasedOnElement(element, bundle, focusResource, schemaContext, debug)
-                warnings.addAll(potentialWarnings)
+                transformBasedOnElement(element, bundle, focusResource, schemaContext, debug)
             } catch (ex: Exception) {
                 throw ConfigSchemaElementProcessingException(schema, element, ex)
             }
         }
-
-        return warnings
     }
 
     /**
@@ -101,7 +106,7 @@ class FhirTransformer(
         focusResource: Base,
         context: CustomContext,
         debug: Boolean = false,
-    ): List<String> {
+    ) {
         val logLevel = if (element.debug || debug) Level.INFO else Level.DEBUG
         logger.trace("Started processing of element ${element.name}...")
         // Add any element level constants to the context
@@ -221,7 +226,6 @@ class FhirTransformer(
         // Only log for elements that require values
         if (element.schemaRef == null) logger.log(logLevel, debugMsg)
         logger.trace("End processing of element ${element.name}.")
-        return warnings
     }
 
     /**

@@ -20,7 +20,6 @@ import fhirengine.engine.CustomTranslationFunctions
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.fhirengine.config.HL7TranslationConfig
-import gov.cdc.prime.router.fhirengine.translation.hl7.schema.ConfigSchemaElementProcessingException
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.ConfigSchemaReader
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.ConverterSchemaElement
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.HL7ConverterSchema
@@ -44,7 +43,6 @@ import org.junit.jupiter.api.Nested
 import java.io.File
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertFailsWith
 
 class FhirToHl7ConverterTests {
     @Test
@@ -55,7 +53,12 @@ class FhirToHl7ConverterTests {
         bundle.id = "abc123"
         val customContext = CustomContext(bundle, bundle)
 
-        val converter = FhirToHl7Converter(mockSchema, terser = mockTerser)
+        val converter = FhirToHl7Converter(
+            mockSchema,
+            terser = mockTerser,
+            warnings = mutableListOf(),
+            errors = mutableListOf()
+        )
 
         var element = ConverterSchemaElement("name")
         assertThat(converter.canEvaluate(element, bundle, bundle, bundle, customContext)).isNull()
@@ -82,7 +85,7 @@ class FhirToHl7ConverterTests {
         bundle.addEntry().resource = resource
         val customContext = CustomContext(bundle, bundle)
 
-        val converter = FhirToHl7Converter(mockSchema)
+        val converter = FhirToHl7Converter(mockSchema, warnings = mutableListOf(), errors = mutableListOf())
 
         var element = ConverterSchemaElement("name")
         var focusResources = converter.getFocusResources(element.resource, bundle, bundle, customContext)
@@ -132,7 +135,7 @@ class FhirToHl7ConverterTests {
         val bundle = Bundle()
         bundle.id = "abc123"
         val customContext = CustomContext(bundle, bundle)
-        val converter = FhirToHl7Converter(mockSchema)
+        val converter = FhirToHl7Converter(mockSchema, warnings = mutableListOf(), errors = mutableListOf())
 
         var element = ConverterSchemaElement("name", value = listOf("Bundle.id", "Bundle.timestamp"))
         assertThat(converter.getValueAsString(element, bundle, bundle, customContext)).isEqualTo(bundle.id)
@@ -150,7 +153,7 @@ class FhirToHl7ConverterTests {
         val bundle = Bundle()
         bundle.id = "stagnatious"
         val customContext = CustomContext(bundle, bundle)
-        val converter = FhirToHl7Converter(mockSchema)
+        val converter = FhirToHl7Converter(mockSchema, warnings = mutableListOf(), errors = mutableListOf())
 
         val valueSet = InlineValueSet(
             sortedMapOf(
@@ -189,7 +192,7 @@ class FhirToHl7ConverterTests {
         resource.destination[0].name = "a destination"
         bundle.addEntry().resource = resource
         val customContext = CustomContext(bundle, bundle)
-        val converter = FhirToHl7Converter(mockSchema)
+        val converter = FhirToHl7Converter(mockSchema, warnings = mutableListOf(), errors = mutableListOf())
 
         // Non-primitive values should return an empty string and log an error
         val element = ConverterSchemaElement("name", value = listOf("Bundle.entry"))
@@ -202,7 +205,8 @@ class FhirToHl7ConverterTests {
         val mockTerser = mockk<Terser>()
         val mockSchema = mockk<HL7ConverterSchema>() // Just a dummy schema to pass around
         var element = ConverterSchemaElement("name", required = true, hl7Spec = listOf("MSH-10"))
-        var converter = FhirToHl7Converter(mockSchema, terser = mockTerser)
+        var converter =
+            FhirToHl7Converter(mockSchema, terser = mockTerser, warnings = mutableListOf(), errors = mutableListOf())
         val customContext = CustomContext(Bundle(), Bundle())
 
         // Required element
@@ -231,7 +235,13 @@ class FhirToHl7ConverterTests {
         clearAllMocks()
 
         // Strict errors
-        converter = FhirToHl7Converter(mockSchema, true, mockTerser)
+        converter = FhirToHl7Converter(
+            mockSchema,
+            true,
+            mockTerser,
+            warnings = mutableListOf(),
+            errors = mutableListOf()
+        )
         every { mockTerser.set(element.hl7Spec[0], any()) } throws HL7Exception("some text")
         assertFailure { converter.setHl7Value(element, fieldValue, customContext) }
             .hasClass(HL7ConversionException::class.java)
@@ -252,7 +262,12 @@ class FhirToHl7ConverterTests {
         val bundle = Bundle()
         bundle.id = "abc123"
         val customContext = CustomContext(bundle, bundle)
-        val converter = FhirToHl7Converter(mockSchema, terser = mockTerser)
+        val converter = FhirToHl7Converter(
+            mockSchema,
+            terser = mockTerser,
+            warnings = mutableListOf(),
+            errors = mutableListOf()
+        )
         val pathWithValue = "Bundle.id"
         val pathNoValue = "Bundle.timestamp"
         val conditionTrue = "Bundle.id.exists()"
@@ -338,7 +353,8 @@ class FhirToHl7ConverterTests {
         bundle.addEntry().resource = servRequest1
         bundle.addEntry().resource = servRequest2
 
-        val converter = FhirToHl7Converter(mockSchema, terser = mockTerser)
+        val converter =
+            FhirToHl7Converter(mockSchema, terser = mockTerser, warnings = mutableListOf(), errors = mutableListOf())
 
         val childElement = ConverterSchemaElement(
             "childElement",
@@ -384,7 +400,7 @@ class FhirToHl7ConverterTests {
             hl7Class = "ca.uhn.hl7v2.model.v27.message.ORU_R01",
             elements = listOf(element).toMutableList()
         )
-        val converter = FhirToHl7Converter(schema)
+        val converter = FhirToHl7Converter(schema, warnings = mutableListOf(), errors = mutableListOf())
         val message = converter.process(bundle)
         assertThat(Terser(message).get("MSH-3-1")).isEqualTo("Epic")
     }
@@ -408,7 +424,7 @@ class FhirToHl7ConverterTests {
             hl7Class = "ca.uhn.hl7v2.model.v251.message.ORU_R01",
             elements = mutableListOf(element)
         )
-        val message = FhirToHl7Converter(schema).process(bundle)
+        val message = FhirToHl7Converter(schema, warnings = mutableListOf(), errors = mutableListOf()).process(bundle)
         assertThat(message.isEmpty).isFalse()
         assertThat(Terser(message).get(element.hl7Spec[0])).isEqualTo(bundle.id)
 
@@ -420,16 +436,23 @@ class FhirToHl7ConverterTests {
         )
         schema =
             HL7ConverterSchema(elements = mutableListOf(element))
-        assertFailure { FhirToHl7Converter(schema).process(bundle) }
+        assertFailure {
+            FhirToHl7Converter(
+            schema,
+            warnings = mutableListOf(),
+            errors = mutableListOf()
+        ).process(bundle)
+        }
 
         // Use a file based schema which will fail as we do not have enough data in the bundle
-        val missingDataEx = assertFailsWith<ConfigSchemaElementProcessingException> {
-            FhirToHl7Converter(
-                "classpath:/fhirengine/translation/hl7/schema/schema-read-test-01/ORU_R01.yml",
-                mockk<BlobAccess.BlobContainerMetadata>()
-            ).process(bundle)
-        }
-        assertThat(missingDataEx.message).isEqualTo(
+        val transformer = FhirToHl7Converter(
+            "classpath:/fhirengine/translation/hl7/schema/schema-read-test-01/ORU_R01.yml",
+            mockk<BlobAccess.BlobContainerMetadata>(), warnings = mutableListOf(), errors = mutableListOf()
+        )
+
+        transformer.process(bundle)
+
+        assertThat(transformer.errors[0]).isEqualTo(
             "Error encountered while applying: message-headers in" +
                 " /fhirengine/translation/hl7/schema/schema-read-test-01/ORU_R01.yml to FHIR bundle. \n" +
                 "Error was: Required element message-headers conditional was false or value was empty."
@@ -463,7 +486,8 @@ class FhirToHl7ConverterTests {
                 CustomFhirPathFunctions(),
                 null,
                 CustomTranslationFunctions()
-            )
+            ),
+                warnings = mutableListOf(), errors = mutableListOf()
         ).process(bundle)
         assertThat(message.isEmpty).isFalse()
         assertThat(Terser(message).get(element.hl7Spec[0])).isEqualTo(loincCode)
@@ -492,7 +516,8 @@ class FhirToHl7ConverterTests {
 
         val message = FhirToHl7Converter(
             schema,
-            context = FhirToHl7Context(CustomFhirPathFunctions(), null, CustomTranslationFunctions())
+            context = FhirToHl7Context(CustomFhirPathFunctions(), null, CustomTranslationFunctions()),
+            warnings = mutableListOf(), errors = mutableListOf()
         ).process(bundle)
         assertThat(message.isEmpty).isFalse()
         assertThat(Terser(message).get(element.hl7Spec[0])).isEqualTo(expectedDate)
@@ -514,7 +539,11 @@ class FhirToHl7ConverterTests {
             elements = mutableListOf(elemA)
         )
 
-        val message = FhirToHl7Converter(rootSchema).process(bundle)
+        val message = FhirToHl7Converter(
+            rootSchema,
+            warnings = mutableListOf(),
+            errors = mutableListOf()
+        ).process(bundle)
         assertThat(Terser(message).get("MSH-11")).isEqualTo("654321")
         assertThat(Terser(message).get("MSH-12")).isEqualTo("fedcba")
     }
@@ -541,7 +570,11 @@ class FhirToHl7ConverterTests {
         val overrideSchema = HL7ConverterSchema(elements = mutableListOf(elemBOverride))
         rootSchema.override(overrideSchema)
 
-        val message = FhirToHl7Converter(rootSchema).process(bundle)
+        val message = FhirToHl7Converter(
+            rootSchema,
+            warnings = mutableListOf(),
+            errors = mutableListOf()
+        ).process(bundle)
         assertThat(Terser(message).get("MSH-11")).isEqualTo("overrideVal")
         assertThat(Terser(message).get("MSH-12")).isEqualTo("overrideVal")
     }
@@ -579,7 +612,7 @@ class FhirToHl7ConverterTests {
         val converter = FhirToHl7Converter(
             mockSchema,
             terser = terser,
-            context = contextWithConfig
+            context = contextWithConfig, warnings = mutableListOf(), errors = mutableListOf()
         )
 
         // should truncate to 194
@@ -629,7 +662,7 @@ class FhirToHl7ConverterTests {
         val converter = FhirToHl7Converter(
             mockSchema,
             terser = terser,
-            context = contextWithConfig
+            context = contextWithConfig, warnings = mutableListOf(), errors = mutableListOf()
         )
 
         // should truncate to 199
@@ -691,8 +724,14 @@ class FhirToHl7ConverterTests {
             val bundle = Bundle()
             bundle.id = "abc123"
 
-            val baseMessage = FhirToHl7Converter(baseSchema).process(bundle)
-            val message = FhirToHl7Converter(extendedSchema).process(bundle)
+            val baseMessage = FhirToHl7Converter(
+                baseSchema,
+                warnings = mutableListOf(), errors = mutableListOf()
+            ).process(bundle)
+            val message = FhirToHl7Converter(
+                extendedSchema,
+                warnings = mutableListOf(), errors = mutableListOf()
+            ).process(bundle)
 
             assertThat(Terser(baseMessage).get("MSH-11")).isEqualTo("abc123")
             // Confirms that we can override an element that exists in the base
@@ -703,8 +742,14 @@ class FhirToHl7ConverterTests {
         fun `test override uses a constant`() {
             val bundle = Bundle()
 
-            val baseMessage = FhirToHl7Converter(baseSchema).process(bundle)
-            val message = FhirToHl7Converter(extendedSchema).process(bundle)
+            val baseMessage = FhirToHl7Converter(
+                baseSchema,
+                warnings = mutableListOf(), errors = mutableListOf()
+            ).process(bundle)
+            val message = FhirToHl7Converter(
+                extendedSchema,
+                warnings = mutableListOf(), errors = mutableListOf()
+            ).process(bundle)
 
             assertThat(Terser(baseMessage).get("MSH-10")).isEqualTo("10")
             // Assert that we can create an override element that uses a constant from the base schema
@@ -715,8 +760,14 @@ class FhirToHl7ConverterTests {
         fun `test override overrides a constant`() {
             val bundle = Bundle()
 
-            val baseMessage = FhirToHl7Converter(baseSchema).process(bundle)
-            val message = FhirToHl7Converter(extendedSchema).process(bundle)
+            val baseMessage = FhirToHl7Converter(
+                baseSchema,
+                warnings = mutableListOf(), errors = mutableListOf()
+            ).process(bundle)
+            val message = FhirToHl7Converter(
+                extendedSchema,
+                warnings = mutableListOf(), errors = mutableListOf()
+            ).process(bundle)
 
             assertThat(Terser(baseMessage).get("MSH-8")).isEqualTo("otherValue")
             // Assert that a constant can get overridden
@@ -727,8 +778,14 @@ class FhirToHl7ConverterTests {
         fun `test the overriding schema takes priority when setting the same HL7 field`() {
             val bundle = Bundle()
 
-            val baseMessage = FhirToHl7Converter(baseSchema).process(bundle)
-            val message = FhirToHl7Converter(extendedSchema).process(bundle)
+            val baseMessage = FhirToHl7Converter(
+                baseSchema,
+                warnings = mutableListOf(), errors = mutableListOf()
+            ).process(bundle)
+            val message = FhirToHl7Converter(
+                extendedSchema,
+                warnings = mutableListOf(), errors = mutableListOf()
+            ).process(bundle)
 
             assertThat(Terser(baseMessage).get("MSH-14")).isEqualTo("14")
             // A new element in the overriding schema sets MSH-14 as well
@@ -743,8 +800,14 @@ class FhirToHl7ConverterTests {
             messageHeader.definition = "definition"
             bundle.addEntry().resource = messageHeader
 
-            val baseMessage = FhirToHl7Converter(baseSchema).process(bundle)
-            val message = FhirToHl7Converter(extendedSchema).process(bundle)
+            val baseMessage = FhirToHl7Converter(
+                baseSchema,
+                warnings = mutableListOf(), errors = mutableListOf()
+            ).process(bundle)
+            val message = FhirToHl7Converter(
+                extendedSchema,
+                warnings = mutableListOf(), errors = mutableListOf()
+            ).process(bundle)
 
             assertThat(Terser(baseMessage).get("SFT-2")).isEqualTo("1")
             // Assert that an element can be overridden in a nested schema
@@ -760,8 +823,14 @@ class FhirToHl7ConverterTests {
             messageHeader.id = "idSft"
             bundle.addEntry().resource = messageHeader
 
-            val baseMessage = FhirToHl7Converter(baseSchema).process(bundle)
-            val message = FhirToHl7Converter(extendedSchema).process(bundle)
+            val baseMessage = FhirToHl7Converter(
+                baseSchema,
+                warnings = mutableListOf(), errors = mutableListOf()
+            ).process(bundle)
+            val message = FhirToHl7Converter(
+                extendedSchema,
+                warnings = mutableListOf(), errors = mutableListOf()
+            ).process(bundle)
 
             assertThat(Terser(baseMessage).get("SFT-3")).isEqualTo("definition")
 
@@ -780,8 +849,14 @@ class FhirToHl7ConverterTests {
             messageHeader.event = Coding("system", "noEvent", "displayCode")
             bundle.addEntry().resource = messageHeader
 
-            val baseMessage = FhirToHl7Converter(baseSchema).process(bundle)
-            val message = FhirToHl7Converter(extendedSchema).process(bundle)
+            val baseMessage = FhirToHl7Converter(
+                baseSchema,
+                warnings = mutableListOf(), errors = mutableListOf()
+            ).process(bundle)
+            val message = FhirToHl7Converter(
+                extendedSchema,
+                warnings = mutableListOf(), errors = mutableListOf()
+            ).process(bundle)
 
             assertThat(Terser(baseMessage).get("SFT-5")).isEqualTo("idSft")
             // Asserts that the base extending schema can provide for a nested schema element
@@ -798,8 +873,14 @@ class FhirToHl7ConverterTests {
             messageHeader.event = Coding("system", "code", "displayCode")
             bundle.addEntry().resource = messageHeader
 
-            val baseMessage = FhirToHl7Converter(baseSchema).process(bundle)
-            val message = FhirToHl7Converter(extendedSchema).process(bundle)
+            val baseMessage = FhirToHl7Converter(
+                baseSchema,
+                warnings = mutableListOf(), errors = mutableListOf()
+            ).process(bundle)
+            val message = FhirToHl7Converter(
+                extendedSchema,
+                warnings = mutableListOf(), errors = mutableListOf()
+            ).process(bundle)
 
             assertThat(Terser(baseMessage).get("SFT-1-1")).isEqualTo("system")
             // Assert that a deeply nested schema element can be overridden, using a
@@ -818,7 +899,12 @@ class FhirToHl7ConverterTests {
 
             // Assert that a new element that would be "part" of an existing schema cannot
             // reference a constant from the nested schema
-            assertFailure { FhirToHl7Converter(extendedSchema).process(bundle) }
+            val transformer = FhirToHl7Converter(
+                extendedSchema,
+                warnings = mutableListOf(), errors = mutableListOf()
+            )
+            transformer.process(bundle)
+            assertThat(transformer.errors.size > 0)
         }
 
         @Test
@@ -830,8 +916,14 @@ class FhirToHl7ConverterTests {
             messageHeader.event = Coding("system", "xon3", "displayCode")
             bundle.addEntry().resource = messageHeader
 
-            val baseMessage = FhirToHl7Converter(baseSchema).process(bundle)
-            val message = FhirToHl7Converter(extendedSchemaOverridesSoftware).process(bundle)
+            val baseMessage = FhirToHl7Converter(
+                baseSchema,
+                warnings = mutableListOf(), errors = mutableListOf()
+            ).process(bundle)
+            val message = FhirToHl7Converter(
+                extendedSchemaOverridesSoftware,
+                warnings = mutableListOf(), errors = mutableListOf()
+            ).process(bundle)
 
             assertThat(Terser(baseMessage).get("SFT-5")).isEqualTo("idSft")
             // Assert that the override sets a different schema for software that
@@ -848,8 +940,14 @@ class FhirToHl7ConverterTests {
             messageHeader.event = Coding("system", "aCode", "displayCode")
             bundle.addEntry().resource = messageHeader
 
-            val baseMessage = FhirToHl7Converter(baseSchema).process(bundle)
-            val message = FhirToHl7Converter(extendedSchemaOverridesXon).process(bundle)
+            val baseMessage = FhirToHl7Converter(
+                baseSchema,
+                warnings = mutableListOf(), errors = mutableListOf()
+            ).process(bundle)
+            val message = FhirToHl7Converter(
+                extendedSchemaOverridesXon,
+                warnings = mutableListOf(), errors = mutableListOf()
+            ).process(bundle)
 
             assertThat(Terser(baseMessage).get("SFT-1-1")).isEqualTo("system")
             // Assert that an extending schema can override the schema for a nested element
@@ -865,8 +963,14 @@ class FhirToHl7ConverterTests {
             messageHeader.event = Coding("system", "aCode", "displayCode")
             bundle.addEntry().resource = messageHeader
 
-            val baseMessage = FhirToHl7Converter(baseSchema).process(bundle)
-            val message = FhirToHl7Converter(extendedSchemaOverridesXon).process(bundle)
+            val baseMessage = FhirToHl7Converter(
+                baseSchema,
+                warnings = mutableListOf(), errors = mutableListOf()
+            ).process(bundle)
+            val message = FhirToHl7Converter(
+                extendedSchemaOverridesXon,
+                warnings = mutableListOf(), errors = mutableListOf()
+            ).process(bundle)
 
             assertThat(Terser(baseMessage).get("SFT-1-10")).isNull()
             // Assert that a new element can get added when overriding a nested schema
@@ -878,8 +982,14 @@ class FhirToHl7ConverterTests {
             val bundle = Bundle()
             bundle.id = "abc123"
 
-            val baseMessage = FhirToHl7Converter(baseSchema).process(bundle)
-            val message = FhirToHl7Converter(extendedExtendedSchema).process(bundle)
+            val baseMessage = FhirToHl7Converter(
+                baseSchema,
+                warnings = mutableListOf(), errors = mutableListOf()
+            ).process(bundle)
+            val message = FhirToHl7Converter(
+                extendedExtendedSchema,
+                warnings = mutableListOf(), errors = mutableListOf()
+            ).process(bundle)
 
             assertThat(Terser(baseMessage).get("MSH-11")).isEqualTo("abc123")
             // Assert that a schema that extends a schema overriding MSH-11 can further
@@ -896,8 +1006,14 @@ class FhirToHl7ConverterTests {
             messageHeader.event = Coding("system", "aCode", "displayCode")
             bundle.addEntry().resource = messageHeader
 
-            val baseMessage = FhirToHl7Converter(baseSchema).process(bundle)
-            val message = FhirToHl7Converter(extendedExtendedSchema).process(bundle)
+            val baseMessage = FhirToHl7Converter(
+                baseSchema,
+                warnings = mutableListOf(), errors = mutableListOf()
+            ).process(bundle)
+            val message = FhirToHl7Converter(
+                extendedExtendedSchema,
+                warnings = mutableListOf(), errors = mutableListOf()
+            ).process(bundle)
 
             assertThat(Terser(baseMessage).get("SFT-1-1")).isEqualTo("system")
             // Asserts that a nested schema cannot use an extends clause

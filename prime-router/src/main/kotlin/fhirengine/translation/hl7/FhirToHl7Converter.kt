@@ -59,8 +59,8 @@ Logging {
         terser: Terser? = null,
         context: FhirToHl7Context? = null,
         blobConnectionInfo: BlobAccess.BlobContainerMetadata,
-        warnings: MutableList<String>,
-        errors: MutableList<String>,
+        warnings: MutableList<String> = mutableListOf(),
+        errors: MutableList<String> = mutableListOf(),
     ) : this(
         schemaRef = converterSchemaFromFile(schema, blobConnectionInfo),
         strict = strict,
@@ -76,8 +76,8 @@ Logging {
         strict: Boolean = false,
         terser: Terser? = null,
         context: FhirToHl7Context? = null,
-        warnings: MutableList<String>,
-        errors: MutableList<String>,
+        warnings: MutableList<String> = mutableListOf(),
+        errors: MutableList<String> = mutableListOf(),
     ) : this(
         ConfigSchemaReader.fromFile(
             schemaUri,
