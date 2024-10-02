@@ -37,12 +37,14 @@ import gov.cdc.prime.router.cli.ProcessFhirCommands
 import gov.cdc.prime.router.common.AzureHttpUtils.getSenderIP
 import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.common.JacksonMapperUtilities
+import gov.cdc.prime.router.fhirengine.engine.encodePreserveEncodingChars
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.history.azure.SubmissionsFacade
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
 import gov.cdc.prime.router.tokens.Scope
 import gov.cdc.prime.router.tokens.authenticationFailure
 import gov.cdc.prime.router.tokens.authorizationFailure
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import org.apache.logging.log4j.kotlin.Logging
 import java.io.File
@@ -175,18 +177,48 @@ class ReportFunction(
                     senderSchema,
                     false
                 )
-                if (result.message != null) {
-                    return HttpUtilities.okResponse(request, result.message.toString())
-                } else if (result.bundle != null) {
-                    return HttpUtilities.okJSONResponse(request, result.bundle)
-                }
+                file.delete()
+                return HttpUtilities.okResponse(
+                    request,
+                        Json.encodeToString(
+                        MessageOrBundleString.serializer(),
+                        MessageOrBundleString(
+                            result.message?.encodePreserveEncodingChars(),
+                            result.bundle.toString(),
+                            result.senderTransformPassed,
+                            result.senderTransformErrors,
+                            result.senderTransformWarnings,
+                            result.enrichmentSchemaPassed,
+                            result.enrichmentSchemaErrors,
+                            result.enrichmentSchemaWarnings,
+                            result.receiverTransformPassed,
+                            result.receiverTransformErrors,
+                            result.receiverTransformWarnings
+                        )
+                    )
+                )
             } catch (exception: CliktError) {
+                file.delete()
                 return HttpUtilities.badRequestResponse(request, "${exception.message}")
             }
-            file.delete()
         }
         return HttpUtilities.unauthorizedResponse(request)
     }
+
+    @Serializable
+    class MessageOrBundleString(
+        var message: String? = null,
+        var bundle: String? = null,
+        var senderTransformPassed: Boolean = true,
+        var senderTransformErrors: MutableList<String> = mutableListOf(),
+        var senderTransformWarnings: MutableList<String> = mutableListOf(),
+        var enrichmentSchemaPassed: Boolean = true,
+        var enrichmentSchemaErrors: MutableList<String> = mutableListOf(),
+        var enrichmentSchemaWarnings: MutableList<String> = mutableListOf(),
+        var receiverTransformPassed: Boolean = true,
+        var receiverTransformErrors: MutableList<String> = mutableListOf(),
+        var receiverTransformWarnings: MutableList<String> = mutableListOf(),
+    )
 
     /**
      * Moved the logic to a separate function for testing purposes

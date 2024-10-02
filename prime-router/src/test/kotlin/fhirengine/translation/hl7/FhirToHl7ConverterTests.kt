@@ -8,6 +8,7 @@ import assertk.assertions.isEqualTo
 import assertk.assertions.isFalse
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotEqualTo
+import assertk.assertions.isNotNull
 import assertk.assertions.isNull
 import assertk.assertions.isTrue
 import ca.uhn.hl7v2.HL7Exception
@@ -57,16 +58,16 @@ class FhirToHl7ConverterTests {
         val converter = FhirToHl7Converter(mockSchema, terser = mockTerser)
 
         var element = ConverterSchemaElement("name")
-        assertThat(converter.canEvaluate(element, bundle, bundle, bundle, customContext)).isTrue()
+        assertThat(converter.canEvaluate(element, bundle, bundle, bundle, customContext)).isNull()
 
         element = ConverterSchemaElement("name", condition = "Bundle.id.exists()")
-        assertThat(converter.canEvaluate(element, bundle, bundle, bundle, customContext)).isTrue()
+        assertThat(converter.canEvaluate(element, bundle, bundle, bundle, customContext)).isNull()
 
         element = ConverterSchemaElement("name", condition = "Bundle.id = 'someothervalue'")
-        assertThat(converter.canEvaluate(element, bundle, bundle, bundle, customContext)).isFalse()
+        assertThat(converter.canEvaluate(element, bundle, bundle, bundle, customContext)).isNotNull()
 
         element = ConverterSchemaElement("name", condition = "Bundle.id")
-        assertThat(converter.canEvaluate(element, bundle, bundle, bundle, customContext)).isFalse()
+        assertThat(converter.canEvaluate(element, bundle, bundle, bundle, customContext)).isNotNull()
     }
 
     @Test
