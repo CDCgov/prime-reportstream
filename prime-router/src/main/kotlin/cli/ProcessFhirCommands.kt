@@ -432,6 +432,8 @@ class ProcessFhirCommands : CliktCommand(
     ): MessageOrBundle {
         var fhirMessage = FhirTranscoder.decode(jsonString)
         val enrichmentSchemaMessages = applyEnrichmentSchemas(fhirMessage, isCli)
+        val errors: MutableList<String> = mutableListOf()
+        val warnings: MutableList<String> = mutableListOf()
         return when {
             (isCli && receiverSchema == null) && (receiver == null || receiver.schemaName.isBlank()) ->
                 // Receiver schema required because if it's coming out as HL7, it would be getting any transform info
@@ -447,6 +449,7 @@ class ProcessFhirCommands : CliktCommand(
                 if (receiver != null) {
                     senderTransformMessages.bundle = applyConditionFilter(receiver, senderTransformMessages.bundle)
                 }
+
                 val message = FhirToHl7Converter(
                     receiverSchema!!,
                     BlobAccess.BlobContainerMetadata.build("metadata", Environment.get().storageEnvVar),
@@ -457,7 +460,9 @@ class ProcessFhirCommands : CliktCommand(
                             receiver
                         ),
                         translationFunctions = CustomTranslationFunctions(),
-                    )
+                    ),
+                    warnings = warnings,
+                    errors = errors
                 ).process(senderTransformMessages.bundle)
                 val messageOrBundle = MessageOrBundle()
                 messageOrBundle.senderTransformPassed = senderTransformMessages.errors.isEmpty()
@@ -479,12 +484,14 @@ class ProcessFhirCommands : CliktCommand(
                             receiver
                         ),
                         translationFunctions = CustomTranslationFunctions(),
-                    )
+                    ),
+                    warnings = warnings,
+                    errors = errors
                 ).process(bundle)
                 val messageOrBundle = MessageOrBundle()
                 messageOrBundle.senderTransformPassed = senderTransformMessages.errors.isEmpty()
-                messageOrBundle.senderTransformWarnings = senderTransformMessages.warnings
-                messageOrBundle.senderTransformErrors = senderTransformMessages.errors
+                messageOrBundle.senderTransformWarnings = warnings
+                messageOrBundle.senderTransformErrors = errors
                 messageOrBundle.message = message
                 messageOrBundle
             }

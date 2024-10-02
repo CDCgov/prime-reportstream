@@ -38,7 +38,13 @@ class FhirToHl7Converter(
     // the constant substitutor is not thread safe, so we need one instance per converter instead of using a shared copy
     private val constantSubstitutor: ConstantSubstitutor = ConstantSubstitutor(),
     private val context: FhirToHl7Context? = null,
-) : ConfigSchemaProcessor<Bundle, Message, HL7ConverterSchema, ConverterSchemaElement>(schemaRef), Logging {
+    warnings: MutableList<String>,
+    errors: MutableList<String>,
+) : ConfigSchemaProcessor<Bundle, Message, HL7ConverterSchema, ConverterSchemaElement>(
+    schemaRef,
+    warnings, errors
+),
+Logging {
     /**
      * Convert a FHIR bundle to an HL7 message using the [schema] in the [schemaFolder] location to perform the conversion.
      * The converter will error out if [strict] is set to true and there is an error during the conversion.  If [strict]
@@ -53,11 +59,15 @@ class FhirToHl7Converter(
         terser: Terser? = null,
         context: FhirToHl7Context? = null,
         blobConnectionInfo: BlobAccess.BlobContainerMetadata,
+        warnings: MutableList<String>,
+        errors: MutableList<String>,
     ) : this(
         schemaRef = converterSchemaFromFile(schema, blobConnectionInfo),
         strict = strict,
         terser = terser,
-        context = context
+        context = context,
+        warnings = warnings,
+        errors = errors
     )
 
     constructor(
@@ -66,6 +76,8 @@ class FhirToHl7Converter(
         strict: Boolean = false,
         terser: Terser? = null,
         context: FhirToHl7Context? = null,
+        warnings: MutableList<String>,
+        errors: MutableList<String>,
     ) : this(
         ConfigSchemaReader.fromFile(
             schemaUri,
@@ -74,14 +86,17 @@ class FhirToHl7Converter(
         ),
         strict = strict,
         terser = terser,
-        context = context
+        context = context,
+        warnings = warnings,
+        errors = errors
+
     )
 
     /**
      * Convert the given [bundle] to an HL7 message.
      * @return the HL7 message
      */
-    override fun process(input: Bundle, errors: MutableList<String>, warnings: MutableList<String>): Message {
+    override fun process(input: Bundle): Message {
         // Sanity check, but the schema is assumed good to go here
         check(!schemaRef.hl7Class.isNullOrBlank())
         val message = HL7Utils.getMessageInstance(schemaRef.hl7Class!!)

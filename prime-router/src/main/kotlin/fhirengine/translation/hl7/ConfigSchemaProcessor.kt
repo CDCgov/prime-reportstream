@@ -16,6 +16,8 @@ abstract class ConfigSchemaProcessor<
     SchemaElement : ConfigSchemaElement<Original, Converted, SchemaElement, Schema>,
     >(
     val schema: Schema,
+    val errors: MutableList<String>,
+    val warnings: MutableList<String>,
 ) :
     Logging {
 
@@ -42,8 +44,6 @@ abstract class ConfigSchemaProcessor<
      */
     abstract fun process(
         input: Original,
-        errors: MutableList<String> = mutableListOf(),
-        warnings: MutableList<String> = mutableListOf(),
     ): Converted
 
     /**
