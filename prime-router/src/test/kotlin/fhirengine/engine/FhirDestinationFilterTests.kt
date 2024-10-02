@@ -39,6 +39,7 @@ import gov.cdc.prime.router.azure.observability.event.TestSummary
 import gov.cdc.prime.router.metadata.LookupTable
 import gov.cdc.prime.router.report.ReportService
 import gov.cdc.prime.router.unittest.UnitTestUtils
+import gov.cdc.prime.router.version.Version
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
@@ -338,7 +339,8 @@ class FhirDestinationFilterTests {
                     Topic.FULL_ELR,
                     "test",
                     TaskAction.destination_filter,
-                    OffsetDateTime.now()
+                    OffsetDateTime.now(),
+                    Version.commitId
                 ),
                 ReportEventData::timestamp,
             )
@@ -502,7 +504,8 @@ class FhirDestinationFilterTests {
                         Topic.FULL_ELR,
                         "",
                         TaskAction.destination_filter,
-                        OffsetDateTime.now()
+                        OffsetDateTime.now(),
+                        Version.commitId
                     ),
                     ReportEventData::timestamp
                 )

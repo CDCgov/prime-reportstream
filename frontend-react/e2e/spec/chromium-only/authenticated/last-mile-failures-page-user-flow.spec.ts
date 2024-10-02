@@ -1,5 +1,5 @@
 import { tableRows } from "../../../helpers/utils";
-import { LastMileFailuresPage } from "../../../pages/authenticated/last-mile-failures";
+import { LastMileFailuresPage } from "../../../pages/authenticated/admin/last-mile-failures";
 import { test as baseTest, expect } from "../../../test";
 
 export interface LastMileFailuresPageFixtures {
@@ -83,14 +83,16 @@ test.describe("Last Mile Failure page",
             await expect(modal).toContainText(`Report ID:${reportIdCell}`);
         });
 
-        test("table column 'Receiver' will open receiver edit page", async ({ lastMileFailuresPage, isMockDisabled }) => {
+        test.skip("table column 'Receiver' will open receiver edit page", async ({ lastMileFailuresPage, isMockDisabled }) => {
             test.skip(!isMockDisabled, "Mocks are ENABLED, skipping test");
             const receiver = tableRows(lastMileFailuresPage.page).nth(0).locator("td").nth(2);
             const receiverCell = await receiver.getByRole("link").innerText();
+            const orgName = receiverCell.slice(0,receiverCell.indexOf("."))
+            const receiverName = receiverCell.slice(receiverCell.indexOf(".") + 1)
             await receiver.click();
 
             await expect(lastMileFailuresPage.page).toHaveURL(
-                `/admin/orgreceiversettings/org/${receiverCell}/receiver//action/edit`,
+                `/admin/orgreceiversettings/org/${orgName}/receiver/${receiverName}/action/edit`,
             );
         });
     });

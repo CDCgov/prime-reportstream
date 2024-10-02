@@ -42,6 +42,7 @@ import gov.cdc.prime.router.fhirengine.engine.FHIRReceiver
 import gov.cdc.prime.router.history.DetailedActionLog
 import gov.cdc.prime.router.history.DetailedReport
 import gov.cdc.prime.router.unittest.UnitTestUtils
+import gov.cdc.prime.router.version.Version
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockkObject
@@ -228,7 +229,8 @@ class FHIRReceiverIntegrationTests {
                 Topic.FULL_ELR,
                 receiveBlobUrl,
                 TaskAction.receive,
-                OffsetDateTime.now()
+                OffsetDateTime.now(),
+                Version.commitId
             ),
             ReportEventData::timestamp
         )
@@ -254,7 +256,8 @@ class FHIRReceiverIntegrationTests {
                 Topic.FULL_ELR,
                 receiveBlobUrl,
                 TaskAction.receive,
-                OffsetDateTime.now()
+                OffsetDateTime.now(),
+                Version.commitId
             ),
             ReportEventData::timestamp
         )
@@ -339,7 +342,8 @@ class FHIRReceiverIntegrationTests {
                 null,
                 submissionBlobUrl,
                 TaskAction.receive,
-                OffsetDateTime.now()
+                OffsetDateTime.now(),
+                Version.commitId
             ),
             ReportEventData::timestamp
         )
@@ -441,7 +445,8 @@ class FHIRReceiverIntegrationTests {
                 Topic.FULL_ELR,
                 receiveBlobUrl,
                 TaskAction.receive,
-                OffsetDateTime.now()
+                OffsetDateTime.now(),
+                Version.commitId
             ),
             ReportEventData::timestamp
         )
@@ -544,7 +549,8 @@ class FHIRReceiverIntegrationTests {
                 Topic.FULL_ELR,
                 receiveBlobUrl,
                 TaskAction.receive,
-                OffsetDateTime.now()
+                OffsetDateTime.now(),
+                Version.commitId
             ),
             ReportEventData::timestamp
         )
@@ -649,7 +655,8 @@ class FHIRReceiverIntegrationTests {
                 Topic.FULL_ELR,
                 receiveBlobUrl,
                 TaskAction.receive,
-                OffsetDateTime.now()
+                OffsetDateTime.now(),
+                Version.commitId
             ),
             ReportEventData::timestamp
         )
@@ -753,7 +760,8 @@ class FHIRReceiverIntegrationTests {
                 Topic.FULL_ELR,
                 receiveBlobUrl,
                 TaskAction.receive,
-                OffsetDateTime.now()
+                OffsetDateTime.now(),
+                Version.commitId
             ),
             ReportEventData::timestamp
         )
@@ -854,7 +862,8 @@ class FHIRReceiverIntegrationTests {
                 null,
                 receiveBlobUrl,
                 TaskAction.receive,
-                OffsetDateTime.now()
+                OffsetDateTime.now(),
+                Version.commitId
             ),
             ReportEventData::timestamp
         )
