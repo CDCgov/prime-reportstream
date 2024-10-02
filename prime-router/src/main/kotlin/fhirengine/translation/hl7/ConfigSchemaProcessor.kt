@@ -40,7 +40,11 @@ abstract class ConfigSchemaProcessor<
      * @property input the value to apply the schema to
      * @return The value after applying the schema to [input]
      */
-    abstract fun process(input: Original): Converted
+    abstract fun process(
+        input: Original,
+        errors: MutableList<String> = mutableListOf(),
+        warnings: MutableList<String> = mutableListOf(),
+    ): Converted
 
     /**
      * Get the first valid value from the list of values specified in the schema for a given [element] using

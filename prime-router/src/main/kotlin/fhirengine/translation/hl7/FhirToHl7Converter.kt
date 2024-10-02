@@ -81,13 +81,19 @@ class FhirToHl7Converter(
      * Convert the given [bundle] to an HL7 message.
      * @return the HL7 message
      */
-    override fun process(input: Bundle): Message {
+    override fun process(input: Bundle, errors: MutableList<String>, warnings: MutableList<String>): Message {
         // Sanity check, but the schema is assumed good to go here
         check(!schemaRef.hl7Class.isNullOrBlank())
         val message = HL7Utils.getMessageInstance(schemaRef.hl7Class!!)
 
         terser = Terser(message)
-        processSchema(schemaRef, input, input)
+        try {
+            warnings.addAll(processSchema(schemaRef, input, input))
+        } catch (e: Exception) {
+            if (e.message != null) {
+                errors.add(e.message!!)
+            }
+        }
         return message
     }
 
@@ -150,13 +156,14 @@ class FhirToHl7Converter(
             translationFunctions = this.context?.translationFunctions
         ),
         debug: Boolean = false,
-    ) {
+    ): List<String> {
         val logLevel = if (debug) Level.INFO else Level.DEBUG
         logger.log(logLevel, "Processing schema: ${schema.name} with ${schema.elements.size} elements")
         // Add any schema level constants to the context
         // We need to create a new context, so constants exist only within their specific schema tree
         val schemaContext = CustomContext.addConstants(schema.constants, context)
 
+        val warnings = mutableListOf<String>()
         schema.elements.forEach { element ->
             try {
                 processElement(element, bundle, schemaResource, schemaContext, debug)
@@ -164,6 +171,7 @@ class FhirToHl7Converter(
                 throw ConfigSchemaElementProcessingException(schema, element, ex)
             }
         }
+        return warnings
     }
 
     /**

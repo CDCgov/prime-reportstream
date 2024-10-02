@@ -46,7 +46,7 @@ class FhirTransformer(
      * Transform the given [bundle]. The bundle passed in will be updated directly, and will also be returned.
      * @return the transformed bundle
      */
-    override fun process(input: Bundle): Bundle {
+    override fun process(input: Bundle, errors: MutableList<String>, warnings: MutableList<String>): Bundle {
         transformWithSchema(schemaRef, bundle = input, focusResource = input)
         return input
     }

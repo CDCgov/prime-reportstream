@@ -37,7 +37,6 @@ import gov.cdc.prime.router.cli.ProcessFhirCommands
 import gov.cdc.prime.router.common.AzureHttpUtils.getSenderIP
 import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.common.JacksonMapperUtilities
-import gov.cdc.prime.router.fhirengine.engine.encodePreserveEncodingChars
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.history.azure.SubmissionsFacade
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
@@ -178,13 +177,18 @@ class ReportFunction(
                     false
                 )
                 file.delete()
+                val bundle = if (result.bundle != null) {
+                    FhirTranscoder.encode(result.bundle!!)
+                } else {
+                    null
+                }
                 return HttpUtilities.okResponse(
                     request,
                         Json.encodeToString(
                         MessageOrBundleString.serializer(),
                         MessageOrBundleString(
-                            result.message?.encodePreserveEncodingChars(),
-                            result.bundle.toString(),
+                            result.message.toString(),
+                            bundle,
                             result.senderTransformPassed,
                             result.senderTransformErrors,
                             result.senderTransformWarnings,
