@@ -7,9 +7,9 @@
 
 ## Requesting DevSecOps Support
 
-- Quick questions that take <5 min to answer can be asked in Slack and answered by anyone with knowledge, but any issues that need investigation or that may take longer than 5 minutes to gather context and resolve should be opened in ticket form using the [DevSecOps-issue.md](../ISSUE_TEMPLATE/DevSecOps-issue.md) ticket template.
+- Quick questions that take <5 min to answer can be asked in Slack and answered by anyone with knowledge, but any issues that need investigation or that may take longer than 5 minutes to gather context and resolve should be opened in ticket form using the [DevSecOps-issue.md](https://github.com/CDCgov/prime-reportstream/blob/master/.github/ISSUE_TEMPLATE/DevSecOps-issue.md) ticket template.
 - Please avoid using DMs to communicate directly with the DevSecOps Team - instead post communication in the shared #prime-devops channel and tag the appropriate individual(s).
-- Apps Teams will request DevSecOps support via the  [DevSecOps-issue.md](../ISSUE_TEMPLATE/DevSecOps-issue.md)  Github ticket template.  The template will automatically add appropriate labels and assign the ticket to the DevSecOps Team.
+- Apps Teams will request DevSecOps support via the  [DevSecOps-issue.md](https://github.com/CDCgov/prime-reportstream/blob/master/.github/ISSUE_TEMPLATE/DevSecOps-issue.md)  Github ticket template.  The template will automatically add appropriate labels and assign the ticket to the DevSecOps Team.
 - The DevSecOps Team will track all DevSecOps issues on the ReportStream board that are tagged with the `DevSecOps` and `reportstream` labels.
 - When new issues are created using the DevSecOps issue template, the DevSecOps Team will receive an automatic Slack notification in a separate DevSecOps alert channel (TBD).
 
