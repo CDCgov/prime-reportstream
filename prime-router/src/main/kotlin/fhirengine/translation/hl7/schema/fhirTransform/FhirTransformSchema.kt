@@ -74,6 +74,7 @@ class FhirTransformSchemaElement(
     debug: Boolean = false,
     var bundleProperty: String? = null,
     val appendToProperty: String? = null,
+    var function: String? = null,
 
     ) : ConfigSchemaElement<Bundle, Bundle, FhirTransformSchemaElement, FhirTransformSchema>(
     name = name,
@@ -105,6 +106,7 @@ class FhirTransformSchemaElement(
         bundleProperty: String? = null,
         action: FhirTransformSchemaElementAction,
         appendToProperty: String? = null,
+        function: String? = null,
     ) : this(
         name,
         condition,
@@ -118,7 +120,8 @@ class FhirTransformSchemaElement(
         valueSet,
         debug,
         bundleProperty,
-        appendToProperty
+        appendToProperty,
+        function
     ) {
       this.action = action
     }

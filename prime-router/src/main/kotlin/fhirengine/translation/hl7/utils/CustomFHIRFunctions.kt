@@ -9,6 +9,7 @@ import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.BaseDateTimeType
 import org.hl7.fhir.r4.model.BooleanType
 import org.hl7.fhir.r4.model.DateTimeType
+import org.hl7.fhir.r4.model.HumanName
 import org.hl7.fhir.r4.model.IntegerType
 import org.hl7.fhir.r4.model.StringType
 import java.time.DateTimeException
@@ -37,6 +38,7 @@ object CustomFHIRFunctions : FhirPathFunctions {
         HasPhoneNumberExtension,
         ChangeTimezone,
         ConvertDateToAge,
+        DeidentifyHumanName,
         ;
 
         companion object {
@@ -122,6 +124,14 @@ object CustomFHIRFunctions : FhirPathFunctions {
                 )
             }
 
+            CustomFHIRFunctionNames.DeidentifyHumanName -> {
+                FunctionDetails(
+                    "removes PII from a name",
+                    0,
+                    1
+                )
+            }
+
             else -> additionalFunctions?.resolveFunction(functionName)
         }
     }
@@ -183,6 +193,10 @@ object CustomFHIRFunctions : FhirPathFunctions {
 
                 CustomFHIRFunctionNames.ConvertDateToAge -> {
                     convertDateToAge(focus, parameters)
+                }
+
+                CustomFHIRFunctionNames.DeidentifyHumanName -> {
+                    deidentifyHumanName(focus, parameters)
                 }
 
                 else -> additionalFunctions?.executeFunction(focus, functionName, parameters)
@@ -351,6 +365,22 @@ object CustomFHIRFunctions : FhirPathFunctions {
             else -> focus[0].primitiveValue()
         }
         return if (type != null) mutableListOf(StringType(type)) else mutableListOf()
+    }
+
+    fun deidentifyHumanName(focus: MutableList<Base>, parameters: MutableList<MutableList<Base>>?): MutableList<Base> {
+        val deidentifiedValue = parameters?.firstOrNull()?.filterIsInstance<StringType>()?.firstOrNull()?.value ?: ""
+        focus.filterIsInstance<HumanName>().forEach { name ->
+            if (deidentifiedValue.isNotEmpty()) {
+                val updatedGiven = name.given.map { StringType(deidentifiedValue) }
+                name.setGiven(updatedGiven.toMutableList())
+            } else {
+                name.setGiven(emptyList())
+            }
+
+            name.setFamily(deidentifiedValue)
+        }
+
+        return focus
     }
 
     /**
