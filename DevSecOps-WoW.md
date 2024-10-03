@@ -23,3 +23,4 @@
 - DevSecOps Team members will not factor into app Team velocity calculations.
 - The DevSecOps Team will conduct their own internal stand ups for 10-15 minutes and other recurring Agile ceremonies.
 - DevSecOps Team members will communicate status of their tickets with the respective App Tech Leads.
+- DevSec0ps team shall participate in, and help inform, quarterly program planning exercises
