@@ -910,7 +910,7 @@ dependencies {
     implementation("com.hierynomus:sshj:0.38.0")
     implementation("com.jcraft:jsch:0.1.55")
     implementation("org.apache.poi:poi:5.3.0")
-    implementation("org.apache.commons:commons-csv:1.11.0")
+    implementation("org.apache.commons:commons-csv:1.12.0")
     implementation("org.apache.commons:commons-lang3:3.15.0")
     implementation("org.apache.commons:commons-text:1.12.0")
     implementation("commons-codec:commons-codec:1.17.1")
