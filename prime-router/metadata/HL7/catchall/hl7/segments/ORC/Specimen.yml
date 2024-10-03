@@ -111,10 +111,10 @@ note_specimen-source:
       expressionsMap:
         url:
           type: SYSTEM_URL
-          value: hl7v2Name
+          value: hl7v2Component
         valueString:
           type: STRING
-          valueOf: specimen-source
+          valueOf: OBR.15.3
 
 note_collectors-comment:
   condition: $obr39 NOT_NULL
