@@ -271,14 +271,15 @@ sourceSets.create("testIntegration") {
     runtimeClasspath += sourceSets["main"].output
 }
 
-// Add generated version object
-sourceSets["main"].java.srcDir("$buildDir/generated-src/version")
-
 val compileTestIntegrationKotlin: KotlinCompile by tasks
 compileTestIntegrationKotlin.kotlinOptions.jvmTarget = appJvmTarget
 
 val testIntegrationImplementation: Configuration by configurations.getting {
     extendsFrom(configurations["testImplementation"])
+}
+
+tasks.withType<KotlinCompile> {
+    mustRunAfter("generateVersionObject")
 }
 
 configurations["testIntegrationRuntimeOnly"].extendsFrom(configurations["runtimeOnly"])
@@ -353,7 +354,7 @@ tasks.withType<Test>().configureEach {
 }
 
 tasks.processResources {
-    dependsOn("generateVersionObject")
+    mustRunAfter("generateVersionObject")
     // Set the proper build values in the build.properties file
     filesMatching("build.properties") {
         val dateFormatter = DateTimeFormatter.ofPattern("yyyyMMdd")
@@ -521,12 +522,13 @@ tasks.register("generateVersionFile") {
     }
 }
 
-tasks.register("generateVersionObject") {
-    val sourceDir = file("$buildDir/generated-src/version")
-    val sourceFile = file("$sourceDir/Version.kt")
-    sourceDir.mkdirs()
-    sourceFile.writeText(
-        """
+val generateVersionObject = tasks.register("generateVersionObject") {
+    doLast {
+        val sourceDir = file("$buildDir/generated-src/version/src/main/kotlin/gov/cdc/prime/router")
+        val sourceFile = file("$sourceDir/Version.kt")
+        sourceDir.mkdirs()
+        sourceFile.writeText(
+            """
         package gov.cdc.prime.router.version
         
         /**
@@ -537,7 +539,12 @@ tasks.register("generateVersionObject") {
           const val commitId = "$commitId"
         }
     """.trimIndent()
-    )
+        )
+    }
+}
+sourceSets.getByName("main").kotlin.srcDir("$buildDir/generated-src/version/src/main/kotlin")
+tasks.named("compileKotlin").configure {
+    dependsOn(generateVersionObject)
 }
 
 val azureResourcesTmpDir = File(buildDir, "$azureFunctionsDir-resources/$azureAppName")
