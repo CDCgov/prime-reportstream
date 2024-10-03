@@ -903,7 +903,7 @@ dependencies {
     implementation("ca.uhn.hapi:hapi-structures-v27:2.5.1")
     implementation("com.googlecode.libphonenumber:libphonenumber:8.13.46")
     implementation("org.thymeleaf:thymeleaf:3.1.2.RELEASE")
-    implementation("com.sendgrid:sendgrid-java:4.10.2")
+    implementation("com.sendgrid:sendgrid-java:4.10.3")
     implementation("com.okta.jwt:okta-jwt-verifier:0.5.7")
     implementation("org.json:json:20240303")
     // DO NOT INCREMENT SSHJ to a newer version without first thoroughly testing it locally.
