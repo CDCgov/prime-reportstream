@@ -215,7 +215,7 @@ class ProcessFhirCommands : CliktCommand(
         when {
             // HL7 to FHIR conversion
             inputFileType == "HL7" && (
-                outputFormat == MimeFormat.FHIR.toString() ||
+                (isCli && outputFormat == MimeFormat.FHIR.toString()) ||
                     (receiver != null && receiver.format == MimeFormat.FHIR)
                 ) -> {
                 val fhirMessage = convertHl7ToFhir(contents, receiver).first
@@ -278,7 +278,7 @@ class ProcessFhirCommands : CliktCommand(
 
             // FHIR to FHIR conversion
             (inputFileType == "FHIR" || inputFileType == "JSON") && (
-                outputFormat == MimeFormat.FHIR.toString() ||
+                (isCli && outputFormat == MimeFormat.FHIR.toString()) ||
                     (receiver != null && receiver.format == MimeFormat.FHIR)
                 ) -> {
                 return convertFhirToFhir(FhirTranscoder.encode(bundle), receiver, senderSchema, isCli)
@@ -286,7 +286,7 @@ class ProcessFhirCommands : CliktCommand(
 
             // HL7 to FHIR to HL7 conversion
             inputFileType == "HL7" && (
-                outputFormat == MimeFormat.HL7.toString() ||
+                (isCli && outputFormat == MimeFormat.HL7.toString()) ||
                     (
                         receiver != null &&
                         (receiver.format == MimeFormat.HL7 || receiver.format == MimeFormat.HL7_BATCH)
@@ -438,7 +438,7 @@ class ProcessFhirCommands : CliktCommand(
         val errors: MutableList<String> = mutableListOf()
         val warnings: MutableList<String> = mutableListOf()
         return when {
-            (isCli && receiverSchema == null) && (receiver == null || receiver.schemaName.isBlank()) ->
+            (isCli && receiverSchema == null) && (receiver == null || (isCli && receiver.schemaName.isBlank())) ->
                 // Receiver schema required because if it's coming out as HL7, it would be getting any transform info
                 // for that from a receiver schema.
                 throw CliktError("You must specify a receiver schema using --receiver-schema.")
@@ -640,7 +640,7 @@ class ProcessFhirCommands : CliktCommand(
         val messageOrBundle = MessageOrBundle()
         setEnrichmentSchemaFields(messageOrBundle, applyEnrichmentSchemas(bundle, isCli))
 
-        if (receiverSchema != null) {
+        if (isCli && receiverSchema != null) {
             val transformer = FhirTransformer(receiverSchema!!)
             val returnedBundle = transformer.process(messageOrBundle.bundle!!)
             messageOrBundle.receiverTransformWarnings.addAll(transformer.warnings)

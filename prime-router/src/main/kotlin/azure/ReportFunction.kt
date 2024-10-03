@@ -24,7 +24,6 @@ import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.Sender.ProcessingType
 import gov.cdc.prime.router.SubmissionReceiver
 import gov.cdc.prime.router.UniversalPipelineReceiver
-import gov.cdc.prime.router.azure.BlobAccess.Companion.defaultBlobMetadata
 import gov.cdc.prime.router.azure.BlobAccess.Companion.getBlobContainer
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
@@ -211,7 +210,7 @@ class ReportFunction(
 
     @Serializable
     class MessageOrBundleString(
-        var message: String? = null,
+        var hl7Message: String? = null,
         var bundle: String? = null,
         var senderTransformPassed: Boolean = true,
         var senderTransformErrors: MutableList<String> = mutableListOf(),
