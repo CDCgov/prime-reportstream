@@ -115,6 +115,9 @@ class FhirTransformer(
                     elementContext.focusResource = singleFocusResource
                     val value = getValue(element, bundle, singleFocusResource, elementContext)
                     val function = element.function
+                    if (value != null && function != null) {
+                        throw SchemaException("Element can only set function or value")
+                    }
                     val bundleProperty = element.bundleProperty
                         ?: throw SchemaException("bundleProperty must be set for element ${element.name}")
                     if (value != null) {

@@ -113,6 +113,7 @@ object FhirToFhirTransformValidation : KonformValidation<FhirTransformSchema>() 
                     addConstraint("Invalid FHIR path: {value}", test = ::validFhirPath)
                 }
             }
+            addConstraint("Value and function cannot both be set") { it.value != null && it.function != null }
         }
     }
 }
