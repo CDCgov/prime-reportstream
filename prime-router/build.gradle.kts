@@ -427,7 +427,7 @@ tasks.register<JavaExec>("primeCLI") {
     // Use arguments passed by another task in the project.extra["cliArgs"] property.
     doFirst {
         if (project.extra.has("cliArgs") && project.extra["cliArgs"] is List<*>) {
-            args = (project.extra["cliArgs"] as List<*>).filterIsInstance(String::class.java)
+            args = (project.extra["cliArgs"] as List<*>).filterIsInstance<String>()
         } else if (args.isNullOrEmpty()) {
             args = listOf("-h")
             println("primeCLI Gradle task usage: gradle primeCLI --args='<args>'")
@@ -645,7 +645,6 @@ task<Exec>("uploadSwaggerUI") {
 }
 
 tasks.register("killFunc") {
-    doLast {
         val processName = "func"
         if (org.gradle.internal.os.OperatingSystem.current().isWindows) {
             exec {
@@ -658,7 +657,6 @@ tasks.register("killFunc") {
                 commandLine = listOf("sh", "-c", "pkill -9 $processName || true")
             }
         }
-    }
 }
 
 tasks.register("run") {
@@ -772,6 +770,7 @@ tasks.named<nu.studer.gradle.jooq.JooqGenerate>("generateJooq") {
 tasks.register("compile") {
     group = rootProject.description ?: ""
     description = "Compile the code"
+    dependsOn("generateVersionObject")
     dependsOn("compileKotlin")
 }
 
