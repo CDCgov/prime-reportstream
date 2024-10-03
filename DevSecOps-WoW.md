@@ -18,7 +18,7 @@
 - The DevSecOps Team will operate using a Kanban approach and stay within established Work in Progress (WIP) limits.
 - While the DevSecOps Team won't be embedded with specific Apps Teams, they will still operate within the same sprint cadence as the Apps Teams.
 - DevSecOps will review new tickets as they come in and prioritize them.
-- Every 2 weeks on Wednesday, a DevSecOps Team representative will attend a Scrum of Scrums with the Apps Tech Leads (and TBD) to review the status of in progress items, flag blockers, and discuss prioritization of new issues.  Patrick will give ultimate guidance on what issues need to take priority over others in scenarios, whereever it is unclear.
+- Every 2 weeks on Wednesday, a DevSecOps Team representative will attend a Scrum of Scrums with the Apps Tech Leads (and TBD) to review the status of in progress items, flag blockers, and discuss prioritization of new issues.  Patrick will give ultimate guidance on what issues need to take priority over others in scenarios, wherever it is unclear.
 - DevSecOps Team members are not required to attend Apps Team stand ups, sprint planning, refinement, or retro meetings given that they may be doing work across multiple apps at a given time. That said, they will join Apps Team stand ups at their discretion if they need to communicate with the Team, and/or seek clarifications or are requested to join to provide input. They will also pair with Tech Leads to flesh out draft issues, when their input is needed.
 - (Eventually) DevSecOps Team members will not factor into app Team velocity calculations.
 - The DevSecOps Team will conduct their own internal stand ups for 10-15 minutes and other recurring Agile ceremonies.
