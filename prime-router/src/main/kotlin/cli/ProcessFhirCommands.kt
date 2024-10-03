@@ -161,7 +161,11 @@ class ProcessFhirCommands : CliktCommand(
         if (contents.isBlank()) throw CliktError("File ${inputFile.absolutePath} is empty.")
         // Check on the extension of the file for supported operations
         val inputFileType = inputFile.extension.uppercase()
-        val receiver = getReceiver(environment, receiverName, orgName, GetMultipleSettings(), isCli)
+        val receiver = if (!isCli) {
+            getReceiver(environment, receiverName, orgName, GetMultipleSettings(), isCli)
+        } else {
+            null
+        }
 
         // If there is a receiver, check the filters
         var bundle = FhirTranscoder.decode(contents)
