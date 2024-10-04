@@ -42,7 +42,6 @@ import gov.cdc.prime.router.tokens.AuthenticatedClaims
 import gov.cdc.prime.router.tokens.Scope
 import gov.cdc.prime.router.tokens.authenticationFailure
 import gov.cdc.prime.router.tokens.authorizationFailure
-import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import org.apache.logging.log4j.kotlin.Logging
 import java.io.File
@@ -176,28 +175,10 @@ class ReportFunction(
                     false
                 )
                 file.delete()
-                val bundle = if (result.bundle != null) {
-                    FhirTranscoder.encode(result.bundle!!)
-                } else {
-                    null
-                }
                 return HttpUtilities.okResponse(
                     request,
-                        Json.encodeToString(
-                        MessageOrBundleString.serializer(),
-                        MessageOrBundleString(
-                            result.message.toString(),
-                            bundle,
-                            result.senderTransformPassed,
-                            result.senderTransformErrors,
-                            result.senderTransformWarnings,
-                            result.enrichmentSchemaPassed,
-                            result.enrichmentSchemaErrors,
-                            result.enrichmentSchemaWarnings,
-                            result.receiverTransformPassed,
-                            result.receiverTransformErrors,
-                            result.receiverTransformWarnings
-                        )
+                    ObjectMapper().writeValueAsString(
+                        result
                     )
                 )
             } catch (exception: CliktError) {
@@ -207,21 +188,6 @@ class ReportFunction(
         }
         return HttpUtilities.unauthorizedResponse(request)
     }
-
-    @Serializable
-    class MessageOrBundleString(
-        var hl7Message: String? = null,
-        var bundle: String? = null,
-        var senderTransformPassed: Boolean = true,
-        var senderTransformErrors: MutableList<String> = mutableListOf(),
-        var senderTransformWarnings: MutableList<String> = mutableListOf(),
-        var enrichmentSchemaPassed: Boolean = true,
-        var enrichmentSchemaErrors: MutableList<String> = mutableListOf(),
-        var enrichmentSchemaWarnings: MutableList<String> = mutableListOf(),
-        var receiverTransformPassed: Boolean = true,
-        var receiverTransformErrors: MutableList<String> = mutableListOf(),
-        var receiverTransformWarnings: MutableList<String> = mutableListOf(),
-    )
 
     /**
      * Moved the logic to a separate function for testing purposes

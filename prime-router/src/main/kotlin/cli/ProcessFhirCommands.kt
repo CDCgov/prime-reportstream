@@ -197,20 +197,31 @@ class ProcessFhirCommands : CliktCommand(
                         if (result.isEmpty() ||
                             (result[0].isBooleanPrimitive && result[0].primitiveValue() == "false")
                         ) {
-                            throw CliktError("Filter '$filter' filtered out everything, nothing to return.")
+                            return MessageOrBundle(
+                                filterErrors =
+                                mutableListOf("Filter '$filter' filtered out everything, nothing to return."),
+                                filtersPassed = false
+                            )
                         }
                     }
                 }
             }
 
             if (validationErrors.isNotEmpty()) {
-                throw CliktError(validationErrors.joinToString("\n"))
+                return MessageOrBundle(
+                    filterErrors = mutableListOf(validationErrors.joinToString("\n")),
+                    filtersPassed = false
+                )
             }
 
             receiver.conditionFilter.forEach { conditionFilter ->
                 val validation = OrganizationValidation.validateFilter(conditionFilter)
                 if (!validation) {
-                    throw CliktError("Condition filter '$conditionFilter' is not valid.")
+                    return MessageOrBundle(
+                        filterErrors =
+                        mutableListOf("Condition filter '$conditionFilter' is not valid."),
+                            filtersPassed = false
+                    )
                 }
             }
         }
@@ -352,6 +363,8 @@ class ProcessFhirCommands : CliktCommand(
         var receiverTransformPassed: Boolean = true,
         var receiverTransformErrors: MutableList<String> = mutableListOf(),
         var receiverTransformWarnings: MutableList<String> = mutableListOf(),
+        var filterErrors: MutableList<String> = mutableListOf(),
+        var filtersPassed: Boolean = true,
     )
 
     private fun applyConditionFilter(receiver: Receiver, bundle: Bundle): Bundle {
