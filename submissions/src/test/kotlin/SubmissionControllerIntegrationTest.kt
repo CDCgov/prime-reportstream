@@ -10,6 +10,8 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import gov.cdc.prime.reportstream.shared.QueueMessage
 import gov.cdc.prime.reportstream.shared.QueueMessage.ObjectMapperProvider
+import gov.cdc.prime.reportstream.submissions.config.AzureConfig
+import gov.cdc.prime.reportstream.submissions.config.SecurityConfig
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
@@ -17,7 +19,9 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.context.annotation.Import
 import org.springframework.http.MediaType
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.DynamicPropertyRegistry
 import org.springframework.test.context.DynamicPropertySource
@@ -31,6 +35,7 @@ import java.util.Base64
 @SpringBootTest
 @ActiveProfiles("test")
 @AutoConfigureMockMvc
+@Import(AzureConfig::class, SecurityConfig::class)
 class SubmissionControllerIntegrationTest {
 
     @Autowired
@@ -92,6 +97,7 @@ class SubmissionControllerIntegrationTest {
 
         mockMvc.perform(
             MockMvcRequestBuilders.post("/api/v1/reports")
+                .with(csrf())
                 .content(requestBody)
                 .contentType(MediaType.valueOf("application/hl7-v2"))
                 .header("client_id", "testClient")

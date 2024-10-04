@@ -10,6 +10,7 @@ import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.observability.event.IReportStreamEventService
+import gov.cdc.prime.router.report.ReportService
 
 class BlobStoreTransport : ITransport {
     override fun send(
@@ -21,6 +22,7 @@ class BlobStoreTransport : ITransport {
         context: ExecutionContext,
         actionHistory: ActionHistory,
         reportEventService: IReportStreamEventService,
+        reportService: ReportService,
     ): RetryItems? {
         val blobTransportType = transportType as BlobStoreTransportType
         val envVar: String = blobTransportType.containerName
@@ -41,6 +43,7 @@ class BlobStoreTransport : ITransport {
                 msg,
                 header,
                 reportEventService,
+                reportService,
                 this::class.java.simpleName
             )
             actionHistory.trackItemLineages(Report.createItemLineagesFromDb(header, sentReportId))

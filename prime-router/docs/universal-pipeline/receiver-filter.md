@@ -294,8 +294,7 @@ This step emits one of the below events _per receiver_ each time it runs.
 
 | Event                                                                                   | Trigger                                                    |
 |-----------------------------------------------------------------------------------------|------------------------------------------------------------|
-| [ReportRouteEvent](../observability/azure-events.md#reportrouteevent)                   | When a report is routed to a receiver (all filters passed) |
-| [ReceiverFilterFailedEvent](../observability/azure-events.md#receiverfilterfailedevent) | When a report fails receiver filters                       |
+| ITEM_FILTER_FAILED | When a report fails receiver filters                       |
 
 ## Retries
 

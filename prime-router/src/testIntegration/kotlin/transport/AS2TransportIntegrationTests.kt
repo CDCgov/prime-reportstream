@@ -15,6 +15,7 @@ import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.azure.db.tables.pojos.Task
 import gov.cdc.prime.router.azure.observability.event.IReportStreamEventService
 import gov.cdc.prime.router.credentials.UserJksCredential
+import gov.cdc.prime.router.report.ReportService
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
@@ -124,7 +125,8 @@ class AS2TransportIntegrationTests {
                 null,
                 context,
                 actionHistory,
-                mockk<IReportStreamEventService>(relaxed = true)
+                mockk<IReportStreamEventService>(relaxed = true),
+                mockk<ReportService>(relaxed = true)
             )
 
         assertThat(retryItems).isNull()
@@ -150,7 +152,8 @@ class AS2TransportIntegrationTests {
                 null,
                 context,
                 actionHistory,
-                mockk<IReportStreamEventService>(relaxed = true)
+                mockk<IReportStreamEventService>(relaxed = true),
+                mockk<ReportService>(relaxed = true)
             )
 
         assertThat(retryItems).isSameInstanceAs(RetryToken.allItems)
