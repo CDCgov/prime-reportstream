@@ -19,7 +19,7 @@ dependencies {
     implementation("org.springframework.security:spring-security-oauth2-jose:6.3.3")
 
     implementation("com.azure.spring:spring-cloud-azure-starter-storage")
-    implementation("com.microsoft.azure:applicationinsights-runtime-attach:3.5.4")
+    implementation("com.microsoft.azure:applicationinsights-runtime-attach:3.6.0")
     implementation("com.microsoft.azure:applicationinsights-web:3.5.4")
     implementation("com.microsoft.azure:applicationinsights-logging-logback:2.6.4")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
