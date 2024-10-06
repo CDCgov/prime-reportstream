@@ -24,7 +24,7 @@ dependencies {
     implementation("org.springframework.cloud:spring-cloud-gateway-webflux")
     implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
 
-    runtimeOnly("com.nimbusds:oauth2-oidc-sdk:11.18")
+    runtimeOnly("com.nimbusds:oauth2-oidc-sdk:11.20")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.security:spring-security-test")
