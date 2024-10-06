@@ -884,7 +884,7 @@ dependencies {
     implementation("io.github.oshai:kotlin-logging-jvm:7.0.0")
     implementation("com.github.doyaaaaaken:kotlin-csv-jvm:1.10.0")
     implementation("tech.tablesaw:tablesaw-core:0.43.1")
-    implementation("com.github.ajalt.clikt:clikt-jvm:4.4.0")
+    implementation("com.github.ajalt.clikt:clikt-jvm:5.0.1")
 
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:$jacksonVersion")
     implementation("com.fasterxml.jackson.core:jackson-databind:$jacksonVersion")
