@@ -452,14 +452,11 @@ class ActionHistory(
         generatingEmptyReport = true
         val reportFile = ReportFile()
         reportFile.reportId = report.id
-
-        reportFile.nextAction = TaskAction.send
-        reportFile.schemaName = trimSchemaNameToMaxLength(report.schema.name)
         reportFile.schemaTopic = report.schema.topic
-        reportFile.itemCount = report.itemCount
+        reportFile.itemCount = 0
         reportFile.bodyFormat = report.bodyFormat.toString()
-        reportsOut[reportFile.reportId] = reportFile
         reportFile.nextAction = TaskAction.none
+        reportsOut[reportFile.reportId] = reportFile
     }
 
     /**
