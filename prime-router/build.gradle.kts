@@ -35,7 +35,7 @@ apply(from = rootProject.file("buildSrc/shared.gradle.kts"))
 plugins {
     val kotlinVersion by System.getProperties()
     id("reportstream.project-conventions")
-    id("org.flywaydb.flyway") version "10.18.0"
+    id("org.flywaydb.flyway") version "10.18.2"
     id("nu.studer.jooq") version "9.0"
     id("com.github.johnrengelman.shadow") version "8.1.1"
     id("com.microsoft.azure.azurefunctions") version "1.16.1"
@@ -75,7 +75,7 @@ val javaVersion = when (appJvmTarget) {
 }
 val ktorVersion = "2.3.12"
 val kotlinVersion by System.getProperties()
-val jacksonVersion = "2.17.2"
+val jacksonVersion = "2.18.0"
 jacoco.toolVersion = "0.8.12"
 
 // Local database information, first one wins:
@@ -839,7 +839,7 @@ buildscript {
         // will need to be removed once this issue is resolved in Maven.
         classpath("net.minidev:json-smart:2.5.1")
         // as per flyway v10 docs the postgres flyway module must be on the project buildpath
-        classpath("org.flywaydb:flyway-database-postgresql:10.18.0")
+        classpath("org.flywaydb:flyway-database-postgresql:10.18.2")
     }
 }
 
@@ -867,7 +867,7 @@ dependencies {
     implementation("com.azure:azure-storage-queue:12.22.0") {
         exclude(group = "com.azure", module = "azure-core")
     }
-    implementation("com.azure:azure-security-keyvault-secrets:4.8.6") {
+    implementation("com.azure:azure-security-keyvault-secrets:4.8.7") {
         exclude(group = "com.azure", module = "azure-core")
         exclude(group = "com.azure", module = "azure-core-http-netty")
     }
@@ -897,36 +897,36 @@ dependencies {
             branch = "master"
         }
     }
-    implementation("ca.uhn.hapi.fhir:hapi-fhir-structures-r4:7.2.2")
+    implementation("ca.uhn.hapi.fhir:hapi-fhir-structures-r4:7.4.2")
     // https://mvnrepository.com/artifact/ca.uhn.hapi.fhir/hapi-fhir-caching-caffeine
-    implementation("ca.uhn.hapi.fhir:hapi-fhir-caching-caffeine:7.2.2")
-    implementation("ca.uhn.hapi.fhir:hapi-fhir-client:7.2.2")
+    implementation("ca.uhn.hapi.fhir:hapi-fhir-caching-caffeine:7.4.2")
+    implementation("ca.uhn.hapi.fhir:hapi-fhir-client:7.4.2")
     // pin
-    implementation("ca.uhn.hapi.fhir:org.hl7.fhir.utilities:6.3.24")
+    implementation("ca.uhn.hapi.fhir:org.hl7.fhir.utilities:6.3.29")
     implementation("ca.uhn.hapi.fhir:org.hl7.fhir.r4:6.3.24")
     implementation("ca.uhn.hapi:hapi-base:2.5.1")
     implementation("ca.uhn.hapi:hapi-structures-v251:2.5.1")
     implementation("ca.uhn.hapi:hapi-structures-v27:2.5.1")
     implementation("com.googlecode.libphonenumber:libphonenumber:8.13.46")
     implementation("org.thymeleaf:thymeleaf:3.1.2.RELEASE")
-    implementation("com.sendgrid:sendgrid-java:4.10.2")
+    implementation("com.sendgrid:sendgrid-java:4.10.3")
     implementation("com.okta.jwt:okta-jwt-verifier:0.5.7")
     implementation("org.json:json:20240303")
     // DO NOT INCREMENT SSHJ to a newer version without first thoroughly testing it locally.
     implementation("com.hierynomus:sshj:0.38.0")
     implementation("com.jcraft:jsch:0.1.55")
     implementation("org.apache.poi:poi:5.3.0")
-    implementation("org.apache.commons:commons-csv:1.11.0")
+    implementation("org.apache.commons:commons-csv:1.12.0")
     implementation("org.apache.commons:commons-lang3:3.15.0")
     implementation("org.apache.commons:commons-text:1.12.0")
     implementation("commons-codec:commons-codec:1.17.1")
-    implementation("commons-io:commons-io:2.16.1")
+    implementation("commons-io:commons-io:2.17.0")
     implementation("org.postgresql:postgresql:42.7.4")
-    implementation("com.zaxxer:HikariCP:5.1.0")
-    implementation("org.flywaydb:flyway-core:10.18.0")
-    implementation("org.flywaydb:flyway-database-postgresql:10.18.0")
-    implementation("org.commonmark:commonmark:0.22.0")
-    implementation("com.google.guava:guava:33.3.0-jre")
+    implementation("com.zaxxer:HikariCP:6.0.0")
+    implementation("org.flywaydb:flyway-core:10.18.2")
+    implementation("org.flywaydb:flyway-database-postgresql:10.18.2")
+    implementation("org.commonmark:commonmark:0.23.0")
+    implementation("com.google.guava:guava:33.3.1-jre")
     implementation("com.helger.as2:as2-lib:5.1.2")
     implementation("org.bouncycastle:bcprov-jdk15to18:1.78.1")
     implementation("org.bouncycastle:bcprov-jdk18on:1.78.1")
@@ -950,7 +950,7 @@ dependencies {
     implementation("org.apache.poi:poi:5.3.0")
     implementation("org.apache.poi:poi-ooxml:5.3.0")
     implementation("org.apache.commons:commons-compress:1.27.1")
-    implementation("commons-io:commons-io:2.16.1")
+    implementation("commons-io:commons-io:2.17.0")
     implementation("com.anyascii:anyascii:0.3.2")
     // force jsoup since skrapeit-html-parser@1.2.1+ has not updated
     implementation("org.jsoup:jsoup:1.18.1")
@@ -978,7 +978,7 @@ dependencies {
     implementation("xalan:xalan:2.7.3")
 
     // validations
-    implementation("com.networknt:json-schema-validator:1.5.1")
+    implementation("com.networknt:json-schema-validator:1.5.2")
     implementation("io.konform:konform-jvm:0.4.0")
 
     runtimeOnly("com.okta.jwt:okta-jwt-verifier-impl:0.5.7")
