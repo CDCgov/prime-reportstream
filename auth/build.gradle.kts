@@ -1,7 +1,7 @@
 apply(from = rootProject.file("buildSrc/shared.gradle.kts"))
 
 plugins {
-    id("org.springframework.boot") version "3.3.2"
+    id("org.springframework.boot") version "3.3.4"
     id("io.spring.dependency-management") version "1.1.6"
     id("reportstream.project-conventions")
     kotlin("plugin.spring") version "2.0.0"
@@ -14,8 +14,8 @@ dependencies {
     implementation(project(":shared"))
 
     implementation("org.jetbrains.kotlin:kotlin-reflect")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.8.1")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.9.0")
 
     /**
      * Spring WebFlux was chosen for this project to be able to better handle periods of high traffic
@@ -24,7 +24,7 @@ dependencies {
     implementation("org.springframework.cloud:spring-cloud-gateway-webflux")
     implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
 
-    runtimeOnly("com.nimbusds:oauth2-oidc-sdk:11.18")
+    runtimeOnly("com.nimbusds:oauth2-oidc-sdk:11.19.1")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.security:spring-security-test")
@@ -45,7 +45,7 @@ configurations.all {
 
 dependencyManagement {
     imports {
-        mavenBom("com.azure.spring:spring-cloud-azure-dependencies:5.14.0")
+        mavenBom("com.azure.spring:spring-cloud-azure-dependencies:5.16.0")
         mavenBom("org.springframework.cloud:spring-cloud-dependencies:2023.0.3")
     }
 }
