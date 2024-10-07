@@ -448,6 +448,10 @@ class ActionHistory(
         }
     }
 
+    /**
+     * Allows tracking of an empty report regardless of where it is generated in the pipeline
+     * @param report the details of the report
+     */
     fun trackEmptyReport(report: Report) {
         generatingEmptyReport = true
         val reportFile = ReportFile()
