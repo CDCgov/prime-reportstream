@@ -448,6 +448,17 @@ class ActionHistory(
         }
     }
 
+    fun trackEmptyReport(report: Report) {
+        val reportFile = ReportFile()
+        reportFile.reportId = report.id
+
+        reportFile.nextAction = TaskAction.send
+        reportFile.schemaName = trimSchemaNameToMaxLength(report.schema.name)
+        reportFile.schemaTopic = report.schema.topic
+        reportFile.itemCount = report.itemCount
+        reportsReceived[reportFile.reportId] = reportFile
+    }
+
     /**
      * Use this to record history info about a newly generated empty [report] for sending to [receiver] that
      * has requested an empty batch. The [event] will be batch or send.

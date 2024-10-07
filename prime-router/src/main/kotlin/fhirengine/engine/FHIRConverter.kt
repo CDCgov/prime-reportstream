@@ -33,7 +33,6 @@ import gov.cdc.prime.router.azure.LookupTableConditionMapper
 import gov.cdc.prime.router.azure.ProcessEvent
 import gov.cdc.prime.router.azure.db.Tables
 import gov.cdc.prime.router.azure.db.enums.TaskAction
-import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
 import gov.cdc.prime.router.azure.observability.bundleDigest.BundleDigestExtractor
 import gov.cdc.prime.router.azure.observability.bundleDigest.FhirPathBundleDigestLabResultExtractorStrategy
 import gov.cdc.prime.router.azure.observability.context.MDCUtils
@@ -277,41 +276,42 @@ class FHIRConverter(
                     }.collect(Collectors.toList()).filterNotNull()
                 }
             } else {
-                val nextEvent = ProcessEvent(
-                    Event.EventAction.NONE,
-                    queueMessage.reportId,
-                    Options.None,
-                    emptyMap(),
-                    emptyList()
-                )
+//                val nextEvent = ProcessEvent(
+//                    Event.EventAction.NONE,
+//                    queueMessage.reportId,
+//                    Options.None,
+//                    emptyMap(),
+//                    emptyList()
+//                )
 
                 // TODO: https://github.com/CDCgov/prime-reportstream/issues/15223
                 val report = Report(
                     MimeFormat.FHIR,
                     emptyList(),
-                    1,
+                    0,
                     metadata = this.metadata,
                     topic = queueMessage.topic,
                     nextAction = TaskAction.none
                 )
 
                 // create item lineage
-                report.itemLineages = listOf(
-                    ItemLineage(
-                        null,
-                        queueMessage.reportId,
-                        1,
-                        report.id,
-                        1,
-                        null,
-                        null,
-                        null,
-                        report.getItemHashForRow(1)
-                    )
-                )
+//                report.itemLineages = listOf(
+//                    ItemLineage(
+//                        null,
+//                        queueMessage.reportId,
+//                        1,
+//                        report.id,
+//                        1,
+//                        null,
+//                        null,
+//                        null,
+//                        report.getItemHashForRow(1)
+//                    )
+//                )
 
                 // ensure tracking is set
-                actionHistory.trackCreatedReport(nextEvent, report)
+//                actionHistory.trackCreatedReport(nextEvent, report)
+                actionHistory.trackEmptyReport(report)
                 reportEventService.sendReportProcessingError(
                     ReportStreamEventName.REPORT_NOT_PROCESSABLE,
                     report,
