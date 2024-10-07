@@ -457,6 +457,7 @@ class ActionHistory(
         val reportFile = ReportFile()
         reportFile.reportId = report.id
         reportFile.schemaTopic = report.schema.topic
+        reportFile.schemaName = "None"
         reportFile.itemCount = 0
         reportFile.bodyFormat = report.bodyFormat.toString()
         reportFile.nextAction = TaskAction.none
