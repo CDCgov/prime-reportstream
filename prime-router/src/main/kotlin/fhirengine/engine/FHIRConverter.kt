@@ -284,7 +284,6 @@ class FHIRConverter(
                     topic = queueMessage.topic,
                     nextAction = TaskAction.none
                 )
-                actionHistory.generatingEmptyReport = true
                 actionHistory.trackEmptyReport(report)
                 reportEventService.sendReportProcessingError(
                     ReportStreamEventName.REPORT_NOT_PROCESSABLE,
