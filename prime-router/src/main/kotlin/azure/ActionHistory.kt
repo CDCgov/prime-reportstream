@@ -449,6 +449,7 @@ class ActionHistory(
     }
 
     fun trackEmptyReport(report: Report) {
+        generatingEmptyReport = true
         val reportFile = ReportFile()
         reportFile.reportId = report.id
 
@@ -456,7 +457,9 @@ class ActionHistory(
         reportFile.schemaName = trimSchemaNameToMaxLength(report.schema.name)
         reportFile.schemaTopic = report.schema.topic
         reportFile.itemCount = report.itemCount
-        reportsReceived[reportFile.reportId] = reportFile
+        reportFile.bodyFormat = report.bodyFormat.toString()
+        reportsOut[reportFile.reportId] = reportFile
+        reportFile.nextAction = TaskAction.none
     }
 
     /**

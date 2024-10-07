@@ -257,7 +257,7 @@ class FHIRConverterIntegrationTests {
 
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
             val (routedReports, unroutedReports) = fetchChildReports(
-                receiveReport, txn, 4
+                receiveReport, txn, 4, 4
             ).partition { it.nextAction != TaskAction.none }
             assertThat(routedReports).hasSize(2)
             routedReports.forEach {
@@ -441,7 +441,7 @@ class FHIRConverterIntegrationTests {
 
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
             val (routedReports, unroutedReports) = fetchChildReports(
-                receiveReport, txn, 4
+                receiveReport, txn, 4, 4
             ).partition { it.nextAction != TaskAction.none }
             assertThat(routedReports).hasSize(2)
             routedReports.forEach {
@@ -584,7 +584,7 @@ class FHIRConverterIntegrationTests {
 
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
             val (routedReports, notRouted) = fetchChildReports(
-                receiveReport, txn, 2
+                receiveReport, txn, 2, 2
             ).partition { it.nextAction != TaskAction.none }
 
             with(routedReports.single()) {
@@ -711,7 +711,7 @@ class FHIRConverterIntegrationTests {
         fhirFunctions.process(queueMessage, 1, createFHIRConverter(), ActionHistory(TaskAction.convert))
 
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
-            val routedReports = fetchChildReports(receiveReport, txn, 2)
+            val routedReports = fetchChildReports(receiveReport, txn, 2, 2)
             routedReports.forEach {
                 assertThat(it.nextAction).isEqualTo(TaskAction.destination_filter)
                 assertThat(it.receivingOrg).isEqualTo(null)
@@ -802,6 +802,36 @@ class FHIRConverterIntegrationTests {
             assertThat(report.schemaName).isEqualTo("None")
             assertThat(report.schemaTopic).isEqualTo(Topic.FULL_ELR)
             assertThat(report.bodyFormat).isEqualTo("FHIR")
+        }
+    }
+
+    @Test
+    fun `test should gracefully handle a case with an empty contents`() {
+        val receivedReportContents = "   "
+        val receiveBlobUrl = BlobAccess.uploadBlob(
+            "receive/happy-path.hl7",
+            receivedReportContents.toByteArray(),
+            getBlobContainerMetadata()
+        )
+
+        val receiveReport = setupConvertStep(MimeFormat.HL7, hl7Sender, receiveBlobUrl, 1)
+        val queueMessage = generateQueueMessage(receiveReport, receivedReportContents, hl7Sender)
+        val fhirFunctions = createFHIRFunctionsInstance()
+
+        fhirFunctions.process(queueMessage, 1, createFHIRConverter(), ActionHistory(TaskAction.convert))
+
+        verify(exactly = 0) {
+            QueueAccess.sendMessage(any(), any())
+        }
+        ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
+            val report = fetchChildReports(receiveReport, txn, 0, 1).single()
+            assertThat(report.nextAction).isEqualTo(TaskAction.none)
+            assertThat(report.receivingOrg).isEqualTo(null)
+            assertThat(report.receivingOrgSvc).isEqualTo(null)
+            assertThat(report.schemaName).isEqualTo("None")
+            assertThat(report.schemaTopic).isEqualTo(Topic.FULL_ELR)
+            assertThat(report.bodyFormat).isEqualTo("HL7")
+            assertThat(report.nextAction).isEqualTo(TaskAction.none)
         }
     }
 }

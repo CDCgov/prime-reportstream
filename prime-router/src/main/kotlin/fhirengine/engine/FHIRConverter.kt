@@ -276,41 +276,15 @@ class FHIRConverter(
                     }.collect(Collectors.toList()).filterNotNull()
                 }
             } else {
-//                val nextEvent = ProcessEvent(
-//                    Event.EventAction.NONE,
-//                    queueMessage.reportId,
-//                    Options.None,
-//                    emptyMap(),
-//                    emptyList()
-//                )
-
-                // TODO: https://github.com/CDCgov/prime-reportstream/issues/15223
                 val report = Report(
-                    MimeFormat.FHIR,
+                    format,
                     emptyList(),
                     0,
                     metadata = this.metadata,
                     topic = queueMessage.topic,
                     nextAction = TaskAction.none
                 )
-
-                // create item lineage
-//                report.itemLineages = listOf(
-//                    ItemLineage(
-//                        null,
-//                        queueMessage.reportId,
-//                        1,
-//                        report.id,
-//                        1,
-//                        null,
-//                        null,
-//                        null,
-//                        report.getItemHashForRow(1)
-//                    )
-//                )
-
-                // ensure tracking is set
-//                actionHistory.trackCreatedReport(nextEvent, report)
+                actionHistory.generatingEmptyReport = true
                 actionHistory.trackEmptyReport(report)
                 reportEventService.sendReportProcessingError(
                     ReportStreamEventName.REPORT_NOT_PROCESSABLE,

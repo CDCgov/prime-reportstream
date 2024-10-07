@@ -257,12 +257,13 @@ object UniversalPipelineTestUtils {
     )
 
     /**
-     * fetch child reports associated with a [parent] report and ensure we find an [expected] number of children
+     * fetch child reports associated with a [parent] report and ensure we find an [expectedItems] number of children
      */
     fun fetchChildReports(
         parent: Report,
         txn: DataAccessTransaction,
-        expected: Int? = null,
+        expectedItems: Int? = null,
+        expectedReports: Int = 1,
     ): List<ReportFile> {
         val itemLineages = DSL
             .using(txn)
@@ -271,15 +272,15 @@ object UniversalPipelineTestUtils {
             .where(ItemLineage.ITEM_LINEAGE.PARENT_REPORT_ID.eq(parent.id))
             .fetchInto(gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage::class.java)
 
-        if (expected != null) {
-            assertThat(itemLineages).hasSize(expected)
-            assertThat(itemLineages.map { it.childIndex }).isEqualTo(MutableList(expected) { 1 })
+        if (expectedItems != null) {
+            assertThat(itemLineages).hasSize(expectedItems)
+            assertThat(itemLineages.map { it.childIndex }).isEqualTo(MutableList(expectedItems) { 1 })
 
             // itemCount is on the report created by the test. It will not be null.
             if (parent.itemCount > 1) {
-                assertThat(itemLineages.map { it.parentIndex }).isEqualTo((1..expected).toList())
+                assertThat(itemLineages.map { it.parentIndex }).isEqualTo((1..expectedItems).toList())
             } else {
-                assertThat(itemLineages.map { it.parentIndex }).isEqualTo(MutableList(expected) { 1 })
+                assertThat(itemLineages.map { it.parentIndex }).isEqualTo(MutableList(expectedItems) { 1 })
             }
         }
 
@@ -290,9 +291,7 @@ object UniversalPipelineTestUtils {
             .where(ReportLineage.REPORT_LINEAGE.PARENT_REPORT_ID.eq(parent.id))
             .fetchInto(gov.cdc.prime.router.azure.db.tables.pojos.ReportLineage::class.java)
 
-        if (expected != null) {
-            assertThat(reportLineages).hasSize(expected)
-        }
+        assertThat(reportLineages).hasSize(expectedReports)
 
         val childReportIds = reportLineages.map {
             it.childReportId
@@ -307,11 +306,13 @@ object UniversalPipelineTestUtils {
                 )
             )
             .fetchInto(ReportFile::class.java)
-        if (expected != null) {
-            assertThat(reportFiles).hasSize(expected)
+
+        assertThat(reportFiles).hasSize(expectedReports)
+
+        if (expectedItems != 0) {
+            assertThat(itemLineages).transform { lineages -> lineages.map { it.childReportId }.sorted() }
+                .isEqualTo(reportFiles.map { it.reportId }.sorted())
         }
-        assertThat(itemLineages).transform { lineages -> lineages.map { it.childReportId }.sorted() }
-            .isEqualTo(reportFiles.map { it.reportId }.sorted())
 
         return reportFiles
     }
