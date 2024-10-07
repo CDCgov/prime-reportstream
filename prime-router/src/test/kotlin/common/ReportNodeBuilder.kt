@@ -25,6 +25,7 @@ class ReportGraphBuilder {
     private lateinit var theTopic: Topic
     private lateinit var theFormat: MimeFormat
     private lateinit var theSender: Sender
+    private lateinit var theNextAction: TaskAction
 
     fun topic(topic: Topic) {
         this.theTopic = topic
@@ -36,6 +37,10 @@ class ReportGraphBuilder {
 
     fun sender(sender: Sender) {
         this.theSender = sender
+    }
+
+    fun nextAction(nextAction: TaskAction) {
+        this.theNextAction = nextAction
     }
 
     fun submission(initializer: ReportNodeBuilder.() -> Unit) {
@@ -80,7 +85,14 @@ class ReportGraphBuilder {
                 .setItemCount(theSubmission.theItemCount)
                 .setExternalName("test-external-name")
                 .setBodyUrl(theSubmission.theReportBlobUrl)
-                .setNextAction(theSubmission.reportGraphNodes.firstOrNull()?.theAction)
+                .setNextAction(
+                    if (::theNextAction.isInitialized) {
+                        theNextAction
+                    } else {
+                        theSubmission.reportGraphNodes.firstOrNull()?.theAction
+                    }
+                )
+                .setCreatedAt(OffsetDateTime.now())
             dbAccess.insertReportFile(
                 reportFile, txn, action
             )
@@ -130,7 +142,14 @@ class ReportGraphBuilder {
             .setExternalName("test-external-name")
             .setBodyUrl(node.theReportBlobUrl)
             .setTransportResult(node.theTransportResult)
-            .setNextAction(node.reportGraphNodes.firstOrNull()?.theAction)
+            .setNextAction(
+                if (node.theNextAction != null) {
+                    node.theNextAction
+                } else {
+                    node.reportGraphNodes.firstOrNull()?.theAction
+                }
+            )
+            .setCreatedAt(graph.node.createdAt.plusMinutes(1))
 
         if (node.receiver != null) {
             childReportFile.setReceivingOrg(node.receiver!!.organizationName)
@@ -189,6 +208,7 @@ class ReportNodeBuilder {
         }
     }
     lateinit var theAction: TaskAction
+    var theNextAction: TaskAction? = null
     var theReportBlobUrl: String = UUID.randomUUID().toString()
     var theItemCount: Int = 1
     val reportGraphNodes: MutableList<ReportNodeBuilder> = mutableListOf()
@@ -202,6 +222,10 @@ class ReportNodeBuilder {
 
     fun action(action: TaskAction) {
         this.theAction = action
+    }
+
+    fun nextAction(nextAction: TaskAction) {
+        this.theNextAction = nextAction
     }
 
     fun reportBlobUrl(reportBlobUrl: String) {
