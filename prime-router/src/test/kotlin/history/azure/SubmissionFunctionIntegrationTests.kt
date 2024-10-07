@@ -39,6 +39,37 @@ import org.testcontainers.junit.jupiter.Testcontainers
 class SubmissionFunctionIntegrationTests {
 
     @Test
+    fun `it should return a history for a received report`() {
+        val submittedReport = reportGraph {
+            topic(Topic.FULL_ELR)
+            format(MimeFormat.HL7)
+            sender(UniversalPipelineTestUtils.hl7Sender)
+
+            submission {
+                action(TaskAction.receive)
+                reportGraphNode {
+                    action(TaskAction.convert)
+                }
+            }
+        }.generate(ReportStreamTestDatabaseContainer.testDatabaseAccess)
+
+        val httpRequestMessage = MockHttpRequestMessage()
+
+        val func = setupSubmissionFunction()
+
+        val history = func
+            .getReportDetailedHistory(httpRequestMessage, submittedReport.node.reportId.toString())
+        assertThat(history).isNotNull()
+        val historyNode = JacksonMapperUtilities.defaultMapper.readTree(history.body.toString())
+        assertThat(
+            historyNode.get("overallStatus").asText()
+        ).isEqualTo(DetailedSubmissionHistory.Status.RECEIVED.toString())
+        assertThat(historyNode.get("destinations").size()).isEqualTo(0)
+        assertThat(historyNode.get("errors").size()).isEqualTo(0)
+        assertThat(historyNode.get("warnings").size()).isEqualTo(0)
+    }
+
+    @Test
     fun `it should return a history for partially delivered submission`() {
         val submittedReport = reportGraph {
             topic(Topic.FULL_ELR)
@@ -201,6 +232,7 @@ class SubmissionFunctionIntegrationTests {
                     log(ActionLog(InvalidParamMessage("log"), type = ActionLogLevel.warning))
                     reportGraphNode {
                         action(TaskAction.destination_filter)
+                        nextAction(TaskAction.none)
                     }
                 }
             }
@@ -237,6 +269,7 @@ class SubmissionFunctionIntegrationTests {
                     log(ActionLog(InvalidParamMessage("log"), type = ActionLogLevel.warning))
                     reportGraphNode {
                         action(TaskAction.route)
+                        nextAction(TaskAction.none)
                     }
                 }
             }
