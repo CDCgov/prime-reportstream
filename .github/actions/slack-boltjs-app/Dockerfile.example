@@ -1,0 +1,11 @@
+FROM node:20-bookworm-slim
+
+WORKDIR /usr/app
+COPY --chown=node:node ./ ./
+RUN mkdir -p ./src/.locks && chown node ./src/.locks
+VOLUME /usr/app/src/.locks
+
+RUN npm install
+USER node
+
+CMD ["npm", "start"]
