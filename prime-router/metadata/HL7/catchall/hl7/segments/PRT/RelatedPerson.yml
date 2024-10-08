@@ -1,0 +1,15 @@
+# $schema: ./../../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
+
+# This segment does not appear in NIST or RADx MARS
+
+resourceType: RelatedPerson
+
+# does this need an id resource generated?
+
+relationship:
+  valueOf: datatypes/CWE/CodeableConcept
+  expressionType: resource
+  specs: PRT.4
+
+# what does $this fhir attribute PRT.5
+
