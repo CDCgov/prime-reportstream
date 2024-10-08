@@ -9,6 +9,13 @@ id:
   valueOf: "GeneralUtils.generateResourceId()"
   expressionType: JEXL
 
+status:
+  vars:
+    prt2: PRT.2
+  condition: $prt2 EQUALS "D"
+  type: STRING
+  value: "inactive"
+
 udiCarrier:
   valueOf: datatypes/EI/Device-udiCarrier
   expressionType: resource
@@ -16,3 +23,49 @@ udiCarrier:
   specs: PRT.10
   constants:
     hl7v2Field: "PRT.10"
+
+manufactureDate:
+  type: STRING
+  valueOf: "GeneralUtils.dateTimeWithZoneId(dateTimeIn,ZONEID)"
+  expressionType: JEXL
+  vars:
+    dateTimeIn: PRT.17
+
+expirationDate:
+  type: STRING
+  valueOf: "GeneralUtils.dateTimeWithZoneId(dateTimeIn,ZONEID)"
+  expressionType: JEXL
+  vars:
+    dateTimeIn: PRT.18
+
+lotNumber:
+  type: STRING
+  valueOf: PRT.19
+  expressionType: HL7Spec
+
+serialNumber:
+  type: STRING
+  valueOf: PRT.20
+  expressionType: HL7Spec
+
+# can't find this in fhir spec site
+distinctIdentifier:
+  type: STRING
+  valueOf: PRT.21
+  expressionType: HL7Spec
+_distinctIdentifier:
+  valueOf: datatypes/EI/Identifier
+  expressionType: resource
+  specs: PRT.21
+
+type:
+  valueOf: datatypes/CNE/CodeableConcept
+  specs: PRT.22
+  expressionType: resource
+
+extension:
+  generateList: true
+  expressionType: nested
+  expressions:
+    - expressionType: resource
+      valueOf: segments/PRT/PRTExtension
