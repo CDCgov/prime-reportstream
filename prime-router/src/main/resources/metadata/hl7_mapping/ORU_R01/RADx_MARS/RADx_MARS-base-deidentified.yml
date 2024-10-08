@@ -4,48 +4,117 @@ hl7Class: ca.uhn.hl7v2.model.v251.message.ORU_R01
 extends: classpath:/metadata/hl7_mapping/ORU_R01/RADx_MARS/RADx_MARS-base.yml
 elements:
   # PID 3.1
+  # todo : need to add condition
   - name: patient-identifier-list
     constants:
       hl7CXField: '%{hl7PIDField}-3'
       deidentifiedValue: '"<deidentified>"'
 
   # PID 5
-  - name: patient-name
+  - name: patient-last-name
     constants:
-      hl7NameField: '%{hl7PIDField}-5'
+      hl7NameField: '%{hl7PIDField}-5-1'
+      deidentifiedValue: '"<deidentified>"'
+
+  - name: patient-first-name
+    constants:
+      hl7NameField: '%{hl7PIDField}-5-2'
+      deidentifiedValue: '"<deidentified>"'
+
+  - name: patient-middle-name
+    constants:
+      hl7NameField: '%{hl7PIDField}-5-3'
+      deidentifiedValue: '"<deidentified>"'
+
+  - name: patient-suffix
+    constants:
+      hl7NameField: '%{hl7PIDField}-5-4'
+      deidentifiedValue: '""'
+
+  - name: patient-name-type-code
+    constants:
+      hl7NameField: '%{hl7PIDField}-5-7'
+      deidentifiedValue: '""'
+
+  # PID 7
+  # todo: add condition
+  - name: patient-dob
+    constants:
+      hl7AddressField: '%{hl7PIDField}-7-1'
       deidentifiedValue: '"<deidentified>"'
 
   # PID 11
-  - name: patient-address
+  # todo: add condition
+  - name: patient-street-address
     constants:
-      hl7AddressField: '%{hl7PIDField}-11'
+      hl7AddressField: '%{hl7PIDField}-11-1'
+      deidentifiedValue: '"<deidentified>"'
+
+  # todo: add condition
+  - name: patient-street-address2
+    constants:
+      hl7AddressField: '%{hl7PIDField}-11-2'
+      deidentifiedValue: '"<deidentified>"'
+
+  # todo: add condition
+  - name: patient-city
+    constants:
+      hl7AddressField: '%{hl7PIDField}-11-3'
       deidentifiedValue: '"<deidentified>"'
 
   # PID 13
-  - name: phone-number-home-mobile-email
+  # todo: add condition
+  - name: email
     constants:
-      hl7TelecomField: '%{hl7PIDField}-13'
+      hl7TelecomField: '%{hl7PIDField}-13-4'
       deidentifiedValue: '"<deidentified>"'
 
-  # PID 14
-  - name: phone-number-business
+  # todo: add condition
+  - name: area code
     constants:
-      hl7TelecomField: '%{hl7PIDField}-14'
+      hl7TelecomField: '%{hl7PIDField}-13-6'
       deidentifiedValue: '"<deidentified>"'
 
-  # PID 7.1
-  - name: patient-dob
-    resource: '""'
+  # todo: add condition
+  - name: phone
+    constants:
+      hl7TelecomField: '%{hl7PIDField}-13-7'
+      deidentifiedValue: '"<deidentified>"'
+
+  # ORC 1
+  - name: order-control
+    condition: 'false'
+
+  # ORC 2
+  - name: placer-order-number
+    condition: 'false'
 
   # ORC 3.1
   - name: filler-order-number
+    condition: 'false'
+
+  # ORC 4
+  - name: placer-group-number
+    condition: 'false'
+
+  # ORC 9
+  - name: datetime-of-order-event
     condition: 'false'
 
   # ORC 12
   - name: ordering-provider-from-practitioner
     condition: 'false'
 
+  # ORC 12
   - name: ordering-provider-from-practitioner-role
+    condition: 'false'
+
+  # ORC 14
+  - name: call-back-phone-number-ocr
+    condition: 'false'
+
+  # ORC 21
+  - name: ordering-facility-name
     condition: 'false'
 
   # ORC 22
@@ -60,15 +129,46 @@ elements:
   - name: ordering-provider-address-from-practitioner
     condition: 'false'
 
-  # OBR 7.1
-  - name: observation-datetime-start
+  # ORC 24
+  - name: ordering-provider-address-from-practitioner-role
     condition: 'false'
 
-  - name: observation-datetime
+  # ORC 25
+  - name: order-status-modifier
+    condition: 'false'
+
+  # ORC 29
+  - name: order-type
+    condition: 'false'
+
+  # ORC 33
+  - name: alternate-placer-order-number
+    condition: 'false'
+
+  # ORC ext
+  - name: orc-extension
+    condition: 'false'
+
+  # OBR 2.1
+  - name: placer-order-number
+    condition: 'false'
+
+  # OBR 3.1
+  - name: filler-order-number
     condition: 'false'
 
   # OBR 16
+  - name: ordering-provider-from-practitioner
+    condition: 'false'
+
+  - name: ordering-provider-from-practitionerrole
+    condition: 'false'
+
   - name: ordering-provider-from-extension
+    condition: 'false'
+
+  # OBR 17
+  - name: call-back-phone-number-obr
     condition: 'false'
 
   # Suppress all notes as they may contain PII data
@@ -79,4 +179,15 @@ elements:
     condition: 'false'
 
   - name: order-note
+    condition: 'false'
+
+  # OBX 14
+  - name: obx-datetime-of-observation
+    condition: 'false'
+
+  # OBX 24
+  - name: obx-performing-organization-address-from-org
+    condition: 'false'
+
+  - name: obx-performing-organization-address-from-practitioner-role
     condition: 'false'
