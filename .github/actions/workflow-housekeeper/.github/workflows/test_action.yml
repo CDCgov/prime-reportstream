@@ -1,0 +1,27 @@
+name: Test action
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+
+jobs:
+  test-action:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Use local action
+        uses: ./
+        id: local-action
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          ignore-branch-workflows: false
+          retention-time: '0 minutes'
+          retain-run-count: 2
+          dry-run: false
