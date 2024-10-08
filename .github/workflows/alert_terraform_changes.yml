@@ -26,9 +26,12 @@ jobs:
           user-key: ${{ secrets.USER_KEY }}
           sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
           tf-auth: true
-          
+
       - name: Collect Terraform stats
+
         uses: josiahsiegel/terraform-stats@68b8cbe42c494333fbf6f8d90ac86da1fb69dcc2
+        ## emvaldes@hotmail.com (Replace) - uses: ./.github/actions/terraform-stats
+
         id: stats1
         with:
           terraform-directory: operations/app/terraform/vars/${{ matrix.env }}
@@ -46,7 +49,7 @@ jobs:
           echo "resource-drifts=$(echo '${{ steps.stats1.outputs.resource-drifts }}' \
             | sed 's/\"/\\\"/g' | sed 's/\\\\\"/\\\\\\"/g')" >> $GITHUB_OUTPUT
           echo "$EOF" >> $GITHUB_OUTPUT
-          
+
       - name: Slack Notification
         if: ${{ steps.format_out.outputs.CHANGES  != '' }}
         uses: ./.github/actions/notifications
@@ -57,9 +60,8 @@ jobs:
             "change-count": "${{ steps.stats1.outputs.change-count }}"
             "drift-count": "${{ steps.stats1.outputs.drift-count }}"
             "resource-drifts": "${{ env.resource-drifts }}"
-          
+
           icon-emoji: ':bell:'
           channel: pagerduty-alert-dump
           webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
           color: warning
-          

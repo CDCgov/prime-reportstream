@@ -11,7 +11,7 @@ on:
 jobs:
   pre_job:
     name: Set Build Environment
-    concurrency: 
+    concurrency:
       group: ${{ github.workflow }}-${{ needs.pre_job.outputs.env_name }}
       cancel-in-progress: true
     runs-on: ubuntu-latest
@@ -28,7 +28,7 @@ jobs:
   confirm_changes:
     name: Check Terraform Stats - ${{ needs.pre_job.outputs.env_name }}
     if: ${{ needs.pre_job.outputs.tf_change == 'true' }}
-    concurrency: 
+    concurrency:
       group: ${{ github.workflow }}-${{ needs.pre_job.outputs.env_name }}
       cancel-in-progress: true
     needs:
@@ -51,7 +51,10 @@ jobs:
           sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
           tf-auth: true
       - name: Collect Terraform stats
+
         uses: josiahsiegel/terraform-stats@68b8cbe42c494333fbf6f8d90ac86da1fb69dcc2
+        ## emvaldes@hotmail.com (Replace) - uses: ./.github/actions/terraform-stats
+
         id: stats1
         with:
           terraform-directory: operations/app/terraform/vars/${{ needs.pre_job.outputs.env_name }}
@@ -60,7 +63,7 @@ jobs:
 
   approve_deploy:
     name: Approve Deploy - ${{ needs.pre_job.outputs.env_name }}
-    concurrency: 
+    concurrency:
       group: ${{ github.workflow }}-${{ needs.pre_job.outputs.env_name }}
       cancel-in-progress: true
     needs:
@@ -75,7 +78,7 @@ jobs:
 
   run_deploy:
     name: Run Deploy - ${{ needs.pre_job.outputs.env_name }}
-    concurrency: 
+    concurrency:
       group: ${{ github.workflow }}-${{ needs.pre_job.outputs.env_name }}
       cancel-in-progress: true
     needs:
