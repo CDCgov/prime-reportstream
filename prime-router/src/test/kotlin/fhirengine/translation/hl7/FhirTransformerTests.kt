@@ -2,6 +2,7 @@ package gov.cdc.prime.router.fhirengine.translation.hl7
 
 import assertk.assertFailure
 import assertk.assertThat
+import assertk.assertions.contains
 import assertk.assertions.containsOnly
 import assertk.assertions.hasSize
 import assertk.assertions.isEmpty
@@ -45,6 +46,7 @@ import org.hl7.fhir.r4.model.Observation
 import org.hl7.fhir.r4.model.Patient
 import org.hl7.fhir.r4.model.ServiceRequest
 import org.hl7.fhir.r4.model.StringType
+import org.junit.jupiter.api.assertThrows
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -1238,6 +1240,92 @@ class FhirTransformerTests {
         assertThat(serviceRequest.note).hasSize(3)
         assertThat(serviceRequest.orderDetail).hasSize(4)
         assertThat(patient.name).hasSize(2)
+    }
+
+    @Test
+    fun `test accessing by index while setting the actual bundle property`() {
+        val bundle = Bundle()
+        bundle.id = "abc123"
+        val patient = Patient()
+        val name = HumanName()
+        name.given = mutableListOf(StringType("foo"), StringType("bar"))
+        patient.name = mutableListOf(name)
+        patient.id = "def456"
+        val patientEntry = bundle.addEntry()
+        patientEntry.fullUrl = patient.id
+        patientEntry.resource = patient
+
+        val updateFirstGivenNameSchemaElement = FhirTransformSchemaElement(
+            "update-first-given-name",
+            resource = "Bundle.entry.resource.ofType(Patient).name",
+            bundleProperty = "%resource.given[0]",
+            value = listOf("''")
+        )
+        val schema = FhirTransformSchema(elements = mutableListOf(updateFirstGivenNameSchemaElement))
+
+        val transformer = FhirTransformer(schema)
+        val exception = assertThrows<ConfigSchemaElementProcessingException> {
+            transformer.process(bundle)
+        }
+        assertThat(exception.message)
+            .contains("Schema is attempting to set a value for a particular index which is not allowed")
+    }
+
+    @Test
+    fun `test deidentify human name`() {
+        val bundle = Bundle()
+        bundle.id = "abc123"
+        val patient = Patient()
+        val name = HumanName()
+        name.given = mutableListOf(StringType("foo"), StringType("bar"))
+        name.family = "family"
+        patient.name = mutableListOf(name)
+        patient.id = "def456"
+        val patientEntry = bundle.addEntry()
+        patientEntry.fullUrl = patient.id
+        patientEntry.resource = patient
+
+        val updateFirstGivenNameSchemaElement = FhirTransformSchemaElement(
+            "update-first-given-name",
+            resource = "Bundle.entry.resource.ofType(Patient)",
+            bundleProperty = "%resource.name",
+            function = "deidentifyHumanName()",
+        )
+        val schema = FhirTransformSchema(elements = mutableListOf(updateFirstGivenNameSchemaElement))
+
+        val transformer = FhirTransformer(schema)
+        transformer.process(bundle)
+        assertThat(name.given).isEmpty()
+        assertThat(name.family).isNull()
+    }
+
+    @Test
+    fun `test deidentify human name with a value`() {
+        val bundle = Bundle()
+        bundle.id = "abc123"
+        val patient = Patient()
+        val name = HumanName()
+        name.given = mutableListOf(StringType("foo"), StringType("bar"))
+        name.family = "family"
+        patient.name = mutableListOf(name)
+        patient.id = "def456"
+        val patientEntry = bundle.addEntry()
+        patientEntry.fullUrl = patient.id
+        patientEntry.resource = patient
+
+        val updateFirstGivenNameSchemaElement = FhirTransformSchemaElement(
+            "update-first-given-name",
+            resource = "Bundle.entry.resource.ofType(Patient)",
+            bundleProperty = "%resource.name",
+            function = "deidentifyHumanName('deidentified')",
+        )
+        val schema = FhirTransformSchema(elements = mutableListOf(updateFirstGivenNameSchemaElement))
+
+        val transformer = FhirTransformer(schema)
+        transformer.process(bundle)
+        assertThat(name.given).transform { it -> it.map { st -> st.value } }
+            .containsOnly("deidentified", "deidentified")
+        assertThat(name.family).isEqualTo("deidentified")
     }
 
     @Test

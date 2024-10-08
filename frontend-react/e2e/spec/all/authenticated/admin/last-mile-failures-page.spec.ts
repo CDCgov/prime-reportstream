@@ -1,3 +1,4 @@
+import { pageNotFound } from "../../../../../src/content/error/ErrorMessages";
 import { tableRows } from "../../../../helpers/utils";
 import { LastMileFailuresPage } from "../../../../pages/authenticated/admin/last-mile-failures";
 import { test as baseTest, expect } from "../../../../test";
@@ -95,7 +96,7 @@ test.describe("Last Mile Failure page", () => {
         test.use({ storageState: "e2e/.auth/receiver.json" });
 
         test("returns Page Not Found", async ({ lastMileFailuresPage }) => {
-            await expect(lastMileFailuresPage.page).toHaveTitle(/Page Not Found/);
+            await expect(lastMileFailuresPage.page).toHaveTitle(new RegExp(pageNotFound));
         });
     });
 
@@ -103,7 +104,7 @@ test.describe("Last Mile Failure page", () => {
         test.use({ storageState: "e2e/.auth/sender.json" });
 
         test("returns Page Not Found", async ({ lastMileFailuresPage }) => {
-            await expect(lastMileFailuresPage.page).toHaveTitle(/Page Not Found/);
+            await expect(lastMileFailuresPage.page).toHaveTitle(new RegExp(pageNotFound));
         });
     });
 
