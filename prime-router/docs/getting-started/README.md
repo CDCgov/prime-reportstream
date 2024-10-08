@@ -81,7 +81,7 @@ cd ./prime-router
 
 ```bash
 # build the project
-cd ./prime-router
+cd ./prime-router 
 ./cleanslate.sh --verbose
 # ...
 
