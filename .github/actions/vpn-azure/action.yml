@@ -40,8 +40,8 @@ runs:
         sed -i "s/\(dhcp-option DNS \).*/\1${{ inputs.dns-ip }}/" .github/vpn/${{ inputs.env-name }}.ovpn
       shell: bash
 
-    ## - uses: josiahsiegel/action-connect-ovpn@794339aff94452216c97f609476c367a43a31295
-    - uses: ./.github/actions/action-connect-ovpn
+    - uses: josiahsiegel/action-connect-ovpn@794339aff94452216c97f609476c367a43a31295
+    ## emvaldes@hotmail.com (Replace) - uses: ./.github/actions/action-connect-ovpn
 
       if: inputs.env-name && inputs.ca-cert != 'false'
       id: connect_vpn
