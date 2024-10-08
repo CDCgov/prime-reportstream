@@ -155,6 +155,29 @@
               "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
               "valueString" : "HL70063"
             } ],
+            "code" : "OTH",
+            "display" : "Other"
+          }, {
+            "extension" : [ {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+              "valueString" : "alt-coding"
+            }, {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+              "valueString" : "L"
+            } ],
+            "system" : "https://terminology.hl7.org/CodeSystem-v2-0396.html#v2-0396-99zzzorL",
+            "code" : "OT",
+            "display" : "OTHER RELATIONSHIP"
+          } ]
+        }, {
+          "coding" : [ {
+            "extension" : [ {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+              "valueString" : "coding"
+            }, {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+              "valueString" : "HL70063"
+            } ],
             "code" : "ASC",
             "display" : "Associate"
           } ]

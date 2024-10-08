@@ -1738,6 +1738,26 @@
                 }
               }
             ],
+            "relationship" : [
+              {
+                "coding" : [
+                  {
+                    "extension" : [
+                      {
+                        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                        "valueString" : "coding"
+                      },
+                      {
+                        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                        "valueString" : "HL70131"
+                      }
+                    ],
+                    "code" : "N",
+                    "display" : "Next-of-Kin"
+                  }
+                ]
+              }
+            ],
             "name" : {
               "extension" : [
                 {
@@ -3937,7 +3957,18 @@
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Segment",
             "valueString" : "OBR"
           }
-        ]
+        ],
+        "collection" : {
+          "collectedDateTime" : "2023-07-24T15:24:00Z",
+          "_collectedDateTime" : {
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+                "valueString" : "202307241524"
+              }
+            ]
+          }
+        }
       }
     },
     {
@@ -3950,7 +3981,18 @@
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Segment",
             "valueString" : "OBR"
           }
-        ]
+        ],
+        "collection" : {
+          "collectedDateTime" : "2023-07-24T15:24:00Z",
+          "_collectedDateTime" : {
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+                "valueString" : "202307241524"
+              }
+            ]
+          }
+        }
       }
     },
     {

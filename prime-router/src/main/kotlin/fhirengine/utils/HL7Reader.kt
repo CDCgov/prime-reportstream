@@ -24,6 +24,7 @@ import java.util.Date
 import ca.uhn.hl7v2.model.v251.message.OML_O21 as v251_OML_O21
 import ca.uhn.hl7v2.model.v251.message.ORU_R01 as v251_ORU_R01
 import ca.uhn.hl7v2.model.v251.segment.MSH as v251_MSH
+import ca.uhn.hl7v2.model.v27.message.OML_O21 as v27_OML_O21
 import ca.uhn.hl7v2.model.v27.message.ORU_R01 as v27_ORU_R01
 import ca.uhn.hl7v2.model.v27.segment.MSH as v27_MSH
 import fhirengine.translation.hl7.structures.nistelr251.message.ORU_R01 as NIST_ELR_ORU_R01
@@ -141,6 +142,7 @@ class HL7Reader(private val actionLogger: ActionLogger) : Logging {
                     }
                     "OML" -> {
                         return listOf(
+                            v27_OML_O21::class.java,
                             v251_OML_O21::class.java
                         )
                     }
@@ -301,6 +303,12 @@ class HL7Reader(private val actionLogger: ActionLogger) : Logging {
                         ValidationContextFactory.noValidation(),
                         ReportStreamCanonicalModelClassFactory(ORU_R01::class.java),
                     )
+                } else if (hl7MessageType?.msh93 == "OML_O21") {
+                        DefaultHapiContext(
+                            ParserConfiguration(),
+                            ValidationContextFactory.noValidation(),
+                            ReportStreamCanonicalModelClassFactory(v27_OML_O21::class.java),
+                        )
                 } else {
                     DefaultHapiContext(ValidationContextFactory.noValidation())
                 }
