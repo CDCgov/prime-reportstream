@@ -170,18 +170,21 @@ class ProcessFhirCommands : CliktCommand(
         // If there is a receiver, check the filters
         var bundle = FhirTranscoder.decode(contents)
         if (receiver != null) {
-            val reportStreamFilters = mutableListOf<ReportStreamFilter>()
-            reportStreamFilters.add(receiver.jurisdictionalFilter)
-            reportStreamFilters.add(receiver.qualityFilter)
-            reportStreamFilters.add(receiver.routingFilter)
-            reportStreamFilters.add(receiver.processingModeFilter)
+            val reportStreamFilters = mutableListOf<Pair<String, ReportStreamFilter>>()
+            reportStreamFilters.add(Pair("Jurisdictional Filter", receiver.jurisdictionalFilter))
+            reportStreamFilters.add(Pair("Quality Filter", receiver.qualityFilter))
+            reportStreamFilters.add(Pair("Routing Filter", receiver.routingFilter))
+            reportStreamFilters.add(Pair("Processing Mode Filter", receiver.processingModeFilter))
 
             val validationErrors = mutableListOf<String>()
             reportStreamFilters.forEach { reportStreamFilter ->
-                reportStreamFilter.forEach { filter ->
+                reportStreamFilter.second.forEach { filter ->
                     val validation = OrganizationValidation.validateFilter(filter)
                     if (!validation) {
-                        validationErrors.add("Filter '$filter' is not valid.")
+                        validationErrors.add(
+                            "Filter of type ${reportStreamFilter.first} is not valid. " +
+                            "Value: '$filter'"
+                        )
                     } else {
                         val result = FhirPathUtils.evaluate(
                             CustomContext(
