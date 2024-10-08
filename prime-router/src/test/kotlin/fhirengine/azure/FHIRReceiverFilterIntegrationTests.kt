@@ -368,6 +368,8 @@ class FHIRReceiverFilterIntegrationTests : Logging {
             assertThat(routedReport.schemaTopic).isEqualTo(Topic.FULL_ELR)
             assertThat(routedReport.bodyFormat).isEqualTo("FHIR")
             assertThat(routedReport.itemCount).isZero()
+            assertThat(routedReport.receivingOrg).isEqualTo(receiverSetupData.single().orgName)
+            assertThat(routedReport.receivingOrgSvc).isEqualTo(receiverSetupData.single().name)
 
             // check for no queue message
             verify(exactly = 0) {
@@ -543,6 +545,8 @@ class FHIRReceiverFilterIntegrationTests : Logging {
             assertThat(routedReport.schemaTopic).isEqualTo(Topic.FULL_ELR)
             assertThat(routedReport.bodyFormat).isEqualTo("FHIR")
             assertThat(routedReport.itemCount).isZero()
+            assertThat(routedReport.receivingOrg).isEqualTo(receiverSetupData.single().orgName)
+            assertThat(routedReport.receivingOrgSvc).isEqualTo(receiverSetupData.single().name)
 
             // check for no queue message
             verify(exactly = 0) {
@@ -731,6 +735,8 @@ class FHIRReceiverFilterIntegrationTests : Logging {
             assertThat(routedReport.schemaTopic).isEqualTo(Topic.FULL_ELR)
             assertThat(routedReport.bodyFormat).isEqualTo("FHIR")
             assertThat(routedReport.itemCount).isZero()
+            assertThat(routedReport.receivingOrg).isEqualTo(receiverSetupData.single().orgName)
+            assertThat(routedReport.receivingOrgSvc).isEqualTo(receiverSetupData.single().name)
 
             // check queue message
             verify(exactly = 0) {
@@ -836,6 +842,8 @@ class FHIRReceiverFilterIntegrationTests : Logging {
             assertThat(routedReport.schemaTopic).isEqualTo(Topic.FULL_ELR)
             assertThat(routedReport.bodyFormat).isEqualTo("FHIR")
             assertThat(routedReport.itemCount).isZero()
+            assertThat(routedReport.receivingOrg).isEqualTo(receiverSetupData.single().orgName)
+            assertThat(routedReport.receivingOrgSvc).isEqualTo(receiverSetupData.single().name)
 
             // check filter logging
             val actionLogRecords = DSL.using(txn)
@@ -1115,6 +1123,8 @@ class FHIRReceiverFilterIntegrationTests : Logging {
             assertThat(routedReport.schemaTopic).isEqualTo(Topic.FULL_ELR)
             assertThat(routedReport.bodyFormat).isEqualTo("FHIR")
             assertThat(routedReport.itemCount).isZero()
+            assertThat(routedReport.receivingOrg).isEqualTo(receiverSetupData.single().orgName)
+            assertThat(routedReport.receivingOrgSvc).isEqualTo(receiverSetupData.single().name)
 
             // check filter logging
             val actionLogRecords = DSL.using(txn)
