@@ -139,7 +139,6 @@ runs:
           echo "$secret_get=$value" >> $GITHUB_OUTPUT
         done
 
-
     - name: Create ssl key file
       if: env.USE_DCT == 'true'
       working-directory: prime-router
