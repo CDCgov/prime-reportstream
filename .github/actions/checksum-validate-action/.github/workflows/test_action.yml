@@ -1,0 +1,119 @@
+name: Test Action
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  generate-checksums:
+    name: Test generate checksum on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+    steps:
+      - uses: actions/checkout@v4.1.1
+
+      - name: Generate checksum of string
+        uses: ./
+        with:
+          key: test string
+          input: hello world
+
+      - name: Generate checksum of command output
+        uses: ./
+        with:
+          key: test command
+          input: $(cat action.yml)
+
+  validate-checksums:
+    name: Test validate checksum on ${{ matrix.os }}
+    needs:
+      - generate-checksums
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+    steps:
+      - uses: actions/checkout@v4.1.1
+
+      - name: Validate checksum of valid string
+        id: valid-string
+        uses: ./
+        with:
+          key: test string
+          validate: true
+          fail-invalid: true
+          input: hello world
+      - name: Fail if output of valid string is wrong
+        if: steps.valid-string.outputs.valid != 'true'
+        run: exit 1
+
+      - name: Validate checksum of INVALID string
+        id: invalid-string
+        uses: ./
+        with:
+          key: test string
+          validate: true
+          fail-invalid: false
+          input: hello world!
+      - name: Fail if output of INVALID string is wrong
+        if: steps.invalid-string.outputs.valid != 'false'
+        run: exit 1
+
+      - name: Validate checksum of valid command output
+        id: valid-command
+        uses: ./
+        with:
+          key: test command
+          validate: true
+          fail-invalid: true
+          input: $(cat action.yml)
+      - name: Fail if output of valid command is wrong
+        if: steps.valid-command.outputs.valid != 'true'
+        run: exit 1
+
+      - name: Validate checksum of INVALID command output
+        id: invalid-command
+        uses: ./
+        with:
+          key: test command
+          validate: true
+          fail-invalid: false
+          input: $(cat README.md)
+      - name: Fail if output of INVALID command is wrong
+        if: steps.invalid-command.outputs.valid != 'false'
+        run: exit 1
+
+  validate-checksum-failures:
+    name: Test checksum failures on ${{ matrix.os }}
+    needs:
+      - generate-checksums
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+    steps:
+      - uses: actions/checkout@v4.1.1
+
+      - name: Validate checksum of INVALID string
+        continue-on-error: true
+        uses: ./
+        with:
+          key: test string
+          validate: true
+          fail-invalid: true
+          input: hello world!
+
+      - name: Validate checksum of INVALID command output
+        continue-on-error: true
+        uses: ./
+        with:
+          key: test command
+          validate: true
+          fail-invalid: true
+          input: $(cat README.md)
