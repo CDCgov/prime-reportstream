@@ -1,0 +1,70 @@
+name: Manually triggered full workflow
+on:
+  workflow_dispatch:
+    inputs:
+      resource-group:
+        description: Comma-seperated resource group list
+        required: true
+        default: test1-rg,test2-rg
+      out-file:
+        description: Graph export path
+        required: true
+        default: output/viz.svg
+      sub-name:
+        description: Azure subscription name
+        required: true
+        default: Pay-As-You-Go
+      theme:
+        description: Graph theme (dark, light, neon)
+        required: true
+        default: neon
+      depth:
+        description: Level of Azure Resource Sub-category to be included in vizualization (1 or 2)
+        required: true
+        default: '1'
+      verbosity:
+        description: Level of information to included in vizualization (1 or 2)
+        required: true
+        default: '1'
+      format:
+        description: Graph format (png or svg)
+        required: true
+        default: svg
+      direction:
+        description: Direction in which resource groups are plotted on the visualization (left-to-right or top-to-bottom)
+        required: true
+        default: top-to-bottom
+      exclude-types:
+        description: Exclude resources via string search
+        required: true
+        default: '*excludethisthing1,excludethisthing2*'
+      splines:
+        description: Controls how edges appear in visualization. ('spline', 'polyline', 'curved', 'ortho', 'line')
+        required: true
+        default: spline
+
+jobs:
+  generate-viz:
+      runs-on: ubuntu-latest
+      steps:
+        - name: Login to Azure
+          uses: azure/login@v1
+          with:
+            creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }} 
+            enable-AzPSSession: true
+        - uses: JosiahSiegel/AzViz-action@v1.0.3
+          with:
+            resource-group: ${{ github.event.inputs.resource-group }}
+            out-file: ${{ github.event.inputs.out-file }}
+            sub-name: ${{ github.event.inputs.sub-name }}
+            theme: ${{ github.event.inputs.theme }}
+            depth: ${{ github.event.inputs.depth }}
+            verbosity: ${{ github.event.inputs.verbosity }}
+            format: ${{ github.event.inputs.format }}
+            direction: ${{ github.event.inputs.direction }}
+            exclude-types: ${{ github.event.inputs.exclude-types }}
+            splines: ${{ github.event.inputs.splines }}
+        - uses: actions/upload-artifact@v2
+          with:
+            name: viz
+            path: output/*

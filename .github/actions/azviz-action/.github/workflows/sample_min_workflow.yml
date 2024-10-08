@@ -1,0 +1,35 @@
+name: Manually triggered min workflow
+on:
+  workflow_dispatch:
+    inputs:
+      resource-group:
+        description: Comma-seperated resource group list
+        required: true
+        default: test1-rg,test2-rg
+      out-file:
+        description: Graph export path
+        required: true
+        default: output/viz.svg
+      sub-name:
+        description: Azure subscription name
+        required: true
+        default: Pay-As-You-Go
+
+jobs:
+  generate-viz:
+      runs-on: ubuntu-latest
+      steps:
+        - name: Login to Azure
+          uses: azure/login@v1
+          with:
+            creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }} 
+            enable-AzPSSession: true
+        - uses: JosiahSiegel/AzViz-action@v1.0.3
+          with:
+            resource-group: ${{ github.event.inputs.resource-group }}
+            out-file: ${{ github.event.inputs.out-file }}
+            sub-name: ${{ github.event.inputs.sub-name }}
+        - uses: actions/upload-artifact@v2
+          with:
+            name: viz
+            path: output/*
