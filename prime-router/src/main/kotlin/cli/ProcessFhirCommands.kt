@@ -354,34 +354,34 @@ class ProcessFhirCommands : CliktCommand(
         return messageOrBundle
     }
 
-    open class MessageOrBundleParent(
-        var senderTransformPassed: Boolean = true,
-        var senderTransformErrors: MutableList<String> = mutableListOf(),
-        var senderTransformWarnings: MutableList<String> = mutableListOf(),
-        var enrichmentSchemaPassed: Boolean = true,
-        var enrichmentSchemaErrors: MutableList<String> = mutableListOf(),
-        var enrichmentSchemaWarnings: MutableList<String> = mutableListOf(),
-        var receiverTransformPassed: Boolean = true,
-        var receiverTransformErrors: MutableList<String> = mutableListOf(),
-        var receiverTransformWarnings: MutableList<String> = mutableListOf(),
-        var filterErrors: MutableList<String> = mutableListOf(),
-        var filtersPassed: Boolean = true,
+    abstract class MessageOrBundleParent(
+        open var senderTransformPassed: Boolean = true,
+        open var senderTransformErrors: MutableList<String> = mutableListOf(),
+        open var senderTransformWarnings: MutableList<String> = mutableListOf(),
+        open var enrichmentSchemaPassed: Boolean = true,
+        open var enrichmentSchemaErrors: MutableList<String> = mutableListOf(),
+        open var enrichmentSchemaWarnings: MutableList<String> = mutableListOf(),
+        open var receiverTransformPassed: Boolean = true,
+        open var receiverTransformErrors: MutableList<String> = mutableListOf(),
+        open var receiverTransformWarnings: MutableList<String> = mutableListOf(),
+        open var filterErrors: MutableList<String> = mutableListOf(),
+        open var filtersPassed: Boolean = true,
     )
 
     class MessageOrBundle(
         var message: Message? = null,
         var bundle: Bundle? = null,
-        senderTransformPassed: Boolean = true,
-        senderTransformErrors: MutableList<String> = mutableListOf(),
-        senderTransformWarnings: MutableList<String> = mutableListOf(),
-        enrichmentSchemaPassed: Boolean = true,
-        enrichmentSchemaErrors: MutableList<String> = mutableListOf(),
-        enrichmentSchemaWarnings: MutableList<String> = mutableListOf(),
-        receiverTransformPassed: Boolean = true,
-        receiverTransformErrors: MutableList<String> = mutableListOf(),
-        receiverTransformWarnings: MutableList<String> = mutableListOf(),
-        filterErrors: MutableList<String> = mutableListOf(),
-        filtersPassed: Boolean = true,
+        override var senderTransformPassed: Boolean = true,
+        override var senderTransformErrors: MutableList<String> = mutableListOf(),
+        override var senderTransformWarnings: MutableList<String> = mutableListOf(),
+        override var enrichmentSchemaPassed: Boolean = true,
+        override var enrichmentSchemaErrors: MutableList<String> = mutableListOf(),
+        override var enrichmentSchemaWarnings: MutableList<String> = mutableListOf(),
+        override var receiverTransformPassed: Boolean = true,
+        override var receiverTransformErrors: MutableList<String> = mutableListOf(),
+        override var receiverTransformWarnings: MutableList<String> = mutableListOf(),
+        override var filterErrors: MutableList<String> = mutableListOf(),
+        override var filtersPassed: Boolean = true,
     ) : MessageOrBundleParent()
 
     private fun applyConditionFilter(receiver: Receiver, bundle: Bundle): Bundle {

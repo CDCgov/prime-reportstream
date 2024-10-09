@@ -217,17 +217,17 @@ class ReportFunction(
     class MessageOrBundleStringified(
         var message: String? = null,
         var bundle: String? = null,
-        senderTransformPassed: Boolean = true,
-        senderTransformErrors: MutableList<String> = mutableListOf(),
-        senderTransformWarnings: MutableList<String> = mutableListOf(),
-        enrichmentSchemaPassed: Boolean = true,
-        enrichmentSchemaErrors: MutableList<String> = mutableListOf(),
-        enrichmentSchemaWarnings: MutableList<String> = mutableListOf(),
-        receiverTransformPassed: Boolean = true,
-        receiverTransformErrors: MutableList<String> = mutableListOf(),
-        receiverTransformWarnings: MutableList<String> = mutableListOf(),
-        filterErrors: MutableList<String> = mutableListOf(),
-        filtersPassed: Boolean = true,
+        override var senderTransformPassed: Boolean = true,
+        override var senderTransformErrors: MutableList<String> = mutableListOf(),
+        override var senderTransformWarnings: MutableList<String> = mutableListOf(),
+        override var enrichmentSchemaPassed: Boolean = true,
+        override var enrichmentSchemaErrors: MutableList<String> = mutableListOf(),
+        override var enrichmentSchemaWarnings: MutableList<String> = mutableListOf(),
+        override var receiverTransformPassed: Boolean = true,
+        override var receiverTransformErrors: MutableList<String> = mutableListOf(),
+        override var receiverTransformWarnings: MutableList<String> = mutableListOf(),
+        override var filterErrors: MutableList<String> = mutableListOf(),
+        override var filtersPassed: Boolean = true,
     ) : ProcessFhirCommands.MessageOrBundleParent()
 
     /**
