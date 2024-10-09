@@ -31,7 +31,6 @@ import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.config.validation.OrganizationValidation
 import gov.cdc.prime.router.fhirengine.config.HL7TranslationConfig
-import gov.cdc.prime.router.fhirengine.engine.FHIRConverter
 import gov.cdc.prime.router.fhirengine.engine.FHIRReceiverFilter
 import gov.cdc.prime.router.fhirengine.engine.FHIRReceiverFilter.ReceiverFilterEvaluationResult
 import gov.cdc.prime.router.fhirengine.engine.encodePreserveEncodingChars
@@ -49,6 +48,7 @@ import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.Bundle
 import org.hl7.fhir.r4.model.Extension
 import org.hl7.fhir.r4.model.Reference
+import java.io.File
 import java.util.UUID
 
 /**
@@ -100,28 +100,28 @@ class ProcessFhirCommands : CliktCommand(
     /**
      * Name of the receiver settings to use
      */
-    private val receiverName by option(
+    private val receiverNameParam by option(
         "--receiver-name", help = "Name of the receiver settings to use"
     )
 
     /**
      * Name of the org settings to use
      */
-    private val orgName by option(
+    private val orgNameParam by option(
         "--org", help = "Name of the org settings to use"
     )
 
     /**
      * Environment that specifies where to get the receiver settings
      */
-    private val environment by option(
+    private val environmentParam by option(
         "--receiver-setting-env", help = "Environment that specifies where to get the receiver settings"
     )
 
     /**
      * Sender schema location
      */
-    private val senderSchema by option("-s", "--sender-schema", help = "Sender schema location")
+    private val senderSchemaParam by option("-s", "--sender-schema", help = "Sender schema location")
 
     private val inputSchema by option(
         "--input-schema", help = "Mapping schema for input file"
@@ -130,35 +130,67 @@ class ProcessFhirCommands : CliktCommand(
     private val hl7DiffHelper = HL7DiffHelper()
 
     override fun run() {
+        val messageOrBundle =
+            processFhirDataRequest(
+                inputFile,
+                environmentParam,
+                receiverNameParam,
+                orgNameParam,
+                senderSchemaParam,
+                true
+            )
+        if (messageOrBundle.message != null) {
+            outputResult(messageOrBundle.message!!)
+        } else if (messageOrBundle.bundle != null) {
+            outputResult(fhirResult = messageOrBundle.bundle!!, ActionLogger())
+        } else {
+            throw CliktError("No result returned.")
+        }
+    }
+
+    fun processFhirDataRequest(
+        inputFile: File,
+        environment: String?,
+        receiverName: String?,
+        orgName: String?,
+        senderSchema: String?,
+        isCli: Boolean,
+    ): MessageOrBundle {
         // Read the contents of the file
         val contents = inputFile.inputStream().readBytes().toString(Charsets.UTF_8)
         if (contents.isBlank()) throw CliktError("File ${inputFile.absolutePath} is empty.")
-        val actionLogger = ActionLogger()
         // Check on the extension of the file for supported operations
         val inputFileType = inputFile.extension.uppercase()
-        val receiver = getReceiver()
+        val receiver = if (!isCli) {
+            getReceiver(environment, receiverName, orgName, GetMultipleSettings(), isCli)
+        } else {
+            null
+        }
 
         // If there is a receiver, check the filters
         var bundle = FhirTranscoder.decode(contents)
         if (receiver != null) {
-            val reportStreamFilters = mutableListOf<ReportStreamFilter>()
-            reportStreamFilters.add(receiver.jurisdictionalFilter)
-            reportStreamFilters.add(receiver.qualityFilter)
-            reportStreamFilters.add(receiver.routingFilter)
-            reportStreamFilters.add(receiver.processingModeFilter)
+            val reportStreamFilters = mutableListOf<Pair<String, ReportStreamFilter>>()
+            reportStreamFilters.add(Pair("Jurisdictional Filter", receiver.jurisdictionalFilter))
+            reportStreamFilters.add(Pair("Quality Filter", receiver.qualityFilter))
+            reportStreamFilters.add(Pair("Routing Filter", receiver.routingFilter))
+            reportStreamFilters.add(Pair("Processing Mode Filter", receiver.processingModeFilter))
 
             val validationErrors = mutableListOf<String>()
             reportStreamFilters.forEach { reportStreamFilter ->
-                reportStreamFilter.forEach { filter ->
+                reportStreamFilter.second.forEach { filter ->
                     val validation = OrganizationValidation.validateFilter(filter)
                     if (!validation) {
-                        validationErrors.add("Filter '$filter' is not valid.")
+                        validationErrors.add(
+                            "Filter of type ${reportStreamFilter.first} is not valid. " +
+                            "Value: '$filter'"
+                        )
                     } else {
                         val result = FhirPathUtils.evaluate(
                             CustomContext(
                                 bundle,
                                 bundle,
-                                FHIRConverter().loadFhirPathShorthandLookupTable(),
+                                mutableMapOf(),
                                 CustomFhirPathFunctions()
                             ),
                             bundle,
@@ -168,93 +200,189 @@ class ProcessFhirCommands : CliktCommand(
                         if (result.isEmpty() ||
                             (result[0].isBooleanPrimitive && result[0].primitiveValue() == "false")
                         ) {
-                            throw CliktError("Filter '$filter' filtered out everything, nothing to return.")
+                            return MessageOrBundle(
+                                filterErrors =
+                                mutableListOf("Filter '$filter' filtered out everything, nothing to return."),
+                                filtersPassed = false
+                            )
                         }
                     }
                 }
             }
 
             if (validationErrors.isNotEmpty()) {
-                throw CliktError(validationErrors.joinToString("\n"))
+                return MessageOrBundle(
+                    filterErrors = mutableListOf(validationErrors.joinToString("\n")),
+                    filtersPassed = false
+                )
             }
 
             receiver.conditionFilter.forEach { conditionFilter ->
                 val validation = OrganizationValidation.validateFilter(conditionFilter)
                 if (!validation) {
-                    throw CliktError("Condition filter '$conditionFilter' is not valid.")
+                    return MessageOrBundle(
+                        filterErrors =
+                        mutableListOf("Condition filter '$conditionFilter' is not valid."),
+                            filtersPassed = false
+                    )
                 }
             }
         }
 
+        var messageOrBundle = MessageOrBundle()
         when {
             // HL7 to FHIR conversion
             inputFileType == "HL7" && (
-                outputFormat == MimeFormat.FHIR.toString() ||
-                (receiver != null && receiver.format == MimeFormat.FHIR)
-            ) -> {
-                var fhirMessage = convertHl7ToFhir(contents, receiver).first
-                fhirMessage = applyEnrichmentSchemas(fhirMessage)
+                (isCli && outputFormat == MimeFormat.FHIR.toString()) ||
+                    (receiver != null && receiver.format == MimeFormat.FHIR)
+                ) -> {
+                val fhirMessage = convertHl7ToFhir(contents, receiver).first
+                val enrichmentSchemaInfo = applyEnrichmentSchemas(fhirMessage, isCli)
+                setEnrichmentSchemaFields(messageOrBundle, enrichmentSchemaInfo)
+
                 if (receiver != null && receiver.enrichmentSchemaNames.isNotEmpty()) {
                     receiver.enrichmentSchemaNames.forEach { currentSchema ->
-                        fhirMessage = FhirTransformer(currentSchema).process(fhirMessage)
+                        val transfromer = FhirTransformer(currentSchema)
+                        val returnedBundle =
+                            transfromer.process(messageOrBundle.bundle!!)
+                        setEnrichmentSchemaFields(
+                            messageOrBundle,
+                            transfromer.warnings,
+                            transfromer.errors,
+                            returnedBundle
+                        )
                     }
                 }
-                outputResult(
-                    handleSenderAndReceiverTransforms(fhirMessage), actionLogger
-                )
+                return handleSenderAndReceiverTransforms(messageOrBundle, senderSchema, isCli)
             }
 
             // FHIR to HL7 conversion
             (inputFileType == "FHIR" || inputFileType == "JSON") && (
-                outputFormat == MimeFormat.HL7.toString() ||
-                (receiver != null && (receiver.format == MimeFormat.HL7 || receiver.format == MimeFormat.HL7_BATCH))
-            ) -> {
-                    if (receiver == null) {
-                        return outputResult(convertFhirToHl7(contents))
-                    }
+                (isCli && outputFormat == MimeFormat.HL7.toString()) ||
+                    (receiver != null && (receiver.format == MimeFormat.HL7 || receiver.format == MimeFormat.HL7_BATCH))
+                ) -> {
+                if (receiver == null) {
+                    return convertFhirToHl7(
+                        jsonString = contents,
+                        senderSchema = senderSchema,
+                        isCli = isCli
+                    )
+                }
 
-                    bundle = FhirTranscoder.decode(contents)
-                    if (receiver.enrichmentSchemaNames.isNotEmpty()) {
-                        receiver.enrichmentSchemaNames.forEach { currentSchema ->
-                            bundle = FhirTransformer(currentSchema).process(bundle)
-                        }
-                    }
-                    outputResult(
-                        convertFhirToHl7(
-                            FhirTranscoder.encode(bundle),
-                            receiver.translation as Hl7Configuration,
-                            receiver
+                bundle = FhirTranscoder.decode(contents)
+                messageOrBundle.bundle = bundle
+                if (receiver.enrichmentSchemaNames.isNotEmpty()) {
+                    receiver.enrichmentSchemaNames.forEach { currentSchema ->
+                        val transformer = FhirTransformer(currentSchema)
+                        val returnedBundle =
+                            transformer.process(bundle)
+                        setEnrichmentSchemaFields(
+                            messageOrBundle,
+                            transformer.warnings,
+                            transformer.errors,
+                            returnedBundle
                         )
+                    }
+                }
+
+                messageOrBundle = convertFhirToHl7(
+                        FhirTranscoder.encode(messageOrBundle.bundle!!),
+                        receiver.translation as Hl7Configuration,
+                        receiver,
+                        senderSchema,
+                        isCli
                     )
             }
 
             // FHIR to FHIR conversion
             (inputFileType == "FHIR" || inputFileType == "JSON") && (
-                outputFormat == MimeFormat.FHIR.toString() ||
-                (receiver != null && receiver.format == MimeFormat.FHIR)
-            ) -> {
-                outputResult(convertFhirToFhir(FhirTranscoder.encode(bundle), receiver), actionLogger)
+                (isCli && outputFormat == MimeFormat.FHIR.toString()) ||
+                    (receiver != null && receiver.format == MimeFormat.FHIR)
+                ) -> {
+                return convertFhirToFhir(FhirTranscoder.encode(bundle), receiver, senderSchema, isCli)
             }
 
             // HL7 to FHIR to HL7 conversion
             inputFileType == "HL7" && (
-                outputFormat == MimeFormat.HL7.toString() ||
-                (receiver != null && (receiver.format == MimeFormat.HL7 || receiver.format == MimeFormat.HL7_BATCH))
-            ) -> {
+                (isCli && outputFormat == MimeFormat.HL7.toString()) ||
+                    (
+                        receiver != null &&
+                        (receiver.format == MimeFormat.HL7 || receiver.format == MimeFormat.HL7_BATCH)
+                    )
+                ) -> {
                 val (bundle2, inputMessage) = convertHl7ToFhir(contents, receiver)
-                val output = convertFhirToHl7(FhirTranscoder.encode(bundle2))
-                outputResult(output)
-                if (diffHl7Output != null) {
-                    val differences = hl7DiffHelper.diffHl7(output, inputMessage)
+                val output = convertFhirToHl7(
+                    jsonString = FhirTranscoder.encode(bundle2),
+                    senderSchema = senderSchema,
+                    isCli = isCli
+                )
+                if (diffHl7Output != null && isCli) {
+                    val differences = hl7DiffHelper.diffHl7(output.message!!, inputMessage)
                     echo("-------diff output")
                     echo("There were ${differences.size} differences between the input and output")
                     differences.forEach { echo(it.toString()) }
                 }
+                return output
             }
 
             else -> throw CliktError("File extension ${inputFile.extension} is not supported.")
         }
+        return messageOrBundle
     }
+
+    private fun setEnrichmentSchemaFields(
+        messageOrBundle: MessageOrBundle,
+        enrichmentSchemaFields: FhirTransformer.BundleWithMessages,
+    ): MessageOrBundle {
+        messageOrBundle.enrichmentSchemaWarnings.addAll(enrichmentSchemaFields.warnings)
+        messageOrBundle.enrichmentSchemaErrors.addAll(enrichmentSchemaFields.errors)
+        messageOrBundle.enrichmentSchemaPassed = enrichmentSchemaFields.errors.isEmpty()
+        messageOrBundle.bundle = enrichmentSchemaFields.bundle
+        return messageOrBundle
+    }
+
+    private fun setEnrichmentSchemaFields(
+        messageOrBundle: MessageOrBundle,
+        warnings: MutableList<String>,
+        errors: MutableList<String>,
+        bundle: Bundle,
+    ): MessageOrBundle {
+        messageOrBundle.enrichmentSchemaWarnings.addAll(warnings)
+        messageOrBundle.enrichmentSchemaErrors.addAll(errors)
+        messageOrBundle.enrichmentSchemaPassed = errors.isEmpty()
+        messageOrBundle.bundle = bundle
+        return messageOrBundle
+    }
+
+    abstract class MessageOrBundleParent(
+        open var senderTransformPassed: Boolean = true,
+        open var senderTransformErrors: MutableList<String> = mutableListOf(),
+        open var senderTransformWarnings: MutableList<String> = mutableListOf(),
+        open var enrichmentSchemaPassed: Boolean = true,
+        open var enrichmentSchemaErrors: MutableList<String> = mutableListOf(),
+        open var enrichmentSchemaWarnings: MutableList<String> = mutableListOf(),
+        open var receiverTransformPassed: Boolean = true,
+        open var receiverTransformErrors: MutableList<String> = mutableListOf(),
+        open var receiverTransformWarnings: MutableList<String> = mutableListOf(),
+        open var filterErrors: MutableList<String> = mutableListOf(),
+        open var filtersPassed: Boolean = true,
+    )
+
+    class MessageOrBundle(
+        var message: Message? = null,
+        var bundle: Bundle? = null,
+        override var senderTransformPassed: Boolean = true,
+        override var senderTransformErrors: MutableList<String> = mutableListOf(),
+        override var senderTransformWarnings: MutableList<String> = mutableListOf(),
+        override var enrichmentSchemaPassed: Boolean = true,
+        override var enrichmentSchemaErrors: MutableList<String> = mutableListOf(),
+        override var enrichmentSchemaWarnings: MutableList<String> = mutableListOf(),
+        override var receiverTransformPassed: Boolean = true,
+        override var receiverTransformErrors: MutableList<String> = mutableListOf(),
+        override var receiverTransformWarnings: MutableList<String> = mutableListOf(),
+        override var filterErrors: MutableList<String> = mutableListOf(),
+        override var filtersPassed: Boolean = true,
+    ) : MessageOrBundleParent()
 
     private fun applyConditionFilter(receiver: Receiver, bundle: Bundle): Bundle {
         val trackingId = if (bundle.id != null) {
@@ -276,32 +404,41 @@ class ProcessFhirCommands : CliktCommand(
         }
     }
 
-    private fun getReceiver(): Receiver? {
+    fun getReceiver(
+        environment: String?,
+        receiverName: String?,
+        orgName: String?,
+        getMultipleSettings: GetMultipleSettings = GetMultipleSettings(),
+        isCli: Boolean,
+    ): Receiver? {
         if (!environment.isNullOrBlank() && !receiverName.isNullOrBlank() && !orgName.isNullOrBlank()) {
-            if (!outputFormat.isNullOrBlank()) {
+            if (isCli && !outputFormat.isNullOrBlank()) {
                 throw CliktError(
                     "Please specify either a receiver OR an output format. Not both."
                 )
             }
-            val foundEnvironment = Environment.get(environment!!)
+            val foundEnvironment = Environment.get(environment)
             val accessToken = OktaCommand.fetchAccessToken(foundEnvironment.oktaApp)
                 ?: abort(
                     "Invalid access token. " +
                         "Run ./prime login to fetch/refresh your access " +
                         "token for the $foundEnvironment environment."
                 )
-            val organizations = GetMultipleSettings().getAll(
+            val organizations = getMultipleSettings.getAll(
                 environment = foundEnvironment,
                 accessToken = accessToken,
                 specificOrg = orgName,
                 exactMatch = true
             )
 
+            if (organizations.isEmpty()) {
+                return null
+            }
             val receivers = organizations[0].receivers.filter { receiver -> receiver.name == receiverName }
             if (receivers.isNotEmpty()) {
                 return receivers[0]
             }
-        } else if (outputFormat.isNullOrBlank()) {
+        } else if (isCli && outputFormat.isNullOrBlank()) {
             throw CliktError(
                 "Output format is required if the environment, receiver, and org " +
                     "are not specified. "
@@ -327,25 +464,30 @@ class ProcessFhirCommands : CliktCommand(
         jsonString: String,
         hl7Configuration: Hl7Configuration = defaultHL7Configuration,
         receiver: Receiver? = null,
-    ): Message {
-        var fhirMessage = FhirTranscoder.decode(jsonString)
-        fhirMessage = applyEnrichmentSchemas(fhirMessage)
+        senderSchema: String?,
+        isCli: Boolean,
+    ): MessageOrBundle {
+        val fhirMessage = FhirTranscoder.decode(jsonString)
+        val enrichmentSchemaMessages = applyEnrichmentSchemas(fhirMessage, isCli)
+        val errors: MutableList<String> = mutableListOf()
+        val warnings: MutableList<String> = mutableListOf()
         return when {
-            receiverSchema == null && (receiver == null || receiver.schemaName.isBlank()) ->
+            (isCli && receiverSchema == null) && (receiver == null || (isCli && receiver.schemaName.isBlank())) ->
                 // Receiver schema required because if it's coming out as HL7, it would be getting any transform info
                 // for that from a receiver schema.
                 throw CliktError("You must specify a receiver schema using --receiver-schema.")
 
-            receiverSchema != null -> {
-                var bundle = applySenderTransforms(fhirMessage)
+            isCli && receiverSchema != null -> {
+                val senderTransformMessages = applySenderTransforms(enrichmentSchemaMessages.bundle, senderSchema)
                 val stamper = ConditionStamper(LookupTableConditionMapper(Metadata.getInstance()))
-                bundle.getObservations().forEach { observation ->
+                senderTransformMessages.bundle.getObservations().forEach { observation ->
                     stamper.stampObservation(observation)
                 }
                 if (receiver != null) {
-                    bundle = applyConditionFilter(receiver, bundle)
+                    senderTransformMessages.bundle = applyConditionFilter(receiver, senderTransformMessages.bundle)
                 }
-                FhirToHl7Converter(
+
+                val message = FhirToHl7Converter(
                     receiverSchema!!,
                     BlobAccess.BlobContainerMetadata.build("metadata", Environment.get().storageEnvVar),
                     context = FhirToHl7Context(
@@ -355,13 +497,24 @@ class ProcessFhirCommands : CliktCommand(
                             receiver
                         ),
                         translationFunctions = CustomTranslationFunctions(),
-                    )
-                ).process(bundle)
+                    ),
+                    warnings = warnings,
+                    errors = errors
+                ).process(senderTransformMessages.bundle)
+                val messageOrBundle = MessageOrBundle()
+                messageOrBundle.senderTransformPassed = senderTransformMessages.errors.isEmpty()
+                messageOrBundle.senderTransformWarnings = senderTransformMessages.warnings
+                messageOrBundle.senderTransformErrors = senderTransformMessages.errors
+                messageOrBundle.receiverTransformPassed = errors.isEmpty()
+                messageOrBundle.receiverTransformErrors = errors
+                messageOrBundle.receiverTransformWarnings = warnings
+                messageOrBundle.message = message
+                messageOrBundle
             }
             receiver != null && receiver.schemaName.isNotBlank() -> {
-                var bundle = applySenderTransforms(fhirMessage)
-                bundle = applyConditionFilter(receiver, bundle)
-                FhirToHl7Converter(
+                val senderTransformMessages = applySenderTransforms(fhirMessage, senderSchema)
+                val bundle = applyConditionFilter(receiver, senderTransformMessages.bundle)
+                val message = FhirToHl7Converter(
                     receiver.schemaName,
                     BlobAccess.BlobContainerMetadata.build("metadata", Environment.get().storageEnvVar),
                     context = FhirToHl7Context(
@@ -371,11 +524,32 @@ class ProcessFhirCommands : CliktCommand(
                             receiver
                         ),
                         translationFunctions = CustomTranslationFunctions(),
-                    )
+                    ),
+                    warnings = warnings,
+                    errors = errors
                 ).process(bundle)
+                val messageOrBundle = MessageOrBundle()
+                messageOrBundle.senderTransformPassed = senderTransformMessages.errors.isEmpty()
+                messageOrBundle.senderTransformWarnings = senderTransformMessages.warnings
+                messageOrBundle.senderTransformErrors = senderTransformMessages.errors
+                messageOrBundle.receiverTransformPassed = errors.isEmpty()
+                messageOrBundle.receiverTransformErrors = errors
+                messageOrBundle.receiverTransformWarnings = warnings
+                messageOrBundle.message = message
+                messageOrBundle
             }
             else -> {
-                throw CliktError("Error state reached when trying to apply the transforms.")
+                if (isCli) {
+                    throw CliktError("Error state reached when trying to apply the transforms.")
+                } else {
+                    MessageOrBundle(
+                        senderTransformErrors =
+                            mutableListOf("Error state reached when trying to apply the transforms."),
+                        receiverTransformErrors = mutableListOf(
+                            "Error state reached when trying to apply the transforms."
+                        )
+                    )
+                }
             }
         }
     }
@@ -383,27 +557,51 @@ class ProcessFhirCommands : CliktCommand(
     /**
      * convert an FHIR message to FHIR message
      */
-    private fun convertFhirToFhir(jsonString: String, receiver: Receiver?): Bundle {
+    private fun convertFhirToFhir(
+        jsonString: String,
+        receiver: Receiver?,
+        senderSchema: String?,
+        isCli: Boolean,
+    ): MessageOrBundle {
         var fhirMessage = FhirTranscoder.decode(jsonString)
         val stamper = ConditionStamper(LookupTableConditionMapper(Metadata.getInstance()))
         fhirMessage.getObservations().forEach { observation ->
             stamper.stampObservation(observation)
         }
+
+        val messageOrBundle = MessageOrBundle()
         if (receiver != null) {
             fhirMessage = applyConditionFilter(receiver, fhirMessage)
             if (receiver.enrichmentSchemaNames.isNotEmpty()) {
                 receiver.enrichmentSchemaNames.forEach { currentSchema ->
-                    fhirMessage = FhirTransformer(currentSchema).process(fhirMessage)
+                    val transformer = FhirTransformer(currentSchema)
+                    val bundle = transformer.process(fhirMessage)
+                    setEnrichmentSchemaFields(
+                        messageOrBundle,
+                        transformer.warnings,
+                        transformer.errors,
+                        bundle
+                    )
                 }
             }
         }
-        fhirMessage = applyEnrichmentSchemas(fhirMessage)
-        if (receiverSchema == null && senderSchema == null) {
+        setEnrichmentSchemaFields(messageOrBundle, applyEnrichmentSchemas(fhirMessage, isCli))
+        if ((
+            (isCli && receiverSchema == null) ||
+                (!isCli && (receiver == null || receiver.schemaName.isBlank()))
+        ) && senderSchema == null
+        ) {
             // Must have at least one schema or else why are you doing this
             throw CliktError("You must specify a schema.")
         } else {
-            return handleSenderAndReceiverTransforms(fhirMessage)
+            handleSenderAndReceiverTransforms(
+                messageOrBundle = messageOrBundle,
+                senderSchema = senderSchema,
+                isCli = isCli
+            )
         }
+
+        return messageOrBundle
     }
 
     /**
@@ -455,13 +653,15 @@ class ProcessFhirCommands : CliktCommand(
      * @throws CliktError if senderSchema is present, but unable to be read.
      * @return If senderSchema is present, apply it, otherwise just return the input bundle.
      */
-    private fun applySenderTransforms(bundle: Bundle): Bundle {
+    private fun applySenderTransforms(bundle: Bundle, senderSchema: String?): FhirTransformer.BundleWithMessages {
         return when {
             senderSchema != null -> {
-                FhirTransformer(senderSchema!!).process(bundle)
+                val transformer = FhirTransformer(senderSchema)
+                val returnedBundle = transformer.process(bundle)
+                FhirTransformer.BundleWithMessages(returnedBundle, transformer.warnings, transformer.errors)
             }
 
-            else -> bundle
+            else -> FhirTransformer.BundleWithMessages(bundle = bundle, mutableListOf(), mutableListOf())
         }
     }
 
@@ -470,38 +670,65 @@ class ProcessFhirCommands : CliktCommand(
      * @throws CliktError if enrichmentSchemaName is present, but unable to be read.
      * @return If receiverSchema is present, apply it, otherwise just return the input bundle.
      */
-    private fun applyReceiverEnrichmentAndTransforms(bundle: Bundle): Bundle {
-        val enrichedBundle = applyEnrichmentSchemas(bundle)
+    private fun applyReceiverEnrichmentAndTransforms(bundle: Bundle, isCli: Boolean): MessageOrBundle {
+        val messageOrBundle = MessageOrBundle()
+        setEnrichmentSchemaFields(messageOrBundle, applyEnrichmentSchemas(bundle, isCli))
 
-        return when {
-            receiverSchema != null -> {
-                FhirTransformer(
-                    receiverSchema!!
-                ).process(enrichedBundle)
-            }
-
-            else -> enrichedBundle
+        if (isCli && receiverSchema != null) {
+            val transformer = FhirTransformer(receiverSchema!!)
+            val returnedBundle = transformer.process(messageOrBundle.bundle!!)
+            messageOrBundle.receiverTransformWarnings.addAll(transformer.warnings)
+            messageOrBundle.receiverTransformErrors.addAll(transformer.errors)
+            messageOrBundle.receiverTransformPassed = transformer.errors.isEmpty()
+            messageOrBundle.bundle = returnedBundle
         }
+
+        return messageOrBundle
     }
 
     /**
      * Applies the enrichment schema to the bundle.
      */
-    private fun applyEnrichmentSchemas(bundle: Bundle): Bundle {
-        if (!enrichmentSchemaNames.isNullOrEmpty()) {
+    private fun applyEnrichmentSchemas(bundle: Bundle, isCli: Boolean): FhirTransformer.BundleWithMessages {
+        var enrichedbundle = bundle
+        val warnings = mutableListOf<String>()
+        val errors = mutableListOf<String>()
+        if (isCli && !enrichmentSchemaNames.isNullOrEmpty()) {
             enrichmentSchemaNames!!.split(",").forEach { currentEnrichmentSchemaName ->
-                FhirTransformer(currentEnrichmentSchemaName).process(bundle)
+                val transformer = FhirTransformer(currentEnrichmentSchemaName)
+                val returnedBundle = transformer.process(
+                    enrichedbundle
+                )
+                errors.addAll(transformer.errors)
+                warnings.addAll(transformer.warnings)
+                enrichedbundle = returnedBundle
             }
         }
-        return bundle
+        return FhirTransformer.BundleWithMessages(enrichedbundle, warnings, errors)
     }
 
     /**
      * Apply both sender and receiver schemas if present.
      * @return the FHIR bundle after having sender and/or receiver schemas applied to it.
      */
-    private fun handleSenderAndReceiverTransforms(bundle: Bundle): Bundle {
-        return applyReceiverEnrichmentAndTransforms(applySenderTransforms(bundle))
+    private fun handleSenderAndReceiverTransforms(
+        messageOrBundle: MessageOrBundle,
+        senderSchema: String?,
+        isCli: Boolean,
+    ): MessageOrBundle {
+        val senderTransformInfo = applySenderTransforms(messageOrBundle.bundle!!, senderSchema)
+        val receiverTransformInfo = applyReceiverEnrichmentAndTransforms(senderTransformInfo.bundle, isCli)
+        messageOrBundle.bundle = receiverTransformInfo.bundle
+        messageOrBundle.senderTransformWarnings.addAll(senderTransformInfo.warnings)
+        messageOrBundle.senderTransformErrors.addAll(senderTransformInfo.errors)
+        messageOrBundle.senderTransformPassed = senderTransformInfo.errors.isEmpty()
+        messageOrBundle.receiverTransformErrors.addAll(receiverTransformInfo.receiverTransformErrors)
+        messageOrBundle.receiverTransformWarnings.addAll(receiverTransformInfo.receiverTransformWarnings)
+        messageOrBundle.receiverTransformPassed = receiverTransformInfo.receiverTransformPassed &&
+            messageOrBundle.receiverTransformPassed
+        messageOrBundle.enrichmentSchemaPassed
+
+        return messageOrBundle
     }
 
     /**
