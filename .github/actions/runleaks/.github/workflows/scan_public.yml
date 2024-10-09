@@ -1,12 +1,12 @@
 name: Scan Public Logs
 
-on: 
+on:
   workflow_dispatch:
     inputs:
       repos:
         description: 'Repos to scan:'
         required: true
-        default: '[\"josiahsiegel\/runleaks\",\"josiahsiegel\/AzViz-action\"]'
+        default: '[\"prime-reportstream\/runleaks\",\"prime-reportstream\/azviz-action\"]'
         type: string
   schedule:
     - cron: "0 3 * * *"
@@ -25,7 +25,7 @@ jobs:
 
       - name: Fetch random repo name
         if: github.event_name == 'schedule' || github.event_name == 'push'
-        uses: JosiahSiegel/randomrepo@v1.1
+        uses: .github/actions/randomrepo
         id: random
         with:
           github-token: ${{ secrets.MY_TOKEN }}
