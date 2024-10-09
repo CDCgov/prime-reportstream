@@ -25,7 +25,7 @@ class ReportGraphBuilder {
     private lateinit var theTopic: Topic
     private lateinit var theFormat: MimeFormat
     private lateinit var theSender: Sender
-    private lateinit var theNextAction: TaskAction
+    private var theNextAction: TaskAction? = null
 
     fun topic(topic: Topic) {
         this.theTopic = topic
@@ -85,13 +85,7 @@ class ReportGraphBuilder {
                 .setItemCount(theSubmission.theItemCount)
                 .setExternalName("test-external-name")
                 .setBodyUrl(theSubmission.theReportBlobUrl)
-                .setNextAction(
-                    if (::theNextAction.isInitialized) {
-                        theNextAction
-                    } else {
-                        theSubmission.reportGraphNodes.firstOrNull()?.theAction
-                    }
-                )
+                .setNextAction(theNextAction ?: theSubmission.reportGraphNodes.firstOrNull()?.theAction)
                 .setCreatedAt(OffsetDateTime.now())
             dbAccess.insertReportFile(
                 reportFile, txn, action
@@ -142,13 +136,7 @@ class ReportGraphBuilder {
             .setExternalName("test-external-name")
             .setBodyUrl(node.theReportBlobUrl)
             .setTransportResult(node.theTransportResult)
-            .setNextAction(
-                if (node.theNextAction != null) {
-                    node.theNextAction
-                } else {
-                    node.reportGraphNodes.firstOrNull()?.theAction
-                }
-            )
+            .setNextAction(node.theNextAction ?: node.reportGraphNodes.firstOrNull()?.theAction)
             .setCreatedAt(graph.node.createdAt.plusMinutes(1))
 
         if (node.receiver != null) {
