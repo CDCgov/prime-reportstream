@@ -11,26 +11,31 @@ elements:
       deidentifiedValue: '"<deidentified>"'
 
   # PID 5
+  # todo : need to add condition
   - name: patient-last-name
     constants:
       hl7NameField: '%{hl7PIDField}-5-1'
       deidentifiedValue: '"<deidentified>"'
 
+  # todo : need to add condition
   - name: patient-first-name
     constants:
       hl7NameField: '%{hl7PIDField}-5-2'
       deidentifiedValue: '"<deidentified>"'
 
+  # todo : need to add condition
   - name: patient-middle-name
     constants:
       hl7NameField: '%{hl7PIDField}-5-3'
       deidentifiedValue: '"<deidentified>"'
 
+  # todo : need to add condition
   - name: patient-suffix
     constants:
       hl7NameField: '%{hl7PIDField}-5-4'
       deidentifiedValue: '""'
 
+  # todo : need to add condition
   - name: patient-name-type-code
     constants:
       hl7NameField: '%{hl7PIDField}-5-7'
