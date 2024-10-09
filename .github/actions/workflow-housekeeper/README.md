@@ -2,7 +2,7 @@
 
 Retain a time period or quantity of workflow runs.
 
-[![Test action](https://github.com/JosiahSiegel/workflow-housekeeper/actions/workflows/test_action.yml/badge.svg)](https://github.com/JosiahSiegel/workflow-housekeeper/actions/workflows/test_action.yml)
+[![Test action](https://github.com/CDCgov/workflow-housekeeper/actions/workflows/test_action.yml/badge.svg)](https://github.com/CDCgov/workflow-housekeeper/actions/workflows/test_action.yml)
 
 ### Dependencies:
 
@@ -29,7 +29,7 @@ Retain a time period or quantity of workflow runs.
       - name: Checkout
         uses: actions/checkout@v3
       - name: Run workflow housekeeper
-        uses: josiahsiegel/workflow-housekeeper@<CURRENT_VERSION>
+        uses: .github/actions/workflow-housekeeper
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 ```
@@ -38,7 +38,7 @@ or
       - name: Checkout
         uses: actions/checkout@v3
       - name: Run workflow housekeeper
-        uses: josiahsiegel/workflow-housekeeper@<CURRENT_VERSION>
+        uses: .github/actions/workflow-housekeeper
         id: scan
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

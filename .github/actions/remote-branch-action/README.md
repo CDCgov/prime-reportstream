@@ -1,6 +1,6 @@
 # Remote Branch Action
 
-[![Test Action](https://github.com/JosiahSiegel/remote-branch-action/actions/workflows/test-action.yml/badge.svg)](https://github.com/JosiahSiegel/remote-branch-action/actions/workflows/test-action.yml)
+[![Test Action](https://github.com/CDCgov/remote-branch-action/actions/workflows/test-action.yml/badge.svg)](https://github.com/CDCgov/remote-branch-action/actions/workflows/test-action.yml)
 
 ## Synopsis
 
@@ -20,7 +20,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Create branch
-        uses: JosiahSiegel/remote-branch-action@v1.1.0
+        uses: .github/actions/remote-branch-action
         with:
           branch: new-branch
 ```
@@ -43,7 +43,7 @@ jobs:
           path: alt-repo
 
       - name: Create branch on alt repo
-        uses: JosiahSiegel/remote-branch-action@v1.1.0
+        uses: .github/actions/remote-branch-action
         with:
           branch: new-branch-alt-repo
           path: alt-repo
@@ -68,20 +68,20 @@ jobs:
 
       - name: Create branch
         id: create-branch-action
-        uses: JosiahSiegel/remote-branch-action@v1.1.0
+        uses: .github/actions/remote-branch-action
         with:
           branch: new-branch
 
       - name: Create branch on second repo
         id: create-branch-action-second-repo
-        uses: JosiahSiegel/remote-branch-action@v1.1.0
+        uses: .github/actions/remote-branch-action
         with:
           branch: new-branch-second-repo
           path: second-repo
 
       - name: Get create branch status
         run: echo ${{ steps.create-branch-action.outputs.create-status }}
-  
+
       - name: Get create branch status on second repo
         run: echo ${{ steps.create-branch-action-second-repo.outputs.create-status }}
 ```

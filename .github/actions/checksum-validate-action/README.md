@@ -1,6 +1,6 @@
 # Checksum Validate Action
 
-[![Test Action](https://github.com/JosiahSiegel/checksum-validate-action/actions/workflows/test_action.yml/badge.svg)](https://github.com/JosiahSiegel/checksum-validate-action/actions/workflows/test_action.yml)
+[![Test Action](https://github.com/CDCgov/checksum-validate-action/actions/workflows/test_action.yml/badge.svg)](https://github.com/CDCgov/checksum-validate-action/actions/workflows/test_action.yml)
 
 ## Synopsis
 
@@ -19,13 +19,13 @@ jobs:
       - uses: actions/checkout@v4.1.1
 
       - name: Generate checksum of string
-        uses: JosiahSiegel/checksum-validate-action@v1
+        uses: .github/actions/checksum-validate-action
         with:
           key: test string
           input: hello world
 
       - name: Generate checksum of command output
-        uses: JosiahSiegel/checksum-validate-action@v1
+        uses: .github/actions/checksum-validate-action
         with:
           key: test command
           input: $(cat action.yml)
@@ -40,7 +40,7 @@ jobs:
 
       - name: Validate checksum of valid string
         id: valid-string
-        uses: JosiahSiegel/checksum-validate-action@v1
+        uses: .github/actions/checksum-validate-action
         with:
           key: test string
           validate: true
@@ -49,7 +49,7 @@ jobs:
 
       - name: Validate checksum of valid command output
         id: valid-command
-        uses: JosiahSiegel/checksum-validate-action@v1
+        uses: .github/actions/checksum-validate-action
         with:
           key: test command
           validate: true

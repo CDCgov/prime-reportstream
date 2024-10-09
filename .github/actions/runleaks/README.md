@@ -1,6 +1,6 @@
 # runleaks
 
-[![Scan Action Logs](https://github.com/JosiahSiegel/runleaks/actions/workflows/main.yml/badge.svg?branch=main)](https://github.com/JosiahSiegel/runleaks/actions/workflows/main.yml)
+[![Scan Action Logs](https://github.com/CDCgov/runleaks/actions/workflows/main.yml/badge.svg?branch=main)](https://github.com/CDCgov/runleaks/actions/workflows/main.yml)
 
 Leverages [git-secrets](https://github.com/awslabs/git-secrets) to identify potential leaks in GitHub action run logs.
 
@@ -56,7 +56,7 @@ Leverages [git-secrets](https://github.com/awslabs/git-secrets) to identify pote
       - name: Checkout
         uses: actions/checkout@v3
       - name: Scan run logs
-        uses: josiahsiegel/runleaks@v1
+        uses: .github/actions/runleaks
         id: scan
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -71,7 +71,7 @@ or
       - name: Checkout
         uses: actions/checkout@v3
       - name: Scan run logs
-        uses: josiahsiegel/runleaks@v1
+        uses: .github/actions/runleaks
         id: scan
         with:
           github-token: ${{ secrets.MY_TOKEN }}
@@ -89,7 +89,7 @@ or
         with:
           repository: 'me/my-repo'
       - name: Scan run logs
-        uses: josiahsiegel/runleaks@v1
+        uses: .github/actions/runleaks
         id: scan
         with:
           github-token: ${{ secrets.MY_TOKEN }}
@@ -103,7 +103,7 @@ or
 ## Local testing
   * Registers default patterns
 ```sh
-git clone https://github.com/JosiahSiegel/runleaks.git
+git clone https://github.com/CDCgov/runleaks.git
 cd runleaks/
 docker build -t runleaks .
 docker run scan "<PERSONAL_ACCESS_TOKEN>" "<REPO>" <RUN_LIMIT> <MIN_DAYS_OLD> <MAX_DAYS_OLD>

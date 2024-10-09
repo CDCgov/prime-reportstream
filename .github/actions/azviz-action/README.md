@@ -1,8 +1,8 @@
 # AzViz (Azure Visualizer) action
 
 ![](https://badgen.net/badge/icon/gitguardian/green?icon=gitguardian&label)
-[![Linux runner](https://github.com/JosiahSiegel/AzViz-action/actions/workflows/test_linux_runner.yml/badge.svg)](https://github.com/JosiahSiegel/AzViz-action/actions/workflows/test_linux_runner.yml)
-[![Windows runner](https://github.com/JosiahSiegel/AzViz-action/actions/workflows/test_windows_runner.yml/badge.svg)](https://github.com/JosiahSiegel/AzViz-action/actions/workflows/test_windows_runner.yml)
+[![Linux runner](https://github.com/CDCgov/azviz-action/actions/workflows/test_linux_runner.yml/badge.svg)](https://github.com/CDCgov/azviz-action/actions/workflows/test_linux_runner.yml)
+[![Windows runner](https://github.com/CDCgov/azviz-action/actions/workflows/test_windows_runner.yml/badge.svg)](https://github.com/CDCgov/azviz-action/actions/workflows/test_windows_runner.yml)
 
 ## ☕ Please donate to [AzViz Developer](https://github.com/PrateekKumarSingh/AzViz#readme)
 
@@ -75,9 +75,9 @@ jobs:
         - name: Login to Azure
           uses: azure/login@v1
           with:
-            creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }} 
+            creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
             enable-AzPSSession: true
-        - uses: JosiahSiegel/AzViz-action@v1.0.3
+        - uses: .github/actions/azviz-action
           with:
             resource-group: ${{ github.event.inputs.resource-group }}
             out-file: ${{ github.event.inputs.out-file }}

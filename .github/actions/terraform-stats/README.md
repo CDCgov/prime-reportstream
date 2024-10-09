@@ -1,6 +1,6 @@
 # Terraform Stats
 
-[![Test action](https://github.com/JosiahSiegel/terraform-stats/actions/workflows/test_action.yml/badge.svg)](https://github.com/JosiahSiegel/terraform-stats/actions/workflows/test_action.yml)
+[![Test action](https://github.com/CDCgov/terraform-stats/actions/workflows/test_action.yml/badge.svg)](https://github.com/CDCgov/terraform-stats/actions/workflows/test_action.yml)
 
 ## Synopsis
 
@@ -19,7 +19,7 @@ Output the following statistics for the Terraform environment:
 
 ```yml
 - name: Terraform stats
-  uses: josiahsiegel/terraform-stats@<latest-version>
+  uses: .github/actions/terraform-stats
   id: stats
   with:
     terraform-directory: ${{ env.tf-dir }}
