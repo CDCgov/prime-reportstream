@@ -9,6 +9,7 @@ on:
       -  "prime-router/**"
       -  "submissions/**"
       -  "shared/**"
+      -  "auth/**"
 
 jobs:
   pre_job:
@@ -18,7 +19,7 @@ jobs:
       has_router_change: ${{ steps.build_vars.outputs.has_router_change }}
     steps:
       - name: "Check out changes"
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
+        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938
       - name: Build vars
         id: build_vars
         uses: ./.github/actions/build-vars
@@ -30,12 +31,12 @@ jobs:
     strategy:
         fail-fast: false
         matrix:
-            folder: [prime-router, submissions, shared]
+            folder: [prime-router, submissions, auth, shared]
     steps:
-      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
+      - uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938
       - uses: snyk/actions/setup@b98d498629f1c368650224d6d212bf7dfa89e4bf
       - name: Set up JDK 17 to generate backend coverage stats
-        uses: actions/setup-java@2dfa2011c5b2a0f1489bf9e433881c92c1631f88
+        uses: actions/setup-java@b36c23c0d998641eff861008f374ee103c25ac73
         with:
           java-version: "17"
           distribution: "temurin"

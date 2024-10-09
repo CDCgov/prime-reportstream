@@ -56,6 +56,7 @@ import gov.cdc.prime.router.metadata.LookupTable
 import gov.cdc.prime.router.metadata.ObservationMappingConstants
 import gov.cdc.prime.router.report.ReportService
 import gov.cdc.prime.router.unittest.UnitTestUtils
+import gov.cdc.prime.router.version.Version
 import io.mockk.every
 import io.mockk.mockkConstructor
 import io.mockk.mockkObject
@@ -367,6 +368,8 @@ class FHIRReceiverFilterIntegrationTests : Logging {
             assertThat(routedReport.schemaTopic).isEqualTo(Topic.FULL_ELR)
             assertThat(routedReport.bodyFormat).isEqualTo("FHIR")
             assertThat(routedReport.itemCount).isZero()
+            assertThat(routedReport.receivingOrg).isEqualTo(receiverSetupData.single().orgName)
+            assertThat(routedReport.receivingOrgSvc).isEqualTo(receiverSetupData.single().name)
 
             // check for no queue message
             verify(exactly = 0) {
@@ -388,7 +391,8 @@ class FHIRReceiverFilterIntegrationTests : Logging {
                     Topic.FULL_ELR,
                     "",
                     TaskAction.receiver_filter,
-                    OffsetDateTime.now()
+                    OffsetDateTime.now(),
+                    Version.commitId
                 ),
                 ReportEventData::timestamp,
             )
@@ -541,6 +545,8 @@ class FHIRReceiverFilterIntegrationTests : Logging {
             assertThat(routedReport.schemaTopic).isEqualTo(Topic.FULL_ELR)
             assertThat(routedReport.bodyFormat).isEqualTo("FHIR")
             assertThat(routedReport.itemCount).isZero()
+            assertThat(routedReport.receivingOrg).isEqualTo(receiverSetupData.single().orgName)
+            assertThat(routedReport.receivingOrgSvc).isEqualTo(receiverSetupData.single().name)
 
             // check for no queue message
             verify(exactly = 0) {
@@ -562,7 +568,8 @@ class FHIRReceiverFilterIntegrationTests : Logging {
                     Topic.FULL_ELR,
                     "",
                     TaskAction.receiver_filter,
-                    OffsetDateTime.now()
+                    OffsetDateTime.now(),
+                    Version.commitId
                 ),
                 ReportEventData::timestamp,
             )
@@ -728,6 +735,8 @@ class FHIRReceiverFilterIntegrationTests : Logging {
             assertThat(routedReport.schemaTopic).isEqualTo(Topic.FULL_ELR)
             assertThat(routedReport.bodyFormat).isEqualTo("FHIR")
             assertThat(routedReport.itemCount).isZero()
+            assertThat(routedReport.receivingOrg).isEqualTo(receiverSetupData.single().orgName)
+            assertThat(routedReport.receivingOrgSvc).isEqualTo(receiverSetupData.single().name)
 
             // check queue message
             verify(exactly = 0) {
@@ -749,7 +758,8 @@ class FHIRReceiverFilterIntegrationTests : Logging {
                     Topic.FULL_ELR,
                     "",
                     TaskAction.receiver_filter,
-                    OffsetDateTime.now()
+                    OffsetDateTime.now(),
+                    Version.commitId
                 ),
                 ReportEventData::timestamp,
             )
@@ -832,6 +842,8 @@ class FHIRReceiverFilterIntegrationTests : Logging {
             assertThat(routedReport.schemaTopic).isEqualTo(Topic.FULL_ELR)
             assertThat(routedReport.bodyFormat).isEqualTo("FHIR")
             assertThat(routedReport.itemCount).isZero()
+            assertThat(routedReport.receivingOrg).isEqualTo(receiverSetupData.single().orgName)
+            assertThat(routedReport.receivingOrgSvc).isEqualTo(receiverSetupData.single().name)
 
             // check filter logging
             val actionLogRecords = DSL.using(txn)
@@ -880,7 +892,8 @@ class FHIRReceiverFilterIntegrationTests : Logging {
                     Topic.FULL_ELR,
                     "",
                     TaskAction.receiver_filter,
-                    OffsetDateTime.now()
+                    OffsetDateTime.now(),
+                    Version.commitId
                 ),
                 ReportEventData::timestamp,
             )
@@ -1110,6 +1123,8 @@ class FHIRReceiverFilterIntegrationTests : Logging {
             assertThat(routedReport.schemaTopic).isEqualTo(Topic.FULL_ELR)
             assertThat(routedReport.bodyFormat).isEqualTo("FHIR")
             assertThat(routedReport.itemCount).isZero()
+            assertThat(routedReport.receivingOrg).isEqualTo(receiverSetupData.single().orgName)
+            assertThat(routedReport.receivingOrgSvc).isEqualTo(receiverSetupData.single().name)
 
             // check filter logging
             val actionLogRecords = DSL.using(txn)
@@ -1163,7 +1178,8 @@ class FHIRReceiverFilterIntegrationTests : Logging {
                     Topic.FULL_ELR,
                     "",
                     TaskAction.receiver_filter,
-                    OffsetDateTime.now()
+                    OffsetDateTime.now(),
+                    Version.commitId
                 ),
                 ReportEventData::timestamp,
             )

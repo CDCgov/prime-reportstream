@@ -39,7 +39,160 @@ import org.testcontainers.junit.jupiter.Testcontainers
 class SubmissionFunctionIntegrationTests {
 
     @Test
+    fun `it should return a history for a received report`() {
+        val submittedReport = reportGraph {
+            topic(Topic.FULL_ELR)
+            format(MimeFormat.HL7)
+            sender(UniversalPipelineTestUtils.hl7Sender)
+
+            submission {
+                action(TaskAction.receive)
+                reportGraphNode {
+                    action(TaskAction.convert)
+                }
+            }
+        }.generate(ReportStreamTestDatabaseContainer.testDatabaseAccess)
+
+        val httpRequestMessage = MockHttpRequestMessage()
+
+        val func = setupSubmissionFunction()
+
+        val history = func
+            .getReportDetailedHistory(httpRequestMessage, submittedReport.node.reportId.toString())
+        assertThat(history).isNotNull()
+        val historyNode = JacksonMapperUtilities.defaultMapper.readTree(history.body.toString())
+        assertThat(
+            historyNode.get("overallStatus").asText()
+        ).isEqualTo(DetailedSubmissionHistory.Status.RECEIVED.toString())
+        assertThat(historyNode.get("destinations").size()).isEqualTo(0)
+        assertThat(historyNode.get("errors").size()).isEqualTo(0)
+        assertThat(historyNode.get("warnings").size()).isEqualTo(0)
+    }
+
+    @Test
     fun `it should return a history for partially delivered submission`() {
+        val submittedReport = reportGraph {
+            topic(Topic.FULL_ELR)
+            format(MimeFormat.HL7)
+            sender(UniversalPipelineTestUtils.hl7Sender)
+
+            submission {
+                action(TaskAction.receive)
+                reportGraphNode {
+                    action(TaskAction.convert)
+                    log(ActionLog(InvalidParamMessage("log"), type = ActionLogLevel.warning))
+                    reportGraphNode {
+                        action(TaskAction.destination_filter)
+                        reportGraphNode {
+                            action(TaskAction.none)
+                            receiver(UniversalPipelineTestUtils.universalPipelineOrganization.receivers[1])
+                            itemCount(0)
+                        }
+                    }
+                    reportGraphNode {
+                        action(TaskAction.destination_filter)
+                        reportGraphNode {
+                            action(TaskAction.receiver_filter)
+                            reportGraphNode {
+                                action(TaskAction.translate)
+                                receiver(UniversalPipelineTestUtils.universalPipelineOrganization.receivers[0])
+                                reportGraphNode {
+                                    action(TaskAction.send)
+                                    transportResult("Success")
+                                    receiver(UniversalPipelineTestUtils.universalPipelineOrganization.receivers[0])
+                                }
+                            }
+                        }
+                        reportGraphNode {
+                            action(TaskAction.receiver_filter)
+                            reportGraphNode {
+                                action(TaskAction.none)
+                                receiver(UniversalPipelineTestUtils.universalPipelineOrganization.receivers[1])
+                                itemCount(0)
+                            }
+                        }
+                    }
+                }
+            }
+        }.generate(ReportStreamTestDatabaseContainer.testDatabaseAccess)
+
+        val httpRequestMessage = MockHttpRequestMessage()
+
+        val func = setupSubmissionFunction()
+
+        val history = func
+            .getReportDetailedHistory(httpRequestMessage, submittedReport.node.reportId.toString())
+        assertThat(history).isNotNull()
+        val historyNode = JacksonMapperUtilities.defaultMapper.readTree(history.body.toString())
+        assertThat(
+            historyNode.get("overallStatus").asText()
+        ).isEqualTo(DetailedSubmissionHistory.Status.PARTIALLY_DELIVERED.toString())
+        assertThat(historyNode.get("destinations").size()).isEqualTo(2)
+        assertThat(historyNode.get("errors").size()).isEqualTo(0)
+        assertThat(historyNode.get("warnings").size()).isEqualTo(1)
+    }
+
+    // this test remains to prevent breaking queries against old submissions that used the legacy route step
+    @Test
+    fun `it should return a history for an partially delivered submission (for legacy route step)`() {
+        val submittedReport = reportGraph {
+            topic(Topic.FULL_ELR)
+            format(MimeFormat.HL7)
+            sender(UniversalPipelineTestUtils.hl7Sender)
+
+            submission {
+                action(TaskAction.receive)
+                reportGraphNode {
+                    action(TaskAction.convert)
+                    log(ActionLog(InvalidParamMessage("log"), type = ActionLogLevel.warning))
+                    reportGraphNode {
+                        action(TaskAction.route)
+                        reportGraphNode {
+                            action(TaskAction.none)
+                            receiver(UniversalPipelineTestUtils.universalPipelineOrganization.receivers[1])
+                            itemCount(0)
+                        }
+                    }
+                    reportGraphNode {
+                        action(TaskAction.route)
+                        reportGraphNode {
+                            action(TaskAction.translate)
+                            receiver(UniversalPipelineTestUtils.universalPipelineOrganization.receivers[0])
+                            reportGraphNode {
+                                action(TaskAction.send)
+                                transportResult("Success")
+                                receiver(UniversalPipelineTestUtils.universalPipelineOrganization.receivers[0])
+                            }
+                        }
+                        reportGraphNode {
+                            action(TaskAction.none)
+                            receiver(UniversalPipelineTestUtils.universalPipelineOrganization.receivers[1])
+                            itemCount(0)
+                        }
+                    }
+                }
+            }
+        }.generate(ReportStreamTestDatabaseContainer.testDatabaseAccess)
+
+        val httpRequestMessage = MockHttpRequestMessage()
+
+        val func = setupSubmissionFunction()
+
+        val history = func
+            .getReportDetailedHistory(httpRequestMessage, submittedReport.node.reportId.toString())
+        assertThat(history).isNotNull()
+        val historyNode = JacksonMapperUtilities.defaultMapper.readTree(history.body.toString())
+        assertThat(
+            historyNode.get("overallStatus").asText()
+        ).isEqualTo(DetailedSubmissionHistory.Status.PARTIALLY_DELIVERED.toString())
+        assertThat(historyNode.get("destinations").size()).isEqualTo(2)
+        assertThat(historyNode.get("errors").size()).isEqualTo(0)
+        assertThat(historyNode.get("warnings").size()).isEqualTo(1)
+    }
+
+    // TODO: https://github.com/CDCgov/prime-reportstream/issues/16054
+    @Test
+    fun `it should return a history for an in-flight submission`() {
         val submittedReport = reportGraph {
             topic(Topic.FULL_ELR)
             format(MimeFormat.HL7)
@@ -95,15 +248,16 @@ class SubmissionFunctionIntegrationTests {
         val historyNode = JacksonMapperUtilities.defaultMapper.readTree(history.body.toString())
         assertThat(
             historyNode.get("overallStatus").asText()
-        ).isEqualTo(DetailedSubmissionHistory.Status.PARTIALLY_DELIVERED.toString())
+        ).isEqualTo(DetailedSubmissionHistory.Status.PARTIALLY_DELIVERED.toString()) // TODO: should be RECEIVED
         assertThat(historyNode.get("destinations").size()).isEqualTo(2)
         assertThat(historyNode.get("errors").size()).isEqualTo(0)
         assertThat(historyNode.get("warnings").size()).isEqualTo(1)
     }
 
+    // TODO: https://github.com/CDCgov/prime-reportstream/issues/16054
     // this test remains to prevent breaking queries against old submissions that used the legacy route step
     @Test
-    fun `it should return a history for partially delivered submission (for legacy route step)`() {
+    fun `it should return a history for an in-flight submission (for legacy route step)`() {
         val submittedReport = reportGraph {
             topic(Topic.FULL_ELR)
             format(MimeFormat.HL7)
@@ -153,7 +307,7 @@ class SubmissionFunctionIntegrationTests {
         val historyNode = JacksonMapperUtilities.defaultMapper.readTree(history.body.toString())
         assertThat(
             historyNode.get("overallStatus").asText()
-        ).isEqualTo(DetailedSubmissionHistory.Status.PARTIALLY_DELIVERED.toString())
+        ).isEqualTo(DetailedSubmissionHistory.Status.PARTIALLY_DELIVERED.toString()) // TODO: should be RECEIVED
         assertThat(historyNode.get("destinations").size()).isEqualTo(2)
         assertThat(historyNode.get("errors").size()).isEqualTo(0)
         assertThat(historyNode.get("warnings").size()).isEqualTo(1)
@@ -201,6 +355,7 @@ class SubmissionFunctionIntegrationTests {
                     log(ActionLog(InvalidParamMessage("log"), type = ActionLogLevel.warning))
                     reportGraphNode {
                         action(TaskAction.destination_filter)
+                        nextAction(TaskAction.none)
                     }
                 }
             }
@@ -237,6 +392,7 @@ class SubmissionFunctionIntegrationTests {
                     log(ActionLog(InvalidParamMessage("log"), type = ActionLogLevel.warning))
                     reportGraphNode {
                         action(TaskAction.route)
+                        nextAction(TaskAction.none)
                     }
                 }
             }

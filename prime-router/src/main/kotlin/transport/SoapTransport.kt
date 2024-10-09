@@ -15,6 +15,7 @@ import gov.cdc.prime.router.credentials.CredentialHelper
 import gov.cdc.prime.router.credentials.CredentialRequestReason
 import gov.cdc.prime.router.credentials.SoapCredential
 import gov.cdc.prime.router.credentials.UserJksCredential
+import gov.cdc.prime.router.report.ReportService
 import gov.cdc.prime.router.serializers.SoapEnvelope
 import gov.cdc.prime.router.serializers.SoapObjectService
 import io.ktor.client.HttpClient
@@ -154,6 +155,7 @@ class SoapTransport(private val httpClient: HttpClient? = null) : ITransport {
         context: ExecutionContext,
         actionHistory: ActionHistory,
         reportEventService: IReportStreamEventService,
+        reportService: ReportService,
     ): RetryItems? {
         // verify that we have a SOAP transport type for our parameters. I think if we ever fell
         // into this scenario with different parameters there's something seriously wrong in the system,
@@ -211,6 +213,7 @@ class SoapTransport(private val httpClient: HttpClient? = null) : ITransport {
                         msg,
                         header,
                         reportEventService,
+                        reportService,
                         this::class.java.simpleName
                     )
                     actionHistory.trackItemLineages(Report.createItemLineagesFromDb(header, sentReportId))
