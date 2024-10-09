@@ -19,6 +19,11 @@ ARG AFCT_VERSION=4.0.5198
 
 RUN apk update && apk add wget --no-cache
 
+#
+# Add UTF-8 encoding
+#
+RUN locale-gen "en_US.UTF-8"
+
 # Get Gradle into /var/downloads/gradle (whithout version sub-directory
 # this makes it so that the GRADLE_VERSION does not need to leak into the
 # builder image below and only needs JAVA_VERSION as a build-arg
