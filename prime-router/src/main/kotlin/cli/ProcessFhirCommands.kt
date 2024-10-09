@@ -354,9 +354,7 @@ class ProcessFhirCommands : CliktCommand(
         return messageOrBundle
     }
 
-    class MessageOrBundle(
-        var message: Message? = null,
-        var bundle: Bundle? = null,
+    open class MessageOrBundleParent(
         var senderTransformPassed: Boolean = true,
         var senderTransformErrors: MutableList<String> = mutableListOf(),
         var senderTransformWarnings: MutableList<String> = mutableListOf(),
@@ -369,6 +367,22 @@ class ProcessFhirCommands : CliktCommand(
         var filterErrors: MutableList<String> = mutableListOf(),
         var filtersPassed: Boolean = true,
     )
+
+    class MessageOrBundle(
+        var message: Message? = null,
+        var bundle: Bundle? = null,
+        senderTransformPassed: Boolean = true,
+        senderTransformErrors: MutableList<String> = mutableListOf(),
+        senderTransformWarnings: MutableList<String> = mutableListOf(),
+        enrichmentSchemaPassed: Boolean = true,
+        enrichmentSchemaErrors: MutableList<String> = mutableListOf(),
+        enrichmentSchemaWarnings: MutableList<String> = mutableListOf(),
+        receiverTransformPassed: Boolean = true,
+        receiverTransformErrors: MutableList<String> = mutableListOf(),
+        receiverTransformWarnings: MutableList<String> = mutableListOf(),
+        filterErrors: MutableList<String> = mutableListOf(),
+        filtersPassed: Boolean = true,
+    ) : MessageOrBundleParent()
 
     private fun applyConditionFilter(receiver: Receiver, bundle: Bundle): Bundle {
         val trackingId = if (bundle.id != null) {
