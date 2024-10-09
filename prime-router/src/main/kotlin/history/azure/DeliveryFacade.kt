@@ -19,7 +19,7 @@ import java.util.*
  */
 class DeliveryFacade(
     private val dbDeliveryAccess: DatabaseDeliveryAccess = DatabaseDeliveryAccess(),
-    dbAccess: DatabaseAccess = BaseEngine.databaseAccessSingleton,
+    val dbAccess: DatabaseAccess = BaseEngine.databaseAccessSingleton,
     val reportService: ReportService = ReportService(),
 ) : ReportFileFacade(
     dbAccess
@@ -95,13 +95,27 @@ class DeliveryFacade(
      * @return Report details
      */
     fun findDetailedDeliveryHistory(
+        id: String,
         deliveryId: Long,
     ): DeliveryHistory? {
-        val deliveryHistory = dbDeliveryAccess.fetchAction(
-            deliveryId,
-            orgName = null,
-            DeliveryHistory::class.java
-        )
+        val reportFileId = try {
+            UUID.fromString(id)
+        } catch (ex: IllegalArgumentException) {
+            null
+        }
+
+        val deliveryHistory = if (reportFileId != null) {
+            val action = dbAccess.fetchAction(deliveryId)
+            val reportFile = dbAccess.fetchReportFile(reportFileId)
+             DeliveryHistory.createDeliveryHistoryFromReportAndAction(reportFile, action!!)
+        } else {
+            dbDeliveryAccess.fetchAction(
+                deliveryId,
+                orgName = null,
+                DeliveryHistory::class.java
+            )
+        }
+
         val reportId = deliveryHistory?.reportId
         if (reportId != null) {
             val roots = reportService.getRootReports(UUID.fromString(reportId))
