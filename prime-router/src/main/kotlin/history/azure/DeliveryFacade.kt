@@ -91,6 +91,7 @@ class DeliveryFacade(
     /**
      * Get expanded details for a single report
      *
+     * @param id  either a report id (UUID) or action id (Long)
      * @param deliveryId id for the delivery being used
      * @return Report details
      */
