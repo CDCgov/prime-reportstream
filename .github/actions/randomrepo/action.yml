@@ -1,0 +1,18 @@
+# action.yml
+name: 'randomrepo-action'
+description: 'Fetch name of a random GitHub repository'
+branding:
+  icon: 'search'  
+  color: 'yellow'
+inputs:
+  github-token:
+    description: 'Token used to login to GitHub'
+    required: true
+outputs:
+  repo:
+    description: 'Name of random repo'
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
+  args:
+    - ${{ inputs.github-token }}

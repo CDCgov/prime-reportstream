@@ -1,0 +1,1 @@
+-d Ubuntu-22.04 -m demo -u demouser -r 'https://github.com/JosiahSiegel/terraform-templates.git'

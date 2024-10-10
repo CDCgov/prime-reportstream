@@ -1,0 +1,20 @@
+####################################################################
+
+# Register a secret provider
+--register-azure
+--register-aws
+--register-gcp
+
+####################################################################
+
+# Add a prohibited pattern
+--add [A-Z0-9]{20}
+--add Account[k|K]ey
+--add Shared[a|A]ccessSignature
+
+####################################################################
+
+# Add a string that is scanned for literally (+ is escaped):
+--add --literal foo+bar
+
+####################################################################

@@ -1,0 +1,4 @@
+#!/bin/bash
+
+source lib/waiting.sh
+source lib/args.sh

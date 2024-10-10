@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<comments>
+  <row Id="1" PostId="35314" Score="39" Text="not sure why this is getting downvoted -- it is correct! Double check it in your compiler if you don't believe him!" CreationDate="2008-09-06T08:07:10.730" UserId="1" />
+  <row Id="2" PostId="35314" Score="8" Text="Yeah, I didn't believe it until I created a console app - but good lord!  Why would they give you the rope to hang yourself!  I hated that about VB.NET - the OrElse and AndAlso keywords!" CreationDate="2008-09-06T08:09:52.330" UserId="3" />
+  <row Id="4" PostId="35195" Score="0" Text="I don't see an accepted answer now, I wonder how that got unaccepted. Incidentally, I would have marked an accepted answer based on the answers available at the time. Also, accepted doesn't mean Best :)" CreationDate="2008-09-06T08:42:16.980" UserId="380" />
+  <row Id="9" PostId="47239" Score="0" Text="Jonathan: Wow!  Thank you for all of that, you did an amazing amount of work!" CreationDate="2008-09-06T12:26:30.060" UserId="4550" />
+  <row Id="10" PostId="45651" Score="6" Text="It will help if you give some details of which database you are using as techniques vary." CreationDate="2008-09-06T13:38:23.647" UserId="242" />
+  <row Id="12" PostId="47428" Score="3" Text="One of the things that make a url user-friendly is 'discover-ability', meaning you can take a guess at url's simply from the address bar. http://i.love.pets.com/search/cats+dogs could easily lead to http://i.love.pets.com/search/pug+puppies etc" CreationDate="2008-09-06T13:51:47.843" UserId="4642" />
+  <row Id="14" PostId="47481" Score="0" Text="I agree, both CodeRush and RefactorPro are visually impressive (most of which can be turned off BTW), but for navigating and refactoring Resharper is much better in my opinion of using both products." CreationDate="2008-09-06T14:15:46.897" UserId="4642" />
+  <row Id="15" PostId="47373" Score="0" Text="Just wanted to mention that this is an excellent solution if you consider the problem to be linear (i.e. treating `A1B2` as a single number). I still think the problem is multi-dimensional, but I guess we'll just have to wait for the author to clarify :)" CreationDate="2008-09-06T14:30:40.217" UserId="2495" />
+</comments>

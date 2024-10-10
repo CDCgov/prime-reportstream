@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<tags>
+  <row Id="1" TagName=".net" Count="253350" ExcerptPostId="3624959" WikiPostId="3607476" />
+  <row Id="2" TagName="html" Count="660738" ExcerptPostId="3673183" WikiPostId="3673182" />
+  <row Id="3" TagName="javascript" Count="1404363" ExcerptPostId="3624960" WikiPostId="3607052" />
+  <row Id="4" TagName="css" Count="474072" ExcerptPostId="3644670" WikiPostId="3644669" />
+  <row Id="5" TagName="php" Count="1085188" ExcerptPostId="3624936" WikiPostId="3607050" />
+  <row Id="8" TagName="c" Count="252720" ExcerptPostId="3624961" WikiPostId="3607013" />
+  <row Id="9" TagName="c#" Count="1102833" ExcerptPostId="3624962" WikiPostId="3607007" />
+  <row Id="10" TagName="c++" Count="518248" ExcerptPostId="3624963" WikiPostId="3606997" />
+</tags>

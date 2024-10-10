@@ -1,0 +1,15 @@
+name: Confirm Push
+
+on:
+  push:
+    branches:
+      - dummy
+
+permissions: read-all 
+
+jobs:
+  confirm_push:
+    runs-on: ubuntu-latest
+    name: Validate - Push
+    steps:
+      - run: echo "Success!"
