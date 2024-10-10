@@ -33,7 +33,7 @@ import java.util.Properties
 apply(from = rootProject.file("buildSrc/shared.gradle.kts"))
 
 plugins {
-    val kotlinVersion by System.getProperties()
+    val kotlinVersion = System.getProperty("kotlinVersion") ?: "1.9.23"
     id("reportstream.project-conventions")
     id("org.flywaydb.flyway") version "10.18.2"
     id("nu.studer.jooq") version "9.0"
@@ -74,7 +74,7 @@ val javaVersion = when (appJvmTarget) {
     else -> JavaVersion.VERSION_17
 }
 val ktorVersion = "2.3.12"
-val kotlinVersion by System.getProperties()
+val kotlinVersion = System.getProperty("kotlinVersion") ?: "1.9.23"
 val jacksonVersion = "2.18.0"
 jacoco.toolVersion = "0.8.12"
 

@@ -17,7 +17,14 @@ FROM alpine:3.20 AS downloader
 ARG GRADLE_VERSION=8.10.2
 ARG AFCT_VERSION=4.0.5198
 
-RUN apk update && apk add wget --no-cache
+RUN apk update && apk add wget --no-cache && apt-get install -y locales
+
+#
+# Add UTF-8 encoding
+#
+RUN locale-gen "en_US.UTF-8"
+ENV LANG=en_US.UTF-8 \
+    LANGUAGE=en_US:en
 
 # Get Gradle into /var/downloads/gradle (whithout version sub-directory
 # this makes it so that the GRADLE_VERSION does not need to leak into the
