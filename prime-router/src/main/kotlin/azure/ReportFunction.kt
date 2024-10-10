@@ -3,6 +3,7 @@ package gov.cdc.prime.router.azure
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.json.JsonMapper
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
+import com.github.ajalt.clikt.core.CliktError
 import com.google.common.net.HttpHeaders
 import com.microsoft.azure.functions.HttpMethod
 import com.microsoft.azure.functions.HttpRequestMessage
@@ -23,7 +24,6 @@ import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.Sender.ProcessingType
 import gov.cdc.prime.router.SubmissionReceiver
 import gov.cdc.prime.router.UniversalPipelineReceiver
-import gov.cdc.prime.router.azure.BlobAccess.Companion.defaultBlobMetadata
 import gov.cdc.prime.router.azure.BlobAccess.Companion.getBlobContainer
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
@@ -32,6 +32,7 @@ import gov.cdc.prime.router.azure.observability.event.ReportStreamEventName
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventProperties
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventService
 import gov.cdc.prime.router.cli.PIIRemovalCommands
+import gov.cdc.prime.router.cli.ProcessFhirCommands
 import gov.cdc.prime.router.common.AzureHttpUtils.getSenderIP
 import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.common.JacksonMapperUtilities
@@ -43,6 +44,7 @@ import gov.cdc.prime.router.tokens.authenticationFailure
 import gov.cdc.prime.router.tokens.authorizationFailure
 import kotlinx.serialization.json.Json
 import org.apache.logging.log4j.kotlin.Logging
+import java.io.File
 import java.nio.charset.StandardCharsets
 import java.util.UUID
 
@@ -116,6 +118,73 @@ class ReportFunction(
         val claims = AuthenticatedClaims.authenticate(request)
         if (claims != null && claims.authorized(setOf(Scope.primeAdminScope))) {
             return processGetMessageFromTestBankRequest(request)
+        }
+        return HttpUtilities.unauthorizedResponse(request)
+    }
+
+    /**
+     * Run a message through the fhirdata cli
+     *
+     * @see ../../../docs/api/reports.yml
+     */
+    @FunctionName("processFhirDataRequest")
+    fun processFhirDataRequest(
+        @HttpTrigger(
+            name = "processFhirDataRequest",
+            methods = [HttpMethod.POST],
+            authLevel = AuthorizationLevel.ANONYMOUS,
+            route = "reports/testing/test"
+        ) request: HttpRequestMessage<String?>,
+    ): HttpResponseMessage {
+        val claims = AuthenticatedClaims.authenticate(request)
+        if (claims != null && claims.authorized(setOf(Scope.primeAdminScope))) {
+            val receiverName = request.queryParameters["receiverName"]
+            val organizationName = request.queryParameters["organizationName"]
+            val senderSchema = request.queryParameters["senderSchema"]
+            if (receiverName.isNullOrBlank()) {
+                return HttpUtilities.badRequestResponse(
+                    request,
+                    "The receiver name is required"
+                )
+            }
+            if (organizationName.isNullOrBlank()) {
+                return HttpUtilities.badRequestResponse(
+                    request,
+                    "The organization name is required"
+                )
+            }
+            if (request.body.isNullOrBlank()) {
+                return HttpUtilities.badRequestResponse(
+                    request,
+                    "A message to process must be included in the body"
+                )
+            }
+            val file = File("filename.fhir")
+            file.createNewFile()
+            file.bufferedWriter().use { out ->
+                out.write(request.body)
+            }
+
+            try {
+                val result = ProcessFhirCommands().processFhirDataRequest(
+                    file,
+                    Environment.get().envName,
+                    receiverName,
+                    organizationName,
+                    senderSchema,
+                    false
+                )
+                file.delete()
+                return HttpUtilities.okResponse(
+                    request,
+                    ObjectMapper().writeValueAsString(
+                        result
+                    )
+                )
+            } catch (exception: CliktError) {
+                file.delete()
+                return HttpUtilities.badRequestResponse(request, "${exception.message}")
+            }
         }
         return HttpUtilities.unauthorizedResponse(request)
     }
