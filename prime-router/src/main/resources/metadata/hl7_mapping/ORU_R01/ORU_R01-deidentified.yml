@@ -95,17 +95,32 @@ elements:
     hl7Spec: [ /PATIENT_RESULT/ORDER_OBSERVATION/ORC-1 ]
 
   # ORC 2
-  - name: placer-order-number
+  - name: placer-order-number-orc-2
     value: [ '""' ]
     hl7Spec: [ /PATIENT_RESULT/ORDER_OBSERVATION/ORC-2 ]
 
   # ORC 3.1
-  - name: filler-order-number
+  - name: filler-order-number-orc-3-1
     value: [ '""' ]
     hl7Spec: [ /PATIENT_RESULT/ORDER_OBSERVATION/ORC-3 ]
 
+  # ORC 3.2
+  - name: orc-3-2
+    value: [ '""' ]
+    hl7Spec: [ /PATIENT_RESULT/ORDER_OBSERVATION/ORC-3-2 ]
+
+  # ORC 3.3
+  - name: orc-3-3
+    value: [ '""' ]
+    hl7Spec: [ /PATIENT_RESULT/ORDER_OBSERVATION/ORC-3-3 ]
+
+  # ORC 3.4
+  - name: orc-3-4
+    value: [ '""' ]
+    hl7Spec: [ /PATIENT_RESULT/ORDER_OBSERVATION/ORC-3-4 ]
+
   # ORC 4
-  - name: placer-group-number
+  - name: placer-group-number-orc-4
     value: [ '""' ]
     hl7Spec: [ /PATIENT_RESULT/ORDER_OBSERVATION/ORC-4 ]
 
@@ -138,14 +153,14 @@ elements:
     hl7Spec: [/PATIENT_RESULT/ORDER_OBSERVATION/ORC-12-3]
 
   # ORC 14
-  - name: call-back-phone-number-ocr
+  - name: call-back-phone-number-ocr-14
     value: [ '""' ]
     hl7Spec: [ /PATIENT_RESULT/ORDER_OBSERVATION/ORC-14 ]
 
   # ORC 21
-  - name: ordering-facility-name
+  - name: ordering-facility-name-orc-21
     value: [ '""' ]
-    hl7Spec: [ /PATIENT_RESULT/ORDER_OBSERVATION/ORC-22-1 ]
+    hl7Spec: [ /PATIENT_RESULT/ORDER_OBSERVATION/ORC-21-1 ]
 
   # ORC 22.1
   - name: ordering-facility-street1
@@ -231,17 +246,17 @@ elements:
     hl7Spec: [/PATIENT_RESULT/ORDER_OBSERVATION/ORC-24-9]
 
   # ORC 25
-  - name: order-status-modifier
+  - name: order-status-modifier-orc-25
     value: [ '""' ]
     hl7Spec: [ /PATIENT_RESULT/ORDER_OBSERVATION/ORC-25 ]
 
   # ORC 29
-  - name: order-type
+  - name: order-type-orc-29
     value: [ '""' ]
     hl7Spec: [ /PATIENT_RESULT/ORDER_OBSERVATION/ORC-29 ]
 
   # ORC 33
-  - name: alternate-placer-order-number
+  - name: alternate-placer-order-number-orc-33
     value: [ '""' ]
     hl7Spec: [ /PATIENT_RESULT/ORDER_OBSERVATION/ORC-33 ]
 
@@ -250,7 +265,7 @@ elements:
     condition: 'false'
 
   # OBR 2.1
-  - name: placer-order-number
+  - name: placer-order-number-obr-2-1
     value: [ '""' ]
     hl7Spec: [ /PATIENT_RESULT/ORDER_OBSERVATION/OBR-2-1 ]
 
