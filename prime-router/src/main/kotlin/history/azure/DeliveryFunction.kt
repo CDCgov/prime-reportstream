@@ -167,7 +167,7 @@ class DeliveryFunction(
      * @return
      */
     override fun singleDetailedHistory(id: String, txn: DataAccessTransaction, action: Action): DeliveryHistory? {
-        return deliveryFacade.findDetailedDeliveryHistory(action.actionId)
+        return deliveryFacade.findDetailedDeliveryHistory(id, action.actionId)
     }
 
     @FunctionName("getDeliveriesV1")

@@ -219,6 +219,53 @@ class DeliveryFacadeTests {
     }
 
     @Test
+    fun `test findDetailedDeliveryHistory with reportId`() {
+        val mockDeliveryAccess = mockk<DatabaseDeliveryAccess>()
+        val mockReportService = mockk<ReportService>()
+        val mockDbAccess = mockk<DatabaseAccess>()
+        val facade = DeliveryFacade(mockDeliveryAccess, mockDbAccess, mockReportService)
+
+        val reportFile = ReportFile()
+        reportFile.createdAt = OffsetDateTime.parse("2022-04-13T17:06:10.534Z")
+        reportFile.reportId = UUID.fromString("b3c8e304-8eff-4882-9000-3645054a30b7")
+        reportFile.sendingOrg = "DogCow Associates"
+        reportFile.schemaTopic = Topic.FULL_ELR
+        reportFile.itemCount = 1
+        reportFile.bodyUrl = "body-url"
+        reportFile.schemaName = ""
+        reportFile.bodyFormat = "HL7"
+        reportFile.receivingOrg = "ignore"
+        reportFile.receivingOrgSvc = "FULL-ELR"
+
+        val action = Action()
+        action.actionId = 1L
+        action.createdAt = reportFile.createdAt
+        action.externalName = "external"
+
+        every { mockDbAccess.fetchAction(any()) } returns action
+        every { mockDbAccess.fetchReportFile(any()) } returns reportFile
+
+        every {
+            mockReportService.getRootReports(
+                any(),
+            )
+        } returns listOf(reportFile)
+
+        val result = facade.findDetailedDeliveryHistory(
+            reportFile.reportId.toString(),
+            action.actionId,
+        )
+        assertThat(result?.actionId).isEqualTo(1L)
+        assertThat(result?.topic).isEqualTo(Topic.FULL_ELR)
+        assertThat(result?.reportId.toString()).isEqualTo(reportFile.reportId.toString())
+        assertThat(result?.reportItemCount).isEqualTo(1)
+        assertThat(result?.fileName).isEqualTo("body-url")
+        assertThat(result?.originalIngestion?.first()?.get("ingestionTime")).isEqualTo(reportFile.createdAt)
+        assertThat(result?.originalIngestion?.first()?.get("reportId")).isEqualTo(reportFile.reportId)
+        assertThat(result?.originalIngestion?.first()?.get("sendingOrg")).isEqualTo(reportFile.sendingOrg)
+    }
+
+    @Test
     fun `test findDetailedDeliveryHistory`() {
         val mockDeliveryAccess = mockk<DatabaseDeliveryAccess>()
         val mockReportService = mockk<ReportService>()
@@ -258,6 +305,7 @@ class DeliveryFacadeTests {
         } returns listOf(reportFile)
 
         val result = facade.findDetailedDeliveryHistory(
+            delivery.actionId.toString(),
             delivery.actionId,
         )
 
