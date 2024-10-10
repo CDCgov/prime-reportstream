@@ -449,6 +449,22 @@ class ActionHistory(
     }
 
     /**
+     * Allows tracking of an empty report regardless of where it is generated in the pipeline
+     * @param report the details of the report
+     */
+    fun trackEmptyReport(report: Report) {
+        generatingEmptyReport = true
+        val reportFile = ReportFile()
+        reportFile.reportId = report.id
+        reportFile.schemaTopic = report.schema.topic
+        reportFile.schemaName = "None"
+        reportFile.itemCount = 0
+        reportFile.bodyFormat = report.bodyFormat.toString()
+        reportFile.nextAction = TaskAction.none
+        reportsOut[reportFile.reportId] = reportFile
+    }
+
+    /**
      * Use this to record history info about a newly generated empty [report] for sending to [receiver] that
      * has requested an empty batch. The [event] will be batch or send.
      */

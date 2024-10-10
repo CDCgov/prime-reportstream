@@ -194,7 +194,7 @@ class FHIRDestinationFilterIntegrationTests : Logging {
 
         // check results
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
-            val routedReports = fetchChildReports(report, txn, 2)
+            val routedReports = fetchChildReports(report, txn, 2, 2)
             with(routedReports.first()) {
                 assertThat(this.nextAction).isEqualTo(TaskAction.receiver_filter)
                 assertThat(this.receivingOrg).isEqualTo("phd")
