@@ -125,7 +125,7 @@
       host: mft.dhss.delaware.gov
       port: 22
       filePath: ./TS_PRIME
-      credentialName: DEFAULT-SFTP
+      credentialName: DE-DPH--FULL-ELR
     externalName: "Primary Feed"
     enrichmentSchemaNames: []
     timeZone: null
