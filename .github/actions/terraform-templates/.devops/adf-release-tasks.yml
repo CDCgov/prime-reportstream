@@ -1,0 +1,57 @@
+parameters:
+  environment: ''
+  azureSubscription: ''
+  keyVaultName: ''
+  sourceDataFactoryName: ''
+  deployDataFactoryName: ''
+  deploymentResourceGroupName: ''
+
+
+steps:
+- task: AzureKeyVault@1
+  inputs:
+    azureSubscription: '${{ parameters.azureSubscription }}'
+    KeyVaultName: '${{ parameters.KeyVaultName }}'
+    SecretsFilter: '*'
+    RunAsPreJob: true
+
+- download: current
+  artifact: drop
+
+- task: AzurePowerShell@5
+  displayName: Stop Triggers
+  inputs:
+    azureSubscription: '${{ parameters.azureSubscription }}'
+    ScriptType: 'InlineScript'
+    Inline: 
+      $triggersADF = Get-AzDataFactoryV2Trigger -DataFactoryName
+      "${{ parameters.DeployDataFactoryName }}" -ResourceGroupName "${{ parameters.DeploymentResourceGroupName }}";
+      $triggersADF | ForEach-Object { Stop-AzDataFactoryV2Trigger
+      –ResourceGroupName "${{ parameters.DeploymentResourceGroupName }}" -DataFactoryName
+      "${{ parameters.DeployDataFactoryName }}" -Name $_.name -Force }
+    azurePowerShellVersion: 'LatestVersion'
+- task: AzurePowerShell@5
+  displayName: Deploy ADF
+  inputs:
+    azureSubscription: '${{ parameters.azureSubscription }}'
+    ScriptType: 'InlineScript'
+    Inline: 
+      'New-AzResourceGroupDeployment 
+      -ResourceGroupName "${{ parameters.DeploymentResourceGroupName }}" 
+      -TemplateParameterFile "$(Pipeline.Workspace)/drop/ARMTemplateParametersForFactory.json" 
+      -TemplateFile "$(Pipeline.Workspace)/drop/ARMTemplateForFactory.json"
+      -factoryName "${{ parameters.DeployDataFactoryName }}"
+      #<parameter-overridden> : <value-to-be-overridden> there are parameters in arm template and overriden by key vault secrets
+      #<parameter-overridden> : <value-to-be-overridden>
+      -Mode "Incremental"'
+    azurePowerShellVersion: 'LatestVersion'
+- task: AzurePowerShell@5
+  displayName: Restart Triggers
+  inputs:
+    azureSubscription: '${{ parameters.azureSubscription }}'
+    ScriptType: 'InlineScript'
+    Inline: 
+      $triggersADF = Get-AzDataFactoryV2Trigger -DataFactoryName   "${{ parameters.DeployDataFactoryName }}" -ResourceGroupName "${{ parameters.DeploymentResourceGroupName }}";
+      $triggersADF | ForEach-Object { Start-AzDataFactoryV2Trigger -ResourceGroupName "${{ parameters.DeploymentResourceGroupName }}" -DataFactoryName "${{ parameters.DeployDataFactoryName }}" -Name $_.name -Force }
+    azurePowerShellVersion: 'LatestVersion'
+       
