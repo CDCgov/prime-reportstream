@@ -19,7 +19,7 @@ import java.util.*
  */
 class DeliveryFacade(
     private val dbDeliveryAccess: DatabaseDeliveryAccess = DatabaseDeliveryAccess(),
-    val dbAccess: DatabaseAccess = BaseEngine.databaseAccessSingleton,
+    private val dbAccess: DatabaseAccess = BaseEngine.databaseAccessSingleton,
     val reportService: ReportService = ReportService(),
 ) : ReportFileFacade(
     dbAccess
@@ -99,6 +99,8 @@ class DeliveryFacade(
         id: String,
         deliveryId: Long,
     ): DeliveryHistory? {
+        // This functionality is handling the fact that the calling function supports loading the history either
+        // by the action id or report id
         val reportFileId = try {
             UUID.fromString(id)
         } catch (ex: IllegalArgumentException) {
