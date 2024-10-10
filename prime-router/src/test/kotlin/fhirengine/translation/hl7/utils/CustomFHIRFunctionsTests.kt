@@ -2,6 +2,7 @@ package gov.cdc.prime.router.fhirengine.translation.hl7.utils
 
 import assertk.assertFailure
 import assertk.assertThat
+import assertk.assertions.containsOnly
 import assertk.assertions.doesNotHaveClass
 import assertk.assertions.hasClass
 import assertk.assertions.isEmpty
@@ -15,6 +16,7 @@ import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
 import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.BaseDateTimeType
 import org.hl7.fhir.r4.model.DateTimeType
+import org.hl7.fhir.r4.model.HumanName
 import org.hl7.fhir.r4.model.InstantType
 import org.hl7.fhir.r4.model.IntegerType
 import org.hl7.fhir.r4.model.MessageHeader
@@ -502,5 +504,30 @@ class CustomFHIRFunctionsTests {
                 mutableListOf(mutableListOf(pst))
             )
         }.hasClass(SchemaException::class.java)
+    }
+
+    @Test
+    fun `test deidentifies a human name`() {
+        val name = HumanName()
+        name.given = mutableListOf(StringType("foo"), StringType("bar"))
+        name.family = "family"
+
+        CustomFHIRFunctions.deidentifyHumanName(mutableListOf(name), mutableListOf())
+
+        assertThat(name.given).isEmpty()
+        assertThat(name.family).isNull()
+
+        val name2 = HumanName()
+        name2.given = mutableListOf(StringType("foo"), StringType("bar"))
+        name2.family = "family"
+
+        CustomFHIRFunctions.deidentifyHumanName(
+            mutableListOf(name2),
+            mutableListOf(mutableListOf(StringType("baz")))
+        )
+
+        assertThat(name2.given).transform { it -> it.map { st -> st.value } }
+            .containsOnly("baz", "baz")
+        assertThat(name2.family).isEqualTo("baz")
     }
 }
