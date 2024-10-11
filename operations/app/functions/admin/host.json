@@ -1,5 +1,8 @@
 {
   "version": "2.0",
+  "Values": {
+    "JAVA_OPTS": "-Dfile.encoding=UTF-8"
+  },
   "logging": {
     "applicationInsights": {
       "samplingSettings": {
