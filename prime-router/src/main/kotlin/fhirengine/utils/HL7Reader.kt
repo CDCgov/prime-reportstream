@@ -13,6 +13,7 @@ import ca.uhn.hl7v2.util.Hl7InputStreamMessageStringIterator
 import ca.uhn.hl7v2.util.Terser
 import ca.uhn.hl7v2.validation.ValidationException
 import ca.uhn.hl7v2.validation.impl.ValidationContextFactory
+import fhirengine.translation.hl7.structures.fhirinventory.message.ORM_O01
 import fhirengine.translation.hl7.structures.fhirinventory.message.ORU_R01
 import fhirengine.utils.ReportStreamCanonicalModelClassFactory
 import gov.cdc.prime.router.ActionLogger
@@ -304,11 +305,17 @@ class HL7Reader(private val actionLogger: ActionLogger) : Logging {
                         ReportStreamCanonicalModelClassFactory(ORU_R01::class.java),
                     )
                 } else if (hl7MessageType?.msh93 == "OML_O21") {
-                        DefaultHapiContext(
-                            ParserConfiguration(),
-                            ValidationContextFactory.noValidation(),
-                            ReportStreamCanonicalModelClassFactory(v27_OML_O21::class.java),
-                        )
+                    DefaultHapiContext(
+                        ParserConfiguration(),
+                        ValidationContextFactory.noValidation(),
+                        ReportStreamCanonicalModelClassFactory(v27_OML_O21::class.java),
+                    )
+                } else if (hl7MessageType?.msh93 == "ORM_O01") {
+                    DefaultHapiContext(
+                        ParserConfiguration(),
+                        ValidationContextFactory.noValidation(),
+                        ReportStreamCanonicalModelClassFactory(ORM_O01::class.java),
+                    )
                 } else {
                     DefaultHapiContext(ValidationContextFactory.noValidation())
                 }
