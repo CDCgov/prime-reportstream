@@ -497,7 +497,7 @@ class DeliveryFunctionTests : Logging {
         action.actionName = TaskAction.batch
         every { mockDeliveryFacade.fetchActionForReportId(any()) } returns action
         every { mockDeliveryFacade.fetchAction(any()) } returns null // not used for a UUID
-        every { mockDeliveryFacade.findDetailedDeliveryHistory(any()) } returns returnBody
+        every { mockDeliveryFacade.findDetailedDeliveryHistory(any(), any()) } returns returnBody
         every { mockDeliveryFacade.checkAccessAuthorizationForAction(any(), any(), any()) } returns true
         response = function.getDeliveryDetails(mockRequest, goodUuid)
         assertThat(response.status).isEqualTo(HttpStatus.OK)
@@ -536,7 +536,7 @@ class DeliveryFunctionTests : Logging {
         // Happy path with a good actionId
         every { mockDeliveryFacade.fetchActionForReportId(any()) } returns null // not used for an actionId
         every { mockDeliveryFacade.fetchAction(any()) } returns action
-        every { mockDeliveryFacade.findDetailedDeliveryHistory(any()) } returns returnBody
+        every { mockDeliveryFacade.findDetailedDeliveryHistory(any(), any()) } returns returnBody
         every { mockDeliveryFacade.checkAccessAuthorizationForAction(any(), any(), any()) } returns true
         response = function.getDeliveryDetails(mockRequest, goodActionId)
         assertThat(response.status).isEqualTo(HttpStatus.OK)
@@ -713,7 +713,7 @@ class DeliveryFunctionTests : Logging {
 
         every { mockDeliveryFacade.fetchActionForReportId(any()) } returns action
         every { mockDeliveryFacade.fetchAction(any()) } returns null // not used for a UUID
-        every { mockDeliveryFacade.findDetailedDeliveryHistory(any()) } returns returnBody
+        every { mockDeliveryFacade.findDetailedDeliveryHistory(any(), any()) } returns returnBody
         every { mockDeliveryFacade.checkAccessAuthorizationForAction(any(), any(), any()) } returns true
 
         val restCreds = mockk<RestCredential>()
@@ -814,7 +814,7 @@ class DeliveryFunctionTests : Logging {
 
         every { mockDeliveryFacade.fetchActionForReportId(any()) } returns action
         every { mockDeliveryFacade.fetchAction(any()) } returns null // not used for a UUID
-        every { mockDeliveryFacade.findDetailedDeliveryHistory(any()) } returns null
+        every { mockDeliveryFacade.findDetailedDeliveryHistory(any(), any()) } returns null
         every { mockDeliveryFacade.checkAccessAuthorizationForAction(any(), any(), any()) } returns true
 
         val restCreds = mockk<RestCredential>()
