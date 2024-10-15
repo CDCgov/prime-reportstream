@@ -3,7 +3,6 @@ package gov.cdc.prime.router.history.azure
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotNull
-import gov.cdc.prime.reportstream.shared.Submission
 import gov.cdc.prime.router.ActionLog
 import gov.cdc.prime.router.ActionLogLevel
 import gov.cdc.prime.router.FileSettings
@@ -12,7 +11,6 @@ import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.MockHttpRequestMessage
-import gov.cdc.prime.router.azure.SubmissionTableService
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.common.BaseEngine
@@ -28,7 +26,6 @@ import gov.cdc.prime.router.tokens.oktaSystemAdminGroup
 import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.mockk.clearAllMocks
 import io.mockk.every
-import io.mockk.mockk
 import io.mockk.mockkObject
 import io.mockk.unmockkAll
 import org.junit.jupiter.api.AfterEach
@@ -36,8 +33,6 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.testcontainers.junit.jupiter.Testcontainers
-import java.time.OffsetDateTime
-import java.time.ZoneOffset
 
 @Testcontainers
 @ExtendWith(ReportStreamTestDatabaseSetupExtension::class)
@@ -72,40 +67,6 @@ class SubmissionFunctionIntegrationTests {
         assertThat(historyNode.get("destinations").size()).isEqualTo(0)
         assertThat(historyNode.get("errors").size()).isEqualTo(0)
         assertThat(historyNode.get("warnings").size()).isEqualTo(0)
-    }
-
-    @Test
-    fun `it should return a history for a submission received by the submissions microservice`() {
-        val timestamp = OffsetDateTime.now(ZoneOffset.UTC)
-        val submissionId = "some-submission-id"
-        val submissionTableService = mockk<SubmissionTableService>()
-        every { submissionTableService.getSubmission(any(), any()) } returns Submission(
-            submissionId,
-            "Received",
-            "some-url",
-            "some-detail",
-            timestamp
-        )
-
-        mockkObject(SubmissionTableService.Companion)
-        every { SubmissionTableService.getInstance() } returns submissionTableService
-
-        val httpRequestMessage = MockHttpRequestMessage()
-
-        val func = setupSubmissionFunction()
-
-        val history = func.getReportDetailedHistory(httpRequestMessage, submissionId)
-        assertThat(history).isNotNull()
-
-        val historyNode = JacksonMapperUtilities.defaultMapper.readTree(history.body.toString())
-        assertThat(historyNode.fieldNames().asSequence().toList()).isEqualTo(
-            listOf("submissionId", "overallStatus", "timestamp")
-        )
-        assertThat(historyNode.get("submissionId").asText()).isEqualTo(submissionId)
-        assertThat(historyNode.get("overallStatus").asText()).isEqualTo("Received")
-        assertThat(historyNode.get("timestamp").asText()).isEqualTo(
-            timestamp.format(JacksonMapperUtilities.timestampFormatter)
-        )
     }
 
     @Test

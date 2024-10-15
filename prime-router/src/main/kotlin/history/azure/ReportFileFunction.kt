@@ -8,7 +8,6 @@ import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.RESTTransportType
 import gov.cdc.prime.router.azure.DataAccessTransaction
 import gov.cdc.prime.router.azure.HttpUtilities
-import gov.cdc.prime.router.azure.SubmissionTableService
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
 import gov.cdc.prime.router.history.ReportHistory
@@ -162,15 +161,10 @@ abstract class ReportFileFunction(
         } catch (e: DataAccessException) {
             logger.error("Unable to fetch history for ID $id", e)
             return HttpUtilities.internalErrorResponse(request)
-        } catch (ex: IllegalStateException) { // actionId or UUID not found
-            val submission = SubmissionTableService.getInstance().getSubmission(id, "Received")
-
-            return if (submission == null) {
-                logger.error(ex)
-                HttpUtilities.notFoundResponse(request, ex.message)
-            } else {
-                HttpUtilities.okJSONResponse(request, submission)
-            }
+        } catch (ex: IllegalStateException) {
+            logger.error(ex)
+            // Errors above are actionId or UUID not found errors.
+            return HttpUtilities.notFoundResponse(request, ex.message)
         }
     }
 
