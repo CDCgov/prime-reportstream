@@ -196,6 +196,13 @@ resource "azurerm_storage_account" "storage_public" {
   tags = {
     environment = var.environment
   }
+
+  timeouts {
+    create = var.timeout_create
+    read   = var.timeout_read
+    delete = var.timeout_delete
+    update = var.timeout_update
+  }
 }
 
 resource "azurerm_storage_share" "gh_locks" {
@@ -250,6 +257,13 @@ resource "azurerm_storage_account" "storage_partner" {
 
   tags = {
     environment = var.environment
+  }
+
+  timeouts {
+    create = var.timeout_create
+    read   = var.timeout_read
+    delete = var.timeout_delete
+    update = var.timeout_update
   }
 }
 
