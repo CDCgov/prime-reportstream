@@ -161,6 +161,7 @@ module "function_app" {
   RS_OKTA_clientId                  = data.azurerm_key_vault_secret.RS_OKTA_clientId.value
   RS_OKTA_authKey                   = data.azurerm_key_vault_secret.RS_OKTA_authKey.value
   etor_ti_base_url                  = local.init.etor_ti_base_url
+  JAVA_OPTS                         = local.init.JAVA_OPTS
 }
 
 module "front_door" {
