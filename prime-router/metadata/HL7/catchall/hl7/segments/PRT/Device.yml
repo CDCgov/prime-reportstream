@@ -48,7 +48,6 @@ serialNumber:
   valueOf: PRT.20
   expressionType: HL7Spec
 
-# can't find this in fhir spec site
 distinctIdentifier:
   type: STRING
   valueOf: PRT.21
