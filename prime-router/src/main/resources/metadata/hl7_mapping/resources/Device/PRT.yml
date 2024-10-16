@@ -31,7 +31,33 @@ elements:
     schema: classpath:/metadata/hl7_mapping/datatypes/device-udiCarrier/EI.yml
 
   - name: device-manufacture-date
-    resource: '%resource.period.end'
+    resource: '%resource.manufactureDate.value'
     constants:
       dtmFieldPath: '%{hl7PRTFieldPath}-17'
     schema: classpath:/metadata/hl7_mapping/datatypes/dateTime/DTMorDT.yml
+
+  - name: device-expiry-date
+    resource: '%resource.expirationDate.value'
+    constants:
+      dtmFieldPath: '%{hl7PRTFieldPath}-18'
+    schema: classpath:/metadata/hl7_mapping/datatypes/dateTime/DTMorDT.yml
+
+  - name: device-lot-number
+    value: [ '%resource.lotNumber' ]
+    hl7Spec: [ '%{hl7PRTFieldPath}-19' ]
+
+  - name: device-serial-number
+    value: [ '%resource.serialNumber' ]
+    hl7Spec: [ '%{hl7PRTFieldPath}-20' ]
+
+  - name: device-donation-identification
+    resource: '%resource.distinctIdentifier.extension'
+    schema: classpath:/metadata/hl7_mapping/datatypes/identifier/EI.yml
+    constants:
+      hl7EIField: '%{hl7PRTFieldPath}-21'
+
+  - name: device-type
+    resource: '%resource.type.value'
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CNE.yml
+    constants:
+      cneFieldPath: '%{hl7PRTFieldPath}-22'
