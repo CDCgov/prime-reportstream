@@ -113,16 +113,12 @@ val devAzureConnectString =
         "Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=" +
         "http://localhost:10000/devstoreaccount1;QueueEndpoint=http://localhost:10001/devstoreaccount1;" +
         "TableEndpoint=http://127.0.0.1:10002/devstoreaccount1;"
-val sftpAzureConnectionString = "DefaultEndpointsProtocol=http;AccountName=sftpstoreaccount;AccountKey=" +
-    "Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=" +
-    "http://localhost:10000/sftpstoreaccount;QueueEndpoint=http://localhost:10001/devstoreaccount1;" +
-    "TableEndpoint=http://127.0.0.1:10002/sftpstoreaccount;"
 
 val env = mutableMapOf<String, Any>(
     "AzureWebJobsStorage" to devAzureConnectString,
     "AzureBlobDownloadRetryCount" to 5,
     "PartnerStorage" to devAzureConnectString,
-    "SftpStorage" to sftpAzureConnectionString,
+    "SftpStorage" to devAzureConnectString,
     "POSTGRES_USER" to dbUser,
     "POSTGRES_PASSWORD" to dbPassword,
     "POSTGRES_URL" to dbUrl,

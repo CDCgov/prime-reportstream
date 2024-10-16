@@ -236,12 +236,11 @@ class ReportFunction(
     class SftpSubmissionException(override val message: String) : RuntimeException(message)
 
     @FunctionName("submitSFTP")
-    @StorageAccount("SftpStorage")
     fun submitViaSftp(
         @BlobTrigger(
             name = "report",
             dataType = "string",
-            path = "reports/{name}.{extension}",
+            path = "sftp-submissions/{name}.{extension}",
             connection = "SftpStorage"
         ) content: String,
         @BindingName("name") name: String,
