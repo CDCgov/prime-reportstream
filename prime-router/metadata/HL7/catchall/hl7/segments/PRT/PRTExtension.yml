@@ -208,18 +208,6 @@ extension:
           expressionType: resource
     - expressionType: nested
       vars:
-        prt12: STRING, PRT.12
-      condition: $prt12 NOT_NULL
-      expressionsMap:
-        url:
-          value: PRT.12
-          type: STRING
-        valueString:
-          type: STRING
-          expressionType: HL7Spec
-          valueOf: PRT.12
-    - expressionType: nested
-      vars:
         prt17: STRING, PRT.17
       condition: $prt17 NOT_NULL
       expressionsMap:

@@ -13,9 +13,25 @@ elements:
     value: [ '%prtDeviceIndex + 1' ]
     hl7Spec: [ '%{hl7OBXFieldPath}-1' ]
 
+  - name: prt-extension-values
+    resource: '%resource.extension(%`rsext-prt-extension`)'
+    schema: classpath:/metadata/hl7_mapping/resources/Device/PRTExtension.yml
+
   - name: placer-order-number
     resource: '%resource.udiCarrier.where(extension(%`rsext-hl7v2Field`).value = "PRT.10")'
     constants:
       eiFieldPath: '%{hl7PRTFieldPath}(%{entityIdIndex})-10'
     schema: classpath:/metadata/hl7_mapping/datatypes/device-udiCarrier/EI.yml
     resourceIndex: entityIdIndex
+
+  - name: udi-device-identifier
+    resource: '%resource.udiCarrier.where(extension(%`rsext-hl7v2Field`).value = "PRT.16")'
+    constants:
+      eiFieldPath: '%{hl7PRTFieldPath}-16'
+    schema: classpath:/metadata/hl7_mapping/datatypes/device-udiCarrier/EI.yml
+
+  - name: device-manufacture-date
+    resource: '%resource.period.end'
+    constants:
+      dtmFieldPath: '%{hl7PRTFieldPath}-17'
+    schema: classpath:/metadata/hl7_mapping/datatypes/dateTime/DTMorDT.yml
