@@ -17,12 +17,25 @@ status:
   value: "inactive"
 
 udiCarrier:
-  valueOf: datatypes/EI/Device-udiCarrier
-  expressionType: resource
+  expressionType: nested
   generateList: true
-  specs: PRT.10
-  constants:
-    hl7v2Field: "PRT.10"
+  vars:
+    prt10: STRING_ALL, PRT.10
+    prt16: STRING_ALL, PRT.16
+  expressions:
+    - expressionType: resource
+      condition: $prt10 NOT_NULL
+      valueOf: datatypes/EI/Device-udiCarrier
+      generateList: true
+      specs: PRT.10 *
+      constants:
+        hl7v2Field: "PRT.10"
+    - expressionType: resource
+      condition: $prt16 NOT_NULL
+      valueOf: datatypes/EI/Device-udiCarrier
+      specs: PRT.16
+      constants:
+        hl7v2Field: "PRT.16"
 
 manufactureDate:
   type: STRING
