@@ -8,7 +8,7 @@ resource "azurerm_storage_account" "storage_account" {
   account_replication_type        = "GRS"
   min_tls_version                 = "TLS1_2"
   allow_nested_items_to_be_public = false
-  enable_https_traffic_only       = true
+  https_traffic_only_enabled      = true
   local_user_enabled              = false
 
   network_rules {
@@ -173,7 +173,7 @@ resource "azurerm_storage_account" "storage_public" {
   account_replication_type        = "GRS"
   min_tls_version                 = "TLS1_2"
   allow_nested_items_to_be_public = false
-  enable_https_traffic_only       = true
+  https_traffic_only_enabled      = true
   local_user_enabled              = false
 
   static_website {
@@ -223,7 +223,7 @@ resource "azurerm_storage_account" "storage_partner" {
   account_replication_type        = "GRS"
   min_tls_version                 = "TLS1_2"
   allow_nested_items_to_be_public = false
-  enable_https_traffic_only       = true
+  https_traffic_only_enabled      = true
   local_user_enabled              = false
 
   network_rules {
