@@ -10,6 +10,18 @@ extension:
   expressions:
     - expressionType: nested
       vars:
+        prt1: STRING_ALL, PRT.1
+      condition: $prt1 NOT_NULL
+      expressionsMap:
+        url:
+          value: PRT.1
+          type: STRING
+        valueIdentifier:
+          valueOf: datatypes/EI/Identifier
+          specs: PRT.1
+          type: resource
+    - expressionType: nested
+      vars:
         prt2: STRING_ALL, PRT.2
       condition: $prt2 NOT_NULL
       expressionsMap:
@@ -31,4 +43,16 @@ extension:
         valueCodeableConcept:
           valueOf: datatypes/CWE/CodeableConcept
           specs: PRT.3
+          expressionType: resource
+    - expressionType: nested
+      vars:
+        prt3: STRING_ALL, PRT.4
+      condition: $prt4 NOT_NULL
+      expressionsMap:
+        url:
+          value: PRT.4
+          type: STRING
+        valueCodeableConcept:
+          valueOf: datatypes/CWE/CodeableConcept
+          specs: PRT.4
           expressionType: resource
