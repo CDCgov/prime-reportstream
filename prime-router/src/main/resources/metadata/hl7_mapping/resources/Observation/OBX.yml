@@ -57,7 +57,7 @@ elements:
     schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
     resourceIndex: observationMethodIndex
     constants:
-      cweField: '%{hl7OBXField}-17(%{observationMethodIndex})'\
+      cweField: '%{hl7OBXField}-17(%{observationMethodIndex})'
   - name: obx-equipment-instance-identifier
     resource: '%resource.device.resolve().identifier.union(%resource.extension(%`rsext-obx-observation`).extension.where(url = "OBX.18").tail().value.resolve().identifier)'
     condition: '%resource.value.exists() or %resource.extension(%`rsext-assigning-authority`).exists()'
