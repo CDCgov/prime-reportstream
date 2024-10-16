@@ -70,7 +70,7 @@ variable "timeout_create" {
 variable "timeout_read" {
   description = "Timeout for read operations"
   type        = string
-  default     = "615m" # module default 5m
+  default     = "60m" # module default 5m
 }
 
 variable "timeout_update" {
