@@ -9,21 +9,24 @@ import com.microsoft.azure.functions.HttpRequestMessage
 import com.microsoft.azure.functions.HttpResponseMessage
 import com.microsoft.azure.functions.HttpStatus
 import com.microsoft.azure.functions.annotation.AuthorizationLevel
+import com.microsoft.azure.functions.annotation.BindingName
+import com.microsoft.azure.functions.annotation.BlobTrigger
 import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.HttpTrigger
 import com.microsoft.azure.functions.annotation.StorageAccount
 import gov.cdc.prime.router.ActionError
 import gov.cdc.prime.router.ActionLog
 import gov.cdc.prime.router.ActionLogLevel
+import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.InvalidParamMessage
 import gov.cdc.prime.router.InvalidReportMessage
+import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.Sender.ProcessingType
 import gov.cdc.prime.router.SubmissionReceiver
 import gov.cdc.prime.router.UniversalPipelineReceiver
-import gov.cdc.prime.router.azure.BlobAccess.Companion.defaultBlobMetadata
 import gov.cdc.prime.router.azure.BlobAccess.Companion.getBlobContainer
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
@@ -45,6 +48,7 @@ import kotlinx.serialization.json.Json
 import org.apache.logging.log4j.kotlin.Logging
 import java.nio.charset.StandardCharsets
 import java.util.UUID
+import kotlin.io.path.Path
 
 private const val PROCESSING_TYPE_PARAMETER = "processing"
 
@@ -227,6 +231,92 @@ class ReportFunction(
         } else {
             HttpUtilities.badRequestResponse(request, "The requested report is not fhir.")
         }
+    }
+
+    @FunctionName("submitSFTP")
+    @StorageAccount("SftpStorage")
+    fun submitViaSftp(
+        @BlobTrigger(
+            name = "report",
+            dataType = "string",
+            path = "reports/{name}.{extension}",
+            connection = "SftpStorage"
+        ) content: String,
+        @BindingName("name") name: String,
+        @BindingName("extension") extension: String,
+    ) {
+        try {
+            MimeFormat.valueOfFromExt(extension)
+        } catch (ex: IllegalArgumentException) {
+            logger.warn("Invalid file extension $name and $extension")
+            return
+        }
+
+        val filename = "$name.$extension"
+
+        val senderId = getSenderIdFromFilePath(filename)
+        val sender = workflowEngine.settings.findSender(senderId)
+        if (sender == null) {
+            logger.error("Sender not found for $name, please check the configured path")
+            return
+        }
+
+        if (sender.customerStatus == CustomerStatus.INACTIVE) {
+            logger.warn("Sender id disabled, not processing the report")
+            return
+        }
+
+        try {
+            val receiver = SubmissionReceiver.getSubmissionReceiver(sender, workflowEngine, actionHistory)
+            val rawBody = content.toByteArray()
+            val report = receiver.validateAndMoveToProcessing(
+                sender,
+                content,
+                emptyMap(),
+                Options.None,
+                emptyList(),
+                isAsync = true,
+                allowDuplicates = true,
+                rawBody = rawBody,
+                payloadName = extractPayloadNameFromFilePath(filename)
+            )
+
+            reportEventService.sendReportEvent(
+                eventName = ReportStreamEventName.REPORT_RECEIVED,
+                childReport = report,
+                pipelineStepName = TaskAction.receive
+            ) {
+                params(
+                    listOfNotNull(
+                        ReportStreamEventProperties.SENDER_NAME to sender.fullName,
+                    ).toMap()
+                )
+            }
+        } catch (e: ActionError) {
+            actionHistory.trackLogs(e.details)
+        } catch (e: IllegalArgumentException) {
+            actionHistory.trackLogs(
+                ActionLog(InvalidReportMessage(e.message ?: "Invalid request."), type = ActionLogLevel.error)
+            )
+        } catch (e: IllegalStateException) {
+            actionHistory.trackLogs(
+                ActionLog(InvalidReportMessage(e.message ?: "Invalid request."), type = ActionLogLevel.error)
+            )
+        }
+
+        actionHistory.trackActionResult(HttpStatus.OK)
+        workflowEngine.recordAction(actionHistory)
+        // queue messages here after all task / action records are in
+        actionHistory.queueMessages(workflowEngine)
+    }
+
+    private fun extractPayloadNameFromFilePath(filename: String): String {
+        return Path(filename).fileName.toString()
+    }
+
+    private fun getSenderIdFromFilePath(filename: String): String {
+        val path = Path(filename)
+        return path.parent.toString().split("/").joinToString(".")
     }
 
     /**

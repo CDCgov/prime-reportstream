@@ -22,6 +22,7 @@ services:
       # this storage account key is not a secret. It just looks like one.
       - AzureWebJobsStorage=DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://azurite:10000/devstoreaccount1;QueueEndpoint=http://azurite:10001/devstoreaccount1;
       - PartnerStorage=DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://azurite:10000/devstoreaccount1;QueueEndpoint=http://azurite:10001/devstoreaccount1;
+      - SftpStorage=DefaultEndpointsProtocol=http;AccountName=sftpstoreaccount;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://azurite:10000/sftpstoreaccount;QueueEndpoint=http://azurite:10001/sftpstoreaccount;
       - POSTGRES_USER=prime
       - POSTGRES_PASSWORD=changeIT!
       # postgresql comes from the build environment; it is accessible because we are connected to the build network (see "networks")
@@ -49,6 +50,8 @@ services:
       dockerfile: Dockerfile.azurite
     # uncomment the line below to skip x-ms-version checks
     # command: azurite --skipApiVersionCheck --blobHost 0.0.0.0 --queueHost 0.0.0.0
+    environment:
+      AZURITE_ACCOUNTS: devstoreaccount1:Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;sftpstoreaccount:Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==
     volumes:
       # map to Azurite data objects to the build directory
       - ./build/azurite:/data
