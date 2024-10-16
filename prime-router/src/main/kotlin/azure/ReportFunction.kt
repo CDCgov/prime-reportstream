@@ -233,6 +233,8 @@ class ReportFunction(
         }
     }
 
+    class SftpSubmissionException(override val message: String) : RuntimeException(message)
+
     @FunctionName("submitSFTP")
     @StorageAccount("SftpStorage")
     fun submitViaSftp(
@@ -245,26 +247,26 @@ class ReportFunction(
         @BindingName("name") name: String,
         @BindingName("extension") extension: String,
     ) {
-        try {
+        val format = try {
             MimeFormat.valueOfFromExt(extension)
         } catch (ex: IllegalArgumentException) {
-            logger.warn("Invalid file extension $name and $extension")
-            return
+            throw SftpSubmissionException("$extension is not valid.")
         }
 
         val filename = "$name.$extension"
 
         val senderId = getSenderIdFromFilePath(filename)
         val sender = workflowEngine.settings.findSender(senderId)
-        if (sender == null) {
-            logger.error("Sender not found for $name, please check the configured path")
+            ?: throw SftpSubmissionException("No sender found for $senderId, parsed from $filename")
+
+        if (sender.customerStatus == CustomerStatus.INACTIVE) {
+            logger.info("Sender is disabled, not processing the report")
+            // TODO ticket to define inactive behavior
             return
         }
 
-        if (sender.customerStatus == CustomerStatus.INACTIVE) {
-            logger.warn("Sender id disabled, not processing the report")
-            return
-        }
+        val payloadName = extractPayloadNameFromFilePath(filename)
+        actionHistory.trackActionSenderInfo(sender.fullName, payloadName)
 
         try {
             val receiver = SubmissionReceiver.getSubmissionReceiver(sender, workflowEngine, actionHistory)
@@ -278,7 +280,7 @@ class ReportFunction(
                 isAsync = true,
                 allowDuplicates = true,
                 rawBody = rawBody,
-                payloadName = extractPayloadNameFromFilePath(filename)
+                payloadName = payloadName
             )
 
             reportEventService.sendReportEvent(
@@ -289,6 +291,8 @@ class ReportFunction(
                 params(
                     listOfNotNull(
                         ReportStreamEventProperties.SENDER_NAME to sender.fullName,
+                        ReportStreamEventProperties.INGESTION_TYPE to "SFTP",
+                        ReportStreamEventProperties.ITEM_FORMAT to format
                     ).toMap()
                 )
             }
@@ -436,6 +440,7 @@ class ReportFunction(
                     ) {
                         params(
                             listOfNotNull(
+                                ReportStreamEventProperties.INGESTION_TYPE to "REST",
                                 ReportStreamEventProperties.REQUEST_PARAMETERS
                                     to actionHistory.filterParameters(request),
                                 ReportStreamEventProperties.SENDER_NAME to sender.fullName,

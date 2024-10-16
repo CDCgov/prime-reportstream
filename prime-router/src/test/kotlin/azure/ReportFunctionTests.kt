@@ -31,6 +31,7 @@ import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.SubmissionReceiver
 import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.TopicReceiver
+import gov.cdc.prime.router.UniversalPipelineReceiver
 import gov.cdc.prime.router.UniversalPipelineSender
 import gov.cdc.prime.router.azure.BlobAccess.BlobContainerMetadata
 import gov.cdc.prime.router.azure.db.enums.TaskAction
@@ -55,6 +56,7 @@ import org.jooq.tools.jdbc.MockConnection
 import org.jooq.tools.jdbc.MockDataProvider
 import org.jooq.tools.jdbc.MockResult
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import java.time.OffsetDateTime
@@ -292,6 +294,109 @@ class ReportFunctionTests {
         every { engine.insertProcessTask(any(), any(), any(), any()) } returns Unit
         every { accessSpy.isDuplicateItem(any(), any()) } returns false
         return Triple(reportFunc, req, sender)
+    }
+
+    @Nested
+    inner class SftpSubmission {
+
+        val sender = UniversalPipelineSender(
+            "full-elr",
+            "phd",
+            MimeFormat.HL7,
+            customerStatus = CustomerStatus.ACTIVE,
+            topic = Topic.FULL_ELR
+        )
+        val mockReport = mockk<Report>(relaxed = true)
+
+        @BeforeEach
+        fun setUp() {
+            mockkConstructor(UniversalPipelineReceiver::class)
+
+            every {
+                anyConstructed<UniversalPipelineReceiver>().validateAndMoveToProcessing(
+                    any(),
+                    any(),
+                    any(),
+                    any(),
+                    any(),
+                    any(),
+                    any(),
+                    any(),
+                    any()
+                )
+            } returns mockReport
+        }
+
+        val senderOrg = DeepOrganization(
+            "phd",
+            "test",
+            Organization.Jurisdiction.FEDERAL,
+            senders = listOf(sender)
+        )
+
+        @Test
+        fun `test submitSFTP success`() {
+            val metadata = UnitTestUtils.simpleMetadata
+            val settings = FileSettings().loadOrganizations(senderOrg)
+            val engine = makeEngine(metadata, settings)
+            val actionHistory = spyk(ActionHistory(TaskAction.receive))
+            val reportFunc = spyk(ReportFunction(engine, actionHistory))
+            every { accessSpy.insertAction(any(), any()) } returns 0
+            every { accessSpy.saveActionHistoryToDb(any(), any()) } returns Unit
+
+            reportFunc.submitViaSftp(hl7_valid, "${senderOrg.name}/${sender.name}/valid", "hl7")
+            verify {
+                anyConstructed<UniversalPipelineReceiver>().validateAndMoveToProcessing(
+                    any(),
+                    any(),
+                    any(),
+                    any(),
+                    any(),
+                    any(),
+                    any(),
+                    any(),
+                    any()
+                )
+            }
+        }
+
+        @Test
+        fun `test submitSFTP no sender`() {
+            val metadata = UnitTestUtils.simpleMetadata
+            val settings = FileSettings().loadOrganizations(senderOrg)
+            val engine = makeEngine(metadata, settings)
+            val actionHistory = spyk(ActionHistory(TaskAction.receive))
+            val reportFunc = spyk(ReportFunction(engine, actionHistory))
+            every { accessSpy.insertAction(any(), any()) } returns 0
+            every { accessSpy.saveActionHistoryToDb(any(), any()) } returns Unit
+
+            assertThrows<ReportFunction.SftpSubmissionException> {
+                reportFunc.submitViaSftp(
+                    hl7_valid,
+                    "${senderOrg.name}/foo/valid",
+                    "hl7"
+                )
+            }
+        }
+
+        @Test
+        fun `test submitSFTP invalid extension`() {
+            val metadata = UnitTestUtils.simpleMetadata
+            val settings = FileSettings().loadOrganizations(senderOrg)
+            val engine = makeEngine(metadata, settings)
+            val actionHistory = spyk(ActionHistory(TaskAction.receive))
+            val reportFunc = spyk(ReportFunction(engine, actionHistory))
+            every { accessSpy.insertAction(any(), any()) } returns 0
+            every { accessSpy.saveActionHistoryToDb(any(), any()) } returns Unit
+
+            assertThrows<ReportFunction.SftpSubmissionException> {
+                reportFunc.submitViaSftp(
+                    hl7_valid,
+                    "${senderOrg.name}/foo/valid",
+                    "png"
+                )
+            }
+        }
     }
 
     /** basic /submitToWaters endpoint tests **/
@@ -875,7 +980,7 @@ class ReportFunctionTests {
         mockkClass(BlobAccess::class)
         mockkObject(BlobAccess.Companion)
         every { BlobAccess.Companion.getBlobConnection(any()) } returns "testconnection"
-        val blobConnectionInfo = mockk<BlobAccess.BlobContainerMetadata>()
+        val blobConnectionInfo = mockk<BlobContainerMetadata>()
         every { blobConnectionInfo.getBlobEndpoint() } returns "http://endpoint/metadata"
         every { BlobAccess.downloadBlobAsByteArray(any<String>()) } returns fhirReport.toByteArray(Charsets.UTF_8)
         val reportId = UUID.randomUUID()
@@ -908,7 +1013,7 @@ class ReportFunctionTests {
         mockkClass(BlobAccess::class)
         mockkObject(BlobAccess.Companion)
         every { BlobAccess.Companion.getBlobConnection(any()) } returns "testconnection"
-        val blobConnectionInfo = mockk<BlobAccess.BlobContainerMetadata>()
+        val blobConnectionInfo = mockk<BlobContainerMetadata>()
         every { blobConnectionInfo.getBlobEndpoint() } returns "http://endpoint/metadata"
         every { BlobAccess.downloadBlobAsByteArray(any<String>()) } returns fhirReport.toByteArray(Charsets.UTF_8)
         every { mockDb.fetchReportFile(reportId = any(), null, null) } returns reportFile
@@ -937,7 +1042,7 @@ class ReportFunctionTests {
         mockkClass(BlobAccess::class)
         mockkObject(BlobAccess.Companion)
         every { BlobAccess.Companion.getBlobConnection(any()) } returns "testconnection"
-        val blobConnectionInfo = mockk<BlobAccess.BlobContainerMetadata>()
+        val blobConnectionInfo = mockk<BlobContainerMetadata>()
         every { blobConnectionInfo.getBlobEndpoint() } returns "http://endpoint/metadata"
         every { BlobAccess.downloadBlobAsByteArray(any<String>()) } returns fhirReport.toByteArray(Charsets.UTF_8)
         every { mockDb.fetchReportFile(reportId = any(), null, null) } returns reportFile
