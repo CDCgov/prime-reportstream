@@ -170,18 +170,21 @@ class ProcessFhirCommands : CliktCommand(
         // If there is a receiver, check the filters
         var bundle = FhirTranscoder.decode(contents)
         if (receiver != null) {
-            val reportStreamFilters = mutableListOf<ReportStreamFilter>()
-            reportStreamFilters.add(receiver.jurisdictionalFilter)
-            reportStreamFilters.add(receiver.qualityFilter)
-            reportStreamFilters.add(receiver.routingFilter)
-            reportStreamFilters.add(receiver.processingModeFilter)
+            val reportStreamFilters = mutableListOf<Pair<String, ReportStreamFilter>>()
+            reportStreamFilters.add(Pair("Jurisdictional Filter", receiver.jurisdictionalFilter))
+            reportStreamFilters.add(Pair("Quality Filter", receiver.qualityFilter))
+            reportStreamFilters.add(Pair("Routing Filter", receiver.routingFilter))
+            reportStreamFilters.add(Pair("Processing Mode Filter", receiver.processingModeFilter))
 
             val validationErrors = mutableListOf<String>()
             reportStreamFilters.forEach { reportStreamFilter ->
-                reportStreamFilter.forEach { filter ->
+                reportStreamFilter.second.forEach { filter ->
                     val validation = OrganizationValidation.validateFilter(filter)
                     if (!validation) {
-                        validationErrors.add("Filter '$filter' is not valid.")
+                        validationErrors.add(
+                            "Filter of type ${reportStreamFilter.first} is not valid. " +
+                            "Value: '$filter'"
+                        )
                     } else {
                         val result = FhirPathUtils.evaluate(
                             CustomContext(
@@ -208,10 +211,7 @@ class ProcessFhirCommands : CliktCommand(
             }
 
             if (validationErrors.isNotEmpty()) {
-                return MessageOrBundle(
-                    filterErrors = mutableListOf(validationErrors.joinToString("\n")),
-                    filtersPassed = false
-                )
+                throw CliktError(validationErrors.joinToString("\n"))
             }
 
             receiver.conditionFilter.forEach { conditionFilter ->
@@ -351,21 +351,35 @@ class ProcessFhirCommands : CliktCommand(
         return messageOrBundle
     }
 
+    abstract class MessageOrBundleParent(
+        open var senderTransformPassed: Boolean = true,
+        open var senderTransformErrors: MutableList<String> = mutableListOf(),
+        open var senderTransformWarnings: MutableList<String> = mutableListOf(),
+        open var enrichmentSchemaPassed: Boolean = true,
+        open var enrichmentSchemaErrors: MutableList<String> = mutableListOf(),
+        open var enrichmentSchemaWarnings: MutableList<String> = mutableListOf(),
+        open var receiverTransformPassed: Boolean = true,
+        open var receiverTransformErrors: MutableList<String> = mutableListOf(),
+        open var receiverTransformWarnings: MutableList<String> = mutableListOf(),
+        open var filterErrors: MutableList<String> = mutableListOf(),
+        open var filtersPassed: Boolean = true,
+    )
+
     class MessageOrBundle(
         var message: Message? = null,
         var bundle: Bundle? = null,
-        var senderTransformPassed: Boolean = true,
-        var senderTransformErrors: MutableList<String> = mutableListOf(),
-        var senderTransformWarnings: MutableList<String> = mutableListOf(),
-        var enrichmentSchemaPassed: Boolean = true,
-        var enrichmentSchemaErrors: MutableList<String> = mutableListOf(),
-        var enrichmentSchemaWarnings: MutableList<String> = mutableListOf(),
-        var receiverTransformPassed: Boolean = true,
-        var receiverTransformErrors: MutableList<String> = mutableListOf(),
-        var receiverTransformWarnings: MutableList<String> = mutableListOf(),
-        var filterErrors: MutableList<String> = mutableListOf(),
-        var filtersPassed: Boolean = true,
-    )
+        override var senderTransformPassed: Boolean = true,
+        override var senderTransformErrors: MutableList<String> = mutableListOf(),
+        override var senderTransformWarnings: MutableList<String> = mutableListOf(),
+        override var enrichmentSchemaPassed: Boolean = true,
+        override var enrichmentSchemaErrors: MutableList<String> = mutableListOf(),
+        override var enrichmentSchemaWarnings: MutableList<String> = mutableListOf(),
+        override var receiverTransformPassed: Boolean = true,
+        override var receiverTransformErrors: MutableList<String> = mutableListOf(),
+        override var receiverTransformWarnings: MutableList<String> = mutableListOf(),
+        override var filterErrors: MutableList<String> = mutableListOf(),
+        override var filtersPassed: Boolean = true,
+    ) : MessageOrBundleParent()
 
     private fun applyConditionFilter(receiver: Receiver, bundle: Bundle): Bundle {
         val trackingId = if (bundle.id != null) {

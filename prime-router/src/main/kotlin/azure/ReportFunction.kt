@@ -1,6 +1,7 @@
 package gov.cdc.prime.router.azure
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.databind.json.JsonMapper
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.github.ajalt.clikt.core.CliktError
@@ -175,10 +176,34 @@ class ReportFunction(
                     false
                 )
                 file.delete()
+                val message = if (result.message != null) {
+                    result.message.toString()
+                } else {
+                    null
+                }
+                val bundle = if (result.bundle != null) {
+                    result.bundle.toString()
+                } else {
+                    null
+                }
                 return HttpUtilities.okResponse(
                     request,
-                    ObjectMapper().writeValueAsString(
-                        result
+                    ObjectMapper().configure(SerializationFeature.FAIL_ON_SELF_REFERENCES, false).writeValueAsString(
+                        MessageOrBundleStringified(
+                            message,
+                            bundle,
+                            result.senderTransformPassed,
+                            result.senderTransformErrors,
+                            result.senderTransformWarnings,
+                            result.enrichmentSchemaPassed,
+                            result.enrichmentSchemaErrors,
+                            result.senderTransformWarnings,
+                            result.receiverTransformPassed,
+                            result.receiverTransformErrors,
+                            result.receiverTransformWarnings,
+                            result.filterErrors,
+                            result.filtersPassed
+                        )
                     )
                 )
             } catch (exception: CliktError) {
@@ -188,6 +213,22 @@ class ReportFunction(
         }
         return HttpUtilities.unauthorizedResponse(request)
     }
+
+    class MessageOrBundleStringified(
+        var message: String? = null,
+        var bundle: String? = null,
+        override var senderTransformPassed: Boolean = true,
+        override var senderTransformErrors: MutableList<String> = mutableListOf(),
+        override var senderTransformWarnings: MutableList<String> = mutableListOf(),
+        override var enrichmentSchemaPassed: Boolean = true,
+        override var enrichmentSchemaErrors: MutableList<String> = mutableListOf(),
+        override var enrichmentSchemaWarnings: MutableList<String> = mutableListOf(),
+        override var receiverTransformPassed: Boolean = true,
+        override var receiverTransformErrors: MutableList<String> = mutableListOf(),
+        override var receiverTransformWarnings: MutableList<String> = mutableListOf(),
+        override var filterErrors: MutableList<String> = mutableListOf(),
+        override var filtersPassed: Boolean = true,
+    ) : ProcessFhirCommands.MessageOrBundleParent()
 
     /**
      * Moved the logic to a separate function for testing purposes
