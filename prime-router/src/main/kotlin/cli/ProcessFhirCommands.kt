@@ -211,10 +211,7 @@ class ProcessFhirCommands : CliktCommand(
             }
 
             if (validationErrors.isNotEmpty()) {
-                return MessageOrBundle(
-                    filterErrors = mutableListOf(validationErrors.joinToString("\n")),
-                    filtersPassed = false
-                )
+                throw CliktError(validationErrors.joinToString("\n"))
             }
 
             receiver.conditionFilter.forEach { conditionFilter ->
