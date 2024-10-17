@@ -59,3 +59,28 @@ variable "storage_queue_name" {
   type        = list(string)
   default     = ["proces"]
 }
+
+# TF timeouts for storage operations
+variable "timeout_create" {
+  description = "Timeout for create operations"
+  type        = string
+  default     = "60m" # module default 60m
+}
+
+variable "timeout_read" {
+  description = "Timeout for read operations"
+  type        = string
+  default     = "60m" # module default 5m
+}
+
+variable "timeout_update" {
+  description = "Timeout for update operations"
+  type        = string
+  default     = "60m" # module default 60m
+}
+
+variable "timeout_delete" {
+  description = "Timeout for delete operations"
+  type        = string
+  default     = "60m" # module default 60m
+}
