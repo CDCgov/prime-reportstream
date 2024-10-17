@@ -1,0 +1,19 @@
+name: Fetch Random Repo Name
+
+on: [push]
+
+jobs:
+  test_run:
+    runs-on: ubuntu-latest
+    name: A job to fetch a random repo name
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Fetch random repo name
+        uses: ./
+        id: random
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Get the repo name
+        run: |
+          echo "Random repo name: ${{ steps.random.outputs.repo }}"

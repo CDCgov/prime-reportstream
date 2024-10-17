@@ -1,0 +1,49 @@
+name: Test action
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test-action:
+    runs-on: ubuntu-latest
+    env:
+      tf-dir: "./terraform"
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: BEFORE APPLY - Use local action
+        uses: ./
+        id: stats1
+        with:
+          terraform-directory: ${{ env.tf-dir }}
+          add-args: -target=docker_image.nginx -target=docker_container.nginx
+          upload-plan: true
+          upload-retention-days: 0
+          plan-file: tf_stats_plan.bin
+          terraform-version: 1.1.9
+      - name: BEFORE APPLY - Get outputs
+        if: steps.stats1.outputs.change-count > 0
+        run: |
+          echo "terraform-version: ${{ steps.stats1.outputs.terraform-version }}"
+          echo "drift-count: ${{ steps.stats1.outputs.drift-count }}"
+          echo "resource-drifts: ${{ steps.stats1.outputs.resource-drifts }}"
+          echo "change-count: ${{ steps.stats1.outputs.change-count }}"
+          echo "change-percent: ${{ steps.stats1.outputs.change-percent }}"
+          echo "resource-changes: ${{ steps.stats1.outputs.resource-changes }}"
+      - name: Terraform apply
+        run: terraform -chdir=${{ env.tf-dir }} apply -auto-approve
+      - name: AFTER APPLY - Use local action
+        uses: ./
+        id: stats2
+        with:
+          terraform-directory: ${{ env.tf-dir }}
+      - name: AFTER APPLY - Get outputs
+        run: |
+          echo "terraform-version: ${{ steps.stats2.outputs.terraform-version }}"
+          echo "drift-count: ${{ steps.stats2.outputs.drift-count }}"
+          echo "resource-drifts: ${{ steps.stats2.outputs.resource-drifts }}"
+          echo "change-count: ${{ steps.stats2.outputs.change-count }}"
+          echo "change-percent: ${{ steps.stats2.outputs.change-percent }}"
+          echo "resource-changes: ${{ steps.stats2.outputs.resource-changes }}"

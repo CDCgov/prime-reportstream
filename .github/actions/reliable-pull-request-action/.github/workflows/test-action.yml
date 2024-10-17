@@ -1,0 +1,35 @@
+name: Test Action
+
+on:
+  push:
+    branches-ignore:
+      - 'main'
+
+jobs:
+  test-action:
+    name: Test create PR on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+    steps:
+      - name: Checkout the repo
+        uses: actions/checkout@v4.1.1
+
+      - name: Create Pull Request
+        id: create_pr
+        uses: ./
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          title: 'Automated Pull Request'
+          sourceBranch: ${{ github.ref_name }}
+          targetBranch: 'main'
+          body: |
+            ## Merge ${{ github.ref_name }}
+            This PR contains the changes from ${{ github.ref_name }}.
+          labels: 'invalid,wontfix'
+          assignees: ${{ github.actor }}
+
+      - name: Output PR URL
+        run: echo "The PR URL is ${{ steps.create_pr.outputs.PRURL }}"

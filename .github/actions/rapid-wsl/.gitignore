@@ -1,0 +1,8 @@
+backups/*
+etc/*
+!etc/sample.gitconfig
+courgette.log
+bin/*
+.env
+*.deb
+nohup.out

@@ -1,0 +1,31 @@
+name: Windows runner
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  generate-viz:
+      runs-on: windows-latest
+      steps:
+        - name: Login to Azure
+          uses: azure/login@v1
+          with:
+            creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }} 
+            enable-AzPSSession: true
+        - name: Check out repository
+          uses: actions/checkout@v2
+        - name: Use local my-action
+          uses: ./
+          with:
+            resource-group: ${{ secrets.TEST_RG }}
+            out-file: output/viz.svg
+            sub-name: Pay-As-You-Go
+            format: svg
+        - uses: actions/upload-artifact@v2
+          with:
+            name: viz
+            path: output/*

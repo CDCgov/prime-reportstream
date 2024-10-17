@@ -120,6 +120,64 @@ updates:
     schedule:
       interval: "daily"
 
+  ## Importing Josiah Siegel's external/remote GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/.github/actions/azviz-action"
+    schedule:
+      interval: "daily"
+  - package-ecosystem: "github-actions"
+    directory: "/.github/actions/action-connect-ovpn"
+    schedule:
+      interval: "daily"
+  - package-ecosystem: "github-actions"
+    directory: "/.github/actions/checksum-validate-action"
+    schedule:
+      interval: "daily"
+  - package-ecosystem: "github-actions"
+    directory: "/.github/actions/git-secrets"
+    schedule:
+      interval: "daily"
+  - package-ecosystem: "github-actions"
+    directory: "/.github/actions/randomrepo"
+    schedule:
+      interval: "daily"
+  - package-ecosystem: "github-actions"
+    directory: "/.github/actions/rapid-wsl"
+    schedule:
+      interval: "daily"
+  - package-ecosystem: "github-actions"
+    directory: "/.github/actions/reliable-pull-request-action"
+    schedule:
+      interval: "daily"
+  - package-ecosystem: "github-actions"
+    directory: "/.github/actions/remote-branch-action"
+    schedule:
+      interval: "daily"
+  - package-ecosystem: "github-actions"
+    directory: "/.github/actions/runleaks"
+    schedule:
+      interval: "daily"
+  - package-ecosystem: "github-actions"
+    directory: "/.github/actions/slack-boltjs-app"
+    schedule:
+      interval: "daily"
+  - package-ecosystem: "github-actions"
+    directory: "/.github/actions/stackoverflow_in_pg"
+    schedule:
+      interval: "daily"
+  - package-ecosystem: "github-actions"
+    directory: "/.github/actions/terraform-stats"
+    schedule:
+      interval: "daily"
+  - package-ecosystem: "github-actions"
+    directory: "/.github/actions/terraform-templates"
+    schedule:
+      interval: "daily"
+  - package-ecosystem: "github-actions"
+    directory: "/.github/actions/workflow-housekeeper"
+    schedule:
+      interval: "daily"
+
   # Frontend
   - package-ecosystem: "npm"
     directory: "/frontend-react"
