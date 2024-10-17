@@ -127,9 +127,8 @@ elements:
     hl7Spec: [ '%{PID}-22-7' ]
 
   - name: wa-observation
-    resource: Bundle.entry.resource.ofType(Observation)
-    condition: 'Bundle.entry.resource.ofType(Observation).code.coding.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code").value.code = "AOE"'
-    schema: classpath:/metadata/hl7_mapping/receivers/STLTs/WA/WA-observation-fields.yml
+    resource: 'Bundle.entry.resource.ofType(Observation)'
+    schema: classpath:/metadata/hl7_mapping/receivers/Common/observation-fields/observation-fields.yml
     resourceIndex: resultIndex
 
   - name: wa-unwanted-fields

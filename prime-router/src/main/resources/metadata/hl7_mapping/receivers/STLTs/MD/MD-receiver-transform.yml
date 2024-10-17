@@ -31,3 +31,6 @@ elements:
     condition: '%resource.code.exists()'
     value: [ '%resource.system.getCodingSystemMapping()' ]
     hl7Spec: [ '%{PID}-10-3' ]
+
+  - name: observation-result-with-aoe
+    resource: '%resource.result.resolve()'

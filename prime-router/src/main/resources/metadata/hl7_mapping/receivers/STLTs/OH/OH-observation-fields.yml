@@ -1,7 +1,0 @@
-constants:
-  OBX: '/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION(%{resultIndex})/OBX'
-
-elements:
-  - name: oh-suppress-qst-for-aoe
-    value: [ '""' ]
-    hl7Spec: [ '%{OBX}-29' ]

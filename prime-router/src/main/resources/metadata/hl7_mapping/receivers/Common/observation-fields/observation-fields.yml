@@ -1,0 +1,9 @@
+constants:
+  OBX: '/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION(%{resultIndex})/OBX'
+
+elements:
+
+  - name: suppress-qst-for-aoe
+    condition: '%resource.code.coding.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code").value.code = "AOE"'
+    value: [ '""' ]
+    hl7Spec: [ '%{OBX}-29' ]
