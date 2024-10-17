@@ -175,6 +175,7 @@ resource "azurerm_storage_account" "storage_public" {
   allow_nested_items_to_be_public = false
   https_traffic_only_enabled      = true
   local_user_enabled              = false
+  large_file_share_enabled        = false
 
   static_website {
     index_document     = "index.html"
