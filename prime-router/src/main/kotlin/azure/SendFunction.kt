@@ -25,7 +25,6 @@ import gov.cdc.prime.router.azure.observability.event.ReportStreamEventName
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventProperties
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventService
 import gov.cdc.prime.router.transport.ITransport
-import gov.cdc.prime.router.transport.NullTransport
 import gov.cdc.prime.router.transport.RetryToken
 import org.apache.logging.log4j.kotlin.Logging
 import java.time.OffsetDateTime
@@ -100,30 +99,25 @@ class SendFunction(
                 receiverStatus = receiver.customerStatus
                 val inputReportId = header.reportFile.reportId
                 actionHistory.trackExistingInputReport(inputReportId)
-                val serviceName = receiver.fullName
                 val nextRetryItems = mutableListOf<String>()
                 val externalFileName = Report.formExternalFilename(header, workflowEngine.reportService)
                 val sentReportId = UUID.randomUUID() // each sent report gets its own UUID
-                if (receiver.transport == null) {
-                    actionHistory.setActionType(TaskAction.send_warning)
-                    actionHistory.trackActionResult("Not sending $inputReportId to $serviceName: No transports defined")
-                } else {
-                    val retryItems = retryToken?.items
-                    val nextRetry = getTransport(receiver.transport)?.send(
-                        receiver.transport,
-                        header,
-                        sentReportId,
-                        externalFileName,
-                        retryItems,
-                        context,
-                        actionHistory,
-                        reportEventService,
-                        workflowEngine.reportService
-                    )
-                    if (nextRetry != null) {
-                        nextRetryItems += nextRetry
-                    }
+                val retryItems = retryToken?.items
+                val nextRetry = getTransport(receiver.transportType)?.send(
+                    receiver.transportType,
+                    header,
+                    sentReportId,
+                    externalFileName,
+                    retryItems,
+                    context,
+                    actionHistory,
+                    reportEventService,
+                    workflowEngine.reportService
+                )
+                if (nextRetry != null) {
+                    nextRetryItems += nextRetry
                 }
+
                 logger.info("For $inputReportId:  finished send().  Checking to see if a retry is needed.")
                 handleRetry(
                     nextRetryItems,
@@ -162,7 +156,7 @@ class SendFunction(
             is SoapTransportType -> workflowEngine.soapTransport
             is GAENTransportType -> workflowEngine.gaenTransport
             is RESTTransportType -> workflowEngine.restTransport
-            is NullTransportType -> NullTransport()
+            is NullTransportType -> workflowEngine.nullTransport
             else -> null
         }
     }
