@@ -21,7 +21,7 @@ import gov.cdc.prime.router.azure.db.Tables
 import gov.cdc.prime.router.azure.db.enums.ActionLogType
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
-import gov.cdc.prime.router.azure.observability.event.LocalAzureEventServiceImpl
+import gov.cdc.prime.router.azure.observability.event.InMemoryAzureEventService
 import gov.cdc.prime.router.azure.observability.event.ReportEventData
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventName
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventProperties
@@ -71,7 +71,7 @@ class FHIRReceiverIntegrationTests {
         )
     )
 
-    private val azureEventService = LocalAzureEventServiceImpl()
+    private val azureEventService = InMemoryAzureEventService()
     private lateinit var submissionTableService: SubmissionTableService
 
     private fun createFHIRFunctionsInstance(): FHIRFunctions {
