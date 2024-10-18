@@ -118,6 +118,7 @@ val env = mutableMapOf<String, Any>(
     "AzureWebJobsStorage" to devAzureConnectString,
     "AzureBlobDownloadRetryCount" to 5,
     "PartnerStorage" to devAzureConnectString,
+    "SftpStorage" to devAzureConnectString,
     "POSTGRES_USER" to dbUser,
     "POSTGRES_PASSWORD" to dbPassword,
     "POSTGRES_URL" to dbUrl,

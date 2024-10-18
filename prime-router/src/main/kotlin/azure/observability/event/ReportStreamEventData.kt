@@ -65,6 +65,7 @@ enum class ReportStreamEventProperties {
     FILE_LENGTH,
     SENDER_NAME,
     BUNDLE_DIGEST,
+    INGESTION_TYPE,
     ;
 
     @JsonKey
