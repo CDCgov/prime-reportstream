@@ -366,7 +366,7 @@ supportingInfo:
   generateList: true
   valueOf: datatype/Reference
   expressionType: resource
-  specs: $OMLObservation
+  specs: $OrderObservation
   useGroup: true
 
 note:

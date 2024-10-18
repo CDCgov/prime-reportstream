@@ -6465,15 +6465,5 @@
         }
       } ]
     }
-  }, {
-    "fullUrl" : "Specimen/1729291158945075000.a0f1cbd7-b2d2-40b7-a987-ce58d84b0682",
-    "resource" : {
-      "resourceType" : "Specimen",
-      "id" : "1729291158945075000.a0f1cbd7-b2d2-40b7-a987-ce58d84b0682",
-      "extension" : [ {
-        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Segment",
-        "valueString" : "SPM"
-      } ]
-    }
   } ]
 }
