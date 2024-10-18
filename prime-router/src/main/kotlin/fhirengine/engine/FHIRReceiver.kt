@@ -61,6 +61,7 @@ class FHIRReceiver(
     override val finishedField: Field<OffsetDateTime> = Tables.TASK.PROCESSED_AT
 
     override val engineType: String = "Receive"
+    override val taskAction: TaskAction = TaskAction.receive
 
     private val clientIdHeader = "client_id"
     private val contentTypeHeader = "content-type"

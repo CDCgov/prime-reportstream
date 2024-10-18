@@ -70,7 +70,7 @@ class FHIRTranslatorIntegrationTests : Logging {
     @BeforeEach
     fun beforeEach() {
         mockkObject(QueueAccess)
-        every { QueueAccess.sendMessage(any(), any()) } returns Unit
+        every { QueueAccess.sendMessage(any(), any()) } returns ""
         mockkObject(BlobAccess)
         every { BlobAccess getProperty "defaultBlobMetadata" } returns UniversalPipelineTestUtils
             .getBlobContainerMetadata(azuriteContainer)

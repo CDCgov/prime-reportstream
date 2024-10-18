@@ -189,6 +189,11 @@ abstract class FHIREngine(
     abstract val engineType: String
 
     /**
+     * The task action associated with the engine
+     */
+    abstract val taskAction: TaskAction
+
+    /**
      * Result class that is returned as part of completing the work on a message
      *
      * @param nextEvent the next event that should be propagated

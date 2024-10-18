@@ -68,6 +68,7 @@ class FHIRReceiverFilter(
     override val finishedField: Field<OffsetDateTime> = Tables.TASK.RECEIVER_FILTERED_AT
 
     override val engineType: String = "ReceiverFilter"
+    override val taskAction: TaskAction = TaskAction.receiver_filter
 
     /**
      * Accepts a [message] in internal FHIR format

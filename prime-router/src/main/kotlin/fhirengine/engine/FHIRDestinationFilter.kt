@@ -54,6 +54,7 @@ class FHIRDestinationFilter(
     override val finishedField: Field<OffsetDateTime> = Tables.TASK.DESTINATION_FILTERED_AT
 
     override val engineType: String = "DestinationFilter"
+    override val taskAction: TaskAction = TaskAction.destination_filter
 
     internal fun findTopicReceivers(topic: Topic): List<Receiver> =
         settings.receivers.filter { it.customerStatus != CustomerStatus.INACTIVE && it.topic == topic }

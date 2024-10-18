@@ -20,6 +20,7 @@ import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.Event
 import gov.cdc.prime.router.azure.db.Tables
+import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.observability.context.MDCUtils
 import gov.cdc.prime.router.azure.observability.context.withLoggingContext
 import gov.cdc.prime.router.azure.observability.event.AzureEventService
@@ -170,6 +171,7 @@ class FHIRTranslator(
 
     override val finishedField: Field<OffsetDateTime> = Tables.TASK.TRANSLATED_AT
     override val engineType: String = "Translate"
+    override val taskAction: TaskAction = TaskAction.translate
 
     /**
      * Returns a byteArray representation of the [bundle] in a format [receiver] expects, or throws an exception if the

@@ -12,6 +12,8 @@ import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.QueueAccess
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
+import gov.cdc.prime.router.azure.observability.event.ReportStreamEventName
+import gov.cdc.prime.router.azure.observability.event.ReportStreamEventProperties
 import gov.cdc.prime.router.common.BaseEngine
 import gov.cdc.prime.router.fhirengine.engine.FHIRConverter
 import gov.cdc.prime.router.fhirengine.engine.FHIRDestinationFilter
@@ -24,6 +26,7 @@ import gov.cdc.prime.router.fhirengine.engine.PrimeRouterQueueMessage
 import gov.cdc.prime.router.fhirengine.engine.ReportPipelineMessage
 import org.apache.commons.lang3.StringUtils
 import org.apache.logging.log4j.kotlin.Logging
+import org.jooq.exception.DataAccessException
 
 class FHIRFunctions(
     private val workflowEngine: WorkflowEngine = WorkflowEngine(),
@@ -140,13 +143,36 @@ class FHIRFunctions(
     ): List<QueueMessage> {
         val messageContent = readMessage(fhirEngine.engineType, message, dequeueCount)
 
-        val newMessages = databaseAccess.transactReturning { txn ->
-            val results = fhirEngine.run(messageContent, actionLogger, actionHistory, txn)
-            recordResults(message, actionHistory, txn)
-            results
-        }
+        try {
+            val newMessages = databaseAccess.transactReturning { txn ->
+                val results = fhirEngine.run(messageContent, actionLogger, actionHistory, txn)
+                recordResults(message, actionHistory, txn)
+                results
+            }
 
-        return newMessages
+            return newMessages
+        } catch (ex: DataAccessException) {
+            // This is the one exception type that we currently will allow for retrying as there are occasional
+            // DB connectivity issues that are resolved without intervention
+            logger.error(ex)
+            throw ex
+        } catch (ex: Exception) {
+            // We're catching anything else that occurs because the most likely cause is a code or configuration error
+            // that will not be resolved if the message is automatically retried
+            // Instead, the error is recorded as an event and message is manually inserted into the poison queue
+            val report = databaseAccess.fetchReportFile(messageContent.reportId)
+            val poisonQueueMessageId = queueAccess.sendMessage("${messageContent.messageQueueName}-poison", message)
+            fhirEngine.reportEventService.sendReportProcessingError(
+                ReportStreamEventName.PIPELINE_EXCEPTION,
+                report,
+                fhirEngine.taskAction,
+                ex.message ?: ""
+            ) {
+                params(mapOf(ReportStreamEventProperties.POISON_QUEUE_MESSAGE_ID to poisonQueueMessageId))
+            }
+
+            return emptyList()
+        }
     }
 
     /**

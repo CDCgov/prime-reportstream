@@ -92,7 +92,7 @@ class FHIRDestinationFilterIntegrationTests : Logging {
         mockkObject(BlobAccess)
         mockkObject(BlobAccess.BlobContainerMetadata)
 
-        every { QueueAccess.sendMessage(any(), any()) } returns Unit
+        every { QueueAccess.sendMessage(any(), any()) } returns ""
         every { BlobAccess getProperty "defaultBlobMetadata" } returns UniversalPipelineTestUtils
             .getBlobContainerMetadata(azuriteContainer)
         every { BlobAccess.BlobContainerMetadata.build(any(), any()) } returns

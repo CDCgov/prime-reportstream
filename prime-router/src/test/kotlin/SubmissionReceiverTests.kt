@@ -787,7 +787,7 @@ class SubmissionReceiverTests {
         every { engine.routeReport(any(), any(), any(), any(), any()) } returns routeResult
         every { SubmissionReceiver.doDuplicateDetection(any(), any(), any()) } returns Unit
         every { engine.insertProcessTask(any(), any(), any(), any()) } returns Unit
-        every { queueMock.sendMessage(QueueMessage.elrConvertQueueName, any()) } returns Unit
+        every { queueMock.sendMessage(QueueMessage.elrConvertQueueName, any()) } returns ""
 
         // act
         receiver.validateAndMoveToProcessing(
@@ -870,7 +870,7 @@ class SubmissionReceiverTests {
         every { engine.routeReport(any(), any(), any(), any(), any()) } returns routeResult
         every { SubmissionReceiver.doDuplicateDetection(any(), any(), any()) } returns Unit
         every { engine.insertProcessTask(any(), any(), any(), any()) } returns Unit
-        every { queueMock.sendMessage(QueueMessage.elrConvertQueueName, any()) } returns Unit
+        every { queueMock.sendMessage(QueueMessage.elrConvertQueueName, any()) } returns ""
 
         // act
         receiver.validateAndMoveToProcessing(
@@ -941,7 +941,7 @@ class SubmissionReceiverTests {
         every { engine.routeReport(any(), any(), any(), any(), any()) } returns routeResult
         every { SubmissionReceiver.doDuplicateDetection(any(), any(), any()) } returns Unit
         every { engine.insertProcessTask(any(), any(), any(), any()) } returns Unit
-        every { queueMock.sendMessage(QueueMessage.elrConvertQueueName, any()) } returns Unit
+        every { queueMock.sendMessage(QueueMessage.elrConvertQueueName, any()) } returns ""
 
         // act
         receiver.validateAndMoveToProcessing(
@@ -1011,7 +1011,7 @@ class SubmissionReceiverTests {
         every { engine.routeReport(any(), any(), any(), any(), any()) } returns routeResult
         every { SubmissionReceiver.doDuplicateDetection(any(), any(), any()) } returns Unit
         every { engine.insertProcessTask(any(), any(), any(), any()) } returns Unit
-        every { queueMock.sendMessage(QueueMessage.elrConvertQueueName, any()) } returns Unit
+        every { queueMock.sendMessage(QueueMessage.elrConvertQueueName, any()) } returns ""
 
         // act
         receiver.validateAndMoveToProcessing(
@@ -1080,7 +1080,7 @@ class SubmissionReceiverTests {
         every { engine.recordReceivedReport(any(), any(), any(), any(), any()) } returns blobInfo
         every { engine.routeReport(any(), any(), any(), any(), any()) } returns routeResult
         every { engine.insertProcessTask(any(), any(), any(), any()) } returns Unit
-        every { queueMock.sendMessage(QueueMessage.elrConvertQueueName, any()) } returns Unit
+        every { queueMock.sendMessage(QueueMessage.elrConvertQueueName, any()) } returns ""
 
         // act
         var exceptionThrown = false
@@ -1153,7 +1153,7 @@ class SubmissionReceiverTests {
         every { engine.recordReceivedReport(any(), any(), any(), any(), any()) } returns blobInfo
         every { engine.routeReport(any(), any(), any(), any(), any()) } returns routeResult
         every { engine.insertProcessTask(any(), any(), any(), any()) } returns Unit
-        every { queueMock.sendMessage(QueueMessage.elrConvertQueueName, any()) } returns Unit
+        every { queueMock.sendMessage(QueueMessage.elrConvertQueueName, any()) } returns ""
 
         // act / assert
         assertFailure {
