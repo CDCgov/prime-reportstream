@@ -291,7 +291,7 @@ class ReportFunctionTests {
         } returns report1
 
         every { engine.recordReceivedReport(any(), any(), any(), any(), any()) } returns blobInfo
-        every { engine.queue.sendMessage(any(), any(), any()) } returns Unit
+        every { engine.queue.sendMessage(any(), any(), any()) } returns ""
         val bodyBytes = "".toByteArray()
         mockkObject(ReportWriter)
         every { ReportWriter.getBodyBytes(any(), any(), any()) }.returns(bodyBytes)
@@ -555,7 +555,7 @@ class ReportFunctionTests {
         every { actionHistory.action.sendingOrg } returns "Test Sender"
         every { actionHistory.action.actionName } returns TaskAction.receive
         every { engine.recordReceivedReport(any(), any(), any(), any(), any()) } returns blobInfo
-        every { engine.queue.sendMessage(any(), any(), any()) } returns Unit
+        every { engine.queue.sendMessage(any(), any(), any()) } returns ""
         val bodyBytes = "".toByteArray()
         mockkObject(ReportWriter)
         every { ReportWriter.getBodyBytes(any(), any(), any()) }.returns(bodyBytes)
@@ -609,7 +609,7 @@ class ReportFunctionTests {
         every { actionHistory.action.sendingOrg } returns "Test Sender"
         every { actionHistory.action.actionName } returns TaskAction.receive
         every { engine.recordReceivedReport(any(), any(), any(), any(), any()) } returns blobInfo
-        every { engine.queue.sendMessage(any(), any(), any()) } returns Unit
+        every { engine.queue.sendMessage(any(), any(), any()) } returns ""
         val bodyBytes = "".toByteArray()
         mockkObject(ReportWriter)
         every { ReportWriter.getBodyBytes(any(), any(), any()) }.returns(bodyBytes)
@@ -679,7 +679,7 @@ class ReportFunctionTests {
         every { actionHistory.action.sendingOrg } returns "Test Sender"
         every { actionHistory.action.actionName } returns TaskAction.receive
         every { engine.recordReceivedReport(any(), any(), any(), any(), any()) } returns blobInfo
-        every { engine.queue.sendMessage(any(), any(), any()) } returns Unit
+        every { engine.queue.sendMessage(any(), any(), any()) } returns ""
         val bodyBytes = "".toByteArray()
         mockkObject(ReportWriter)
         every { ReportWriter.getBodyBytes(any(), any(), any()) }.returns(bodyBytes)
@@ -882,7 +882,7 @@ class ReportFunctionTests {
         mockkClass(BlobAccess::class)
         mockkObject(BlobAccess.Companion)
         every { BlobAccess.Companion.getBlobConnection(any()) } returns "testconnection"
-        val blobConnectionInfo = mockk<BlobAccess.BlobContainerMetadata>()
+        val blobConnectionInfo = mockk<BlobContainerMetadata>()
         every { blobConnectionInfo.getBlobEndpoint() } returns "http://endpoint/metadata"
         every { BlobAccess.downloadBlobAsByteArray(any<String>()) } returns fhirReport.toByteArray(Charsets.UTF_8)
         val reportId = UUID.randomUUID()
@@ -915,7 +915,7 @@ class ReportFunctionTests {
         mockkClass(BlobAccess::class)
         mockkObject(BlobAccess.Companion)
         every { BlobAccess.Companion.getBlobConnection(any()) } returns "testconnection"
-        val blobConnectionInfo = mockk<BlobAccess.BlobContainerMetadata>()
+        val blobConnectionInfo = mockk<BlobContainerMetadata>()
         every { blobConnectionInfo.getBlobEndpoint() } returns "http://endpoint/metadata"
         every { BlobAccess.downloadBlobAsByteArray(any<String>()) } returns fhirReport.toByteArray(Charsets.UTF_8)
         every { mockDb.fetchReportFile(reportId = any(), null, null) } returns reportFile
@@ -944,7 +944,7 @@ class ReportFunctionTests {
         mockkClass(BlobAccess::class)
         mockkObject(BlobAccess.Companion)
         every { BlobAccess.Companion.getBlobConnection(any()) } returns "testconnection"
-        val blobConnectionInfo = mockk<BlobAccess.BlobContainerMetadata>()
+        val blobConnectionInfo = mockk<BlobContainerMetadata>()
         every { blobConnectionInfo.getBlobEndpoint() } returns "http://endpoint/metadata"
         every { BlobAccess.downloadBlobAsByteArray(any<String>()) } returns fhirReport.toByteArray(Charsets.UTF_8)
         every { mockDb.fetchReportFile(reportId = any(), null, null) } returns reportFile
