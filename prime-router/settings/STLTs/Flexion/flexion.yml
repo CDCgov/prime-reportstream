@@ -46,8 +46,8 @@
       topic: "etor-ti"
       customerStatus: "active"
       format: "HL7"
-    # Sender used for automated tests in staging
-    - name: "automated-staging-test-sender"
+    # Sender used for local tests and automated tests in staging
+    - name: "simulated-sender"
       organizationName: "flexion"
       topic: "etor-ti"
       customerStatus: "active"
