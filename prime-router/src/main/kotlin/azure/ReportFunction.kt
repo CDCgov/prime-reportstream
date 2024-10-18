@@ -67,6 +67,11 @@ class ReportFunction(
 ) : RequestFunction(workflowEngine),
     Logging {
 
+        enum class IngestionMethod {
+            SFTP,
+            REST,
+        }
+
     /**
      * POST a report to the router
      *
@@ -260,7 +265,7 @@ class ReportFunction(
 
         if (sender.customerStatus == CustomerStatus.INACTIVE) {
             logger.info("Sender is disabled, not processing the report")
-            // TODO ticket to define inactive behavior
+            // TODO https://github.com/CDCgov/prime-reportstream/issues/16260
             return
         }
 
@@ -290,7 +295,7 @@ class ReportFunction(
                 params(
                     listOfNotNull(
                         ReportStreamEventProperties.SENDER_NAME to sender.fullName,
-                        ReportStreamEventProperties.INGESTION_TYPE to "SFTP",
+                        ReportStreamEventProperties.INGESTION_TYPE to IngestionMethod.SFTP,
                         ReportStreamEventProperties.ITEM_FORMAT to format
                     ).toMap()
                 )
@@ -439,7 +444,7 @@ class ReportFunction(
                     ) {
                         params(
                             listOfNotNull(
-                                ReportStreamEventProperties.INGESTION_TYPE to "REST",
+                                ReportStreamEventProperties.INGESTION_TYPE to IngestionMethod.REST,
                                 ReportStreamEventProperties.REQUEST_PARAMETERS
                                     to actionHistory.filterParameters(request),
                                 ReportStreamEventProperties.SENDER_NAME to sender.fullName,
