@@ -17,6 +17,7 @@ Properties to control the execution and output using the Gradle -P arguments:
   E.g. ./gradlew clean package -Ppg.user=myuser -Dpg.password=mypassword -Pforcetest
  */
 
+import groovy.json.JsonSlurper
 import io.swagger.v3.plugins.gradle.tasks.ResolveTask
 import org.apache.commons.io.FileUtils
 import org.apache.commons.io.FilenameUtils
@@ -48,15 +49,15 @@ plugins {
     id("io.swagger.core.v3.swagger-gradle-plugin") version "2.2.23"
 }
 
-// retrieve the current commit hash
-val commitId by lazy {
-    val stdout = ByteArrayOutputStream()
-    exec {
-        commandLine("git", "rev-parse", "--short", "HEAD")
-        standardOutput = stdout
-    }
-    stdout.toString(StandardCharsets.UTF_8).trim()
-}
+//// retrieve the current commit hash
+//val commitId by lazy {
+//    val stdout = ByteArrayOutputStream()
+//    exec {
+//        commandLine("git", "rev-parse", "--short", "HEAD")
+//        standardOutput = stdout
+//    }
+//    stdout.toString(StandardCharsets.UTF_8).trim()
+//}
 
 group = "gov.cdc.prime.reportstream"
 version = "0.2-SNAPSHOT"
@@ -152,6 +153,7 @@ fun addVaultValuesToEnv(env: MutableMap<String, Any>) {
 
 defaultTasks("package")
 
+
 tasks.clean {
     group = rootProject.description ?: ""
     description = "Clean the build artifacts"
@@ -169,6 +171,7 @@ tasks.clean {
         }
     }
 }
+
 
 /**
  * Building tasks
@@ -278,9 +281,9 @@ val testIntegrationImplementation: Configuration by configurations.getting {
     extendsFrom(configurations["testImplementation"])
 }
 
-tasks.withType<KotlinCompile> {
-    mustRunAfter("generateVersionObject")
-}
+//tasks.withType<KotlinCompile> {
+//    mustRunAfter("generateVersionObject")
+//}
 
 configurations["testIntegrationRuntimeOnly"].extendsFrom(configurations["runtimeOnly"])
 
@@ -354,7 +357,7 @@ tasks.withType<Test>().configureEach {
 }
 
 tasks.processResources {
-    mustRunAfter("generateVersionObject")
+//    mustRunAfter("generateVersionObject")
     // Set the proper build values in the build.properties file
     filesMatching("build.properties") {
         val dateFormatter = DateTimeFormatter.ofPattern("yyyyMMdd")
@@ -515,37 +518,137 @@ tasks.azureFunctionsPackage {
     finalizedBy("copyAzureScripts")
 }
 
-// TODO: remove after implementation of health check endpoint
-tasks.register("generateVersionFile") {
-    doLast {
-        file("$buildDir/$azureFunctionsDir/$azureAppName/version.json").writeText("{\"commitId\": \"$commitId\"}")
+
+//tasks.register<Copy>("myCopy")
+//
+//tasks.named<Copy>("myCopy") {
+//    from("resources")
+//    into("target")
+//    include("**/*.txt", "**/*.xml", "**/*.properties")
+//}
+//
+//abstract class MyCopyTask : DefaultTask() {
+//    @TaskAction
+//    fun copyFiles() {
+//        val sourceDir = File("sourceDir")
+//        val destinationDir = File("destinationDir")
+//        sourceDir.listFiles()?.forEach { file ->
+//            if (file.isFile && file.extension == "txt") {
+//                file.copyTo(File(destinationDir, file.name))
+//            }
+//        }
+//    }
+//}
+
+
+
+
+//// TODO: remove after implementation of health check endpoint
+//tasks.register("generateVersionFile") {
+//    doLast {
+//        file("$buildDir/$azureFunctionsDir/$azureAppName/version.json").writeText("{\"commitId\": \"$commitId\"}")
+//    }
+//}
+
+
+// remember...
+// https://docs.gradle.org/current/userguide/implementing_custom_tasks.html#declaring_inputs_and_outputs
+tasks.register<GenerateVersionFile>("generateVersionFile") {
+    val hash by lazy {
+        val stdout = ByteArrayOutputStream()
+        exec {
+            commandLine("git", "rev-parse", "--short", "HEAD")
+            standardOutput = stdout
+        }
+        stdout.toString(StandardCharsets.UTF_8).trim()
+    }
+    commitId.set(hash)
+    versionFile.set(file("$buildDir/$azureFunctionsDir/$azureAppName/version.json"))
+}
+
+
+abstract class GenerateVersionFile : DefaultTask() {
+
+    @Input
+    val commitId = project.objects.property(String::class.java)
+
+    @OutputFile
+    val versionFile = project.objects.fileProperty()
+
+    @TaskAction
+    fun serializeCommitHash() {
+        versionFile.get().asFile.writeText("{\"commitId\": \"$commitId\"}")
     }
 }
 
-val generateVersionObject = tasks.register("generateVersionObject") {
-    doLast {
-        val sourceDir = file("$buildDir/generated-src/version/src/main/kotlin/gov/cdc/prime/router")
-        val sourceFile = file("$sourceDir/Version.kt")
-        sourceDir.mkdirs()
-        sourceFile.writeText(
-            """
-        package gov.cdc.prime.router.version
-        
-        /**
-         * Supplies information for the current build.
-         * This file is generated via Gradle task prior to compile time and should always contain the current commit hash.
-         */
-        object Version {
-          const val commitId = "$commitId"
-        }
-    """.trimIndent()
-        )
-    }
-}
+//tasks.register<GenerateVersionObject>("generateVersionObject") {
+//    generateVersionFileTask = generateVersionFileTask
+//}
+//
+//abstract class GenerateVersionObject: DefaultTask() {
+//
+//    @InputFiles
+//    var generateVersionFileTask: Task? = null
+//
+//    @OutputDirectory
+//    val sourceDir = file("$buildDir/generated-src/version/src/main/kotlin/gov/cdc/prime/router")
+//
+//    @OutputFile
+//    val sourceFile = file("$sourceDir/Version.kt")
+//
+//    @TaskAction
+//    fun writeVersionFile() {
+//        var commitId: String? = null
+//
+//        // there's only going to be one
+//        // gradle is - as per usual - dense and wonky
+//        // see https://discuss.gradle.org/t/consuming-the-output-from-task-that-produces-a-single-file/5840
+//        generateVersionFileTask!!.outputs.files.forEach() {
+//            val versionJson = JsonSlurper().parse(it) as Map<String, String>
+//            commitId = versionJson["commitId"]
+//        }
+//
+//        sourceFile.writeText(
+//            """
+//            package gov.cdc.prime.router.version
+//
+//            /**
+//             * Supplies information for the current build.
+//             * This file is generated via Gradle task prior to compile time and should always contain the current commit hash.
+//             */
+//            object Version {
+//              const val commitId = "$commitId"
+//            }
+//            """.trimIndent()
+//        )
+//    }
+//}
+
+//val generateVersionObject = tasks.register("generateVersionObject") {
+//    doLast {
+//        val sourceDir = file("$buildDir/generated-src/version/src/main/kotlin/gov/cdc/prime/router")
+//        val sourceFile = file("$sourceDir/Version.kt")
+//        sourceDir.mkdirs()
+//        sourceFile.writeText(
+//            """
+//        package gov.cdc.prime.router.version
+//
+//        /**
+//         * Supplies information for the current build.
+//         * This file is generated via Gradle task prior to compile time and should always contain the current commit hash.
+//         */
+//        object Version {
+//          const val commitId = "$commitId"
+//        }
+//    """.trimIndent()
+//        )
+//    }
+//}
+
 sourceSets.getByName("main").kotlin.srcDir("$buildDir/generated-src/version/src/main/kotlin")
-tasks.named("compileKotlin").configure {
-    dependsOn(generateVersionObject)
-}
+//tasks.named("compileKotlin").configure {
+//    dependsOn(generateVersionObject)
+//}
 
 val azureResourcesTmpDir = File(buildDir, "$azureFunctionsDir-resources/$azureAppName")
 val azureResourcesFinalDir = File(buildDir, "$azureFunctionsDir/$azureAppName")
@@ -777,7 +880,7 @@ tasks.named<nu.studer.gradle.jooq.JooqGenerate>("generateJooq") {
 tasks.register("compile") {
     group = rootProject.description ?: ""
     description = "Compile the code"
-    dependsOn("generateVersionObject")
+//    dependsOn("generateVersionObject")
     dependsOn("compileKotlin")
 }
 
