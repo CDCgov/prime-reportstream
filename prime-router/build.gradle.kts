@@ -519,30 +519,6 @@ tasks.azureFunctionsPackage {
 }
 
 
-//tasks.register<Copy>("myCopy")
-//
-//tasks.named<Copy>("myCopy") {
-//    from("resources")
-//    into("target")
-//    include("**/*.txt", "**/*.xml", "**/*.properties")
-//}
-//
-//abstract class MyCopyTask : DefaultTask() {
-//    @TaskAction
-//    fun copyFiles() {
-//        val sourceDir = File("sourceDir")
-//        val destinationDir = File("destinationDir")
-//        sourceDir.listFiles()?.forEach { file ->
-//            if (file.isFile && file.extension == "txt") {
-//                file.copyTo(File(destinationDir, file.name))
-//            }
-//        }
-//    }
-//}
-
-
-
-
 //// TODO: remove after implementation of health check endpoint
 //tasks.register("generateVersionFile") {
 //    doLast {
@@ -568,7 +544,6 @@ tasks.register<GenerateVersionFile>("generateVersionFile") {
 
 
 abstract class GenerateVersionFile : DefaultTask() {
-
     @Input
     val commitId = project.objects.property(String::class.java)
 
@@ -577,52 +552,44 @@ abstract class GenerateVersionFile : DefaultTask() {
 
     @TaskAction
     fun serializeCommitHash() {
-        versionFile.get().asFile.writeText("{\"commitId\": \"$commitId\"}")
+        versionFile.get().asFile.writeText("{\"commitId\": \"${commitId.get()}\"}")
     }
 }
 
-//tasks.register<GenerateVersionObject>("generateVersionObject") {
-//    generateVersionFileTask = generateVersionFileTask
-//}
-//
-//abstract class GenerateVersionObject: DefaultTask() {
-//
-//    @InputFiles
-//    var generateVersionFileTask: Task? = null
-//
-//    @OutputDirectory
-//    val sourceDir = file("$buildDir/generated-src/version/src/main/kotlin/gov/cdc/prime/router")
-//
-//    @OutputFile
-//    val sourceFile = file("$sourceDir/Version.kt")
-//
-//    @TaskAction
-//    fun writeVersionFile() {
-//        var commitId: String? = null
-//
-//        // there's only going to be one
-//        // gradle is - as per usual - dense and wonky
-//        // see https://discuss.gradle.org/t/consuming-the-output-from-task-that-produces-a-single-file/5840
-//        generateVersionFileTask!!.outputs.files.forEach() {
-//            val versionJson = JsonSlurper().parse(it) as Map<String, String>
-//            commitId = versionJson["commitId"]
-//        }
-//
-//        sourceFile.writeText(
-//            """
-//            package gov.cdc.prime.router.version
-//
-//            /**
-//             * Supplies information for the current build.
-//             * This file is generated via Gradle task prior to compile time and should always contain the current commit hash.
-//             */
-//            object Version {
-//              const val commitId = "$commitId"
-//            }
-//            """.trimIndent()
-//        )
-//    }
-//}
+tasks.register<GenerateVersionObject>("generateVersionObject") {
+    dependsOn("generateVersionFile")
+    versionFile.set(file("$buildDir/$azureFunctionsDir/$azureAppName/version.json"))
+    sourceFile.set(file("$buildDir/generated-src/version/src/main/kotlin/gov/cdc/prime/router/Version.kt"))
+}
+
+abstract class GenerateVersionObject: DefaultTask() {
+
+    @InputFile
+    val versionFile = project.objects.fileProperty()
+
+    @OutputFile
+    val sourceFile = project.objects.fileProperty()
+
+    @TaskAction
+    fun writeVersionFile() {
+        val versionJson = JsonSlurper().parse(versionFile.get().asFile) as Map<String, String>
+        val commitId = versionJson["commitId"]
+        sourceFile.get().asFile.parentFile.mkdirs()
+        sourceFile.get().asFile.writeText(
+            """
+            package gov.cdc.prime.router.version
+
+            /**
+             * Supplies information for the current build.
+             * This file is generated via Gradle task prior to compile time and should always contain the current commit hash.
+             */
+            object Version {
+              const val commitId = "$commitId"
+            }
+            """.trimIndent()
+        )
+    }
+}
 
 //val generateVersionObject = tasks.register("generateVersionObject") {
 //    doLast {
