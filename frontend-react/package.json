@@ -189,7 +189,7 @@
     "ts-node": "^10.9.2",
     "tslib": "^2.6.3",
     "typescript": "^5.5.4",
-    "undici": "^6.19.8",
+    "undici": "^6.20.1",
     "vite": "^5.4.3",
     "vite-plugin-checker": "^0.8.0",
     "vite-plugin-svgr": "^4.2.0",
