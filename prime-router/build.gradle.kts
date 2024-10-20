@@ -903,7 +903,7 @@ dependencies {
     implementation("ca.uhn.hapi.fhir:hapi-fhir-client:7.4.2")
     // pin
     implementation("ca.uhn.hapi.fhir:org.hl7.fhir.utilities:6.3.29")
-    implementation("ca.uhn.hapi.fhir:org.hl7.fhir.r4:6.3.24")
+    implementation("ca.uhn.hapi.fhir:org.hl7.fhir.r4:6.3.32")
     implementation("ca.uhn.hapi:hapi-base:2.5.1")
     implementation("ca.uhn.hapi:hapi-structures-v251:2.5.1")
     implementation("ca.uhn.hapi:hapi-structures-v27:2.5.1")
