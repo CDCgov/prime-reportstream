@@ -281,9 +281,9 @@ val testIntegrationImplementation: Configuration by configurations.getting {
     extendsFrom(configurations["testImplementation"])
 }
 
-//tasks.withType<KotlinCompile> {
-//    mustRunAfter("generateVersionObject")
-//}
+tasks.withType<KotlinCompile> {
+    mustRunAfter("generateVersionObject")
+}
 
 configurations["testIntegrationRuntimeOnly"].extendsFrom(configurations["runtimeOnly"])
 
@@ -357,7 +357,7 @@ tasks.withType<Test>().configureEach {
 }
 
 tasks.processResources {
-//    mustRunAfter("generateVersionObject")
+    mustRunAfter("generateVersionObject")
     // Set the proper build values in the build.properties file
     filesMatching("build.properties") {
         val dateFormatter = DateTimeFormatter.ofPattern("yyyyMMdd")
@@ -519,14 +519,6 @@ tasks.azureFunctionsPackage {
 }
 
 
-//// TODO: remove after implementation of health check endpoint
-//tasks.register("generateVersionFile") {
-//    doLast {
-//        file("$buildDir/$azureFunctionsDir/$azureAppName/version.json").writeText("{\"commitId\": \"$commitId\"}")
-//    }
-//}
-
-
 // remember...
 // https://docs.gradle.org/current/userguide/implementing_custom_tasks.html#declaring_inputs_and_outputs
 tasks.register<GenerateVersionFile>("generateVersionFile") {
@@ -591,6 +583,15 @@ abstract class GenerateVersionObject: DefaultTask() {
     }
 }
 
+
+//// TODO: remove after implementation of health check endpoint
+//tasks.register("generateVersionFile") {
+//    doLast {
+//        file("$buildDir/$azureFunctionsDir/$azureAppName/version.json").writeText("{\"commitId\": \"$commitId\"}")
+//    }
+//}
+
+
 //val generateVersionObject = tasks.register("generateVersionObject") {
 //    doLast {
 //        val sourceDir = file("$buildDir/generated-src/version/src/main/kotlin/gov/cdc/prime/router")
@@ -613,9 +614,9 @@ abstract class GenerateVersionObject: DefaultTask() {
 //}
 
 sourceSets.getByName("main").kotlin.srcDir("$buildDir/generated-src/version/src/main/kotlin")
-//tasks.named("compileKotlin").configure {
-//    dependsOn(generateVersionObject)
-//}
+tasks.named("compileKotlin").configure {
+    dependsOn("generateVersionObject")
+}
 
 val azureResourcesTmpDir = File(buildDir, "$azureFunctionsDir-resources/$azureAppName")
 val azureResourcesFinalDir = File(buildDir, "$azureFunctionsDir/$azureAppName")
@@ -847,7 +848,7 @@ tasks.named<nu.studer.gradle.jooq.JooqGenerate>("generateJooq") {
 tasks.register("compile") {
     group = rootProject.description ?: ""
     description = "Compile the code"
-//    dependsOn("generateVersionObject")
+    dependsOn("generateVersionObject")
     dependsOn("compileKotlin")
 }
 
