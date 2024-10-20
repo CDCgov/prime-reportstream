@@ -22,6 +22,7 @@ import io.swagger.v3.plugins.gradle.tasks.ResolveTask
 import org.apache.commons.io.FileUtils
 import org.apache.commons.io.FilenameUtils
 import org.apache.tools.ant.filters.ReplaceTokens
+import org.codehaus.plexus.util.Os
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.jooq.meta.jaxb.ForcedType
 import java.io.ByteArrayOutputStream
@@ -48,16 +49,6 @@ plugins {
     id("com.nocwriter.runsql") version ("1.0.3")
     id("io.swagger.core.v3.swagger-gradle-plugin") version "2.2.23"
 }
-
-//// retrieve the current commit hash
-//val commitId by lazy {
-//    val stdout = ByteArrayOutputStream()
-//    exec {
-//        commandLine("git", "rev-parse", "--short", "HEAD")
-//        standardOutput = stdout
-//    }
-//    stdout.toString(StandardCharsets.UTF_8).trim()
-//}
 
 group = "gov.cdc.prime.reportstream"
 version = "0.2-SNAPSHOT"
@@ -519,6 +510,14 @@ tasks.azureFunctionsPackage {
 }
 
 
+tasks.register("printBanner") {
+    if (Os.isFamily(Os.FAMILY_UNIX)) {
+        exec {
+            commandLine("iconv", "-f", "437", "$projectDir/../cdc.ans")
+        }
+    }
+}
+
 // remember...
 // https://docs.gradle.org/current/userguide/implementing_custom_tasks.html#declaring_inputs_and_outputs
 tasks.register<GenerateVersionFile>("generateVersionFile") {
@@ -585,13 +584,24 @@ abstract class GenerateVersionObject: DefaultTask() {
 
 
 //// TODO: remove after implementation of health check endpoint
+//
+//// retrieve the current commit hash
+//val commitId by lazy {
+//    val stdout = ByteArrayOutputStream()
+//    exec {
+//        commandLine("git", "rev-parse", "--short", "HEAD")
+//        standardOutput = stdout
+//    }
+//    stdout.toString(StandardCharsets.UTF_8).trim()
+//}
+//
 //tasks.register("generateVersionFile") {
 //    doLast {
 //        file("$buildDir/$azureFunctionsDir/$azureAppName/version.json").writeText("{\"commitId\": \"$commitId\"}")
 //    }
 //}
-
-
+//
+//
 //val generateVersionObject = tasks.register("generateVersionObject") {
 //    doLast {
 //        val sourceDir = file("$buildDir/generated-src/version/src/main/kotlin/gov/cdc/prime/router")
@@ -746,7 +756,7 @@ tasks.register("run") {
 tasks.register("quickRun") {
     group = rootProject.description ?: ""
     description = "Run the Azure functions locally skipping tests and migration"
-    dependsOn("killFunc", "azureFunctionsRun")
+    dependsOn("killFunc", "azureFunctionsRun", "printBanner")
     tasks["test"].enabled = false
     tasks["jacocoTestReport"].enabled = false
     tasks["compileTestKotlin"].enabled = false
