@@ -2138,7 +2138,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@mdx-js/react@npm:^3.0.0, @mdx-js/react@npm:^3.0.1":
+"@mdx-js/react@npm:^3.0.0":
   version: 3.0.1
   resolution: "@mdx-js/react@npm:3.0.1"
   dependencies:
@@ -2150,9 +2150,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@mdx-js/rollup@npm:^3.0.1":
-  version: 3.0.1
-  resolution: "@mdx-js/rollup@npm:3.0.1"
+"@mdx-js/react@npm:^3.1.0":
+  version: 3.1.0
+  resolution: "@mdx-js/react@npm:3.1.0"
+  dependencies:
+    "@types/mdx": ^2.0.0
+  peerDependencies:
+    "@types/react": ">=16"
+    react: ">=16"
+  checksum: c5a9c495f43f498ece24a768762a1743abe2be33d050d7eab731beb754e631700547f039198c6262c998d9a443906bd78811c3fa38bc2fb37659848161dac331
+  languageName: node
+  linkType: hard
+
+"@mdx-js/rollup@npm:^3.1.0":
+  version: 3.1.0
+  resolution: "@mdx-js/rollup@npm:3.1.0"
   dependencies:
     "@mdx-js/mdx": ^3.0.0
     "@rollup/pluginutils": ^5.0.0
@@ -2160,7 +2172,7 @@ __metadata:
     vfile: ^6.0.0
   peerDependencies:
     rollup: ">=2"
-  checksum: 44469b7ce23f9d9bea66ee5dfc9df24694fd21f13e4e207d473598fe4d56c3b1dbaa7b77fddef91daa0f2a653dce31a8ee773aea8086c3dfa94200fd67864c00
+  checksum: 6fb81a9ff7f12352000d753f586a1877b176b2159ba90f8d6ba7ef29c57fb7f57b9f3bce88c35176d68c41e6a0d0d20c629d8071473036136b89de89d19a112b
   languageName: node
   linkType: hard
 
@@ -12191,8 +12203,8 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "react-frontend@workspace:."
   dependencies:
-    "@mdx-js/react": ^3.0.1
-    "@mdx-js/rollup": ^3.0.1
+    "@mdx-js/react": ^3.1.0
+    "@mdx-js/rollup": ^3.1.0
     "@microsoft/applicationinsights-react-js": ^17.3.2
     "@microsoft/applicationinsights-web": ^3.3.2
     "@okta/okta-react": ^6.9.0
