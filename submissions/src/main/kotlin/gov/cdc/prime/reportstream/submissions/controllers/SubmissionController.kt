@@ -8,11 +8,16 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import gov.cdc.prime.reportstream.shared.BlobUtils
 import gov.cdc.prime.reportstream.shared.QueueMessage
 import gov.cdc.prime.reportstream.shared.Submission
+import gov.cdc.prime.reportstream.submissions.SubmissionDetails
 import gov.cdc.prime.reportstream.submissions.SubmissionReceivedEvent
 import gov.cdc.prime.reportstream.submissions.TelemetryService
+import gov.cdc.prime.reportstream.submissions.config.AllowedParametersConfig
+import jakarta.servlet.http.HttpServletRequest
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.security.authorization.AuthorizationDeniedException
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken
 import org.springframework.web.bind.MissingRequestHeaderException
 import org.springframework.web.bind.annotation.ControllerAdvice
 import org.springframework.web.bind.annotation.ExceptionHandler
@@ -40,6 +45,7 @@ class SubmissionController(
     private val queueClient: QueueClient,
     private val tableClient: TableClient,
     private val telemetryService: TelemetryService,
+    private val allowedParametersConfig: AllowedParametersConfig,
 ) {
     /**
      * Submits a report.
@@ -52,6 +58,7 @@ class SubmissionController(
      * @param contentType the content type of the report (must be "application/hl7-v2" or "application/fhir+ndjson")
      * @param clientId the ID of the client submitting the report. Should represent org.senderName
      * @param data the report data
+     * @param request gives access to request details
      * @return a ResponseEntity containing the reportID, status, and timestamp
      */
     @PostMapping("/api/v1/reports", consumes = ["application/hl7-v2", "application/fhir+ndjson"])
@@ -63,12 +70,19 @@ class SubmissionController(
         @RequestHeader("x-azure-clientip") senderIp: String,
         @RequestHeader(value = "payloadName", required = false) payloadName: String?,
         @RequestBody data: String,
+        request: HttpServletRequest,
     ): ResponseEntity<*> {
         val reportId = UUID.randomUUID()
         val reportReceivedTime = Instant.now()
         val contentTypeMime = contentType.substringBefore(';')
         val status = "Received"
         val objectMapper = jacksonObjectMapper().registerModule(JavaTimeModule())
+        // Filter request headers based on the allowed list
+        val filteredHeaders = filterHeaders(headers)
+
+        // Filter query parameters based on the allowed list (only keep 'processing' or others defined in application.properties)
+        val filteredQueryParameters = filterQueryParameters(request)
+
         logger.info(
             "Received report submission: reportId=$reportId, contentType=$contentTypeMime" +
             ", clientId=$clientId${payloadName?.let { ", payloadName=$it" } ?: ""}}"
@@ -96,11 +110,17 @@ class SubmissionController(
             reportId = reportId,
             parentReportId = reportId,
             rootReportId = reportId,
-            headers = filterHeaders(headers),
-            sender = clientId,
-            senderIP = senderIp,
-            fileSize = contentLength,
-            blobUrl = blobClient.blobUrl
+            requestParameters = SubmissionDetails(
+                filteredHeaders,
+                filteredQueryParameters
+            ),
+            method = request.method,
+            url = request.requestURL.toString(),
+            senderName = clientId,
+            senderIp = senderIp,
+            fileLength = contentLength,
+            blobUrl = blobClient.blobUrl,
+            pipelineStepName = "submission"
         )
         logger.debug("Created SUBMISSION_RECEIVED")
 
@@ -119,7 +139,7 @@ class SubmissionController(
             BlobUtils.digestToString(digest),
             clientId.lowercase(),
             reportId,
-            filterHeaders(headers).toMap(),
+            filterHeaders(headers),
         ).serialize()
         logger.debug("Created message for queue")
 
@@ -173,6 +193,16 @@ class SubmissionController(
             return ResponseEntity("Internal Server Error: ${e.message}", HttpStatus.INTERNAL_SERVER_ERROR)
         }
 
+        @ExceptionHandler(AuthorizationDeniedException::class)
+        fun handleAuthorizationException(
+            e: AuthorizationDeniedException,
+            auth: JwtAuthenticationToken,
+        ): ResponseEntity<Unit> {
+            logger.warn("Authorization denied for token attributes: ${auth.tokenAttributes}", e)
+
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build()
+        }
+
         /**
          * Handles exceptions of type IllegalArgumentException.
          *
@@ -219,10 +249,38 @@ class SubmissionController(
         }
     }
 
+    /**
+     * Filters the request headers based on the allowed headers configured in the application.yml.
+     * Handles the case where allowed headers are defined as a list.
+     */
     private fun filterHeaders(headers: Map<String, String>): Map<String, String> {
-        val headersToInclude =
-            listOf("client_id", "content-type", "payloadname", "x-azure-clientip", "content-length")
-        return headers.filter { it.key.lowercase() in headersToInclude }
+        val allowedHeaders = allowedParametersConfig.headers
+
+        // Filter the request headers to only include allowed headers
+        return headers.filterKeys { key ->
+            allowedHeaders.map { it.lowercase() }.contains(key.lowercase())
+        }
+    }
+
+    /**
+     * Filters the query parameters based on the allowed query parameters configured in the application.yml.
+     * Handles multiple values for the same query parameter from HttpServletRequest.
+     */
+    private fun filterQueryParameters(request: HttpServletRequest): Map<String, List<String>> {
+        val allowedQueryParams = allowedParametersConfig.queryParameters
+
+        // Create a map to hold the filtered query parameters
+        val filteredParams = mutableMapOf<String, List<String>>()
+
+        // Loop over allowed parameters and get their values from the request
+        allowedQueryParams.forEach { paramName ->
+            val values = request.getParameterValues(paramName)
+            if (values != null) {
+                filteredParams[paramName] = values.toList() // Convert array to List<String>
+            }
+        }
+
+        return filteredParams
     }
 
     private fun formBlobName(

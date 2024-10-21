@@ -1,5 +1,6 @@
 package gov.cdc.prime.router.cli
 
+import com.fasterxml.jackson.databind.json.JsonMapper
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.CliktError
 import com.github.ajalt.clikt.parameters.options.option
@@ -117,7 +118,7 @@ class PIIRemovalCommands : CliktCommand(
 
         val jsonObject = JacksonMapperUtilities.defaultMapper
             .readValue(FhirTranscoder.encode(bundleAfterTransform), Any::class.java)
-        val prettyText = JacksonMapperUtilities.defaultMapper.writeValueAsString(jsonObject)
+        val prettyText = JsonMapper.builder().build().writeValueAsString(jsonObject)
         return replaceIds(bundleAfterTransform, prettyText)
     }
 

@@ -2,8 +2,8 @@ import fs from "node:fs";
 import { parseFileLocation } from "../../../../../src/utils/misc";
 import { tableRows } from "../../../../helpers/utils";
 import { MOCK_GET_MESSAGE } from "../../../../mocks/messages";
-import { MessageDetailsPage } from "../../../../pages/authenticated/message-details";
-import { MessageIDSearchPage } from "../../../../pages/authenticated/message-id-search";
+import { MessageDetailsPage } from "../../../../pages/authenticated/admin/message-details";
+import { MessageIDSearchPage } from "../../../../pages/authenticated/admin/message-id-search";
 import { mockGetHistoryReportResponse } from "../../../../pages/authenticated/report-details";
 
 import { test as baseTest, expect } from "../../../../test";

@@ -13,6 +13,7 @@ import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
+import gov.cdc.prime.router.ReportStreamFilterResult
 import gov.cdc.prime.router.ReportStreamFilterType
 import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.azure.ActionHistory
@@ -29,6 +30,7 @@ import gov.cdc.prime.router.azure.observability.context.MDCUtils
 import gov.cdc.prime.router.azure.observability.context.withLoggingContext
 import gov.cdc.prime.router.azure.observability.event.AzureEventService
 import gov.cdc.prime.router.azure.observability.event.AzureEventServiceImpl
+import gov.cdc.prime.router.azure.observability.event.AzureEventUtils
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventName
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventProperties
 import gov.cdc.prime.router.codes
@@ -174,7 +176,7 @@ class FHIRReceiverFilter(
      *
      * [actionLogger] and [trackingId] facilitate logging
      */
-    private fun evaluateObservationConditionFilters(
+    fun evaluateObservationConditionFilters(
         receiver: Receiver,
         bundle: Bundle,
         actionLogger: ActionLogger,
@@ -335,6 +337,7 @@ class FHIRReceiverFilter(
 
             // track input report
             actionHistory.trackExistingInputReport(queueMessage.reportId)
+            actionLogger.setReportId(queueMessage.reportId)
 
             // gather receiver and sender objects
             val receiver = settings.receivers.first { it.fullName == queueMessage.receiverFullName }
@@ -416,7 +419,8 @@ class FHIRReceiverFilter(
                         emptyList(),
                         1,
                         metadata = this.metadata,
-                        topic = queueMessage.topic
+                        topic = queueMessage.topic,
+                        destination = receiver
                     )
 
                     // create item lineage
@@ -431,6 +435,19 @@ class FHIRReceiverFilter(
                             null,
                             null,
                             emptyReport.getItemHashForRow(1)
+                        )
+                    )
+
+                    // add filter results
+                    emptyReport.filteringResults.add(
+                        ReportStreamFilterResult(
+                            receiver.fullName,
+                            db.fetchReportFile(queueMessage.reportId).itemCount,
+                            filterResult.failingFilter.filters.joinToString("\n"),
+                            emptyList(),
+                            AzureEventUtils.getIdentifier(bundle).value ?: "",
+                            filterResult.failingFilter.filterType,
+                            scope = ActionLogScope.report
                         )
                     )
 

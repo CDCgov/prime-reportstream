@@ -2,7 +2,7 @@ elements:
   # removing the street address is more complicated because it is a list so we will do this in code
 
   - name: pii-removal-street-address2
-    condition: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/xad-address").extension.where(url = "XAD.2")'
+    condition: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/xad-address").extension.where(url = "XAD.2").empty().not()'
     value: [ 'getFakeValueForElement("STREET_ADDRESS_2")' ]
     bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/xad-address").extension.where(url = "XAD.2").value'
 

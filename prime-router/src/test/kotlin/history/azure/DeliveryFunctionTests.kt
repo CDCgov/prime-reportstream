@@ -23,6 +23,7 @@ import gov.cdc.prime.router.azure.ApiSearchResult
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.MockHttpRequestMessage
 import gov.cdc.prime.router.azure.MockSettings
+import gov.cdc.prime.router.azure.SubmissionTableService
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
@@ -461,6 +462,12 @@ class DeliveryFunctionTests : Logging {
         every { AuthenticatedClaims.authenticate(any()) } returns
             AuthenticatedClaims.generateTestClaims()
 
+        val submissionTableService = mockk<SubmissionTableService>()
+        every { submissionTableService.getSubmission(any(), any()) } returns null
+
+        mockkObject(SubmissionTableService.Companion)
+        every { SubmissionTableService.getInstance() } returns submissionTableService
+
         // Invalid id:  not a UUID nor a Long
         var response = function.getDeliveryDetails(mockRequest, "bad")
         assertThat(response.status).isEqualTo(HttpStatus.NOT_FOUND)
@@ -497,7 +504,7 @@ class DeliveryFunctionTests : Logging {
         action.actionName = TaskAction.batch
         every { mockDeliveryFacade.fetchActionForReportId(any()) } returns action
         every { mockDeliveryFacade.fetchAction(any()) } returns null // not used for a UUID
-        every { mockDeliveryFacade.findDetailedDeliveryHistory(any()) } returns returnBody
+        every { mockDeliveryFacade.findDetailedDeliveryHistory(any(), any()) } returns returnBody
         every { mockDeliveryFacade.checkAccessAuthorizationForAction(any(), any(), any()) } returns true
         response = function.getDeliveryDetails(mockRequest, goodUuid)
         assertThat(response.status).isEqualTo(HttpStatus.OK)
@@ -536,7 +543,7 @@ class DeliveryFunctionTests : Logging {
         // Happy path with a good actionId
         every { mockDeliveryFacade.fetchActionForReportId(any()) } returns null // not used for an actionId
         every { mockDeliveryFacade.fetchAction(any()) } returns action
-        every { mockDeliveryFacade.findDetailedDeliveryHistory(any()) } returns returnBody
+        every { mockDeliveryFacade.findDetailedDeliveryHistory(any(), any()) } returns returnBody
         every { mockDeliveryFacade.checkAccessAuthorizationForAction(any(), any(), any()) } returns true
         response = function.getDeliveryDetails(mockRequest, goodActionId)
         assertThat(response.status).isEqualTo(HttpStatus.OK)
@@ -713,7 +720,7 @@ class DeliveryFunctionTests : Logging {
 
         every { mockDeliveryFacade.fetchActionForReportId(any()) } returns action
         every { mockDeliveryFacade.fetchAction(any()) } returns null // not used for a UUID
-        every { mockDeliveryFacade.findDetailedDeliveryHistory(any()) } returns returnBody
+        every { mockDeliveryFacade.findDetailedDeliveryHistory(any(), any()) } returns returnBody
         every { mockDeliveryFacade.checkAccessAuthorizationForAction(any(), any(), any()) } returns true
 
         val restCreds = mockk<RestCredential>()
@@ -814,7 +821,7 @@ class DeliveryFunctionTests : Logging {
 
         every { mockDeliveryFacade.fetchActionForReportId(any()) } returns action
         every { mockDeliveryFacade.fetchAction(any()) } returns null // not used for a UUID
-        every { mockDeliveryFacade.findDetailedDeliveryHistory(any()) } returns null
+        every { mockDeliveryFacade.findDetailedDeliveryHistory(any(), any()) } returns null
         every { mockDeliveryFacade.checkAccessAuthorizationForAction(any(), any(), any()) } returns true
 
         val restCreds = mockk<RestCredential>()

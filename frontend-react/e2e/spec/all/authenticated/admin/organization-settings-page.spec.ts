@@ -1,10 +1,11 @@
-import {expect} from "@playwright/test";
-import {readFileSync} from "node:fs";
-import {join} from "node:path";
-import {fileURLToPath} from "node:url";
-import {MOCK_GET_ORGANIZATION_SETTINGS_LIST} from "../../../../mocks/organizations";
-import {OrganizationPage} from "../../../../pages/authenticated/organization";
-import {test as baseTest} from "../../../../test";
+import { expect } from "@playwright/test";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+import { fileURLToPath } from "node:url";
+import { pageNotFound } from "../../../../../src/content/error/ErrorMessages";
+import { MOCK_GET_ORGANIZATION_SETTINGS_LIST } from "../../../../mocks/organizations";
+import { OrganizationPage } from "../../../../pages/authenticated/admin/organization";
+import { test as baseTest } from "../../../../test";
 
 const __dirname = fileURLToPath(import.meta.url);
 
@@ -43,44 +44,44 @@ const test = baseTest.extend<OrganizationPageFixtures>({
 
 test.describe("Admin Organization Settings Page", () => {
     test.describe("not authenticated", () => {
-        test("redirects to login", async ({organizationPage}) => {
+        test("redirects to login", async ({ organizationPage }) => {
             await expect(organizationPage.page).toHaveURL("/login");
         });
     });
 
-    test.describe("authenticated receiver", () => {
-        test.use({storageState: "e2e/.auth/receiver.json"});
-        test("returns Page Not Found", async ({organizationPage}) => {
-            await expect(organizationPage.page).toHaveTitle(/Page Not Found/);
+    test.describe("receiver user", () => {
+        test.use({ storageState: "e2e/.auth/receiver.json" });
+        test("returns Page Not Found", async ({ organizationPage }) => {
+            await expect(organizationPage.page).toHaveTitle(new RegExp(pageNotFound));
         });
     });
 
-    test.describe("authenticated sender", () => {
-        test.use({storageState: "e2e/.auth/sender.json"});
-        test("returns Page Not Found", async ({organizationPage}) => {
-            await expect(organizationPage.page).toHaveTitle(/Page Not Found/);
+    test.describe("sender user", () => {
+        test.use({ storageState: "e2e/.auth/sender.json" });
+        test("returns Page Not Found", async ({ organizationPage }) => {
+            await expect(organizationPage.page).toHaveTitle(new RegExp(pageNotFound));
         });
     });
 
-    test.describe("authenticated admin", () => {
-        test.use({storageState: "e2e/.auth/admin.json"});
+    test.describe("admin user", () => {
+        test.use({ storageState: "e2e/.auth/admin.json" });
 
-        test.describe("Header", () => {
-            test("has correct title + heading", async ({organizationPage}) => {
+        test.describe("header", () => {
+            test("has correct title + heading", async ({ organizationPage }) => {
                 await organizationPage.testHeader();
             });
         });
 
-        test("If there is an error, the error is shown on the page", async ({organizationPage}) => {
+        test("if there is an error, the error is shown on the page", async ({ organizationPage }) => {
             organizationPage.mockError = true;
             await organizationPage.reload();
             await expect(organizationPage.page.getByText("there was an error")).toBeVisible();
         });
 
-        test.describe("When there is no error", () => {
+        test.describe("when there is no error", () => {
             test("nav contains the 'Admin tools' dropdown with 'Organization Settings' option", async ({
-                                                                                                           organizationPage,
-                                                                                                       }) => {
+                organizationPage,
+            }) => {
                 const navItems = organizationPage.page.locator(".usa-nav  li");
                 await expect(navItems).toContainText(["Admin tools"]);
 
@@ -96,12 +97,12 @@ test.describe("Admin Organization Settings Page", () => {
                 await expect(organizationPage.page).toHaveURL("/admin/settings");
             });
 
-            test("Has correct title", async ({organizationPage}) => {
+            test("has correct title", async ({ organizationPage }) => {
                 await expect(organizationPage.page).toHaveURL(/settings/);
                 await expect(organizationPage.page).toHaveTitle(/Admin-Organizations/);
             });
 
-            test("Displays data", async ({organizationPage}) => {
+            test("displays data", async ({ organizationPage }) => {
                 // Heading with result length
                 await expect(
                     organizationPage.page.getByRole("heading", {
@@ -122,12 +123,12 @@ test.describe("Admin Organization Settings Page", () => {
                     const cols = await row.getByRole("cell").allTextContents();
                     expect(cols).toHaveLength(colHeaders.length);
 
-                    const {description, jurisdiction, name, stateCode} =
+                    const { description, jurisdiction, name, stateCode } =
                         i === 0
                             ? MOCK_GET_ORGANIZATION_SETTINGS_LIST[0]
                             : (MOCK_GET_ORGANIZATION_SETTINGS_LIST.find((i) => i.name === cols[0]) ?? {
-                                name: "INVALID",
-                            });
+                                  name: "INVALID",
+                              });
                     // if first row, we expect column headers. else, the data row matching id (name)
                     // SetEdit is text of buttons in button column
                     const expectedColContents =
@@ -141,7 +142,7 @@ test.describe("Admin Organization Settings Page", () => {
                 }
             });
 
-            test("Create new organization navigation works", async ({organizationPage}) => {
+            test("create new organization navigation works", async ({ organizationPage }) => {
                 const link = organizationPage.page.getByRole("link", {
                     name: "Create New Organization",
                 });
@@ -155,7 +156,7 @@ test.describe("Admin Organization Settings Page", () => {
                 expect(organizationPage.page.url()).toContain(expectedUrl);
             });
 
-            test("Save CSV button downloads a file", async ({organizationPage}) => {
+            test("save CSV button downloads a file", async ({ organizationPage }) => {
                 const downloadProm = organizationPage.page.waitForEvent("download");
                 const saveButton = organizationPage.page.getByRole("button", {
                     name: "Save List to CSV",
@@ -174,9 +175,9 @@ test.describe("Admin Organization Settings Page", () => {
                 expect(download.suggestedFilename()).toBe("prime-orgs.csv");
             });
 
-            test("Filtering works", async ({organizationPage}) => {
+            test("filtering works", async ({ organizationPage }) => {
                 const table = organizationPage.page.getByRole("table");
-                const {description, name, jurisdiction, stateCode} = MOCK_GET_ORGANIZATION_SETTINGS_LIST[2];
+                const { description, name, jurisdiction, stateCode } = MOCK_GET_ORGANIZATION_SETTINGS_LIST[2];
                 const filterBox = organizationPage.page.getByRole("textbox", {
                     name: "Filter:",
                 });
@@ -201,7 +202,7 @@ test.describe("Admin Organization Settings Page", () => {
                 }
             });
 
-            test('Clicking "Set" updates link label', async ({organizationPage}) => {
+            test('clicking "Set" updates link label', async ({ organizationPage }) => {
                 const firstDataRow = organizationPage.page.getByRole("table").getByRole("row").nth(1);
                 const firstDataRowName = (await firstDataRow.getByRole("cell").nth(0).textContent()) ?? "INVALID";
                 const setButton = firstDataRow.getByRole("button", {
@@ -218,9 +219,9 @@ test.describe("Admin Organization Settings Page", () => {
                 await expect(orgLink).toHaveAttribute("href", "/admin/settings");
             });
 
-            test("Edit navigation works", async ({organizationPage}) => {
+            test("edit navigation works", async ({ organizationPage }) => {
                 const firstDataRow = organizationPage.page.getByRole("table").getByRole("row").nth(1);
-                const firstDataRowName = await firstDataRow.getByRole("cell").nth(0).textContent();
+                const firstDataRowName = (await firstDataRow.getByRole("cell").nth(0).textContent()) ?? "INVALID";
                 const expectedUrl = `/admin/orgsettings/org/${firstDataRowName}`;
                 const editButton = firstDataRow.getByRole("button", {
                     name: "Edit",
@@ -229,15 +230,15 @@ test.describe("Admin Organization Settings Page", () => {
                 await expect(editButton).toBeVisible();
                 await editButton.click();
                 await organizationPage.page.waitForURL(expectedUrl);
-                await expect(organizationPage.page.getByRole("heading")).toBeVisible();
+                expect(organizationPage.page.locator("h2").getByText(firstDataRowName)).toBeTruthy();
 
                 expect(organizationPage.page.url()).toContain(expectedUrl);
             });
         });
     });
 
-    test.describe("Footer", () => {
-        test("has footer and explicit scroll to footer and scroll to top", async ({organizationPage}) => {
+    test.describe("footer", () => {
+        test("has footer and explicit scroll to footer and scroll to top", async ({ organizationPage }) => {
             await organizationPage.testFooter();
         });
     });

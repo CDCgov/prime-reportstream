@@ -28,7 +28,7 @@ jobs:
       is_permitted: ${{ github.event_name == 'pull_request' && steps.build_vars.outputs.has_frontend_change == 'true' && steps.build_vars.outputs.is_deployment_pr == 'false' }}
     steps:
       - name: "Check out changes"
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
+        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938
       - name: Build vars
         id: build_vars
         uses: ./.github/actions/build-vars
@@ -41,9 +41,9 @@ jobs:
 
     steps:
       - name: Check out changes
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
+        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938
       - name: Use Node.js with yarn
-        uses: actions/setup-node@1e60f620b9541d16bece96c5465dc8ee9832be0b
+        uses: actions/setup-node@0a44ba7841725637a19e28fa30b79a866c81b0a6
         with:
           node-version-file: frontend-react/.nvmrc
           cache: yarn
@@ -61,9 +61,9 @@ jobs:
 
     steps:
       - name: Check out changes
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
+        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938
       - name: Use Node.js with yarn
-        uses: actions/setup-node@1e60f620b9541d16bece96c5465dc8ee9832be0b
+        uses: actions/setup-node@0a44ba7841725637a19e28fa30b79a866c81b0a6
         with:
           node-version-file: "frontend-react/.nvmrc"
           cache: yarn
@@ -98,9 +98,9 @@ jobs:
           sudo swapon --show
 
       - name: Check out changes
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
+        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938
       - name: Use Node.js with yarn
-        uses: actions/setup-node@1e60f620b9541d16bece96c5465dc8ee9832be0b
+        uses: actions/setup-node@0a44ba7841725637a19e28fa30b79a866c81b0a6
         with:
           node-version-file: "frontend-react/.nvmrc"
           cache: yarn
@@ -149,9 +149,9 @@ jobs:
 
     steps:
       - name: Check out changes
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
+        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938
       - name: Use Node.js with yarn
-        uses: actions/setup-node@1e60f620b9541d16bece96c5465dc8ee9832be0b
+        uses: actions/setup-node@0a44ba7841725637a19e28fa30b79a866c81b0a6
         with:
           node-version-file: "frontend-react/.nvmrc"
           cache: yarn
@@ -229,7 +229,7 @@ jobs:
 
     steps:
       - name: Checkout - On Pull Request
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
+        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938
         with:
           fetch-depth: 0
           # By default the pull_request event will run on a ephermeral merge commit which simulates a merge between the pull request
@@ -237,7 +237,7 @@ jobs:
           # Hopefully by checking out the HEAD commit of a PR instead of the merge commit we can avoid some of those issues.
           ref: ${{ github.event.pull_request.head.sha }}
       - name: Use Node.js with yarn
-        uses: actions/setup-node@1e60f620b9541d16bece96c5465dc8ee9832be0b
+        uses: actions/setup-node@0a44ba7841725637a19e28fa30b79a866c81b0a6
         with:
           node-version-file: "frontend-react/.nvmrc"
           cache: yarn
@@ -247,7 +247,7 @@ jobs:
 
       - name: Run Chromatic
         id: chromatic
-        uses: chromaui/action@b984808b772126a9f44b2b7737b131b68a2ede32
+        uses: chromaui/action@f4e60a7072abcac4203f4ca50613f28e199a52ba
         with:
           workingDir: frontend-react
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -300,7 +300,7 @@ jobs:
 
   #   steps:
   #     - name: Check out changes
-  #       uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
+  #       uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938
   #     - name: Initialize CodeQL
   #       uses: github/codeql-action/init@65c74964a9ed8c44ed9f19d4bbc5757a6a8e9ab9
   #       with:
@@ -320,11 +320,11 @@ jobs:
 
   #   steps:
   #     - name: Check out changes
-  #       uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
+  #       uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938
   #       with:
   #         fetch-depth: 0
   #     - name: Use Node.js with yarn
-  #       uses: actions/setup-node@1e60f620b9541d16bece96c5465dc8ee9832be0b
+  #       uses: actions/setup-node@0a44ba7841725637a19e28fa30b79a866c81b0a6
   #       with:
   #         node-version-file: "frontend-react/.nvmrc"
   #         cache: yarn
@@ -354,9 +354,9 @@ jobs:
   #   runs-on: ubuntu-latest
   #   steps:
   #     - name: Check out changes
-  #       uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
+  #       uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938
   #     - name: Use Node.js with yarn
-  #       uses: actions/setup-node@1e60f620b9541d16bece96c5465dc8ee9832be0b
+  #       uses: actions/setup-node@0a44ba7841725637a19e28fa30b79a866c81b0a6
   #       with:
   #         node-version-file: "frontend-react/.nvmrc"
   #         cache: yarn
