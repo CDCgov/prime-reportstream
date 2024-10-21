@@ -195,7 +195,8 @@
     "vitest": "^2.0.4"
   },
   "resolutions": {
-    "@types/react": "18.3.5"
+    "@types/react": "18.3.5",
+    "@okta/okta-auth-js": ">=7.8.1"
   },
   "engines": {
     "node": "^20.15"
