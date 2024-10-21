@@ -302,14 +302,17 @@ class ReportFunction(
             }
         } catch (e: ActionError) {
             actionHistory.trackLogs(e.details)
+            throw e
         } catch (e: IllegalArgumentException) {
             actionHistory.trackLogs(
                 ActionLog(InvalidReportMessage(e.message ?: "Invalid request."), type = ActionLogLevel.error)
             )
+            throw e
         } catch (e: IllegalStateException) {
             actionHistory.trackLogs(
                 ActionLog(InvalidReportMessage(e.message ?: "Invalid request."), type = ActionLogLevel.error)
             )
+            throw e
         }
 
         actionHistory.trackActionResult(HttpStatus.OK)
