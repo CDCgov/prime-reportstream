@@ -40,3 +40,13 @@ This solution can be further leveraged to support senders who are already adding
 and cannot support also adding files to an additional one.  A tool like [MoveIt](https://www.progress.com/moveit/moveit-transfer)
 can be configured to move files from the senders bucket to one in the ReportStream's storage account.  This solution
 would be simply configuration and not require any additional code.
+
+## Troubleshooting
+
+### Dropped messages
+
+Azure documentation indicates that under very heavy load there is a chance that not all added blobs will trigger a 
+submission as the simple implementation relies on log scanning. A more robust implementation is planned with an upgrade
+to using Azure Event Grid.
+
+**Note: this is not expected to occur for the usage rates for the initial MVP customer as azure indicates that problems start occuring ~100 blobs/sec**
