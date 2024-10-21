@@ -173,7 +173,7 @@ class FhirReceiverFilterTests {
         actionHistory.reportsOut.clear()
         actionHistory.reportsReceived.clear()
         actionHistory.actionLogs.clear()
-        azureEventService.clear()
+        azureEventService.events.clear()
         mockkObject(BlobAccess)
         clearAllMocks()
     }
@@ -225,7 +225,7 @@ class FhirReceiverFilterTests {
         }
 
         // assert
-        azureEventService.getEvents().forEach { event ->
+        azureEventService.events.forEach { event ->
             assertThat(event)
                 .isInstanceOf<ReportStreamItemEvent>()
                 .matchesPredicate {
@@ -284,7 +284,7 @@ class FhirReceiverFilterTests {
             }
         }
 
-        azureEventService.getEvents().forEach { event ->
+        azureEventService.events.forEach { event ->
             assertThat(event)
                 .isInstanceOf<ReportStreamItemEvent>()
                 .matchesPredicate {
@@ -346,7 +346,7 @@ class FhirReceiverFilterTests {
         }
 
         // assert
-        azureEventService.getEvents().forEach { event ->
+        azureEventService.events.forEach { event ->
             assertThat(event)
                 .isInstanceOf<ReportStreamItemEvent>()
                 .matchesPredicate {
@@ -408,7 +408,7 @@ class FhirReceiverFilterTests {
         }
 
         // assert
-        azureEventService.getEvents().forEach { event ->
+        azureEventService.events.forEach { event ->
             assertThat(event)
                 .isInstanceOf<ReportStreamItemEvent>()
                 .matchesPredicate {
@@ -463,7 +463,7 @@ class FhirReceiverFilterTests {
             val messages = engine.run(message, actionLogger, actionHistory, txn)
             assertThat(messages).isEmpty()
 
-            azureEventService.getEvents().forEach { event ->
+            azureEventService.events.forEach { event ->
                 assertThat(event)
                     .isInstanceOf<ReportStreamItemEvent>()
                     .matchesPredicate {
@@ -706,7 +706,7 @@ class FhirReceiverFilterTests {
             assertThat(actionHistory.reportsIn).hasSize(1)
             assertThat(actionHistory.reportsOut).hasSize(1)
 
-            val actualEvents = azureEventService.getEvents()
+            val actualEvents = azureEventService.events
             assertThat(actualEvents).hasSize(0)
         }
 
@@ -798,7 +798,7 @@ class FhirReceiverFilterTests {
             val messages = engine.run(message, actionLogger, actionHistory, txn)
             assertThat(messages).isEmpty()
 
-            azureEventService.getEvents().forEach { event ->
+            azureEventService.events.forEach { event ->
                 assertThat(event)
                     .isInstanceOf<ReportStreamItemEvent>()
                     .matchesPredicate {
@@ -871,7 +871,7 @@ class FhirReceiverFilterTests {
         }
 
         // assert
-        azureEventService.getEvents().forEach { event ->
+        azureEventService.events.forEach { event ->
             assertThat(event)
                 .isInstanceOf<ReportStreamItemEvent>()
                 .matchesPredicate {
