@@ -1,0 +1,173 @@
+MSH|^~\&|TESTSENDER|TESTSENDER|TESTRECEIVER^123456^L,M,N|^automated-staging-test-receiver-id^L,M,N|20241015034304||ORU^R01^ORU_R01|AUTOMATEDTEST-003|T|2.5.1
+PID|1||12345678^^^&NPI^MR||TESTSIX^BOY  MOMSIX^^^^^B|||M||2106-3^White||||||||||||2186-5^Not Hispanic or Latino||N|1
+NK1|1|CDPHSIX|MTH^Mother|132 ST^^SAN DIEGO^CA^92126^USA
+ORC|RE|55555555^FormNumber||456789123^HospOrdNumber||||||||^TEST^DOCTOR|||||||||TEST HOSPITAL^^^^^^^^^R797| 123 MAIN ST.^^SAN DIEGO^CA^99999-9999
+OBR|1|55555555^FormNumber||54089-8^NB Screen Panel Patient AHIC|||202410150335|||||||||^TEST^DOCTOR||||||20241015034304|||F
+OBR|2|55555555^FormNumber||57128-1^Newborn Screening Report summary panel|||202410151535|||||||||^TEST^DOCTOR||||||20241015034304|||F
+OBX|1|CE|57721-3^Reason for lab test in Dried blood spot^LN|1|LA12421-6^Initial screen^LN|||N|||F|||20241015034304
+OBX|2|CE|57718-9^Sample quality of Dried blood spot^LN|1|LA12432-3^Acceptable^LN|||N|||F|||20241015034304
+OBX|3|CE|57130-7^Newborn screening report - overall interpretation^LN|1|LA18944-1^Screen is out of range for at least one condition^LN|||N|||F|||20241015034304
+OBX|4|CE|57131-5^Newborn conditions with positive markers [Identifier] in Dried blood spot^LN|1|LA22279-6^SMA^LN|||N|||F|||20241015034304
+OBX|5|CE|57720-5^Newborn conditions with equivocal markers [Identifier] in Dried blood spot^LN|1|LA137-2^None^LN|||N|||F|||20241015034304
+OBX|6|TX|57724-7^Newborn screening short narrative summary^LN|1|ACTION REQUIRED\.br\\.br\NBS Testing Lab - TEST REG MEDICAL CENTER LAB \R\M 57752YWKP NAEBC, ETS8021 , FRESNO, CA 99999\.br\\.br\Genetic Disease Laboratory - GDL SAW 19221DVLB NOTGNIH, RICHMOND, CA 99999-9999\.br\\.br\Lab Director - Genetic Disease Laboratory, (510) 231-1790\.br\\.br\Follow-up:\.br\\.br\Amino Acid Panel: There was insufficient data to determine whether or not this newborn was at least 12 hours old when this specimen was collected. Testing of amino acids at less than 12 hours of age is not reliable for detecting certain metabolic disorder. \.br\\.br\Spinal Muscular Atrophy (SMA): An immediate referral to a CCS-approved Neuromuscular Center for evaluation and additional testing is strongly recommended due an apparent SMN1 exon 7 homozygous deletion. \.br\\.br\If you have any questions regarding these screening outcomes, please contact the Newborn Screening Staff at Rady Children's Hospital San Diego at (161) 122-8708. \.br\\.br\Methods and Limitations:\.br\\.br\Assays for ALD Tier-1, BD, CAH, CF, GAL, MS/MS Acylcarnitine and Amino Acid Panels, PCH, hemoglobinopathies, and SCID were performed at the testing laboratory specified on the front of this report. Assays for ALD Tier-2, CAH Tier-2, Pompe Disease Tier-1, MPS I Tier-1, and SMA were developed and/or optimized by the Genetic Disease Laboratory (GDL), and performed at GDL. Performance characteristics of these assays are determined by GDL. The SMA assay is designed to identify 95% of SMA patients who have homozygous deletions of the SMN1 gene on chromosome 5q. These assays have not been cleared or approved by the U.S. Food and Drug Administration (FDA). The FDA has determined that such clearance or approval is not necessary. The assays are used for clinical purposes. They should not be regarded as investigational or for research. GDL is certified under the Clinical Laboratory Improvement Amendments of 1988 (CLIA-88) to perform high complexity genetic disease screening. \.br\Attention Healthcare Provider:\.br\\.br\Due to biological variability of newborns and differences in detection rates for the various disorders in the newborn period, the Newborn Screening Program will not identify all newborns with these conditions. While a positive screening result identifies newborns at an increased risk to justify a diagnostic work-up, a negative screening result does not rule out the possibility of a disorder. Health care providers should remain watchful for any sign or symptoms of these disorders in their patients. A newborn screening result should not be considered diagnostic, and cannot replace the individualized evaluation and diagnosis of an infant by a well-trained, knowledgeable health care provider. \.br\\.br\|||N|||F|||20241015034304
+OBX|7|TX|57129-9^Full newborn screening summary report for display or printing^LN|1||||N|||F|||20241015034304
+OBX|8|CE|57719-7^Conditions tested for in this newborn screening study [Identifier] in Dried blood spot^LN|1|LA22279-6^SMA^LN|||N|||F|||20241015034304
+OBX|9|CE|57719-7^Conditions tested for in this newborn screening study [Identifier] in Dried blood spot^LN|2|LA25796-6^X-ALD^LN|||N|||F|||20241015034304
+OBX|10|CE|57719-7^Conditions tested for in this newborn screening study [Identifier] in Dried blood spot^LN|3|LA14037-8^GAA^LN|||N|||F|||20241015034304
+OBX|11|CE|57719-7^Conditions tested for in this newborn screening study [Identifier] in Dried blood spot^LN|4|LA25797-4^MPS-I^LN|||N|||F|||20241015034304
+OBX|12|CE|57719-7^Conditions tested for in this newborn screening study [Identifier] in Dried blood spot^LN|5|LA12466-1^3-MCC^LN|||N|||F|||20241015034304
+OBX|13|CE|57719-7^Conditions tested for in this newborn screening study [Identifier] in Dried blood spot^LN|6|LA12468-7^3MGA^LN|||N|||F|||20241015034304
+OBX|14|CE|57719-7^Conditions tested for in this newborn screening study [Identifier] in Dried blood spot^LN|7|LA12469-5^5-OXO^LN|||N|||F|||20241015034304
+OBX|15|CE|57719-7^Conditions tested for in this newborn screening study [Identifier] in Dried blood spot^LN|8|LA12470-3^ARG^LN|||N|||F|||20241015034304
+OBX|16|CE|57719-7^Conditions tested for in this newborn screening study [Identifier] in Dried blood spot^LN|9|LA12482-8^CIT-I^LN|||N|||F|||20241015034304
+OBX|17|CE|57719-7^Conditions tested for in this newborn screening study [Identifier] in Dried blood spot^LN|10|LA12483-6^CIT-II^LN|||N|||F|||20241015034304
+OBX|18|CE|57719-7^Conditions tested for in this newborn screening study [Identifier] in Dried blood spot^LN|11|LA12485-1^CPT-Ia^LN|||N|||F|||20241015034304
+OBX|19|CE|57719-7^Conditions tested for in this newborn screening study [Identifier] in Dried blood spot^LN|12|LA12486-9^CPT-II^LN|||N|||F|||20241015034304
+OBX|20|CE|57719-7^Conditions tested for in this newborn screening study [Identifier] in Dried blood spot^LN|13|LA12493-5^GA-1^LN|||N|||F|||20241015034304
+OBX|21|CE|57719-7^Conditions tested for in this newborn screening study [Identifier] in Dried blood spot^LN|14|LA12495-0^GA-2^LN|||N|||F|||20241015034304
+OBX|22|CE|57719-7^Conditions tested for in this newborn screening study [Identifier] in Dried blood spot^LN|15|LA12497-6^HHH^LN|||N|||F|||20241015034304
+OBX|23|CE|57719-7^Conditions tested for in this newborn screening study [Identifier] in Dried blood spot^LN|16|LA12499-2^HMG^LN|||N|||F|||20241015034304
+OBX|24|CE|57719-7^Conditions tested for in this newborn screening study [Identifier] in Dried blood spot^LN|17|LA12505-6^IVA^LN|||N|||F|||20241015034304
+OBX|25|CE|57719-7^Conditions tested for in this newborn screening study [Identifier] in Dried blood spot^LN|18|LA12507-2^LCHAD^LN|||N|||F|||20241015034304
+OBX|26|CE|57719-7^Conditions tested for in this newborn screening study [Identifier] in Dried blood spot^LN|19|LA12508-0^MAL^LN|||N|||F|||20241015034304
+OBX|27|CE|57719-7^Conditions tested for in this newborn screening study [Identifier] in Dried blood spot^LN|20|LA12509-8^MCAD^LN|||N|||F|||20241015034304
+OBX|28|CE|57719-7^Conditions tested for in this newborn screening study [Identifier] in Dried blood spot^LN|21|LA12510-6^MCD^LN|||N|||F|||20241015034304
+OBX|29|CE|57719-7^Conditions tested for in this newborn screening study [Identifier] in Dried blood spot^LN|22|LA12512-2^MET^LN|||N|||F|||20241015034304
+OBX|30|CE|57719-7^Conditions tested for in this newborn screening study [Identifier] in Dried blood spot^LN|23|LA12513-0^MSUD^LN|||N|||F|||20241015034304
+OBX|31|CE|57719-7^Conditions tested for in this newborn screening study [Identifier] in Dried blood spot^LN|24|LA12516-3^NKHG^LN|||N|||F|||20241015034304
+OBX|32|CE|57719-7^Conditions tested for in this newborn screening study [Identifier] in Dried blood spot^LN|25|LA12520-5^PKU^LN|||N|||F|||20241015034304
+OBX|33|CE|57719-7^Conditions tested for in this newborn screening study [Identifier] in Dried blood spot^LN|26|LA12521-3^PRO I^LN|||N|||F|||20241015034304
+OBX|34|CE|57719-7^Conditions tested for in this newborn screening study [Identifier] in Dried blood spot^LN|27|LA12528-8^TYR-1^LN|||N|||F|||20241015034304
+OBX|35|CE|57719-7^Conditions tested for in this newborn screening study [Identifier] in Dried blood spot^LN|28|LA12529-6^TYR-II^LN|||N|||F|||20241015034304
+OBX|36|CE|57719-7^Conditions tested for in this newborn screening study [Identifier] in Dried blood spot^LN|29|LA12531-2^VLCAD^LN|||N|||F|||20241015034304
+OBX|37|CE|57719-7^Conditions tested for in this newborn screening study [Identifier] in Dried blood spot^LN|30|LA12532-0^BIO^LN|||N|||F|||20241015034304
+OBX|38|CE|57719-7^Conditions tested for in this newborn screening study [Identifier] in Dried blood spot^LN|31|LA12533-8^CAH^LN|||N|||F|||20241015034304
+OBX|39|CE|57719-7^Conditions tested for in this newborn screening study [Identifier] in Dried blood spot^LN|32|LA12537-9^CF^LN|||N|||F|||20241015034304
+OBX|40|CE|57719-7^Conditions tested for in this newborn screening study [Identifier] in Dried blood spot^LN|33|LA12543-7^GALT^LN|||N|||F|||20241015034304
+OBX|41|CE|57719-7^Conditions tested for in this newborn screening study [Identifier] in Dried blood spot^LN|34|LA12566-8^SCID^LN|||N|||F|||20241015034304
+OBX|42|CE|57719-7^Conditions tested for in this newborn screening study [Identifier] in Dried blood spot^LN|35|LA12576-7^SCAD or EMA or IBG or GA-2 (MADD)^LN|||N|||F|||20241015034304
+OBX|43|CE|57719-7^Conditions tested for in this newborn screening study [Identifier] in Dried blood spot^LN|36|LA16207-5^Hemoglobinopathies^LN|||N|||F|||20241015034304
+OBX|44|CE|57719-7^Conditions tested for in this newborn screening study [Identifier] in Dried blood spot^LN|37|99717-3^Hypothyroidism^L|||N|||F|||20241015034304
+OBX|45|CE|57719-7^Conditions tested for in this newborn screening study [Identifier] in Dried blood spot^LN|38|LA12487-7^CUD^LN|||N|||F|||20241015034304
+OBX|46|CE|57719-7^Conditions tested for in this newborn screening study [Identifier] in Dried blood spot^LN|39|LA12474-5^BKT^LN|||N|||F|||20241015034304
+OBX|47|CE|57719-7^Conditions tested for in this newborn screening study [Identifier] in Dried blood spot^LN|40|LA12523-9^PA^LN|||N|||F|||20241015034304
+OBX|48|CE|57719-7^Conditions tested for in this newborn screening study [Identifier] in Dried blood spot^LN|41|LA12515-5^MMA^LN|||N|||F|||20241015034304
+OBX|49|CE|57719-7^Conditions tested for in this newborn screening study [Identifier] in Dried blood spot^LN|42|LA12464-6^2M3HBA^LN|||N|||F|||20241015034304
+OBR|3|55555555^FormNumber||57717-1^Newborn screen card data panel|||202410151535|||||||||^TEST^DOCTOR||||||20241015034304|||F
+OBX|1|ST|57716-3^State printed on filter paper card [Identifier] in NBS card^LN|1|CA|||N|||F|||20241015034304
+OBX|2|NM|8339-4^Birthweight^LN|1|3000|grams||N|||F|||20241015034304
+OBX|3|CE|57722-1^Birth plurality of Pregnancy^LN|1|LA12411-7^Singleton^LN|||N|||F|||20241015034304
+OBX|4|CE|57713-0^Infant NICU factors that affect newborn screening interpretation^LN|1|LA137-2^None^LN|||N|||F|||20241015034304
+OBX|5|CE|67704-7^Feeding types^LN|1|LA16914-6^Breast milk^LN|||N|||F|||20241015034304
+OBX|6|TX|^^^99717-5^Accession Number^L|1|045-89-477/21-2024-21|||N|||F|||20241015034304
+OBX|7|TX|62324-9^Post-discharge provider name^LN|1|TEST DOCTOR|||N|||F|||20241015034304
+OBX|8|TX|62327-2^Post-discharge provider practice address^LN|1|123 MAIN ST SAN DIEGO CA 99999-9999 USA|||N|||F|||20241015034304
+OBR|4|55555555^FormNumber||57794-0^Newborn screening test results panel in Dried blood spot|||202410150335|||||||||^TEST^DOCTOR||||||20241015034304|||F
+OBR|5|55555555^FormNumber||53261-4^Amino acid newborn screen panel|||202410150335|||||||||^TEST^DOCTOR||||||20241015034304|||F
+OBX|1|NM|47633-3^Glycine [Moles/volume] in Dried blood spot^LN|1|0.5|µmol/L||N|||F|||20241015034304
+OBX|2|NM|53150-9^Alanine+Beta Alanine+Sarcosine [Moles/volume] in Dried blood spot^LN|1|500|µmol/L|<1000|N|||F|||20241015034304
+OBX|3|NM|47799-2^Valine [Moles/volume] in Dried blood spot^LN|1|0.5|µmol/L||N|||F|||20241015034304
+OBX|4|NM|53151-7^Valine/Phenylalanine [Molar ratio] in Dried blood spot^LN|1|0.00645|{Ratio}|<4.3|N|||F|||20241015034304
+OBX|5|NM|53152-5^Alloisoleucine+Isoleucine+Leucine+Hydroxyproline^LN|1|125|µmol/L|<230|N|||F|||20241015034304
+OBX|6|NM|53154-1^Alloisoleucine+Isoleucine+Leucine+Hydroxyproline/Alanine [Molar ratio] in Dried blood spot^LN|1|0.65|{Ratio}|<1.35|N|||F|||20241015034304
+OBX|7|NM|29573-3^Phenylalanine [Moles/volume] in Dried blood spot^LN|1|77.5|µmol/L|<175|N|||F|||20241015034304
+OBX|8|NM|35572-7^Phenylalanine/Tyrosine [Molar ratio] in Dried blood spot^LN|1|0.75|{Ratio}|<2.6|N|||F|||20241015034304
+OBX|9|NM|35571-9^Tyrosine [Moles/volume] in Dried blood spot^LN|1|425|µmol/L|<680|N|||F|||20241015034304
+OBX|10|NM|53231-7^Succinylacetone [Moles/volume] in Dried blood spot^LN|1|2.25|µmol/L|<6.1|N|||F|||20241015034304
+OBX|11|NM|47700-0^Methionine [Moles/volume] in Dried blood spot^LN|1|27|µmol/L|6.3-100|N|||F|||20241015034304
+OBX|12|NM|42892-0^Citrulline [Moles/volume] in Dried blood spot^LN|1|16.25|µmol/L|5-49|N|||F|||20241015034304
+OBX|13|NM|54092-2^Citrulline/Arginine [Molar ratio] in Dried blood spot^LN|1|3|{Ratio}|<4.8|N|||F|||20241015034304
+OBX|14|NM|53155-8^Asparagine+Ornithine [Moles/volume] in Dried blood spot^LN|1|400|µmol/L|<800|N|||F|||20241015034304
+OBX|15|NM|75215-4^Ornithine/Citrulline [Molar ratio] in Dried blood spot^LN|1|0.5|{Ratio}||N|||F|||20241015034304
+OBX|16|NM|47562-4^Arginine [Moles/volume] in Dried blood spot^LN|1|25|µmol/L|<63|N|||F|||20241015034304
+OBX|17|NM|75214-7^Arginine/Ornithine [Molar ratio] in Dried blood spot^LN|1|0.7|{Ratio}|<1.9|N|||F|||20241015034304
+OBX|18|NM|47732-3^Proline [Moles/volume] in Dried blood spot^LN|1|750|µmol/L|<1500|N|||F|||20241015034304
+OBX|19|TX|57710-6^Amino acidemias newborn screening comment/discussion^LN|1|Collected Early. No Interpretation.|||A|||F|||20241015034304
+OBR|6|55555555^FormNumber||58092-8^Acylcarnitine newborn screen panel|||202410150335|||||||||^TEST^DOCTOR||||||20241015034304|||F
+OBX|1|CE|58088-6^Acylcarnitine newborn screen interpretation^LN|1|LA18592-8^In range^LN|||N|||F|||20241015034304
+OBX|2|TX|58093-6^Acylcarnitine newborn screening comment/discussion^LN|1|Negative|||N|||F|||20241015034304
+OBR|7|7181233072^FormNumber||57084-6^Fatty acid oxidation newborn screen panel|||202410150335|||||||||^TEST^DOCTOR||||||20241015034304|||F
+OBX|1|NM|38481-8^Carnitine.free (C0)^LN|1|33|µmol/L|6.4-125|N|||F|||20241015034304
+OBX|2|NM|53235-8^Carnitine.free (C0)/Palmitoylcarnitine (C16)+Stearoylcarnitine (C18)^LN|1|37.5|{Ratio}|<70|N|||F|||20241015034304
+OBX|3|NM|50157-7^Acetylcarnitine (C2)^LN|1|20.38|µmol/L|10-80|N|||F|||20240226034304
+OBX|4|NM|75212-1^Malonylcarnitine (C3-DC)/Decanoylcarnitine (C10) [Molar ratio] in Dried blood spot^LN|1|0.62500|{Ratio}|<7.6|N|||F|||20241015034304
+OBX|5|NM|45211-0^Hexanoylcarnitine (C6)^LN|1|0.48|µmol/L|<0.95|N|||F|||20241015034304
+OBX|6|NM|53175-6^Octanoylcarnitine (C8)^LN|1|0.3|µmol/L|<0.45|N|||F|||20241015034304
+OBX|7|NM|53177-2^Octanoylcarnitine (C8)/Decanoylcarnitine (C10)^LN|1|0.5|{Ratio}||N|||F|||20241015034304
+OBX|8|NM|53174-9^Octenoylcarnitine (C8:1)^LN|1|0.35|µmol/L|<0.65|N|||F|||20241015034304
+OBX|9|NM|45197-1^Decanoylcarnitine (C10)^LN|1|0.32|µmol/L|<0.65|N|||F|||20241015034304
+OBX|10|NM|45198-9^Decenoylcarnitine (C10:1)^LN|1|0.22|µmol/L|<0.45|N|||F|||20241015034304
+OBX|11|NM|45199-7^Dodecanoylcarnitine (C12)^LN|1|1|µmol/L|<2|N|||F|||20241015034304
+OBX|12|NM|45200-3^Dodecenoylcarnitine (C12:1)^LN|1|0.5|µmol/L||N|||F|||20241015034304
+OBX|13|NM|53192-1^Tetradecanoylcarnitine (C14)^LN|1|0.6|µmol/L|<1.2|N|||F|||20241015034304
+OBX|14|NM|53191-3^Tetradecenoylcarnitine (C14:1)^LN|1|0.4|µmol/L|<0.9|N|||F|||20241015034304
+OBX|15|NM|53194-7^Tetradecenoylcarnitine (C14:1)/Dodecenoylcarnitine (C12:1)^LN|1|0.5|{Ratio}||N|||F|||20241015034304
+OBX|16|NM|53190-5^Tetradecadienoylcarnitine (C14:2)^LN|1|0.5|µmol/L||N|||F|||20241015034304
+OBX|17|NM|50281-5^3-Hydroxytetradecanoylcarnitine (C14-OH)^LN|1|0.1|µmol/L|<0.2|N|||F|||20241015034304
+OBX|18|NM|53199-6^Palmitoylcarnitine (C16)^LN|1|5|µmol/L|<12|N|||F|||20241015034304
+OBX|19|NM|53198-8^Palmitoleylcarnitine (C16:1)^LN|1|0.7|µmol/L|<1.4|N|||F|||20241015034304
+OBX|20|NM|50125-4^3-Hydroxypalmitoylcarnitine (C16-OH)^LN|1|0.05|µmol/L|<0.1|N|||F|||20241015034304
+OBX|21|NM|53201-0^3-Hydroxypalmitoylcarnitine (C16-OH)/Palmitoylcarnitine (C16)^LN|1|0.01000|{Ratio}|<0.07|N|||F|||20241015034304
+OBX|22|NM|53241-6^Stearoylcarnitine (C18)^LN|1|2|µmol/L|<3.5|N|||F|||20241015034304
+OBX|23|NM|53202-8^Oleoylcarnitine (C18:1)^LN|1|3.5|µmol/L|<7|N|||F|||20241015034304
+OBX|24|NM|45217-7^Linoleoylcarnitine (C18:2)^LN|1|0.5|µmol/L||N|||F|||20241015034304
+OBX|25|NM|50132-0^3-Hydroxystearoylcarnitine (C18-OH)^LN|1|0.05|µmol/L|<0.1|N|||F|||20241015034304
+OBX|26|NM|50113-0^3-Hydroxyoleoylcarnitine (C18:1-OH)^LN|1|0.05|µmol/L|<0.1|N|||F|||20241015034304
+OBR|8|55555555^FormNumber||57085-3^Organic acid newborn screen panel|||202410150335|||||||||^TEST^DOCTOR||||||20241015034304|||F
+OBX|1|NM|53160-8^Propionylcarnitine (C3)^LN|1|3.15|µmol/L|<7.9|N|||F|||20241015034304
+OBX|2|NM|53163-2^Propionylcarnitine (C3)/Acetylcarnitine (C2)^LN|1|0.15|{Ratio}|<0.42|N|||F|||20241015034304
+OBX|3|NM|67708-8^Malonylcarnitine (C3-DC)+3-Hydroxybutyrylcarnitine (C4-OH)^LN|1|0.2|µmol/L|<0.48|N|||F|||20241015034304
+OBX|4|NM|53166-5^Butyrylcarnitine+Isobutyrylcarnitine (C4)^LN|1|0.85|µmol/L|<1.7|N|||F|||20241015034304
+OBX|5|NM|45216-9^Isovalerylcarnitine+Methylbutyrylcarnitine (C5)^LN|1|0.5|µmol/L|<0.95|N|||F|||20241015034304
+OBX|6|NM|53240-8^Isovalerylcarnitine+Methylbutyrylcarnitine (C5)/Propionylcarnitine (C3)^LN|1|0.15873|{Ratio}|<0.38|N|||F|||20241015034304
+OBX|7|NM|53170-7^Tiglylcarnitine (C5:1)^LN|1|0.3|µmol/L|<0.5|N|||F|||20241015034304
+OBX|8|NM|50106-4^3-Hydroxyisovalerylcarnitine (C5-OH)^LN|1|0.45|µmol/L|<1.15|N|||F|||20241015034304
+OBX|9|NM|67710-4^Glutarylcarnitine (C5-DC)+3-Hydroxyhexanoylcarnitine (C6-OH)^LN|1|0.3|µmol/L|<0.38|N|||F|||20241015034304
+OBX|10|NM|75216-2^Glutarylcarnitine (C5-DC)/Malonylcarnitine (C3-DC) [Molar ratio] in Dried blood spot^LN|1|1.50000|{Ratio}|>0.1|N|||F|||20241015034304
+OBR|9|55555555^FormNumber||54078-1^Cystic fibrosis newborn screening panel|||202410150335|||||||||^TEST^DOCTOR||||||20241015034304|||F
+OBX|1|NM|48633-2^Trypsinogen I.free^LN|1|31.00|ng/mL|<71|N|||F|||20241015034304
+OBX|2|CE|46769-6^Cystic fibrosis newborn screen interpretation^LN|1|LA18592-8^In range^LN|||N|||F|||20241015034304
+OBX|3|TX|57707-2^Cystic fibrosis newborn screening comment/discussion^LN|1|Negative|||N|||F|||20241015034304
+OBR|10|55555555^FormNumber||57086-1^Congenital adrenal hyperplasia newborn screening panel|||202410150335|||||||||^TEST^DOCTOR||||||20241015034304|||F
+OBX|1|NM|38473-5^17-Hydroxyprogesterone^LN|1|35|nmol/L|<85|N|||F|||20241015034304
+OBX|2|CE|46758-9^Congenital adrenal hyperplasia newborn screen interpretation^LN|1|LA18592-8^In range^LN|||N|||F|||20241015034304
+OBX|3|TX|57706-4^Congenital adrenal hyperplasia newborn screening comment-discussion^LN|1|Negative|||N|||F|||20241015034304
+OBR|11|55555555^FormNumber||54090-6^Thyroid newborn screening panel|||202410150335|||||||||^TEST^DOCTOR||||||20241015034304|||F
+OBX|1|NM|29575-8^Thyrotropin^LN|1|14.50|mIU/L|<29|N|||F|||20241015034304
+OBX|2|CE|46762-1^Congenital hypothyroidism newborn screen interpretation^LN|1|LA18592-8^In range^LN|||N|||F|||20241015034304
+OBX|3|TX|57705-6^Congenital hypothyroidism newborn screening comment-discussion^LN|1|Negative|||N|||F|||20241015034304
+OBR|12|55555555^FormNumber||54079-9^Galactosemia newborn screening panel|||202410150335|||||||||^TEST^DOCTOR||||||20241015034304|||F
+OBX|1|NM|42906-8^Galactose 1 phosphate uridyl transferase^LN|1|55.00|enzyme units|>50|N|||F|||20241015034304
+OBX|2|CE|46737-3^Galactosemias newborn screen interpretation^LN|1|LA18592-8^In range^LN|||N|||F|||20241015034304
+OBX|3|TX|57704-9^Galactosemias newborn screening comment-discussion^LN|1|Negative|||N|||F|||20241015034304
+OBR|13|55555555^FormNumber||54081-5^Hemoglobinopathies newborn screening panel|||202410150335|||||||||^TEST^DOCTOR||||||20241015034304|||F
+OBX|1|TX|54104-5^Hemoglobin pattern^LN|1|FA||||||F|||20241015034304
+OBX|2|TX|57703-1^Hemoglobin disorders newborn screening comment/discussion^LN|1|Usual hemoglobin pattern.†These results assume no transfusion prior to testing and do not rule out the possibility of a thalassemia trait or rare hemoglobin variants.||||||F|||20241015034304
+OBR|14|55555555^FormNumber||57087-9^Biotinidase newborn screening panel|||202410150335|||||||||^TEST^DOCTOR||||||20241015034304|||F
+OBX|1|NM|75217-0^Biotinidase [Enzymatic activity/volume] in Dried blood spot^LN|1|15.00|ERU|>10|N|||F|||20241015034304
+OBX|2|CE|46761-3^Biotinidase deficiency newborn screen interpretation^LN|1|LA18592-8^In range^LN|||N|||F|||20241015034304
+OBX|3|TX|57699-1^Biotinidase deficiency newborn screening comment-discussion^LN|1|Negative|||N|||F|||20241015034304
+OBR|15|55555555^FormNumber||62333-0^Severe combined immunodeficiency (SCID) newborn screening panel|||202410150335|||||||||^TEST^DOCTOR||||||20241015034304|||F
+OBX|1|NM|62320-7^T-cell receptor excision circle [#/volume] in Dried blood spot by Probe and target amplification method^LN|1|33|copies/µL|>18|N|||F|||20241015034304
+OBX|2|CE|62321-5^Severe combined immunodeficiency newborn screen interpretation^LN|1|LA18592-8^In range^LN|||N|||F|||20241015034304
+OBX|3|TX|62322-3^Severe combined immunodeficiency newborn screening comment-discussion^LN|1|Negative|||N|||F|||20241015034304
+OBR|16|55555555^FormNumber||63414-7^Pompe Disease newborn screening panel|||202410150335|||||||||^TEST^DOCTOR||||||20241015034304|||F
+OBX|1|NM|55827-0^Acid alpha glucosidase [Enzymatic activity/volume] in DBS^LN|1|12.923|µmol/L/h|>=2.079|N|||F|||20241015034304
+OBX|2|CE|63415-4^Pompe Disease deficiency newborn screen interpretation^LN|1|LA18592-8^In range^LN|||N|||F|||20241015034304
+OBX|3|TX|63416-2^Pompe Disease deficiency newborn screening comments-discussion^LN|1|Negative|||N|||F|||20241015034304
+OBX|4|TX|63416-2^Pompe Disease deficiency newborn screening comments-discussion^LN|2|Interpretation Comments: The acid alpha-glucosidase Enzyme activity level is above the 18% of the daily patient median and suggests it is screen negative for Pompe disease.|||N|||F|||20241015034304
+OBR|17|55555555^FormNumber||79563-3^Mucopolysaccharidosis type I newborn screening panel|||202410150335|||||||||^TEST^DOCTOR||||||20241015034304|||F
+OBX|1|NM|55909-6^Alpha-L-iduronidase [Enzymatic activity/volume] in DBS^LN|1|3.117|µmol/L/h|>=1.2204|N|||F|||20241015034304
+OBX|2|CE|79564-1^Mucopolysaccharidosis type I newborn screen interpretation^LN|1|LA18592-8^In range^LN|||N|||F|||20241015034304
+OBX|3|TX|79565-8^Mucopolysaccharidosis type I newborn screening comment-discussion^LN|1|Negative|||N|||F|||20241015034304
+OBX|4|TX|79565-8^Mucopolysaccharidosis type I newborn screening comment-discussion^LN|2|Interpretation Comments: The alpha-L-iduronidase Enzyme activity is above the 18% of the daily patient median and suggests it is screen negative for Mucopolysaccharidosis I (MPS I) disease.|||N|||F|||20241015034304
+OBR|18|55555555^FormNumber||92005-8^Spinal muscular atrophy newborn screening panel|||202410150335|||||||||^TEST^DOCTOR||||||20241015034304|||F
+OBX|1|TX|^^^99717-60^SMN1 Homozygous Deletion Analysis^L|1|Exon 7 Absent||Exon 7 Present|A|||F|||20241015034304
+OBX|2|CE|92004-1^Spinal muscular atrophy newborn screen interpretation^LN|1|LA18593-6^Out of range^LN|||A|||F|||20241015034304
+OBX|3|TX|92003-3^Spinal muscular atrophy newborn screening comment-discussion^LN|1|SMA Positive|||A|||F|||20241015034304
+OBX|4|TX|92003-3^Spinal muscular atrophy newborn screening comment-discussion^LN|2|Interpretation Comments: qPCR detected possible homozygoues deletion in exon 7 of the SMN1 gene. Confirmatory test for SMN1 and SMN2 copy determination are required.|||A|||F|||20241015034304
+OBR|19|55555555^FormNumber||^^^99717-28^Adrenoleukodystrophy newborn screening panel^L|||202410150335|||||||||^TEST^DOCTOR||||||20241015034304|||F
+OBX|1|CE|^^^99717-32^Adrenoleukodystrophy deficiency newborn screening interpretation^L|1|LA18592-8^In range^LN|||N|||F|||20241015034304
+OBX|2|TX|^^^99717-33^Adrenoleukodystrophy deficiency newborn screening comments-discussion^L|1|Negative|||N|||F|||20241015034304
+OBR|20|555555552^FormNumber||^^^99717-29^Adrenoleukodystrophy Tier-1 newborn screening panel^L|||202410150335|||||||||^TEST^DOCTOR||||||20241015034304|||F
+OBX|1|NM|79321-6^Lysophosphatidylcholine(26:0) [Moles/volume] in Dried blood spot^LN|1|0.2|µmol/L|<0.49|N|||F|||20241015034304

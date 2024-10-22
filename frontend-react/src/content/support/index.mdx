@@ -69,7 +69,7 @@ import site from "../../content/site.json";
         <Grid col className="usa-prose rs-text-align-center">
             ## Support request
 
-            <p className="usa-intro">For issues with an existing connection, [submit a ticket](https://app.smartsheetgov.com/b/form/da894779659b45768079200609b3a599).<br/>
+            <p className="usa-intro">For issues with an existing connection, <A href={site.forms.contactUs.url}>submit a ticket</A>.<br/>
             Our support team will respond as soon as possible to keep your data flowing.</p>
         </Grid>
     </GridContainer>
@@ -183,7 +183,7 @@ import site from "../../content/site.json";
                         title: "How do I register for a ReportStream account?",
                         content: (<ol>
                             <li><strong>Request an account.</strong> <br/>
-                            Submit a <A href="https://app.smartsheetgov.com/b/form/da894779659b45768079200609b3a599">service request</A> with information about your organization and explaining that you would like a ReportStream account.</li>
+                            Submit a <A href={site.forms.contactUs.url}>service request</A> with information about your organization and explaining that you would like a ReportStream account.</li>
                             <li><strong>Accept the terms of service.</strong> <br/>
                             A ReportStream team member will process your request and confirm that you accept our <A href="/terms-of-service">terms of service</A>.</li>
                             <li><strong>Activate your account</strong>. <br/>
@@ -369,7 +369,7 @@ import site from "../../content/site.json";
                         headingLevel: "h4",
                         title: "How do I manage team member accounts?",
                         content: (<p>
-                            ReportStream manually manages user accounts for your team. To add or remove team members, <A href="https://app.smartsheetgov.com/b/form/da894779659b45768079200609b3a599">contact us</A>.
+                            ReportStream manually manages user accounts for your team. To add or remove team members, <A href={site.forms.contactUs.url}>contact us</A>.
                         </p>)
                     },
                 ]} />
