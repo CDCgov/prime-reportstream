@@ -34,8 +34,8 @@ import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.observability.bundleDigest.BundleDigestLabResult
 import gov.cdc.prime.router.azure.observability.event.AzureEventService
 import gov.cdc.prime.router.azure.observability.event.AzureEventUtils
+import gov.cdc.prime.router.azure.observability.event.InMemoryAzureEventService
 import gov.cdc.prime.router.azure.observability.event.ItemEventData
-import gov.cdc.prime.router.azure.observability.event.LocalAzureEventServiceImpl
 import gov.cdc.prime.router.azure.observability.event.ReportEventData
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventName
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventProperties
@@ -174,7 +174,7 @@ class FHIRReceiverFilterIntegrationTests : Logging {
         )
     )
 
-    val azureEventService = LocalAzureEventServiceImpl()
+    val azureEventService = InMemoryAzureEventService()
 
     @BeforeEach
     fun beforeEach() {
@@ -368,6 +368,8 @@ class FHIRReceiverFilterIntegrationTests : Logging {
             assertThat(routedReport.schemaTopic).isEqualTo(Topic.FULL_ELR)
             assertThat(routedReport.bodyFormat).isEqualTo("FHIR")
             assertThat(routedReport.itemCount).isZero()
+            assertThat(routedReport.receivingOrg).isEqualTo(receiverSetupData.single().orgName)
+            assertThat(routedReport.receivingOrgSvc).isEqualTo(receiverSetupData.single().name)
 
             // check for no queue message
             verify(exactly = 0) {
@@ -543,6 +545,8 @@ class FHIRReceiverFilterIntegrationTests : Logging {
             assertThat(routedReport.schemaTopic).isEqualTo(Topic.FULL_ELR)
             assertThat(routedReport.bodyFormat).isEqualTo("FHIR")
             assertThat(routedReport.itemCount).isZero()
+            assertThat(routedReport.receivingOrg).isEqualTo(receiverSetupData.single().orgName)
+            assertThat(routedReport.receivingOrgSvc).isEqualTo(receiverSetupData.single().name)
 
             // check for no queue message
             verify(exactly = 0) {
@@ -731,6 +735,8 @@ class FHIRReceiverFilterIntegrationTests : Logging {
             assertThat(routedReport.schemaTopic).isEqualTo(Topic.FULL_ELR)
             assertThat(routedReport.bodyFormat).isEqualTo("FHIR")
             assertThat(routedReport.itemCount).isZero()
+            assertThat(routedReport.receivingOrg).isEqualTo(receiverSetupData.single().orgName)
+            assertThat(routedReport.receivingOrgSvc).isEqualTo(receiverSetupData.single().name)
 
             // check queue message
             verify(exactly = 0) {
@@ -836,6 +842,8 @@ class FHIRReceiverFilterIntegrationTests : Logging {
             assertThat(routedReport.schemaTopic).isEqualTo(Topic.FULL_ELR)
             assertThat(routedReport.bodyFormat).isEqualTo("FHIR")
             assertThat(routedReport.itemCount).isZero()
+            assertThat(routedReport.receivingOrg).isEqualTo(receiverSetupData.single().orgName)
+            assertThat(routedReport.receivingOrgSvc).isEqualTo(receiverSetupData.single().name)
 
             // check filter logging
             val actionLogRecords = DSL.using(txn)
@@ -1115,6 +1123,8 @@ class FHIRReceiverFilterIntegrationTests : Logging {
             assertThat(routedReport.schemaTopic).isEqualTo(Topic.FULL_ELR)
             assertThat(routedReport.bodyFormat).isEqualTo("FHIR")
             assertThat(routedReport.itemCount).isZero()
+            assertThat(routedReport.receivingOrg).isEqualTo(receiverSetupData.single().orgName)
+            assertThat(routedReport.receivingOrgSvc).isEqualTo(receiverSetupData.single().name)
 
             // check filter logging
             val actionLogRecords = DSL.using(txn)
