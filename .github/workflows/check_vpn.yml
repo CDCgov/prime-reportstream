@@ -24,6 +24,6 @@ jobs:
         env:
           STATUS: ${{ steps.connect_vpn.outputs.STATUS }}
         run: echo "$STATUS"
-      - name: kill vpn
-        if: always()
-        run: sudo killall openvpn 2>&1>/dev/null
+      # - name: kill vpn
+      #   if: always()
+      #   run: sudo killall openvpn
