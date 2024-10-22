@@ -112,6 +112,7 @@ module.exports = {
         /* Custom project rules */
         "no-console": ["error", { allow: ["warn", "error", "info", "trace"] }],
         "@typescript-eslint/no-explicit-any": ["off"],
+        "no-unused-vars": "off",
         "@typescript-eslint/no-unused-vars": [
             "error",
             {
@@ -119,6 +120,8 @@ module.exports = {
                 varsIgnorePattern: "^_",
                 args: "after-used",
                 argsIgnorePattern: "^_",
+                caughtErrors: "all",
+                caughtErrorsIgnorePattern: "^_",
             },
         ],
         "import/order": [
@@ -141,5 +144,6 @@ module.exports = {
         ],
         "sort-imports": ["error", { ignoreCase: true, ignoreDeclarationSort: true }],
         "@typescript-eslint/prefer-nullish-coalescing": ["error"],
+        "@typescript-eslint/no-empty-object-type": ["error", { allowInterfaces: "always" }],
     },
 };
