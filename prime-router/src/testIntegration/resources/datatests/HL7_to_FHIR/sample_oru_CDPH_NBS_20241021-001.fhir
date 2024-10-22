@@ -1,0 +1,3392 @@
+{
+  "resourceType": "Bundle",
+  "id": "1729545338927907697.bd3f2e56-5c61-40de-b962-80bd2230978b",
+  "meta": {
+    "lastUpdated": "2024-10-21T21:15:38.934+00:00"
+  },
+  "identifier": {
+    "system": "https://reportstream.cdc.gov/prime-router",
+    "value": "987654321"
+  },
+  "type": "message",
+  "timestamp": "2024-10-21T05:57:26.000+00:00",
+  "entry": [
+    {
+      "fullUrl": "MessageHeader/1729545339210455332.924ff151-1045-49aa-8ebd-b0f4d631cc9f",
+      "resource": {
+        "resourceType": "MessageHeader",
+        "id": "1729545339210455332.924ff151-1045-49aa-8ebd-b0f4d631cc9f",
+        "meta": {
+          "tag": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/v2-0103",
+              "code": "T"
+            }
+          ]
+        },
+        "extension": [
+          {
+            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/msh-message-header",
+            "extension": [
+              {
+                "url": "MSH.7",
+                "valueString": "20241021055726"
+              }
+            ]
+          }
+        ],
+        "eventCoding": {
+          "system": "http://terminology.hl7.org/CodeSystem/v2-0003",
+          "code": "R01",
+          "display": "ORU^R01^ORU_R01"
+        },
+        "destination": [
+          {
+            "extension": [
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
+                "valueString": "123456"
+              },
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type",
+                "valueString": "L,M,N"
+              },
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
+                "valueString": "MSH.5"
+              }
+            ],
+            "name": "TESTRECEIVER",
+            "receiver": {
+              "reference": "Organization/1729545339208252456.1766a49b-0e7d-4d31-9ce9-1f94d6576328"
+            }
+          }
+        ],
+        "sender": {
+          "reference": "Organization/1729545339094985953.51b117e6-2572-49a0-a043-94863b908014"
+        },
+        "source": {
+          "extension": [
+            {
+              "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id",
+              "valueString": "TEST"
+            },
+            {
+              "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
+              "valueString": "MSH.3"
+            }
+          ],
+          "name": "TEST",
+          "_endpoint": {
+            "extension": [
+              {
+                "url": "http://hl7.org/fhir/StructureDefinition/data-absent-reason",
+                "valueCode": "unknown"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "fullUrl": "Organization/1729545339094985953.51b117e6-2572-49a0-a043-94863b908014",
+      "resource": {
+        "resourceType": "Organization",
+        "id": "1729545339094985953.51b117e6-2572-49a0-a043-94863b908014",
+        "identifier": [
+          {
+            "extension": [
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
+                "valueString": "HD.1"
+              }
+            ],
+            "value": "TEST"
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "Organization/1729545339208252456.1766a49b-0e7d-4d31-9ce9-1f94d6576328",
+      "resource": {
+        "resourceType": "Organization",
+        "id": "1729545339208252456.1766a49b-0e7d-4d31-9ce9-1f94d6576328",
+        "extension": [
+          {
+            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
+            "valueString": "MSH.6"
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "Provenance/1729545339264342588.81782cc1-0e55-4801-89ab-70fae0dd44ed",
+      "resource": {
+        "resourceType": "Provenance",
+        "id": "1729545339264342588.81782cc1-0e55-4801-89ab-70fae0dd44ed",
+        "target": [
+          {
+            "reference": "MessageHeader/1729545339210455332.924ff151-1045-49aa-8ebd-b0f4d631cc9f"
+          },
+          {
+            "reference": "DiagnosticReport/1729545340061764861.9856fa04-d24c-4543-89dc-7e0eebcbc5f7"
+          },
+          {
+            "reference": "DiagnosticReport/1729545340076333163.4f1a3a9d-5847-4aad-8339-145690708791"
+          },
+          {
+            "reference": "DiagnosticReport/1729545340088907096.8617afa5-2239-4269-9fc0-ab3014b19274"
+          }
+        ],
+        "recorded": "2024-10-21T05:57:26Z",
+        "activity": {
+          "coding": [
+            {
+              "display": "ORU^R01^ORU_R01"
+            }
+          ]
+        },
+        "agent": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/provenance-participant-type",
+                  "code": "author"
+                }
+              ]
+            },
+            "who": {
+              "reference": "Organization/1729545339262206015.8a522741-3645-44f8-abf9-e52d2343a0b4"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "Organization/1729545339262206015.8a522741-3645-44f8-abf9-e52d2343a0b4",
+      "resource": {
+        "resourceType": "Organization",
+        "id": "1729545339262206015.8a522741-3645-44f8-abf9-e52d2343a0b4",
+        "identifier": [
+          {
+            "extension": [
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
+                "valueString": "HD.1"
+              }
+            ],
+            "value": "TEST"
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "Provenance/1729545339281290972.b823f57b-563b-461f-ba05-ba8f8d1295e5",
+      "resource": {
+        "resourceType": "Provenance",
+        "id": "1729545339281290972.b823f57b-563b-461f-ba05-ba8f8d1295e5",
+        "recorded": "2024-10-21T21:15:39Z",
+        "policy": [
+          "http://hl7.org/fhir/uv/v2mappings/message-oru-r01-to-bundle"
+        ],
+        "activity": {
+          "coding": [
+            {
+              "code": "v2-FHIR transformation"
+            }
+          ]
+        },
+        "agent": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/provenance-participant-type",
+                  "code": "assembler"
+                }
+              ]
+            },
+            "who": {
+              "reference": "Organization/1729545339279857123.46b8f468-8c95-40c5-a5e1-9c270a5e1df4"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "Organization/1729545339279857123.46b8f468-8c95-40c5-a5e1-9c270a5e1df4",
+      "resource": {
+        "resourceType": "Organization",
+        "id": "1729545339279857123.46b8f468-8c95-40c5-a5e1-9c270a5e1df4",
+        "identifier": [
+          {
+            "value": "CDC PRIME - Atlanta"
+          },
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0301"
+                }
+              ]
+            },
+            "system": "urn:ietf:rfc:3986",
+            "value": "2.16.840.1.114222.4.1.237821"
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "Patient/1729545339425441938.6bb61461-b7fb-4a49-8ee7-de176bbc0604",
+      "resource": {
+        "resourceType": "Patient",
+        "id": "1729545339425441938.6bb61461-b7fb-4a49-8ee7-de176bbc0604",
+        "extension": [
+          {
+            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/pid-patient",
+            "extension": [
+              {
+                "url": "PID.8",
+                "valueCodeableConcept": {
+                  "coding": [
+                    {
+                      "extension": [
+                        {
+                          "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                          "valueString": "coding"
+                        }
+                      ],
+                      "code": "M"
+                    }
+                  ]
+                }
+              },
+              {
+                "url": "PID.24",
+                "valueString": "N"
+              }
+            ]
+          },
+          {
+            "url": "http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd",
+            "valueCodeableConcept": {
+              "coding": [
+                {
+                  "extension": [
+                    {
+                      "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                      "valueString": "coding"
+                    }
+                  ],
+                  "code": "2131-1",
+                  "display": "Other Race"
+                }
+              ]
+            }
+          },
+          {
+            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/ethnic-group",
+            "valueCodeableConcept": {
+              "coding": [
+                {
+                  "extension": [
+                    {
+                      "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                      "valueString": "coding"
+                    }
+                  ],
+                  "code": "UNK",
+                  "display": "Unknown"
+                }
+              ]
+            }
+          }
+        ],
+        "identifier": [
+          {
+            "extension": [
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cx-identifier",
+                "extension": [
+                  {
+                    "url": "CX.5",
+                    "valueString": "MR"
+                  }
+                ]
+              },
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
+                "valueString": "PID.3"
+              }
+            ],
+            "type": {
+              "coding": [
+                {
+                  "code": "MR"
+                }
+              ]
+            },
+            "value": "123456",
+            "assigner": {
+              "reference": "Organization/1729545339292497158.537cf02d-a616-4fa8-b9ce-84a7cb471526"
+            }
+          }
+        ],
+        "name": [
+          {
+            "extension": [
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn-human-name",
+                "extension": [
+                  {
+                    "url": "XPN.2",
+                    "valueString": "BOY  MOMTHREE"
+                  },
+                  {
+                    "url": "XPN.7",
+                    "valueString": "B"
+                  }
+                ]
+              }
+            ],
+            "use": "official",
+            "family": "CDPHTHREE",
+            "given": [
+              "BOY  MOMTHREE"
+            ]
+          }
+        ],
+        "gender": "male",
+        "birthDate": "2024-10-15",
+        "_birthDate": {
+          "extension": [
+            {
+              "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+              "valueString": "202410151039"
+            },
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/patient-birthTime",
+              "valueDateTime": "2024-10-15T10:39:00Z"
+            }
+          ]
+        },
+        "multipleBirthInteger": 1,
+        "contact": [
+          {
+            "extension": [
+              {
+                "url": "https://hl7.org/fhir/StructureDefinition/relationship",
+                "valueCodeableConcept": {
+                  "coding": [
+                    {
+                      "extension": [
+                        {
+                          "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                          "valueString": "coding"
+                        }
+                      ],
+                      "code": "MTH",
+                      "display": "Mother"
+                    }
+                  ]
+                }
+              }
+            ],
+            "name": {
+              "extension": [
+                {
+                  "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn-human-name",
+                  "extension": [
+                    {
+                      "url": "XPN.2",
+                      "valueString": "MOMTHREE"
+                    }
+                  ]
+                }
+              ],
+              "family": "CDPHTHREE",
+              "given": [
+                "MOMTHREE"
+              ]
+            },
+            "telecom": [
+              {
+                "extension": [
+                  {
+                    "url": "http://hl7.org/fhir/StructureDefinition/contactpoint-area",
+                    "valueString": "888"
+                  },
+                  {
+                    "url": "http://hl7.org/fhir/StructureDefinition/contactpoint-local",
+                    "valueString": "8888888"
+                  },
+                  {
+                    "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn-contact-point",
+                    "extension": [
+                      {
+                        "url": "XTN.7",
+                        "valueString": "8888888"
+                      }
+                    ]
+                  }
+                ],
+                "_system": {
+                  "extension": [
+                    {
+                      "url": "http://hl7.org/fhir/StructureDefinition/data-absent-reason",
+                      "valueCode": "unknown"
+                    }
+                  ]
+                }
+              }
+            ],
+            "address": {
+              "extension": [
+                {
+                  "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/xad-address",
+                  "extension": [
+                    {
+                      "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/sad-address-line",
+                      "extension": [
+                        {
+                          "url": "SAD.1",
+                          "valueString": "123 MAIN ST"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ],
+              "line": [
+                "123 MAIN ST"
+              ],
+              "city": "SAN DIEGO",
+              "state": "CA",
+              "postalCode": "92126",
+              "country": "USA"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "Organization/1729545339292497158.537cf02d-a616-4fa8-b9ce-84a7cb471526",
+      "resource": {
+        "resourceType": "Organization",
+        "id": "1729545339292497158.537cf02d-a616-4fa8-b9ce-84a7cb471526",
+        "identifier": [
+          {
+            "extension": [
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
+                "valueString": "HD.2,HD.3"
+              }
+            ],
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0301"
+                }
+              ]
+            },
+            "value": "NPI"
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "Provenance/1729545339444778505.b57fdceb-1b51-4e7a-bfb6-8e5afb2a1482",
+      "resource": {
+        "resourceType": "Provenance",
+        "id": "1729545339444778505.b57fdceb-1b51-4e7a-bfb6-8e5afb2a1482",
+        "target": [
+          {
+            "reference": "Patient/1729545339425441938.6bb61461-b7fb-4a49-8ee7-de176bbc0604"
+          }
+        ],
+        "recorded": "2024-10-21T21:15:39Z",
+        "activity": {
+          "coding": [
+            {
+              "system": "https://terminology.hl7.org/CodeSystem/v3-DataOperation",
+              "code": "UPDATE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "fullUrl": "RelatedPerson/1729545339466690060.4384ac51-672f-4bf1-b0f8-e51ba7e3a7f5",
+      "resource": {
+        "resourceType": "RelatedPerson",
+        "id": "1729545339466690060.4384ac51-672f-4bf1-b0f8-e51ba7e3a7f5",
+        "extension": [
+          {
+            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Segment",
+            "valueString": "NK1"
+          },
+          {
+            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/nk1-related-person",
+            "extension": [
+              {
+                "url": "NK1.16",
+                "valueString": "20031007"
+              }
+            ]
+          }
+        ],
+        "patient": {
+          "reference": "Patient/1729545339425441938.6bb61461-b7fb-4a49-8ee7-de176bbc0604"
+        },
+        "relationship": [
+          {
+            "extension": [
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
+                "valueString": "NK1.3"
+              }
+            ],
+            "coding": [
+              {
+                "extension": [
+                  {
+                    "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                    "valueString": "coding"
+                  }
+                ],
+                "code": "MTH",
+                "display": "Mother"
+              }
+            ]
+          }
+        ],
+        "name": [
+          {
+            "extension": [
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
+                "valueString": "NK1.2"
+              },
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn-human-name",
+                "extension": [
+                  {
+                    "url": "XPN.2",
+                    "valueString": "MOMTHREE"
+                  }
+                ]
+              }
+            ],
+            "family": "CDPHTHREE",
+            "given": [
+              "MOMTHREE"
+            ]
+          }
+        ],
+        "telecom": [
+          {
+            "extension": [
+              {
+                "url": "http://hl7.org/fhir/StructureDefinition/contactpoint-area",
+                "valueString": "888"
+              },
+              {
+                "url": "http://hl7.org/fhir/StructureDefinition/contactpoint-local",
+                "valueString": "8888888"
+              },
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn-contact-point",
+                "extension": [
+                  {
+                    "url": "XTN.7",
+                    "valueString": "8888888"
+                  }
+                ]
+              },
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
+                "valueString": "NK1.5"
+              }
+            ],
+            "_system": {
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/data-absent-reason",
+                  "valueCode": "unknown"
+                }
+              ]
+            }
+          }
+        ],
+        "birthDate": "2003-10-07",
+        "address": [
+          {
+            "extension": [
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
+                "valueString": "NK1.4"
+              },
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/xad-address",
+                "extension": [
+                  {
+                    "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/sad-address-line",
+                    "extension": [
+                      {
+                        "url": "SAD.1",
+                        "valueString": "123 MAIN ST"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "line": [
+              "123 MAIN ST"
+            ],
+            "city": "SAN DIEGO",
+            "state": "CA",
+            "postalCode": "92126",
+            "country": "USA"
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "Observation/1729545339500298017.d65377f7-0bcf-49b0-90af-acbbaaa70899",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "1729545339500298017.d65377f7-0bcf-49b0-90af-acbbaaa70899",
+        "extension": [
+          {
+            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/sub-id",
+            "valueString": "1"
+          },
+          {
+            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/obx-observation",
+            "extension": [
+              {
+                "url": "OBX.2",
+                "valueId": "NM"
+              },
+              {
+                "url": "OBX.6",
+                "valueCodeableConcept": {
+                  "coding": [
+                    {
+                      "extension": [
+                        {
+                          "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                          "valueString": "coding"
+                        }
+                      ],
+                      "code": "nmol/L"
+                    }
+                  ]
+                }
+              },
+              {
+                "url": "OBX.11",
+                "valueString": "F"
+              }
+            ]
+          }
+        ],
+        "status": "final",
+        "code": {
+          "coding": [
+            {
+              "extension": [
+                {
+                  "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                  "valueString": "coding"
+                },
+                {
+                  "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                  "valueString": "LN"
+                }
+              ],
+              "system": "http://loinc.org",
+              "code": "38473-5",
+              "display": "17-Hydroxyprogesterone"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/1729545339425441938.6bb61461-b7fb-4a49-8ee7-de176bbc0604"
+        },
+        "effectiveDateTime": "2024-10-21T05:57:26Z",
+        "_effectiveDateTime": {
+          "extension": [
+            {
+              "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+              "valueString": "20241021055726"
+            }
+          ]
+        },
+        "valueQuantity": {
+          "value": 65.88,
+          "unit": "nmol/L"
+        },
+        "interpretation": [
+          {
+            "coding": [
+              {
+                "extension": [
+                  {
+                    "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                    "valueString": "coding"
+                  }
+                ],
+                "code": "N"
+              }
+            ]
+          }
+        ],
+        "referenceRange": [
+          {
+            "text": "<85"
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "Observation/1729545339527404151.c718b010-1fe1-4fd3-9abb-eb6540106fcc",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "1729545339527404151.c718b010-1fe1-4fd3-9abb-eb6540106fcc",
+        "extension": [
+          {
+            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/sub-id",
+            "valueString": "1"
+          },
+          {
+            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/obx-observation",
+            "extension": [
+              {
+                "url": "OBX.2",
+                "valueId": "NM"
+              },
+              {
+                "url": "OBX.6",
+                "valueCodeableConcept": {
+                  "coding": [
+                    {
+                      "extension": [
+                        {
+                          "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                          "valueString": "coding"
+                        }
+                      ],
+                      "code": "nmol/L"
+                    }
+                  ]
+                }
+              },
+              {
+                "url": "OBX.11",
+                "valueString": "F"
+              }
+            ]
+          }
+        ],
+        "status": "final",
+        "code": {
+          "coding": [
+            {
+              "extension": [
+                {
+                  "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                  "valueString": "alt-coding"
+                },
+                {
+                  "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                  "valueString": "L"
+                }
+              ],
+              "system": "https://terminology.hl7.org/CodeSystem-v2-0396.html#v2-0396-99zzzorL",
+              "code": "99717-6",
+              "display": "17-Hydroxyprogesterone (CAH II)"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/1729545339425441938.6bb61461-b7fb-4a49-8ee7-de176bbc0604"
+        },
+        "effectiveDateTime": "2024-10-21T05:57:26Z",
+        "_effectiveDateTime": {
+          "extension": [
+            {
+              "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+              "valueString": "20241021055726"
+            }
+          ]
+        },
+        "valueQuantity": {
+          "value": 39,
+          "unit": "nmol/L"
+        },
+        "interpretation": [
+          {
+            "coding": [
+              {
+                "extension": [
+                  {
+                    "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                    "valueString": "coding"
+                  }
+                ],
+                "code": "H"
+              }
+            ]
+          }
+        ],
+        "referenceRange": [
+          {
+            "text": "<38"
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "Observation/1729545339545851487.b4ec0d25-29e8-4c50-bb33-b3232e7e1258",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "1729545339545851487.b4ec0d25-29e8-4c50-bb33-b3232e7e1258",
+        "extension": [
+          {
+            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/sub-id",
+            "valueString": "1"
+          },
+          {
+            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/obx-observation",
+            "extension": [
+              {
+                "url": "OBX.2",
+                "valueId": "NM"
+              },
+              {
+                "url": "OBX.6",
+                "valueCodeableConcept": {
+                  "coding": [
+                    {
+                      "extension": [
+                        {
+                          "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                          "valueString": "coding"
+                        }
+                      ],
+                      "code": "nmol/L"
+                    }
+                  ]
+                }
+              },
+              {
+                "url": "OBX.11",
+                "valueString": "F"
+              }
+            ]
+          }
+        ],
+        "status": "final",
+        "code": {
+          "coding": [
+            {
+              "extension": [
+                {
+                  "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                  "valueString": "coding"
+                },
+                {
+                  "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                  "valueString": "LN"
+                }
+              ],
+              "system": "http://loinc.org",
+              "code": "53343-0",
+              "display": "Androstenedione"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/1729545339425441938.6bb61461-b7fb-4a49-8ee7-de176bbc0604"
+        },
+        "effectiveDateTime": "2024-10-21T05:57:26Z",
+        "_effectiveDateTime": {
+          "extension": [
+            {
+              "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+              "valueString": "20241021055726"
+            }
+          ]
+        },
+        "valueQuantity": {
+          "value": 40.15,
+          "unit": "nmol/L"
+        },
+        "interpretation": [
+          {
+            "coding": [
+              {
+                "extension": [
+                  {
+                    "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                    "valueString": "coding"
+                  }
+                ],
+                "code": "N"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "Observation/1729545339564564632.4e12bba1-06b9-4892-95a9-8663b475a3d1",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "1729545339564564632.4e12bba1-06b9-4892-95a9-8663b475a3d1",
+        "extension": [
+          {
+            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/sub-id",
+            "valueString": "1"
+          },
+          {
+            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/obx-observation",
+            "extension": [
+              {
+                "url": "OBX.2",
+                "valueId": "NM"
+              },
+              {
+                "url": "OBX.6",
+                "valueCodeableConcept": {
+                  "coding": [
+                    {
+                      "extension": [
+                        {
+                          "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                          "valueString": "coding"
+                        }
+                      ],
+                      "code": "nmol/L"
+                    }
+                  ]
+                }
+              },
+              {
+                "url": "OBX.11",
+                "valueString": "F"
+              }
+            ]
+          }
+        ],
+        "status": "final",
+        "code": {
+          "coding": [
+            {
+              "extension": [
+                {
+                  "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                  "valueString": "coding"
+                },
+                {
+                  "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                  "valueString": "LN"
+                }
+              ],
+              "system": "http://loinc.org",
+              "code": "53345-5",
+              "display": "Cortisol"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/1729545339425441938.6bb61461-b7fb-4a49-8ee7-de176bbc0604"
+        },
+        "_effectiveDateTime": {
+          "extension": [
+            {
+              "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+              "valueString": "220241021055726"
+            }
+          ]
+        },
+        "valueQuantity": {
+          "value": 850.00,
+          "unit": "nmol/L"
+        },
+        "interpretation": [
+          {
+            "coding": [
+              {
+                "extension": [
+                  {
+                    "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                    "valueString": "coding"
+                  }
+                ],
+                "code": "N"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "Observation/1729545339582787859.aab6a280-30b5-4b43-8ba2-806c9be8ce78",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "1729545339582787859.aab6a280-30b5-4b43-8ba2-806c9be8ce78",
+        "extension": [
+          {
+            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/sub-id",
+            "valueString": "1"
+          },
+          {
+            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/obx-observation",
+            "extension": [
+              {
+                "url": "OBX.2",
+                "valueId": "NM"
+              },
+              {
+                "url": "OBX.6",
+                "valueCodeableConcept": {
+                  "coding": [
+                    {
+                      "extension": [
+                        {
+                          "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                          "valueString": "coding"
+                        }
+                      ],
+                      "code": "{Ratio}"
+                    }
+                  ]
+                }
+              },
+              {
+                "url": "OBX.11",
+                "valueString": "F"
+              }
+            ]
+          }
+        ],
+        "status": "final",
+        "code": {
+          "coding": [
+            {
+              "extension": [
+                {
+                  "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                  "valueString": "coding"
+                },
+                {
+                  "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                  "valueString": "LN"
+                }
+              ],
+              "system": "http://loinc.org",
+              "code": "53336-4",
+              "display": "17-Hydroxyprogesterone+Androstenedione/Cortisol"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/1729545339425441938.6bb61461-b7fb-4a49-8ee7-de176bbc0604"
+        },
+        "effectiveDateTime": "2024-10-21T05:57:26Z",
+        "_effectiveDateTime": {
+          "extension": [
+            {
+              "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+              "valueString": "20241021055726"
+            }
+          ]
+        },
+        "valueQuantity": {
+          "value": 0.93,
+          "unit": "{Ratio}"
+        },
+        "interpretation": [
+          {
+            "coding": [
+              {
+                "extension": [
+                  {
+                    "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                    "valueString": "coding"
+                  }
+                ],
+                "code": "N"
+              }
+            ]
+          }
+        ],
+        "referenceRange": [
+          {
+            "text": "<1"
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "Observation/1729545339607047895.d38c0b56-155a-4352-9ec0-5667c22abaf3",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "1729545339607047895.d38c0b56-155a-4352-9ec0-5667c22abaf3",
+        "extension": [
+          {
+            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/sub-id",
+            "valueString": "1"
+          },
+          {
+            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/obx-observation",
+            "extension": [
+              {
+                "url": "OBX.2",
+                "valueId": "NM"
+              },
+              {
+                "url": "OBX.6",
+                "valueCodeableConcept": {
+                  "coding": [
+                    {
+                      "extension": [
+                        {
+                          "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                          "valueString": "coding"
+                        }
+                      ],
+                      "code": "nmol/L"
+                    }
+                  ]
+                }
+              },
+              {
+                "url": "OBX.11",
+                "valueString": "F"
+              }
+            ]
+          }
+        ],
+        "status": "final",
+        "code": {
+          "coding": [
+            {
+              "extension": [
+                {
+                  "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                  "valueString": "coding"
+                },
+                {
+                  "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                  "valueString": "LN"
+                }
+              ],
+              "system": "http://loinc.org",
+              "code": "53341-4",
+              "display": "21-Deoxycortisol [Mass/volume] in Dried blood spot"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/1729545339425441938.6bb61461-b7fb-4a49-8ee7-de176bbc0604"
+        },
+        "effectiveDateTime": "2024-10-21T05:57:26Z",
+        "_effectiveDateTime": {
+          "extension": [
+            {
+              "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+              "valueString": "20241021055726"
+            }
+          ]
+        },
+        "valueQuantity": {
+          "value": 0.02,
+          "unit": "nmol/L"
+        },
+        "interpretation": [
+          {
+            "coding": [
+              {
+                "extension": [
+                  {
+                    "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                    "valueString": "coding"
+                  }
+                ],
+                "code": "N"
+              }
+            ]
+          }
+        ],
+        "referenceRange": [
+          {
+            "text": "<5"
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "Observation/1729545339625028315.2f9ffb24-1292-4877-9dc3-2d94788925f8",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "1729545339625028315.2f9ffb24-1292-4877-9dc3-2d94788925f8",
+        "extension": [
+          {
+            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/obx-observation",
+            "extension": [
+              {
+                "url": "OBX.2",
+                "valueId": "NM"
+              },
+              {
+                "url": "OBX.6",
+                "valueCodeableConcept": {
+                  "coding": [
+                    {
+                      "extension": [
+                        {
+                          "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                          "valueString": "coding"
+                        }
+                      ],
+                      "code": "nmol/L"
+                    }
+                  ]
+                }
+              },
+              {
+                "url": "OBX.11",
+                "valueString": "F"
+              }
+            ]
+          }
+        ],
+        "status": "final",
+        "code": {
+          "coding": [
+            {
+              "extension": [
+                {
+                  "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                  "valueString": "coding"
+                },
+                {
+                  "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                  "valueString": "LN"
+                }
+              ],
+              "system": "http://loinc.org",
+              "code": "53347-1",
+              "display": "11-Deoxycorticosterone [Mass/volume] in Dried blood spot"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/1729545339425441938.6bb61461-b7fb-4a49-8ee7-de176bbc0604"
+        },
+        "effectiveDateTime": "2024-10-21T05:57:26Z",
+        "_effectiveDateTime": {
+          "extension": [
+            {
+              "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+              "valueString": "20241021055726"
+            }
+          ]
+        },
+        "valueQuantity": {
+          "value": 25,
+          "unit": "nmol/L"
+        },
+        "interpretation": [
+          {
+            "coding": [
+              {
+                "extension": [
+                  {
+                    "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                    "valueString": "coding"
+                  }
+                ],
+                "code": "N"
+              }
+            ]
+          }
+        ],
+        "referenceRange": [
+          {
+            "text": "<240"
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "Observation/1729545339642301210.98a80224-4b18-4a72-a18f-3b47ae930c98",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "1729545339642301210.98a80224-4b18-4a72-a18f-3b47ae930c98",
+        "extension": [
+          {
+            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/sub-id",
+            "valueString": "001"
+          },
+          {
+            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/obx-observation",
+            "extension": [
+              {
+                "url": "OBX.2",
+                "valueId": "CE"
+              },
+              {
+                "url": "OBX.11",
+                "valueString": "F"
+              }
+            ]
+          }
+        ],
+        "status": "final",
+        "code": {
+          "coding": [
+            {
+              "extension": [
+                {
+                  "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                  "valueString": "coding"
+                },
+                {
+                  "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                  "valueString": "LN"
+                }
+              ],
+              "system": "http://loinc.org",
+              "code": "46758-9",
+              "display": "Congenital adrenal hyperplasia newborn screen interpretation"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/1729545339425441938.6bb61461-b7fb-4a49-8ee7-de176bbc0604"
+        },
+        "effectiveDateTime": "2024-10-21T05:57:26Z",
+        "_effectiveDateTime": {
+          "extension": [
+            {
+              "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+              "valueString": "20241021055726"
+            }
+          ]
+        },
+        "valueCodeableConcept": {
+          "coding": [
+            {
+              "extension": [
+                {
+                  "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                  "valueString": "coding"
+                },
+                {
+                  "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                  "valueString": "LN"
+                }
+              ],
+              "system": "http://loinc.org",
+              "code": "LA18592-8",
+              "display": "In range"
+            }
+          ]
+        },
+        "interpretation": [
+          {
+            "coding": [
+              {
+                "extension": [
+                  {
+                    "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                    "valueString": "coding"
+                  }
+                ],
+                "code": "N"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "Observation/1729545339656720607.86e79510-1d7a-4b80-a0dd-73a4c8174863",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "1729545339656720607.86e79510-1d7a-4b80-a0dd-73a4c8174863",
+        "extension": [
+          {
+            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/sub-id",
+            "valueString": "001.54"
+          },
+          {
+            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/obx-observation",
+            "extension": [
+              {
+                "url": "OBX.2",
+                "valueId": "TX"
+              },
+              {
+                "url": "OBX.11",
+                "valueString": "F"
+              }
+            ]
+          }
+        ],
+        "status": "final",
+        "code": {
+          "coding": [
+            {
+              "extension": [
+                {
+                  "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                  "valueString": "coding"
+                },
+                {
+                  "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                  "valueString": "LN"
+                }
+              ],
+              "system": "http://loinc.org",
+              "code": "57706-4",
+              "display": "Congenital adrenal hyperplasia newborn screening comment-discussion"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/1729545339425441938.6bb61461-b7fb-4a49-8ee7-de176bbc0604"
+        },
+        "effectiveDateTime": "2024-10-21T05:57:26Z",
+        "_effectiveDateTime": {
+          "extension": [
+            {
+              "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+              "valueString": "20241021055726"
+            }
+          ]
+        },
+        "valueString": "Negative",
+        "interpretation": [
+          {
+            "coding": [
+              {
+                "extension": [
+                  {
+                    "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                    "valueString": "coding"
+                  }
+                ],
+                "code": "N"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "Observation/1729545339674312613.ebb1a283-d931-4df7-80b8-0e582db1a1b2",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "1729545339674312613.ebb1a283-d931-4df7-80b8-0e582db1a1b2",
+        "extension": [
+          {
+            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/sub-id",
+            "valueString": "1"
+          },
+          {
+            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/obx-observation",
+            "extension": [
+              {
+                "url": "OBX.2",
+                "valueId": "NM"
+              },
+              {
+                "url": "OBX.6",
+                "valueCodeableConcept": {
+                  "coding": [
+                    {
+                      "extension": [
+                        {
+                          "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                          "valueString": "coding"
+                        }
+                      ],
+                      "code": "nmol/L"
+                    }
+                  ]
+                }
+              },
+              {
+                "url": "OBX.11",
+                "valueString": "F"
+              }
+            ]
+          }
+        ],
+        "status": "final",
+        "code": {
+          "coding": [
+            {
+              "extension": [
+                {
+                  "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                  "valueString": "coding"
+                },
+                {
+                  "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                  "valueString": "LN"
+                }
+              ],
+              "system": "http://loinc.org",
+              "code": "38473-5",
+              "display": "17-Hydroxyprogesterone"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/1729545339425441938.6bb61461-b7fb-4a49-8ee7-de176bbc0604"
+        },
+        "effectiveDateTime": "2024-10-21T05:57:26Z",
+        "_effectiveDateTime": {
+          "extension": [
+            {
+              "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+              "valueString": "20241021055726"
+            }
+          ]
+        },
+        "valueQuantity": {
+          "value": 65.88,
+          "unit": "nmol/L"
+        },
+        "interpretation": [
+          {
+            "coding": [
+              {
+                "extension": [
+                  {
+                    "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                    "valueString": "coding"
+                  }
+                ],
+                "code": "N"
+              }
+            ]
+          }
+        ],
+        "referenceRange": [
+          {
+            "text": "<85"
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "Observation/1729545339690843082.8e0579ad-7b7d-460f-9c51-0f99aa66d768",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "1729545339690843082.8e0579ad-7b7d-460f-9c51-0f99aa66d768",
+        "extension": [
+          {
+            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/sub-id",
+            "valueString": "1"
+          },
+          {
+            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/obx-observation",
+            "extension": [
+              {
+                "url": "OBX.2",
+                "valueId": "NM"
+              },
+              {
+                "url": "OBX.6",
+                "valueCodeableConcept": {
+                  "coding": [
+                    {
+                      "extension": [
+                        {
+                          "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                          "valueString": "coding"
+                        }
+                      ],
+                      "code": "nmol/L"
+                    }
+                  ]
+                }
+              },
+              {
+                "url": "OBX.11",
+                "valueString": "F"
+              }
+            ]
+          }
+        ],
+        "status": "final",
+        "code": {
+          "coding": [
+            {
+              "extension": [
+                {
+                  "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                  "valueString": "alt-coding"
+                },
+                {
+                  "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                  "valueString": "L"
+                }
+              ],
+              "system": "https://terminology.hl7.org/CodeSystem-v2-0396.html#v2-0396-99zzzorL",
+              "code": "99717-6",
+              "display": "17-Hydroxyprogesterone (CAH II)"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/1729545339425441938.6bb61461-b7fb-4a49-8ee7-de176bbc0604"
+        },
+        "effectiveDateTime": "2024-10-21T05:57:26Z",
+        "_effectiveDateTime": {
+          "extension": [
+            {
+              "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+              "valueString": "20241021055726"
+            }
+          ]
+        },
+        "valueQuantity": {
+          "value": 39,
+          "unit": "nmol/L"
+        },
+        "interpretation": [
+          {
+            "coding": [
+              {
+                "extension": [
+                  {
+                    "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                    "valueString": "coding"
+                  }
+                ],
+                "code": "H"
+              }
+            ]
+          }
+        ],
+        "referenceRange": [
+          {
+            "text": "<38"
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "Observation/1729545339710964775.fbceaa42-83ca-4c9a-8d76-03f9ddef2efc",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "1729545339710964775.fbceaa42-83ca-4c9a-8d76-03f9ddef2efc",
+        "extension": [
+          {
+            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/sub-id",
+            "valueString": "1"
+          },
+          {
+            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/obx-observation",
+            "extension": [
+              {
+                "url": "OBX.2",
+                "valueId": "NM"
+              },
+              {
+                "url": "OBX.6",
+                "valueCodeableConcept": {
+                  "coding": [
+                    {
+                      "extension": [
+                        {
+                          "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                          "valueString": "coding"
+                        }
+                      ],
+                      "code": "nmol/L"
+                    }
+                  ]
+                }
+              },
+              {
+                "url": "OBX.11",
+                "valueString": "F"
+              }
+            ]
+          }
+        ],
+        "status": "final",
+        "code": {
+          "coding": [
+            {
+              "extension": [
+                {
+                  "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                  "valueString": "coding"
+                },
+                {
+                  "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                  "valueString": "LN"
+                }
+              ],
+              "system": "http://loinc.org",
+              "code": "53343-0",
+              "display": "Androstenedione"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/1729545339425441938.6bb61461-b7fb-4a49-8ee7-de176bbc0604"
+        },
+        "effectiveDateTime": "2024-10-21T05:57:26Z",
+        "_effectiveDateTime": {
+          "extension": [
+            {
+              "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+              "valueString": "20241021055726"
+            }
+          ]
+        },
+        "valueQuantity": {
+          "value": 40.15,
+          "unit": "nmol/L"
+        },
+        "interpretation": [
+          {
+            "coding": [
+              {
+                "extension": [
+                  {
+                    "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                    "valueString": "coding"
+                  }
+                ],
+                "code": "N"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "Observation/1729545339726388407.e7baeb63-76db-4498-b27b-cad572ee1514",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "1729545339726388407.e7baeb63-76db-4498-b27b-cad572ee1514",
+        "extension": [
+          {
+            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/sub-id",
+            "valueString": "1"
+          },
+          {
+            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/obx-observation",
+            "extension": [
+              {
+                "url": "OBX.2",
+                "valueId": "NM"
+              },
+              {
+                "url": "OBX.6",
+                "valueCodeableConcept": {
+                  "coding": [
+                    {
+                      "extension": [
+                        {
+                          "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                          "valueString": "coding"
+                        }
+                      ],
+                      "code": "nmol/L"
+                    }
+                  ]
+                }
+              },
+              {
+                "url": "OBX.11",
+                "valueString": "F"
+              }
+            ]
+          }
+        ],
+        "status": "final",
+        "code": {
+          "coding": [
+            {
+              "extension": [
+                {
+                  "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                  "valueString": "coding"
+                },
+                {
+                  "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                  "valueString": "LN"
+                }
+              ],
+              "system": "http://loinc.org",
+              "code": "53345-5",
+              "display": "Cortisol"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/1729545339425441938.6bb61461-b7fb-4a49-8ee7-de176bbc0604"
+        },
+        "_effectiveDateTime": {
+          "extension": [
+            {
+              "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+              "valueString": "220241021055726"
+            }
+          ]
+        },
+        "valueQuantity": {
+          "value": 850.00,
+          "unit": "nmol/L"
+        },
+        "interpretation": [
+          {
+            "coding": [
+              {
+                "extension": [
+                  {
+                    "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                    "valueString": "coding"
+                  }
+                ],
+                "code": "N"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "Observation/1729545339742377058.5acc3380-0319-4a09-816f-ec89d1ba148e",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "1729545339742377058.5acc3380-0319-4a09-816f-ec89d1ba148e",
+        "extension": [
+          {
+            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/sub-id",
+            "valueString": "1"
+          },
+          {
+            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/obx-observation",
+            "extension": [
+              {
+                "url": "OBX.2",
+                "valueId": "NM"
+              },
+              {
+                "url": "OBX.6",
+                "valueCodeableConcept": {
+                  "coding": [
+                    {
+                      "extension": [
+                        {
+                          "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                          "valueString": "coding"
+                        }
+                      ],
+                      "code": "{Ratio}"
+                    }
+                  ]
+                }
+              },
+              {
+                "url": "OBX.11",
+                "valueString": "F"
+              }
+            ]
+          }
+        ],
+        "status": "final",
+        "code": {
+          "coding": [
+            {
+              "extension": [
+                {
+                  "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                  "valueString": "coding"
+                },
+                {
+                  "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                  "valueString": "LN"
+                }
+              ],
+              "system": "http://loinc.org",
+              "code": "53336-4",
+              "display": "17-Hydroxyprogesterone+Androstenedione/Cortisol"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/1729545339425441938.6bb61461-b7fb-4a49-8ee7-de176bbc0604"
+        },
+        "effectiveDateTime": "2024-10-21T05:57:26Z",
+        "_effectiveDateTime": {
+          "extension": [
+            {
+              "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+              "valueString": "20241021055726"
+            }
+          ]
+        },
+        "valueQuantity": {
+          "value": 0.93,
+          "unit": "{Ratio}"
+        },
+        "interpretation": [
+          {
+            "coding": [
+              {
+                "extension": [
+                  {
+                    "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                    "valueString": "coding"
+                  }
+                ],
+                "code": "N"
+              }
+            ]
+          }
+        ],
+        "referenceRange": [
+          {
+            "text": "<1"
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "Observation/1729545339758399810.924e9b8c-4783-40ce-8ada-afd48416f31b",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "1729545339758399810.924e9b8c-4783-40ce-8ada-afd48416f31b",
+        "extension": [
+          {
+            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/sub-id",
+            "valueString": "1"
+          },
+          {
+            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/obx-observation",
+            "extension": [
+              {
+                "url": "OBX.2",
+                "valueId": "NM"
+              },
+              {
+                "url": "OBX.6",
+                "valueCodeableConcept": {
+                  "coding": [
+                    {
+                      "extension": [
+                        {
+                          "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                          "valueString": "coding"
+                        }
+                      ],
+                      "code": "nmol/L"
+                    }
+                  ]
+                }
+              },
+              {
+                "url": "OBX.11",
+                "valueString": "F"
+              }
+            ]
+          }
+        ],
+        "status": "final",
+        "code": {
+          "coding": [
+            {
+              "extension": [
+                {
+                  "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                  "valueString": "coding"
+                },
+                {
+                  "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                  "valueString": "LN"
+                }
+              ],
+              "system": "http://loinc.org",
+              "code": "53341-4",
+              "display": "21-Deoxycortisol [Mass/volume] in Dried blood spot"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/1729545339425441938.6bb61461-b7fb-4a49-8ee7-de176bbc0604"
+        },
+        "effectiveDateTime": "2024-10-21T05:57:26Z",
+        "_effectiveDateTime": {
+          "extension": [
+            {
+              "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+              "valueString": "20241021055726"
+            }
+          ]
+        },
+        "valueQuantity": {
+          "value": 0.02,
+          "unit": "nmol/L"
+        },
+        "interpretation": [
+          {
+            "coding": [
+              {
+                "extension": [
+                  {
+                    "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                    "valueString": "coding"
+                  }
+                ],
+                "code": "N"
+              }
+            ]
+          }
+        ],
+        "referenceRange": [
+          {
+            "text": "<5"
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "Observation/1729545339774872877.0d6ec7ad-3057-40c8-bcef-8b39201ec3e5",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "1729545339774872877.0d6ec7ad-3057-40c8-bcef-8b39201ec3e5",
+        "extension": [
+          {
+            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/obx-observation",
+            "extension": [
+              {
+                "url": "OBX.2",
+                "valueId": "NM"
+              },
+              {
+                "url": "OBX.6",
+                "valueCodeableConcept": {
+                  "coding": [
+                    {
+                      "extension": [
+                        {
+                          "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                          "valueString": "coding"
+                        }
+                      ],
+                      "code": "nmol/L"
+                    }
+                  ]
+                }
+              },
+              {
+                "url": "OBX.11",
+                "valueString": "F"
+              }
+            ]
+          }
+        ],
+        "status": "final",
+        "code": {
+          "coding": [
+            {
+              "extension": [
+                {
+                  "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                  "valueString": "coding"
+                },
+                {
+                  "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                  "valueString": "LN"
+                }
+              ],
+              "system": "http://loinc.org",
+              "code": "53347-1",
+              "display": "11-Deoxycorticosterone [Mass/volume] in Dried blood spot"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/1729545339425441938.6bb61461-b7fb-4a49-8ee7-de176bbc0604"
+        },
+        "effectiveDateTime": "2024-10-21T05:57:26Z",
+        "_effectiveDateTime": {
+          "extension": [
+            {
+              "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+              "valueString": "20241021055726"
+            }
+          ]
+        },
+        "valueQuantity": {
+          "value": 25,
+          "unit": "nmol/L"
+        },
+        "interpretation": [
+          {
+            "coding": [
+              {
+                "extension": [
+                  {
+                    "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                    "valueString": "coding"
+                  }
+                ],
+                "code": "N"
+              }
+            ]
+          }
+        ],
+        "referenceRange": [
+          {
+            "text": "<240"
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "Observation/1729545339796773932.764c7361-db8b-496f-8729-3a46817b45e4",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "1729545339796773932.764c7361-db8b-496f-8729-3a46817b45e4",
+        "extension": [
+          {
+            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/sub-id",
+            "valueString": "001"
+          },
+          {
+            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/obx-observation",
+            "extension": [
+              {
+                "url": "OBX.2",
+                "valueId": "CE"
+              },
+              {
+                "url": "OBX.11",
+                "valueString": "F"
+              }
+            ]
+          }
+        ],
+        "status": "final",
+        "code": {
+          "coding": [
+            {
+              "extension": [
+                {
+                  "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                  "valueString": "coding"
+                },
+                {
+                  "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                  "valueString": "LN"
+                }
+              ],
+              "system": "http://loinc.org",
+              "code": "46758-9",
+              "display": "Congenital adrenal hyperplasia newborn screen interpretation"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/1729545339425441938.6bb61461-b7fb-4a49-8ee7-de176bbc0604"
+        },
+        "effectiveDateTime": "2024-10-21T05:57:26Z",
+        "_effectiveDateTime": {
+          "extension": [
+            {
+              "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+              "valueString": "20241021055726"
+            }
+          ]
+        },
+        "valueCodeableConcept": {
+          "coding": [
+            {
+              "extension": [
+                {
+                  "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                  "valueString": "coding"
+                },
+                {
+                  "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                  "valueString": "LN"
+                }
+              ],
+              "system": "http://loinc.org",
+              "code": "LA18592-8",
+              "display": "In range"
+            }
+          ]
+        },
+        "interpretation": [
+          {
+            "coding": [
+              {
+                "extension": [
+                  {
+                    "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                    "valueString": "coding"
+                  }
+                ],
+                "code": "N"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "Observation/1729545339810499005.06f31f9d-da2f-4084-aab9-26ef23521786",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "1729545339810499005.06f31f9d-da2f-4084-aab9-26ef23521786",
+        "extension": [
+          {
+            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/sub-id",
+            "valueString": "001.54"
+          },
+          {
+            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/obx-observation",
+            "extension": [
+              {
+                "url": "OBX.2",
+                "valueId": "TX"
+              },
+              {
+                "url": "OBX.11",
+                "valueString": "F"
+              }
+            ]
+          }
+        ],
+        "status": "final",
+        "code": {
+          "coding": [
+            {
+              "extension": [
+                {
+                  "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                  "valueString": "coding"
+                },
+                {
+                  "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                  "valueString": "LN"
+                }
+              ],
+              "system": "http://loinc.org",
+              "code": "57706-4",
+              "display": "Congenital adrenal hyperplasia newborn screening comment-discussion"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/1729545339425441938.6bb61461-b7fb-4a49-8ee7-de176bbc0604"
+        },
+        "effectiveDateTime": "2024-10-21T05:57:26Z",
+        "_effectiveDateTime": {
+          "extension": [
+            {
+              "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+              "valueString": "20241021055726"
+            }
+          ]
+        },
+        "valueString": "Negative",
+        "interpretation": [
+          {
+            "coding": [
+              {
+                "extension": [
+                  {
+                    "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                    "valueString": "coding"
+                  }
+                ],
+                "code": "N"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "Specimen/1729545339838117456.179b3047-3f1c-4c3c-ad9b-59d40d476af8",
+      "resource": {
+        "resourceType": "Specimen",
+        "id": "1729545339838117456.179b3047-3f1c-4c3c-ad9b-59d40d476af8",
+        "extension": [
+          {
+            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Segment",
+            "valueString": "OBR"
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "Specimen/1729545339842294100.edd19c18-0174-4469-bdf8-d74ad3a5dc77",
+      "resource": {
+        "resourceType": "Specimen",
+        "id": "1729545339842294100.edd19c18-0174-4469-bdf8-d74ad3a5dc77",
+        "extension": [
+          {
+            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Segment",
+            "valueString": "OBR"
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "Specimen/1729545339847325573.823dbd01-a789-4da3-bc20-a1544c55e2ad",
+      "resource": {
+        "resourceType": "Specimen",
+        "id": "1729545339847325573.823dbd01-a789-4da3-bc20-a1544c55e2ad",
+        "extension": [
+          {
+            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Segment",
+            "valueString": "OBR"
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "ServiceRequest/1729545339948919274.cd18c6cf-89ed-48d1-95e4-5b859804697b",
+      "resource": {
+        "resourceType": "ServiceRequest",
+        "id": "1729545339948919274.cd18c6cf-89ed-48d1-95e4-5b859804697b",
+        "extension": [
+          {
+            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/business-event",
+            "valueCode": "RE"
+          },
+          {
+            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/orc-common-order",
+            "extension": [
+              {
+                "url": "orc-21-ordering-facility-name",
+                "valueReference": {
+                  "reference": "Organization/1729545339907997564.295b3fce-0ce2-4c6e-9134-f7885e65ac9e"
+                }
+              },
+              {
+                "url": "orc-22-ordering-facility-address",
+                "valueAddress": {
+                  "extension": [
+                    {
+                      "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/xad-address",
+                      "extension": [
+                        {
+                          "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/sad-address-line",
+                          "extension": [
+                            {
+                              "url": "SAD.1",
+                              "valueString": "ARBITRARY"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ],
+                  "line": [
+                    "ARBITRARY"
+                  ],
+                  "city": "SAN DIEGO",
+                  "state": "CA",
+                  "postalCode": "99999-9999"
+                }
+              },
+              {
+                "url": "orc-12-ordering-provider",
+                "valueReference": {
+                  "reference": "Practitioner/1729545339924643337.a91de69b-5241-49d5-a23f-dfdd8899cd93"
+                }
+              }
+            ]
+          },
+          {
+            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/obr-observation-request",
+            "extension": [
+              {
+                "url": "OBR.2",
+                "valueIdentifier": {
+                  "extension": [
+                    {
+                      "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority",
+                      "extension": [
+                        {
+                          "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id",
+                          "valueString": "FormNumber"
+                        }
+                      ]
+                    }
+                  ],
+                  "value": "123456"
+                }
+              },
+              {
+                "url": "OBR.22",
+                "valueString": "20241015055726"
+              },
+              {
+                "url": "OBR.25",
+                "valueId": "F"
+              },
+              {
+                "url": "OBR.16",
+                "valueReference": {
+                  "reference": "Practitioner/1729545339940371979.7fa722e0-a962-4f16-8c94-1e4c77487689"
+                }
+              }
+            ]
+          }
+        ],
+        "identifier": [
+          {
+            "extension": [
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
+                "valueString": "ORC.2"
+              },
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority",
+                "extension": [
+                  {
+                    "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id",
+                    "valueString": "FormNumber"
+                  }
+                ]
+              }
+            ],
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                  "code": "PLAC"
+                }
+              ]
+            },
+            "value": "123456"
+          },
+          {
+            "extension": [
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
+                "valueString": "ORC.4"
+              },
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority",
+                "extension": [
+                  {
+                    "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id",
+                    "valueString": "HospOrdNumber"
+                  }
+                ]
+              }
+            ],
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                  "code": "PGN"
+                }
+              ]
+            },
+            "value": "56789"
+          },
+          {
+            "extension": [
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
+                "valueString": "ORC.4"
+              },
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority",
+                "extension": [
+                  {
+                    "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id",
+                    "valueString": "HospOrdNumber"
+                  }
+                ]
+              }
+            ],
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                  "code": "FGN"
+                }
+              ]
+            },
+            "value": "56789"
+          }
+        ],
+        "status": "unknown",
+        "code": {
+          "coding": [
+            {
+              "extension": [
+                {
+                  "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                  "valueString": "coding"
+                }
+              ],
+              "code": "54089-8",
+              "display": "NB Screen Panel Patient AHIC"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/1729545339425441938.6bb61461-b7fb-4a49-8ee7-de176bbc0604"
+        },
+        "requester": {
+          "reference": "PractitionerRole/1729545339855381351.052d83c2-3555-4343-ac95-6800401a10fd"
+        }
+      }
+    },
+    {
+      "fullUrl": "Practitioner/1729545339864390261.3932430a-f066-4305-b654-6d46f6968646",
+      "resource": {
+        "resourceType": "Practitioner",
+        "id": "1729545339864390261.3932430a-f066-4305-b654-6d46f6968646",
+        "extension": [
+          {
+            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn-practitioner",
+            "extension": [
+              {
+                "url": "XCN.3",
+                "valueString": "TEST"
+              }
+            ]
+          },
+          {
+            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
+            "valueString": "ORC.12"
+          }
+        ],
+        "identifier": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "extension": [
+                    {
+                      "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/codeable-concept-id",
+                      "valueBoolean": true
+                    }
+                  ],
+                  "code": "NPI"
+                }
+              ]
+            },
+            "value": "101234567"
+          }
+        ],
+        "name": [
+          {
+            "family": "DOCTOR",
+            "given": [
+              "TEST"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "Organization/1729545339879012665.c15c1ae0-9100-428c-9a0d-fe0edc925c76",
+      "resource": {
+        "resourceType": "Organization",
+        "id": "1729545339879012665.c15c1ae0-9100-428c-9a0d-fe0edc925c76",
+        "extension": [
+          {
+            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/xon-organization",
+            "extension": [
+              {
+                "url": "XON.10",
+                "valueString": "R797"
+              }
+            ]
+          }
+        ],
+        "identifier": [
+          {
+            "value": "R797"
+          }
+        ],
+        "name": "UCSD JACOBS MEDICAL CENTER",
+        "telecom": [
+          {
+            "_system": {
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/data-absent-reason",
+                  "valueCode": "unknown"
+                }
+              ]
+            }
+          }
+        ],
+        "address": [
+          {
+            "extension": [
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/xad-address",
+                "extension": [
+                  {
+                    "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/sad-address-line",
+                    "extension": [
+                      {
+                        "url": "SAD.1",
+                        "valueString": "ARBITRARY"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "line": [
+              "ARBITRARY"
+            ],
+            "city": "SAN DIEGO",
+            "state": "CA",
+            "postalCode": "99999-9999"
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "PractitionerRole/1729545339855381351.052d83c2-3555-4343-ac95-6800401a10fd",
+      "resource": {
+        "resourceType": "PractitionerRole",
+        "id": "1729545339855381351.052d83c2-3555-4343-ac95-6800401a10fd",
+        "practitioner": {
+          "reference": "Practitioner/1729545339864390261.3932430a-f066-4305-b654-6d46f6968646"
+        },
+        "organization": {
+          "reference": "Organization/1729545339879012665.c15c1ae0-9100-428c-9a0d-fe0edc925c76"
+        }
+      }
+    },
+    {
+      "fullUrl": "Organization/1729545339907997564.295b3fce-0ce2-4c6e-9134-f7885e65ac9e",
+      "resource": {
+        "resourceType": "Organization",
+        "id": "1729545339907997564.295b3fce-0ce2-4c6e-9134-f7885e65ac9e",
+        "extension": [
+          {
+            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/xon-organization",
+            "extension": [
+              {
+                "url": "XON.10",
+                "valueString": "R797"
+              }
+            ]
+          }
+        ],
+        "identifier": [
+          {
+            "value": "R797"
+          }
+        ],
+        "name": "UCSD JACOBS MEDICAL CENTER"
+      }
+    },
+    {
+      "fullUrl": "Practitioner/1729545339924643337.a91de69b-5241-49d5-a23f-dfdd8899cd93",
+      "resource": {
+        "resourceType": "Practitioner",
+        "id": "1729545339924643337.a91de69b-5241-49d5-a23f-dfdd8899cd93",
+        "extension": [
+          {
+            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn-practitioner",
+            "extension": [
+              {
+                "url": "XCN.3",
+                "valueString": "TEST"
+              }
+            ]
+          }
+        ],
+        "identifier": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "extension": [
+                    {
+                      "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/codeable-concept-id",
+                      "valueBoolean": true
+                    }
+                  ],
+                  "code": "NPI"
+                }
+              ]
+            },
+            "value": "101234567"
+          }
+        ],
+        "name": [
+          {
+            "family": "DOCTOR",
+            "given": [
+              "TEST"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "Practitioner/1729545339940371979.7fa722e0-a962-4f16-8c94-1e4c77487689",
+      "resource": {
+        "resourceType": "Practitioner",
+        "id": "1729545339940371979.7fa722e0-a962-4f16-8c94-1e4c77487689",
+        "extension": [
+          {
+            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn-practitioner",
+            "extension": [
+              {
+                "url": "XCN.3",
+                "valueString": "TEST"
+              }
+            ]
+          }
+        ],
+        "name": [
+          {
+            "family": "DOCTOR",
+            "given": [
+              "TEST"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "ServiceRequest/1729545339988561839.e60df4d1-6aea-482c-bcf3-1c9b26c8476c",
+      "resource": {
+        "resourceType": "ServiceRequest",
+        "id": "1729545339988561839.e60df4d1-6aea-482c-bcf3-1c9b26c8476c",
+        "extension": [
+          {
+            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/obr-observation-request",
+            "extension": [
+              {
+                "url": "OBR.22",
+                "valueString": "20241021055726"
+              },
+              {
+                "url": "OBR.25",
+                "valueId": "F"
+              },
+              {
+                "url": "OBR.16",
+                "valueReference": {
+                  "reference": "Practitioner/1729545339983954881.1c23affd-cecd-435d-be2e-5b0f6d3ad5dd"
+                }
+              }
+            ]
+          }
+        ],
+        "identifier": [
+          {
+            "extension": [
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
+                "valueString": "OBR.2"
+              },
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority",
+                "extension": [
+                  {
+                    "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id",
+                    "valueString": "FormNumber"
+                  }
+                ]
+              }
+            ],
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                  "code": "PLAC"
+                }
+              ]
+            },
+            "value": "123456"
+          }
+        ],
+        "status": "unknown",
+        "code": {
+          "coding": [
+            {
+              "extension": [
+                {
+                  "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                  "valueString": "coding"
+                }
+              ],
+              "code": "57086-1",
+              "display": "Congenital adrenal hyperplasia newborn screening panel"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/1729545339425441938.6bb61461-b7fb-4a49-8ee7-de176bbc0604"
+        },
+        "requester": {
+          "reference": "Practitioner/1729545339961086593.96e65b07-01db-4377-9292-8e2c0881410c"
+        }
+      }
+    },
+    {
+      "fullUrl": "Practitioner/1729545339961086593.96e65b07-01db-4377-9292-8e2c0881410c",
+      "resource": {
+        "resourceType": "Practitioner",
+        "id": "1729545339961086593.96e65b07-01db-4377-9292-8e2c0881410c",
+        "extension": [
+          {
+            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn-practitioner",
+            "extension": [
+              {
+                "url": "XCN.3",
+                "valueString": "TEST"
+              }
+            ]
+          },
+          {
+            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
+            "valueString": "OBR.16"
+          }
+        ],
+        "name": [
+          {
+            "family": "DOCTOR",
+            "given": [
+              "TEST"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "Practitioner/1729545339983954881.1c23affd-cecd-435d-be2e-5b0f6d3ad5dd",
+      "resource": {
+        "resourceType": "Practitioner",
+        "id": "1729545339983954881.1c23affd-cecd-435d-be2e-5b0f6d3ad5dd",
+        "extension": [
+          {
+            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn-practitioner",
+            "extension": [
+              {
+                "url": "XCN.3",
+                "valueString": "TEST"
+              }
+            ]
+          }
+        ],
+        "name": [
+          {
+            "family": "DOCTOR",
+            "given": [
+              "TEST"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "ServiceRequest/1729545340030307178.bc11d2a3-75f5-43e4-bc61-d61b7e7ca446",
+      "resource": {
+        "resourceType": "ServiceRequest",
+        "id": "1729545340030307178.bc11d2a3-75f5-43e4-bc61-d61b7e7ca446",
+        "extension": [
+          {
+            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/obr-observation-request",
+            "extension": [
+              {
+                "url": "OBR.22",
+                "valueString": "20241021055726"
+              },
+              {
+                "url": "OBR.25",
+                "valueId": "F"
+              },
+              {
+                "url": "OBR.16",
+                "valueReference": {
+                  "reference": "Practitioner/1729545340025436810.61e5a96c-7fba-4fe1-ae4f-5333d99cdf26"
+                }
+              }
+            ]
+          }
+        ],
+        "identifier": [
+          {
+            "extension": [
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
+                "valueString": "OBR.2"
+              },
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority",
+                "extension": [
+                  {
+                    "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id",
+                    "valueString": "FormNumber"
+                  }
+                ]
+              }
+            ],
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                  "code": "PLAC"
+                }
+              ]
+            },
+            "value": "123456"
+          }
+        ],
+        "status": "unknown",
+        "code": {
+          "coding": [
+            {
+              "extension": [
+                {
+                  "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                  "valueString": "coding"
+                }
+              ],
+              "code": "57086-1",
+              "display": "Congenital adrenal hyperplasia newborn screening panel"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/1729545339425441938.6bb61461-b7fb-4a49-8ee7-de176bbc0604"
+        },
+        "requester": {
+          "reference": "Practitioner/1729545339999968732.3db629d7-004c-45e4-8a86-778727520beb"
+        }
+      }
+    },
+    {
+      "fullUrl": "Practitioner/1729545339999968732.3db629d7-004c-45e4-8a86-778727520beb",
+      "resource": {
+        "resourceType": "Practitioner",
+        "id": "1729545339999968732.3db629d7-004c-45e4-8a86-778727520beb",
+        "extension": [
+          {
+            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn-practitioner",
+            "extension": [
+              {
+                "url": "XCN.3",
+                "valueString": "TEST"
+              }
+            ]
+          },
+          {
+            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
+            "valueString": "OBR.16"
+          }
+        ],
+        "name": [
+          {
+            "family": "DOCTOR",
+            "given": [
+              "TEST"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "Practitioner/1729545340025436810.61e5a96c-7fba-4fe1-ae4f-5333d99cdf26",
+      "resource": {
+        "resourceType": "Practitioner",
+        "id": "1729545340025436810.61e5a96c-7fba-4fe1-ae4f-5333d99cdf26",
+        "extension": [
+          {
+            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn-practitioner",
+            "extension": [
+              {
+                "url": "XCN.3",
+                "valueString": "TEST"
+              }
+            ]
+          }
+        ],
+        "name": [
+          {
+            "family": "DOCTOR",
+            "given": [
+              "TEST"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "DiagnosticReport/1729545340061764861.9856fa04-d24c-4543-89dc-7e0eebcbc5f7",
+      "resource": {
+        "resourceType": "DiagnosticReport",
+        "id": "1729545340061764861.9856fa04-d24c-4543-89dc-7e0eebcbc5f7",
+        "identifier": [
+          {
+            "extension": [
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
+                "valueString": "ORC.2"
+              },
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority",
+                "extension": [
+                  {
+                    "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id",
+                    "valueString": "FormNumber"
+                  }
+                ]
+              }
+            ],
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                  "code": "PLAC"
+                }
+              ]
+            },
+            "value": "123456"
+          },
+          {
+            "extension": [
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority",
+                "extension": [
+                  {
+                    "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id",
+                    "valueString": "HospOrdNumber"
+                  }
+                ]
+              }
+            ],
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                  "code": "PGN"
+                }
+              ]
+            },
+            "value": "56789"
+          },
+          {
+            "extension": [
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority",
+                "extension": [
+                  {
+                    "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id",
+                    "valueString": "HospOrdNumber"
+                  }
+                ]
+              }
+            ],
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                  "code": "FGN"
+                }
+              ]
+            },
+            "value": "56789"
+          }
+        ],
+        "basedOn": [
+          {
+            "reference": "ServiceRequest/1729545339948919274.cd18c6cf-89ed-48d1-95e4-5b859804697b"
+          }
+        ],
+        "status": "final",
+        "code": {
+          "coding": [
+            {
+              "extension": [
+                {
+                  "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                  "valueString": "coding"
+                }
+              ],
+              "code": "54089-8",
+              "display": "NB Screen Panel Patient AHIC"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/1729545339425441938.6bb61461-b7fb-4a49-8ee7-de176bbc0604"
+        },
+        "effectiveDateTime": "2024-10-21T11:25:00Z",
+        "_effectiveDateTime": {
+          "extension": [
+            {
+              "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+              "valueString": "202410211125"
+            }
+          ]
+        },
+        "issued": "2024-10-15T05:57:26Z",
+        "_issued": {
+          "extension": [
+            {
+              "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+              "valueString": "20241015055726"
+            }
+          ]
+        },
+        "specimen": [
+          {
+            "reference": "Specimen/1729545339838117456.179b3047-3f1c-4c3c-ad9b-59d40d476af8"
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "DiagnosticReport/1729545340076333163.4f1a3a9d-5847-4aad-8339-145690708791",
+      "resource": {
+        "resourceType": "DiagnosticReport",
+        "id": "1729545340076333163.4f1a3a9d-5847-4aad-8339-145690708791",
+        "identifier": [
+          {
+            "extension": [
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
+                "valueString": "OBR.2"
+              },
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority",
+                "extension": [
+                  {
+                    "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id",
+                    "valueString": "FormNumber"
+                  }
+                ]
+              }
+            ],
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                  "code": "PLAC"
+                }
+              ]
+            },
+            "value": "123456"
+          }
+        ],
+        "basedOn": [
+          {
+            "reference": "ServiceRequest/1729545339988561839.e60df4d1-6aea-482c-bcf3-1c9b26c8476c"
+          }
+        ],
+        "status": "final",
+        "code": {
+          "coding": [
+            {
+              "extension": [
+                {
+                  "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                  "valueString": "coding"
+                }
+              ],
+              "code": "57086-1",
+              "display": "Congenital adrenal hyperplasia newborn screening panel"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/1729545339425441938.6bb61461-b7fb-4a49-8ee7-de176bbc0604"
+        },
+        "effectiveDateTime": "2024-10-21T11:25:00Z",
+        "_effectiveDateTime": {
+          "extension": [
+            {
+              "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+              "valueString": "202410211125"
+            }
+          ]
+        },
+        "issued": "2024-10-21T05:57:26Z",
+        "_issued": {
+          "extension": [
+            {
+              "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+              "valueString": "20241021055726"
+            }
+          ]
+        },
+        "specimen": [
+          {
+            "reference": "Specimen/1729545339842294100.edd19c18-0174-4469-bdf8-d74ad3a5dc77"
+          }
+        ],
+        "result": [
+          {
+            "reference": "Observation/1729545339500298017.d65377f7-0bcf-49b0-90af-acbbaaa70899"
+          },
+          {
+            "reference": "Observation/1729545339527404151.c718b010-1fe1-4fd3-9abb-eb6540106fcc"
+          },
+          {
+            "reference": "Observation/1729545339545851487.b4ec0d25-29e8-4c50-bb33-b3232e7e1258"
+          },
+          {
+            "reference": "Observation/1729545339564564632.4e12bba1-06b9-4892-95a9-8663b475a3d1"
+          },
+          {
+            "reference": "Observation/1729545339582787859.aab6a280-30b5-4b43-8ba2-806c9be8ce78"
+          },
+          {
+            "reference": "Observation/1729545339607047895.d38c0b56-155a-4352-9ec0-5667c22abaf3"
+          },
+          {
+            "reference": "Observation/1729545339625028315.2f9ffb24-1292-4877-9dc3-2d94788925f8"
+          },
+          {
+            "reference": "Observation/1729545339642301210.98a80224-4b18-4a72-a18f-3b47ae930c98"
+          },
+          {
+            "reference": "Observation/1729545339656720607.86e79510-1d7a-4b80-a0dd-73a4c8174863"
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "DiagnosticReport/1729545340088907096.8617afa5-2239-4269-9fc0-ab3014b19274",
+      "resource": {
+        "resourceType": "DiagnosticReport",
+        "id": "1729545340088907096.8617afa5-2239-4269-9fc0-ab3014b19274",
+        "identifier": [
+          {
+            "extension": [
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
+                "valueString": "OBR.2"
+              },
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority",
+                "extension": [
+                  {
+                    "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id",
+                    "valueString": "FormNumber"
+                  }
+                ]
+              }
+            ],
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                  "code": "PLAC"
+                }
+              ]
+            },
+            "value": "123456"
+          }
+        ],
+        "basedOn": [
+          {
+            "reference": "ServiceRequest/1729545340030307178.bc11d2a3-75f5-43e4-bc61-d61b7e7ca446"
+          }
+        ],
+        "status": "final",
+        "code": {
+          "coding": [
+            {
+              "extension": [
+                {
+                  "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                  "valueString": "coding"
+                }
+              ],
+              "code": "57086-1",
+              "display": "Congenital adrenal hyperplasia newborn screening panel"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/1729545339425441938.6bb61461-b7fb-4a49-8ee7-de176bbc0604"
+        },
+        "effectiveDateTime": "2024-10-21T11:25:00Z",
+        "_effectiveDateTime": {
+          "extension": [
+            {
+              "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+              "valueString": "202410211125"
+            }
+          ]
+        },
+        "issued": "2024-10-21T05:57:26Z",
+        "_issued": {
+          "extension": [
+            {
+              "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+              "valueString": "20241021055726"
+            }
+          ]
+        },
+        "specimen": [
+          {
+            "reference": "Specimen/1729545339847325573.823dbd01-a789-4da3-bc20-a1544c55e2ad"
+          }
+        ],
+        "result": [
+          {
+            "reference": "Observation/1729545339674312613.ebb1a283-d931-4df7-80b8-0e582db1a1b2"
+          },
+          {
+            "reference": "Observation/1729545339690843082.8e0579ad-7b7d-460f-9c51-0f99aa66d768"
+          },
+          {
+            "reference": "Observation/1729545339710964775.fbceaa42-83ca-4c9a-8d76-03f9ddef2efc"
+          },
+          {
+            "reference": "Observation/1729545339726388407.e7baeb63-76db-4498-b27b-cad572ee1514"
+          },
+          {
+            "reference": "Observation/1729545339742377058.5acc3380-0319-4a09-816f-ec89d1ba148e"
+          },
+          {
+            "reference": "Observation/1729545339758399810.924e9b8c-4783-40ce-8ada-afd48416f31b"
+          },
+          {
+            "reference": "Observation/1729545339774872877.0d6ec7ad-3057-40c8-bcef-8b39201ec3e5"
+          },
+          {
+            "reference": "Observation/1729545339796773932.764c7361-db8b-496f-8729-3a46817b45e4"
+          },
+          {
+            "reference": "Observation/1729545339810499005.06f31f9d-da2f-4084-aab9-26ef23521786"
+          }
+        ]
+      }
+    }
+  ]
+}
