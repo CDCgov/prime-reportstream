@@ -99,23 +99,31 @@ class SendFunction(
                 receiverStatus = receiver.customerStatus
                 val inputReportId = header.reportFile.reportId
                 actionHistory.trackExistingInputReport(inputReportId)
+                val serviceName = receiver.fullName
                 val nextRetryItems = mutableListOf<String>()
                 val externalFileName = Report.formExternalFilename(header, workflowEngine.reportService)
                 val sentReportId = UUID.randomUUID() // each sent report gets its own UUID
                 val retryItems = retryToken?.items
-                val nextRetry = getTransport(receiver.transportType)?.send(
-                    receiver.transportType,
-                    header,
-                    sentReportId,
-                    externalFileName,
-                    retryItems,
-                    context,
-                    actionHistory,
-                    reportEventService,
-                    workflowEngine.reportService
-                )
-                if (nextRetry != null) {
-                    nextRetryItems += nextRetry
+                val transport = getTransport(receiver.transportType)
+                if (transport == null) {
+                    actionHistory.setActionType(TaskAction.send_warning)
+                    actionHistory
+                        .trackActionResult("Not sending $inputReportId to $serviceName: Unsupported transport type")
+                } else {
+                    val nextRetry = transport.send(
+                        receiver.transportType,
+                        header,
+                        sentReportId,
+                        externalFileName,
+                        retryItems,
+                        context,
+                        actionHistory,
+                        reportEventService,
+                        workflowEngine.reportService
+                    )
+                    if (nextRetry != null) {
+                        nextRetryItems += nextRetry
+                    }
                 }
 
                 logger.info("For $inputReportId:  finished send().  Checking to see if a retry is needed.")
