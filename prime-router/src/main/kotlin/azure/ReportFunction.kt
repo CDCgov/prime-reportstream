@@ -11,14 +11,18 @@ import com.microsoft.azure.functions.HttpRequestMessage
 import com.microsoft.azure.functions.HttpResponseMessage
 import com.microsoft.azure.functions.HttpStatus
 import com.microsoft.azure.functions.annotation.AuthorizationLevel
+import com.microsoft.azure.functions.annotation.BindingName
+import com.microsoft.azure.functions.annotation.BlobTrigger
 import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.HttpTrigger
 import com.microsoft.azure.functions.annotation.StorageAccount
 import gov.cdc.prime.router.ActionError
 import gov.cdc.prime.router.ActionLog
 import gov.cdc.prime.router.ActionLogLevel
+import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.InvalidParamMessage
 import gov.cdc.prime.router.InvalidReportMessage
+import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.Sender
@@ -48,6 +52,7 @@ import org.apache.logging.log4j.kotlin.Logging
 import java.io.File
 import java.nio.charset.StandardCharsets
 import java.util.UUID
+import kotlin.io.path.Path
 
 private const val PROCESSING_TYPE_PARAMETER = "processing"
 
@@ -65,6 +70,11 @@ class ReportFunction(
     ),
 ) : RequestFunction(workflowEngine),
     Logging {
+
+        enum class IngestionMethod {
+            SFTP,
+            REST,
+        }
 
     /**
      * POST a report to the router
@@ -339,6 +349,98 @@ class ReportFunction(
         }
     }
 
+    class SftpSubmissionException(override val message: String) : RuntimeException(message)
+
+    @FunctionName("submitSFTP")
+    fun submitViaSftp(
+        @BlobTrigger(
+            name = "report",
+            dataType = "string",
+            path = "sftp-submissions/{name}.{extension}",
+            connection = "SftpStorage"
+        ) content: String,
+        @BindingName("name") name: String,
+        @BindingName("extension") extension: String,
+    ) {
+        val format = try {
+            MimeFormat.valueOfFromExt(extension)
+        } catch (ex: IllegalArgumentException) {
+            throw SftpSubmissionException("$extension is not valid.")
+        }
+
+        val filename = "$name.$extension"
+
+        val senderId = getSenderIdFromFilePath(filename)
+        val sender = workflowEngine.settings.findSender(senderId)
+            ?: throw SftpSubmissionException("No sender found for $senderId, parsed from $filename")
+
+        if (sender.customerStatus == CustomerStatus.INACTIVE) {
+            logger.info("Sender is disabled, not processing the report")
+            // TODO https://github.com/CDCgov/prime-reportstream/issues/16260
+            return
+        }
+
+        val payloadName = extractPayloadNameFromFilePath(filename)
+        actionHistory.trackActionSenderInfo(sender.fullName, payloadName)
+
+        try {
+            val receiver = SubmissionReceiver.getSubmissionReceiver(sender, workflowEngine, actionHistory)
+            val rawBody = content.toByteArray()
+            val report = receiver.validateAndMoveToProcessing(
+                sender,
+                content,
+                emptyMap(),
+                Options.None,
+                emptyList(),
+                isAsync = true,
+                allowDuplicates = true,
+                rawBody = rawBody,
+                payloadName = payloadName
+            )
+
+            reportEventService.sendReportEvent(
+                eventName = ReportStreamEventName.REPORT_RECEIVED,
+                childReport = report,
+                pipelineStepName = TaskAction.receive
+            ) {
+                params(
+                    listOfNotNull(
+                        ReportStreamEventProperties.SENDER_NAME to sender.fullName,
+                        ReportStreamEventProperties.INGESTION_TYPE to IngestionMethod.SFTP,
+                        ReportStreamEventProperties.ITEM_FORMAT to format
+                    ).toMap()
+                )
+            }
+        } catch (e: ActionError) {
+            actionHistory.trackLogs(e.details)
+            throw e
+        } catch (e: IllegalArgumentException) {
+            actionHistory.trackLogs(
+                ActionLog(InvalidReportMessage(e.message ?: "Invalid request."), type = ActionLogLevel.error)
+            )
+            throw e
+        } catch (e: IllegalStateException) {
+            actionHistory.trackLogs(
+                ActionLog(InvalidReportMessage(e.message ?: "Invalid request."), type = ActionLogLevel.error)
+            )
+            throw e
+        }
+
+        actionHistory.trackActionResult(HttpStatus.OK)
+        workflowEngine.recordAction(actionHistory)
+        // queue messages here after all task / action records are in
+        actionHistory.queueMessages(workflowEngine)
+    }
+
+    private fun extractPayloadNameFromFilePath(filename: String): String {
+        return Path(filename).fileName.toString()
+    }
+
+    private fun getSenderIdFromFilePath(filename: String): String {
+        val path = Path(filename)
+        return path.parent.toString().split("/").joinToString(".")
+    }
+
     /**
      * The Waters API, in memory of Dr. Michael Waters
      * (The older version of this API is "/api/reports")
@@ -456,6 +558,7 @@ class ReportFunction(
                     ) {
                         params(
                             listOfNotNull(
+                                ReportStreamEventProperties.INGESTION_TYPE to IngestionMethod.REST,
                                 ReportStreamEventProperties.REQUEST_PARAMETERS
                                     to actionHistory.filterParameters(request),
                                 ReportStreamEventProperties.SENDER_NAME to sender.fullName,
