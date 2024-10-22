@@ -53,7 +53,7 @@ jobs:
       - name: Collect Terraform stats
 
         uses: josiahsiegel/terraform-stats@68b8cbe42c494333fbf6f8d90ac86da1fb69dcc2
-        ## eduardo.valdes@aquia.io (Replace) - uses: ./.github/actions/terraform-stats
+        ## DevSecOps - Aquia (Replace) - uses: ./.github/actions/terraform-stats
 
         id: stats1
         with:

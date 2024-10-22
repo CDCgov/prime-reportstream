@@ -14,7 +14,7 @@ jobs:
       - name: Scan run logs
 
         uses: josiahsiegel/runleaks@4dd30d107c03b6ade87978e10c94a77015e488f9
-        ## eduardo.valdes@aquia.io (Replace) - uses: ./.github/actions/runleaks
+        ## DevSecOps - Aquia (Replace) - uses: ./.github/actions/runleaks
 
         id: scan
         with:
