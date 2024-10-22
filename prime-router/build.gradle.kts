@@ -902,7 +902,6 @@ dependencies {
     implementation("ca.uhn.hapi:hapi-structures-v251:2.5.1")
     implementation("ca.uhn.hapi:hapi-structures-v26:2.5.1")
     implementation("ca.uhn.hapi:hapi-structures-v27:2.5.1")
-    // todo find intellij setting to automatically keep dependecy graph in sync
     implementation("com.googlecode.libphonenumber:libphonenumber:8.13.46")
     implementation("org.thymeleaf:thymeleaf:3.1.2.RELEASE")
     implementation("com.sendgrid:sendgrid-java:4.10.2")
