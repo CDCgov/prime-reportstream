@@ -1,9 +1,0 @@
-[core]
-   editor = "vim"
-[user]
-	name = First Last
-	email = my@email.com
-	signingKey = xxx
-
-[commit]
-	gpgSign = True

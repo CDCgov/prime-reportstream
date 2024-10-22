@@ -1,1 +1,0 @@
--d Ubuntu-20.04 -m prime-reportstream -u primeuser

@@ -1,1 +1,0 @@
--d Ubuntu-18.04 -m prime-data-ingestion -u primeuser
