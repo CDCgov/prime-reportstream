@@ -38,7 +38,8 @@ The two kinds of transforms work the same at a high level. The schema enumerates
 
 - contains a FHIR path to the resource that needs to be transformed
 - a condition specifying whether the resource should be transformed
-- how the resource should get transformed
+- how the resource should get transformed; a resource can be transformed either by setting it to a value or applying a 
+FHIR function
 
 The primary difference between the FHIR and HL7 schemas is that the HL7 converter has special handling for converting
 a FHIR resource into an HL7 segment or component.

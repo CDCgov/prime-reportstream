@@ -1,3 +1,4 @@
+import { pageNotFound } from "../../../../../src/content/error/ErrorMessages";
 import { noData, tableRows } from "../../../../helpers/utils";
 import { MOCK_GET_MESSAGES } from "../../../../mocks/messages";
 import { MessageIDSearchPage } from "../../../../pages/authenticated/admin/message-id-search";
@@ -160,7 +161,7 @@ test.describe("Message ID Search Page", () => {
             messageIDSearchPage.mockError = true;
             await messageIDSearchPage.reload();
 
-            await expect(messageIDSearchPage.page).toHaveTitle(/Page Not Found/);
+            await expect(messageIDSearchPage.page).toHaveTitle(new RegExp(pageNotFound));
         });
     });
 
@@ -171,7 +172,7 @@ test.describe("Message ID Search Page", () => {
             messageIDSearchPage.mockError = true;
             await messageIDSearchPage.reload();
 
-            await expect(messageIDSearchPage.page).toHaveTitle(/Page Not Found/);
+            await expect(messageIDSearchPage.page).toHaveTitle(new RegExp(pageNotFound));
         });
     });
 });

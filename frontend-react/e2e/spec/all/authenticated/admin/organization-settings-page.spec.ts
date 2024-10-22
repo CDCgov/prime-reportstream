@@ -2,6 +2,7 @@ import { expect } from "@playwright/test";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { pageNotFound } from "../../../../../src/content/error/ErrorMessages";
 import { MOCK_GET_ORGANIZATION_SETTINGS_LIST } from "../../../../mocks/organizations";
 import { OrganizationPage } from "../../../../pages/authenticated/admin/organization";
 import { test as baseTest } from "../../../../test";
@@ -51,14 +52,14 @@ test.describe("Admin Organization Settings Page", () => {
     test.describe("receiver user", () => {
         test.use({ storageState: "e2e/.auth/receiver.json" });
         test("returns Page Not Found", async ({ organizationPage }) => {
-            await expect(organizationPage.page).toHaveTitle(/Page Not Found/);
+            await expect(organizationPage.page).toHaveTitle(new RegExp(pageNotFound));
         });
     });
 
     test.describe("sender user", () => {
         test.use({ storageState: "e2e/.auth/sender.json" });
         test("returns Page Not Found", async ({ organizationPage }) => {
-            await expect(organizationPage.page).toHaveTitle(/Page Not Found/);
+            await expect(organizationPage.page).toHaveTitle(new RegExp(pageNotFound));
         });
     });
 
@@ -79,8 +80,8 @@ test.describe("Admin Organization Settings Page", () => {
 
         test.describe("when there is no error", () => {
             test("nav contains the 'Admin tools' dropdown with 'Organization Settings' option", async ({
-                                                                                                           organizationPage,
-                                                                                                       }) => {
+                organizationPage,
+            }) => {
                 const navItems = organizationPage.page.locator(".usa-nav  li");
                 await expect(navItems).toContainText(["Admin tools"]);
 
@@ -126,8 +127,8 @@ test.describe("Admin Organization Settings Page", () => {
                         i === 0
                             ? MOCK_GET_ORGANIZATION_SETTINGS_LIST[0]
                             : (MOCK_GET_ORGANIZATION_SETTINGS_LIST.find((i) => i.name === cols[0]) ?? {
-                                name: "INVALID",
-                            });
+                                  name: "INVALID",
+                              });
                     // if first row, we expect column headers. else, the data row matching id (name)
                     // SetEdit is text of buttons in button column
                     const expectedColContents =
