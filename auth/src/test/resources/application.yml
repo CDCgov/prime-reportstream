@@ -14,3 +14,4 @@ spring:
 
 server.port: 9000
 app.environment: local
+submissions.baseUrl: http://localhost:8080
