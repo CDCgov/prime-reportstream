@@ -68,7 +68,6 @@ elements:
     hl7Spec: [ '%{PID}-10-1' , '%{PID}-10-2' , '%{PID}-10-3' , '%{PID}-10-7' , '%{PID}-10-9' ]
 
   - name: oh-observation
-    resource: Bundle.entry.resource.ofType(Observation)
-    condition: 'Bundle.entry.resource.ofType(Observation).code.coding.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code").value.code = "AOE"'
-    schema: classpath:/metadata/hl7_mapping/receivers/STLTs/OH/OH-observation-fields.yml
+    resource: 'Bundle.entry.resource.ofType(Observation)'
+    schema: classpath:/metadata/hl7_mapping/receivers/Common/observation-fields/observation-fields.yml
     resourceIndex: resultIndex

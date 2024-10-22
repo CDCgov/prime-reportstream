@@ -17,6 +17,7 @@ locals {
     RS_okta_redirect_url  = "https://prime-data-hub-XXXXXXX.azurefd.net/download"
     RS_OKTA_scope         = "reportstream_dev"
     etor_ti_base_url      = "https://cdcti-stg-api.azurewebsites.net"
+    JAVA_OPTS             = "-Dfile.encoding=UTF-8"
   }
   key_vault = {
     app_config_kv_name    = "pdh${local.init.environment}-appconfig${local.init.random_id}"
