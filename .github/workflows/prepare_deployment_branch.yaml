@@ -29,7 +29,7 @@ jobs:
       - name: "Create branch '${{ env.BRANCH_NAME }}' to contain the changes for the deployment on ${{ env.DEPLOYMENT_DATE }}"
 
         uses: JosiahSiegel/remote-branch-action@dbe7a2138eb064fbfdb980abee918091a7501fbe
-        ## emvaldes@hotmail.com (Replace) - uses: ./.github/actions/remote-branch-action
+        ## eduardo.valdes@aquia.io (Replace) - uses: ./.github/actions/remote-branch-action
 
         with:
           branch: "${{ env.BRANCH_NAME }}"
@@ -38,7 +38,7 @@ jobs:
         id: pr
 
         uses: JosiahSiegel/reliable-pull-request-action@ae8d0c88126329ee363a35392793d0bc94cb82e7
-        ## emvaldes@hotmail.com (Replace) - uses: ./.github/actions/reliable-pull-request-action
+        ## eduardo.valdes@aquia.io (Replace) - uses: ./.github/actions/reliable-pull-request-action
 
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

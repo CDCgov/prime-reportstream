@@ -146,7 +146,7 @@ jobs:
         if: needs.pre_job.outputs.has_router_change == 'true' && env.checksum_validation == 'true'
 
         uses: JosiahSiegel/checksum-validate-action@ebdf8c12c00912d18de93c483b935d51582f9236
-        ## emvaldes@hotmail.com (Replace) - uses: ./.github/actions/checksum-validate-action
+        ## eduardo.valdes@aquia.io (Replace) - uses: ./.github/actions/checksum-validate-action
 
         with:
           key: backend
