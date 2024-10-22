@@ -2,12 +2,7 @@ import { IEventTelemetry } from "@microsoft/applicationinsights-web";
 import { ButtonProps } from "@trussworks/react-uswds/lib/components/Button/Button";
 import classnames from "classnames";
 import DOMPurify from "dompurify";
-import {
-    AnchorHTMLAttributes,
-    MouseEvent as ReactMouseEvent,
-    ReactNode,
-    useMemo,
-} from "react";
+import { AnchorHTMLAttributes, MouseEvent as ReactMouseEvent, ReactNode, useMemo } from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
 import useAppInsightsContext from "../hooks/UseAppInsightsContext/UseAppInsightsContext";
 
@@ -20,10 +15,8 @@ interface CustomLinkProps {
     activeClassName?: string;
     state?: any;
 }
-type USLinkProps = AnchorHTMLAttributes<object> &
-    Omit<CustomLinkProps, "activeClassName">;
-type USNavLinkProps = Pick<AnchorHTMLAttributes<object>, "href"> &
-    CustomLinkProps;
+type USLinkProps = AnchorHTMLAttributes<object> & Omit<CustomLinkProps, "activeClassName">;
+type USNavLinkProps = Pick<AnchorHTMLAttributes<object>, "href"> & CustomLinkProps;
 
 /**
  * Stateless function to get route href from href that could be
@@ -39,15 +32,10 @@ export function getHrefRoute(href?: string): string | undefined {
     if (href === undefined) return undefined;
 
     try {
-        const url = new URL(
-            href.replace(/^\/\//, `${window.location.protocol}//`),
-        );
-        if (
-            url.protocol.startsWith("http") &&
-            url.origin === window.location.origin
-        )
+        const url = new URL(href.replace(/^\/\//, `${window.location.protocol}//`));
+        if (url.protocol.startsWith("http") && url.origin === window.location.origin)
             return `${url.pathname}${url.search}`;
-    } catch (e: any) {
+    } catch (_e: any) {
         return href;
     }
 
@@ -66,12 +54,7 @@ const sanitizeHref = (href: string | undefined) => {
  * Sanitizes href and determines if href is an app route or regular
  * link.
  */
-export const SafeLink = ({
-    children,
-    href,
-    state,
-    ...anchorHTMLAttributes
-}: SafeLinkProps) => {
+export const SafeLink = ({ children, href, state, ...anchorHTMLAttributes }: SafeLinkProps) => {
     const sanitizedHref = sanitizeHref(href);
     const routeHref = getHrefRoute(sanitizedHref);
     const isFile = sanitizedHref?.startsWith("/assets/");
@@ -102,9 +85,7 @@ export const USLink = ({ children, className, ...props }: USLinkProps) => {
     );
 };
 
-export interface USLinkButtonProps
-    extends USLinkProps,
-        Omit<ButtonProps, "type"> {}
+export interface USLinkButtonProps extends USLinkProps, Omit<ButtonProps, "type"> {}
 
 export const USLinkButton = ({
     className,
@@ -131,9 +112,7 @@ export const USLinkButton = ({
         className,
     );
     if (isExternalUrl(sanitizeHref(anchorHTMLAttributes.href))) {
-        return (
-            <USExtLink {...anchorHTMLAttributes} className={linkClassname} />
-        );
+        return <USExtLink {...anchorHTMLAttributes} className={linkClassname} />;
     }
     return <SafeLink {...anchorHTMLAttributes} className={linkClassname} />;
 };
@@ -151,11 +130,7 @@ export const USLinkButton = ({
  *          My Site
  *  </USLink>
  * */
-export const USExtLink = ({
-    className,
-    children,
-    ...anchorHTMLAttributes
-}: Omit<USLinkProps, "rel" | "target">) => {
+export const USExtLink = ({ className, children, ...anchorHTMLAttributes }: Omit<USLinkProps, "rel" | "target">) => {
     return (
         <USLink
             target="_blank"
@@ -170,15 +145,8 @@ export const USExtLink = ({
 
 /** A single link for building breadcrumbs. Uses `USLink` as a base and renders a
  * react-router-dom `Link` with applied uswds styling for specific use in breadcrumbs */
-export const USCrumbLink = ({
-    className,
-    children,
-    ...anchorHTMLAttributes
-}: USLinkProps) => (
-    <USLink
-        className={classnames("usa-breadcrumb__link", className)}
-        {...anchorHTMLAttributes}
-    >
+export const USCrumbLink = ({ className, children, ...anchorHTMLAttributes }: USLinkProps) => (
+    <USLink className={classnames("usa-breadcrumb__link", className)} {...anchorHTMLAttributes}>
         {children}
     </USLink>
 );
@@ -186,13 +154,7 @@ export const USCrumbLink = ({
 /** A single link to replace NavLink (react-router-dom). Applies uswds navigation link styling
  * and handles both active and standard style states. This DOES NOT use `USLink` as a base; it
  * relies on `NavLink` for additional functionality. */
-export const USNavLink = ({
-    href,
-    children,
-    className,
-    activeClassName,
-    ...props
-}: USNavLinkProps) => {
+export const USNavLink = ({ href, children, className, activeClassName, ...props }: USNavLinkProps) => {
     const { hash: currentHash } = useLocation();
     const hashIndex = href?.indexOf("#") ?? -1;
     const hash = hashIndex > -1 ? href?.slice(hashIndex) : "";
@@ -202,8 +164,7 @@ export const USNavLink = ({
             to={href ?? ""}
             className={({ isActive: isPathnameActive }) => {
                 // Without this, all hash links would be considered active for a path
-                const isActive =
-                    isPathnameActive && (hash === "" || currentHash === hash);
+                const isActive = isPathnameActive && (hash === "" || currentHash === hash);
 
                 return classnames("usa-nav__link", {
                     "usa-current": isActive,
@@ -227,31 +188,21 @@ export function isExternalUrl(href?: string) {
     if (href === undefined) return false;
     try {
         // Browsers allow // shorthand in anchor urls but URL does not
-        const url = new URL(
-            href.replace(/^\/\//, `${window.location.protocol}//`),
-        );
+        const url = new URL(href.replace(/^\/\//, `${window.location.protocol}//`));
         return (
-            (url.protocol.startsWith("http") &&
-                url.host !== "cdc.gov" &&
-                !url.host.endsWith(".cdc.gov")) ||
+            (url.protocol.startsWith("http") && url.host !== "cdc.gov" && !url.host.endsWith(".cdc.gov")) ||
             href.startsWith("mailto:")
         );
-    } catch (e: any) {
+    } catch (_e: any) {
         return false;
     }
 }
 
-export interface USSmartLinkProps
-    extends AnchorHTMLAttributes<HTMLAnchorElement> {
+export interface USSmartLinkProps extends AnchorHTMLAttributes<HTMLAnchorElement> {
     trackClick?: IEventTelemetry;
 }
 
-export function USSmartLink({
-    children,
-    onClick,
-    trackClick,
-    ...props
-}: USSmartLinkProps) {
+export function USSmartLink({ children, onClick, trackClick, ...props }: USSmartLinkProps) {
     const appInsights = useAppInsightsContext();
     let isExternal = props.href !== undefined;
     const finalOnClick = useMemo(
