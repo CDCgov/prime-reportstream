@@ -32,7 +32,7 @@
       jurisdictionalFilter:
         - "Bundle.entry.resource.ofType(MessageHeader).event.code = 'O21'"  # OML_O21
         - "Bundle.entry.resource.ofType(MessageHeader).meta.tag.where(system = 'http://localcodes.org/ETOR').code = 'ETOR'"  # required to avoid looping issue with TI
-        - "Bundle.entry.resource.ofType(MessageHeader).destination.receiver.resolve().identifier.where(value = '2.16.840.1.114222.4.3.26.3.2').exists()"  # receiver routing filter
+        - "Bundle.entry.resource.ofType(MessageHeader).destination.extension.where(url = 'https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id').value = '2.16.840.1.114222.4.3.26.3.2'"  # receiver routing filter (MSH-5.2)
       qualityFilter:
         - "true"
       timing:

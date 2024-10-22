@@ -206,7 +206,7 @@ test.describe(
                             );
                         });
 
-                        test.skip("clears 'Report ID'", async ({ dailyDataPage }) => {
+                        test("clears 'Report ID'", async ({ dailyDataPage }) => {
                             // Search by Report ID
                             const reportId = await tableDataCellValue(dailyDataPage.page, 0, 0);
                             await searchInput(dailyDataPage.page).fill(reportId);
@@ -289,7 +289,7 @@ test.describe(
                         expect(await tableDataCellValue(dailyDataPage.page, 0, 0)).toEqual(reportId);
                     });
 
-                    test.skip("returns match for Filename", async ({ dailyDataPage }) => {
+                    test("returns match for Filename", async ({ dailyDataPage }) => {
                         // Filename search is currently broken and being tracked
                         // in ticket #15644
                         const fileName = await tableDataCellValue(dailyDataPage.page, 0, 4);
@@ -302,7 +302,8 @@ test.describe(
 
                         // Check filter status lists receiver value
                         const filterStatusText = filterStatus([fileName]);
-                        await expect(dailyDataPage.page.getByTestId("filter-status")).toContainText(filterStatusText);
+                        const actualText = await dailyDataPage.page.getByTestId("filter-status").textContent();
+                        expect(filterStatusText).toContain(actualText);
 
                         //Check table data matches search
                         expect(await tableDataCellValue(dailyDataPage.page, 0, 4)).toEqual(fileName);

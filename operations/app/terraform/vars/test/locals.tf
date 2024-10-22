@@ -16,6 +16,7 @@ locals {
     storage_queue_name    = ["process"]
     sftp_container_module = true
     etor_ti_base_url      = "https://cdcti-stg-api.azurewebsites.net"
+    JAVA_OPTS             = "-Dfile.encoding=UTF-8"
   }
   key_vault = {
     app_config_kv_name    = "pdh${local.init.environment}-app-config"

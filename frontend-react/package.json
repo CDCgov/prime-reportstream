@@ -8,7 +8,7 @@
     "@microsoft/applicationinsights-react-js": "^17.3.2",
     "@microsoft/applicationinsights-web": "^3.3.2",
     "@okta/okta-react": "^6.9.0",
-    "@okta/okta-signin-widget": "^7.23.0",
+    "@okta/okta-signin-widget": "^7.24.2",
     "@rest-hooks/rest": "^3.0.3",
     "@tanstack/react-query": "^5.55.4",
     "@tanstack/react-query-devtools": "^5.55.4",
@@ -21,10 +21,11 @@
     "dompurify": "^3.1.6",
     "downloadjs": "^1.4.7",
     "export-to-csv-fix-source-map": "^0.2.1",
-    "focus-trap-react": "^10.2.3",
+    "focus-trap-react": "^10.3.0",
     "history": "^5.3.0",
     "html-to-text": "^9.0.5",
     "lodash": "^4.17.21",
+    "p-limit": "^6.1.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-helmet-async": "^2.0.5",
@@ -72,7 +73,7 @@
     "test:debug": "cross-env DEBUG_PRINT_LIMIT=100000 vitest --run --no-file-parallelism",
     "test:ci": "cross-env VITE_BACKEND_URL=http://localhost vitest --coverage",
     "test:ui": "cross-env vitest --ui",
-    "test:e2e": "playwright test",
+    "test:e2e": "playwright test --trace on",
     "test:e2e-smoke": "MOCK_DISABLED=true playwright test --project chromium --grep @smoke",
     "test:e2e-ui": "playwright test --ui",
     "test:e2e-ui:smoke": "MOCK_DISABLED=true playwright test --project chromium --grep @smoke --ui",
@@ -168,7 +169,7 @@
     "eslint-plugin-testing-library": "^6.3.0",
     "eslint-plugin-vitest": "^0.5.4",
     "husky": "^9.1.5",
-    "jsdom": "^25.0.0",
+    "jsdom": "^25.0.1",
     "lint-staged": "^15.2.10",
     "mockdate": "^3.0.5",
     "msw": "^2.3.5",
@@ -195,7 +196,8 @@
     "vitest": "^2.0.5"
   },
   "resolutions": {
-    "@types/react": "18.3.5"
+    "@types/react": "18.3.5",
+    "@okta/okta-auth-js": ">=7.8.1"
   },
   "engines": {
     "node": "^20.15"

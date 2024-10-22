@@ -9,172 +9,85 @@ import { PERMISSIONS } from "./utils/UsefulTypes";
 
 /* Content Pages */
 const Home = lazy(lazyRouteMarkdown(() => import("./content/home/index.mdx")));
-const About = lazy(
-    lazyRouteMarkdown(() => import("./content/about/index.mdx")),
-);
-const OurNetwork = lazy(
-    lazyRouteMarkdown(() => import("./content/about/our-network.mdx")),
-);
-const Roadmap = lazy(
-    lazyRouteMarkdown(() => import("./content/about/roadmap.mdx")),
-);
+const About = lazy(lazyRouteMarkdown(() => import("./content/about/index.mdx")));
+const OurNetwork = lazy(lazyRouteMarkdown(() => import("./content/about/our-network.mdx")));
+const Roadmap = lazy(lazyRouteMarkdown(() => import("./content/about/roadmap.mdx")));
 const News = lazy(lazyRouteMarkdown(() => import("./content/about/news.mdx")));
-const Security = lazy(
-    lazyRouteMarkdown(() => import("./content/about/security.mdx")),
-);
-const ReleaseNotes = lazy(
-    lazyRouteMarkdown(() => import("./content/about/release-notes.mdx")),
-);
-const CaseStudies = lazy(
-    lazyRouteMarkdown(() => import("./content/about/case-studies.mdx")),
-);
+const Security = lazy(lazyRouteMarkdown(() => import("./content/about/security.mdx")));
+const ReleaseNotes = lazy(lazyRouteMarkdown(() => import("./content/about/release-notes.mdx")));
+const CaseStudies = lazy(lazyRouteMarkdown(() => import("./content/about/case-studies.mdx")));
 const ReferHealthcareOrganizations = lazy(
-    lazyRouteMarkdown(
-        () =>
-            import(
-                "./content/managing-your-connection/refer-healthcare-organizations.mdx"
-            ),
-    ),
+    lazyRouteMarkdown(() => import("./content/managing-your-connection/refer-healthcare-organizations.mdx")),
 );
 
-const GettingStartedSendingData = lazy(
-    lazyRouteMarkdown(
-        () => import("./content/getting-started/sending-data.mdx"),
-    ),
-);
+const GettingStartedSendingData = lazy(lazyRouteMarkdown(() => import("./content/getting-started/sending-data.mdx")));
 const GettingStartedReceivingData = lazy(
-    lazyRouteMarkdown(
-        () => import("./content/getting-started/receiving-data.mdx"),
-    ),
+    lazyRouteMarkdown(() => import("./content/getting-started/receiving-data.mdx")),
 );
 const ReportStreamApiIndex = lazy(
-    lazyRouteMarkdown(
-        () =>
-            import(
-                "./content/developer-resources/reportstream-api/ReportStreamApi.mdx"
-            ),
-    ),
+    lazyRouteMarkdown(() => import("./content/developer-resources/reportstream-api/ReportStreamApi.mdx")),
 );
-const DeveloperResourcesIndex = lazy(
-    lazyRouteMarkdown(
-        () => import("./content/developer-resources/index-page.mdx"),
-    ),
-);
+const DeveloperResourcesIndex = lazy(lazyRouteMarkdown(() => import("./content/developer-resources/index-page.mdx")));
 const ReportStreamApiGettingStarted = lazy(
     lazyRouteMarkdown(
-        () =>
-            import(
-                "./content/developer-resources/reportstream-api/getting-started/GettingStarted.mdx"
-            ),
+        () => import("./content/developer-resources/reportstream-api/getting-started/GettingStarted.mdx"),
     ),
 );
 const ReportStreamApiDocumentation = lazy(
-    lazyRouteMarkdown(
-        () =>
-            import(
-                "./content/developer-resources/reportstream-api/documentation/Documentation.mdx"
-            ),
-    ),
+    lazyRouteMarkdown(() => import("./content/developer-resources/reportstream-api/documentation/Documentation.mdx")),
 );
 const ReportStreamApiDocumentationResponses = lazy(
     lazyRouteMarkdown(
-        () =>
-            import(
-                "./content/developer-resources/reportstream-api/documentation/ResponsesFromReportStream.mdx"
-            ),
+        () => import("./content/developer-resources/reportstream-api/documentation/ResponsesFromReportStream.mdx"),
     ),
 );
 const ManagingYourConnectionIndex = lazy(
-    lazyRouteMarkdown(
-        () => import("./content/managing-your-connection/index.mdx"),
-    ),
+    lazyRouteMarkdown(() => import("./content/managing-your-connection/index.mdx")),
 );
-const SupportIndex = lazy(
-    lazyRouteMarkdown(() => import("./content/support/index.mdx")),
-);
+const SupportIndex = lazy(lazyRouteMarkdown(() => import("./content/support/index.mdx")));
 const ReportStreamApiDocumentationPayloads = lazy(
     lazyRouteMarkdown(
-        () =>
-            import(
-                "./content/developer-resources/reportstream-api/documentation/SamplePayloadsAndOutput.mdx"
-            ),
+        () => import("./content/developer-resources/reportstream-api/documentation/SamplePayloadsAndOutput.mdx"),
     ),
 );
 
 /* Public Pages */
 const TermsOfService = lazy(() => import("./pages/TermsOfService"));
 
-const LoginCallback = lazy(
-    () => import("./shared/LoginCallback/LoginCallback"),
-);
-const LogoutCallback = lazy(
-    () => import("./shared/LogoutCallback/LogoutCallback"),
-);
+const LoginCallback = lazy(() => import("./shared/LoginCallback/LoginCallback"));
+const LogoutCallback = lazy(() => import("./shared/LogoutCallback/LogoutCallback"));
 const Login = lazy(() => import("./pages/Login"));
 
-const ErrorNoPage = lazy(
-    () => import("./pages/error/legacy-content/ErrorNoPage"),
-);
+const ErrorNoPage = lazy(() => import("./pages/error/legacy-content/ErrorNoPage"));
 
 /* Auth Pages */
 const FeatureFlagsPage = lazy(() => import("./pages/misc/FeatureFlags"));
-const SubmissionDetailsPage = lazy(
-    () => import("./pages/submissions/SubmissionDetails"),
-);
+const SubmissionDetailsPage = lazy(() => import("./pages/submissions/SubmissionDetails"));
 const SubmissionsPage = lazy(() => import("./pages/submissions/Submissions"));
 const AdminMainPage = lazy(() => import("./pages/admin/AdminMain"));
 const AdminOrgNewPage = lazy(() => import("./pages/admin/AdminOrgNew"));
 const AdminOrgEditPage = lazy(() => import("./pages/admin/AdminOrgEdit"));
-const EditSenderSettingsPage = lazy(
-    () => import("./components/Admin/EditSenderSettings"),
-);
+const EditSenderSettingsPage = lazy(() => import("./components/Admin/EditSenderSettings"));
 const AdminLMFPage = lazy(() => import("./pages/admin/AdminLastMileFailures"));
-const AdminMessageTrackerPage = lazy(
-    () => import("./pages/admin/AdminMessageTracker"),
-);
+const AdminMessageTrackerPage = lazy(() => import("./pages/admin/AdminMessageTracker"));
 const AdminReceiverDashPage = lazy(
-    () =>
-        import(
-            "./pages/admin/receiver-dashboard/AdminReceiverDashboardPage/AdminReceiverDashboardPage"
-        ),
+    () => import("./pages/admin/receiver-dashboard/AdminReceiverDashboardPage/AdminReceiverDashboardPage"),
 );
-const DeliveryDetailPage = lazy(
-    () => import("./pages/deliveries/details/DeliveryDetail"),
-);
-const ValueSetsDetailPage = lazy(
-    () => import("./pages/admin/value-set-editor/ValueSetsDetail"),
-);
-const ValueSetsIndexPage = lazy(
-    () => import("./pages/admin/value-set-editor/ValueSetsIndex"),
-);
+const DeliveryDetailPage = lazy(() => import("./pages/deliveries/details/DeliveryDetail"));
+const ValueSetsDetailPage = lazy(() => import("./pages/admin/value-set-editor/ValueSetsDetail"));
+const ValueSetsIndexPage = lazy(() => import("./pages/admin/value-set-editor/ValueSetsIndex"));
 const DeliveriesPage = lazy(() => import("./pages/deliveries/Deliveries"));
-const EditReceiverSettingsPage = lazy(
-    () => import("./components/Admin/EditReceiverSettings"),
-);
+const EditReceiverSettingsPage = lazy(() => import("./components/Admin/EditReceiverSettings"));
 const AdminRevHistoryPage = lazy(() => import("./pages/admin/AdminRevHistory"));
-const MessageDetailsPage = lazy(
-    () => import("./components/MessageTracker/MessageDetails"),
-);
-const ManagePublicKeyPage = lazy(
-    () => import("./components/ManagePublicKey/ManagePublicKey"),
-);
-const DataDashboardPage = lazy(
-    () => import("./pages/data-dashboard/DataDashboard"),
-);
-const ReportDetailsPage = lazy(
-    () => import("./components/DataDashboard/ReportDetails/ReportDetails"),
-);
+const MessageDetailsPage = lazy(() => import("./components/MessageTracker/MessageDetails"));
+const ManagePublicKeyPage = lazy(() => import("./components/ManagePublicKey/ManagePublicKey"));
+const DataDashboardPage = lazy(() => import("./pages/data-dashboard/DataDashboard"));
+const ReportDetailsPage = lazy(() => import("./components/DataDashboard/ReportDetails/ReportDetails"));
 const FacilitiesProvidersPage = lazy(
-    () =>
-        import(
-            "./components/DataDashboard/FacilitiesProviders/FacilitiesProviders"
-        ),
+    () => import("./components/DataDashboard/FacilitiesProviders/FacilitiesProviders"),
 );
 const FacilityProviderSubmitterDetailsPage = lazy(
-    () =>
-        import(
-            "./components/DataDashboard/FacilityProviderSubmitterDetails/FacilityProviderSubmitterDetails"
-        ),
+    () => import("./components/DataDashboard/FacilityProviderSubmitterDetails/FacilityProviderSubmitterDetails"),
 );
 const NewSettingPage = lazy(() => import("./components/Admin/NewSetting"));
 
@@ -343,9 +256,7 @@ export const appRoutes: RouteObject[] = [
                                 children: [
                                     {
                                         path: "",
-                                        element: (
-                                            <ReportStreamApiDocumentation />
-                                        ),
+                                        element: <ReportStreamApiDocumentation />,
                                         index: true,
                                         handle: {
                                             isContentPage: true,
@@ -353,18 +264,14 @@ export const appRoutes: RouteObject[] = [
                                     },
                                     {
                                         path: "responses-from-reportstream",
-                                        element: (
-                                            <ReportStreamApiDocumentationResponses />
-                                        ),
+                                        element: <ReportStreamApiDocumentationResponses />,
                                         handle: {
                                             isContentPage: true,
                                         },
                                     },
                                     {
                                         path: "sample-payloads-and-output",
-                                        element: (
-                                            <ReportStreamApiDocumentationPayloads />
-                                        ),
+                                        element: <ReportStreamApiDocumentationPayloads />,
                                         handle: {
                                             isContentPage: true,
                                         },
@@ -491,27 +398,15 @@ export const appRoutes: RouteObject[] = [
                     },
                     {
                         path: "facility/:senderId",
-                        element: (
-                            <FacilityProviderSubmitterDetailsPage
-                                senderType={SenderType.FACILITY}
-                            />
-                        ),
+                        element: <FacilityProviderSubmitterDetailsPage senderType={SenderType.FACILITY} />,
                     },
                     {
                         path: "provider/:senderId",
-                        element: (
-                            <FacilityProviderSubmitterDetailsPage
-                                senderType={SenderType.PROVIDER}
-                            />
-                        ),
+                        element: <FacilityProviderSubmitterDetailsPage senderType={SenderType.PROVIDER} />,
                     },
                     {
                         path: "submitter/:senderId",
-                        element: (
-                            <FacilityProviderSubmitterDetailsPage
-                                senderType={SenderType.SUBMITTER}
-                            />
-                        ),
+                        element: <FacilityProviderSubmitterDetailsPage senderType={SenderType.SUBMITTER} />,
                     },
                 ],
             },
