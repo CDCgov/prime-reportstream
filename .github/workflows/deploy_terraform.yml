@@ -11,7 +11,7 @@ on:
 jobs:
   pre_job:
     name: Set Build Environment
-    concurrency: 
+    concurrency:
       group: ${{ github.workflow }}-${{ needs.pre_job.outputs.env_name }}
       cancel-in-progress: true
     runs-on: ubuntu-latest
@@ -28,7 +28,7 @@ jobs:
   confirm_changes:
     name: Check Terraform Stats - ${{ needs.pre_job.outputs.env_name }}
     if: ${{ needs.pre_job.outputs.tf_change == 'true' }}
-    concurrency: 
+    concurrency:
       group: ${{ github.workflow }}-${{ needs.pre_job.outputs.env_name }}
       cancel-in-progress: true
     needs:
@@ -60,7 +60,7 @@ jobs:
 
   approve_deploy:
     name: Approve Deploy - ${{ needs.pre_job.outputs.env_name }}
-    concurrency: 
+    concurrency:
       group: ${{ github.workflow }}-${{ needs.pre_job.outputs.env_name }}
       cancel-in-progress: true
     needs:
@@ -75,7 +75,7 @@ jobs:
 
   run_deploy:
     name: Run Deploy - ${{ needs.pre_job.outputs.env_name }}
-    concurrency: 
+    concurrency:
       group: ${{ github.workflow }}-${{ needs.pre_job.outputs.env_name }}
       cancel-in-progress: true
     needs:
@@ -108,4 +108,7 @@ jobs:
       - name: Run Terraform
         run: |
           terraform init -input=false
-          terraform apply -input=false -no-color -lock-timeout=600s -auto-approve
+          terraform validate
+          terraform fmt -recursive
+          terraform plan -out ${{ needs.pre_job.outputs.env_name }}-tf.plan
+          # terraform apply -input=false -no-color -lock-timeout=600s -auto-approve ${{ needs.pre_job.outputs.env_name }}-tf.plan
