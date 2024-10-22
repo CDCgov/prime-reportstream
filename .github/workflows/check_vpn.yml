@@ -1,6 +1,6 @@
 name: Check connect vpn
 
-on: pull_request   
+on: pull_request
 
 jobs:
   check-vpn:
@@ -10,7 +10,7 @@ jobs:
       - name: Install Open VPN
         run: sudo apt-get install openvpn
       - name: Connect VPN
-        uses: ./
+        uses: ./.github/actions/action-connect-ovpn
         id: connect_vpn
         with:
           PING_URL: '${{ secrets.PING_URL }}'
