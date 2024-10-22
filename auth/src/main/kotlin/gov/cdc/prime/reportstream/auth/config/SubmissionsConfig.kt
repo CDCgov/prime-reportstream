@@ -9,5 +9,5 @@ import org.springframework.context.annotation.Configuration
 @Configuration
 @ConfigurationProperties(prefix = "submissions")
 data class SubmissionsConfig(
-    var baseUrl: String = "http://localhost:8080"
+    var baseUrl: String = "http://localhost:8080",
 )

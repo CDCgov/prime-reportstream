@@ -17,12 +17,13 @@ import org.springframework.security.web.server.SecurityWebFilterChain
 @Configuration
 @EnableWebFluxSecurity
 class SecurityConfig(
-    private val applicationConfig: ApplicationConfig
+    private val applicationConfig: ApplicationConfig,
 ) : Logging {
 
     @Bean
     fun securityWebFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
         http
+            .csrf { it.disable() } // TODO: re-enable after 16312
             .authorizeExchange { authorize ->
                 authorize
                     // allow health endpoint without authentication

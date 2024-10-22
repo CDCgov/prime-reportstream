@@ -11,7 +11,7 @@ import org.springframework.context.annotation.Configuration
  */
 @Configuration
 class RouteConfig(
-    private val submissionsConfig: SubmissionsConfig
+    private val submissionsConfig: SubmissionsConfig,
 ) {
 
     @Bean
@@ -24,5 +24,4 @@ class RouteConfig(
             }
             .build()
     }
-
 }

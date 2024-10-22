@@ -6,5 +6,5 @@ package gov.cdc.prime.reportstream.auth.model
 enum class Environment {
     LOCAL,
     STAGING,
-    PRODUCTION
+    PRODUCTION,
 }

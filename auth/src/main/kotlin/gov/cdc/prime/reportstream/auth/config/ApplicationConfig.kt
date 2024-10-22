@@ -12,12 +12,11 @@ import kotlin.time.TimeSource
 @Configuration
 @ConfigurationProperties(prefix = "app")
 class ApplicationConfig(
-    var environment: Environment = Environment.LOCAL
+    var environment: Environment = Environment.LOCAL,
 ) {
 
     @Bean
     fun timeSource(): TimeSource {
         return TimeSource.Monotonic
     }
-
 }

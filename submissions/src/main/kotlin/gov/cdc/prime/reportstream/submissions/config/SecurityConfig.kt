@@ -17,6 +17,7 @@ class SecurityConfig {
     @Bean
     fun filterChain(http: HttpSecurity): SecurityFilterChain {
         http
+            .csrf { it.disable() } // TODO: re-enable after 16312
             .authorizeHttpRequests { authorize ->
                 authorize
                     // TODO: add routes which require authentication here when required
