@@ -23,7 +23,7 @@ data class Submission(
     val bodyURL: String,
     @JsonIgnore
     val detail: String? = null,
-    val timestamp: OffsetDateTime? = null
+    val timestamp: OffsetDateTime? = null,
 ) {
     companion object {
         /**
