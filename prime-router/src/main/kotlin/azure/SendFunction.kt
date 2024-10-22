@@ -232,8 +232,12 @@ class SendFunction(
                     val randomSeconds = Random.nextInt(ditherRetriesInSec * -1, ditherRetriesInSec)
                     val nextRetryTime = OffsetDateTime.now().plusSeconds(waitMinutes * 60 + randomSeconds)
                     val nextRetryToken = RetryToken(nextRetryCount, nextRetryItems)
+                    val submittedReportIds = workflowEngine.reportService.getRootReports(report.reportId).map {
+                        it.reportId
+                    }
                     val msg = "Send Failed.  Will retry sending report: $report.reportId to ${receiver.fullName}" +
-                        " in $waitMinutes minutes and $randomSeconds seconds at $nextRetryTime"
+                        " in $waitMinutes minutes and $randomSeconds seconds at $nextRetryTime." +
+                        " Corresponding submitted ReportIds: $submittedReportIds"
                     logger.warn(msg)
                     actionHistory.setActionType(TaskAction.send_warning)
                     actionHistory.trackActionResult(msg)

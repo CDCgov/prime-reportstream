@@ -11,6 +11,7 @@ import com.azure.storage.blob.models.BlobItemProperties
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.json.JsonMapper
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
+import com.github.ajalt.clikt.core.CliktError
 import com.google.common.net.HttpHeaders
 import com.microsoft.azure.functions.HttpStatus
 import gov.cdc.prime.router.ActionLog
@@ -20,22 +21,28 @@ import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.DeepOrganization
 import gov.cdc.prime.router.Element
 import gov.cdc.prime.router.FileSettings
+import gov.cdc.prime.router.Hl7Configuration
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
+import gov.cdc.prime.router.ReportStreamFilter
+import gov.cdc.prime.router.ReportStreamFilters
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.SubmissionReceiver
 import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.TopicReceiver
+import gov.cdc.prime.router.UniversalPipelineReceiver
 import gov.cdc.prime.router.UniversalPipelineSender
 import gov.cdc.prime.router.azure.BlobAccess.BlobContainerMetadata
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
+import gov.cdc.prime.router.cli.GetMultipleSettings
 import gov.cdc.prime.router.cli.PIIRemovalCommands
+import gov.cdc.prime.router.cli.ProcessFhirCommands
 import gov.cdc.prime.router.history.DetailedSubmissionHistory
 import gov.cdc.prime.router.history.azure.SubmissionsFacade
 import gov.cdc.prime.router.serializers.Hl7Serializer
@@ -55,8 +62,10 @@ import org.jooq.tools.jdbc.MockConnection
 import org.jooq.tools.jdbc.MockDataProvider
 import org.jooq.tools.jdbc.MockResult
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import java.io.File
 import java.time.OffsetDateTime
 import java.util.UUID
 
@@ -292,6 +301,109 @@ class ReportFunctionTests {
         every { engine.insertProcessTask(any(), any(), any(), any()) } returns Unit
         every { accessSpy.isDuplicateItem(any(), any()) } returns false
         return Triple(reportFunc, req, sender)
+    }
+
+    @Nested
+    inner class SftpSubmission {
+
+        val sender = UniversalPipelineSender(
+            "full-elr",
+            "phd",
+            MimeFormat.HL7,
+            customerStatus = CustomerStatus.ACTIVE,
+            topic = Topic.FULL_ELR
+        )
+        val mockReport = mockk<Report>(relaxed = true)
+
+        @BeforeEach
+        fun setUp() {
+            mockkConstructor(UniversalPipelineReceiver::class)
+
+            every {
+                anyConstructed<UniversalPipelineReceiver>().validateAndMoveToProcessing(
+                    any(),
+                    any(),
+                    any(),
+                    any(),
+                    any(),
+                    any(),
+                    any(),
+                    any(),
+                    any()
+                )
+            } returns mockReport
+        }
+
+        val senderOrg = DeepOrganization(
+            "phd",
+            "test",
+            Organization.Jurisdiction.FEDERAL,
+            senders = listOf(sender)
+        )
+
+        @Test
+        fun `test submitSFTP success`() {
+            val metadata = UnitTestUtils.simpleMetadata
+            val settings = FileSettings().loadOrganizations(senderOrg)
+            val engine = makeEngine(metadata, settings)
+            val actionHistory = spyk(ActionHistory(TaskAction.receive))
+            val reportFunc = spyk(ReportFunction(engine, actionHistory))
+            every { accessSpy.insertAction(any(), any()) } returns 0
+            every { accessSpy.saveActionHistoryToDb(any(), any()) } returns Unit
+
+            reportFunc.submitViaSftp(hl7_valid, "${senderOrg.name}/${sender.name}/valid", "hl7")
+            verify {
+                anyConstructed<UniversalPipelineReceiver>().validateAndMoveToProcessing(
+                    any(),
+                    any(),
+                    any(),
+                    any(),
+                    any(),
+                    any(),
+                    any(),
+                    any(),
+                    any()
+                )
+            }
+        }
+
+        @Test
+        fun `test submitSFTP no sender`() {
+            val metadata = UnitTestUtils.simpleMetadata
+            val settings = FileSettings().loadOrganizations(senderOrg)
+            val engine = makeEngine(metadata, settings)
+            val actionHistory = spyk(ActionHistory(TaskAction.receive))
+            val reportFunc = spyk(ReportFunction(engine, actionHistory))
+            every { accessSpy.insertAction(any(), any()) } returns 0
+            every { accessSpy.saveActionHistoryToDb(any(), any()) } returns Unit
+
+            assertThrows<ReportFunction.SftpSubmissionException> {
+                reportFunc.submitViaSftp(
+                    hl7_valid,
+                    "${senderOrg.name}/foo/valid",
+                    "hl7"
+                )
+            }
+        }
+
+        @Test
+        fun `test submitSFTP invalid extension`() {
+            val metadata = UnitTestUtils.simpleMetadata
+            val settings = FileSettings().loadOrganizations(senderOrg)
+            val engine = makeEngine(metadata, settings)
+            val actionHistory = spyk(ActionHistory(TaskAction.receive))
+            val reportFunc = spyk(ReportFunction(engine, actionHistory))
+            every { accessSpy.insertAction(any(), any()) } returns 0
+            every { accessSpy.saveActionHistoryToDb(any(), any()) } returns Unit
+
+            assertThrows<ReportFunction.SftpSubmissionException> {
+                reportFunc.submitViaSftp(
+                    hl7_valid,
+                    "${senderOrg.name}/foo/valid",
+                    "png"
+                )
+            }
+        }
     }
 
     /** basic /submitToWaters endpoint tests **/
@@ -875,7 +987,7 @@ class ReportFunctionTests {
         mockkClass(BlobAccess::class)
         mockkObject(BlobAccess.Companion)
         every { BlobAccess.Companion.getBlobConnection(any()) } returns "testconnection"
-        val blobConnectionInfo = mockk<BlobAccess.BlobContainerMetadata>()
+        val blobConnectionInfo = mockk<BlobContainerMetadata>()
         every { blobConnectionInfo.getBlobEndpoint() } returns "http://endpoint/metadata"
         every { BlobAccess.downloadBlobAsByteArray(any<String>()) } returns fhirReport.toByteArray(Charsets.UTF_8)
         val reportId = UUID.randomUUID()
@@ -908,7 +1020,7 @@ class ReportFunctionTests {
         mockkClass(BlobAccess::class)
         mockkObject(BlobAccess.Companion)
         every { BlobAccess.Companion.getBlobConnection(any()) } returns "testconnection"
-        val blobConnectionInfo = mockk<BlobAccess.BlobContainerMetadata>()
+        val blobConnectionInfo = mockk<BlobContainerMetadata>()
         every { blobConnectionInfo.getBlobEndpoint() } returns "http://endpoint/metadata"
         every { BlobAccess.downloadBlobAsByteArray(any<String>()) } returns fhirReport.toByteArray(Charsets.UTF_8)
         every { mockDb.fetchReportFile(reportId = any(), null, null) } returns reportFile
@@ -937,7 +1049,7 @@ class ReportFunctionTests {
         mockkClass(BlobAccess::class)
         mockkObject(BlobAccess.Companion)
         every { BlobAccess.Companion.getBlobConnection(any()) } returns "testconnection"
-        val blobConnectionInfo = mockk<BlobAccess.BlobContainerMetadata>()
+        val blobConnectionInfo = mockk<BlobContainerMetadata>()
         every { blobConnectionInfo.getBlobEndpoint() } returns "http://endpoint/metadata"
         every { BlobAccess.downloadBlobAsByteArray(any<String>()) } returns fhirReport.toByteArray(Charsets.UTF_8)
         every { mockDb.fetchReportFile(reportId = any(), null, null) } returns reportFile
@@ -978,5 +1090,115 @@ class ReportFunctionTests {
         )
 
         assert(result.status.equals(HttpStatus.BAD_REQUEST))
+    }
+
+    @Test
+    fun `processFhirDataRequest blank file`() {
+        val file = File("filename.txt")
+        file.createNewFile()
+        assertThrows<CliktError> {
+            ProcessFhirCommands().processFhirDataRequest(
+                file,
+                "local",
+                "full-elr",
+                "me-phd",
+                "classpath:/metadata/fhir_transforms/senders/SimpleReport/simple-report-sender-transform.yml",
+                false
+            )
+        }
+        file.delete()
+    }
+
+    @Test
+    fun `processFhirDataRequest no environment, receiver name, or org name and output format blank`() {
+        val file = File("filename.txt")
+        file.createNewFile()
+        assertThrows<CliktError> {
+            ProcessFhirCommands().processFhirDataRequest(
+                file,
+                "",
+                "",
+                "",
+                "classpath:/metadata/fhir_transforms/senders/SimpleReport/simple-report-sender-transform.yml",
+                false
+            )
+        }
+        file.delete()
+    }
+
+    @Suppress("ktlint:standard:max-line-length")
+    val jurisdictionalFilter: ReportStreamFilter =
+        listOf("(Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state = 'ME') or (Bundle.entry.resource.ofType(Patient).address.state = 'ME')")
+    val qualityFilter: ReportStreamFilter = listOf("Bundle.entry.resource.ofType(MessageHeader).id.exists()")
+
+    @Suppress("ktlint:standard:max-line-length")
+    val conditionFilter: ReportStreamFilter =
+        listOf("%resource.where(interpretation.coding.code = 'A').code.coding.extension('https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code').value.where(code in ('840539006'|'895448002')).exists()")
+    val filters = listOf<ReportStreamFilter>(jurisdictionalFilter, qualityFilter, conditionFilter)
+    val organization = Organization(
+        "me-phd",
+        "This is my description",
+        Organization.Jurisdiction.STATE,
+        "ME",
+        "Cumberland",
+        listOf(
+            ReportStreamFilters(
+            Topic.FULL_ELR,
+            jurisdictionalFilter,
+            qualityFilter,
+            null,
+            null,
+            conditionFilter,
+            null
+        )
+        )
+    )
+    val sender = UniversalPipelineSender(
+        "full-elr",
+        "me-phd",
+        MimeFormat.HL7,
+        CustomerStatus.ACTIVE,
+        "classpath:/metadata/hl7_mapping/receivers/STLTs/ME/ME-receiver-transform.yml",
+        Sender.ProcessingType.async,
+        true,
+        Sender.SenderType.facility,
+        Sender.PrimarySubmissionMethod.manual,
+        Topic.FULL_ELR
+    )
+    val receiver = Receiver(
+        "full-elr",
+        "me-phd",
+        Topic.FULL_ELR,
+        CustomerStatus.ACTIVE,
+        Hl7Configuration(
+            schemaName = "classpath:/metadata/hl7_mapping/receivers/STLTs/ME/ME-receiver-transform.yml",
+            useTestProcessingMode = true,
+            useBatchHeaders = true,
+            messageProfileId = "",
+            receivingApplicationName = "",
+            receivingFacilityOID = "",
+            receivingFacilityName = "",
+            receivingApplicationOID = "",
+            receivingOrganization = ""
+        ),
+        jurisdictionalFilter,
+        qualityFilter
+    )
+
+    @Test
+    fun getReceiver() {
+        val file = File("filename.txt")
+        file.createNewFile()
+        val getMultipleSettings = mockkClass(GetMultipleSettings::class)
+        every { getMultipleSettings.getAll(any(), any(), "me-phd", true) } returns
+            listOf(DeepOrganization(organization, listOf(sender), listOf(receiver)))
+        val receiverReturned = ProcessFhirCommands().getReceiver(
+            "local",
+            "full-elr",
+            "me-phd",
+            getMultipleSettings,
+            false
+        )
+        assert(receiverReturned!!.name == receiver.name)
     }
 }
