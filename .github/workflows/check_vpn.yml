@@ -26,4 +26,4 @@ jobs:
         run: echo "$STATUS"
       - name: kill vpn
         if: always()
-        run: sudo killall openvpn 2>&>/dev/null
+        run: sudo killall openvpn 2>&1>/dev/null
