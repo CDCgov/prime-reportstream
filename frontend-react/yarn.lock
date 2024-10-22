@@ -5524,7 +5524,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"browserslist@npm:^4.24.0":
+"browserslist@npm:^4.24.0, browserslist@npm:^4.24.2":
   version: 4.24.2
   resolution: "browserslist@npm:4.24.2"
   dependencies:
@@ -12298,7 +12298,7 @@ __metadata:
     "@vitest/ui": ^2.1.3
     autoprefixer: ^10.4.20
     axios: ^1.7.7
-    browserslist: ^4.23.3
+    browserslist: ^4.24.2
     browserslist-useragent-regexp: ^4.1.3
     chromatic: ^11.12.6
     classnames: ^2.5.1
