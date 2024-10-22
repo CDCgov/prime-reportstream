@@ -120,7 +120,6 @@ updates:
     schedule:
       interval: "daily"
 
-  ## Importing Josiah Siegel's external/remote GitHub Actions
   - package-ecosystem: "github-actions"
     directory: "/.github/actions/action-connect-ovpn"
     schedule:
