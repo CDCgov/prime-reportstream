@@ -1524,10 +1524,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@noble/hashes@npm:1.4.0":
-  version: 1.4.0
-  resolution: "@noble/hashes@npm:1.4.0"
-  checksum: 8ba816ae26c90764b8c42493eea383716396096c5f7ba6bea559993194f49d80a73c081f315f4c367e51bd2d5891700bcdfa816b421d24ab45b41cb03e4f3342
+"@noble/hashes@npm:1.5.0":
+  version: 1.5.0
+  resolution: "@noble/hashes@npm:1.5.0"
+  checksum: 9cc031d5c888c455bfeef76af649b87f75380a4511405baea633c1e4912fd84aff7b61e99716f0231d244c9cfeda1fafd7d718963e6a0c674ed705e9b1b4f76b
   languageName: node
   linkType: hard
 
@@ -9981,12 +9981,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"otpauth@npm:^9.3.2":
-  version: 9.3.2
-  resolution: "otpauth@npm:9.3.2"
+"otpauth@npm:^9.3.4":
+  version: 9.3.4
+  resolution: "otpauth@npm:9.3.4"
   dependencies:
-    "@noble/hashes": 1.4.0
-  checksum: 66661f169a73de6df23b697bcdc23ec8395b16f1e66cc359fa3b77db468f5114f283517b7ff45ee903b7a95faf7b3c3045d2597c26c94cfea0e240d0a453f605
+    "@noble/hashes": 1.5.0
+  checksum: eea5ea5c49ce7fce91cf1283d58c8e811c21eff2dc7fe0bd9ce7a2a8cdd69153f1f16c6f29c76e3da47e16ca6449b39ed531630d72b5c9167246a3491494401a
   languageName: node
   linkType: hard
 
@@ -10814,7 +10814,7 @@ __metadata:
     msw: ^2.4.11
     msw-storybook-addon: beta
     npm-run-all: ^4.1.5
-    otpauth: ^9.3.2
+    otpauth: ^9.3.4
     p-limit: ^6.1.0
     patch-package: ^8.0.0
     postcss: ^8.4.47
