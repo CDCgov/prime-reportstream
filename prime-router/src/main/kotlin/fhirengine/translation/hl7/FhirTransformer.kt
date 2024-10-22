@@ -11,6 +11,7 @@ import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.fhir
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirBundleUtils
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
+import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.fhirengine.utils.deleteResource
 import org.apache.logging.log4j.Level
 import org.hl7.fhir.exceptions.FHIRException
@@ -67,7 +68,7 @@ class FhirTransformer(
     )
 
     override fun checkForEquality(converted: Bundle, expectedOutput: Bundle): Boolean {
-        return converted.equalsDeep(expectedOutput)
+        return FhirTranscoder.encode(converted).trim() == FhirTranscoder.encode(expectedOutput).trim()
     }
 
     /**
