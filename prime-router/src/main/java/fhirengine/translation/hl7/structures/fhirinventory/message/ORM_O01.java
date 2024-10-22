@@ -83,7 +83,7 @@ public class ORM_O01 extends AbstractMessage  {
   /**
   * Returns "2.7"
    */
-  public String getVersion() { return "2.7"; } // todo maybe switch to 2.7?
+  public String getVersion() { return "2.7"; }
 
   /**
    * <p>
