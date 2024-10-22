@@ -1,13 +1,12 @@
 package gov.cdc.prime.reportstream.auth.config
 
 import org.springframework.boot.context.properties.ConfigurationProperties
-import org.springframework.context.annotation.Configuration
+import org.springframework.boot.context.properties.bind.ConstructorBinding
 
 /**
  * Configuration for Submissions microservice
  */
-@Configuration
 @ConfigurationProperties(prefix = "submissions")
-data class SubmissionsConfig(
-    var baseUrl: String = "http://localhost:8080",
+data class SubmissionsConfig @ConstructorBinding constructor(
+    val baseUrl: String,
 )
