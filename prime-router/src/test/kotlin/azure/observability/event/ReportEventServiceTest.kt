@@ -71,7 +71,7 @@ class ReportEventServiceTest {
 
         val reportEventService = ReportStreamEventService(
             ReportStreamTestDatabaseContainer.testDatabaseAccess,
-            LocalAzureEventServiceImpl(),
+            InMemoryAzureEventService(),
             ReportService(
                 ReportGraph(ReportStreamTestDatabaseContainer.testDatabaseAccess),
                 ReportStreamTestDatabaseContainer.testDatabaseAccess
@@ -115,7 +115,7 @@ class ReportEventServiceTest {
 
         val reportEventService = ReportStreamEventService(
             ReportStreamTestDatabaseContainer.testDatabaseAccess,
-            LocalAzureEventServiceImpl(),
+            InMemoryAzureEventService(),
             ReportService(
                 ReportGraph(ReportStreamTestDatabaseContainer.testDatabaseAccess),
                 ReportStreamTestDatabaseContainer.testDatabaseAccess
@@ -193,7 +193,7 @@ class ReportEventServiceTest {
 
         val reportEventService = ReportStreamEventService(
             ReportStreamTestDatabaseContainer.testDatabaseAccess,
-            LocalAzureEventServiceImpl(),
+            InMemoryAzureEventService(),
             ReportService(
                 ReportGraph(ReportStreamTestDatabaseContainer.testDatabaseAccess),
                 ReportStreamTestDatabaseContainer.testDatabaseAccess
