@@ -21,7 +21,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.context.annotation.Import
 import org.springframework.http.MediaType
-import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.DynamicPropertyRegistry
 import org.springframework.test.context.DynamicPropertySource
@@ -97,7 +96,6 @@ class SubmissionControllerIntegrationTest {
 
         mockMvc.perform(
             MockMvcRequestBuilders.post("/api/v1/reports")
-                .with(csrf())
                 .content(requestBody)
                 .contentType(MediaType.valueOf("application/hl7-v2"))
                 .header("client_id", "testClient")
