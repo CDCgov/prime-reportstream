@@ -62,15 +62,15 @@ Starting from the Okta section in the `Authorize` menu
 
 1. Login to OKTA as an administrator and click the "Admin" button in the top-right
 2. In the left pane, navigate Applications -> applications
-3. In the resulting right pane, select the instance to be configured (e.g. `Simple Report (localdev)`)
+3. In the resulting right pane, select the instance to be configured (e.g. `Swagger`)
 4. Viewing the details of the instance, you will see a `client_id` and `client_secret` (be sure to mask these values)
 5. Under General Settings, ensure the "Authorization Code" flow is checked
 6. Under Login, ensure this value appears in the sign-in redirect URI list:  
    `http://127.0.0.1:10000/devstoreaccount1/apidocs/oauth2-redirect.html`
 7. Ensure the application instance is associated with your OKTA account. Select assignment at the top of the page and 
    ensure your username is selected. 
-8. You need to associate "Simple Report (localdev)" with you - your OKTA account (your email/password/MFA)
-   To do so, click the assignment on top of the page and you will see all the users : Joe Smith, Jane Doe etc., select your user name, and you will be tied to the app - Simple Report (localdev)
+8. You need to associate "Swagger" with you - your OKTA account (your email/password/MFA)
+   To do so, click the assignment on top of the page and you will see all the users : Joe Smith, Jane Doe etc., select your user name, and you will be tied to the app - Swagger
 
 #### Server-to-server
 
