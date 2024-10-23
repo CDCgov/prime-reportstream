@@ -1,0 +1,25 @@
+MSH|^~\&|TEST|TEST|TESTRECEIVER^123456^L,M,N|^^L,M,N|20241021055726||ORU^R01^ORU_R01|987654321|T|2.5.1
+PID|1||123456^^^&NPI^MR||CDPHTHREE^BOY  MOMTHREE^^^^^B||202410151039|M||2131-1^Other Race||||||||||||UNK^Unknown||N|1
+NK1|1|CDPHTHREE^MOMTHREE|MTH^Mother|123 MAIN ST^^SAN DIEGO^CA^92126^USA|^^^^^888^8888888|||||||||||20031007
+ORC|RE|123456^FormNumber||56789^HospOrdNumber||||||||101234567^DOCTOR^TEST^^^^^^^^^^NPI|||||||||UCSD JACOBS MEDICAL CENTER^^^^^^^^^R797|ARBITRARY^^SAN DIEGO^CA^99999-9999
+OBR|1|123456^FormNumber||54089-8^NB Screen Panel Patient AHIC|||202410211125|||||||||^DOCTOR^TEST||||||20241015055726|||F
+OBR|2|123456^FormNumber||57086-1^Congenital adrenal hyperplasia newborn screening panel|||202410211125|||||||||^DOCTOR^TEST||||||20241021055726|||F
+OBX|1|NM|38473-5^17-Hydroxyprogesterone^LN|1|0065.88|nmol/L|<85|N|||F|||20241021055726
+OBX|2|NM|^^^99717-6^17-Hydroxyprogesterone (CAH II)^L|1|39|nmol/L|<38|H|||F|||20241021055726
+OBX|3|NM|53343-0^Androstenedione^LN|1|40.15|nmol/L||N|||F|||20241021055726
+OBX|4|NM|53345-5^Cortisol^LN|1|850.00|nmol/L||N|||F|||220241021055726
+OBX|5|NM|53336-4^17-Hydroxyprogesterone+Androstenedione/Cortisol^LN|1|0.93|{Ratio}|<1|N|||F|||20241021055726
+OBX|6|NM|53341-4^21-Deoxycortisol [Mass/volume] in Dried blood spot^LN|1|00.02|nmol/L|<5|N|||F|||20241021055726
+OBX|7|NM|53347-1^11-Deoxycorticosterone [Mass/volume] in Dried blood spot^LN||25|nmol/L|<240|N|||F|||20241021055726
+OBX|8|CE|46758-9^Congenital adrenal hyperplasia newborn screen interpretation^LN|001|LA18592-8^In range^LN|||N|||F|||20241021055726
+OBX|9|TX|57706-4^Congenital adrenal hyperplasia newborn screening comment-discussion^LN|001.54|Negative|||N|||F|||20241021055726
+OBR|3|123456^FormNumber||57086-1^Congenital adrenal hyperplasia newborn screening panel|||202410211125|||||||||^DOCTOR^TEST||||||20241021055726|||F
+OBX|1|NM|38473-5^17-Hydroxyprogesterone^LN|1|0065.88|nmol/L|<85|N|||F|||20241021055726
+OBX|2|NM|^^^99717-6^17-Hydroxyprogesterone (CAH II)^L|1|39|nmol/L|<38|H|||F|||20241021055726
+OBX|3|NM|53343-0^Androstenedione^LN|1|40.15|nmol/L||N|||F|||20241021055726
+OBX|4|NM|53345-5^Cortisol^LN|1|850.00|nmol/L||N|||F|||220241021055726
+OBX|5|NM|53336-4^17-Hydroxyprogesterone+Androstenedione/Cortisol^LN|1|0.93|{Ratio}|<1|N|||F|||20241021055726
+OBX|6|NM|53341-4^21-Deoxycortisol [Mass/volume] in Dried blood spot^LN|1|00.02|nmol/L|<5|N|||F|||20241021055726
+OBX|7|NM|53347-1^11-Deoxycorticosterone [Mass/volume] in Dried blood spot^LN||25|nmol/L|<240|N|||F|||20241021055726
+OBX|8|CE|46758-9^Congenital adrenal hyperplasia newborn screen interpretation^LN|001|LA18592-8^In range^LN|||N|||F|||20241021055726
+OBX|9|TX|57706-4^Congenital adrenal hyperplasia newborn screening comment-discussion^LN|001.54|Negative|||N|||F|||20241021055726
