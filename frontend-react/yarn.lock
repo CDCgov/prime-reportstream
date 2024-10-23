@@ -4834,10 +4834,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"date-fns@npm:^3.6.0":
-  version: 3.6.0
-  resolution: "date-fns@npm:3.6.0"
-  checksum: 0daa1e9a436cf99f9f2ae9232b55e11f3dd46132bee10987164f3eebd29f245b2e066d7d7db40782627411ecf18551d8f4c9fcdf2226e48bb66545407d448ab7
+"date-fns@npm:^4.1.0":
+  version: 4.1.0
+  resolution: "date-fns@npm:4.1.0"
+  checksum: fb681b242cccabed45494468f64282a7d375ea970e0adbcc5dcc92dcb7aba49b2081c2c9739d41bf71ce89ed68dd73bebfe06ca35129490704775d091895710b
   languageName: node
   linkType: hard
 
@@ -10382,7 +10382,7 @@ __metadata:
     chromatic: ^11.12.6
     classnames: ^2.5.1
     cross-env: ^7.0.3
-    date-fns: ^3.6.0
+    date-fns: ^4.1.0
     date-fns-tz: ^3.2.0
     dompurify: ^3.1.7
     dotenv-flow: ^4.1.0
