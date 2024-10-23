@@ -7,6 +7,8 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.annotation.JsonPropertyOrder
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Topic
+import gov.cdc.prime.router.azure.db.tables.pojos.Action
+import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import java.time.OffsetDateTime
 
 /**
@@ -65,6 +67,28 @@ class DeliveryHistory(
     schema_topic,
     itemCount
 ) {
+
+    companion object {
+        fun createDeliveryHistoryFromReportAndAction(
+            reportFile: ReportFile,
+            action: Action,
+        ): DeliveryHistory {
+            return DeliveryHistory(
+                actionId = action.actionId,
+                createdAt = action.createdAt,
+                receivingOrg = reportFile.receivingOrg,
+                receivingOrgSvc = reportFile.receivingOrgSvc,
+                externalName = action.externalName,
+                reportId = reportFile.reportId.toString(),
+                schema_topic = reportFile.schemaTopic,
+                itemCount = reportFile.itemCount,
+                bodyUrl = reportFile.bodyUrl,
+                schemaName = reportFile.schemaName,
+                bodyFormat = reportFile.bodyFormat
+            )
+        }
+    }
+
     @JsonIgnore
     private val DAYS_TO_SHOW = 30L
 

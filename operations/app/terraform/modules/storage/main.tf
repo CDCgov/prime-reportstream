@@ -8,7 +8,7 @@ resource "azurerm_storage_account" "storage_account" {
   account_replication_type        = "GRS"
   min_tls_version                 = "TLS1_2"
   allow_nested_items_to_be_public = false
-  enable_https_traffic_only       = true
+  https_traffic_only_enabled      = true
   local_user_enabled              = false
 
   network_rules {
@@ -35,6 +35,13 @@ resource "azurerm_storage_account" "storage_account" {
 
   tags = {
     environment = var.environment
+  }
+
+  timeouts {
+    create = var.timeout_create
+    read   = var.timeout_read
+    delete = var.timeout_delete
+    update = var.timeout_update
   }
 }
 
@@ -166,8 +173,9 @@ resource "azurerm_storage_account" "storage_public" {
   account_replication_type        = "GRS"
   min_tls_version                 = "TLS1_2"
   allow_nested_items_to_be_public = false
-  enable_https_traffic_only       = true
+  https_traffic_only_enabled      = true
   local_user_enabled              = false
+  large_file_share_enabled        = false
 
   static_website {
     index_document     = "index.html"
@@ -189,6 +197,13 @@ resource "azurerm_storage_account" "storage_public" {
   tags = {
     environment = var.environment
   }
+
+  timeouts {
+    create = var.timeout_create
+    read   = var.timeout_read
+    delete = var.timeout_delete
+    update = var.timeout_update
+  }
 }
 
 resource "azurerm_storage_share" "gh_locks" {
@@ -209,7 +224,7 @@ resource "azurerm_storage_account" "storage_partner" {
   account_replication_type        = "GRS"
   min_tls_version                 = "TLS1_2"
   allow_nested_items_to_be_public = false
-  enable_https_traffic_only       = true
+  https_traffic_only_enabled      = true
   local_user_enabled              = false
 
   network_rules {
@@ -243,6 +258,13 @@ resource "azurerm_storage_account" "storage_partner" {
 
   tags = {
     environment = var.environment
+  }
+
+  timeouts {
+    create = var.timeout_create
+    read   = var.timeout_read
+    delete = var.timeout_delete
+    update = var.timeout_update
   }
 }
 
