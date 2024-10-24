@@ -10,18 +10,6 @@ extension:
   expressions:
     - expressionType: nested
       vars:
-        prt1: STRING_ALL, PRT.1
-      condition: $prt1 NOT_NULL
-      expressionsMap:
-        url:
-          value: PRT.1
-          type: STRING
-        valueIdentifier:
-          valueOf: datatypes/EI/Identifier
-          specs: PRT.1
-          type: resource
-    - expressionType: nested
-      vars:
         prt2: STRING_ALL, PRT.2
       condition: $prt2 NOT_NULL
       expressionsMap:
@@ -60,15 +48,15 @@ extension:
       vars:
         prt5: STRING_ALL, PRT.5
       condition: $prt5 NOT_NULL
-      generateList: true
       specs: PRT.5 *
+      generateList: true
       expressionsMap:
         url:
           type: STRING
           value: PRT.5
-        valueRelatedPerson:
+        valueReference:
           valueOf: datatypes/XCN/RelatedPerson
-          expressionType: resource
+          expressionType: reference
     - expressionType: nested
       vars:
         prt6: STRING_ALL, PRT.6
@@ -103,9 +91,9 @@ extension:
         url:
           type: STRING
           value: PRT.8
-        valueOrganization:
+        valueReference:
           valueOf: datatypes/XON/Organization
-          expressionType: resource
+          expressionType: reference
     - expressionType: nested
       vars:
         prt9: STRING_ALL, PRT.9
@@ -116,9 +104,9 @@ extension:
         url:
           type: STRING
           value: PRT.9
-        valueLocation:
+        valueReference:
           valueOf: datatypes/PL/Location
-          expressionType: resource
+          expressionType: reference
     - expressionType: nested
       vars:
         prt10: STRING_ALL, PRT.10
