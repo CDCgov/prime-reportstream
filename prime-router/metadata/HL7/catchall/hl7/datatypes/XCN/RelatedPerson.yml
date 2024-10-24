@@ -1,6 +1,6 @@
 # $schema: ./../../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
 
-resourceType: Practitioner
+resourceType: RelatedPerson
 
 id:
   type: STRING
@@ -10,10 +10,6 @@ id:
 identifier:
   expressionType: nested
   vars:
-    xcnhd1: String, XCN.9.1
-    xcnhd2: String, XCN.9.2
-    xcnhd3: String, XCN.9.3
-    xcn9: STRING_ALL, XCN.9
     xcn11: String, XCN.11
     xcn12: String, XCN.12
     xcn13: String, XCN.13
@@ -23,43 +19,6 @@ identifier:
       type: STRING
       valueOf: XCN.1
       expressionType: HL7Spec
-    # Checking if HD is an Organization or a System by looking at the ID type.
-    # If ID type is null or ID type is not ISO or UUID, treat as organization.
-    # Otherwise, treat as system.
-    assigner_1:
-      condition: $xcn9 NOT_NULL && $xcnhd3 NULL
-      valueOf: datatypes/HD/Organization
-      expressionType: reference
-      specs: XCN.9
-    assigner_2:
-      condition: $xcn9 NOT_NULL && $xcnhd3 NOT_NULL && $xcnhd3 NOT_EQUALS ISO && $xcnhd3 NOT_EQUALS UUID
-      valueOf: datatypes/HD/Organization
-      expressionType: reference
-      specs: XCN.9
-    system:
-      expressionType: nested
-      condition: $xcnhd3 EQUALS ISO || $xcnhd3 EQUALS UUID
-      expressions:
-        - condition: $xcnhd1 NOT_NULL
-          expressionType: HL7Spec
-          type: STRING
-          valueOf: XCN.9.1
-        - condition: $xcnhd1 NULL && $xcnhd3 EQUALS ISO
-          expressionType: HL7Spec
-          type: STRING
-          constants:
-            prefix: "urn:oid:"
-          vars:
-            join: $prefix + $xcnhd2
-          valueOf: $join
-        - condition: $xcnhd1 NULL && $xcnhd3 EQUALS UUID
-          expressionType: HL7Spec
-          type: STRING
-          constants:
-            prefix: "urn:uuid:"
-          vars:
-            join: $prefix + $xcnhd2
-          valueOf: $join
     type:
       condition: $xcn13 NOT_NULL
       expressionType: resource

@@ -33,6 +33,9 @@ extension_2-universalId:
 
 extension_3-universalIdType:
   generateList: true
+  vars:
+    universalIdType: String, HD.3
+  condition: $universalIdType NOT_NULL
   expressionType: nested
   expressionsMap:
     url:
