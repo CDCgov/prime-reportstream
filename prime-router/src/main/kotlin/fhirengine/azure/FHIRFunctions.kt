@@ -5,18 +5,19 @@ import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.QueueTrigger
 import com.microsoft.azure.functions.annotation.StorageAccount
 import gov.cdc.prime.reportstream.shared.QueueMessage
+import gov.cdc.prime.reportstream.shared.Submission
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.DataAccessTransaction
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.QueueAccess
+import gov.cdc.prime.router.azure.SubmissionTableService
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.common.BaseEngine
 import gov.cdc.prime.router.fhirengine.engine.FHIRConverter
 import gov.cdc.prime.router.fhirengine.engine.FHIRDestinationFilter
 import gov.cdc.prime.router.fhirengine.engine.FHIREngine
-import gov.cdc.prime.router.fhirengine.engine.FHIRReceiver
 import gov.cdc.prime.router.fhirengine.engine.FHIRReceiverFilter
 import gov.cdc.prime.router.fhirengine.engine.FHIRTranslator
 import gov.cdc.prime.router.fhirengine.engine.FhirReceiveQueueMessage
@@ -30,6 +31,7 @@ class FHIRFunctions(
     private val actionLogger: ActionLogger = ActionLogger(),
     private val databaseAccess: DatabaseAccess = BaseEngine.databaseAccessSingleton,
     private val queueAccess: QueueAccess = QueueAccess,
+    private val submissionTableService: SubmissionTableService = SubmissionTableService.getInstance(),
 ) : Logging {
 
     /**
@@ -46,7 +48,15 @@ class FHIRFunctions(
         logger.info(
             "message consumed from elr-fhir-receive queue"
         )
-        process(message, dequeueCount, FHIRReceiver(), ActionHistory(TaskAction.receive))
+        process(message, dequeueCount, FHIRConverter(), ActionHistory(TaskAction.convert))
+        val messageContent = readMessage("convert", message, dequeueCount)
+        val tableEntity = Submission(
+            messageContent.reportId.toString(),
+            "Accepted",
+            messageContent.blobURL,
+            actionLogger.errors.takeIf { it.isNotEmpty() }?.map { it.detail.message }?.toString()
+        )
+        submissionTableService.insertSubmission(tableEntity)
     }
 
     /**
