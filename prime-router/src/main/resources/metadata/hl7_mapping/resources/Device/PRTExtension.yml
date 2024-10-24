@@ -21,7 +21,7 @@ elements:
   # XCN[Practitioner] FHIR > HL7 mappings are largely compatible with XCN[RelatedPerson]
   # implement union+tail for PRT[PractitionerRole] only
   - name: PRT.5
-    resource: '%resource.extension.where(url = "PRT.5").value'
+    resource: '%resource.extension.where(url = "PRT.5").value.resolve()'
     schema: classpath:/metadata/hl7_mapping/resources/Practitioner/XCN.yml
     resourceIndex: relatedPersonIndex
     constants:
@@ -42,13 +42,13 @@ elements:
       cweField: '%{hl7PRTFieldPath}-7(%{organizationUnitTypeIndex})'
 
   - name: PRT.8
-    resource: '%resource.extension.where(url = "PRT.8").value'
+    resource: '%resource.extension.where(url = "PRT.8").value.resolve()'
     schema: classpath:/metadata/hl7_mapping/resources/Organization/XON.yml
     constants:
       hl7XONField: '%{hl7PRTFieldPath}-8'
 
   - name: PRT.9
-    resource: '%resource.extension.where(url = "PRT.9").value'
+    resource: '%resource.extension.where(url = "PRT.9").value.resolve()'
     schema: classpath:/metadata/hl7_mapping/resources/Location/PL/PL.yml
     constants:
       hl7PLField: '%{hl7PRTFieldPath}-9'
