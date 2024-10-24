@@ -120,6 +120,11 @@ updates:
     schedule:
       interval: "daily"
 
+  - package-ecosystem: "github-actions"
+    directory: "/.github/actions/action-connect-ovpn"
+    schedule:
+      interval: "daily"
+
   # Frontend
   - package-ecosystem: "npm"
     directory: "/frontend-react"
@@ -334,7 +339,7 @@ updates:
       time: "04:17"
       timezone: "US/Eastern"
     rebase-strategy: "disabled"
-    
+
   # Backend
   - package-ecosystem: "gradle"
     directory: "/prime-router"
