@@ -43,17 +43,15 @@ export const ColumnDataTitles = {
 } as const satisfies {
     [k in keyof NormalizedReceiverData]: string;
 };
-export type ColumnDataTitle =
-    (typeof ColumnDataTitles)[keyof typeof ColumnDataTitles];
+export type ColumnDataTitle = (typeof ColumnDataTitles)[keyof typeof ColumnDataTitles];
 export type NormalizedReceiverKey = keyof typeof ColumnDataTitles;
 
-const FilterOptionsEnum = {
+export const FilterOptionsEnum = {
     NONE: "none",
     ASC: "asc",
     DESC: "desc",
 } as const;
-export type FilterOption =
-    (typeof FilterOptionsEnum)[keyof typeof FilterOptionsEnum];
+export type FilterOption = (typeof FilterOptionsEnum)[keyof typeof FilterOptionsEnum];
 
 export const StatusEnum = {
     BATCH: "batch",
@@ -91,22 +89,14 @@ export const MessageReceivers = ({ receiverDetails }: MessageReceiverProps) => {
                 columnKey: "fileLocationMain",
                 columnHeader: "Main",
                 content: (() => {
-                    const status = parseFileLocation(
-                        row?.fileUrl ?? NO_DATA_STRING,
-                    ).folderLocation;
+                    const status = parseFileLocation(row?.fileUrl ?? NO_DATA_STRING).folderLocation;
                     return (
                         <p
-                            className={classnames(
-                                "font-mono-sm padding-left-1 padding-right-1 margin-top-0",
-                                {
-                                    "bg-blue-5 border-1px bg-primary-lighter radius-md":
-                                        status === StatusEnum.BATCH,
-                                    "bg-blue-10 border-1px bg-primary-lighter radius-md":
-                                        status === StatusEnum.PROCESS,
-                                    "bg-blue-20 border-1px bg-primary-lighter radius-md":
-                                        status === StatusEnum.READY,
-                                },
-                            )}
+                            className={classnames("font-mono-sm padding-left-1 padding-right-1 margin-top-0", {
+                                "bg-blue-5 border-1px bg-primary-lighter radius-md": status === StatusEnum.BATCH,
+                                "bg-blue-10 border-1px bg-primary-lighter radius-md": status === StatusEnum.PROCESS,
+                                "bg-blue-20 border-1px bg-primary-lighter radius-md": status === StatusEnum.READY,
+                            })}
                         >
                             {status.toLocaleUpperCase()}
                         </p>
@@ -116,18 +106,14 @@ export const MessageReceivers = ({ receiverDetails }: MessageReceiverProps) => {
             {
                 columnKey: "fileLocationSub",
                 columnHeader: "Sub",
-                content: parseFileLocation(row?.fileUrl ?? NO_DATA_STRING)
-                    .sendingOrg,
+                content: parseFileLocation(row?.fileUrl ?? NO_DATA_STRING).sendingOrg,
             },
             {
                 columnKey: "fileLocationFileName",
                 columnHeader: "File Name",
                 content: (
                     <ReportLink reportId={row?.reportId}>
-                        {
-                            parseFileLocation(row?.fileUrl ?? NO_DATA_STRING)
-                                .fileName
-                        }
+                        {parseFileLocation(row?.fileUrl ?? NO_DATA_STRING).fileName}
                     </ReportLink>
                 ),
             },
