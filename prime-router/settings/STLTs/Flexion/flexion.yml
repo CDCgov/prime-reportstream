@@ -46,8 +46,8 @@
       topic: "etor-ti"
       customerStatus: "active"
       format: "HL7"
-    # Sender used for automated tests in staging
-    - name: "automated-staging-test-sender"
+    # Sender used for local tests and automated tests in staging
+    - name: "simulated-sender"
       organizationName: "flexion"
       topic: "etor-ti"
       customerStatus: "active"
@@ -135,7 +135,7 @@
       jurisdictionalFilter:
         - "Bundle.entry.resource.ofType(MessageHeader).event.code = 'R01'"  # ORU_R01
         - "Bundle.entry.resource.ofType(MessageHeader).meta.tag.where(system = 'http://localcodes.org/ETOR').code = 'ETOR'"  # required to avoid looping issue
-        - "Bundle.entry.resource.ofType(MessageHeader).destination.receiver.resolve().identifier.where(extension.value = 'HD.2,HD.3').value = 'simulated-hospital-id'"  # receiver routing filter (MSH-6.2)
+        - "Bundle.entry.resource.ofType(MessageHeader).meta.tag.where(system = 'http://terminology.hl7.org/CodeSystem/v2-0103').code = 'D'"  # internal test processing id (MSH-11)
       qualityFilter:
         - "true"
       timing:
@@ -147,12 +147,6 @@
         schemaName: "classpath:/metadata/hl7_mapping/ORU_R01/ORU_R01-base.yml"
         useTestProcessingMode: false
         useBatchHeaders: false
-      transport:
-        type: "SFTP"
-        host: "172.17.6.20" # use "sftp" if running locally
-        port: 22
-        filePath: "./upload"
-        credentialName: null # use "DEFAULT-SFTP" if running locally
     # Simulated State Public Health Lab Receiver: converts OML_O21 from FHIR to HL7 and routes the message to the SFTP folder
     - name: "simulated-lab"
       organizationName: "flexion"
@@ -161,7 +155,7 @@
       jurisdictionalFilter:
         - "Bundle.entry.resource.ofType(MessageHeader).event.code = 'O21'"  # OML_O21
         - "Bundle.entry.resource.ofType(MessageHeader).meta.tag.where(system = 'http://localcodes.org/ETOR').code = 'ETOR'"  # required to avoid looping issue
-        - "Bundle.entry.resource.ofType(MessageHeader).destination.receiver.resolve().identifier.where(extension.value = 'HD.2,HD.3').value = 'simulated-lab-id'"  # receiver routing filter (MSH-6.2)
+        - "Bundle.entry.resource.ofType(MessageHeader).meta.tag.where(system = 'http://terminology.hl7.org/CodeSystem/v2-0103').code = 'D'"  # internal test processing id (MSH-11)
       qualityFilter:
         - "true"
       timing:
@@ -173,12 +167,6 @@
         schemaName: "classpath:/metadata/hl7_mapping/receivers/Flexion/etor-oml-receiver-transform.yml"
         useTestProcessingMode: false
         useBatchHeaders: false
-      transport:
-        type: "SFTP"
-        host: "172.17.6.20" # use "sftp" if running locally
-        port: 22
-        filePath: "./upload"
-        credentialName: null # use "DEFAULT-SFTP" if running locally
     - name: "automated-staging-test-receiver-orders"
       organizationName: "flexion"
       topic: "etor-ti"
@@ -186,7 +174,7 @@
       jurisdictionalFilter:
         - "(Bundle.entry.resource.ofType(MessageHeader).event.code = 'O01') or (Bundle.entry.resource.ofType(MessageHeader).event.code = 'O21')"  # ORM_O01 or OML_O21
         - "Bundle.entry.resource.ofType(MessageHeader).meta.tag.where(system = 'http://localcodes.org/ETOR').code = 'ETOR'"  # required to avoid looping issue
-        - "Bundle.entry.resource.ofType(MessageHeader).destination.receiver.resolve().identifier.where(extension.value = 'HD.2,HD.3').value = 'automated-staging-test-receiver-id'"  # receiver routing filter (MSH-6.2)
+        - "Bundle.entry.resource.ofType(MessageHeader).meta.tag.where(system = 'http://terminology.hl7.org/CodeSystem/v2-0103').code = 'N'"  # automated test processing id (MSH-11)
       qualityFilter:
         - "true"
       timing:
@@ -209,8 +197,7 @@
       jurisdictionalFilter:
         - "Bundle.entry.resource.ofType(MessageHeader).event.code = 'R01'"  # ORU_R01
         - "Bundle.entry.resource.ofType(MessageHeader).meta.tag.where(system = 'http://localcodes.org/ETOR').code = 'ETOR'"  # required to avoid looping issue
-        - "(Bundle.entry.resource.ofType(MessageHeader).destination.receiver.resolve().identifier.where(extension.value = 'HD.2,HD.3').value = 'automated-staging-test-receiver-id')
-          or (Bundle.identifier.value.contains('AUTOMATEDTEST-'))"  # receiver routing filter (MSH-6.2 or MSH-10)
+        - "Bundle.entry.resource.ofType(MessageHeader).meta.tag.where(system = 'http://terminology.hl7.org/CodeSystem/v2-0103').code = 'N'"  # automated test processing id (MSH-11)
       qualityFilter:
         - "true"
       timing:
