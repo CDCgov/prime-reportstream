@@ -32,6 +32,7 @@ import gov.cdc.prime.router.serializers.ReadResult
 import gov.cdc.prime.router.transport.AS2Transport
 import gov.cdc.prime.router.transport.BlobStoreTransport
 import gov.cdc.prime.router.transport.GAENTransport
+import gov.cdc.prime.router.transport.NullTransport
 import gov.cdc.prime.router.transport.RESTTransport
 import gov.cdc.prime.router.transport.RetryItems
 import gov.cdc.prime.router.transport.RetryToken
@@ -71,6 +72,7 @@ class WorkflowEngine(
     val soapTransport: SoapTransport = SoapTransport(),
     val gaenTransport: GAENTransport = GAENTransport(),
     val restTransport: RESTTransport = RESTTransport(),
+    val nullTransport: NullTransport = NullTransport(),
 ) : BaseEngine(queue) {
 
     /**

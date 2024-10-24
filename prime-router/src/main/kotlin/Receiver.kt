@@ -159,6 +159,9 @@ open class Receiver(
     @get:JsonIgnore
     val displayName: String get() = externalName ?: name
 
+    @get:JsonIgnore
+    val transportType: TransportType get() = transport ?: NullTransportType()
+
     /**
      * Defines how batching of sending should proceed. Allows flexibility of
      * frequency and transmission time on daily basis, but not complete flexibility.
