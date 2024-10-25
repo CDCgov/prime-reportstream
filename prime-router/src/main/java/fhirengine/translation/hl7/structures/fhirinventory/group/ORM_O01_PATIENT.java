@@ -74,7 +74,8 @@ public class ORM_O01_PATIENT extends AbstractGroup {
       this.add(PD1.class, false, false, false);
       this.add(NTE.class, false, true, false);
       this.add(ORM_O01_PATIENT_VISIT.class, false, false, false);
-      // If IN1 related classes are built out and ORM_O01_INSURANCE replaced, all hapiv26 dependencies can be removed
+      // When https://github.com/CDCgov/prime-reportstream/issues/16307 is completed, and we build the java class for
+      // ORM_O01_INSURANCE, the hapi v26 dependencies in the gradle build can be removed.
       this.add(ORM_O01_INSURANCE.class, false, true, false);
       this.add(GT1.class, false, false, false);
       this.add(AL1.class, false, true, false);
