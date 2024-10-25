@@ -72,7 +72,7 @@ jobs:
         run: yarn install --immutable
 
       - name: Install Pa11y-CI
-        run: yarn add pa11y-ci --no-lockfile
+        run: cd /tmp && yarn add pa11y-ci && cd -
 
       - name: Run Frontend Server
         run: |
