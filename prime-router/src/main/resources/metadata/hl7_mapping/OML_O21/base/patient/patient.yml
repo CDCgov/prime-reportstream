@@ -22,6 +22,13 @@ elements:
     resource: '%resource.extension(%`rsext-pd1-patient-additional-demographic`)'
     schema: classpath:/metadata/hl7_mapping/resources/Patient/PD1Extension.yml
 
+  - name: patient-note
+    resource: '%resource.extension(%`rsext-patient-notes`).value'
+    schema: classpath:/metadata/hl7_mapping/datatypes/annotation/NTE.yml
+    resourceIndex: noteIndex
+    constants:
+      hl7NotePath: '%{hl7SegmentGroup}'
+
   - name: related-person-nk1
     resource: 'Bundle.entry.resource.ofType(RelatedPerson).where(extension(%`rsext-hl7v2Segment`).value = "NK1" and patient.resolve().id = %resource.id)'
     resourceIndex: relatedPersonIndex

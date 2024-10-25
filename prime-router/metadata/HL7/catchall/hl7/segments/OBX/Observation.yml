@@ -10,14 +10,6 @@ resourceType: Observation
 # OBX.18 is repeatable but maps to device on Observation which is not, so it's all captured in OBXExtension
 # OBX.20 is repeatable but maps to bodySite on Observation which is not, so it's all captured in OBXExtension
 # Not implementing OBX.22 not in mapping deprecated in NIST
-# Not implementing OBX.26 not in mapping not in NIST
-# Not implementing OBX.27 not in mapping not in NIST
-# Not implementing OBX.28 not in mapping not in NIST
-# Not implementing OBX.29 not in mapping not in NIST
-# Not implementing OBX.31 not in mapping not in NIST
-# Not implementing OBX.32 not in mapping not in NIST
-# Not implementing OBX.33 as it's not in the NIST spec the logic in the inventory cannot be implemented in the library
-
 
 id:
   type: STRING
