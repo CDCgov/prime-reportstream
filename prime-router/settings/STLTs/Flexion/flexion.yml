@@ -8,9 +8,10 @@
 # ./prime multiple-settings set --env staging --input ./settings/STLTs/Flexion/flexion.yml
 #
 # To add the sender keys in staging:
-#  ./prime organization addkey --env staging --public-key /path/to/public/key.pem --scope "flexion.*.report" --orgName flexion --kid flexion.simulated-hospital --doit
 #  ./prime organization addkey --env staging --public-key /path/to/public/key.pem --scope "flexion.*.report" --orgName flexion --kid flexion.etor-service-sender --doit
+#  ./prime organization addkey --env staging --public-key /path/to/public/key.pem --scope "flexion.*.report" --orgName flexion --kid flexion.simulated-hospital --doit
 #  ./prime organization addkey --env staging --public-key /path/to/public/key.pem --scope "flexion.*.report" --orgName flexion --kid flexion.simulated-lab --doit
+#  ./prime organization addkey --env staging --public-key /path/to/public/key.pem --scope "flexion.*.report" --orgName flexion --kid flexion.simulated-sender --doit
 #
 # To submit an order or result to flexion.simulated-lab or flexion.simulated-hospital, in staging:
 # Note: replace the TOKEN with the auth JWT and the path to the FHIR message to send 
