@@ -72,6 +72,9 @@ public class ORM_O01_ORDER_DETAIL extends AbstractGroup {
     init(factory);
   }
 
+  // Note: According to https://hl7-definition.caristix.com/v2/HL7v2.5.1/TriggerEvents/ORM_O01 there is also an
+  // "ORDER DETAIL SEGMENT" that is a part of the ORDER DETAIL. This is not actually built out here as that segment
+  // is representational of the "choice" segments that are built here (OBR, RQD, RQ1, RXD, ODS, ODT).
   private void init(ModelClassFactory factory) {
     try {
       this.add(OBR.class, true, false, true);
