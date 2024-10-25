@@ -54,6 +54,41 @@ jobs:
       - name: Run linting
         run: yarn run lint
 
+  pa11y:
+    name: Run Pa11y 508 Compliance Check
+    needs: lint
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Check out changes
+        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938
+      - name: Use Node.js with yarn
+        uses: actions/setup-node@0a44ba7841725637a19e28fa30b79a866c81b0a6
+        with:
+          node-version-file: frontend-react/.nvmrc
+          cache: yarn
+          cache-dependency-path: frontend-react/yarn.lock
+      - name: Yarn install
+        run: yarn install --immutable
+
+      - name: Install Pa11y-CI
+        run: yarn add pa11y-ci --no-lockfile
+
+      - name: Run Frontend Server
+        run: |
+          cd frontend-react 
+          yarn run start &
+          sleep 10  # Wait for the server to start up
+
+      - name: Run Pa11y Check
+        run: |
+          pa11y-ci --sitemap http://localhost:3000/sitemap.xml \
+                 --sitemap-find https://reportstream.cdc.gov \
+                 --sitemap-replace http://localhost:3000
+      
+      - name: Stop Frontend Server
+        run: kill $(cat server.pid)
+        
   unit_tests:
     name: Unit tests
     needs: lint
