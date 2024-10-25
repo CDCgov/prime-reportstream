@@ -81,6 +81,8 @@ class FHIRConverter(
 
     override val engineType: String = "Convert"
 
+    override val taskAction: TaskAction = TaskAction.convert
+
     /**
      * Accepts a [message] in either HL7 or FHIR format
      * HL7 messages will be converted into FHIR.
