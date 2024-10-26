@@ -72,11 +72,10 @@ jobs:
         run: yarn install --immutable
 
       - name: Install Pa11y-CI
-        run: mkdir tmp-ci && cd tmp-ci && yarn add pa11y-ci && cd -
+        run: mkdir tmp-ci && cd tmp-ci && yarn add pa11y-ci && cat package.json && cd - && rm -rf tmp-ci
 
       - name: Run Frontend Server
         run: |
-          cd frontend-react 
           yarn run start &
           sleep 10  # Wait for the server to start up
 
