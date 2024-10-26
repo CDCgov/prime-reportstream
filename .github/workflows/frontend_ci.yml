@@ -71,27 +71,30 @@ jobs:
       - name: Yarn install
         run: yarn install --immutable
 
+      - name: Run Frontend Server
+        run: |
+          yarn run preview:ci &
+          sleep 5  # Wait for the server to start up
+
+
       - name: Install Pa11y-CI
         run: |
           mkdir tmp-ci 
           cd tmp-ci 
-          yarn global add pa11y-ci
-          echo "$(yarn global bin)" >> $GITHUB_PATH
-          cd - && rm -rf tmp-ci
-
-      - name: Run Frontend Server
-        run: |
-          yarn run preview:ci &
-          sleep 10  # Wait for the server to start up
+          yarn add pa11y-ci
+          ls -al node_modules/.bin/pa11y-ci
+          cd - 
 
       - name: Run Pa11y Check
         run: |
-          pa11y-ci --sitemap http://localhost:3000/sitemap.xml \
+          tmp-ci/node_modules/.bin/pa11y-ci --sitemap http://localhost:3000/sitemap.xml \
                  --sitemap-find https://reportstream.cdc.gov \
                  --sitemap-replace http://localhost:3000
       
       - name: Stop Frontend Server
-        run: kill $(cat server.pid)
+        run: |
+          kill $(cat server.pid)
+          rm -rf tmp-ci
         
   unit_tests:
     name: Unit tests
