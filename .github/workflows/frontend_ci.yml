@@ -73,7 +73,7 @@ jobs:
 
       - name: Run Frontend Server
         run: |
-          yarn run preview:ci &
+          yarn run test:ci &
           sleep 5  # Wait for the server to start up
 
 
@@ -82,7 +82,7 @@ jobs:
           mkdir tmp-ci 
           cd tmp-ci 
           yarn add pa11y-ci
-          ls -al node_modules/.bin/pa11y-ci
+          ls -al node_modules/
           cd - 
 
       - name: Run Pa11y Check
