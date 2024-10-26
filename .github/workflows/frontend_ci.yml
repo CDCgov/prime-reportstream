@@ -72,11 +72,16 @@ jobs:
         run: yarn install --immutable
 
       - name: Install Pa11y-CI
-        run: mkdir tmp-ci && cd tmp-ci && yarn add pa11y-ci && cd - && rm -rf tmp-ci
+        run: |
+          mkdir tmp-ci 
+          cd tmp-ci 
+          yarn global add pa11y-ci
+          echo "$(yarn global bin)" >> $GITHUB_PATH
+          cd - && rm -rf tmp-ci
 
       - name: Run Frontend Server
         run: |
-          yarn run start &
+          yarn run preview:ci &
           sleep 10  # Wait for the server to start up
 
       - name: Run Pa11y Check
