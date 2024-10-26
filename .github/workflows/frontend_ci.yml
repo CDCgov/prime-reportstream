@@ -81,13 +81,13 @@ jobs:
         run: |
           mkdir tmp-ci 
           cd tmp-ci 
-          yarn add pa11y-ci
-          find ../ -name pa11y-ci -type f -exec cp {} . \;
+          npm install pa11y-ci --no-save
+          find ../ -name pa11y-ci -type f
           cd - 
 
       - name: Run Pa11y Check
         run: |
-          tmp-ci/pa11y-ci --sitemap http://localhost:3000/sitemap.xml \
+          pa11y-ci --sitemap http://localhost:3000/sitemap.xml \
                  --sitemap-find https://reportstream.cdc.gov \
                  --sitemap-replace http://localhost:3000
       
