@@ -112,7 +112,7 @@
   "devDependencies": {
     "@mdx-js/react": "^3.1.0",
     "@mdx-js/rollup": "^3.1.0",
-    "@playwright/test": "^1.48.1",
+    "@playwright/test": "^1.48.2",
     "@rest-hooks/test": "^7.3.1",
     "@storybook/addon-a11y": "^8.3.6",
     "@storybook/addon-actions": "^8.3.6",
@@ -161,7 +161,7 @@
     "eslint-plugin-import": "^2.29.1",
     "eslint-plugin-jest-dom": "^5.4.0",
     "eslint-plugin-jsx-a11y": "^6.9.0",
-    "eslint-plugin-playwright": "^1.8.1",
+    "eslint-plugin-playwright": "^2.0.0",
     "eslint-plugin-react": "^7.34.3",
     "eslint-plugin-react-hooks": "^4.6.2",
     "eslint-plugin-react-refresh": "^0.4.7",
