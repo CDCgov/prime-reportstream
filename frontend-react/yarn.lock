@@ -10441,7 +10441,7 @@ __metadata:
     storybook-addon-remix-react-router: ^3.0.1
     ts-node: ^10.9.2
     tslib: ^2.8.0
-    tsx: ^4.19.1
+    tsx: ^4.19.2
     typescript: ^5.6.3
     undici: ^6.20.1
     use-deep-compare-effect: ^1.8.1
@@ -12241,9 +12241,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tsx@npm:^4.19.1":
-  version: 4.19.1
-  resolution: "tsx@npm:4.19.1"
+"tsx@npm:^4.19.2":
+  version: 4.19.2
+  resolution: "tsx@npm:4.19.2"
   dependencies:
     esbuild: ~0.23.0
     fsevents: ~2.3.3
@@ -12253,7 +12253,7 @@ __metadata:
       optional: true
   bin:
     tsx: dist/cli.mjs
-  checksum: 31bfd2df62c1230f7c15f6e24d3790019ba7b2ad497221cb0cebcf5cf4f2c1ac971fac0d1283e3d80dc823652d2f9be946bd40ac65b640ff3f199b84a904a9c7
+  checksum: 7f9f1b338a73297725a9217cedaaad862f7c81d5264093c74b98a71491ad5413b11248d604c0e650f4f7da6f365249f1426fdb58a1325ab9e15448156b1edff6
   languageName: node
   linkType: hard
 
