@@ -100,10 +100,17 @@ jobs:
             echo "Pa11y-CI installation failed"
             exit 1
           else
-            pa11y-ci --sitemap http://localhost:3000/sitemap.xml \
+            echo "Running sitemap check - curl on localhost:3000"
+            if ! curl -s http://localhost:3000/sitemap.xml; then
+              echo "Server failed to start or sitemap not accessible"
+              exit 1
+            else
+              echo "Server appears to be running, starting Pa11y check"
+              pa11y-ci --sitemap http://localhost:3000/sitemap.xml \
                 --sitemap-find https://reportstream.cdc.gov \
                 --sitemap-replace http://localhost:3000 \
-                --reporter json | tee pa11y-report.json
+                --reporter json && cat pa11y-report.json
+            fi
           fi
 
       - name: Stop Frontend Server
