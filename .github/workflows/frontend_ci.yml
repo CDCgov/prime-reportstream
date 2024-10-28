@@ -78,7 +78,12 @@ jobs:
           sleep 5  # Wait for the server to start up
           echo 
           echo "Running sitemap check - curl on localhost:3000"
-          curl -s http://localhost:3000/sitemap.xml || exit 0
+          if ! curl -s http://localhost:3000/sitemap.xml; then
+            echo "Server failed to start or sitemap not accessible"
+            exit 1
+          else
+            echo "Server started successfully"
+          fi
 
 
       - name: Install Pa11y-CI
@@ -89,13 +94,19 @@ jobs:
 
       - name: Run Pa11y Check
         run: |
-          # NODE_VERSION=$(node --version | awk -F'v' '{print $2}')
           echo "Running Pa11y Check"
-          # /opt/hostedtoolcache/node/$NODE_VERSION/x64/bin/
-          pa11y-ci --sitemap http://localhost:3000/sitemap.xml \
-                 --sitemap-find https://reportstream.cdc.gov \
-                 --sitemap-replace http://localhost:3000
-      
+          pa11y-ci --version
+          if [ $? -ne 0 ]; then
+            echo "Pa11y-CI installation failed"
+            exit 1
+          else
+            pa11y-ci --sitemap http://localhost:3000/sitemap.xml \
+                --sitemap-find https://reportstream.cdc.gov \
+                --sitemap-replace http://localhost:3000 \
+                --timeout 60000 \
+                --reporter json | tee pa11y-report.json
+          fi
+
       - name: Stop Frontend Server
         run: |
           kill $(cat server.pid)
