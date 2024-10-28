@@ -76,15 +76,16 @@ jobs:
           yarn run dev --host 0.0.0.0 --port 3000 &
           echo $! > server.pid
           sleep 5  # Wait for the server to start up
-          curl -s http://localhost:3000/sitempa.xml || exit 0
+          echo 
+          echo "Running sitemap check - curl on localhost:3000"
+          curl -s http://localhost:3000/sitemap.xml || exit 0
 
 
       - name: Install Pa11y-CI
         run: |
           pwd
           npm install -g pa11y-ci@3.1.0 --no-save
-          find ../ -name pa11y-ci -type f 
-          which pa11y-ci
+
 
       - name: Run Pa11y Check
         run: |
