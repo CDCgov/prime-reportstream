@@ -73,7 +73,7 @@ jobs:
 
       - name: Run Frontend Server
         run: |
-          yarn run test:ci &
+          yarn run dev &
           sleep 5  # Wait for the server to start up
 
 
