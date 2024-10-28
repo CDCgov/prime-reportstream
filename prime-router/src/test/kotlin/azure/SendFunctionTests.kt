@@ -5,15 +5,10 @@ import assertk.assertions.isEqualTo
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
 import assertk.assertions.isTrue
-import com.fasterxml.jackson.annotation.JsonCreator
 import com.microsoft.azure.functions.ExecutionContext
-import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.FileSettings
-import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Topic
-import gov.cdc.prime.router.TranslatorConfiguration
-import gov.cdc.prime.router.TransportType
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.azure.db.tables.pojos.Task
@@ -119,26 +114,6 @@ class SendFunctionTests {
         )
     }
 
-    fun makeUnsupportedTransportHeader(): WorkflowEngine.Header {
-        return WorkflowEngine.Header(
-            task, reportFile,
-            null,
-            settings.findOrganization("ignore"),
-            Receiver(
-                name = "UnsupportedTransport",
-                organizationName = "IGNORE",
-                topic = Topic.COVID_19,
-                customerStatus = CustomerStatus.ACTIVE,
-                conditionFilter = listOf("blah"),
-                translation = mockkClass(TranslatorConfiguration::class),
-                externalName = "Ignore ELR",
-                transport = UnsupportedTransportType()
-            ),
-            metadata.findSchema("covid-19"), "hello".toByteArray(),
-            true
-        )
-    }
-
     @AfterEach
     fun reset() {
         clearAllMocks()
@@ -202,36 +177,6 @@ class SendFunctionTests {
         // Verify
         verify { nullTransport.send(any(), any(), any(), any(), any(), any(), any(), any(), any()) }
         verify { workflowEngine.recordAction(match { it.action.actionName == TaskAction.send }) }
-        assertThat(nextEvent).isNotNull()
-        assertThat(nextEvent!!.eventAction).isEqualTo(Event.EventAction.NONE)
-        assertThat(nextEvent!!.retryToken).isNull()
-    }
-
-    @Test
-    fun `Test with unsupported transport`() {
-        var nextEvent: ReportEvent? = null
-        val reportList = listOf(reportFile)
-        setupLogger()
-        setupWorkflow()
-        every { workflowEngine.handleReportEvent(any(), any()) }.answers {
-            val block = secondArg() as
-                    (header: WorkflowEngine.Header, retryToken: RetryToken?, txn: Configuration?) -> ReportEvent
-            val header = makeUnsupportedTransportHeader()
-            nextEvent = block(header, null, null)
-        }
-        every { workflowEngine.recordAction(any()) }.returns(Unit)
-        every { workflowEngine.azureEventService.trackEvent(any()) }.returns(Unit)
-        every { workflowEngine.reportService.getRootReports(any()) } returns reportList
-        every { workflowEngine.db } returns mockk<DatabaseAccess>()
-        mockkObject(Report.Companion)
-        every { Report.formExternalFilename(any(), any(), any(), any(), any(), any(), any()) } returns ""
-
-        // Invoke
-        val event = ReportEvent(Event.EventAction.SEND, reportId, false)
-        SendFunction(workflowEngine).run(event.toQueueMessage(), context)
-
-        // Verify
-        verify { workflowEngine.recordAction(match { it.action.actionName == TaskAction.send_warning }) }
         assertThat(nextEvent).isNotNull()
         assertThat(nextEvent!!.eventAction).isEqualTo(Event.EventAction.NONE)
         assertThat(nextEvent!!.retryToken).isNull()
@@ -350,8 +295,3 @@ class SendFunctionTests {
 //        verify(atLeast = 1) { logger.log(Level.SEVERE, any(), any<Throwable>()) }
 //    }
 }
-
-data class UnsupportedTransportType
-@JsonCreator constructor(
-    val dummy: String? = null,
-) : TransportType("Unsupported")

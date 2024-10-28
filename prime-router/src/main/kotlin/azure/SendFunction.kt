@@ -8,6 +8,7 @@ import com.microsoft.azure.functions.annotation.StorageAccount
 import gov.cdc.prime.router.AS2TransportType
 import gov.cdc.prime.router.BlobStoreTransportType
 import gov.cdc.prime.router.CustomerStatus
+import gov.cdc.prime.router.EmailTransportType
 import gov.cdc.prime.router.GAENTransportType
 import gov.cdc.prime.router.NullTransportType
 import gov.cdc.prime.router.RESTTransportType
@@ -99,32 +100,32 @@ class SendFunction(
                 receiverStatus = receiver.customerStatus
                 val inputReportId = header.reportFile.reportId
                 actionHistory.trackExistingInputReport(inputReportId)
-                val serviceName = receiver.fullName
+//                val serviceName = receiver.fullName
                 val nextRetryItems = mutableListOf<String>()
                 val externalFileName = Report.formExternalFilename(header, workflowEngine.reportService)
                 val sentReportId = UUID.randomUUID() // each sent report gets its own UUID
                 val retryItems = retryToken?.items
                 val transport = getTransport(receiver.transportType)
-                if (transport == null) {
-                    actionHistory.setActionType(TaskAction.send_warning)
-                    actionHistory
-                        .trackActionResult("Not sending $inputReportId to $serviceName: Unsupported transport type")
-                } else {
-                    val nextRetry = transport.send(
-                        receiver.transportType,
-                        header,
-                        sentReportId,
-                        externalFileName,
-                        retryItems,
-                        context,
-                        actionHistory,
-                        reportEventService,
-                        workflowEngine.reportService
-                    )
-                    if (nextRetry != null) {
-                        nextRetryItems += nextRetry
-                    }
+//                if (transport == null) {
+//                    actionHistory.setActionType(TaskAction.send_warning)
+//                    actionHistory
+//                        .trackActionResult("Not sending $inputReportId to $serviceName: Unsupported transport type")
+//                } else {
+                val nextRetry = transport.send(
+                    receiver.transportType,
+                    header,
+                    sentReportId,
+                    externalFileName,
+                    retryItems,
+                    context,
+                    actionHistory,
+                    reportEventService,
+                    workflowEngine.reportService
+                )
+                if (nextRetry != null) {
+                    nextRetryItems += nextRetry
                 }
+//                }
 
                 logger.info("For $inputReportId:  finished send().  Checking to see if a retry is needed.")
                 handleRetry(
@@ -156,7 +157,8 @@ class SendFunction(
         }
     }
 
-    private fun getTransport(transportType: TransportType): ITransport? {
+    private fun getTransport(transportType: TransportType): ITransport {
+        // IntelliJ complains about this when, but there's a ticket in for it https://youtrack.jetbrains.com/issue/KTIJ-21016
         return when (transportType) {
             is SFTPTransportType -> workflowEngine.sftpTransport
             is BlobStoreTransportType -> workflowEngine.blobStoreTransport
@@ -165,7 +167,7 @@ class SendFunction(
             is GAENTransportType -> workflowEngine.gaenTransport
             is RESTTransportType -> workflowEngine.restTransport
             is NullTransportType -> workflowEngine.nullTransport
-            else -> null
+            is EmailTransportType -> workflowEngine.nullTransport
         }
     }
 
