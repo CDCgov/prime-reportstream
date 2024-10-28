@@ -100,17 +100,11 @@ class SendFunction(
                 receiverStatus = receiver.customerStatus
                 val inputReportId = header.reportFile.reportId
                 actionHistory.trackExistingInputReport(inputReportId)
-//                val serviceName = receiver.fullName
                 val nextRetryItems = mutableListOf<String>()
                 val externalFileName = Report.formExternalFilename(header, workflowEngine.reportService)
                 val sentReportId = UUID.randomUUID() // each sent report gets its own UUID
                 val retryItems = retryToken?.items
                 val transport = getTransport(receiver.transportType)
-//                if (transport == null) {
-//                    actionHistory.setActionType(TaskAction.send_warning)
-//                    actionHistory
-//                        .trackActionResult("Not sending $inputReportId to $serviceName: Unsupported transport type")
-//                } else {
                 val nextRetry = transport.send(
                     receiver.transportType,
                     header,
@@ -125,7 +119,6 @@ class SendFunction(
                 if (nextRetry != null) {
                     nextRetryItems += nextRetry
                 }
-//                }
 
                 logger.info("For $inputReportId:  finished send().  Checking to see if a retry is needed.")
                 handleRetry(
@@ -159,6 +152,7 @@ class SendFunction(
 
     private fun getTransport(transportType: TransportType): ITransport {
         // IntelliJ complains about this when, but there's a ticket in for it https://youtrack.jetbrains.com/issue/KTIJ-21016
+        // Only need to worry if it doesn't compile
         return when (transportType) {
             is SFTPTransportType -> workflowEngine.sftpTransport
             is BlobStoreTransportType -> workflowEngine.blobStoreTransport
