@@ -22,6 +22,7 @@ import gov.cdc.prime.router.azure.DatabaseLookupTableAccess
 import gov.cdc.prime.router.azure.Event
 import gov.cdc.prime.router.azure.ProcessEvent
 import gov.cdc.prime.router.azure.QueueAccess
+import gov.cdc.prime.router.azure.SubmissionTableService
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.Tables
 import gov.cdc.prime.router.azure.db.enums.ActionLogType
@@ -72,6 +73,7 @@ import gov.cdc.prime.router.metadata.ObservationMappingConstants
 import gov.cdc.prime.router.unittest.UnitTestUtils
 import gov.cdc.prime.router.version.Version
 import io.mockk.every
+import io.mockk.mockk
 import io.mockk.mockkConstructor
 import io.mockk.mockkObject
 import io.mockk.unmockkAll
@@ -114,7 +116,11 @@ class FHIRConverterIntegrationTests {
             .settingsProvider(settings)
             .databaseAccess(ReportStreamTestDatabaseContainer.testDatabaseAccess)
             .build()
-        return FHIRFunctions(workflowEngine, databaseAccess = ReportStreamTestDatabaseContainer.testDatabaseAccess)
+        return FHIRFunctions(
+            workflowEngine,
+            databaseAccess = ReportStreamTestDatabaseContainer.testDatabaseAccess,
+            submissionTableService = mockk<SubmissionTableService>()
+        )
     }
 
     private fun createFHIRConverter(): FHIRConverter {
@@ -128,6 +134,7 @@ class FHIRConverterIntegrationTests {
             settings,
             ReportStreamTestDatabaseContainer.testDatabaseAccess,
             azureEventService = azureEventService,
+            submissionTableService = mockk<SubmissionTableService>()
         )
     }
 

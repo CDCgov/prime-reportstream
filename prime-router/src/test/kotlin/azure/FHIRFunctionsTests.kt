@@ -66,7 +66,11 @@ class FHIRFunctionsTests {
             .databaseAccess(accessSpy)
             .build()
         every { accessSpy.fetchReportFile(any()) } returns mockk<ReportFile>(relaxed = true)
-        return FHIRFunctions(workflowEngine, databaseAccess = accessSpy)
+        return FHIRFunctions(
+            workflowEngine,
+            databaseAccess = accessSpy,
+            submissionTableService = mockk<SubmissionTableService>()
+        )
     }
 
     @Test

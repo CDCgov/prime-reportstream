@@ -44,7 +44,7 @@ data class FhirReceiveQueueMessage(
     override val blobSubFolderName: String,
     override val headers: Map<String, String> = emptyMap(),
 ) : ReportPipelineMessage(), QueueMessage.ReceiveInformation {
-    override val messageQueueName = QueueMessage.Companion.elrReceiveQueueName
+    override val messageQueueName = QueueMessage.Companion.elrSubmissionConvertQueueName
 }
 
 @JsonTypeName("convert")

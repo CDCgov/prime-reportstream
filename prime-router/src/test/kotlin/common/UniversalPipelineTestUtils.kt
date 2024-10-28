@@ -19,6 +19,7 @@ import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DataAccessTransaction
 import gov.cdc.prime.router.azure.Event
 import gov.cdc.prime.router.azure.ProcessEvent
+import gov.cdc.prime.router.azure.SubmissionTableService
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.Tables
 import gov.cdc.prime.router.azure.db.enums.TaskAction
@@ -30,6 +31,7 @@ import gov.cdc.prime.router.db.ReportStreamTestDatabaseContainer
 import gov.cdc.prime.router.fhirengine.azure.FHIRFunctions
 import gov.cdc.prime.router.metadata.LookupTable
 import gov.cdc.prime.router.unittest.UnitTestUtils
+import io.mockk.mockk
 import org.jooq.impl.DSL
 import org.testcontainers.containers.GenericContainer
 import java.io.File
@@ -399,7 +401,11 @@ object UniversalPipelineTestUtils {
             .settingsProvider(settings)
             .databaseAccess(ReportStreamTestDatabaseContainer.testDatabaseAccess)
             .build()
-        return FHIRFunctions(workflowEngine, databaseAccess = ReportStreamTestDatabaseContainer.testDatabaseAccess)
+        return FHIRFunctions(
+            workflowEngine,
+            databaseAccess = ReportStreamTestDatabaseContainer.testDatabaseAccess,
+            submissionTableService = mockk<SubmissionTableService>()
+        )
     }
 
     fun getBlobContainerMetadata(azuriteContainer: GenericContainer<*>): BlobAccess.BlobContainerMetadata {

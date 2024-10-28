@@ -40,16 +40,16 @@ class FHIRFunctions(
     /**
      * An azure function for ingesting and recording submissions
      */
-    @FunctionName("receive-fhir")
+    @FunctionName("convert-from-submissions-fhir")
     @StorageAccount("AzureWebJobsStorage")
-    fun receive(
-        @QueueTrigger(name = "message", queueName = QueueMessage.elrReceiveQueueName)
+    fun convertFromSubmissions(
+        @QueueTrigger(name = "message", queueName = QueueMessage.elrSubmissionConvertQueueName)
         message: String,
         // Number of times this message has been dequeued
         @BindingName("DequeueCount") dequeueCount: Int = 1,
     ) {
         logger.info(
-            "message consumed from elr-fhir-receive queue"
+            "message consumed from ${QueueMessage.elrSubmissionConvertQueueName} queue"
         )
         process(message, dequeueCount, FHIRConverter(), ActionHistory(TaskAction.convert))
         val messageContent = readMessage("convert", message, dequeueCount)

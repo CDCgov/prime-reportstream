@@ -11,6 +11,7 @@ import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DataAccessTransaction
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.Event
+import gov.cdc.prime.router.azure.SubmissionTableService
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.observability.event.AzureEventService
 import gov.cdc.prime.router.azure.observability.event.AzureEventServiceImpl
@@ -65,6 +66,7 @@ abstract class FHIREngine(
         var azureEventService: AzureEventService? = null,
         var reportService: ReportService? = null,
         var reportEventService: IReportStreamEventService? = null,
+        var submissionTableService: SubmissionTableService? = null,
     ) {
         /**
          * Set the metadata instance.
@@ -110,6 +112,10 @@ abstract class FHIREngine(
             this.reportEventService = reportEventService
         }
 
+        fun submissionTableService(submissionTableService: SubmissionTableService) = apply {
+            this.submissionTableService = submissionTableService
+        }
+
         /**
          * Build the fhir engine instance.
          * @return the fhir engine instance
@@ -130,6 +136,7 @@ abstract class FHIREngine(
                     blobAccess ?: BlobAccess(),
                     azureEventService ?: AzureEventServiceImpl(),
                     reportService ?: ReportService(),
+                    submissionTableService = submissionTableService ?: SubmissionTableService.getInstance()
                 )
                 TaskAction.process -> FHIRConverter(
                     metadata ?: Metadata.getInstance(),
@@ -137,7 +144,8 @@ abstract class FHIREngine(
                     databaseAccess ?: databaseAccessSingleton,
                     blobAccess ?: BlobAccess(),
                     azureEventService ?: AzureEventServiceImpl(),
-                    reportService ?: ReportService()
+                    reportService ?: ReportService(),
+                    submissionTableService = submissionTableService ?: SubmissionTableService.getInstance()
                 )
                 TaskAction.destination_filter -> FHIRDestinationFilter(
                     metadata ?: Metadata.getInstance(),
@@ -145,7 +153,7 @@ abstract class FHIREngine(
                     databaseAccess ?: databaseAccessSingleton,
                     blobAccess ?: BlobAccess(),
                     azureEventService ?: AzureEventServiceImpl(),
-                    reportService ?: ReportService()
+                    reportService ?: ReportService(),
                 )
                 TaskAction.receiver_filter -> FHIRReceiverFilter(
                     metadata ?: Metadata.getInstance(),

@@ -37,7 +37,7 @@ import org.jooq.Field
 import java.time.OffsetDateTime
 
 /**
- * FHIRReceiver is responsible for processing messages from the elr-fhir-receive azure queue
+ * FHIRReceiver is responsible for processing messages from the elr-fhir-convert-submission azure queue
  * and storing them for the next step in the pipeline.
  *
  * @param metadata Mockable metadata instance.
@@ -55,7 +55,7 @@ class FHIRReceiver(
     blob: BlobAccess = BlobAccess(),
     azureEventService: AzureEventService = AzureEventServiceImpl(),
     reportService: ReportService = ReportService(),
-    val submissionTableService: SubmissionTableService = SubmissionTableService.getInstance(),
+    private val submissionTableService: SubmissionTableService = SubmissionTableService.getInstance(),
 ) : FHIREngine(metadata, settings, db, blob, azureEventService, reportService) {
 
     override val finishedField: Field<OffsetDateTime> = Tables.TASK.PROCESSED_AT
