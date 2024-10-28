@@ -1,7 +1,6 @@
 package gov.cdc.prime.router.azure.observability.event
 
 import gov.cdc.prime.router.Report
-import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.db.enums.TaskAction
@@ -83,25 +82,6 @@ interface IReportStreamEventService {
         childReport: Report,
         pipelineStepName: TaskAction,
         error: String,
-        initializer: ReportStreamReportProcessingErrorEventBuilder.() -> Unit,
-    )
-
-    /**
-     * Creates a general processing error event. This is not associated with a report or item.
-     *
-     * @param eventName the business event value from [ReportStreamEventName]
-     * @param pipelineStepName the pipeline step that is emitting the event
-     * @param error the error description
-     * @param submissionId the report id for the incoming report
-     * @param bodyUrl the blob url for the incoming report
-     * @param initializer additional data to initialize the creation of the event. See [AbstractReportStreamEventBuilder]
-     */
-    fun sendSubmissionProcessingError(
-        eventName: ReportStreamEventName,
-        pipelineStepName: TaskAction,
-        error: String,
-        submissionId: ReportId,
-        bodyUrl: String,
         initializer: ReportStreamReportProcessingErrorEventBuilder.() -> Unit,
     )
 
@@ -289,28 +269,6 @@ class ReportStreamEventService(
             childReport.id,
             childReport.bodyURL,
             childReport.schema.topic,
-            pipelineStepName,
-            error
-        ).apply(
-            initializer
-        ).send()
-    }
-
-    override fun sendSubmissionProcessingError(
-        eventName: ReportStreamEventName,
-        pipelineStepName: TaskAction,
-        error: String,
-        submissionId: ReportId,
-        bodyUrl: String,
-        initializer: ReportStreamReportProcessingErrorEventBuilder.() -> Unit,
-    ) {
-        ReportStreamReportProcessingErrorEventBuilder(
-            this,
-            azureEventService,
-            eventName,
-            submissionId,
-            bodyUrl,
-            theTopic = null,
             pipelineStepName,
             error
         ).apply(

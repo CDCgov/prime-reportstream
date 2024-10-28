@@ -12,7 +12,6 @@ import gov.cdc.prime.router.CovidSender
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.DeepOrganization
 import gov.cdc.prime.router.FileSettings
-import gov.cdc.prime.router.InvalidParamMessage
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.Organization
@@ -41,6 +40,7 @@ import org.jooq.tools.jdbc.MockDataProvider
 import org.jooq.tools.jdbc.MockResult
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.assertThrows
 import java.util.UUID
 import kotlin.test.Test
 
@@ -160,11 +160,11 @@ class FHIRReceiverTest {
 
         every { engine.settings.findSender(any()) } returns null
 
-        accessSpy.transact { txn ->
-            engine.run(queueMessage, actionLogger, actionHistory, txn)
+        assertThrows<SubmissionSenderNotFound> {
+            accessSpy.transact { txn ->
+                engine.run(queueMessage, actionLogger, actionHistory, txn)
+            }
         }
-
-        assertThat(actionLogger.errors).hasSize(0)
 
         val reportId = queueMessage.reportId.toString()
         val blobURL = queueMessage.blobURL
@@ -176,41 +176,6 @@ class FHIRReceiverTest {
                 "Sender not found matching client_id: unknown_client_id"
             )
             submissionTableService.insertSubmission(any())
-        }
-    }
-
-    @Test
-    fun `test handle inactive sender`() {
-        val fhirSetup =
-            setupMocksForProcessingTest(
-                "known_client_id",
-                "application/hl7-v2;test",
-                CustomerStatus.INACTIVE,
-                true
-            )
-        val engine = fhirSetup.engine
-        val queueMessage = fhirSetup.message
-        val actionLogger = ActionLogger()
-        val actionHistory = fhirSetup.actionHistory
-
-        accessSpy.transact { txn ->
-            engine.run(queueMessage, actionLogger, actionHistory, txn)
-        }
-
-        assertThat(actionLogger.errors).hasSize(1)
-
-        assertThat(
-            actionLogger.errors[0].equals(
-                actionLogger.errors[0].equals(
-                    InvalidParamMessage("Sender has customer status INACTIVE: unknown_client_id")
-                )
-            )
-        )
-
-        verify(exactly = 1) {
-            submissionTableService.insertSubmission(any())
-            actionHistory.trackActionResult(HttpStatus.NOT_ACCEPTABLE)
-            actionHistory.trackActionSenderInfo("test.Test Sender", "test_message")
         }
     }
 
