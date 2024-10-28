@@ -80,7 +80,7 @@ jobs:
       - name: Install Pa11y-CI
         run: |
           pwd
-          npm install pa11y-ci --no-save
+          npm install -g pa11y-ci@3.1.0 --no-save
           find ../ -name pa11y-ci -type f 
           which pa11y-ci
 
