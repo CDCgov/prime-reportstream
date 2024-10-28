@@ -79,11 +79,10 @@ jobs:
 
       - name: Install Pa11y-CI
         run: |
-          mkdir tmp-ci 
-          cd tmp-ci 
+          pwd
           npm install pa11y-ci --no-save
-          find ../ -name pa11y-ci -type f
-          cd - 
+          find ../ -name pa11y-ci -type f 
+          which pa11y-ci
 
       - name: Run Pa11y Check
         run: |
@@ -94,7 +93,6 @@ jobs:
       - name: Stop Frontend Server
         run: |
           kill $(cat server.pid)
-          rm -rf tmp-ci
         
   unit_tests:
     name: Unit tests
