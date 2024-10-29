@@ -5,6 +5,9 @@
             "width": 320,
             "height": 480
         },
+        "chromeLaunchConfig": {
+            "executablePath": "/usr/bin/google-chrome-stable"
+        },
         "reporters": [
             "cli",
             "pa11y-ci-reporter-cli-summary"
