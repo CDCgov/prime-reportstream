@@ -164,3 +164,15 @@ customEvents
     | mv-expand submittedReportIds
     | project childReportId=tostring(submittedReportIds)) on $left.reportId == $right.childReportId
 ```
+### Items not routed to States that we are connected to in the UP
+```kql
+let States = dynamic(["DC","CT", "NE","VA","MI","KY","WV","NC","GA","PA", "NJ","DE","OH","MS","NH","VT", "WA","IN","NM","PR","MH","TN","UT","WY","WI"]);
+customEvents
+| where name == "ITEM_NOT_ROUTED"
+| extend params = parse_json(tostring(customDimensions.params))
+| extend Ordering_Facility_State = parse_json(params.bundleDigest.orderingFacilityState)[0]
+| extend Performer_State = parse_json(params.bundleDigest.performerState)[0]
+| extend Patient_State = parse_json(params.bundleDigest.patientState)[0]
+| where not(Ordering_Facility_State in (States) or Performer_State in (States) or Patient_State in (States))
+| project timestamp, Sender = customDimensions.sender, Ordering_Facility_State, Patient_State, Performer_State, Topic = customDimensions.topic, TrackingID = customDimensions.trackingId, customDimensions
+```
