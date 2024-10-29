@@ -267,4 +267,10 @@ internal class ReceiverTests {
         )
         assertThat(receiver.schemaName).isEqualTo("CO")
     }
+
+    @Test
+    fun `test receiver type with null transport`() {
+        val receiver = Receiver("elr", "IGNORE", Topic.COVID_19, CustomerStatus.INACTIVE, translatorConfig)
+        assertThat(receiver.transportType.type).isEqualTo("NULL")
+    }
 }
