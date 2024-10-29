@@ -112,7 +112,7 @@ jobs:
             else
               echo "Server appears to be running, starting Pa11y check"
               # pa11y-ci --reporter=pa11y-ci-reporter-cli-summary --sitemap http://localhost:3000/sitemap.xml \
-              pa11y-ci --reporter json --sitemap http://localhost:3000/sitemap.xml \
+              pa11y-ci --reporter cli --sitemap http://localhost:3000/sitemap.xml \
                 --sitemap-find https://reportstream.cdc.gov/ \
                 --sitemap-replace http://localhost:3000/ || exit 0
             fi
