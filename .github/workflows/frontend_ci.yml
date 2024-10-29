@@ -90,6 +90,10 @@ jobs:
         run: |
           echo "Installing Pa11y-CI"
           npm install -g puppeteer@22.11.2 google-chrome pa11y-ci@3.1.0 --no-save
+          ls -al /opt/hostedtoolcache/node/20.15.1/x64/lib/node_modules/
+          ls -al /opt/hostedtoolcache/node/20.15.1/x64/lib/node_modules/google-chrome/
+          ls -al /opt/hostedtoolcache/node/20.15.1/x64/lib/node_modules/google-chrome/opt
+
           google-chrome --version
 
       - name: Run Pa11y Check
