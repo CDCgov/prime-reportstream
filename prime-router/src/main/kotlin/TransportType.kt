@@ -19,7 +19,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo
     JsonSubTypes.Type(GAENTransportType::class, name = "GAEN"),
     JsonSubTypes.Type(RESTTransportType::class, name = "REST")
 )
-abstract class TransportType(val type: String)
+sealed class TransportType(val type: String)
 
 data class SFTPTransportType
 @JsonCreator constructor(
