@@ -53,7 +53,7 @@
       topic: "etor-ti"
       customerStatus: "active"
       format: "HL7"
-      schemaName: "classpath:metadata/fhir_transforms/senders/Flexion/automated-testing-etor.yml"
+      schemaName: "classpath:/metadata/fhir_transforms/senders/Flexion/automated-testing-etor.yml"
   receivers:
     # ETOR Service Receiver for orders - Routes ORM_O01 and OML_O21 FHIR orders to TI orders endpoint
     - name: "etor-service-receiver-orders"
