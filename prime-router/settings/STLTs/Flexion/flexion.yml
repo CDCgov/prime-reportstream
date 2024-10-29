@@ -53,6 +53,7 @@
       topic: "etor-ti"
       customerStatus: "active"
       format: "HL7"
+      schemaName: "classpath:/metadata/fhir_transforms/senders/Flexion/cdph-nbs-sender-transform.yml" # this transform is needed for automated tests. we may want to create a new transform for this purpose
   receivers:
     # ETOR Service Receiver for orders - Routes ORM_O01 and OML_O21 FHIR orders to TI orders endpoint
     - name: "etor-service-receiver-orders"
