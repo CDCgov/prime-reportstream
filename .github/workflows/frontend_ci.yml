@@ -88,7 +88,7 @@ jobs:
       - name: Install Pa11y-CI
         run: |
           echo "Installing google-chrome-stable"
-          apt-get update && apt-get install -y google-chrome-stable
+          sudo apt-get update && sudo apt-get install -y google-chrome-stable jq
           echo "Installing Pa11y-CI"
           npm install -g \
             puppeteer@22.7.1 \
@@ -113,9 +113,9 @@ jobs:
             else
               echo "Server appears to be running, starting Pa11y check"
               # pa11y-ci --reporter=pa11y-ci-reporter-cli-summary --sitemap http://localhost:3000/sitemap.xml \
-              pa11y-ci --reporter csv --sitemap http://localhost:3000/sitemap.xml \
+              pa11y-ci --reporter json --sitemap http://localhost:3000/sitemap.xml \
                 --sitemap-find https://reportstream.cdc.gov/ \
-                --sitemap-replace http://localhost:3000/ || exit 0
+                --sitemap-replace http://localhost:3000/ | jq || exit 0
             fi
           fi
 
