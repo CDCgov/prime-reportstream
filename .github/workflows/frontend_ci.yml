@@ -89,9 +89,8 @@ jobs:
       - name: Install Pa11y-CI
         run: |
           echo "Installing Pa11y-CI"
-          npm install -g get-google-chrome-path google-chrome pa11y-ci@3.1.0 --no-save
-          # puppeteer@22.11.2
-          get-google-chrome-path
+          npm install -g puppeteer@22.11.2 google-chrome pa11y-ci@3.1.0 --no-save
+          google-chrome --version
 
       - name: Run Pa11y Check
         run: |
