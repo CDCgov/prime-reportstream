@@ -91,7 +91,7 @@ jobs:
           sudo apt-get update && sudo apt-get install -y google-chrome-stable jq
           echo "Installing Pa11y-CI"
           npm install -g \
-            puppeteer@22.7.1 \
+            puppeteer@22.8.2 \
             pa11y@8.0.0 \
             pa11y-ci@3.1.0 \
             pa11y-ci-reporter-cli-summary@4.0.0 \
