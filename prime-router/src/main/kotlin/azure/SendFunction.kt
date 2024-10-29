@@ -152,7 +152,7 @@ class SendFunction(
 
     private fun getTransport(transportType: TransportType): ITransport {
         // IntelliJ complains about this when, but there's a ticket in for it https://youtrack.jetbrains.com/issue/KTIJ-21016
-        // Only need to worry if it doesn't compile
+        // It should still compile, unless a TransportType was added without adding it here
         return when (transportType) {
             is SFTPTransportType -> workflowEngine.sftpTransport
             is BlobStoreTransportType -> workflowEngine.blobStoreTransport
@@ -161,7 +161,7 @@ class SendFunction(
             is GAENTransportType -> workflowEngine.gaenTransport
             is RESTTransportType -> workflowEngine.restTransport
             is NullTransportType -> workflowEngine.nullTransport
-            is EmailTransportType -> workflowEngine.nullTransport
+            is EmailTransportType -> workflowEngine.emailTransport
         }
     }
 

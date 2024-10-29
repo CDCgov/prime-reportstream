@@ -31,6 +31,7 @@ import gov.cdc.prime.router.serializers.Hl7Serializer
 import gov.cdc.prime.router.serializers.ReadResult
 import gov.cdc.prime.router.transport.AS2Transport
 import gov.cdc.prime.router.transport.BlobStoreTransport
+import gov.cdc.prime.router.transport.EmailTransport
 import gov.cdc.prime.router.transport.GAENTransport
 import gov.cdc.prime.router.transport.NullTransport
 import gov.cdc.prime.router.transport.RESTTransport
@@ -73,6 +74,7 @@ class WorkflowEngine(
     val gaenTransport: GAENTransport = GAENTransport(),
     val restTransport: RESTTransport = RESTTransport(),
     val nullTransport: NullTransport = NullTransport(),
+    val emailTransport: EmailTransport = EmailTransport(),
 ) : BaseEngine(queue) {
 
     /**
