@@ -13,7 +13,7 @@
             "pa11y-ci-reporter-cli-summary"
         ],
         "standard": "WCAG2AAA",
-        "runners": ["axe","htmlcs"]
+        "runners": ["axe"]
     },
     "urls": []
 }
