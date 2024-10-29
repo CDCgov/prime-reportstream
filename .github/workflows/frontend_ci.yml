@@ -87,6 +87,9 @@ jobs:
 
       - name: Install Pa11y-CI
         run: |
+          echo "Installing google-chrome-stable"
+          apt-get update && apt-get install -y google-chrome-stable
+          which google-chrome-stable
           echo "Installing Pa11y-CI"
           npm install -g \
             puppeteer@22.11.2 \
