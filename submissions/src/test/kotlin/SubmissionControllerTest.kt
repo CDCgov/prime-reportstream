@@ -35,7 +35,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.context.annotation.Import
 import org.springframework.http.MediaType
-import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
@@ -129,7 +128,6 @@ class SubmissionControllerTest {
 
         mockMvc.perform(
             MockMvcRequestBuilders.post("/api/v1/reports")
-                .with(csrf())
                 .content(requestBody)
                 .contentType(MediaType.valueOf("application/hl7-v2"))
                 .header("client_id", "testClient")
@@ -176,7 +174,6 @@ class SubmissionControllerTest {
 
         mockMvc.perform(
             MockMvcRequestBuilders.post("/api/v1/reports")
-                .with(csrf())
                 .content(requestBody)
                 .contentType(MediaType.valueOf("application/fhir+ndjson"))
                 .header("client_id", "testClient")
@@ -208,7 +205,6 @@ class SubmissionControllerTest {
 
         mockMvc.perform(
             MockMvcRequestBuilders.post("/api/v1/reports")
-                .with(csrf())
                 .content(requestBody)
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("client_id", "testClient")
@@ -225,7 +221,6 @@ class SubmissionControllerTest {
 
         mockMvc.perform(
             MockMvcRequestBuilders.post("/api/v1/reports")
-                .with(csrf())
                 .content(requestBody)
                 .contentType(MediaType.valueOf("application/hl7-v2"))
                 .header("payloadname", "testPayload")
@@ -248,7 +243,6 @@ class SubmissionControllerTest {
 
         mockMvc.perform(
             MockMvcRequestBuilders.post("/api/v1/reports")
-                .with(csrf())
                 .content(requestBody)
                 .contentType(MediaType.parseMediaType("application/hl7-v2"))
                 .header("client_id", "testClient")
@@ -271,7 +265,6 @@ class SubmissionControllerTest {
 
         mockMvc.perform(
             MockMvcRequestBuilders.post("/api/v1/reports")
-                .with(csrf())
                 .content(requestBody)
                 .contentType(MediaType.parseMediaType("application/hl7-v2"))
                 .header("client_id", "testClient")
@@ -310,7 +303,6 @@ class SubmissionControllerTest {
 
         mockMvc.perform(
             MockMvcRequestBuilders.post("/api/v1/reports")
-                .with(csrf())
                 .content(requestBody)
                 .contentType(MediaType.valueOf("application/hl7-v2"))
                 .header("client_id", "testClient")
