@@ -88,8 +88,11 @@ jobs:
       - name: Install Pa11y-CI
         run: |
           echo "Installing Pa11y-CI"
-          npm install -g puppeteer@22.11.2 pa11y-ci@3.1.0 --no-save
-          puppeteer browsers install chrome@latest
+          npm install -g puppeteer@22.11.2 \
+            pa11y-ci@3.1.0 \
+            pa11y-ci-reporter-cli-summary@4.0.0 \
+            --no-save
+          puppeteer browsers install chrome@132.0.6805.0
 
       - name: Run Pa11y Check
         run: |
@@ -106,7 +109,7 @@ jobs:
               exit 1
             else
               echo "Server appears to be running, starting Pa11y check"
-              pa11y-ci --sitemap http://localhost:3000/sitemap.xml \
+              pa11y-ci --reporter=pa11y-ci-reporter-cli-summary --sitemap http://localhost:3000/sitemap.xml \
                 --sitemap-find https://reportstream.cdc.gov \
                 --sitemap-replace http://localhost:3000 
             fi
