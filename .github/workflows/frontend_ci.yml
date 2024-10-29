@@ -88,12 +88,11 @@ jobs:
       - name: Install Pa11y-CI
         run: |
           echo "Installing Pa11y-CI"
-          npm install -g puppeteer@22.11.2 \
+          npm install -g \
+            puppeteer@22.11.2 \
             pa11y-ci@3.1.0 \
             pa11y-ci-reporter-cli-summary@4.0.0 \
             --no-save
-          puppeteer browsers install chrome@132.0.6805.0
-          which chrome
 
       - name: Run Pa11y Check
         run: |
