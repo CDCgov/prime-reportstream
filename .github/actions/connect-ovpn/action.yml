@@ -42,6 +42,7 @@ runs:
         ip addr show dev tun0 ;
         ping ${{ inputs.PING_URL }} ;
         ip route ;
+      shell: bash
 
     - name: Connect VPN
       env:
