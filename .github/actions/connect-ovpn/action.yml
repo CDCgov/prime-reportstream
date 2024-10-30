@@ -38,9 +38,6 @@ runs:
       run: |
         echo -e "\nOpenVPN Version:" ;
         openvpn --version ;
-        ## systemctl list-unit-files ;
-        ## sudo systemctl status openvpn@client.service 2>/dev/null ;
-        ## ps -ef ;
         echo -e "\nPinging URL: ${{ inputs.PING_URL }}" ;
         ping -c 3 ${{ inputs.PING_URL }} ;
         echo -e "\nIP Route:" ;
