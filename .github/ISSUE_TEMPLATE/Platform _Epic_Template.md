@@ -12,7 +12,7 @@ Labels: epic platform
 
 ## Product Requirement(s) ##
 
-## Use Case ##
+## Use Case(s) ##
 
 ## Dependencies ##
 
