@@ -43,7 +43,7 @@ runs:
         sudo systemctl status openvpn.service 2>/dev/null ;
         ## systemctl list-unit-files ;
         ## ps -ef ;
-        ping ${{ inputs.PING_URL }} ;
+        ping -c 10 ${{ inputs.PING_URL }} ;
         ip route ;
       shell: bash
 
