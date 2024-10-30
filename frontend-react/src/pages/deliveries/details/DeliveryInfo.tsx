@@ -18,37 +18,21 @@ function DeliveryInfo(props: Props) {
             <hr />
             <div id="details" className="grid-row grid-gap margin-top-0">
                 <div className="tablet:grid-col">
-                    <h4 className="text-base-darker text-normal margin-bottom-0">
-                        Report type
-                    </h4>
+                    <h4 className="text-base-darker text-normal margin-bottom-0">Report type</h4>
                     <p className="text-bold margin-top-0">{report.fileType}</p>
-                    <h4 className="text-base-darker text-normal margin-bottom-0">
-                        Available to download
-                    </h4>
+                    <h4 className="text-base-darker text-normal margin-bottom-0">Available to download</h4>
                     <p className="text-bold margin-top-0">
-                        {/* eslint-disable-next-line import/no-named-as-default-member */}
-                        {format(
-                            parseISO(report.batchReadyAt),
-                            "eeee, LLL dd, yyyy HH:mm",
-                        )}
+                        {}
+                        {format(parseISO(report.batchReadyAt), "eeee, LLL dd, yyyy HH:mm")}
                     </p>
                 </div>
                 <div className="tablet:grid-col">
-                    <h4 className="text-base-darker text-normal margin-bottom-0">
-                        Total tests reported
-                    </h4>
+                    <h4 className="text-base-darker text-normal margin-bottom-0">Total tests reported</h4>
+                    <p className="text-bold margin-top-0">{report.reportItemCount}</p>
+                    <h4 className="text-base-darker text-normal margin-bottom-0">Download expires</h4>
                     <p className="text-bold margin-top-0">
-                        {report.reportItemCount}
-                    </p>
-                    <h4 className="text-base-darker text-normal margin-bottom-0">
-                        Download expires
-                    </h4>
-                    <p className="text-bold margin-top-0">
-                        {/* eslint-disable-next-line import/no-named-as-default-member */}
-                        {format(
-                            parseISO(report.expires),
-                            "eeee, LLL dd, yyyy HH:mm",
-                        )}
+                        {}
+                        {format(parseISO(report.expires), "eeee, LLL dd, yyyy HH:mm")}
                     </p>
                 </div>
             </div>
