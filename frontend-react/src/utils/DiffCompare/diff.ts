@@ -1,5 +1,3 @@
-/* eslint-disable camelcase */
-
 /**
  * The algorithm implemented here is based on "An O(NP) Sequence Comparison Algorithm"
  * by described by Sun Wu, Udi Manber and Gene Myers
@@ -150,24 +148,12 @@ export const Diff = (a_: string, b_: string) => {
             do {
                 ++p;
                 for (let k = -p; k <= delta - 1; ++k) {
-                    fp[k + offset] = snake(
-                        k,
-                        (fp[k - 1 + offset] || -1) + 1,
-                        fp[k + 1 + offset] || -1,
-                    );
+                    fp[k + offset] = snake(k, (fp[k - 1 + offset] || -1) + 1, fp[k + 1 + offset] || -1);
                 }
                 for (let k = delta + p; k >= delta + 1; --k) {
-                    fp[k + offset] = snake(
-                        k,
-                        (fp[k - 1 + offset] || -1) + 1,
-                        fp[k + 1 + offset] || -1,
-                    );
+                    fp[k + offset] = snake(k, (fp[k - 1 + offset] || -1) + 1, fp[k + 1 + offset] || -1);
                 }
-                fp[delta + offset] = snake(
-                    delta,
-                    (fp[delta - 1 + offset] || -1) + 1,
-                    fp[delta + 1 + offset] || -1,
-                );
+                fp[delta + offset] = snake(delta, (fp[delta - 1 + offset] || -1) + 1, fp[delta + 1 + offset] || -1);
             } while ((fp[delta + offset] || -1) !== blen);
 
             editdistance = delta + 2 * p;
