@@ -36,15 +36,16 @@ runs:
 
     - name: Validate OpenVPN
       run: |
-        ls -l /etc/openvpn/*/ ;
-        ## cat /etc/openvpn/update-resolv-conf ;
-        ## cat /etc/openvpn/update-systemd-resolved ;
+        echo -e "\nOpenVPN Version:" ;
         openvpn --version ;
-        sudo systemctl status openvpn.service 2>/dev/null ;
         ## systemctl list-unit-files ;
+        ## sudo systemctl status openvpn@client.service 2>/dev/null ;
         ## ps -ef ;
-        ping -c 10 ${{ inputs.PING_URL }} ;
+        echo -e "\nPinging URL" ;
+        ping -c 3 ${{ inputs.PING_URL }} ;
+        echo -e "\nIP Route:" ;
         ip route ;
+        echo -e ;
       shell: bash
 
     - name: Connect VPN
