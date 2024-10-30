@@ -40,7 +40,7 @@ runs:
         ## cat /etc/openvpn/update-resolv-conf ;
         ## cat /etc/openvpn/update-systemd-resolved ;
         openvpn --version ;
-        sudo systemctl status openvpn.service 2>dev/null ;
+        sudo systemctl status openvpn.service 2>/dev/null ;
         ## systemctl list-unit-files ;
         ## ps -ef ;
         ip addr show dev tun0 ;
