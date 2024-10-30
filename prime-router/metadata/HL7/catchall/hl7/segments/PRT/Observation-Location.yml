@@ -1,0 +1,60 @@
+# $schema: ./../../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
+
+# TODO need message level conditions to be able to implement FHIR > HL7 mapping
+
+# This segment does not appear in NIST or RADx MARS
+
+resourceType: Observation
+
+id:
+  type: STRING
+  valueOf: "GeneralUtils.generateResourceId()"
+  expressionType: JEXL
+
+extension:
+  generateList: true
+  expressionType: nested
+  expressions:
+    - expressionType: nested
+      specs: PRT.9 *
+      expressionsMap:
+        url:
+          type: STRING
+          value: "http://hl7.org/fhir/StructureDefinition/event-location"
+        valueReference:
+          expressionType: reference
+          valueOf: datatypes/PL/Location
+        extension:
+          expressionType: nested
+          expressionsMap:
+            url:
+              type: SYSTEM_URL
+              value: hl7v2Field
+            valueString:
+              type: STRING
+              valueOf: PRT.9
+    - expressionType: nested
+      specs: PRT.14 *
+      expressionsMap:
+        url:
+          type: STRING
+          value: "http://hl7.org/fhir/StructureDefinition/event-location"
+        valueReference:
+          expressionType: reference
+          valueOf: datatypes/XAD/Address
+        extension:
+          expressionType: nested
+          expressionsMap:
+            url:
+              type: SYSTEM_URL
+              value: hl7v2Field
+            valueString:
+              type: STRING
+              valueOf: PRT.14
+    - expressionType: resource
+      valueOf: segments/PRT/PRTExtension
+
+subject:
+  valueOf: datatype/Reference
+  expressionType: resource
+  specs: $Location

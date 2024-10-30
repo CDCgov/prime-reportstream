@@ -1,0 +1,40 @@
+# $schema: ./../../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
+
+# TODO need message level conditions to be able to implement FHIR > HL7 mapping
+
+# This segment does not appear in NIST or RADx MARS
+
+resourceType: PractitionerRole
+
+id:
+  type: STRING
+  valueOf: "GeneralUtils.generateResourceId()"
+  expressionType: JEXL
+
+practitioner:
+  valueOf: datatypes/XCN/Practitioner
+  expressionType: reference
+  specs: PRT.5
+
+organization:
+  condition: $roleOrg NOT_NULL
+  valueOf: datatypes/XON/Organization
+  expressionType: reference
+  specs: $OBXPractitionerRoleOrganization
+  vars:
+    XADAddress: $OBXPractitionerRoleOrganizationAddress
+    roleOrg: STRING_ALL, $OBXPractitionerRoleOrganization
+
+code:
+  expressionType: nested
+  expressionsMap:
+    coding:
+      generateList: true
+      expressionType: nested
+      expressionsMap:
+        system:
+          type: STRING
+          valueOf: $OBXPractitionerRoleSystem
+        code:
+          type: STRING
+          valueOf: $OBXPractitionerRoleCode
