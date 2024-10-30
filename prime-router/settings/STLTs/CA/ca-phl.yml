@@ -20,5 +20,6 @@
       organizationName: "ca-phl"
       topic: "etor-ti"
       customerStatus: "active"
+      schemaName: "classpath:/metadata/fhir_transforms/senders/Flexion/cdph-nbs-sender-transform.yml"
       format: "HL7"
   receivers: []
