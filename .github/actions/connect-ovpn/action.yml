@@ -37,11 +37,12 @@ runs:
     - name: Validate OpenVPN
       run: |
         ls -l /etc/openvpn/*/ ;
-        cat /etc/openvpn/update-resolv-conf ;
-        cat /etc/openvpn/update-systemd-resolved ;
+        ## cat /etc/openvpn/update-resolv-conf ;
+        ## cat /etc/openvpn/update-systemd-resolved ;
         openvpn --version ;
         ## sudo systemctl status openvpn@client.service 2>dev/null ;
-        ps -A ;
+        systemctl list-unit-files ;
+        ps -ef ;
         ip addr show dev tun0 ;
         ping ${{ inputs.PING_URL }} ;
         ip route ;
