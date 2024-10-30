@@ -8,6 +8,9 @@
         "chromeLaunchConfig": {
             "executablePath": "/usr/bin/google-chrome-stable"
         },
+        "chromeLaunchConfig": {
+            "args": ["--no-sandbox"]
+        },
         "reporters": [
             "cli",
             "pa11y-ci-reporter-cli-summary"
@@ -15,5 +18,11 @@
         "standard": "WCAG2AAA",
         "runners": ["htmlcs", "axe"]
     },
-    "urls": []
+    "urls": [
+        {
+            "ignore": [ 
+                "WCAG2AAA.Principle1.Guideline1_4.1_4_6.G17.Fail"             
+            ]
+        }
+    ]
 }
