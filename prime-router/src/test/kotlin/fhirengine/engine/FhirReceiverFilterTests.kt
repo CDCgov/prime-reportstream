@@ -27,8 +27,11 @@ import gov.cdc.prime.router.TestSource
 import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
+import gov.cdc.prime.router.azure.ConditionStamper
+import gov.cdc.prime.router.azure.ConditionStamper.Companion.MEMBER_OID_EXTENSION_URL
 import gov.cdc.prime.router.azure.ConditionStamper.Companion.conditionCodeExtensionURL
 import gov.cdc.prime.router.azure.DatabaseAccess
+import gov.cdc.prime.router.azure.LookupTableConditionMapper
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.azure.observability.event.InMemoryAzureEventService
@@ -39,6 +42,7 @@ import gov.cdc.prime.router.fhirengine.utils.filterMappedObservations
 import gov.cdc.prime.router.fhirengine.utils.filterObservations
 import gov.cdc.prime.router.fhirengine.utils.getObservations
 import gov.cdc.prime.router.metadata.LookupTable
+import gov.cdc.prime.router.metadata.ObservationMappingConstants
 import gov.cdc.prime.router.report.ReportService
 import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.mockk.clearAllMocks
@@ -50,6 +54,7 @@ import io.mockk.mockkStatic
 import io.mockk.spyk
 import io.mockk.verify
 import org.hl7.fhir.r4.model.Bundle
+import org.hl7.fhir.r4.model.CodeableConcept
 import org.hl7.fhir.r4.model.Coding
 import org.hl7.fhir.r4.model.Observation
 import org.jooq.tools.jdbc.MockConnection
@@ -100,8 +105,29 @@ class FhirReceiverFilterTests {
     """.trimIndent()
 
     private val shorthandTable = LookupTable.read(inputStream = ByteArrayInputStream(csv.toByteArray()))
+    private val observationMappingTable = LookupTable(
+        "observation-mapping",
+        listOf(
+            listOf(
+                ObservationMappingConstants.TEST_CODE_KEY,
+                ObservationMappingConstants.CONDITION_CODE_KEY,
+                ObservationMappingConstants.CONDITION_CODE_SYSTEM_KEY,
+                ObservationMappingConstants.CONDITION_NAME_KEY,
+                ObservationMappingConstants.TEST_OID_KEY
+            ),
+            listOf(
+                "94315-9",
+                "840539006",
+                ObservationMappingConstants.TEST_CODESYSTEM_SNOMEDCT,
+                "Disease caused by severe acute respiratory syndrome coronavirus 2 (disorder)",
+                "2.16.840.1.113762.1.4.1146.1142"
+            )
+        )
+    )
     val one = Schema(name = "None", topic = Topic.FULL_ELR, elements = emptyList())
-    val metadata = Metadata(schema = one).loadLookupTable("fhirpath_filter_shorthand", shorthandTable)
+    val metadata = Metadata(schema = one)
+        .loadLookupTable("fhirpath_filter_shorthand", shorthandTable)
+        .loadLookupTable("observation-mapping", observationMappingTable)
     val report = Report(one, listOf(listOf("1", "2")), TestSource, metadata = UnitTestUtils.simpleMetadata)
 
     private var actionLogger = ActionLogger()
@@ -957,6 +983,152 @@ class FhirReceiverFilterTests {
             assertFailure { engine.run(message, actionLogger, actionHistory, it) }
                 .isInstanceOf<FHIRReceiverFilter.MisconfiguredReceiverConditionFilters>()
                 .matchesPredicate { it.receiver == settings.receivers.first() }
+        }
+    }
+
+    @Test
+    fun `pass - routing filter for stamped conditions`() {
+        // Initialize ConditionStamper with LookupTableConditionMapper for this test
+        val conditionStamper = ConditionStamper(LookupTableConditionMapper(metadata))
+
+        // Engine setup with a routing filter for specific condition code and member OID
+        val routingFilter = listOf(
+            "%resource.code.coding.extension('$conditionCodeExtensionURL')" +
+                ".value.where(code in ('840539006')).exists() " +
+                "and %resource.interpretation.coding.code = 'A' " +
+                "and %resource.code.coding.extension('$MEMBER_OID_EXTENSION_URL')" +
+                ".value.where(code in ('2.16.840.1.113762.1.4.1146.1142')).exists()"
+        )
+
+        val settings = FileSettings().loadOrganizations(
+            createOrganizationWithFilteredReceivers(routingFilter = routingFilter)
+        )
+        val engine = spyk(makeFhirEngine(metadata, settings) as FHIRReceiverFilter)
+        val message = spyk(
+            FhirReceiverFilterQueueMessage(
+                UUID.randomUUID(),
+                BLOB_URL,
+                "test",
+                BLOB_SUB_FOLDER_NAME,
+                topic = Topic.FULL_ELR,
+                "$ORGANIZATION_NAME.$RECEIVER_NAME"
+            )
+        )
+
+        // Data setup
+        val fhirData = File(VALID_FHIR_FILEPATH).readText()
+        val bundle = FhirTranscoder.decode(fhirData)
+        bundle.getObservations().forEach {
+            // Apply condition stamping
+            conditionStamper.stampObservation(it)
+
+            // Create Coding and wrap it in a CodeableConcept
+            val interpretationCoding = Coding()
+                .setSystem("http://terminology.hl7.org/CodeSystem/v2-0078")
+                .setCode("A")
+            val interpretationCodeableConcept = CodeableConcept().addCoding(interpretationCoding)
+
+            // Add the CodeableConcept to the interpretation
+            it.interpretation.add(interpretationCodeableConcept)
+        }
+
+        // Mock setup
+        mockkObject(BlobAccess)
+        every { BlobAccess.downloadBlob(any(), any()) }
+            .returns(FhirTranscoder.encode(bundle))
+        every { BlobAccess.uploadBlob(any(), any()) } returns "test"
+        every { accessSpy.insertTask(any(), MimeFormat.FHIR.toString(), BODY_URL, any()) }
+            .returns(Unit)
+
+        // Act and Assert
+        accessSpy.transact { txn ->
+            val results = engine.run(message, actionLogger, actionHistory, txn)
+            assertThat(results).hasSize(1) // Ensure observation passed filter
+        }
+
+        verify(exactly = 1) {
+            BlobAccess.uploadBlob(any(), any())
+            accessSpy.insertTask(any(), any(), any(), any(), any())
+        }
+    }
+
+    @Test
+    fun `fail - routing filter does not match stamped conditions`() {
+        // Initialize ConditionStamper with LookupTableConditionMapper for this test
+        val conditionStamper = ConditionStamper(LookupTableConditionMapper(metadata))
+
+        // Engine setup with the same routing filter as above
+        val routingFilter = listOf(
+            "%resource.code.coding.extension('$conditionCodeExtensionURL')" +
+                ".value.where(code in ('840539006')).exists() " +
+                "and %resource.interpretation.coding.code = 'A' " +
+                "and %resource.code.coding.extension('$MEMBER_OID_EXTENSION_URL')" +
+                ".value.where(code in ('2.16.840.1.113762.1.4.1146.1142')).exists()"
+        )
+
+        val settings = FileSettings().loadOrganizations(
+            createOrganizationWithFilteredReceivers(routingFilter = routingFilter)
+        )
+        val engine = spyk(makeFhirEngine(metadata, settings) as FHIRReceiverFilter)
+        val message = spyk(
+            FhirReceiverFilterQueueMessage(
+                UUID.randomUUID(),
+                BLOB_URL,
+                "test",
+                BLOB_SUB_FOLDER_NAME,
+                topic = Topic.FULL_ELR,
+                "$ORGANIZATION_NAME.$RECEIVER_NAME"
+            )
+        )
+
+        // Data setup
+        val fhirData = File(VALID_FHIR_FILEPATH).readText()
+        val bundle = FhirTranscoder.decode(fhirData)
+        bundle.getObservations().forEach {
+            // Apply condition stamping
+            conditionStamper.stampObservation(it)
+
+            // Apply a different code and member OID that will not match the filter
+            val nonMatchingCoding = Coding()
+                .setSystem("SNOMEDCT")
+                .setCode("999999") // Non-matching code
+            it.code.coding.first().addExtension(conditionCodeExtensionURL, nonMatchingCoding)
+
+            // Create a non-matching CodeableConcept for interpretation
+            val nonMatchingInterpretationCoding = Coding()
+                .setSystem("http://terminology.hl7.org/CodeSystem/v2-0078")
+                .setCode("B") // Non-matching interpretation code
+            val nonMatchingInterpretationConcept = CodeableConcept().addCoding(nonMatchingInterpretationCoding)
+
+            it.interpretation.add(nonMatchingInterpretationConcept)
+        }
+
+        // Mock setup
+        mockkObject(BlobAccess)
+        every { BlobAccess.downloadBlob(any(), any()) }
+            .returns(FhirTranscoder.encode(bundle))
+        every { BlobAccess.uploadBlob(any(), any()) } returns "test"
+        every { accessSpy.insertTask(any(), MimeFormat.FHIR.toString(), BODY_URL, any()) }
+            .returns(Unit)
+
+        // Act and Assert
+        accessSpy.transact { txn ->
+            val results = engine.run(message, actionLogger, actionHistory, txn)
+            assertThat(results).isEmpty() // Ensure observation did not pass the filter
+        }
+
+        azureEventService.events.forEach { event ->
+            assertThat(event)
+                .isInstanceOf<ReportStreamItemEvent>()
+                .matchesPredicate {
+                    it.params[ReportStreamEventProperties.FAILING_FILTERS] == routingFilter &&
+                        it.params[ReportStreamEventProperties.FILTER_TYPE] == ReportStreamFilterType.ROUTING_FILTER
+                }
+        }
+
+        verify(exactly = 0) {
+            BlobAccess.uploadBlob(any(), any())
+            accessSpy.insertTask(any(), any(), any(), any(), any())
         }
     }
 }
