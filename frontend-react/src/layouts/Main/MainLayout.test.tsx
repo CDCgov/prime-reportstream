@@ -5,7 +5,7 @@ import { renderApp } from "../../utils/CustomRenderUtils";
 
 function ErroringComponent() {
     throw new Error("Test");
-    // eslint-disable-next-line no-unreachable
+
     return <></>;
 }
 
