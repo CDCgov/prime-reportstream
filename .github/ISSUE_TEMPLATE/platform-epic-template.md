@@ -1,3 +1,12 @@
+---
+name: Platform Epic
+about: Platform team's Epic issue template
+title: Platform Epic Title
+labels: platform
+assignees: ''
+
+---
+
 ## Outcome/Objective 
 
 ## Description 
