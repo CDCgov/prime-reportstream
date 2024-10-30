@@ -89,7 +89,7 @@ elements:
 
   - name: PRT.24
     resource: '%resource.extension.where(url = "PRT.24").value'
-    schema: classpath:/metadata/hl7_mapping/datatypes/Identifier/PLN.yml
+    schema: classpath:/metadata/hl7_mapping/datatypes/identifier/PLN.yml
     resourceIndex: contactIdentifierIndex
     constants:
-      hl7TelecomField: '%{hl7PRTFieldPath}-24(%{contactIdentifierIndex})'
+      plnField: '%{hl7PRTFieldPath}-24(%{contactIdentifierIndex})'

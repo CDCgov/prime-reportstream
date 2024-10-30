@@ -43,6 +43,23 @@ manufactureDate:
   expressionType: JEXL
   vars:
     dateTimeIn: PRT.17
+_manufactureDate:
+  expressionType: nested
+  vars:
+    dateTimeIn: PRT.17
+  condition: $dateTimeIn NOT_NULL
+  expressionsMap:
+    extension_1:
+      generateList: true
+      expressionType: nested
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: hl7v2-date-time
+        valueString:
+          type: STRING
+          valueOf: $dateTimeIn
+          expressionType: HL7Spec
 
 expirationDate:
   type: STRING
@@ -50,6 +67,23 @@ expirationDate:
   expressionType: JEXL
   vars:
     dateTimeIn: PRT.18
+_expirationDate:
+  expressionType: nested
+  vars:
+    dateTimeIn: PRT.18
+  condition: $dateTimeIn NOT_NULL
+  expressionsMap:
+    extension_1:
+      generateList: true
+      expressionType: nested
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: hl7v2-date-time
+        valueString:
+          type: STRING
+          valueOf: $dateTimeIn
+          expressionType: HL7Spec
 
 lotNumber:
   type: STRING
