@@ -1,6 +1,6 @@
 ---
 name: Platform Epic
-about: Platform team's Epic issue template
+about: Platform team's Epic template
 title: Platform Epic Title
 labels: platform
 assignees: ''
