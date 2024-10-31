@@ -202,6 +202,7 @@ interface IReportStreamEventService {
         parentReportId: UUID,
         parentItemIndex: Int,
         trackingId: String?,
+        senderString: String? = null,
     ): ItemEventData
 }
 
@@ -400,11 +401,15 @@ class ReportStreamEventService(
         val submittedReportIds = if (parentReportId != null) {
             val rootReports = reportService.getRootReports(parentReportId)
             rootReports.ifEmpty {
-                listOf(dbAccess.fetchReportFile(parentReportId))
+                try {
+                    listOf(dbAccess.fetchReportFile(parentReportId))
+                } catch (ex: IllegalStateException) {
+                    emptyList()
+                }
             }
         } else {
             emptyList()
-        }.map { it.reportId }
+        }.map { it.reportId }.ifEmpty { if (parentReportId != null) listOf(parentReportId) else emptyList() }
 
         return ReportEventData(
             childReportId,
@@ -423,16 +428,23 @@ class ReportStreamEventService(
         parentReportId: UUID,
         parentItemIndex: Int,
         trackingId: String?,
+        senderString: String?,
     ): ItemEventData {
         val submittedIndex = reportService.getRootItemIndex(parentReportId, parentItemIndex) ?: parentItemIndex
-        val rootReport =
-            reportService.getRootReports(parentReportId).firstOrNull() ?: dbAccess.fetchReportFile(parentReportId)
+        val sender = if (senderString != null) {
+            senderString
+        } else {
+            val rootReport =
+                reportService.getRootReports(parentReportId).firstOrNull() ?: dbAccess.fetchReportFile(parentReportId)
+            "${rootReport.sendingOrg}.${rootReport.sendingOrgClient}"
+        }
+
         return ItemEventData(
             childItemIndex,
             parentItemIndex,
             submittedIndex,
             trackingId,
-            "${rootReport.sendingOrg}.${rootReport.sendingOrgClient}"
+            sender
         )
     }
 }

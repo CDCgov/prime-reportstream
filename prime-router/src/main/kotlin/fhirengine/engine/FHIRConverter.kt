@@ -13,7 +13,6 @@ import fhirengine.engine.ProcessedFHIRItem
 import fhirengine.engine.ProcessedHL7Item
 import gov.cdc.prime.reportstream.shared.BlobUtils
 import gov.cdc.prime.reportstream.shared.QueueMessage
-import gov.cdc.prime.reportstream.shared.Submission
 import gov.cdc.prime.router.ActionLogDetail
 import gov.cdc.prime.router.ActionLogScope
 import gov.cdc.prime.router.ActionLogger
@@ -24,6 +23,7 @@ import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.Report
+import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.UnmappableConditionMessage
@@ -34,7 +34,6 @@ import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.Event
 import gov.cdc.prime.router.azure.LookupTableConditionMapper
 import gov.cdc.prime.router.azure.ProcessEvent
-import gov.cdc.prime.router.azure.SubmissionTableService
 import gov.cdc.prime.router.azure.db.Tables
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.observability.bundleDigest.BundleDigestExtractor
@@ -80,16 +79,100 @@ class FHIRConverter(
     blob: BlobAccess = BlobAccess(),
     azureEventService: AzureEventService = AzureEventServiceImpl(),
     reportService: ReportService = ReportService(),
-    private val submissionTableService: SubmissionTableService = SubmissionTableService.getInstance(),
 ) : FHIREngine(metadata, settings, db, blob, azureEventService, reportService) {
 
     override val finishedField: Field<OffsetDateTime> = Tables.TASK.PROCESSED_AT
 
     override val engineType: String = "Convert"
 
-    private val clientIdHeader = "client_id"
-
     override val taskAction: TaskAction = TaskAction.convert
+
+    data class FHIRConvertInput(
+        val reportId: UUID,
+        val topic: Topic,
+        val schemaName: String,
+        val blobURL: String,
+        val blobDigest: String,
+        val blobSubFolderName: String,
+        val isExternalReport: Boolean,
+        val sender: Sender? = null,
+    ) {
+        fun getBlobInfo(): BlobAccess.BlobInfo {
+            val format = Report.getFormatFromBlobURL(blobURL)
+            return BlobAccess.BlobInfo(format, blobURL, blobDigest.toByteArray())
+        }
+
+        companion object {
+
+            private val clientIdHeader = "client_id"
+            fun fromFhirConvertQueueMessage(
+                message: FhirConvertQueueMessage,
+                actionHistory: ActionHistory,
+            ): FHIRConvertInput {
+                val reportId = message.reportId
+                val topic = message.topic
+                val schemaName = message.schemaName
+                val blobUrl = message.blobURL
+                val blobDigest = message.digest
+                val blobSubFolderName = message.blobSubFolderName
+                actionHistory.trackExistingInputReport(reportId)
+                return FHIRConvertInput(
+                    reportId,
+                    topic,
+                    schemaName,
+                    blobUrl,
+                    blobDigest,
+                    blobSubFolderName,
+                    isExternalReport = false
+                )
+            }
+
+            fun fromFHIRReceiveQueueMessage(
+                message: FhirReceiveQueueMessage,
+                actionHistory: ActionHistory,
+                settings: SettingsProvider,
+            ): FHIRConvertInput {
+                val reportId = message.reportId
+                val blobUrl = message.blobURL
+                val blobDigest = message.digest
+                val blobSubFolderName = message.blobSubFolderName
+
+                val clientId = message.headers[clientIdHeader]
+                val sender = clientId?.takeIf { it.isNotBlank() }?.let { settings.findSender(it) }
+                if (sender == null) {
+                    throw SubmissionSenderNotFound("No such sender $clientId", reportId, blobUrl)
+                }
+                val topic = sender.topic
+                val schemaName = sender.schemaName
+
+                val format = Report.getFormatFromBlobURL(blobUrl)
+                val report = Report(
+                    sender.format,
+                    listOf(ClientSource(organization = sender.organizationName, client = sender.name)),
+                    1,
+                    nextAction = TaskAction.convert,
+                    topic = sender.topic,
+                    id = reportId,
+                    bodyURL = blobUrl
+                )
+                actionHistory.trackExternalInputReport(
+                    report,
+                    BlobAccess.BlobInfo(format, blobUrl, blobDigest.toByteArray())
+                )
+
+                return FHIRConvertInput(
+                    reportId,
+                    topic,
+                    schemaName,
+                    blobUrl,
+                    blobDigest,
+                    blobSubFolderName,
+                    isExternalReport = true,
+                    sender = sender
+                )
+            }
+        }
+    }
 
     /**
      * Accepts a [message] in either HL7 or FHIR format
@@ -105,64 +188,18 @@ class FHIRConverter(
         actionHistory: ActionHistory,
     ): List<FHIREngineRunResult> = when (message) {
         is FhirConvertQueueMessage -> {
-            val reportId = message.reportId
-            val topic = message.topic
-            val schemaName = message.schemaName
-            val blobUrl = message.blobURL
-            val blobDigest = message.digest
-            val blobSubFolderName = message.blobSubFolderName
-            actionHistory.trackExistingInputReport(reportId)
+            val input = FHIRConvertInput.fromFhirConvertQueueMessage(message, actionHistory)
+
             fhirEngineRunResults(
-                reportId,
-                topic,
-                blobUrl,
-                blobDigest,
-                schemaName,
-                blobSubFolderName,
+                input,
                 actionLogger,
                 actionHistory
             )
         }
         is FhirReceiveQueueMessage -> {
-            val clientId = message.headers[clientIdHeader]
-            val sender = clientId?.takeIf { it.isNotBlank() }?.let { settings.findSender(it) }
-            if (sender == null) {
-                val tableEntity = Submission(
-                    message.reportId.toString(),
-                    "Rejected",
-                    message.blobURL,
-                    actionLogger.errors.takeIf { it.isNotEmpty() }?.map { it.detail.message }?.toString()
-                )
-                submissionTableService.insertSubmission(tableEntity)
-                throw RuntimeException("No such sender $clientId")
-            }
-            val reportId = message.reportId
-
-            val blobUrl = message.blobURL
-            val blobDigest = message.digest
-            val blobSubFolderName = message.blobSubFolderName
-
-            val topic = sender.topic
-            val schemaName = sender.schemaName
-            val report = Report(
-                sender.format,
-                listOf(ClientSource(organization = sender.organizationName, client = sender.name)),
-                1,
-                metadata = metadata,
-                nextAction = TaskAction.destination_filter,
-                topic = sender.topic,
-                id = reportId,
-                bodyURL = blobUrl
-            )
-            val blobInfo = BlobAccess.BlobInfo(MimeFormat.FHIR, blobUrl, blobDigest.toByteArray())
-            actionHistory.trackExternalInputReport(report, blobInfo)
+            val input = FHIRConvertInput.fromFHIRReceiveQueueMessage(message, actionHistory, settings)
             fhirEngineRunResults(
-                reportId,
-                topic,
-                blobUrl,
-                blobDigest,
-                schemaName,
-                blobSubFolderName,
+                input,
                 actionLogger,
                 actionHistory
             )
@@ -175,24 +212,19 @@ class FHIRConverter(
     }
 
     private fun fhirEngineRunResults(
-        reportId: UUID,
-        topic: Topic,
-        blobURL: String,
-        blobDigest: String,
-        schemaName: String,
-        blobSubFolderName: String,
+        input: FHIRConvertInput,
         actionLogger: ActionLogger,
         actionHistory: ActionHistory,
     ): List<FHIREngineRunResult> {
         val contextMap = mapOf(
             MDCUtils.MDCProperty.ACTION_NAME to actionHistory.action.actionName.name,
-            MDCUtils.MDCProperty.REPORT_ID to reportId,
-            MDCUtils.MDCProperty.TOPIC to topic,
-            MDCUtils.MDCProperty.BLOB_URL to blobURL
+            MDCUtils.MDCProperty.REPORT_ID to input.reportId,
+            MDCUtils.MDCProperty.TOPIC to input.topic,
+            MDCUtils.MDCProperty.BLOB_URL to input.blobURL
         )
         withLoggingContext(contextMap) {
-            actionLogger.setReportId(reportId)
-            val format = Report.getFormatFromBlobURL(blobURL)
+            actionLogger.setReportId(input.reportId)
+            val format = Report.getFormatFromBlobURL(input.blobURL)
             logger.info("Starting FHIR Convert step")
 
             // This line is a workaround for a defect in the hapi-fhir library
@@ -206,7 +238,7 @@ class FHIRConverter(
             // TODO: https://github.com/CDCgov/prime-reportstream/issues/14287
             FhirPathUtils
 
-            val processedItems = process(format, blobURL, blobDigest, topic, actionLogger)
+            val processedItems = process(format, input.blobURL, input.blobDigest, input.topic, actionLogger)
 
             // processedItems can be empty in three scenarios:
             // - the blob had no contents, i.e. an empty file was submitted
@@ -217,7 +249,7 @@ class FHIRConverter(
                     "Applied sender transform and routed"
                 ) {
                     val transformer = getTransformerFromSchema(
-                        schemaName
+                        input.schemaName
                     )
 
                     maybeParallelize(
@@ -233,10 +265,10 @@ class FHIRConverter(
                                 MimeFormat.FHIR,
                                 emptyList(),
                                 parentItemLineageData = listOf(
-                                    Report.ParentItemLineageData(reportId, itemIndex.toInt() + 1)
+                                    Report.ParentItemLineageData(input.reportId, itemIndex.toInt() + 1)
                                 ),
                                 metadata = this.metadata,
-                                topic = topic,
+                                topic = input.topic,
                                 nextAction = TaskAction.none
                             )
                             val noneEvent = ProcessEvent(
@@ -254,13 +286,13 @@ class FHIRConverter(
                                     TaskAction.convert,
                                     processedItem.validationError!!.message,
                                 ) {
-                                    parentReportId(reportId)
+                                    parentReportId(input.reportId)
                                     parentItemIndex(itemIndex.toInt() + 1)
                                     params(
                                         mapOf(
                                             ReportStreamEventProperties.ITEM_FORMAT to format,
                                             ReportStreamEventProperties.VALIDATION_PROFILE
-                                                to topic.validator.validatorProfileName
+                                                to input.topic.validator.validatorProfileName
                                         )
                                     )
                                 }
@@ -276,10 +308,10 @@ class FHIRConverter(
                                 MimeFormat.FHIR,
                                 emptyList(),
                                 parentItemLineageData = listOf(
-                                    Report.ParentItemLineageData(reportId, itemIndex.toInt() + 1)
+                                    Report.ParentItemLineageData(input.reportId, itemIndex.toInt() + 1)
                                 ),
                                 metadata = this.metadata,
-                                topic = topic,
+                                topic = input.topic,
                                 nextAction = TaskAction.destination_filter
                             )
 
@@ -298,7 +330,7 @@ class FHIRConverter(
                                 MimeFormat.FHIR,
                                 bodyBytes,
                                 report.id.toString(),
-                                blobSubFolderName,
+                                input.blobSubFolderName,
                                 routeEvent.eventAction
                             )
                             report.bodyURL = blobInfo.blobUrl
@@ -321,7 +353,10 @@ class FHIRConverter(
                                 report,
                                 TaskAction.convert
                             ) {
-                                parentReportId(reportId)
+                                if (input.isExternalReport) {
+                                    sender(input.sender?.fullName ?: "")
+                                }
+                                parentReportId(input.reportId)
                                 parentItemIndex(itemIndex.toInt() + 1)
                                 trackingId(bundle)
                                 params(
@@ -341,8 +376,8 @@ class FHIRConverter(
                                     report.id,
                                     blobInfo.blobUrl,
                                     BlobUtils.digestToString(blobInfo.digest),
-                                    blobSubFolderName,
-                                    topic
+                                    input.blobSubFolderName,
+                                    input.topic
                                 )
                             )
                         }
@@ -354,7 +389,7 @@ class FHIRConverter(
                     emptyList(),
                     0,
                     metadata = this.metadata,
-                    topic = topic,
+                    topic = input.topic,
                     nextAction = TaskAction.none
                 )
                 actionHistory.trackEmptyReport(report)
@@ -364,7 +399,7 @@ class FHIRConverter(
                     TaskAction.convert,
                     "Submitted report was either empty or could not be parsed into HL7"
                     ) {
-                    parentReportId(reportId)
+                    parentReportId(input.reportId)
                     params(
                         mapOf(
                             ReportStreamEventProperties.ITEM_FORMAT to format
@@ -701,4 +736,8 @@ class FHIRConverter(
         } else {
             null
         }
+}
+
+class SubmissionSenderNotFound(senderId: String, val reportId: UUID, val blobURL: String) : RuntimeException() {
+    override val message = "No sender was found for: $senderId"
 }

@@ -284,6 +284,7 @@ object UniversalPipelineTestUtils {
         txn: DataAccessTransaction,
         expectedItems: Int? = null,
         expectedReports: Int = 1,
+        parentIsRoot: Boolean = false,
     ): List<ReportFile> {
         val itemLineages = DSL
             .using(txn)
@@ -298,6 +299,8 @@ object UniversalPipelineTestUtils {
 
             // itemCount is on the report created by the test. It will not be null.
             if (parent.itemCount > 1) {
+                assertThat(itemLineages.map { it.parentIndex }).isEqualTo((1..expectedItems).toList())
+            } else if (parentIsRoot) {
                 assertThat(itemLineages.map { it.parentIndex }).isEqualTo((1..expectedItems).toList())
             } else {
                 assertThat(itemLineages.map { it.parentIndex }).isEqualTo(MutableList(expectedItems) { 1 })

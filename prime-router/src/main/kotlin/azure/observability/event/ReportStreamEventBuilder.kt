@@ -167,6 +167,7 @@ open class ReportStreamItemEventBuilder(
     private var theParentItemIndex = 1
     private var theChildIndex = 1
     private var theTrackingId: String? = null
+    private var theSender: String? = null
 
     fun trackingId(bundle: Bundle) {
         theTrackingId = AzureEventUtils.getIdentifier(bundle).value
@@ -180,6 +181,10 @@ open class ReportStreamItemEventBuilder(
         theChildIndex = childItemIndex
     }
 
+    fun sender(sender: String) {
+        theSender = sender
+    }
+
     protected fun getItemEventData(): ItemEventData {
         if (theParentReportId == null) {
             throw IllegalStateException("Parent Report ID must be set to generate an ItemEvent")
@@ -188,7 +193,8 @@ open class ReportStreamItemEventBuilder(
             theChildIndex,
             theParentReportId!!,
             theParentItemIndex,
-            theTrackingId
+            theTrackingId,
+            theSender
         )
     }
 

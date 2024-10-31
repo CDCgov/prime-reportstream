@@ -25,6 +25,7 @@ import gov.cdc.prime.router.fhirengine.engine.FHIRTranslator
 import gov.cdc.prime.router.fhirengine.engine.FhirReceiveQueueMessage
 import gov.cdc.prime.router.fhirengine.engine.PrimeRouterQueueMessage
 import gov.cdc.prime.router.fhirengine.engine.ReportPipelineMessage
+import gov.cdc.prime.router.fhirengine.engine.SubmissionSenderNotFound
 import org.apache.commons.lang3.StringUtils
 import org.apache.logging.log4j.kotlin.Logging
 import org.jooq.exception.DataAccessException
@@ -166,6 +167,17 @@ class FHIRFunctions(
             // DB connectivity issues that are resolved without intervention
             logger.error(ex)
             throw ex
+        } catch (ex: SubmissionSenderNotFound) {
+            logger.error(ex)
+            val tableEntity = Submission(
+                ex.reportId.toString(),
+                "Rejected",
+                ex.blobURL,
+                actionLogger.errors.takeIf { it.isNotEmpty() }?.map { it.detail.message }?.toString()
+            )
+            submissionTableService.insertSubmission(tableEntity)
+            queueAccess.sendMessage("${messageContent.messageQueueName}-poison", message)
+            return emptyList()
         } catch (ex: Exception) {
             // We're catching anything else that occurs because the most likely cause is a code or configuration error
             // that will not be resolved if the message is automatically retried

@@ -135,8 +135,7 @@ abstract class FHIREngine(
                     databaseAccess ?: databaseAccessSingleton,
                     blobAccess ?: BlobAccess(),
                     azureEventService ?: AzureEventServiceImpl(),
-                    reportService ?: ReportService(),
-                    submissionTableService = submissionTableService ?: SubmissionTableService.getInstance()
+                    reportService ?: ReportService()
                 )
                 TaskAction.destination_filter -> FHIRDestinationFilter(
                     metadata ?: Metadata.getInstance(),
