@@ -202,6 +202,9 @@ class FHIRFunctions(
             logger.error(ex)
             throw ex
         } catch (ex: SubmissionSenderNotFound) {
+            // This is a specific error case that can occur while handling a report via the new Submission service
+            // In a situation that the sender is not found there is not enough information to record a report event
+            // and we want a poison queue message to be immediately added so that the configuration can be fixed
             logger.error(ex)
             val tableEntity = Submission(
                 ex.reportId.toString(),

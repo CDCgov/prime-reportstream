@@ -22,7 +22,6 @@ import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
-import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.ReportStreamFilter
 import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.BlobAccess
@@ -1086,17 +1085,6 @@ class NoopReportStreamEventService : IReportStreamEventService {
         pipelineStepName: TaskAction,
         error: String,
         shouldQueue: Boolean,
-        initializer: ReportStreamReportProcessingErrorEventBuilder.() -> Unit,
-    ) {
-        throw NotImplementedError()
-    }
-
-    override fun sendSubmissionProcessingError(
-        eventName: ReportStreamEventName,
-        pipelineStepName: TaskAction,
-        error: String,
-        submissionId: ReportId,
-        bodyUrl: String,
         initializer: ReportStreamReportProcessingErrorEventBuilder.() -> Unit,
     ) {
         throw NotImplementedError()

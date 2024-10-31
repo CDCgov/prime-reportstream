@@ -10,6 +10,7 @@ import assertk.assertions.matchesPredicate
 import gov.cdc.prime.reportstream.shared.BlobUtils
 import gov.cdc.prime.reportstream.shared.QueueMessage
 import gov.cdc.prime.router.ClientSource
+import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.MimeFormat
@@ -17,6 +18,7 @@ import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.Topic
+import gov.cdc.prime.router.UniversalPipelineSender
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseLookupTableAccess
@@ -87,6 +89,7 @@ import org.jooq.impl.DSL
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
@@ -282,6 +285,62 @@ class FHIRConverterIntegrationTests {
     }
 
     @Test
+    fun `should add a message to the poison queue if the sender is not found and not do any work`() {
+        val receivedReportContents =
+            listOf(cleanHL7Record, invalidHL7Record, unparseableHL7Record, badEncodingHL7Record)
+                .joinToString("\n")
+        val receiveBlobUrl = BlobAccess.uploadBlob(
+            "receive/happy-path.hl7",
+            receivedReportContents.toByteArray(),
+            getBlobContainerMetadata()
+        )
+
+        val receiveReport = Report(
+            hl7SenderWithNoTransform.format,
+            listOf(
+                ClientSource(
+                    organization = hl7SenderWithNoTransform.organizationName,
+                    client = hl7SenderWithNoTransform.name
+                )
+            ),
+            1,
+            metadata = UnitTestUtils.simpleMetadata,
+            nextAction = TaskAction.convert,
+            topic = hl7SenderWithNoTransform.topic,
+            id = UUID.randomUUID(),
+            bodyURL = receiveBlobUrl
+        )
+        val missingSender = UniversalPipelineSender(
+            "foo",
+            "phd",
+            MimeFormat.HL7,
+            CustomerStatus.ACTIVE,
+            topic = Topic.FULL_ELR,
+        )
+        val queueMessage =
+            generateFHIRReceiveQueueMessage(receiveReport, receivedReportContents, missingSender)
+        val fhirFunctions = createFHIRFunctionsInstance()
+
+        fhirFunctions.process(queueMessage, 1, createFHIRConverter(), ActionHistory(TaskAction.convert))
+        ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
+            assertThrows<IllegalStateException> {
+                ReportStreamTestDatabaseContainer.testDatabaseAccess.fetchReportFile(receiveReport.id, txn = txn)
+            }
+            val processedReports = fetchChildReports(
+                receiveReport, txn, 0, 0, parentIsRoot = true
+            )
+            assertThat(processedReports).hasSize(0)
+            verify(exactly = 1) {
+                QueueAccess.sendMessage(
+                    "${QueueMessage.elrSubmissionConvertQueueName}-poison",
+                    queueMessage
+
+                )
+            }
+        }
+    }
+
+    @Test
     fun `should successfully process a FHIRReceiveQueueMessage`() {
         val receivedReportContents =
             listOf(cleanHL7Record, invalidHL7Record, unparseableHL7Record, badEncodingHL7Record)
@@ -315,7 +374,7 @@ class FHIRConverterIntegrationTests {
 
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
             val externalReportRecord =
-                ReportStreamTestDatabaseContainer.testDatabaseAccess.fetchReportFile(receiveReport.id)
+                ReportStreamTestDatabaseContainer.testDatabaseAccess.fetchReportFile(receiveReport.id, txn = txn)
             assertThat(externalReportRecord.sendingOrg).isEqualTo(hl7SenderWithNoTransform.organizationName)
             assertThat(externalReportRecord.sendingOrgClient).isEqualTo(hl7SenderWithNoTransform.name)
             val (routedReports, unroutedReports) = fetchChildReports(

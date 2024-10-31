@@ -1,7 +1,6 @@
 package gov.cdc.prime.router.azure.observability.event
 
 import gov.cdc.prime.router.Report
-import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.db.enums.TaskAction
@@ -22,7 +21,13 @@ import java.util.UUID
  */
 interface IReportStreamEventService {
 
-    fun sendQueuedEvents(): Unit
+    /**
+     * Sends any events that have been queued up if the client specified sending them can be deferred.
+     *
+     * This is useful in contexts where the events should only be sent after all the business logic has
+     * executed and the DB transaction has been committed.
+     */
+    fun sendQueuedEvents()
 
     /**
      * Creates a report event from an [Report]
@@ -30,6 +35,7 @@ interface IReportStreamEventService {
      * @param eventName the business event value from [ReportStreamEventName]
      * @param childReport the report that is getting emitted from the pipeline step
      * @param pipelineStepName the pipeline step that is emitting the event
+     * @param shouldQueue whether to send the event immediately or defer it to be sent later
      * @param initializer additional data to initialize the creation of the event. See [AbstractReportStreamEventBuilder]
      */
     fun sendReportEvent(
@@ -46,6 +52,7 @@ interface IReportStreamEventService {
      * @param eventName the business event value from [ReportStreamEventName]
      * @param childReport the report that is getting emitted from the pipeline step
      * @param pipelineStepName the pipeline step that is emitting the event
+     * @param shouldQueue whether to send the event immediately or defer it to be sent later
      * @param initializer additional data to initialize the creation of the event. See [AbstractReportStreamEventBuilder]
      */
     fun sendReportEvent(
@@ -63,6 +70,7 @@ interface IReportStreamEventService {
      * @param childReport the report that is getting emitted from the pipeline step
      * @param pipelineStepName the pipeline step that is emitting the event
      * @param error the error description
+     * @param shouldQueue whether to send the event immediately or defer it to be sent later
      * @param initializer additional data to initialize the creation of the event. See [AbstractReportStreamEventBuilder]
      */
     fun sendReportProcessingError(
@@ -81,6 +89,7 @@ interface IReportStreamEventService {
      * @param childReport the report that is getting emitted from the pipeline step
      * @param pipelineStepName the pipeline step that is emitting the event
      * @param error the error description
+     * @param shouldQueue whether to send the event immediately or defer it to be sent later
      * @param initializer additional data to initialize the creation of the event. See [AbstractReportStreamEventBuilder]
      */
     fun sendReportProcessingError(
@@ -93,30 +102,12 @@ interface IReportStreamEventService {
     )
 
     /**
-     * Creates a general processing error event. This is not associated with a report or item.
-     *
-     * @param eventName the business event value from [ReportStreamEventName]
-     * @param pipelineStepName the pipeline step that is emitting the event
-     * @param error the error description
-     * @param submissionId the report id for the incoming report
-     * @param bodyUrl the blob url for the incoming report
-     * @param initializer additional data to initialize the creation of the event. See [AbstractReportStreamEventBuilder]
-     */
-    fun sendSubmissionProcessingError(
-        eventName: ReportStreamEventName,
-        pipelineStepName: TaskAction,
-        error: String,
-        submissionId: ReportId,
-        bodyUrl: String,
-        initializer: ReportStreamReportProcessingErrorEventBuilder.() -> Unit,
-    )
-
-    /**
      * Creates an item event from an [Report]
      *
      * @param eventName the business event value from [ReportStreamEventName]
      * @param childReport the report that is getting emitted from the pipeline step
      * @param pipelineStepName the pipeline step that is emitting the event
+     * @param shouldQueue whether to send the event immediately or defer it to be sent later
      * @param initializer additional data to initialize the creation of the event. See [AbstractReportStreamEventBuilder]
      */
     fun sendItemEvent(
@@ -133,6 +124,7 @@ interface IReportStreamEventService {
      * @param eventName the business event value from [ReportStreamEventName]
      * @param childReport the report that is getting emitted from the pipeline step
      * @param pipelineStepName the pipeline step that is emitting the event
+     * @param shouldQueue whether to send the event immediately or defer it to be sent later
      * @param initializer additional data to initialize the creation of the event. See [AbstractReportStreamEventBuilder]
      */
     fun sendItemEvent(
@@ -150,6 +142,7 @@ interface IReportStreamEventService {
      * @param childReport the report that is getting emitted from the pipeline step
      * @param pipelineStepName the pipeline step that is emitting the event
      * @param error the error description
+     * @param shouldQueue whether to send the event immediately or defer it to be sent later
      * @param initializer additional data to initialize the creation of the event. See [AbstractReportStreamEventBuilder]
      */
     fun sendItemProcessingError(
@@ -168,6 +161,7 @@ interface IReportStreamEventService {
      * @param childReport the report that is getting emitted from the pipeline step
      * @param pipelineStepName the pipeline step that is emitting the event
      * @param error the error description
+     * @param shouldQueue whether to send the event immediately or defer it to be sent later
      * @param initializer additional data to initialize the creation of the event. See [AbstractReportStreamEventBuilder]
      */
     fun sendItemProcessingError(
@@ -227,6 +221,7 @@ class ReportStreamEventService(
 ) : IReportStreamEventService {
 
     private val builtEvents = mutableListOf<AbstractReportStreamEventBuilder<*>>()
+
     override fun sendQueuedEvents() {
         builtEvents.forEach {
             it.send()
@@ -339,28 +334,6 @@ class ReportStreamEventService(
         } else {
             builder.send()
         }
-    }
-
-    override fun sendSubmissionProcessingError(
-        eventName: ReportStreamEventName,
-        pipelineStepName: TaskAction,
-        error: String,
-        submissionId: ReportId,
-        bodyUrl: String,
-        initializer: ReportStreamReportProcessingErrorEventBuilder.() -> Unit,
-    ) {
-        ReportStreamReportProcessingErrorEventBuilder(
-            this,
-            azureEventService,
-            eventName,
-            submissionId,
-            bodyUrl,
-            theTopic = null,
-            pipelineStepName,
-            error
-        ).apply(
-            initializer
-        ).send()
     }
 
     override fun sendItemEvent(
