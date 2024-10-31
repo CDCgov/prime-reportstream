@@ -23,7 +23,6 @@ import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.Report
-import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.UnmappableConditionMessage
@@ -42,6 +41,7 @@ import gov.cdc.prime.router.azure.observability.context.MDCUtils
 import gov.cdc.prime.router.azure.observability.context.withLoggingContext
 import gov.cdc.prime.router.azure.observability.event.AzureEventService
 import gov.cdc.prime.router.azure.observability.event.AzureEventServiceImpl
+import gov.cdc.prime.router.azure.observability.event.IReportStreamEventService
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventName
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventProperties
 import gov.cdc.prime.router.fhirengine.translation.HL7toFhirTranslator
@@ -79,7 +79,8 @@ class FHIRConverter(
     blob: BlobAccess = BlobAccess(),
     azureEventService: AzureEventService = AzureEventServiceImpl(),
     reportService: ReportService = ReportService(),
-) : FHIREngine(metadata, settings, db, blob, azureEventService, reportService) {
+    reportStreamEventService: IReportStreamEventService,
+) : FHIREngine(metadata, settings, db, blob, azureEventService, reportService, reportStreamEventService) {
 
     override val finishedField: Field<OffsetDateTime> = Tables.TASK.PROCESSED_AT
 
@@ -87,6 +88,17 @@ class FHIRConverter(
 
     override val taskAction: TaskAction = TaskAction.convert
 
+    /**
+     * This object serves the purpose of consolidating the information needed to process a report
+     * through the convert step regardless of whether it comes from a [FhirConvertQueueMessage]
+     * or [FhirReceiveQueueMessage]
+     *
+     * @param reportId the report ID
+     * @param topic the topic the sender published to
+     * @param schemaName the FHIR transform to apply
+     * @param blobURL the URL for the blob to convert
+     * @param blobDigest the digest of the blob contents
+     */
     data class FHIRConvertInput(
         val reportId: UUID,
         val topic: Topic,
@@ -94,17 +106,18 @@ class FHIRConverter(
         val blobURL: String,
         val blobDigest: String,
         val blobSubFolderName: String,
-        val isExternalReport: Boolean,
-        val sender: Sender? = null,
     ) {
-        fun getBlobInfo(): BlobAccess.BlobInfo {
-            val format = Report.getFormatFromBlobURL(blobURL)
-            return BlobAccess.BlobInfo(format, blobURL, blobDigest.toByteArray())
-        }
 
         companion object {
 
             private val clientIdHeader = "client_id"
+
+            /**
+             * Converts a [FhirConvertQueueMessage] into the input to the convert processing
+             *
+             * @param message the queue message
+             * @param actionHistory action history for recording details on the input report
+             */
             fun fromFhirConvertQueueMessage(
                 message: FhirConvertQueueMessage,
                 actionHistory: ActionHistory,
@@ -122,11 +135,17 @@ class FHIRConverter(
                     schemaName,
                     blobUrl,
                     blobDigest,
-                    blobSubFolderName,
-                    isExternalReport = false
+                    blobSubFolderName
                 )
             }
 
+            /**
+             * Converts a [FhirReceiveQueueMessage] into the input to the convert processing
+             *
+             * @param message the queue message
+             * @param actionHistory action history for recording details on the input report
+             * @param settings [SettingsProvider] for looking up the sender
+             */
             fun fromFHIRReceiveQueueMessage(
                 message: FhirReceiveQueueMessage,
                 actionHistory: ActionHistory,
@@ -159,6 +178,7 @@ class FHIRConverter(
                     report,
                     BlobAccess.BlobInfo(format, blobUrl, blobDigest.toByteArray())
                 )
+                actionHistory.trackActionSenderInfo(sender.fullName)
 
                 return FHIRConvertInput(
                     reportId,
@@ -166,9 +186,7 @@ class FHIRConverter(
                     schemaName,
                     blobUrl,
                     blobDigest,
-                    blobSubFolderName,
-                    isExternalReport = true,
-                    sender = sender
+                    blobSubFolderName
                 )
             }
         }
@@ -285,6 +303,7 @@ class FHIRConverter(
                                     report,
                                     TaskAction.convert,
                                     processedItem.validationError!!.message,
+                                    shouldQueue = true
                                 ) {
                                     parentReportId(input.reportId)
                                     parentItemIndex(itemIndex.toInt() + 1)
@@ -351,11 +370,9 @@ class FHIRConverter(
                             reportEventService.sendItemEvent(
                                 ReportStreamEventName.ITEM_ACCEPTED,
                                 report,
-                                TaskAction.convert
+                                TaskAction.convert,
+                                shouldQueue = true
                             ) {
-                                if (input.isExternalReport) {
-                                    sender(input.sender?.fullName ?: "")
-                                }
                                 parentReportId(input.reportId)
                                 parentItemIndex(itemIndex.toInt() + 1)
                                 trackingId(bundle)

@@ -21,10 +21,23 @@ import gov.cdc.prime.router.Hl7Configuration
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.Receiver
+import gov.cdc.prime.router.Report
+import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.ReportStreamFilter
+import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.ConditionStamper
 import gov.cdc.prime.router.azure.LookupTableConditionMapper
+import gov.cdc.prime.router.azure.db.enums.TaskAction
+import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
+import gov.cdc.prime.router.azure.observability.event.IReportStreamEventService
+import gov.cdc.prime.router.azure.observability.event.ItemEventData
+import gov.cdc.prime.router.azure.observability.event.ReportEventData
+import gov.cdc.prime.router.azure.observability.event.ReportStreamEventName
+import gov.cdc.prime.router.azure.observability.event.ReportStreamItemEventBuilder
+import gov.cdc.prime.router.azure.observability.event.ReportStreamItemProcessingErrorEventBuilder
+import gov.cdc.prime.router.azure.observability.event.ReportStreamReportEventBuilder
+import gov.cdc.prime.router.azure.observability.event.ReportStreamReportProcessingErrorEventBuilder
 import gov.cdc.prime.router.cli.CommandUtilities.Companion.abort
 import gov.cdc.prime.router.cli.helpers.HL7DiffHelper
 import gov.cdc.prime.router.common.Environment
@@ -388,12 +401,15 @@ class ProcessFhirCommands : CliktCommand(
             // this is just for logging so it is fine to just make it up
             UUID.randomUUID().toString()
         }
-        val result = FHIRReceiverFilter().evaluateObservationConditionFilters(
-            receiver,
-            bundle,
-            ActionLogger(),
-            trackingId
-        )
+        val result =
+            FHIRReceiverFilter(
+                reportStreamEventService = NoopReportStreamEventService()
+            ).evaluateObservationConditionFilters(
+                receiver,
+                bundle,
+                ActionLogger(),
+                trackingId
+            )
         if (result is ReceiverFilterEvaluationResult.Success) {
             return result.bundle
         } else {
@@ -1022,5 +1038,128 @@ class FhirPathCommand : CliktCommand(
         }
         stringValue.append("\n}\n")
         return stringValue.toString()
+    }
+}
+
+// This exists only because ProcessFhirCommands instantiates a FHIRConverter to access a function that likely could be
+// made static
+// TODO: ticket to refactor it to make it static
+class NoopReportStreamEventService : IReportStreamEventService {
+    override fun sendQueuedEvents() {
+        throw NotImplementedError()
+    }
+
+    override fun sendReportEvent(
+        eventName: ReportStreamEventName,
+        childReport: Report,
+        pipelineStepName: TaskAction,
+        shouldQueue: Boolean,
+        initializer: ReportStreamReportEventBuilder.() -> Unit,
+    ) {
+        throw NotImplementedError()
+    }
+
+    override fun sendReportEvent(
+        eventName: ReportStreamEventName,
+        childReport: ReportFile,
+        pipelineStepName: TaskAction,
+        shouldQueue: Boolean,
+        initializer: ReportStreamReportEventBuilder.() -> Unit,
+    ) {
+        throw NotImplementedError()
+    }
+
+    override fun sendReportProcessingError(
+        eventName: ReportStreamEventName,
+        childReport: ReportFile,
+        pipelineStepName: TaskAction,
+        error: String,
+        shouldQueue: Boolean,
+        initializer: ReportStreamReportProcessingErrorEventBuilder.() -> Unit,
+    ) {
+        throw NotImplementedError()
+    }
+
+    override fun sendReportProcessingError(
+        eventName: ReportStreamEventName,
+        childReport: Report,
+        pipelineStepName: TaskAction,
+        error: String,
+        shouldQueue: Boolean,
+        initializer: ReportStreamReportProcessingErrorEventBuilder.() -> Unit,
+    ) {
+        throw NotImplementedError()
+    }
+
+    override fun sendSubmissionProcessingError(
+        eventName: ReportStreamEventName,
+        pipelineStepName: TaskAction,
+        error: String,
+        submissionId: ReportId,
+        bodyUrl: String,
+        initializer: ReportStreamReportProcessingErrorEventBuilder.() -> Unit,
+    ) {
+        throw NotImplementedError()
+    }
+
+    override fun sendItemEvent(
+        eventName: ReportStreamEventName,
+        childReport: Report,
+        pipelineStepName: TaskAction,
+        shouldQueue: Boolean,
+        initializer: ReportStreamItemEventBuilder.() -> Unit,
+    ) {
+        throw NotImplementedError()
+    }
+
+    override fun sendItemEvent(
+        eventName: ReportStreamEventName,
+        childReport: ReportFile,
+        pipelineStepName: TaskAction,
+        shouldQueue: Boolean,
+        initializer: ReportStreamItemEventBuilder.() -> Unit,
+    ) {
+        throw NotImplementedError()
+    }
+
+    override fun sendItemProcessingError(
+        eventName: ReportStreamEventName,
+        childReport: ReportFile,
+        pipelineStepName: TaskAction,
+        error: String,
+        shouldQueue: Boolean,
+        initializer: ReportStreamItemProcessingErrorEventBuilder.() -> Unit,
+    ) {
+        throw NotImplementedError()
+    }
+
+    override fun sendItemProcessingError(
+        eventName: ReportStreamEventName,
+        childReport: Report,
+        pipelineStepName: TaskAction,
+        error: String,
+        shouldQueue: Boolean,
+        initializer: ReportStreamItemProcessingErrorEventBuilder.() -> Unit,
+    ) {
+        throw NotImplementedError()
+    }
+
+    override fun getReportEventData(
+        childReportId: UUID,
+        childBodyUrl: String,
+        parentReportId: UUID?,
+        pipelineStepName: TaskAction,
+        topic: Topic?,
+    ): ReportEventData {
+        throw NotImplementedError()
+    }
+
+    override fun getItemEventData(
+        childItemIndex: Int,
+        parentReportId: UUID,
+        parentItemIndex: Int,
+        trackingId: String?,
+    ): ItemEventData {
+        throw NotImplementedError()
     }
 }

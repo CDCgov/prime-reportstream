@@ -14,8 +14,11 @@ import gov.cdc.prime.router.azure.QueueAccess
 import gov.cdc.prime.router.azure.SubmissionTableService
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
+import gov.cdc.prime.router.azure.observability.event.AzureEventService
+import gov.cdc.prime.router.azure.observability.event.AzureEventServiceImpl
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventName
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventProperties
+import gov.cdc.prime.router.azure.observability.event.ReportStreamEventService
 import gov.cdc.prime.router.common.BaseEngine
 import gov.cdc.prime.router.fhirengine.engine.FHIRConverter
 import gov.cdc.prime.router.fhirengine.engine.FHIRDestinationFilter
@@ -26,6 +29,8 @@ import gov.cdc.prime.router.fhirengine.engine.FhirReceiveQueueMessage
 import gov.cdc.prime.router.fhirengine.engine.PrimeRouterQueueMessage
 import gov.cdc.prime.router.fhirengine.engine.ReportPipelineMessage
 import gov.cdc.prime.router.fhirengine.engine.SubmissionSenderNotFound
+import gov.cdc.prime.router.history.db.ReportGraph
+import gov.cdc.prime.router.report.ReportService
 import org.apache.commons.lang3.StringUtils
 import org.apache.logging.log4j.kotlin.Logging
 import org.jooq.exception.DataAccessException
@@ -36,6 +41,10 @@ class FHIRFunctions(
     private val databaseAccess: DatabaseAccess = BaseEngine.databaseAccessSingleton,
     private val queueAccess: QueueAccess = QueueAccess,
     private val submissionTableService: SubmissionTableService = SubmissionTableService.getInstance(),
+    val reportService: ReportService = ReportService(ReportGraph(databaseAccess), databaseAccess),
+    val azureEventService: AzureEventService = AzureEventServiceImpl(),
+    val reportStreamEventService: ReportStreamEventService =
+        ReportStreamEventService(databaseAccess, azureEventService, reportService),
 ) : Logging {
 
     /**
@@ -52,7 +61,12 @@ class FHIRFunctions(
         logger.info(
             "message consumed from ${QueueMessage.elrSubmissionConvertQueueName} queue"
         )
-        process(message, dequeueCount, FHIRConverter(), ActionHistory(TaskAction.convert))
+        process(
+            message,
+            dequeueCount,
+            FHIRConverter(reportStreamEventService = reportStreamEventService),
+            ActionHistory(TaskAction.convert)
+        )
         val messageContent = readMessage("convert", message, dequeueCount)
         val tableEntity = Submission(
             messageContent.reportId.toString(),
@@ -74,7 +88,12 @@ class FHIRFunctions(
         // Number of times this message has been dequeued
         @BindingName("DequeueCount") dequeueCount: Int = 1,
     ) {
-        process(message, dequeueCount, FHIRConverter(), ActionHistory(TaskAction.convert))
+        process(
+            message,
+            dequeueCount,
+            FHIRConverter(reportStreamEventService = reportStreamEventService),
+            ActionHistory(TaskAction.convert)
+        )
     }
 
     /**
@@ -88,7 +107,12 @@ class FHIRFunctions(
         // Number of times this message has been dequeued
         @BindingName("DequeueCount") dequeueCount: Int = 1,
     ) {
-        process(message, dequeueCount, FHIRDestinationFilter(), ActionHistory(TaskAction.destination_filter))
+        process(
+            message,
+            dequeueCount,
+            FHIRDestinationFilter(reportStreamEventService = reportStreamEventService),
+            ActionHistory(TaskAction.destination_filter)
+        )
     }
 
     /**
@@ -102,7 +126,12 @@ class FHIRFunctions(
         // Number of times this message has been dequeued
         @BindingName("DequeueCount") dequeueCount: Int = 1,
     ) {
-        process(message, dequeueCount, FHIRReceiverFilter(), ActionHistory(TaskAction.receiver_filter))
+        process(
+            message,
+            dequeueCount,
+            FHIRReceiverFilter(reportStreamEventService = reportStreamEventService),
+            ActionHistory(TaskAction.receiver_filter)
+        )
     }
 
     /**
@@ -116,7 +145,12 @@ class FHIRFunctions(
         // Number of times this message has been dequeued
         @BindingName("DequeueCount") dequeueCount: Int = 1,
     ) {
-        process(message, dequeueCount, FHIRTranslator(), ActionHistory(TaskAction.translate))
+        process(
+            message,
+            dequeueCount,
+            FHIRTranslator(reportStreamEventService = reportStreamEventService),
+            ActionHistory(TaskAction.translate)
+        )
     }
 
     /**
@@ -160,7 +194,7 @@ class FHIRFunctions(
                 recordResults(message, actionHistory, txn)
                 results
             }
-
+            reportStreamEventService.sendQueuedEvents()
             return newMessages
         } catch (ex: DataAccessException) {
             // This is the one exception type that we currently will allow for retrying as there are occasional

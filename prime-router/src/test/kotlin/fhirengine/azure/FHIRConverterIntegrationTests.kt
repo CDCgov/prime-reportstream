@@ -37,6 +37,7 @@ import gov.cdc.prime.router.azure.observability.event.ItemEventData
 import gov.cdc.prime.router.azure.observability.event.ReportEventData
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventName
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventProperties
+import gov.cdc.prime.router.azure.observability.event.ReportStreamEventService
 import gov.cdc.prime.router.azure.observability.event.ReportStreamItemEvent
 import gov.cdc.prime.router.cli.tests.CompareData
 import gov.cdc.prime.router.common.TestcontainersUtils
@@ -69,8 +70,10 @@ import gov.cdc.prime.router.fhirengine.engine.FHIRConverter
 import gov.cdc.prime.router.fhirengine.engine.FhirDestinationFilterQueueMessage
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.history.DetailedActionLog
+import gov.cdc.prime.router.history.db.ReportGraph
 import gov.cdc.prime.router.metadata.LookupTable
 import gov.cdc.prime.router.metadata.ObservationMappingConstants
+import gov.cdc.prime.router.report.ReportService
 import gov.cdc.prime.router.unittest.UnitTestUtils
 import gov.cdc.prime.router.version.Version
 import io.ktor.client.utils.EmptyContent.headers
@@ -107,6 +110,13 @@ class FHIRConverterIntegrationTests {
 
     val azureEventService = InMemoryAzureEventService()
     val mockSubmissionTableService = mockk<SubmissionTableService>()
+    val reportStreamEventService = ReportStreamEventService(
+        ReportStreamTestDatabaseContainer.testDatabaseAccess, azureEventService,
+        ReportService(
+            ReportGraph(ReportStreamTestDatabaseContainer.testDatabaseAccess),
+            ReportStreamTestDatabaseContainer.testDatabaseAccess
+        )
+    )
 
     private fun createFHIRFunctionsInstance(): FHIRFunctions {
         val settings = FileSettings().loadOrganizations(universalPipelineOrganization)
@@ -124,7 +134,9 @@ class FHIRConverterIntegrationTests {
         return FHIRFunctions(
             workflowEngine,
             databaseAccess = ReportStreamTestDatabaseContainer.testDatabaseAccess,
-            submissionTableService = mockSubmissionTableService
+            submissionTableService = mockSubmissionTableService,
+            azureEventService = azureEventService,
+            reportStreamEventService = reportStreamEventService
         )
     }
 
@@ -138,7 +150,8 @@ class FHIRConverterIntegrationTests {
             metadata,
             settings,
             ReportStreamTestDatabaseContainer.testDatabaseAccess,
-            azureEventService = azureEventService
+            azureEventService = azureEventService,
+            reportStreamEventService = reportStreamEventService
         )
     }
 
@@ -283,8 +296,8 @@ class FHIRConverterIntegrationTests {
             hl7SenderWithNoTransform.format,
             listOf(
                 ClientSource(
-                organization = hl7SenderWithNoTransform.organizationName,
-                client = hl7SenderWithNoTransform.name
+                    organization = hl7SenderWithNoTransform.organizationName,
+                    client = hl7SenderWithNoTransform.name
                 )
             ),
             1,
@@ -301,6 +314,10 @@ class FHIRConverterIntegrationTests {
         fhirFunctions.process(queueMessage, 1, createFHIRConverter(), ActionHistory(TaskAction.convert))
 
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
+            val externalReportRecord =
+                ReportStreamTestDatabaseContainer.testDatabaseAccess.fetchReportFile(receiveReport.id)
+            assertThat(externalReportRecord.sendingOrg).isEqualTo(hl7SenderWithNoTransform.organizationName)
+            assertThat(externalReportRecord.sendingOrgClient).isEqualTo(hl7SenderWithNoTransform.name)
             val (routedReports, unroutedReports) = fetchChildReports(
                 receiveReport, txn, 4, 4, parentIsRoot = true
             ).partition { it.nextAction != TaskAction.none }
@@ -561,7 +578,7 @@ class FHIRConverterIntegrationTests {
                     OffsetDateTime.now(),
                     Version.commitId
                 ),
-                    ReportEventData::timestamp
+                ReportEventData::timestamp
             )
             assertThat(event.itemEventData).isEqualToIgnoringGivenProperties(
                 ItemEventData(
@@ -734,7 +751,7 @@ class FHIRConverterIntegrationTests {
                     OffsetDateTime.now(),
                     Version.commitId
                 ),
-                    ReportEventData::timestamp
+                ReportEventData::timestamp
             )
             assertThat(event.itemEventData).isEqualToIgnoringGivenProperties(
                 ItemEventData(
@@ -870,7 +887,7 @@ class FHIRConverterIntegrationTests {
                     OffsetDateTime.now(),
                     Version.commitId
                 ),
-                    ReportEventData::timestamp
+                ReportEventData::timestamp
             )
             assertThat(event.itemEventData).isEqualToIgnoringGivenProperties(
                 ItemEventData(
@@ -888,7 +905,7 @@ class FHIRConverterIntegrationTests {
                     ReportStreamEventProperties.VALIDATION_PROFILE to Topic.MARS_OTC_ELR.validator.validatorProfileName,
                     @Suppress("ktlint:standard:max-line-length")
                     ReportStreamEventProperties.PROCESSING_ERROR
-                    to "Item 2 in the report was not valid. Reason: HL7 was not valid at MSH[1]-21[1].3 for validator: RADx MARS"
+                        to "Item 2 in the report was not valid. Reason: HL7 was not valid at MSH[1]-21[1].3 for validator: RADx MARS"
                 )
             )
         }
