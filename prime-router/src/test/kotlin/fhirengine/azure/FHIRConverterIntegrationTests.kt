@@ -288,6 +288,7 @@ class FHIRConverterIntegrationTests {
                 )
             ),
             1,
+            metadata = UnitTestUtils.simpleMetadata,
             nextAction = TaskAction.convert,
             topic = hl7SenderWithNoTransform.topic,
             id = UUID.randomUUID(),
