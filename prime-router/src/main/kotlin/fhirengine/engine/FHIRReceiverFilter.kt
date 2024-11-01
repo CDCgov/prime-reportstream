@@ -31,6 +31,7 @@ import gov.cdc.prime.router.azure.observability.context.withLoggingContext
 import gov.cdc.prime.router.azure.observability.event.AzureEventService
 import gov.cdc.prime.router.azure.observability.event.AzureEventServiceImpl
 import gov.cdc.prime.router.azure.observability.event.AzureEventUtils
+import gov.cdc.prime.router.azure.observability.event.IReportStreamEventService
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventName
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventProperties
 import gov.cdc.prime.router.codes
@@ -64,7 +65,9 @@ class FHIRReceiverFilter(
     blob: BlobAccess = BlobAccess(),
     azureEventService: AzureEventService = AzureEventServiceImpl(),
     reportService: ReportService = ReportService(ReportGraph(db), db),
-) : FHIREngine(metadata, settings, db, blob, azureEventService, reportService) {
+    reportStreamEventService: IReportStreamEventService,
+) : FHIREngine(metadata, settings, db, blob, azureEventService, reportService, reportStreamEventService) {
+
     override val finishedField: Field<OffsetDateTime> = Tables.TASK.RECEIVER_FILTERED_AT
 
     override val engineType: String = "ReceiverFilter"
