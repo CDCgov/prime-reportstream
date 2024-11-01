@@ -209,6 +209,8 @@ class FHIRConverterIntegrationTests {
         every { BlobAccess.BlobContainerMetadata.build(any(), any()) } returns getBlobContainerMetadata()
         mockkConstructor(DatabaseLookupTableAccess::class)
         every { mockSubmissionTableService.insertSubmission(any()) } returns Unit
+        mockkObject(Metadata)
+        every { Metadata.getInstance() } returns UnitTestUtils.simpleMetadata
     }
 
     @AfterEach
