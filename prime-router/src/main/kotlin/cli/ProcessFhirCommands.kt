@@ -400,6 +400,7 @@ class ProcessFhirCommands : CliktCommand(
             // this is just for logging so it is fine to just make it up
             UUID.randomUUID().toString()
         }
+        // TODO: https://github.com/CDCgov/prime-reportstream/issues/16407
         val result =
             FHIRReceiverFilter(
                 reportStreamEventService = NoopReportStreamEventService()
@@ -1040,9 +1041,9 @@ class FhirPathCommand : CliktCommand(
     }
 }
 
-// This exists only because ProcessFhirCommands instantiates a FHIRConverter to access a function that likely could be
+// This exists only because ProcessFhirCommands instantiates a FHIRReceiverFilter to access a function that likely could be
 // made static
-// TODO: ticket to refactor it to make it static
+// TODO: https://github.com/CDCgov/prime-reportstream/issues/16407
 class NoopReportStreamEventService : IReportStreamEventService {
     override fun sendQueuedEvents() {
         throw NotImplementedError()

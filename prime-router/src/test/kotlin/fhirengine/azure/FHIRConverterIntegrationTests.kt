@@ -78,7 +78,6 @@ import gov.cdc.prime.router.metadata.ObservationMappingConstants
 import gov.cdc.prime.router.report.ReportService
 import gov.cdc.prime.router.unittest.UnitTestUtils
 import gov.cdc.prime.router.version.Version
-import io.ktor.client.utils.EmptyContent.headers
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkConstructor
@@ -176,7 +175,7 @@ class FHIRConverterIntegrationTests {
     """.trimIndent()
     }
 
-    private fun generateFHIRReceiveQueueMessage(
+    private fun generateFHIRConvertSubmissionQueueMessage(
         report: Report,
         blobContents: String,
         sender: Sender,
@@ -320,7 +319,7 @@ class FHIRConverterIntegrationTests {
             topic = Topic.FULL_ELR,
         )
         val queueMessage =
-            generateFHIRReceiveQueueMessage(receiveReport, receivedReportContents, missingSender)
+            generateFHIRConvertSubmissionQueueMessage(receiveReport, receivedReportContents, missingSender)
         val fhirFunctions = createFHIRFunctionsInstance()
 
         fhirFunctions.process(queueMessage, 1, createFHIRConverter(), ActionHistory(TaskAction.convert))
@@ -343,7 +342,7 @@ class FHIRConverterIntegrationTests {
     }
 
     @Test
-    fun `should successfully process a FHIRReceiveQueueMessage`() {
+    fun `should successfully process a FhirConvertSubmissionQueueMessage`() {
         val receivedReportContents =
             listOf(cleanHL7Record, invalidHL7Record, unparseableHL7Record, badEncodingHL7Record)
                 .joinToString("\n")
@@ -369,7 +368,7 @@ class FHIRConverterIntegrationTests {
             bodyURL = receiveBlobUrl
         )
         val queueMessage =
-            generateFHIRReceiveQueueMessage(receiveReport, receivedReportContents, hl7SenderWithNoTransform)
+            generateFHIRConvertSubmissionQueueMessage(receiveReport, receivedReportContents, hl7SenderWithNoTransform)
         val fhirFunctions = createFHIRFunctionsInstance()
 
         fhirFunctions.process(queueMessage, 1, createFHIRConverter(), ActionHistory(TaskAction.convert))

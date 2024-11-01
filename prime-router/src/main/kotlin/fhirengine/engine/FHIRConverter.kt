@@ -91,7 +91,7 @@ class FHIRConverter(
     /**
      * This object serves the purpose of consolidating the information needed to process a report
      * through the convert step regardless of whether it comes from a [FhirConvertQueueMessage]
-     * or [FhirReceiveQueueMessage]
+     * or [FhirConvertSubmissionQueueMessage]
      *
      * @param reportId the report ID
      * @param topic the topic the sender published to
@@ -140,14 +140,14 @@ class FHIRConverter(
             }
 
             /**
-             * Converts a [FhirReceiveQueueMessage] into the input to the convert processing
+             * Converts a [FhirConvertSubmissionQueueMessage] into the input to the convert processing
              *
              * @param message the queue message
              * @param actionHistory action history for recording details on the input report
              * @param settings [SettingsProvider] for looking up the sender
              */
-            fun fromFHIRReceiveQueueMessage(
-                message: FhirReceiveQueueMessage,
+            fun fromFHIRConvertSubmissionQueueMessage(
+                message: FhirConvertSubmissionQueueMessage,
                 actionHistory: ActionHistory,
                 settings: SettingsProvider,
             ): FHIRConvertInput {
@@ -174,6 +174,8 @@ class FHIRConverter(
                     id = reportId,
                     bodyURL = blobUrl
                 )
+                // This tracking is required so that the external report (coming from the submission service)
+                // is properly recorded in the report file table with the correct sender
                 actionHistory.trackExternalInputReport(
                     report,
                     BlobAccess.BlobInfo(format, blobUrl, blobDigest.toByteArray())
@@ -214,8 +216,8 @@ class FHIRConverter(
                 actionHistory
             )
         }
-        is FhirReceiveQueueMessage -> {
-            val input = FHIRConvertInput.fromFHIRReceiveQueueMessage(message, actionHistory, settings)
+        is FhirConvertSubmissionQueueMessage -> {
+            val input = FHIRConvertInput.fromFHIRConvertSubmissionQueueMessage(message, actionHistory, settings)
             fhirEngineRunResults(
                 input,
                 actionLogger,

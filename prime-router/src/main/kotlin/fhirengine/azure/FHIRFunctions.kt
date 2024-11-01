@@ -25,7 +25,7 @@ import gov.cdc.prime.router.fhirengine.engine.FHIRDestinationFilter
 import gov.cdc.prime.router.fhirengine.engine.FHIREngine
 import gov.cdc.prime.router.fhirengine.engine.FHIRReceiverFilter
 import gov.cdc.prime.router.fhirengine.engine.FHIRTranslator
-import gov.cdc.prime.router.fhirengine.engine.FhirReceiveQueueMessage
+import gov.cdc.prime.router.fhirengine.engine.FhirConvertSubmissionQueueMessage
 import gov.cdc.prime.router.fhirengine.engine.PrimeRouterQueueMessage
 import gov.cdc.prime.router.fhirengine.engine.ReportPipelineMessage
 import gov.cdc.prime.router.fhirengine.engine.SubmissionSenderNotFound
@@ -245,7 +245,7 @@ class FHIRFunctions(
 
         return when (val queueMessage = QueueMessage.deserialize(message)) {
             is QueueMessage.ReceiveQueueMessage -> {
-                FhirReceiveQueueMessage(
+                FhirConvertSubmissionQueueMessage(
                     queueMessage.reportId,
                     queueMessage.blobURL,
                     queueMessage.digest,
