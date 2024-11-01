@@ -5,6 +5,8 @@ An event is something that an application accomplishes that is significant at th
 log is only locally significant. For Report Stream, we want to emit events where we successfully accomplish
 an action that we want to observe through visualizations.
 
+[Technical documentation/overview of ReportStream Azure Event logging](https://lucidgov.app/lucidchart/b2251f9d-ec5f-4186-9a87-cd2443ab0000/edit?viewport_loc=-1079%2C-2347%2C10754%2C4258%2C0_0&invitationId=inv_a428973e-8d90-429d-b61f-9305464f48f9)
+
 ## How to emit an event
 
 An event is defined as a data class that extends from `AzureCustomEvent`.
