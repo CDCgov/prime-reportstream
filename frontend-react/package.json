@@ -111,7 +111,7 @@
   },
   "devDependencies": {
     "@eslint/compat": "^1.2.2",
-    "@eslint/js": "^9.13.0",
+    "@eslint/js": "^9.14.0",
     "@mdx-js/react": "^3.1.0",
     "@mdx-js/rollup": "^3.1.0",
     "@playwright/test": "^1.48.1",

@@ -727,10 +727,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@eslint/js@npm:9.13.0, @eslint/js@npm:^9.13.0":
+"@eslint/js@npm:9.13.0":
   version: 9.13.0
   resolution: "@eslint/js@npm:9.13.0"
   checksum: ad5dd72aa75bd8d5bd3c1ffe68cf748aed7edef5fcf97193eb52af35dbb89a1999f526a0e2c169ef5572afbbbbb5f37d6fd0af2991d9ccdc29f753da5cc0f532
+  languageName: node
+  linkType: hard
+
+"@eslint/js@npm:^9.14.0":
+  version: 9.14.0
+  resolution: "@eslint/js@npm:9.14.0"
+  checksum: 727767d3c80bf88e08565af10cc3732ca0d272c729bbd39043722a203eea289ec6149ab42d977d2d28a81d99329dceeed091b70db37b868e6659913a0840e17b
   languageName: node
   linkType: hard
 
@@ -10333,7 +10340,7 @@ __metadata:
   resolution: "react-frontend@workspace:."
   dependencies:
     "@eslint/compat": ^1.2.2
-    "@eslint/js": ^9.13.0
+    "@eslint/js": ^9.14.0
     "@mdx-js/react": ^3.1.0
     "@mdx-js/rollup": ^3.1.0
     "@microsoft/applicationinsights-react-js": ^17.3.3
