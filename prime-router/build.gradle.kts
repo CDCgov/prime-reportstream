@@ -980,7 +980,7 @@ dependencies {
 
     // validations
     implementation("com.networknt:json-schema-validator:1.5.2")
-    implementation("io.konform:konform-jvm:0.4.0")
+    implementation("io.konform:konform-jvm:0.8.0")
 
     runtimeOnly("com.okta.jwt:okta-jwt-verifier-impl:0.5.7")
     runtimeOnly("com.squareup.okio:okio:3.9.1")
