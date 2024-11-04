@@ -13,7 +13,7 @@ azure:
   storage:
     connection-string: ${AZURE_STORAGE_CONNECTION_STRING:DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://localhost:10000/devstoreaccount1;QueueEndpoint=http://localhost:10001/devstoreaccount1;TableEndpoint=http://127.0.0.1:10002/devstoreaccount1;}
     container-name: ${AZURE_STORAGE_CONTAINER_NAME:reports}
-    queue-name: ${AZURE_STORAGE_QUEUE_NAME:elr-fhir-receive}
+    queue-name: ${AZURE_STORAGE_QUEUE_NAME:elr-fhir-convert-submission}
     table-name: ${AZURE_STORAGE_TABLE_NAME:submission}
 
 allowed:

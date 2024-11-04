@@ -14,7 +14,7 @@ export const cursorManagerFixture: CursorManager = {
     },
     hasPrev: false,
     hasNext: false,
-    // eslint-disable-next-line no-console
+
     update: () => void 0,
 };
 

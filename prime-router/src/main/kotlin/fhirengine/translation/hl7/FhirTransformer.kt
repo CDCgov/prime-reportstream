@@ -45,10 +45,12 @@ class FhirTransformer(
             "metadata",
             Environment.get().storageEnvVar
         ),
+        errors: MutableList<String> = mutableListOf(),
+        warnings: MutableList<String> = mutableListOf(),
     ) : this(
         schemaRef = fhirTransformSchemaFromFile(schema, blobConnectionInfo),
-        mutableListOf<String>(),
-        mutableListOf<String>(),
+        errors = errors,
+        warnings = warnings
     )
 
     /**

@@ -66,7 +66,11 @@ class FHIRFunctionsTests {
             .databaseAccess(accessSpy)
             .build()
         every { accessSpy.fetchReportFile(any()) } returns mockk<ReportFile>(relaxed = true)
-        return FHIRFunctions(workflowEngine, databaseAccess = accessSpy)
+        return FHIRFunctions(
+            workflowEngine,
+            databaseAccess = accessSpy,
+            submissionTableService = mockk<SubmissionTableService>()
+        )
     }
 
     @Test
@@ -76,7 +80,14 @@ class FHIRFunctionsTests {
         val mockReportEventService = mockk<IReportStreamEventService>(relaxed = true)
         val init = slot<ReportStreamReportProcessingErrorEventBuilder.() -> Unit>()
         every {
-            mockReportEventService.sendReportProcessingError(any(), any<ReportFile>(), any(), any(), capture(init))
+            mockReportEventService.sendReportProcessingError(
+                any(),
+                any<ReportFile>(),
+                any(),
+                any(),
+                any(),
+                capture(init)
+            )
         } returns Unit
         val mockFHIRConverter = mockk<FHIRConverter>(relaxed = true)
         every { mockFHIRConverter.run(any(), any(), any(), any()) } throws RuntimeException("Error")
@@ -94,6 +105,7 @@ class FHIRFunctionsTests {
                 any<ReportFile>(),
                 TaskAction.convert,
                 "Error",
+                any(),
                 init.captured
             )
         }

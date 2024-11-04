@@ -84,6 +84,7 @@ export default defineConfig(async ({ mode }) => {
                 typescript: true,
                 eslint: {
                     lintCommand: 'eslint "./src/**/*[!.test][!.stories].{ts,tsx}"',
+                    useFlatConfig: true,
                 },
             }),
         ],
