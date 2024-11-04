@@ -4,7 +4,7 @@ name: Snyk Java/Kotlin scan
 on:
   push:
     branches:
-      - master
+      - main
     paths:
       -  "prime-router/**"
       -  "submissions/**"
