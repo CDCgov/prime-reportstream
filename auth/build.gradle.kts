@@ -24,7 +24,7 @@ dependencies {
     implementation("org.springframework.cloud:spring-cloud-starter-gateway")
     implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
 
-    runtimeOnly("com.nimbusds:oauth2-oidc-sdk:11.19.1")
+    runtimeOnly("com.nimbusds:oauth2-oidc-sdk:11.20.1")
 
     // Swagger
     implementation("org.springdoc:springdoc-openapi-starter-webflux-ui:2.6.0")
