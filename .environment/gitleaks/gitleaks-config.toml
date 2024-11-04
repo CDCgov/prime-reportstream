@@ -8,7 +8,7 @@ title = "PRIME ReportStream Gitleaks Configuration"
         'package-lock\.json$',
         'yarn\.lock$',
         # ide
-        '\.idea\/$',
+        '\.idea\/',
         # misc
         '(.*?)(bin|doc|gif|iml|jar|jp(e)?g|pdf|png|xlsx)$',
         # devops
