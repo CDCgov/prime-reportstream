@@ -90,6 +90,7 @@ jobs:
         run: |
           echo "Installing google-chrome-stable"
           sudo apt-get update && sudo apt-get install -y google-chrome-stable jq
+          which google-chrome-stable || echo "google-chrome-stable not found"
           echo "Installing Pa11y"
           npm install -g \
             pa11y@8.0.0 \
