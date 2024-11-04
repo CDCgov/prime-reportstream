@@ -98,7 +98,7 @@ jobs:
       - name: Run Pa11y Check # Pa11y is configured in frontend-react/.pa11yci
         run: |
           SITEMAP_URL="${{ env.LOCAL_SITEMAP_URL }}"
-          echo "Sitemap URL: $SITEMAP_URL"
+          echo "Local Sitemap URL: $SITEMAP_URL"
 
           echo "Checking Pa11y is installed and accessible"
           pa11y --version
@@ -137,7 +137,7 @@ jobs:
                 echo "✅ URLs extracted successfully:"
                 cat sitemap_urls.txt
                 echo "Running Pa11y WCAG2AA checks on sitemap URLs"
-                for f in `cat sitemap_urls.txt`; do pa11y -s WCAG2AA -r json $f >> $GITHUB_OUTPUT ;done
+                for f in `cat sitemap_urls.txt`;do pa11y -s WCAG2AA $f ;done
                 echo "Pa11y WCAG2AA checks complete"
               else
                 echo "❌ No URLs found in sitemap.xml."
