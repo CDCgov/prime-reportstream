@@ -16,7 +16,7 @@ resourceType: Observation
 # Not implementing OBX.29 not in mapping not in NIST
 # Not implementing OBX.31 not in mapping not in NIST
 # Not implementing OBX.32 not in mapping not in NIST
-# Not implementing OBX.33 as it's not in the NIST spec the logic in the inventory cannot be implemented in the library
+# OBX.33 is repeatable but maps to specimen on Observation which is not, so it's all captured in OBXExtension
 
 
 id:
@@ -524,3 +524,14 @@ focus:
   expressionType: resource
   specs: $Specimen
   useGroup: true
+
+specimen:
+  valueOf: datatype/Reference
+  expressionType: resource
+  specs: $Specimen
+  condition: $refPlacerSpecimen EQUALS $specimenPlacerIdentifier || $refFillerSpecimen EQUALS $specimenFillerIdentifier
+  vars:
+    specimenPlacerIdentifier: OBX.33.1
+    specimenFillerIdentifier: OBX.33.4
+    refPlacerSpecimen: $BASE_VALUE, GeneralUtils.extractAttribute(refSpecimen,"$.identifier[?(@.type.code==\"PGN\")].value","String")
+    refFillerSpecimen: $BASE_VALUE, GeneralUtils.extractAttribute(refSpecimen,"$.identifier[?(@.type.code==\"FGN\")].value","String")
