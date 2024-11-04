@@ -1,0 +1,25 @@
+{
+    "defaults": {
+        "timeout": 120000,
+        "viewport": {
+            "width": 320,
+            "height": 480
+        },
+        "chromeLaunchConfig": {
+            "executablePath": "/usr/bin/google-chrome-stable",
+            "args": ["--no-sandbox"]
+        },
+        "reporters": [
+            "cli",
+            "pa11y-ci-reporter-cli-summary"
+        ],
+        "standard": "WCAG2AAA",
+        "runners": ["htmlcs", "axe"]
+    },
+    "urls": [
+        {
+            "url": "https://reportstream.cdc.gov/*",
+            "ignore": []
+        }
+    ]
+}
