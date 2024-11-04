@@ -1,14 +1,13 @@
 /* eslint-env node */
-/* eslint-disable @typescript-eslint/require-await */
+/* eslint-disable no-undef */
 /* eslint-disable no-console */
 
 module.exports = async (page) => {
-    page.on('request', (request) => {
-      console.log(`Request: ${request.method()} ${request.url()}`);
-    });
-  
-    page.on('response', (response) => {
-      console.log(`Response: ${response.status()} ${response.url()}`);
-    });
-  };
-  
+  page.on('request', (request) => {
+    console.log(`Request: ${request.method()} ${request.url()}`);
+  });
+
+  page.on('response', (response) => {
+    console.log(`Response: ${response.status()} ${response.url()}`);
+  });
+};
