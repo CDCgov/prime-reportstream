@@ -137,7 +137,7 @@ jobs:
                 echo "✅ URLs extracted successfully:"
                 cat sitemap_urls.txt
                 echo "Running Pa11y WCAG2AA checks on sitemap URLs"
-                for f in `cat sitemap_urls.txt`;do pa11y -s WCAG2AA $f ;done
+                for f in `cat sitemap_urls.txt`;do pa11y -d -s WCAG2AA $f ;done
                 echo "Pa11y WCAG2AA checks complete"
               else
                 echo "❌ No URLs found in sitemap.xml."
