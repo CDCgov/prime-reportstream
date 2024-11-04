@@ -14,8 +14,8 @@ title = "PRIME ReportStream Gitleaks Configuration"
         # devops
         '\.terraform\/providers\/',
         '^\.environment\/gitleaks\/gitleaks-config\.toml$',
-        '^\.environment\/sftp-conf',
-        '^\.environment\/soap_service/',
+        '^\.environment\/sftp-conf\/',
+        '^\.environment\/soap_service\/',
         '^\.github\/scripts\/stale_items_report\/',
         # backend
         '^prime-router\/\.gradle\/',
