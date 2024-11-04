@@ -127,9 +127,9 @@ jobs:
 
               # Extract URLs and save them to sitemap_urls.txt
               #Linux grep flags: -P for Perl-compatible regex, -o for only matching part, -P for non-greedy matching
-              grep -oP '(?<=<loc>).*?(?=</loc>)' sitemap.xml > sitemap_urls.txt
+              grep -oP '(?<=<loc>).*?(?=</loc>)' sitemap.xml | sed "s|https://reportstream.cdc.gov|http://localhost:3000|g" > sitemap_urls.txt
               # OSX 
-              # grep "<loc>" sitemap.xml | sed -E 's/.*<loc>(.*)<\/loc>.*/\1/' > sitemap_urls.txt
+              # grep "<loc>" sitemap.xml | sed -E 's/.*<loc>(.*)<\/loc>.*/\1/'| sed "s|https://reportstream.cdc.gov|http://localhost:3000|g" > sitemap_urls.txt
 
 
               # Check if URLs were extracted successfully
