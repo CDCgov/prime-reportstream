@@ -37,14 +37,14 @@ abstract class ReportPipelineMessage :
     PrimeRouterQueueMessage()
 
 @JsonTypeName("receive")
-data class FhirReceiveQueueMessage(
+data class FhirConvertSubmissionQueueMessage(
     override val reportId: ReportId,
     override val blobURL: String,
     override val digest: String,
     override val blobSubFolderName: String,
     override val headers: Map<String, String> = emptyMap(),
 ) : ReportPipelineMessage(), QueueMessage.ReceiveInformation {
-    override val messageQueueName = QueueMessage.Companion.elrReceiveQueueName
+    override val messageQueueName = QueueMessage.Companion.elrSubmissionConvertQueueName
 }
 
 @JsonTypeName("convert")

@@ -1,11 +1,7 @@
 import { http, HttpResponse } from "msw";
 import { setupServer } from "msw/node";
 
-import {
-    ApiValueSet,
-    LookupTable,
-    lookupTablesEndpoints,
-} from "../config/endpoints/lookupTables";
+import { ApiValueSet, LookupTable, lookupTablesEndpoints } from "../config/endpoints/lookupTables";
 
 const tableListUrl = lookupTablesEndpoints.getTableList.toDynamicUrl();
 const tableDataUrl = lookupTablesEndpoints.getTableData.toDynamicUrl({
@@ -45,8 +41,8 @@ const lookupTables: LookupTable[] = [
 
 const lookupTableData: ApiValueSet[] = [1, 2, 3].map((_i) => ({
     name: "sender_automation_value_set",
-    created_by: "", // eslint-disable-line camelcase
-    created_at: "", // eslint-disable-line camelcase
+    created_by: "",
+    created_at: "",
     system: "LOCAL",
     reference: "unused",
     referenceURL: "https://unused",

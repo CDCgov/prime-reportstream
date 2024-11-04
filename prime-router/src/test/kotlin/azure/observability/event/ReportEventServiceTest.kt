@@ -202,7 +202,7 @@ class ReportEventServiceTest {
 
         val data = reportEventService.getItemEventData(
             1,
-                translateNode.node.reportId,
+            translateNode.node.reportId,
             1,
             ""
             )

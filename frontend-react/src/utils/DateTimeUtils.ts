@@ -36,9 +36,8 @@ export const generateDateTitles = (dateTimeString?: string) => {
 };
 
 export function isDateExpired(dateTimeString: string | number) {
-    // eslint-disable-next-line import/no-named-as-default-member
     const now = new Date();
-    // eslint-disable-next-line import/no-named-as-default-member
+
     const dateToCompare =
         typeof dateTimeString === "string"
             ? !/^\d+$/.test(dateTimeString)
@@ -67,12 +66,8 @@ export function formatDateWithoutSeconds(d: string) {
  * Rewrote to just use Date to save cpu
  * */
 export const dateShortFormat = (d: Date) => {
-    const dayOfWeek =
-        ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][d.getDay()] || "";
-    return (
-        `${dayOfWeek}, ` +
-        `${d.getMonth() + 1}/${d.getDate()}/${d.getFullYear()}`
-    );
+    const dayOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][d.getDay()] || "";
+    return `${dayOfWeek}, ` + `${d.getMonth() + 1}/${d.getDate()}/${d.getFullYear()}`;
 };
 
 /**
@@ -81,10 +76,7 @@ export const dateShortFormat = (d: Date) => {
  * @param dateNewer Date
  * @param dateOlder Date
  */
-export const durationFormatShort = (
-    dateNewer: Date,
-    dateOlder: Date,
-): string => {
+export const durationFormatShort = (dateNewer: Date, dateOlder: Date): string => {
     const msDiff = dateNewer.getTime() - dateOlder.getTime();
     const hrs = Math.floor(msDiff / (60 * 60 * 1000)).toString();
     const mins = Math.floor((msDiff / (60 * 1000)) % 60).toString();
