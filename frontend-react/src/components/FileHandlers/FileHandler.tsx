@@ -10,14 +10,11 @@ import { WatersResponse } from "../../config/endpoints/waters";
 import site from "../../content/site.json";
 import { showToast } from "../../contexts/Toast";
 import useOrganizationSettings from "../../hooks/api/organizations/UseOrganizationSettings/UseOrganizationSettings";
-import useFileHandler, {
-    FileHandlerActionType,
-    FileHandlerState,
-} from "../../hooks/UseFileHandler/UseFileHandler";
+import useFileHandler, { FileHandlerActionType, FileHandlerState } from "../../hooks/UseFileHandler/UseFileHandler";
 import { SchemaOption } from "../../hooks/UseSenderSchemaOptions/UseSenderSchemaOptions";
 import Alert from "../../shared/Alert/Alert";
 import Spinner from "../Spinner";
-import { USExtLink, USLink } from "../USLink";
+import { USExtLink } from "../USLink";
 
 export interface FileHandlerStepProps extends FileHandlerState {
     isValid?: boolean;
@@ -27,8 +24,7 @@ export interface FileHandlerStepProps extends FileHandlerState {
 }
 
 function mapStateToOrderedSteps(state: FileHandlerState) {
-    const { selectedSchemaOption, file, errors, warnings, overallStatus } =
-        state;
+    const { selectedSchemaOption, file, errors, warnings, overallStatus } = state;
 
     return [
         {
@@ -42,9 +38,7 @@ function mapStateToOrderedSteps(state: FileHandlerState) {
         {
             Component: FileHandlerErrorsWarningsStep,
             isValid: false,
-            shouldSkip: Boolean(
-                overallStatus && errors.length === 0 && warnings.length === 0,
-            ),
+            shouldSkip: Boolean(overallStatus && errors.length === 0 && warnings.length === 0),
         },
         {
             Component: FileHandlerSuccessStep,
@@ -56,15 +50,9 @@ function mapStateToOrderedSteps(state: FileHandlerState) {
 export default function FileHandler() {
     const { state, dispatch } = useFileHandler();
     const { fileName, localError } = state;
-    const orderedSteps = mapStateToOrderedSteps(state).filter(
-        (step) => !step.shouldSkip,
-    );
+    const orderedSteps = mapStateToOrderedSteps(state).filter((step) => !step.shouldSkip);
     const [currentStepIndex, setCurrentStepIndex] = useState(0);
-    const {
-        Component: StepComponent,
-        isValid,
-        shouldSkip,
-    } = orderedSteps[currentStepIndex];
+    const { Component: StepComponent, isValid, shouldSkip } = orderedSteps[currentStepIndex];
 
     useEffect(() => {
         if (localError) {
@@ -142,31 +130,19 @@ export default function FileHandler() {
                     name="description"
                     content="Check that public health entities can receive your data through ReportStream by validating your file format."
                 />
-                <meta
-                    property="og:image"
-                    content="/assets/img/opengraph/howwehelpyou-3.png"
-                />
-                <meta
-                    property="og:image:alt"
-                    content="An abstract illustration of screens and a document."
-                />
+                <meta property="og:image" content="/assets/img/opengraph/howwehelpyou-3.png" />
+                <meta property="og:image:alt" content="An abstract illustration of screens and a document." />
             </Helmet>
 
             <GridContainer>
                 <article>
                     <h1 className="margin-y-4">ReportStream File Validator</h1>
 
-                    {organization?.description && (
-                        <h2 className="font-sans-lg">
-                            {organization.description}
-                        </h2>
-                    )}
+                    {organization?.description && <h2 className="font-sans-lg">{organization.description}</h2>}
 
                     {fileName && (
                         <div className="margin-bottom-3">
-                            <p className="margin-bottom-1 text-normal text-base">
-                                File name
-                            </p>
+                            <p className="margin-bottom-1 text-normal text-base">File name</p>
                             <p className="margin-top-0">{fileName}</p>
                         </div>
                     )}
@@ -192,12 +168,8 @@ export default function FileHandler() {
                                             <FileHandlerFileUploadStep
                                                 {...commonStepProps}
                                                 onFileChange={handleFileChange}
-                                                onFileSubmitError={
-                                                    handleResetToFileSelection
-                                                }
-                                                onFileSubmitSuccess={
-                                                    handleFileSubmitSuccess
-                                                }
+                                                onFileSubmitError={handleResetToFileSelection}
+                                                onFileSubmitSuccess={handleFileSubmitSuccess}
                                             />
                                         </Suspense>
                                     );
@@ -205,9 +177,7 @@ export default function FileHandler() {
                                     return (
                                         <FileHandlerErrorsWarningsStep
                                             {...commonStepProps}
-                                            onTestAnotherFileClick={
-                                                handleResetToFileSelection
-                                            }
+                                            onTestAnotherFileClick={handleResetToFileSelection}
                                         />
                                     );
                                 case FileHandlerSuccessStep:
@@ -219,20 +189,13 @@ export default function FileHandler() {
                     </div>
                     {StepComponent !== FileHandlerSuccessStep && (
                         <Alert headingLevel="h3" type="tip">
-                            Reference{" "}
-                            <USLink href="/developer-resources/api/documentation/data-model">
-                                the data model
-                            </USLink>{" "}
-                            for the information needed to validate your file
-                            successfully. Pay special attention to which fields
-                            are required and common mistakes.
+                            Reference the data model for the information needed to validate your file successfully. Pay
+                            special attention to which fields are required and common mistakes.
                         </Alert>
                     )}
                     <p className="text-base-darker margin-top-10">
                         Questions or feedback? Please email{" "}
-                        <USExtLink href={`mailto: ${site.orgs.RS.email}`}>
-                            {site.orgs.RS.email}
-                        </USExtLink>
+                        <USExtLink href={`mailto: ${site.orgs.RS.email}`}>{site.orgs.RS.email}</USExtLink>
                     </p>
                 </article>
             </GridContainer>
