@@ -1,3 +1,7 @@
+/* eslint-env node */
+/* eslint-disable @typescript-eslint/require-await */
+/* eslint-disable no-console */
+
 module.exports = async (page) => {
     page.on('request', (request) => {
       console.log(`Request: ${request.method()} ${request.url()}`);
