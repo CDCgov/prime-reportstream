@@ -20,13 +20,13 @@ runs:
         SONAR_TOKEN: ${{ inputs.sonar-token }}
       with:
         args: >
-          -Dsonar.coverage.exclusions=prime-router/src/test/**,prime-router/src/testIntegration/**,prime-router/src/main/kotlin/cli/tests/**,frontend-react/**/__mocks__/**,frontend-react/**/mocks/**,frontend-react/**/*.test.*
-          -Dsonar.cpd.exclusions=frontend-react/**/*.test.*,prime-router/src/test/**,prime-router/src/testIntegration/**,prime-router/src/main/kotlin/cli/tests/**
-          -Dsonar.sources=frontend-react/src,prime-router/src
+          -Dsonar.coverage.exclusions=prime-router/src/test/**,prime-router/src/testIntegration/**,prime-router/src/main/kotlin/cli/tests/**,frontend-react/**/__mocks__/**,frontend-react/**/mocks/**,frontend-react/**/*.test.*,submissions/src/test/**
+          -Dsonar.cpd.exclusions=frontend-react/**/*.test.*,prime-router/src/test/**,prime-router/src/testIntegration/**,prime-router/src/main/kotlin/cli/tests/**,submissions/src/test/**
+          -Dsonar.sources=frontend-react/src,prime-router/src,submissions/src,auth/src,shared/src
           -Dsonar.projectKey=CDCgov_prime-data-hub
           -Dsonar.organization=cdcgov
-          -Dsonar.java.binaries=prime-router/build/classes/java/main,prime-router/build/classes/kotlin/main
-          -Dsonar.java.libraries=prime-router/build/libs/*.jar,prime-router/build/**/*.jar
+          -Dsonar.java.binaries=prime-router/build/classes/java/main,prime-router/build/classes/kotlin/main,submissions/build/classes/kotlin/main,auth/build/classes/kotlin/main,shared/build/classes/kotlin/main
+          -Dsonar.java.libraries=prime-router/build/libs/*.jar,prime-router/build/**/*.jar,submissions/build/**/*.jar,auth/build/**/*.jar,shared/build/**/*.jar
           -Dsonar.coverage.jacoco.xmlReportPaths=prime-router/build/reports/jacoco/test/jacocoTestReport.xml
           -Dsonar.javascript.lcov.reportPaths=frontend-react/coverage/lcov.info
 

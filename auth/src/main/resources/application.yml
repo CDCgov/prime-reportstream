@@ -1,0 +1,31 @@
+spring:
+  application:
+    name: "auth"
+  security:
+    oauth2:
+      resourceserver:
+        opaquetoken: # Set client secret in SPRING_SECURITY_OAUTH2_RESOURCESERVER_OPAQUETOKEN_CLIENT_SECRET env variable
+          client-id: 0oaek8tip2lhrhHce1d7
+          introspection-uri: https://reportstream.oktapreview.com/oauth2/ausekaai7gUuUtHda1d7/v1/introspect
+
+server.port: 9000
+
+app:
+  environment: local
+
+# submissions microservice configuration
+submissions:
+  baseUrl: http://localhost:8080
+
+# Ensure these are disabled in production
+springdoc:
+  swagger-ui:
+    path: /swagger/ui.html
+  api-docs:
+    path: /swagger/api-docs
+
+#Uncomment for verbose logging
+#logging:
+#  level:
+#    web: debug
+#    org.springframework.web: debug

@@ -19,7 +19,13 @@ import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
 import gov.cdc.prime.router.tokens.authenticationFailure
 import gov.cdc.prime.router.transport.RESTTransport
+import gov.cdc.prime.router.transport.RESTTransport.Companion.buildHeaders
 import gov.cdc.prime.router.transport.SftpTransport
+import io.ktor.client.HttpClient
+import io.ktor.client.call.body
+import io.ktor.client.request.get
+import io.ktor.client.statement.HttpResponse
+import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import net.schmizz.sshj.sftp.RemoteResourceFilter
@@ -342,6 +348,8 @@ class CheckFunction : Logging {
     ): Boolean {
         logger.info("REST Transport $restTransportType")
         responseBody.add("${receiver.fullName}: REST Transport")
+        var msg = "${receiver.fullName}: Success: received connection is alive"
+        var retVal = true
         try {
             val theRESTTransport = RESTTransport()
             val reportId = UUID.randomUUID().toString()
@@ -354,28 +362,65 @@ class CheckFunction : Logging {
             runBlocking {
                 launch {
                     val httpHeaders = theRESTTransport.getHeaders(restTransportType, reportId)
-                    val accessToken: String =
-                        theRESTTransport.getOAuthToken(
-                            restTransportType,
-                            jksCredential,
-                            credential,
-                            aLogger
-                        )
 
-                    val msg = when {
-                        accessToken.isNotEmpty() -> "${receiver.fullName}: Success: received OAuth token"
-                        httpHeaders.isNotEmpty() -> "${receiver.fullName}: Success: received Authentication header"
-                        else -> error("${receiver.fullName}: Failure: no valid response from RESTTransport")
+                    val accessToken = theRESTTransport.getAccessToken(
+                        restTransportType,
+                        jksCredential,
+                        credential,
+                        httpHeaders,
+                        aLogger
+                    )
+
+                    // Try to GET something from the endpoint
+                    val response = getFromUrl(
+                        restTransportType.reportUrl,
+                        httpHeaders,
+                        RESTTransport.createDefaultHttpClient(
+                            jksCredential, accessToken,
+                            restTransportType
+                        )
+                    )
+
+                    if (response.status == HttpStatusCode.InternalServerError) {
+                        msg = "${receiver.fullName}: Failure: 500 Internal Error Occured"
+                        retVal = false
                     }
-                    logger.info(msg)
-                    responseBody.add(msg)
                 }
             }
         } catch (t: Throwable) {
-            trackException(t, responseBody, receiver)
-            return false
+            if (t.message!!.contains("connect_timeout") ||
+                t.message!!.contains("Unable to find credentials")
+            ) {
+                // Fail if there is timeout or Unable to find credential from Vault
+                trackException(t, responseBody, receiver)
+                return false
+            }
         }
-        return true
+
+        responseBody.add(msg)
+        return retVal
+    }
+
+    /**
+     * getFromURL extracts something from provided URL.
+     *
+     * @param url - Url to extract
+     * @param headers - headers
+     * @param httpClient - given http client engine
+     *
+     */
+    suspend fun getFromUrl(
+        url: String,
+        headers: Map<String, String>,
+        httpClient: HttpClient,
+    ): HttpResponse {
+        httpClient.use { client ->
+            return client.get(url) {
+                buildHeaders(
+                    headers.map { (key, value) -> Pair(key, value) }.toMap()
+                )
+            }
+        }
     }
 
     /**

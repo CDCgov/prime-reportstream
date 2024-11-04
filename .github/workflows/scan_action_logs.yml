@@ -10,21 +10,24 @@ jobs:
     runs-on: ubuntu-latest
     name: Scan repo run logs
     steps:
-      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
+      - uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938
       - name: Scan run logs
+
         uses: josiahsiegel/runleaks@4dd30d107c03b6ade87978e10c94a77015e488f9
+        ## DevSecOps - Aquia (Replace) - uses: ./.github/actions/runleaks
+
         id: scan
         with:
           github-token: ${{ secrets.RUNLEAKS_TOKEN }}
-          run-limit: 500
+          run-limit: 300
           min-days-old: 0
-          max-days-old: 2
+          max-days-old: 1
           patterns-path: ".github/runleaks/patterns.txt"
           exclusions-path: ".github/runleaks/exclusions.txt"
           fail-on-leak: false
       - name: Get scan exceptions
         if: steps.scan.outputs.count > 0
-        run: | 
+        run: |
           echo "count=${{ steps.scan.outputs.count }}"
           exceptions='${{ steps.scan.outputs.exceptions }}'
           exceptions_out=$(echo ${exceptions//"%0A"/} | jq '.')

@@ -7,6 +7,10 @@ import assertk.assertions.hasSize
 import assertk.assertions.isEqualTo
 import assertk.assertions.isEqualToIgnoringGivenProperties
 import assertk.assertions.matchesPredicate
+import gov.cdc.prime.reportstream.shared.BlobUtils
+import gov.cdc.prime.reportstream.shared.QueueMessage
+import gov.cdc.prime.router.ClientSource
+import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.MimeFormat
@@ -14,12 +18,14 @@ import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.Topic
+import gov.cdc.prime.router.UniversalPipelineSender
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseLookupTableAccess
 import gov.cdc.prime.router.azure.Event
 import gov.cdc.prime.router.azure.ProcessEvent
 import gov.cdc.prime.router.azure.QueueAccess
+import gov.cdc.prime.router.azure.SubmissionTableService
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.Tables
 import gov.cdc.prime.router.azure.db.enums.ActionLogType
@@ -28,11 +34,12 @@ import gov.cdc.prime.router.azure.db.tables.pojos.Action
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.azure.observability.bundleDigest.BundleDigestLabResult
 import gov.cdc.prime.router.azure.observability.event.AzureEventUtils
+import gov.cdc.prime.router.azure.observability.event.InMemoryAzureEventService
 import gov.cdc.prime.router.azure.observability.event.ItemEventData
-import gov.cdc.prime.router.azure.observability.event.LocalAzureEventServiceImpl
 import gov.cdc.prime.router.azure.observability.event.ReportEventData
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventName
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventProperties
+import gov.cdc.prime.router.azure.observability.event.ReportStreamEventService
 import gov.cdc.prime.router.azure.observability.event.ReportStreamItemEvent
 import gov.cdc.prime.router.cli.tests.CompareData
 import gov.cdc.prime.router.common.TestcontainersUtils
@@ -47,6 +54,7 @@ import gov.cdc.prime.router.common.cleanHL7Record
 import gov.cdc.prime.router.common.cleanHL7RecordConverted
 import gov.cdc.prime.router.common.cleanHL7RecordConvertedAndTransformed
 import gov.cdc.prime.router.common.conditionCodedValidFHIRRecord1
+import gov.cdc.prime.router.common.garbledHL7Record
 import gov.cdc.prime.router.common.invalidEmptyFHIRRecord
 import gov.cdc.prime.router.common.invalidHL7Record
 import gov.cdc.prime.router.common.invalidHL7RecordConverted
@@ -62,13 +70,16 @@ import gov.cdc.prime.router.db.ReportStreamTestDatabaseContainer
 import gov.cdc.prime.router.db.ReportStreamTestDatabaseSetupExtension
 import gov.cdc.prime.router.fhirengine.engine.FHIRConverter
 import gov.cdc.prime.router.fhirengine.engine.FhirDestinationFilterQueueMessage
-import gov.cdc.prime.router.fhirengine.engine.QueueMessage
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.history.DetailedActionLog
+import gov.cdc.prime.router.history.db.ReportGraph
 import gov.cdc.prime.router.metadata.LookupTable
 import gov.cdc.prime.router.metadata.ObservationMappingConstants
+import gov.cdc.prime.router.report.ReportService
 import gov.cdc.prime.router.unittest.UnitTestUtils
+import gov.cdc.prime.router.version.Version
 import io.mockk.every
+import io.mockk.mockk
 import io.mockk.mockkConstructor
 import io.mockk.mockkObject
 import io.mockk.unmockkAll
@@ -77,6 +88,7 @@ import org.jooq.impl.DSL
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
@@ -84,6 +96,7 @@ import tech.tablesaw.api.StringColumn
 import tech.tablesaw.api.Table
 import java.nio.charset.Charset
 import java.time.OffsetDateTime
+import java.util.UUID
 
 @Testcontainers
 @ExtendWith(ReportStreamTestDatabaseSetupExtension::class)
@@ -97,7 +110,15 @@ class FHIRConverterIntegrationTests {
         )
     )
 
-    val azureEventService = LocalAzureEventServiceImpl()
+    val azureEventService = InMemoryAzureEventService()
+    val mockSubmissionTableService = mockk<SubmissionTableService>()
+    val reportStreamEventService = ReportStreamEventService(
+        ReportStreamTestDatabaseContainer.testDatabaseAccess, azureEventService,
+        ReportService(
+            ReportGraph(ReportStreamTestDatabaseContainer.testDatabaseAccess),
+            ReportStreamTestDatabaseContainer.testDatabaseAccess
+        )
+    )
 
     private fun createFHIRFunctionsInstance(): FHIRFunctions {
         val settings = FileSettings().loadOrganizations(universalPipelineOrganization)
@@ -111,7 +132,14 @@ class FHIRConverterIntegrationTests {
             .settingsProvider(settings)
             .databaseAccess(ReportStreamTestDatabaseContainer.testDatabaseAccess)
             .build()
-        return FHIRFunctions(workflowEngine, databaseAccess = ReportStreamTestDatabaseContainer.testDatabaseAccess)
+
+        return FHIRFunctions(
+            workflowEngine,
+            databaseAccess = ReportStreamTestDatabaseContainer.testDatabaseAccess,
+            submissionTableService = mockSubmissionTableService,
+            azureEventService = azureEventService,
+            reportStreamEventService = reportStreamEventService
+        )
     }
 
     private fun createFHIRConverter(): FHIRConverter {
@@ -125,32 +153,63 @@ class FHIRConverterIntegrationTests {
             settings,
             ReportStreamTestDatabaseContainer.testDatabaseAccess,
             azureEventService = azureEventService,
+            reportStreamEventService = reportStreamEventService
         )
     }
 
-    private fun generateQueueMessage(report: Report, blobContents: String, sender: Sender): String {
+    private fun generateFHIRConvertQueueMessage(
+        report: Report,
+        blobContents: String,
+        sender: Sender,
+    ): String {
         return """
-            {
-                "type": "convert",
-                "reportId": "${report.id}",
-                "blobURL": "${report.bodyURL}",
-                "digest": "${BlobAccess.digestToString(BlobAccess.sha256Digest(blobContents.toByteArray()))}",
-                "blobSubFolderName": "${sender.fullName}",
-                "topic": "${sender.topic.jsonVal}",
-                "schemaName": "${sender.schemaName}" 
-            }
-        """.trimIndent()
+        {
+            "type": "convert",
+            "reportId": "${report.id}",
+            "blobURL": "${report.bodyURL}",
+            "digest": "${BlobUtils.digestToString(BlobUtils.sha256Digest(blobContents.toByteArray()))}",
+            "blobSubFolderName": "${sender.fullName}",
+            "topic": "${sender.topic.jsonVal}",
+            "schemaName": "${sender.schemaName}"
+        }
+    """.trimIndent()
+    }
+
+    private fun generateFHIRConvertSubmissionQueueMessage(
+        report: Report,
+        blobContents: String,
+        sender: Sender,
+    ): String {
+        // TODO: something is wrong with the Jackson configuration as it should not require the type to parse this
+        val headers = mapOf("client_id" to sender.fullName)
+        val headersStringMap = headers.entries.joinToString(separator = ",\n") { (key, value) ->
+            """"$key": "$value""""
+        }
+        val headersString = "[\"java.util.LinkedHashMap\",{$headersStringMap}]"
+        return """
+        {
+            "type": "receive-fhir",
+            "reportId": "${report.id}",
+            "blobURL": "${report.bodyURL}",
+            "digest": "${BlobUtils.digestToString(BlobUtils.sha256Digest(blobContents.toByteArray()))}",
+            "blobSubFolderName": "${sender.fullName}",
+            "headers":$headersString
+        }
+    """.trimIndent()
     }
 
     @BeforeEach
     fun beforeEach() {
         mockkObject(QueueAccess)
-        every { QueueAccess.sendMessage(any(), any()) } returns Unit
+        every { QueueAccess.sendMessage(any(), any()) } returns ""
         mockkObject(BlobAccess)
         every { BlobAccess getProperty "defaultBlobMetadata" } returns getBlobContainerMetadata()
         mockkObject(BlobAccess.BlobContainerMetadata)
         every { BlobAccess.BlobContainerMetadata.build(any(), any()) } returns getBlobContainerMetadata()
         mockkConstructor(DatabaseLookupTableAccess::class)
+        every { mockSubmissionTableService.insertSubmission(any()) } returns Unit
+        mockkObject(Metadata)
+        every { Metadata.getInstance() } returns UnitTestUtils.simpleMetadata
     }
 
     @AfterEach
@@ -227,7 +286,7 @@ class FHIRConverterIntegrationTests {
     }
 
     @Test
-    fun `should successfully convert HL7 messages`() {
+    fun `should add a message to the poison queue if the sender is not found and not do any work`() {
         val receivedReportContents =
             listOf(cleanHL7Record, invalidHL7Record, unparseableHL7Record, badEncodingHL7Record)
                 .joinToString("\n")
@@ -237,16 +296,109 @@ class FHIRConverterIntegrationTests {
             getBlobContainerMetadata()
         )
 
-        val receiveReport = setupConvertStep(MimeFormat.HL7, hl7SenderWithNoTransform, receiveBlobUrl, 4)
-        val queueMessage = generateQueueMessage(receiveReport, receivedReportContents, hl7SenderWithNoTransform)
+        val receiveReport = Report(
+            hl7SenderWithNoTransform.format,
+            listOf(
+                ClientSource(
+                    organization = hl7SenderWithNoTransform.organizationName,
+                    client = hl7SenderWithNoTransform.name
+                )
+            ),
+            1,
+            metadata = UnitTestUtils.simpleMetadata,
+            nextAction = TaskAction.convert,
+            topic = hl7SenderWithNoTransform.topic,
+            id = UUID.randomUUID(),
+            bodyURL = receiveBlobUrl
+        )
+        val missingSender = UniversalPipelineSender(
+            "foo",
+            "phd",
+            MimeFormat.HL7,
+            CustomerStatus.ACTIVE,
+            topic = Topic.FULL_ELR,
+        )
+        val queueMessage =
+            generateFHIRConvertSubmissionQueueMessage(receiveReport, receivedReportContents, missingSender)
+        val fhirFunctions = createFHIRFunctionsInstance()
+
+        fhirFunctions.process(queueMessage, 1, createFHIRConverter(), ActionHistory(TaskAction.convert))
+        ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
+            assertThrows<IllegalStateException> {
+                ReportStreamTestDatabaseContainer.testDatabaseAccess.fetchReportFile(receiveReport.id, txn = txn)
+            }
+            val processedReports = fetchChildReports(
+                receiveReport, txn, 0, 0, parentIsRoot = true
+            )
+            assertThat(processedReports).hasSize(0)
+            verify(exactly = 1) {
+                QueueAccess.sendMessage(
+                    "${QueueMessage.elrSubmissionConvertQueueName}-poison",
+                    queueMessage
+
+                )
+            }
+        }
+    }
+
+    @Test
+    fun `should successfully process a FhirConvertSubmissionQueueMessage`() {
+        val receivedReportContents =
+            listOf(cleanHL7Record, invalidHL7Record, unparseableHL7Record, badEncodingHL7Record)
+                .joinToString("\n")
+        val receiveBlobUrl = BlobAccess.uploadBlob(
+            "receive/happy-path.hl7",
+            receivedReportContents.toByteArray(),
+            getBlobContainerMetadata()
+        )
+
+        val receiveReport = Report(
+            hl7SenderWithNoTransform.format,
+            listOf(
+                ClientSource(
+                    organization = hl7SenderWithNoTransform.organizationName,
+                    client = hl7SenderWithNoTransform.name
+                )
+            ),
+            1,
+            metadata = UnitTestUtils.simpleMetadata,
+            nextAction = TaskAction.convert,
+            topic = hl7SenderWithNoTransform.topic,
+            id = UUID.randomUUID(),
+            bodyURL = receiveBlobUrl
+        )
+        val queueMessage =
+            generateFHIRConvertSubmissionQueueMessage(receiveReport, receivedReportContents, hl7SenderWithNoTransform)
         val fhirFunctions = createFHIRFunctionsInstance()
 
         fhirFunctions.process(queueMessage, 1, createFHIRConverter(), ActionHistory(TaskAction.convert))
 
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
-            val (routedReports, _) = fetchChildReports(
-                receiveReport, txn, 4
+            val externalReportRecord =
+                ReportStreamTestDatabaseContainer.testDatabaseAccess.fetchReportFile(receiveReport.id, txn = txn)
+            assertThat(externalReportRecord.sendingOrg).isEqualTo(hl7SenderWithNoTransform.organizationName)
+            assertThat(externalReportRecord.sendingOrgClient).isEqualTo(hl7SenderWithNoTransform.name)
+            val (routedReports, unroutedReports) = fetchChildReports(
+                receiveReport, txn, 4, 4, parentIsRoot = true
             ).partition { it.nextAction != TaskAction.none }
+            assertThat(routedReports).hasSize(2)
+            routedReports.forEach {
+                assertThat(it.nextAction).isEqualTo(TaskAction.destination_filter)
+                assertThat(it.receivingOrg).isEqualTo(null)
+                assertThat(it.receivingOrgSvc).isEqualTo(null)
+                assertThat(it.schemaName).isEqualTo("None")
+                assertThat(it.schemaTopic).isEqualTo(Topic.FULL_ELR)
+                assertThat(it.bodyFormat).isEqualTo("FHIR")
+            }
+            assertThat(unroutedReports).hasSize(2)
+            unroutedReports.forEach {
+                assertThat(it.nextAction).isEqualTo(TaskAction.none)
+                assertThat(it.receivingOrg).isEqualTo(null)
+                assertThat(it.receivingOrgSvc).isEqualTo(null)
+                assertThat(it.schemaName).isEqualTo("None")
+                assertThat(it.schemaTopic).isEqualTo(Topic.FULL_ELR)
+                assertThat(it.bodyFormat).isEqualTo("FHIR")
+            }
             // Verify that the expected FHIR bundles were uploaded
             val reportAndBundles =
                 routedReports.map {
@@ -280,7 +432,7 @@ class FHIRConverterIntegrationTests {
                 FhirDestinationFilterQueueMessage(
                     report.reportId,
                     report.bodyUrl,
-                    BlobAccess.digestToString(BlobAccess.sha256Digest(fhirBundle)),
+                    BlobUtils.digestToString(BlobUtils.sha256Digest(fhirBundle)),
                     hl7SenderWithNoTransform.fullName,
                     hl7SenderWithNoTransform.topic
                 )
@@ -328,9 +480,165 @@ class FHIRConverterIntegrationTests {
                     Topic.FULL_ELR,
                     routedReports[1].bodyUrl,
                     TaskAction.convert,
-                    OffsetDateTime.now()
+                    OffsetDateTime.now(),
+                    Version.commitId
                 ),
-                    ReportEventData::timestamp
+                ReportEventData::timestamp
+            )
+            assertThat(event.itemEventData).isEqualToIgnoringGivenProperties(
+                ItemEventData(
+                    1,
+                    2,
+                    2,
+                    "371784",
+                    "phd.hl7-elr-no-transform"
+                )
+            )
+            assertThat(event.params).isEqualTo(
+                mapOf(
+                    ReportStreamEventProperties.ITEM_FORMAT to MimeFormat.HL7,
+                    ReportStreamEventProperties.BUNDLE_DIGEST to BundleDigestLabResult(
+                        observationSummaries = AzureEventUtils
+                            .getObservationSummaries(
+                                FhirTranscoder.decode(
+                                    reportAndBundles[1].second.toString(Charset.defaultCharset())
+                                )
+                            ),
+                        patientState = listOf("TX"),
+                        orderingFacilityState = listOf("FL"),
+                        performerState = emptyList(),
+                        eventType = "ORU^R01^ORU_R01"
+                    )
+                )
+            )
+        }
+    }
+
+    @Test
+    fun `should successfully convert HL7 messages`() {
+        val receivedReportContents =
+            listOf(cleanHL7Record, invalidHL7Record, unparseableHL7Record, badEncodingHL7Record)
+                .joinToString("\n")
+        val receiveBlobUrl = BlobAccess.uploadBlob(
+            "receive/happy-path.hl7",
+            receivedReportContents.toByteArray(),
+            getBlobContainerMetadata()
+        )
+
+        val receiveReport = setupConvertStep(MimeFormat.HL7, hl7SenderWithNoTransform, receiveBlobUrl, 4)
+        val queueMessage =
+            generateFHIRConvertQueueMessage(receiveReport, receivedReportContents, hl7SenderWithNoTransform)
+        val fhirFunctions = createFHIRFunctionsInstance()
+
+        fhirFunctions.process(queueMessage, 1, createFHIRConverter(), ActionHistory(TaskAction.convert))
+
+        ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
+            val (routedReports, unroutedReports) = fetchChildReports(
+                receiveReport, txn, 4, 4
+            ).partition { it.nextAction != TaskAction.none }
+            assertThat(routedReports).hasSize(2)
+            routedReports.forEach {
+                assertThat(it.nextAction).isEqualTo(TaskAction.destination_filter)
+                assertThat(it.receivingOrg).isEqualTo(null)
+                assertThat(it.receivingOrgSvc).isEqualTo(null)
+                assertThat(it.schemaName).isEqualTo("None")
+                assertThat(it.schemaTopic).isEqualTo(Topic.FULL_ELR)
+                assertThat(it.bodyFormat).isEqualTo("FHIR")
+            }
+            assertThat(unroutedReports).hasSize(2)
+            unroutedReports.forEach {
+                assertThat(it.nextAction).isEqualTo(TaskAction.none)
+                assertThat(it.receivingOrg).isEqualTo(null)
+                assertThat(it.receivingOrgSvc).isEqualTo(null)
+                assertThat(it.schemaName).isEqualTo("None")
+                assertThat(it.schemaTopic).isEqualTo(Topic.FULL_ELR)
+                assertThat(it.bodyFormat).isEqualTo("FHIR")
+            }
+            // Verify that the expected FHIR bundles were uploaded
+            val reportAndBundles =
+                routedReports.map {
+                    Pair(
+                        it,
+                        BlobAccess.downloadBlobAsByteArray(it.bodyUrl, getBlobContainerMetadata())
+                    )
+                }
+
+            assertThat(reportAndBundles).transform { pairs -> pairs.map { it.second } }.each {
+                it.matchesPredicate { bytes ->
+                    val invalidHL7Result = CompareData().compare(
+                        cleanHL7RecordConverted.byteInputStream(),
+                        bytes.inputStream(),
+                        MimeFormat.FHIR,
+                        null
+                    )
+                    invalidHL7Result.passed
+
+                    val cleanHL7Result = CompareData().compare(
+                        invalidHL7RecordConverted.byteInputStream(),
+                        bytes.inputStream(),
+                        MimeFormat.FHIR,
+                        null
+                    )
+                    invalidHL7Result.passed || cleanHL7Result.passed
+                }
+            }
+
+            val expectedQueueMessages = reportAndBundles.map { (report, fhirBundle) ->
+                FhirDestinationFilterQueueMessage(
+                    report.reportId,
+                    report.bodyUrl,
+                    BlobUtils.digestToString(BlobUtils.sha256Digest(fhirBundle)),
+                    hl7SenderWithNoTransform.fullName,
+                    hl7SenderWithNoTransform.topic
+                )
+            }.map { it.serialize() }
+
+            verify(exactly = 2) {
+                QueueAccess.sendMessage(
+                    QueueMessage.elrDestinationFilterQueueName,
+                    match { expectedQueueMessages.contains(it) }
+                )
+            }
+
+            val actionLogs = DSL.using(txn).select(Tables.ACTION_LOG.asterisk()).from(Tables.ACTION_LOG)
+                .where(Tables.ACTION_LOG.REPORT_ID.eq(receiveReport.id))
+                .and(Tables.ACTION_LOG.TYPE.eq(ActionLogType.error))
+                .fetchInto(
+                    DetailedActionLog::class.java
+                )
+
+            assertThat(actionLogs).hasSize(2)
+            @Suppress("ktlint:standard:max-line-length")
+            assertThat(actionLogs).transform { logs -> logs.map { it.detail.message } }
+                .containsOnly(
+                    "Item 3 in the report was not parseable. Reason: exception while parsing HL7: Determine encoding for message. The following is the first 50 chars of the message for reference, although this may not be where the issue is: MSH^~\\&|CDC PRIME - Atlanta, Georgia (Dekalb)^2.16",
+                    "Item 4 in the report was not parseable. Reason: exception while parsing HL7: Invalid or incomplete encoding characters - MSH-2 is ^~\\&#!"
+                )
+            assertThat(actionLogs).transform {
+                it.map { log ->
+                    log.trackingId
+                }
+            }.containsOnly(
+                "",
+                ""
+            )
+
+            assertThat(azureEventService.reportStreamEvents[ReportStreamEventName.ITEM_ACCEPTED]!!).hasSize(2)
+            val event =
+                azureEventService
+                    .reportStreamEvents[ReportStreamEventName.ITEM_ACCEPTED]!!.last() as ReportStreamItemEvent
+            assertThat(event.reportEventData).isEqualToIgnoringGivenProperties(
+                ReportEventData(
+                    routedReports[1].reportId,
+                    receiveReport.id,
+                    listOf(receiveReport.id),
+                    Topic.FULL_ELR,
+                    routedReports[1].bodyUrl,
+                    TaskAction.convert,
+                    OffsetDateTime.now(),
+                    Version.commitId
+                ),
+                ReportEventData::timestamp
             )
             assertThat(event.itemEventData).isEqualToIgnoringGivenProperties(
                 ItemEventData(
@@ -400,7 +708,7 @@ class FHIRConverterIntegrationTests {
             MimeFormat.FHIR,
             fhirSenderWithNoTransform, receiveBlobUrl, 4
         )
-        val queueMessage = generateQueueMessage(
+        val queueMessage = generateFHIRConvertQueueMessage(
             receiveReport, receivedReportContents,
             fhirSenderWithNoTransform
         )
@@ -409,9 +717,27 @@ class FHIRConverterIntegrationTests {
         fhirFunctions.process(queueMessage, 1, createFHIRConverter(), ActionHistory(TaskAction.convert))
 
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
-            val (routedReports, _) = fetchChildReports(
-                receiveReport, txn, 4
+            val (routedReports, unroutedReports) = fetchChildReports(
+                receiveReport, txn, 4, 4
             ).partition { it.nextAction != TaskAction.none }
+            assertThat(routedReports).hasSize(2)
+            routedReports.forEach {
+                assertThat(it.nextAction).isEqualTo(TaskAction.destination_filter)
+                assertThat(it.receivingOrg).isEqualTo(null)
+                assertThat(it.receivingOrgSvc).isEqualTo(null)
+                assertThat(it.schemaName).isEqualTo("None")
+                assertThat(it.schemaTopic).isEqualTo(Topic.FULL_ELR)
+                assertThat(it.bodyFormat).isEqualTo("FHIR")
+            }
+            assertThat(unroutedReports).hasSize(2)
+            unroutedReports.forEach {
+                assertThat(it.nextAction).isEqualTo(TaskAction.none)
+                assertThat(it.receivingOrg).isEqualTo(null)
+                assertThat(it.receivingOrgSvc).isEqualTo(null)
+                assertThat(it.schemaName).isEqualTo("None")
+                assertThat(it.schemaTopic).isEqualTo(Topic.FULL_ELR)
+                assertThat(it.bodyFormat).isEqualTo("FHIR")
+            }
             // Verify that the expected FHIR bundles were uploaded
             val reportAndBundles =
                 routedReports.map {
@@ -427,7 +753,7 @@ class FHIRConverterIntegrationTests {
                 FhirDestinationFilterQueueMessage(
                     report.reportId,
                     report.bodyUrl,
-                    BlobAccess.digestToString(BlobAccess.sha256Digest(fhirBundle.toByteArray())),
+                    BlobUtils.digestToString(BlobUtils.sha256Digest(fhirBundle.toByteArray())),
                     fhirSenderWithNoTransform.fullName,
                     fhirSenderWithNoTransform.topic
                 )
@@ -482,9 +808,10 @@ class FHIRConverterIntegrationTests {
                     Topic.FULL_ELR,
                     routedReports[1].bodyUrl,
                     TaskAction.convert,
-                    OffsetDateTime.now()
+                    OffsetDateTime.now(),
+                    Version.commitId
                 ),
-                    ReportEventData::timestamp
+                ReportEventData::timestamp
             )
             assertThat(event.itemEventData).isEqualToIgnoringGivenProperties(
                 ItemEventData(
@@ -527,15 +854,33 @@ class FHIRConverterIntegrationTests {
         )
 
         val receiveReport = setupConvertStep(MimeFormat.HL7, senderWithValidation, receiveBlobUrl, 2)
-        val queueMessage = generateQueueMessage(receiveReport, receivedReportContents, senderWithValidation)
+        val queueMessage = generateFHIRConvertQueueMessage(receiveReport, receivedReportContents, senderWithValidation)
         val fhirFunctions = createFHIRFunctionsInstance()
 
         fhirFunctions.process(queueMessage, 1, createFHIRConverter(), ActionHistory(TaskAction.convert))
 
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
             val (routedReports, notRouted) = fetchChildReports(
-                receiveReport, txn, 2
+                receiveReport, txn, 2, 2
             ).partition { it.nextAction != TaskAction.none }
+
+            with(routedReports.single()) {
+                assertThat(this.nextAction).isEqualTo(TaskAction.destination_filter)
+                assertThat(this.receivingOrg).isEqualTo(null)
+                assertThat(this.receivingOrgSvc).isEqualTo(null)
+                assertThat(this.schemaName).isEqualTo("None")
+                assertThat(this.schemaTopic).isEqualTo(Topic.MARS_OTC_ELR)
+                assertThat(this.bodyFormat).isEqualTo("FHIR")
+            }
+            with(notRouted.single()) {
+                assertThat(this.nextAction).isEqualTo(TaskAction.none)
+                assertThat(this.receivingOrg).isEqualTo(null)
+                assertThat(this.receivingOrgSvc).isEqualTo(null)
+                assertThat(this.schemaName).isEqualTo("None")
+                assertThat(this.schemaTopic).isEqualTo(Topic.MARS_OTC_ELR)
+                assertThat(this.bodyFormat).isEqualTo("FHIR")
+            }
+
             // Verify that the expected FHIR bundles were uploaded
             val reportAndBundles =
                 routedReports.map {
@@ -560,7 +905,7 @@ class FHIRConverterIntegrationTests {
                 FhirDestinationFilterQueueMessage(
                     report.reportId,
                     report.bodyUrl,
-                    BlobAccess.digestToString(BlobAccess.sha256Digest(fhirBundle)),
+                    BlobUtils.digestToString(BlobUtils.sha256Digest(fhirBundle)),
                     senderWithValidation.fullName,
                     senderWithValidation.topic
                 )
@@ -593,15 +938,16 @@ class FHIRConverterIntegrationTests {
                 .reportStreamEvents[ReportStreamEventName.ITEM_FAILED_VALIDATION]!!.last() as ReportStreamItemEvent
             assertThat(event.reportEventData).isEqualToIgnoringGivenProperties(
                 ReportEventData(
-                    notRouted[0].reportId,
+                    notRouted.first().reportId,
                     receiveReport.id,
                     listOf(receiveReport.id),
                     Topic.MARS_OTC_ELR,
                     "",
                     TaskAction.convert,
-                    OffsetDateTime.now()
+                    OffsetDateTime.now(),
+                    Version.commitId
                 ),
-                    ReportEventData::timestamp
+                ReportEventData::timestamp
             )
             assertThat(event.itemEventData).isEqualToIgnoringGivenProperties(
                 ItemEventData(
@@ -612,13 +958,14 @@ class FHIRConverterIntegrationTests {
                     "phd.marsotc-hl7-sender"
                 )
             )
+            @Suppress("ktlint:standard:max-line-length")
             assertThat(event.params).isEqualTo(
                 mapOf(
                     ReportStreamEventProperties.ITEM_FORMAT to MimeFormat.HL7,
                     ReportStreamEventProperties.VALIDATION_PROFILE to Topic.MARS_OTC_ELR.validator.validatorProfileName,
                     @Suppress("ktlint:standard:max-line-length")
                     ReportStreamEventProperties.PROCESSING_ERROR
-                    to "Item 2 in the report was not valid. Reason: HL7 was not valid at MSH[1]-21[1].3 for validator: RADx MARS"
+                        to "Item 2 in the report was not valid. Reason: HL7 was not valid at MSH[1]-21[1].3 for validator: RADx MARS"
                 )
             )
         }
@@ -635,13 +982,22 @@ class FHIRConverterIntegrationTests {
         )
 
         val receiveReport = setupConvertStep(MimeFormat.HL7, hl7Sender, receiveBlobUrl, 2)
-        val queueMessage = generateQueueMessage(receiveReport, receivedReportContents, hl7Sender)
+        val queueMessage = generateFHIRConvertQueueMessage(receiveReport, receivedReportContents, hl7Sender)
         val fhirFunctions = createFHIRFunctionsInstance()
 
         fhirFunctions.process(queueMessage, 1, createFHIRConverter(), ActionHistory(TaskAction.convert))
 
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
-            val routedReports = fetchChildReports(receiveReport, txn, 2)
+            val routedReports = fetchChildReports(receiveReport, txn, 2, 2)
+            routedReports.forEach {
+                assertThat(it.nextAction).isEqualTo(TaskAction.destination_filter)
+                assertThat(it.receivingOrg).isEqualTo(null)
+                assertThat(it.receivingOrgSvc).isEqualTo(null)
+                assertThat(it.schemaName).isEqualTo("None")
+                assertThat(it.schemaTopic).isEqualTo(Topic.FULL_ELR)
+                assertThat(it.bodyFormat).isEqualTo("FHIR")
+            }
+
             // Verify that the expected FHIR bundles were uploaded
             val reportAndBundles =
                 routedReports.map {
@@ -673,7 +1029,7 @@ class FHIRConverterIntegrationTests {
                 FhirDestinationFilterQueueMessage(
                     report.reportId,
                     report.bodyUrl,
-                    BlobAccess.digestToString(BlobAccess.sha256Digest(fhirBundle)),
+                    BlobUtils.digestToString(BlobUtils.sha256Digest(fhirBundle)),
                     hl7Sender.fullName,
                     hl7Sender.topic
                 )
@@ -707,7 +1063,7 @@ class FHIRConverterIntegrationTests {
         )
 
         val receiveReport = setupConvertStep(MimeFormat.HL7, hl7Sender, receiveBlobUrl, 1)
-        val queueMessage = generateQueueMessage(receiveReport, receivedReportContents, hl7Sender)
+        val queueMessage = generateFHIRConvertQueueMessage(receiveReport, receivedReportContents, hl7Sender)
         val fhirFunctions = createFHIRFunctionsInstance()
 
         fhirFunctions.process(queueMessage, 1, createFHIRConverter(), ActionHistory(TaskAction.convert))
@@ -716,7 +1072,71 @@ class FHIRConverterIntegrationTests {
             QueueAccess.sendMessage(any(), any())
         }
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
-            fetchChildReports(receiveReport, txn, 1)
+            val report = fetchChildReports(receiveReport, txn, 1).single()
+            assertThat(report.nextAction).isEqualTo(TaskAction.none)
+            assertThat(report.receivingOrg).isEqualTo(null)
+            assertThat(report.receivingOrgSvc).isEqualTo(null)
+            assertThat(report.schemaName).isEqualTo("None")
+            assertThat(report.schemaTopic).isEqualTo(Topic.FULL_ELR)
+            assertThat(report.bodyFormat).isEqualTo("FHIR")
+        }
+    }
+
+    @Test
+    fun `test should gracefully handle a case where number of items is unknown`() {
+        val receivedReportContents = garbledHL7Record
+        val receiveBlobUrl = BlobAccess.uploadBlob(
+            "receive/happy-path.hl7",
+            receivedReportContents.toByteArray(),
+            getBlobContainerMetadata()
+        )
+
+        val receiveReport = setupConvertStep(MimeFormat.HL7, hl7Sender, receiveBlobUrl, 1)
+        val queueMessage = generateFHIRConvertQueueMessage(receiveReport, receivedReportContents, hl7Sender)
+        val fhirFunctions = createFHIRFunctionsInstance()
+
+        fhirFunctions.process(queueMessage, 1, createFHIRConverter(), ActionHistory(TaskAction.convert))
+
+        verify(exactly = 0) {
+            QueueAccess.sendMessage(any(), any())
+        }
+        ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
+            val report = fetchChildReports(receiveReport, txn, 0).single()
+            assertThat(report.nextAction).isEqualTo(TaskAction.none)
+            assertThat(report.receivingOrg).isEqualTo(null)
+            assertThat(report.receivingOrgSvc).isEqualTo(null)
+            assertThat(report.schemaName).isEqualTo("None")
+            assertThat(report.schemaTopic).isEqualTo(Topic.FULL_ELR)
+            assertThat(report.bodyFormat).isEqualTo("HL7")
+        }
+    }
+
+    @Test
+    fun `test should gracefully handle a case with an empty contents`() {
+        val receivedReportContents = "   "
+        val receiveBlobUrl = BlobAccess.uploadBlob(
+            "receive/happy-path.hl7",
+            receivedReportContents.toByteArray(),
+            getBlobContainerMetadata()
+        )
+
+        val receiveReport = setupConvertStep(MimeFormat.HL7, hl7Sender, receiveBlobUrl, 1)
+        val queueMessage = generateFHIRConvertQueueMessage(receiveReport, receivedReportContents, hl7Sender)
+        val fhirFunctions = createFHIRFunctionsInstance()
+
+        fhirFunctions.process(queueMessage, 1, createFHIRConverter(), ActionHistory(TaskAction.convert))
+
+        verify(exactly = 0) {
+            QueueAccess.sendMessage(any(), any())
+        }
+        ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
+            val report = fetchChildReports(receiveReport, txn, 0, 1).single()
+            assertThat(report.nextAction).isEqualTo(TaskAction.none)
+            assertThat(report.receivingOrg).isEqualTo(null)
+            assertThat(report.receivingOrgSvc).isEqualTo(null)
+            assertThat(report.schemaName).isEqualTo("None")
+            assertThat(report.schemaTopic).isEqualTo(Topic.FULL_ELR)
+            assertThat(report.bodyFormat).isEqualTo("HL7")
         }
     }
 }

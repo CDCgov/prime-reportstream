@@ -16,6 +16,8 @@ abstract class ConfigSchemaProcessor<
     SchemaElement : ConfigSchemaElement<Original, Converted, SchemaElement, Schema>,
     >(
     val schema: Schema,
+    val errors: MutableList<String>,
+    val warnings: MutableList<String>,
 ) :
     Logging {
 
@@ -40,7 +42,9 @@ abstract class ConfigSchemaProcessor<
      * @property input the value to apply the schema to
      * @return The value after applying the schema to [input]
      */
-    abstract fun process(input: Original): Converted
+    abstract fun process(
+        input: Original,
+    ): Converted
 
     /**
      * Get the first valid value from the list of values specified in the schema for a given [element] using

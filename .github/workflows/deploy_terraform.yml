@@ -11,7 +11,7 @@ on:
 jobs:
   pre_job:
     name: Set Build Environment
-    concurrency: 
+    concurrency:
       group: ${{ github.workflow }}-${{ needs.pre_job.outputs.env_name }}
       cancel-in-progress: true
     runs-on: ubuntu-latest
@@ -20,7 +20,7 @@ jobs:
       tf_change: ${{ steps.build_vars.outputs.has_terraform_change }}
     steps:
       - name: Check out changes
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
+        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938
       - name: Build vars
         id: build_vars
         uses: ./.github/actions/build-vars
@@ -28,7 +28,7 @@ jobs:
   confirm_changes:
     name: Check Terraform Stats - ${{ needs.pre_job.outputs.env_name }}
     if: ${{ needs.pre_job.outputs.tf_change == 'true' }}
-    concurrency: 
+    concurrency:
       group: ${{ github.workflow }}-${{ needs.pre_job.outputs.env_name }}
       cancel-in-progress: true
     needs:
@@ -39,7 +39,7 @@ jobs:
       change_count: ${{ steps.stats1.outputs.change-count }}
     steps:
       - name: Check Out Changes
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
+        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938
       - name: Connect to VPN and login to Azure
         uses: ./.github/actions/vpn-azure
         with:
@@ -51,7 +51,10 @@ jobs:
           sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
           tf-auth: true
       - name: Collect Terraform stats
+
         uses: josiahsiegel/terraform-stats@68b8cbe42c494333fbf6f8d90ac86da1fb69dcc2
+        ## DevSecOps - Aquia (Replace) - uses: ./.github/actions/terraform-stats
+
         id: stats1
         with:
           terraform-directory: operations/app/terraform/vars/${{ needs.pre_job.outputs.env_name }}
@@ -60,7 +63,7 @@ jobs:
 
   approve_deploy:
     name: Approve Deploy - ${{ needs.pre_job.outputs.env_name }}
-    concurrency: 
+    concurrency:
       group: ${{ github.workflow }}-${{ needs.pre_job.outputs.env_name }}
       cancel-in-progress: true
     needs:
@@ -75,7 +78,7 @@ jobs:
 
   run_deploy:
     name: Run Deploy - ${{ needs.pre_job.outputs.env_name }}
-    concurrency: 
+    concurrency:
       group: ${{ github.workflow }}-${{ needs.pre_job.outputs.env_name }}
       cancel-in-progress: true
     needs:
@@ -89,7 +92,7 @@ jobs:
         working-directory: operations/app/terraform/vars/${{ needs.pre_job.outputs.env_name }}
     steps:
       - name: Check Out Changes
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
+        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938
       - name: Connect to VPN and login to Azure
         uses: ./.github/actions/vpn-azure
         with:
@@ -108,4 +111,7 @@ jobs:
       - name: Run Terraform
         run: |
           terraform init -input=false
-          terraform apply -input=false -no-color -lock-timeout=600s -auto-approve
+          terraform validate
+          terraform fmt -recursive
+          terraform plan -out ${{ needs.pre_job.outputs.env_name }}-tf.plan
+          # terraform apply -input=false -no-color -lock-timeout=600s -auto-approve ${{ needs.pre_job.outputs.env_name }}-tf.plan

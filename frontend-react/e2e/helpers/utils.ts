@@ -85,8 +85,8 @@ export async function tableColumnDateTimeInRange(
     columnNumber: number,
     fromDate: string,
     toDate: string,
-    startTime: string,
-    endTime: string,
+    startTime?: string,
+    endTime?: string,
 ) {
     let datesInRange = true;
     const rowCount = await tableRows(page).count();
@@ -106,7 +106,7 @@ export async function tableColumnDateTimeInRange(
     return datesInRange;
 }
 
-export function fromDateWithTime(date: string, time: string) {
+export function fromDateWithTime(date: string, time?: string) {
     const fromDateTime = new Date(date);
 
     if (time) {
@@ -115,7 +115,7 @@ export function fromDateWithTime(date: string, time: string) {
             .substring(0, time.length - 2)
             .split(":")
             .map(Number);
-        hours = hours + (time.indexOf("pm") !== -1 ? 12 : 0);
+        hours = hours + (time.includes("pm") ? 12 : 0);
         fromDateTime.setHours(hours, minutes, 0, 0);
     } else {
         fromDateTime.setHours(0, 0, 0);
@@ -123,7 +123,7 @@ export function fromDateWithTime(date: string, time: string) {
     return fromDateTime;
 }
 
-export function toDateWithTime(date: string, time: string) {
+export function toDateWithTime(date: string, time?: string) {
     const toDateTime = new Date(date);
 
     if (time) {
@@ -132,10 +132,36 @@ export function toDateWithTime(date: string, time: string) {
             .substring(0, time.length - 2)
             .split(":")
             .map(Number);
-        hours = hours + (time.indexOf("pm") !== -1 ? 12 : 0);
+        hours = hours + (time.includes("pm") ? 12 : 0);
         toDateTime.setHours(hours, minutes, 0, 0);
     } else {
         toDateTime.setHours(23, 59, 0);
     }
     return toDateTime;
+}
+
+export function removeDateTime(filename: string) {
+    // Example string: "co.yml-beb0c9d9-ca1f-4af3-853e-0aba61541f66-20240829191221.hl7"
+    // Find the last hyphen and the last dot in the string
+    const lastHyphenIndex = filename.lastIndexOf("-");
+    const lastDotIndex = filename.lastIndexOf(".");
+
+    // If both indices are found, implying a properly formatted file extension,
+    // remove the timestamp
+    if (lastHyphenIndex !== -1 && lastDotIndex !== -1 && lastHyphenIndex < lastDotIndex) {
+        return filename.slice(0, lastHyphenIndex);
+    }
+
+    return filename;
+}
+
+export function isAbsoluteURL(url: string): boolean {
+    return /^(https?|ftp|file|mailto):/.test(url);
+}
+
+export function isAssetURL(url: string): boolean {
+    // Regular expression to match common asset file extensions at the end of a URL
+    const assetExtensions = /\.(pdf|png|jpg|jpeg|gif|bmp|svg|webp|mp4|mp3|wav|ogg|avi|mov|mkv|zip|rar|tar|gz|iso)$/i;
+
+    return assetExtensions.test(url);
 }

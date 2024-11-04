@@ -15,21 +15,21 @@ jobs:
   DeployToCandidateSlot:
     runs-on: ubuntu-latest
     env:
-      ALLOWED_USERS: "lucasdze,jeremy-page,JosiahSiegel,snesm,supriyaaddagada"
+      ALLOWED_USERS: "devopsmatt,emvaldes,scott-aquia,bethbeza"
 
     steps:
       - name: Check if actor is allowed to run the workflow
         if: ${{ contains(env.ALLOWED_USERS, github.actor) }}
         run: echo "The user is allowed to run the workflow."
-      
+
       - name: Check if actor is NOT allowed to run the workflow
         if: ${{ !contains(env.ALLOWED_USERS, github.actor) }}
         run: |
           echo "This user is not allowed to run the workflow."
           exit 1
-          
+
       - name: "Check out changes"
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
+        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938
 
       - name: Set deployment environment
         run: echo "ENV=${{ github.event.inputs.environment }}" >> $GITHUB_ENV
@@ -63,11 +63,11 @@ jobs:
       - name: Swap Slots
         run: |
           az functionapp deployment slot swap --name pdh${{ env.ENV }}-functionapp --resource-group prime-data-hub-${{ env.ENV }} --slot candidate --target-slot production
-      
+
       - name: Verify the Running Container
         run: |
-          az webapp config container show --name pdh${{ env.ENV }}-functionapp --resource-group prime-data-hub-${{ env.ENV }} 
+          az webapp config container show --name pdh${{ env.ENV }}-functionapp --resource-group prime-data-hub-${{ env.ENV }}
 
       - name: Remove runner IP from Function App firewall
         run: |
-          az functionapp config access-restriction remove --name pdh${{ env.ENV }}-functionapp --resource-group prime-data-hub-${{ env.ENV }} --ip-address ${{ steps.runner_ip.outputs.ip-address }} 
+          az functionapp config access-restriction remove --name pdh${{ env.ENV }}-functionapp --resource-group prime-data-hub-${{ env.ENV }} --ip-address ${{ steps.runner_ip.outputs.ip-address }}

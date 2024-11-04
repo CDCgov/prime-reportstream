@@ -1,6 +1,8 @@
 package gov.cdc.prime.router.fhirengine.engine
 
 import fhirengine.engine.CustomFhirPathFunctions
+import gov.cdc.prime.reportstream.shared.BlobUtils
+import gov.cdc.prime.reportstream.shared.QueueMessage
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.Metadata
@@ -24,6 +26,7 @@ import gov.cdc.prime.router.azure.observability.context.MDCUtils
 import gov.cdc.prime.router.azure.observability.context.withLoggingContext
 import gov.cdc.prime.router.azure.observability.event.AzureEventService
 import gov.cdc.prime.router.azure.observability.event.AzureEventServiceImpl
+import gov.cdc.prime.router.azure.observability.event.IReportStreamEventService
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventName
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventProperties
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
@@ -48,10 +51,12 @@ class FHIRDestinationFilter(
     blob: BlobAccess = BlobAccess(),
     azureEventService: AzureEventService = AzureEventServiceImpl(),
     reportService: ReportService = ReportService(),
-) : FHIREngine(metadata, settings, db, blob, azureEventService, reportService) {
+    reportStreamEventService: IReportStreamEventService,
+) : FHIREngine(metadata, settings, db, blob, azureEventService, reportService, reportStreamEventService) {
     override val finishedField: Field<OffsetDateTime> = Tables.TASK.DESTINATION_FILTERED_AT
 
     override val engineType: String = "DestinationFilter"
+    override val taskAction: TaskAction = TaskAction.destination_filter
 
     internal fun findTopicReceivers(topic: Topic): List<Receiver> =
         settings.receivers.filter { it.customerStatus != CustomerStatus.INACTIVE && it.topic == topic }
@@ -88,7 +93,7 @@ class FHIRDestinationFilter(
      * [actionHistory] ensures all activities are logged.
      */
     private fun fhirEngineRunResults(
-        queueMessage: ReportPipelineMessage,
+        queueMessage: FhirDestinationFilterQueueMessage,
         actionHistory: ActionHistory,
     ): List<FHIREngineRunResult> {
         val contextMap = mapOf(
@@ -106,7 +111,7 @@ class FHIRDestinationFilter(
             val fhirJson = LogMeasuredTime.measureAndLogDurationWithReturnedValue(
                 "Downloaded content from queue message"
             ) {
-                queueMessage.downloadContent()
+                BlobAccess.downloadBlob(queueMessage.blobURL, queueMessage.digest)
             }
             val bundle = FhirTranscoder.decode(fhirJson)
             val bodyString = FhirTranscoder.encode(bundle)
@@ -207,7 +212,7 @@ class FHIRDestinationFilter(
                             FhirReceiverFilterQueueMessage(
                                 report.id,
                                 blobInfo.blobUrl,
-                                BlobAccess.digestToString(blobInfo.digest),
+                                BlobUtils.digestToString(blobInfo.digest),
                                 queueMessage.blobSubFolderName,
                                 queueMessage.topic,
                                 receiver.fullName

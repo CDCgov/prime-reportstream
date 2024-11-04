@@ -1,0 +1,27 @@
+spring:
+  application:
+    name: submissions
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: https://reportstream.oktapreview.com/oauth2/ausekaai7gUuUtHda1d7
+  server:
+    port: 8880
+
+azure:
+  storage:
+    connection-string: ${AZURE_STORAGE_CONNECTION_STRING:DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://localhost:10000/devstoreaccount1;QueueEndpoint=http://localhost:10001/devstoreaccount1;TableEndpoint=http://127.0.0.1:10002/devstoreaccount1;}
+    container-name: ${AZURE_STORAGE_CONTAINER_NAME:reports}
+    queue-name: ${AZURE_STORAGE_QUEUE_NAME:elr-fhir-convert-submission}
+    table-name: ${AZURE_STORAGE_TABLE_NAME:submission}
+
+allowed:
+  headers:
+    - client_id
+    - content-type
+    - payloadname
+    - x-azure-clientip
+    - content-length
+#  - queryParameters:
+#    - param

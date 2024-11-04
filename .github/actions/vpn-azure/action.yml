@@ -41,6 +41,8 @@ runs:
       shell: bash
 
     - uses: josiahsiegel/action-connect-ovpn@794339aff94452216c97f609476c367a43a31295
+    ## DevSecOps - Aquia (Replace) - uses: ./.github/actions/action-connect-ovpn
+
       if: inputs.env-name && inputs.ca-cert != 'false'
       id: connect_vpn
       with:
@@ -63,7 +65,7 @@ runs:
         fi
       shell: bash
 
-    - uses: azure/login@6c251865b4e6290e7b78be643ea2d005bc51f69a
+    - uses: azure/login@a65d910e8af852a8061c627c456678983e180302
       if: inputs.sp-creds
       with:
         creds: ${{ inputs.sp-creds }}
@@ -79,7 +81,7 @@ runs:
         $env:ARM_CLIENT_SECRET = $servicePrincipal.clientSecret
         $env:ARM_SUBSCRIPTION_ID = $servicePrincipal.subscriptionId
         $env:ARM_TENANT_ID = $servicePrincipal.tenantId
-          
+
         # Save environment variable setup for subsequent steps
         Get-ChildItem -Path Env: -Recurse -Include ARM_* | ForEach-Object {Write-Output "$($_.Name)=$($_.Value)"} >> $env:GITHUB_ENV
       shell: pwsh

@@ -1,0 +1,17 @@
+spring:
+  application:
+    name: "auth"
+  profiles:
+    active: test
+  security:
+    oauth2:
+      resourceserver:
+        opaquetoken:
+          client-id: mockClient
+          client-secret: mockSecret
+          introspection-uri: https://localhost:9999/oauth2/default/v1/introspect # should never be hit
+
+
+server.port: 9000
+app.environment: local
+submissions.baseUrl: http://localhost:8080

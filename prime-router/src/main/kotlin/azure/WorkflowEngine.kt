@@ -31,7 +31,9 @@ import gov.cdc.prime.router.serializers.Hl7Serializer
 import gov.cdc.prime.router.serializers.ReadResult
 import gov.cdc.prime.router.transport.AS2Transport
 import gov.cdc.prime.router.transport.BlobStoreTransport
+import gov.cdc.prime.router.transport.EmailTransport
 import gov.cdc.prime.router.transport.GAENTransport
+import gov.cdc.prime.router.transport.NullTransport
 import gov.cdc.prime.router.transport.RESTTransport
 import gov.cdc.prime.router.transport.RetryItems
 import gov.cdc.prime.router.transport.RetryToken
@@ -71,6 +73,8 @@ class WorkflowEngine(
     val soapTransport: SoapTransport = SoapTransport(),
     val gaenTransport: GAENTransport = GAENTransport(),
     val restTransport: RESTTransport = RESTTransport(),
+    val nullTransport: NullTransport = NullTransport(),
+    val emailTransport: EmailTransport = EmailTransport(),
 ) : BaseEngine(queue) {
 
     /**
@@ -198,7 +202,11 @@ class WorkflowEngine(
             Event.EventAction.RECEIVE
         )
 
-        actionHistory.trackExternalInputReport(report, blobInfo, payloadName)
+        actionHistory.trackExternalInputReport(
+            report,
+            blobInfo,
+            payloadName
+        )
         return blobInfo
     }
 

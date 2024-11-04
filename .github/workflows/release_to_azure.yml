@@ -27,7 +27,7 @@ jobs:
       dns_ip: ${{ steps.build_vars.outputs.dns_ip }}
     steps:
       - name: Check out changes
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
+        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938
 
       - name: Build vars
         id: build_vars
@@ -43,7 +43,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out changes
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
+        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938
 
       - name: Build backend
         uses: ./.github/actions/build-backend
@@ -61,7 +61,7 @@ jobs:
         working-directory: frontend-react
     steps:
       - name: Check out changes
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
+        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938
 
       - name: Build frontend
         uses: ./.github/actions/build-frontend
@@ -90,7 +90,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out changes
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
+        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938
 
       - name: Use specific version of Terraform
         uses: hashicorp/setup-terraform@b9cd54a3c349d3f38e8881555d616ced269862dd
@@ -129,7 +129,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out changes
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
+        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938
 
       - name: Login to Azure
         if: |
@@ -144,7 +144,10 @@ jobs:
         env:
           checksum_validation: ${{ vars.CHECKSUM_VALIDATION }}
         if: needs.pre_job.outputs.has_router_change == 'true' && env.checksum_validation == 'true'
+
         uses: JosiahSiegel/checksum-validate-action@ebdf8c12c00912d18de93c483b935d51582f9236
+        ## DevSecOps - Aquia (Replace) - uses: ./.github/actions/checksum-validate-action
+
         with:
           key: backend
           input: $(az functionapp config appsettings list -g prime-data-hub-${{ needs.pre_job.outputs.env_name }} -n pdh${{ needs.pre_job.outputs.env_name }}-functionapp -o tsv | sort)
@@ -164,7 +167,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out changes
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
+        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938
 
   deploy_router_release:
     name: "Deploy Router Release: ${{ needs.pre_job.outputs.env_name }}"
@@ -181,7 +184,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out changes
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
+        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938
 
       - name: Connect to VPN and login to Azure
         uses: ./.github/actions/vpn-azure
@@ -220,7 +223,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out changes
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
+        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938
 
       - name: Connect to VPN and login to Azure
         uses: ./.github/actions/vpn-azure

@@ -8,8 +8,12 @@ import com.azure.storage.queue.models.SendMessageResult
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import gov.cdc.prime.reportstream.shared.QueueMessage
+import gov.cdc.prime.reportstream.shared.QueueMessage.ObjectMapperProvider
 import gov.cdc.prime.reportstream.submissions.TelemetryService
+import gov.cdc.prime.reportstream.submissions.config.AllowedParametersConfig
 import gov.cdc.prime.reportstream.submissions.config.AzureConfig
+import gov.cdc.prime.reportstream.submissions.config.SecurityConfig
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -36,10 +40,11 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 import java.io.ByteArrayInputStream
 import java.io.InputStream
+import java.util.Base64
 import java.util.UUID
 
 @WebMvcTest(SubmissionController::class)
-@Import(AzureConfig::class)
+@Import(AzureConfig::class, SecurityConfig::class, AllowedParametersConfig::class)
 class SubmissionControllerTest {
 
     @Autowired
@@ -136,11 +141,10 @@ class SubmissionControllerTest {
 
         // Assert the captured arguments
         assert(blobSizeCaptor.firstValue == requestBody.length.toLong())
-        val capturedMessage = objectMapper.readValue(messageCaptor.firstValue, Map::class.java)
-        assert(capturedMessage["reportId"] == reportId.toString())
-        assert(capturedMessage["blobUrl"] == expectedBlobUrl)
-        assert(capturedMessage["headers"] != null)
-        val headers = capturedMessage["headers"] as Map<*, *>
+        val capturedMessage = deserialize(messageCaptor.firstValue, QueueMessage.ReceiveQueueMessage::class.java)
+        assert(capturedMessage.reportId == reportId)
+        assert(capturedMessage.blobURL == expectedBlobUrl)
+        val headers = capturedMessage.headers as Map<*, *>
         assert(headers["client_id"] == "testClient")
         assert(headers["Content-Type"] == "application/hl7-v2;charset=UTF-8")
         assert(headers["payloadname"] == "testPayload")
@@ -183,11 +187,10 @@ class SubmissionControllerTest {
 
         // Assert the captured arguments
         assert(blobSizeCaptor.firstValue == requestBody.length.toLong())
-        val capturedMessage = objectMapper.readValue(messageCaptor.firstValue, Map::class.java)
-        assert(capturedMessage["reportId"] == reportId.toString())
-        assert(capturedMessage["blobUrl"] == expectedBlobUrl)
-        assert(capturedMessage["headers"] != null)
-        val headers = capturedMessage["headers"] as Map<*, *>
+        val capturedMessage = deserialize(messageCaptor.firstValue, QueueMessage.ReceiveQueueMessage::class.java)
+        assert(capturedMessage.reportId == reportId)
+        assert(capturedMessage.blobURL == expectedBlobUrl)
+        val headers = capturedMessage.headers as Map<*, *>
         assert(headers["client_id"] == "testClient")
         assert(headers["Content-Type"] == "application/fhir+ndjson;charset=UTF-8")
         assert(headers["payloadname"] == "testPayload")
@@ -275,7 +278,7 @@ class SubmissionControllerTest {
     }
 
     @Test
-    fun `submitReport should log ReportReceivedEvent with correct details`() {
+    fun `submitReport should log SUBMISSION_RECEIVED with correct details`() {
         // Helper function to safely cast the captured map to Map<String, String>
         fun mapToStringString(input: Map<*, *>): Map<String, String> {
             return input.mapNotNull { (key, value) ->
@@ -305,6 +308,8 @@ class SubmissionControllerTest {
                 .header("client_id", "testClient")
                 .header("payloadname", "testPayload")
                 .header("x-azure-clientip", "127.0.0.1")
+                .queryParam("processing", "test1", "test2")
+                .queryParam("test", "test2")
         )
             .andExpect(MockMvcResultMatchers.status().isCreated)
 
@@ -316,17 +321,29 @@ class SubmissionControllerTest {
         val capturedEvent = eventCaptor.firstValue
         val capturedProperties = mapToStringString(propertiesCaptor.firstValue)
 
-        assert(capturedEvent == "ReportReceivedEvent")
+        assert(capturedEvent == "SUBMISSION_RECEIVED")
         val eventDetails = objectMapper.readValue(capturedProperties["event"], Map::class.java)
         assert(eventDetails["reportId"] == reportId.toString())
         assert(eventDetails["blobUrl"] == expectedBlobUrl)
-        assert(eventDetails["senderIP"] == "127.0.0.1")
-        val headers = eventDetails["headers"] as Map<*, *>
+        assert(eventDetails["senderIp"] == "127.0.0.1")
+        assert(eventDetails["method"] == "POST")
+        assert(eventDetails["senderName"] == "testClient")
+        assert(eventDetails["pipelineStepName"] == "submission")
+        assert(eventDetails["url"] == "http://localhost/api/v1/reports")
+        val requestParameters = eventDetails["requestParameters"] as Map<*, *>
+        val headers = requestParameters["headers"] as Map<*, *>
         assert(headers["client_id"] == "testClient")
         assert(headers["Content-Type"] == "application/hl7-v2;charset=UTF-8")
         assert(headers["payloadname"] == "testPayload")
         assert(headers["x-azure-clientip"] == "127.0.0.1")
+        val queryParameters = requestParameters["queryParameters"] as Map<*, *>
+        assert(queryParameters.isEmpty())
 
         uuidMockedStatic.close()
+    }
+
+    fun <T> deserialize(serializedString: String, valueType: Class<T>): T {
+        val bytes = Base64.getDecoder().decode(serializedString)
+        return ObjectMapperProvider.mapper.readValue(bytes, valueType)
     }
 }

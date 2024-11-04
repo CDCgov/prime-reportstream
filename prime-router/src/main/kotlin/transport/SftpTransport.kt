@@ -19,6 +19,7 @@ import gov.cdc.prime.router.credentials.SftpCredential
 import gov.cdc.prime.router.credentials.UserPassCredential
 import gov.cdc.prime.router.credentials.UserPemCredential
 import gov.cdc.prime.router.credentials.UserPpkCredential
+import gov.cdc.prime.router.report.ReportService
 import net.schmizz.sshj.DefaultConfig
 import net.schmizz.sshj.SSHClient
 import net.schmizz.sshj.sftp.RemoteResourceFilter
@@ -48,6 +49,7 @@ class SftpTransport : ITransport, Logging {
         context: ExecutionContext,
         actionHistory: ActionHistory,
         reportEventService: IReportStreamEventService,
+        reportService: ReportService,
     ): RetryItems? {
         val sftpTransportType = transportType as SFTPTransportType
 
@@ -72,6 +74,7 @@ class SftpTransport : ITransport, Logging {
                 msg,
                 header,
                 reportEventService,
+                reportService,
                 this::class.java.simpleName
             )
             actionHistory.trackItemLineages(Report.createItemLineagesFromDb(header, sentReportId))

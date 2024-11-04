@@ -9,6 +9,7 @@ import assertk.assertions.isNotNull
 import assertk.assertions.isNull
 import assertk.assertions.isTrue
 import com.microsoft.azure.functions.HttpMethod
+import gov.cdc.prime.reportstream.shared.BlobUtils
 import gov.cdc.prime.router.ActionLog
 import gov.cdc.prime.router.ActionLogLevel
 import gov.cdc.prime.router.ClientSource
@@ -22,18 +23,27 @@ import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.db.enums.TaskAction
+import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
+import gov.cdc.prime.router.azure.observability.bundleDigest.BundleDigest
+import gov.cdc.prime.router.azure.observability.bundleDigest.BundleDigestExtractor
 import gov.cdc.prime.router.azure.observability.event.AzureEventService
 import gov.cdc.prime.router.azure.observability.event.ReportEventData
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventService
 import gov.cdc.prime.router.common.JacksonMapperUtilities
+import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
+import gov.cdc.prime.router.report.ReportService
 import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkClass
+import io.mockk.mockkConstructor
 import io.mockk.mockkObject
 import io.mockk.spyk
+import io.mockk.unmockkAll
 import io.mockk.verify
+import org.hl7.fhir.r4.model.Bundle
+import org.junit.jupiter.api.AfterEach
 import java.time.OffsetDateTime
 import java.util.UUID
 import kotlin.test.Test
@@ -42,6 +52,12 @@ import kotlin.test.assertNotEquals
 import kotlin.test.assertNotNull
 
 class ActionHistoryTests {
+
+    @AfterEach
+    fun afterEach() {
+        unmockkAll()
+    }
+
     @Test
     fun `test trackActionReceiverInfo`() {
         val actionHistory = ActionHistory(TaskAction.translate)
@@ -129,7 +145,11 @@ class ActionHistoryTests {
         val actionHistory1 = ActionHistory(TaskAction.receive)
         val blobInfo1 = BlobAccess.BlobInfo(MimeFormat.CSV, "myUrl", byteArrayOf(0x11, 0x22))
         val payloadName = "quux"
-        actionHistory1.trackExternalInputReport(report1, blobInfo1, payloadName)
+        actionHistory1.trackExternalInputReport(
+            report1,
+            blobInfo1,
+            payloadName
+        )
         assertNotNull(actionHistory1.reportsReceived[report1.id])
         val reportFile = actionHistory1.reportsReceived[report1.id]!!
         assertThat(reportFile.schemaName).isEqualTo("one")
@@ -143,7 +163,12 @@ class ActionHistoryTests {
         assertThat(actionHistory1.action.externalName).isEqualTo(payloadName)
 
         // not allowed to track the same report twice.
-        assertFailure { actionHistory1.trackExternalInputReport(report1, blobInfo1) }
+        assertFailure {
+            actionHistory1.trackExternalInputReport(
+                report1,
+                blobInfo1
+            )
+        }
     }
 
     @Test
@@ -324,9 +349,14 @@ class ActionHistoryTests {
             "http://blobUrl",
             "".toByteArray()
         )
+        every { BlobAccess.downloadBlob(any(), any()) } returns ""
         val mockAzureEventService = mockk<AzureEventService>()
         every { mockAzureEventService.trackEvent(any()) } returns Unit
         val mockReportEventService = mockk<ReportStreamEventService>()
+        val mockReportService = mockk<ReportService>()
+        every {
+            mockReportService.getReportForItemAtTask(any(), any(), any())
+        } returns mockk<ReportFile>(relaxed = true)
         every {
             mockReportEventService.getReportEventData(
                 any<UUID>(),
@@ -342,17 +372,37 @@ class ActionHistoryTests {
             Topic.TEST,
             "http://blobUrl",
             TaskAction.send,
-            OffsetDateTime.now()
+            OffsetDateTime.now(),
+            ""
         )
         every {
-            mockReportEventService.sendReportEvent(any(), any<ReportFile>(), any(), any())
+            mockReportEventService.sendReportEvent(any(), any<ReportFile>(), any(), any(), any())
         } returns Unit
+        every { mockReportEventService.sendItemEvent(any(), any<ReportFile>(), any(), any(), any()) } returns Unit
+        mockkObject(Report)
+        mockkObject(FhirTranscoder)
+        every { FhirTranscoder.decode(any(), any()) } returns mockk<Bundle>()
+        mockkConstructor(BundleDigestExtractor::class)
+        every { anyConstructed<BundleDigestExtractor>().generateDigest(any()) } returns mockk<BundleDigest>()
         val header = mockk<WorkflowEngine.Header>()
         val inReportFile = mockk<ReportFile>()
         every { header.reportFile } returns inReportFile
         every { header.content } returns "".toByteArray()
         every { inReportFile.itemCount } returns 15
         every { inReportFile.reportId } returns uuid
+        every { Report.createItemLineagesFromDb(any(), any()) } returns listOf(
+            ItemLineage(
+            1,
+            header.reportFile.reportId,
+            1,
+            uuid,
+            1,
+            "",
+            "",
+            OffsetDateTime.now(),
+            ""
+        )
+        )
         val orgReceiver = org.receivers[0]
         val actionHistory1 = ActionHistory(TaskAction.receive)
         actionHistory1.action
@@ -364,6 +414,7 @@ class ActionHistoryTests {
             "result1",
             header,
             mockReportEventService,
+            mockReportService,
             ""
         )
         assertThat(actionHistory1.reportsOut[uuid]).isNotNull()
@@ -382,7 +433,8 @@ class ActionHistoryTests {
         assertThat(reportFile.itemCount).isEqualTo(15)
         assertThat(actionHistory1.action.externalName).isEqualTo("filename1")
         verify(exactly = 1) {
-            mockReportEventService.sendReportEvent(any(), any<ReportFile>(), any(), any())
+            mockReportEventService.sendReportEvent(any(), any<ReportFile>(), any(), any(), any())
+            mockReportEventService.sendItemEvent(any(), any<ReportFile>(), any(), any(), any())
         }
         // not allowed to track the same report twice.
         assertFailure {
@@ -394,6 +446,7 @@ class ActionHistoryTests {
                 "result1",
                 header,
                 mockReportEventService,
+                mockReportService,
                 ""
             )
         }
@@ -427,6 +480,10 @@ class ActionHistoryTests {
         val mockAzureEventService = mockk<AzureEventService>()
         every { mockAzureEventService.trackEvent(any()) } returns Unit
         val mockReportEventService = mockk<ReportStreamEventService>()
+        val mockReportService = mockk<ReportService>()
+        every {
+            mockReportService.getReportForItemAtTask(any(), any(), any())
+        } returns mockk<ReportFile>(relaxed = true)
         every {
             mockReportEventService.getReportEventData(
                 any<UUID>(),
@@ -442,22 +499,44 @@ class ActionHistoryTests {
             Topic.TEST,
             "http://blobUrl",
             TaskAction.send,
-            OffsetDateTime.now()
+            OffsetDateTime.now(),
+            ""
         )
         mockkObject(BlobAccess.Companion)
+        mockkObject(BlobUtils)
         val blobUrls = mutableListOf<String>()
         every { BlobAccess.uploadBlob(capture(blobUrls), any()) } returns "http://blobUrl"
-        every { BlobAccess.sha256Digest(any()) } returns byteArrayOf()
+        every { BlobUtils.sha256Digest(any<ByteArray>()) } returns byteArrayOf()
         every { BlobAccess.uploadBody(any(), any(), any(), any(), Event.EventAction.NONE) } answers { callOriginal() }
+        every { BlobAccess.downloadBlob(any(), any()) } returns ""
+        mockkObject(Report)
+        mockkObject(FhirTranscoder)
+        every { FhirTranscoder.decode(any(), any()) } returns mockk<Bundle>()
+        mockkConstructor(BundleDigestExtractor::class)
+        every { anyConstructed<BundleDigestExtractor>().generateDigest(any()) } returns mockk<BundleDigest>()
         val header = mockk<WorkflowEngine.Header>()
         every {
-            mockReportEventService.sendReportEvent(any(), any<ReportFile>(), any(), any())
+            mockReportEventService.sendReportEvent(any(), any<ReportFile>(), any(), any(), any())
         } returns Unit
+        every { mockReportEventService.sendItemEvent(any(), any<ReportFile>(), any(), any(), any()) } returns Unit
         val inReportFile = mockk<ReportFile>()
         every { header.reportFile } returns inReportFile
         every { header.content } returns "".toByteArray()
         every { inReportFile.itemCount } returns 15
         every { inReportFile.reportId } returns uuid
+        every { Report.createItemLineagesFromDb(any(), any()) } returns listOf(
+            ItemLineage(
+            1,
+            header.reportFile.reportId,
+            1,
+            uuid,
+            1,
+            "",
+            "",
+            OffsetDateTime.now(),
+            ""
+        )
+        )
         val actionHistory1 = ActionHistory(TaskAction.receive)
 
         actionHistory1.trackSentReport(
@@ -468,6 +547,7 @@ class ActionHistoryTests {
             "result1",
             header,
             mockReportEventService,
+            mockReportService,
             ""
         )
         assertThat(actionHistory1.reportsOut[uuid]).isNotNull()
@@ -484,13 +564,15 @@ class ActionHistoryTests {
             "result1",
             header,
             mockReportEventService,
+            mockReportService,
             ""
         )
         assertThat(actionHistory2.reportsOut[uuid]).isNotNull()
         assertThat(actionHistory2.reportsOut[uuid]?.schemaName)
             .isEqualTo("STED/NESTED/STLTs/REALLY_LONG_STATE_NAME/REALLY_LONG_STATE_NAME")
         verify(exactly = 2) {
-            mockReportEventService.sendReportEvent(any(), any<ReportFile>(), any(), any())
+            mockReportEventService.sendReportEvent(any(), any<ReportFile>(), any(), any(), any())
+            mockReportEventService.sendItemEvent(any(), any<ReportFile>(), any(), any(), any())
         }
     }
 
@@ -666,6 +748,10 @@ class ActionHistoryTests {
         val mockAzureEventService = mockk<AzureEventService>()
         every { mockAzureEventService.trackEvent(any()) } returns Unit
         val mockReportEventService = mockk<ReportStreamEventService>()
+        val mockReportService = mockk<ReportService>()
+        every {
+            mockReportService.getReportForItemAtTask(any(), any(), any())
+        } returns mockk<ReportFile>(relaxed = true)
         every {
             mockReportEventService.getReportEventData(
                 any<UUID>(),
@@ -681,22 +767,44 @@ class ActionHistoryTests {
             Topic.TEST,
             "http://blobUrl",
             TaskAction.send,
-            OffsetDateTime.now()
+            OffsetDateTime.now(),
+            ""
         )
         mockkObject(BlobAccess.Companion)
+        mockkObject(BlobUtils)
+        mockkObject(Report)
         val blobUrls = mutableListOf<String>()
         every { BlobAccess.uploadBlob(capture(blobUrls), any()) } returns "http://blobUrl"
-        every { BlobAccess.sha256Digest(any()) } returns byteArrayOf()
+        every { BlobUtils.sha256Digest(any()) } returns byteArrayOf()
         every { BlobAccess.uploadBody(any(), any(), any(), any(), Event.EventAction.NONE) } answers { callOriginal() }
+        every { BlobAccess.downloadBlob(any(), any()) } returns ""
+        mockkObject(FhirTranscoder)
+        every { FhirTranscoder.decode(any(), any()) } returns mockk<Bundle>()
+        mockkConstructor(BundleDigestExtractor::class)
+        every { anyConstructed<BundleDigestExtractor>().generateDigest(any()) } returns mockk<BundleDigest>()
         val header = mockk<WorkflowEngine.Header>()
         every {
-            mockReportEventService.sendReportEvent(any(), any<ReportFile>(), any(), any())
+            mockReportEventService.sendReportEvent(any(), any<ReportFile>(), any(), any(), any())
         } returns Unit
+        every { mockReportEventService.sendItemEvent(any(), any<ReportFile>(), any(), any(), any()) } returns Unit
         val inReportFile = mockk<ReportFile>()
         every { header.reportFile } returns inReportFile
         every { header.content } returns "".toByteArray()
         every { inReportFile.itemCount } returns 15
         every { inReportFile.reportId } returns uuid
+        every { Report.createItemLineagesFromDb(any(), any()) } returns listOf(
+            ItemLineage(
+            1,
+            header.reportFile.reportId,
+            1,
+            uuid,
+            1,
+            "",
+            "",
+            OffsetDateTime.now(),
+            ""
+        )
+        )
         val actionHistory1 = ActionHistory(TaskAction.receive)
         actionHistory1.action
         actionHistory1.trackSentReport(
@@ -707,6 +815,7 @@ class ActionHistoryTests {
             "result1",
             header,
             mockReportEventService,
+            mockReportService,
             ""
         )
         assertThat(actionHistory1.reportsOut[uuid]).isNotNull()
@@ -720,6 +829,7 @@ class ActionHistoryTests {
             "result1",
             header,
             mockReportEventService,
+            mockReportService,
             ""
         )
         assertThat(actionHistory2.reportsOut[uuid2]).isNotNull()
@@ -727,7 +837,8 @@ class ActionHistoryTests {
         assertContains(blobUrls[0], org.receivers[0].fullName)
         assertContains(blobUrls[1], org.receivers[1].fullName)
         verify(exactly = 2) {
-            mockReportEventService.sendReportEvent(any(), any<ReportFile>(), any(), any())
+            mockReportEventService.sendReportEvent(any(), any<ReportFile>(), any(), any(), any())
+            mockReportEventService.sendItemEvent(any(), any<ReportFile>(), any(), any(), any())
         }
     }
 

@@ -1,5 +1,6 @@
 package gov.cdc.prime.router.fhirengine.translation.hl7
 
+import fhirengine.engine.CustomFhirPathFunctions
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.ConfigSchemaElementProcessingException
@@ -23,7 +24,14 @@ import org.hl7.fhir.r4.model.Property
  */
 class FhirTransformer(
     private val schemaRef: FhirTransformSchema,
-) : ConfigSchemaProcessor<Bundle, Bundle, FhirTransformSchema, FhirTransformSchemaElement>(schemaRef) {
+    errors: MutableList<String> = mutableListOf(),
+    warnings: MutableList<String> = mutableListOf(),
+) : ConfigSchemaProcessor<
+        Bundle,
+        Bundle,
+        FhirTransformSchema,
+        FhirTransformSchemaElement
+    >(schemaRef, errors, warnings) {
     private val extensionRegex = """^extension\(["'](?<extensionUrl>[^'"]+)["']\)""".toRegex()
     private val valueXRegex = Regex("""value[A-Z][a-z]*""")
     private val indexRegex = Regex("""(?<child>.*)\[%?(?<indexVar>[0-9A-Za-z]*)\]""")
@@ -35,10 +43,14 @@ class FhirTransformer(
         schema: String,
         blobConnectionInfo: BlobAccess.BlobContainerMetadata = BlobAccess.BlobContainerMetadata.build(
             "metadata",
-            Environment.get().blobEnvVar
+            Environment.get().storageEnvVar
         ),
+        errors: MutableList<String> = mutableListOf(),
+        warnings: MutableList<String> = mutableListOf(),
     ) : this(
         schemaRef = fhirTransformSchemaFromFile(schema, blobConnectionInfo),
+        errors = errors,
+        warnings = warnings
     )
 
     /**
@@ -49,6 +61,12 @@ class FhirTransformer(
         transformWithSchema(schemaRef, bundle = input, focusResource = input)
         return input
     }
+
+    class BundleWithMessages(
+        var bundle: Bundle,
+        val warnings: MutableList<String>,
+        val errors: MutableList<String>,
+    )
 
     override fun checkForEquality(converted: Bundle, expectedOutput: Bundle): Boolean {
         return converted.equalsDeep(expectedOutput)
@@ -62,7 +80,7 @@ class FhirTransformer(
         schema: FhirTransformSchema,
         bundle: Bundle,
         focusResource: Base,
-        context: CustomContext = CustomContext(bundle, focusResource),
+        context: CustomContext = CustomContext(bundle, focusResource, customFhirFunctions = CustomFhirPathFunctions()),
         debug: Boolean = false,
     ) {
         val logLevel = if (debug) Level.INFO else Level.DEBUG
@@ -106,6 +124,7 @@ class FhirTransformer(
             debugMsg += "resource: NONE"
         }
 
+        val warnings = mutableListOf<String>()
         val eligibleFocusResources =
             focusResources.filter { canEvaluate(element, bundle, it, focusResource, elementContext) }
         when (element.action) {
@@ -113,9 +132,13 @@ class FhirTransformer(
                 eligibleFocusResources.forEach { singleFocusResource ->
                     elementContext.focusResource = singleFocusResource
                     val value = getValue(element, bundle, singleFocusResource, elementContext)
+                    val function = element.function
+                    if (value != null && function != null) {
+                        throw SchemaException("Element can only set function or value")
+                    }
+                    val bundleProperty = element.bundleProperty
+                        ?: throw SchemaException("bundleProperty must be set for element ${element.name}")
                     if (value != null) {
-                        val bundleProperty = element.bundleProperty
-                            ?: throw SchemaException("bundleProperty must be set for element ${element.name}")
                         updateBundle(
                             bundleProperty,
                             value,
@@ -123,9 +146,22 @@ class FhirTransformer(
                             bundle,
                             singleFocusResource
                         )
+                    } else if (function != null) {
+                        updateBundle(
+                            bundleProperty,
+                            function,
+                            elementContext,
+                            bundle,
+                            singleFocusResource
+                        )
                     } else {
                         logger.warn(
-                            "Element ${element.name} is updating a bundle property, but did not specify a value"
+                            "Element ${element.name} is updating a bundle property," +
+                                " but did not specify a value or function"
+                        )
+                        warnings.add(
+                            "Element ${element.name} is updating a bundle property, " +
+                            "but did not specify a value"
                         )
                     }
                     debugMsg += "condition: true, resourceType: ${singleFocusResource.fhirType()}, " +
@@ -297,7 +333,32 @@ class FhirTransformer(
             focusResource,
             null
         )
-        setBundleProperty(penultimateElements, lastElement, value)
+        setBundleProperty(penultimateElements, lastElement, value, context)
+    }
+
+    /**
+     * Updates a bundle by setting a value at a specified spot
+     *
+     * @param bundleProperty the property to update
+     * @param function the function to apply to the bundle property
+     * @param context the context to evaluate the bundle under
+     * @param focusResource the focus resource for any FHIR path evaluations
+     */
+    internal fun updateBundle(
+        bundleProperty: String,
+        function: String,
+        context: CustomContext,
+        bundle: Bundle,
+        focusResource: Base,
+    ) {
+        val (lastElement, penultimateElements) = createMissingElementsInBundleProperty(
+            bundleProperty,
+            context,
+            bundle,
+            focusResource,
+            null
+        )
+        applyFunction(penultimateElements, lastElement, function, context, bundle)
     }
 
     /**
@@ -349,7 +410,29 @@ class FhirTransformer(
             focusResource,
             appendToElements
         )
-        setBundleProperty(bundlePenultimateElements, lastBundlePropertyElement, value)
+        setBundleProperty(bundlePenultimateElements, lastBundlePropertyElement, value, context)
+    }
+
+    /**
+     * Updates a list of [Base] by applying the passed FHIR [function]
+     *
+     * @param elementsToUpdate the list of [Base] to update
+     * @param propertyName the property to set on each element
+     * @param function the function to apply
+     */
+    private fun applyFunction(
+        elementsToUpdate: List<Base>,
+        propertyName: String,
+        function: String,
+        context: CustomContext,
+        bundle: Bundle,
+    ) {
+        elementsToUpdate.forEach { penultimateElement ->
+            val propertyInfo = extractChildProperty(propertyName, context, penultimateElement)
+            FhirPathUtils.evaluate(
+                context, penultimateElement, bundle, "%resource.${propertyInfo.propertyString}.$function"
+            )
+        }
     }
 
     /**
@@ -363,13 +446,18 @@ class FhirTransformer(
         elementsToUpdate: List<Base>,
         propertyName: String,
         value: Base,
+        context: CustomContext,
     ) {
         elementsToUpdate.forEach { penultimateElement ->
+            val propertyInfo = extractChildProperty(propertyName, context, penultimateElement)
+            if (propertyInfo.index != null) {
+                throw SchemaException("Schema is attempting to set a value for a particular index which is not allowed")
+            }
             val property = penultimateElement.getNamedProperty(propertyName)
             val newValue = FhirBundleUtils.convertFhirType(value, value.fhirType(), property.typeCode, logger)
-            penultimateElement.setProperty(propertyName, newValue.copy())
+                penultimateElement.setProperty(propertyName, newValue.copy())
+            }
         }
-    }
 
     private fun createMissingElementsInBundleProperty(
         fhirPath: String,

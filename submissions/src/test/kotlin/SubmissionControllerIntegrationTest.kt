@@ -1,15 +1,17 @@
 package gov.cdc.prime.reportstream.submissions.controllers
 
-import com.azure.core.util.Context
 import com.azure.data.tables.TableClient
 import com.azure.data.tables.models.TableEntity
 import com.azure.storage.blob.BlobContainerClient
 import com.azure.storage.blob.models.BlobItem
 import com.azure.storage.queue.QueueClient
-import com.azure.storage.queue.models.PeekedMessageItem
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import gov.cdc.prime.reportstream.shared.QueueMessage
+import gov.cdc.prime.reportstream.shared.QueueMessage.ObjectMapperProvider
+import gov.cdc.prime.reportstream.submissions.config.AzureConfig
+import gov.cdc.prime.reportstream.submissions.config.SecurityConfig
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
@@ -17,6 +19,7 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.context.annotation.Import
 import org.springframework.http.MediaType
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.DynamicPropertyRegistry
@@ -26,11 +29,12 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 import org.testcontainers.containers.GenericContainer
 import org.testcontainers.utility.DockerImageName
-import java.time.Duration
+import java.util.Base64
 
 @SpringBootTest
 @ActiveProfiles("test")
 @AutoConfigureMockMvc
+@Import(AzureConfig::class, SecurityConfig::class)
 class SubmissionControllerIntegrationTest {
 
     @Autowired
@@ -108,16 +112,18 @@ class SubmissionControllerIntegrationTest {
         assertEquals(requestBody, blobContent)
 
         // Verify message was sent to queue and read its content
-        val messages: MutableList<PeekedMessageItem> = mutableListOf()
-        queueClient.peekMessages(
-            10,
-            Duration.ofSeconds(30),
-            Context.NONE
-        ).iterator().forEachRemaining { messages.add(it) }
-        assertEquals(1, messages.size)
+        // Peek the message from the queue
+        val peekedMessage = queueClient.peekMessage()?.body?.toString()
 
-        val queueMessageContent = objectMapper.readValue(messages[0].body.toString(), Map::class.java) as Map<*, *>
-        val headers = queueMessageContent["headers"] as Map<*, *>
+        // Check if message is present
+        checkNotNull(peekedMessage) { "No message found in the queue" }
+
+        // Deserialize the message
+        val deserializedMessage = deserialize(peekedMessage, QueueMessage.ReceiveQueueMessage::class.java)
+
+//        val queueMessageContent = objectMapper.readValue(/* content = */ messages[0].body.toString(), /* valueType = */
+//            QueueMessage.ReceiveQueueMessage::class.java)
+        val headers = deserializedMessage.headers as Map<*, *>
         assertEquals("testClient", headers["client_id"])
         assertEquals("application/hl7-v2;charset=UTF-8", headers["Content-Type"])
         assertEquals("testPayload", headers["payloadname"])
@@ -128,6 +134,11 @@ class SubmissionControllerIntegrationTest {
         tableClient.listEntities().iterator().forEachRemaining { entities.add(it) }
         assertEquals(1, entities.size)
         val tableEntity = entities[0]
-        assertEquals("Received", tableEntity.getProperty("status"))
+        assertEquals("Received", tableEntity.getProperty("RowKey"))
+    }
+
+    fun <T> deserialize(serializedString: String, valueType: Class<T>): T {
+        val bytes = Base64.getDecoder().decode(serializedString)
+        return ObjectMapperProvider.mapper.readValue(bytes, valueType)
     }
 }

@@ -115,6 +115,15 @@ updates:
     directory: "/.github/actions/az-cost"
     schedule:
       interval: "daily"
+  - package-ecosystem: "github-actions"
+    directory: "/.github/actions/build-submissions"
+    schedule:
+      interval: "daily"
+
+  - package-ecosystem: "github-actions"
+    directory: "/.github/actions/action-connect-ovpn"
+    schedule:
+      interval: "daily"
 
   # Frontend
   - package-ecosystem: "npm"
@@ -312,6 +321,17 @@ updates:
   # submissions
   - package-ecosystem: "gradle"
     directory: "/submissions"
+    open-pull-requests-limit: 100
+    schedule:
+      interval: "weekly"
+      day: "sunday"
+      time: "04:17"
+      timezone: "US/Eastern"
+    rebase-strategy: "disabled"
+
+  # auth
+  - package-ecosystem: "gradle"
+    directory: "/auth"
     open-pull-requests-limit: 100
     schedule:
       interval: "weekly"

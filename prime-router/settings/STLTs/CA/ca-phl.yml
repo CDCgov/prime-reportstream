@@ -14,11 +14,12 @@
 - name: "ca-phl"
   description: "California Public Health Lab"
   jurisdiction: "STATE"
-  stateCode: "AL"
+  stateCode: "CA"
   senders:
     - name: "etor-nbs-results"
       organizationName: "ca-phl"
       topic: "etor-ti"
       customerStatus: "active"
+      schemaName: "classpath:/metadata/fhir_transforms/senders/Flexion/cdph-nbs-sender-transform.yml"
       format: "HL7"
   receivers: []
