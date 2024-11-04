@@ -94,6 +94,7 @@ jobs:
           echo "Installing Pa11y"
           npm install -g \
             pa11y@8.0.0 \
+            puppeteer@22.8.2 \
             --no-save
 
       - name: Run Pa11y Check # Pa11y is configured in frontend-react/.pa11yci
