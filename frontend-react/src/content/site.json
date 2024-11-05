@@ -62,8 +62,11 @@
     }
   },
   "external": {
-    "nistValidationTool": {
+    "nistValidationSuite": {
       "url": "https://hl7v2-elr-testing.nist.gov/mu-elr/"
+    },
+    "nistGeneralValidationTool": {
+      "url": "https://hl7v2-gvt.nist.gov/gvt/#/home"
     }
   }
 }
