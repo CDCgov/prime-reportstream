@@ -128,6 +128,24 @@ elements:
     resource: '%resource.extension(%`rsext-obx-observation`)'
     schema: classpath:/metadata/hl7_mapping/resources/Observation/OBXExtension.yml
 
+  # the specimen field in FHIR does not repeat so an extension is needed to capture additional specimen identifiers
+  # as such, use the extension when it is populated
+  - name: obx-related-specimen-identifier
+    resource: '%resource.specimen.resolve().identifier.where(extension(%`rsext-hl7v2Component`).value = "SPM.2.1")'
+    condition: '%resource.extension.where(url = "OBX.33").exists().not()'
+    constants:
+      eipFieldPath: '%{hl7OBXField}-33'
+    schema: classpath:/metadata/hl7_mapping/datatypes/identifier-placerAssignedIdentifier/EIP.yml
+
+  - name: obx-related-specimen-identifier-backup
+    resource: '%resource.specimen.resolve().identifier.where(extension(%`rsext-hl7v2Component`).value = "SPM.2.2")'
+    condition: >
+      %resource.specimen.resolve().identifier.where(extension(%`rsext-hl7v2Component`).value = "SPM.2.1").exists().not() and
+      %resource.extension.where(url = "OBX.33").exists().not()
+    constants:
+      eipFieldPath: '%{hl7OBXField}-33'
+    schema: classpath:/metadata/hl7_mapping/datatypes/identifier-fillerAssignedIdentifier/EIP.yml
+
   - name: observation-note
     resource: '%resource.note'
     schema: classpath:/metadata/hl7_mapping/datatypes/annotation/NTE.yml

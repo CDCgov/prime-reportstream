@@ -128,4 +128,15 @@ class OBXToObservationTests {
             ).passed
         )
     }
+
+    @Test
+    fun `test correctly handles OBX-33`() {
+        assert(verifyHL7ToFHIRToHL7Mapping("catchall/obx/OBX-to-Observation-obx-33").passed)
+        assert(
+            verifyHL7ToFHIRToHL7Mapping(
+                "catchall/obx/OBX-to-Observation-obx-33-no-extension",
+                skipHl7ToFhir = true
+            ).passed
+        )
+    }
 }

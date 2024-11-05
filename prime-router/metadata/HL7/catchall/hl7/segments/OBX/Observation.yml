@@ -524,14 +524,3 @@ focus:
   expressionType: resource
   specs: $Specimen
   useGroup: true
-
-specimen:
-  valueOf: datatype/Reference
-  expressionType: resource
-  specs: $Specimen
-  condition: $refPlacerSpecimen EQUALS $specimenPlacerIdentifier || $refFillerSpecimen EQUALS $specimenFillerIdentifier
-  vars:
-    specimenPlacerIdentifier: OBX.33.1
-    specimenFillerIdentifier: OBX.33.4
-    refPlacerSpecimen: $BASE_VALUE, GeneralUtils.extractAttribute(refSpecimen,"$.identifier[?(@.type.code==\"PGN\")].value","String")
-    refFillerSpecimen: $BASE_VALUE, GeneralUtils.extractAttribute(refSpecimen,"$.identifier[?(@.type.code==\"FGN\")].value","String")
