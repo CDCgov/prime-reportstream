@@ -176,7 +176,7 @@ output here: `/prime-router/build/sftp`
 
 ### 5. Create access to the Download site
 
-* If the organization has elected for download access, set up an Okta account.
+* If the organization has elected for download access, [set up an Okta account](./okta-account-creation.md).
 * If you are testing in Test, obviously you'll need to set up access to that download site.
 
 ### 6. Validation in Prod

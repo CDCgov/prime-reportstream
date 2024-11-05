@@ -37,27 +37,15 @@ const isCI = Boolean(process.env.CI);
 const frontendWarningsPath = join(e2eDataPath, "frontend-warnings.json");
 const isMockDisabled = Boolean(process.env.MOCK_DISABLED);
 
-function createLogins<const T extends string[]>(
-    loginTypes: T,
-): {
-    [K in T extends readonly (infer U)[] ? U : never]: {
-        username: string;
-        password: string;
-        totpCode: string;
-        path: string;
-    };
-} {
+function createLogins<const T extends string[]>(loginTypes: T): Record<string, TestLogin> {
     const logins = Object.fromEntries(
         loginTypes.map((type) => {
             const username = process.env[`TEST_${type.toUpperCase()}_USERNAME`];
             const password = process.env[`TEST_${type.toUpperCase()}_PASSWORD`];
-            const totpCode =
-                process.env[`TEST_${type.toUpperCase()}_TOTP_CODE`];
+            const totpCode = process.env[`TEST_${type.toUpperCase()}_TOTP_CODE`];
 
-            if (!username)
-                throw new TypeError(`Missing username for login type: ${type}`);
-            if (!password)
-                throw new TypeError(`Missing password for login type: ${type}`);
+            if (!username) throw new TypeError(`Missing username for login type: ${type}`);
+            if (!password) throw new TypeError(`Missing password for login type: ${type}`);
 
             return [
                 type,
@@ -70,7 +58,7 @@ function createLogins<const T extends string[]>(
             ];
         }),
     );
-    return logins as any;
+    return logins as Record<string, TestLogin>;
 }
 
 export const logins = createLogins(["admin", "receiver", "sender"]);
@@ -94,9 +82,4 @@ export const test = base.extend<CustomFixtures>({
     isFrontendWarningsLog: isCI,
 });
 
-export type TestArgs<P extends keyof PlaywrightAllTestArgs> = Pick<
-    PlaywrightAllTestArgs,
-    P
-> &
-    CustomFixtures;
-
+export type TestArgs<P extends keyof PlaywrightAllTestArgs> = Pick<PlaywrightAllTestArgs, P> & CustomFixtures;
