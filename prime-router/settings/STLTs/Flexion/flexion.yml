@@ -166,7 +166,7 @@
         initialTime: "00:00"
       translation:
         type: "HL7"
-        schemaName: "classpath:/metadata/hl7_mapping/receivers/Flexion/etor-oml-receiver-transform.yml"
+        schemaName: "classpath:/metadata/hl7_mapping/OML_O21/OML_O21-base.yml"
         useTestProcessingMode: false
         useBatchHeaders: false
     - name: "automated-staging-test-receiver-orders"
@@ -185,7 +185,7 @@
         initialTime: "00:00"
       translation:
         type: "HL7"
-        schemaName: "classpath:/metadata/hl7_mapping/receivers/Flexion/etor-oml-receiver-transform.yml"
+        schemaName: "classpath:/metadata/hl7_mapping/OML_O21/OML_O21-base.yml"
         useTestProcessingMode: false
         useBatchHeaders: false
       transport:
