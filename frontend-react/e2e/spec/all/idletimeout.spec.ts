@@ -44,20 +44,22 @@ const test = baseTest.extend<OrganizationPageFixtures>({
 
 test.use({ storageState: "e2e/.auth/admin.json" });
 
-test("Does not trigger early", async ({ organizationPage }) => {
-    await expect(organizationPage.page.getByRole("banner").first()).toBeVisible();
-    await organizationPage.page.keyboard.down("Tab");
+test.describe("Idle time out", () => {
+    test("Does not trigger early", async ({ organizationPage }) => {
+        await expect(organizationPage.page.getByRole("banner").first()).toBeVisible();
+        await organizationPage.page.keyboard.down("Tab");
 
-    await organizationPage.page.clock.fastForward(timeoutLow);
+        await organizationPage.page.clock.fastForward(timeoutLow);
 
-    await expect(organizationPage.page.getByRole("banner").first()).toBeVisible();
-});
+        await expect(organizationPage.page.getByRole("banner").first()).toBeVisible();
+    });
 
-test("Triggers on time", async ({ organizationPage }) => {
-    await expect(organizationPage.page.getByRole("banner").first()).toBeVisible();
-    await organizationPage.page.keyboard.down("Tab");
+    test("Triggers on time", async ({ organizationPage }) => {
+        await expect(organizationPage.page.getByRole("banner").first()).toBeVisible();
+        await organizationPage.page.keyboard.down("Tab");
 
-    await organizationPage.page.clock.fastForward(timeoutHigh);
+        await organizationPage.page.clock.fastForward(timeoutHigh);
 
-    await expect(organizationPage.page.getByRole("link", { name: "Login" })).toBeVisible();
+        await expect(organizationPage.page.getByRole("link", { name: "Login" })).toBeVisible();
+    });
 });
