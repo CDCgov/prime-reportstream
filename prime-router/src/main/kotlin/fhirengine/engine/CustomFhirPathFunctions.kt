@@ -36,6 +36,7 @@ class CustomFhirPathFunctions : FhirPathFunctions {
         LivdTableLookup,
         GetFakeValueForElement,
         FIPSCountyLookup,
+        GetStateFromZipCode,
         ;
 
         companion object {
@@ -84,6 +85,14 @@ class CustomFhirPathFunctions : FhirPathFunctions {
                 )
             }
 
+            CustomFhirPathFunctionNames.GetStateFromZipCode -> {
+                FunctionDetails(
+                    "Looks up the states that match the given zip code",
+                    0,
+                    0
+                )
+            }
+
             else -> null
         }
     }
@@ -109,6 +118,9 @@ class CustomFhirPathFunctions : FhirPathFunctions {
                 }
                 CustomFhirPathFunctionNames.FIPSCountyLookup -> {
                     fipsCountyLookup(parameters)
+                }
+                CustomFhirPathFunctionNames.GetStateFromZipCode -> {
+                    getStateFromZipCode(focus)
                 }
                 else -> error(IllegalStateException("Tried to execute invalid FHIR Path function $functionName"))
             }
@@ -352,5 +364,25 @@ class CustomFhirPathFunctions : FhirPathFunctions {
         } else {
             mutableListOf(StringType(parameters.first().first().primitiveValue()))
         }
+    }
+
+    /**
+     * Returns a comma-separated string of the states that
+     * match the zip code stored in the [focus] element.
+     * @return a mutable list containing the state abbreviations
+     */
+    fun getStateFromZipCode(
+        focus: MutableList<Base>,
+        metadata: Metadata = Metadata.getInstance(),
+    ): MutableList<Base> {
+        val lookupTable = metadata.findLookupTable("zip-code-data")
+        var filters = lookupTable?.FilterBuilder() ?: error("Could not find table zip-code-data")
+
+        val zipCode = focus[0].primitiveValue()
+        filters = filters.isEqualTo("zipcode", zipCode)
+        val result = filters.findAllUnique("state_abbr")
+
+        val stateList = result.joinToString(",")
+        return mutableListOf(StringType(stateList))
     }
 }
