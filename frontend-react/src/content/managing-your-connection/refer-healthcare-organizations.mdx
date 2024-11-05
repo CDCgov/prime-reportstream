@@ -11,6 +11,7 @@ meta:
 backToTop: true
 ---
 import Sidenav from "./sidenav.mdx";
+import site from "../site.json";
 
 <LayoutSidenav>
 <Sidenav/>
@@ -68,7 +69,7 @@ You don’t have to track the varying needs of different jurisdictions.
 
 **Choose your platform and get started:**
 
-- To send ELR data through HL7 or FHIR: [Contact ReportStream](https://app.smartsheetgov.com/b/form/48f580abb9b440549b1a9cf996ba6957) and learn more at [reportstream.cdc.gov](https://reportstream.cdc.gov).  
+- To send ELR data through HL7 or FHIR: <A href={site.forms.connectWithRS.url}>Contact ReportStream</A> and learn more at [reportstream.cdc.gov](https://reportstream.cdc.gov).  
 - To report through single entry or CSV upload: [Sign up for SimpleReport](https://www.simplereport.gov/getting-started/organizations-and-testing-facilities/onboard-your-organization/) and learn more at [simplereport.gov](https://simplereport.gov). 
 
 We’ve been encouraged by our work with ReportStream and SimpleReport and how they are helping other organizations. We hope it will simplify your data transfer as well.  
@@ -95,4 +96,4 @@ And you can easily report to other jurisdictions through the same, single connec
 If you’re interested, go to [reportstream.cdc.gov](https://reportstream.cdc.gov) to learn more, or email the team at [reportstream@cdc.gov](mailto:reportstream@cdc.gov).
 </SummaryBox>
 
-[Let us know](https://app.smartsheetgov.com/b/form/48f580abb9b440549b1a9cf996ba6957) if we can provide any additional content, such as a logo or more copy.
+<A href={site.forms.connectWithRS.url}>Let us know</A> if we can provide any additional content, such as a logo or more copy.

@@ -35,7 +35,8 @@ const test = baseTest.extend<SecurityPageFixtures>({
     },
 });
 
-test.describe(
+// Page currently archived
+test.describe.skip(
     "Developer Resources / API / Documentation / Sample payloads and output page",
     {
         tag: "@smoke",
