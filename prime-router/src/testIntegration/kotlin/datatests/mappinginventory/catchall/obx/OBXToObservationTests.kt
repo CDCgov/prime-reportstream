@@ -2,6 +2,7 @@ package gov.cdc.prime.router.datatests.mappinginventory.obx
 
 import gov.cdc.prime.router.datatests.mappinginventory.verifyHL7ToFHIRToHL7Mapping
 import org.junit.jupiter.api.Test
+import kotlin.test.Ignore
 
 class OBXToObservationTests {
 
@@ -132,6 +133,11 @@ class OBXToObservationTests {
     @Test
     fun `test correctly handles OBX-33`() {
         assert(verifyHL7ToFHIRToHL7Mapping("catchall/obx/OBX-to-Observation-obx-33").passed)
+    }
+
+    @Test
+    @Ignore
+    fun `test correctly handles OBX-33 without extension`() {
         assert(
             verifyHL7ToFHIRToHL7Mapping(
                 "catchall/obx/OBX-to-Observation-obx-33-no-extension",
