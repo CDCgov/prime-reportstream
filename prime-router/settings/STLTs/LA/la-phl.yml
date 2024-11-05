@@ -44,7 +44,7 @@
         maxReportCount: 100
       translation:
         type: "HL7"
-        schemaName: "classpath:/metadata/hl7_mapping/receivers/Flexion/etor-oml-receiver-transform.yml"
+        schemaName: "classpath:/metadata/hl7_mapping/OML_O21/OML_O21-base.yml"
         useBatchHeaders: false
         receivingApplicationName: "LA-PHL"
         receivingFacilityName: "LA"

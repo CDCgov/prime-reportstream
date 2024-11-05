@@ -12,7 +12,7 @@ backToTop: true
 ---
 
 import Sidenav from "./sidenav.mdx"
-import site from "../../content/site.json";
+import site from "../site.json";
 
 <LayoutSidenav>
     <Sidenav/>
@@ -86,7 +86,7 @@ Connecting to ReportStream is similar to setting up an Electronic Lab Reporting 
 
 <h2 id="anchor-what-you-need">What you need</h2>
 
-In addition to gathering your team and setting aside time for the weekly calls, you’ll need to provide us with more information about your requirements and preferences. Our [onboarding form](https://app.smartsheetgov.com/b/form/b0935d5d1e924c57b2d293b4ed0f2cd5) collects the specific details about your needs.
+In addition to gathering your team and setting aside time for the weekly calls, you’ll need to provide us with more information about your requirements and preferences. Our <A href={site.forms.intakeElr.url}>onboarding form</A> collects the specific details about your needs.
 
 Review what you need to gather to start onboarding.
 
@@ -209,7 +209,7 @@ Once you have all the information you need, submit the onboarding form. We'll ge
 <CardGroup>
     <Card gridLayout={{ tablet: { col: 4 } }}>
         <CardHeader>
-            ### <A href="/assets/pdf/ReportStream_Onepager_20240605.pdf" target="_blank">ReportStream overview PDF <Icon name='FileDownload'/></A>
+            ### <A href={site.assets.onePager.path} target="_blank">ReportStream overview PDF <Icon name='FileDownload'/></A>
         </CardHeader>
         <CardBody>
             Download a quick summary of ReportStream that you can print and share.
