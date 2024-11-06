@@ -12,7 +12,7 @@ id:
 status:
   vars:
     prt2: PRT.2
-  condition: $prt2 EQUALS "D"
+  condition: $prt2 EQUALS "D" || $prt2 EQUALS "DE"
   type: STRING
   value: "inactive"
 

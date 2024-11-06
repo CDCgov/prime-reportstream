@@ -1,15 +1,23 @@
 # $schema: ./../../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
 
+# TODO may need to reconsider this mapping structure later
 # TODO need message level conditions to be able to implement FHIR > HL7 mapping
 
 # This segment does not appear in NIST or RADx MARS
 
-resourceType: Observation
+resourceType: Location
 
 id:
   type: STRING
   valueOf: "GeneralUtils.generateResourceId()"
   expressionType: JEXL
+
+status:
+  vars:
+    prt2: PRT.2
+  condition: $prt2 EQUALS "D" || $prt2 EQUALS "DE"
+  type: STRING
+  value: "inactive"
 
 extension:
   generateList: true
