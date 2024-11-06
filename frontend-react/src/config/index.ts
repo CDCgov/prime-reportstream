@@ -4,6 +4,7 @@ import { WidgetOptions } from "@okta/okta-signin-widget";
 import type { Feature } from "@okta/okta-signin-widget";
 import type { IIdleTimerProps } from "react-idle-timer";
 
+import site from "../content/site.json";
 import type { ConsoleLevel } from "../utils/rsConsole/rsConsole";
 
 const envVars = {
@@ -118,7 +119,7 @@ const config = {
         } satisfies Partial<Record<Feature, boolean>>,
         useClassicEngine: false,
         helpLinks: {
-            help: "https://app.smartsheetgov.com/b/form/95d2f16b772c42d8aaa0ef5db28a6838",
+            help: site.forms.contactUs.url,
         },
         i18n: {
             // Overriding English properties
