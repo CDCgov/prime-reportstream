@@ -1,11 +1,13 @@
 package gov.cdc.prime.reportstream.auth.controller
 
+import com.okta.sdk.resource.api.ApplicationGroupsApi
 import gov.cdc.prime.reportstream.auth.AuthApplicationConstants
 import gov.cdc.prime.reportstream.auth.model.ApplicationStatus
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.web.reactive.server.WebTestClient
 import kotlin.test.Test
@@ -15,6 +17,7 @@ import kotlin.test.Test
 @AutoConfigureWebTestClient
 class HealthControllerTest @Autowired constructor(
     private val webTestClient: WebTestClient,
+    @MockBean private val applicationGroupsApi: ApplicationGroupsApi // mock bean to avoid instantiating Okta API client
 ) {
 
     @Test

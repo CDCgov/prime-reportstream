@@ -12,6 +12,7 @@ object AuthApplicationConstants {
         const val HEALTHCHECK_ENDPOINT_V1 = "/api/v1/healthcheck"
     }
 
+
     object Scopes {
         const val ORGANIZATION_SCOPE = "organization"
         const val SUBJECT_SCOPE = "sub"
