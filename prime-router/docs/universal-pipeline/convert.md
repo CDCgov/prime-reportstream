@@ -10,7 +10,7 @@ The convert step is executed when the [Azure AQS message](README.md#aqs-usage) r
 The first and most significant aspect of the convert step is the conversion of a message into the FHIR format. The 
 process of this conversion depends on the incoming message's format:
 
-- If the incoming message is HL7v2, ReportStream uses the [LinuxForHealth HL7 to FHIR Converter library](https://github.com/LinuxForHealth/hl7v2-fhir-converter#linuxforhealth-hl7-to-fhir-converter) with custom configurations from the [HL7 Metadata](https://github.com/CDCgov/prime-reportstream/tree/master/prime-router/metadata/HL7) to handle the conversion.
+- If the incoming message is HL7v2, ReportStream uses the [LinuxForHealth HL7 to FHIR Converter library](https://github.com/LinuxForHealth/hl7v2-fhir-converter#linuxforhealth-hl7-to-fhir-converter) with custom configurations from the [HL7 Metadata](https://github.com/CDCgov/prime-reportstream/tree/main/prime-router/metadata/HL7) to handle the conversion.
 - If the incoming message is FHIR, then there's nothing to be done.
 - Apply Sender transforms specified by Sender configuration.
 

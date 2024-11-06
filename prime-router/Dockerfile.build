@@ -52,7 +52,7 @@ COPY --from=downloader /var/downloads/gradle/ /opt/gradle/
 ENV PATH "${PATH}:/opt/gradle/bin"
 
 # Overlay the Azure Function binaries from the downloader
-# cf https://github.com/Azure/azure-functions-core-tools/blob/master/README.md#linux
+# cf https://github.com/Azure/azure-functions-core-tools/blob/main/README.md#linux
 RUN mkdir -p /opt/azure-functions
 COPY --from=downloader /var/downloads/azure-functions/ /opt/azure-functions/
 RUN chmod +x /opt/azure-functions/func /opt/azure-functions/gozip
