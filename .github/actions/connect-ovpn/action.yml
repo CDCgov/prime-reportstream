@@ -34,6 +34,16 @@ runs:
         sudo apt-get install openvpn-systemd-resolved
       shell: bash
 
+    - name: Validate OpenVPN
+      run: |
+        echo -e "\nOpenVPN Version:" ;
+        openvpn --version ;
+        echo -e "\nPinging URL: ${{ inputs.PING_URL }}" ;
+        ping -c 3 ${{ inputs.PING_URL }} ;
+        echo -e "\nIP Route:" ;
+        ip route ;
+      shell: bash
+
     - name: Connect VPN
       env:
         TLS_KEY: ${{ inputs.TLS_KEY }}
@@ -48,6 +58,8 @@ runs:
         echo "$USER_CRT" | base64 -d > user.crt
         echo "$USER_KEY" | base64 -d > user.key
         echo "$SECRET" | base64 -d > secret.txt
+
+        echo -e "sudo openvpn --config ${{ inputs.FILE_OVPN }} --daemon" ;
         sudo openvpn --config ${{ inputs.FILE_OVPN }} --daemon
 
     - name: VPN Status

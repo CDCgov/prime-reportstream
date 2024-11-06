@@ -121,7 +121,7 @@ updates:
       interval: "daily"
 
   - package-ecosystem: "github-actions"
-    directory: "/.github/actions/action-connect-ovpn"
+    directory: "/.github/actions/connect-ovpn"
     schedule:
       interval: "daily"
 
