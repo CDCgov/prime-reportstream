@@ -10,6 +10,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import gov.cdc.prime.reportstream.shared.QueueMessage
 import gov.cdc.prime.reportstream.shared.QueueMessage.ObjectMapperProvider
+import gov.cdc.prime.reportstream.shared.auth.AuthZService
 import gov.cdc.prime.reportstream.submissions.TelemetryService
 import gov.cdc.prime.reportstream.submissions.config.AllowedParametersConfig
 import gov.cdc.prime.reportstream.submissions.config.AzureConfig
@@ -35,6 +36,8 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.context.annotation.Import
 import org.springframework.http.MediaType
+import org.springframework.security.core.authority.SimpleGrantedAuthority
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
@@ -61,6 +64,9 @@ class SubmissionControllerTest {
 
     @MockBean
     private lateinit var telemetryService: TelemetryService
+
+    @MockBean
+    private lateinit var authZService: AuthZService
 
     private lateinit var objectMapper: ObjectMapper
 
@@ -125,9 +131,12 @@ class SubmissionControllerTest {
 
         `when`(blobClient.blobUrl).thenReturn(expectedBlobUrl)
         `when`(queueClient.sendMessage(anyString())).thenReturn(sendMessageResult)
+        `when`(authZService.isSenderAuthorized(org.mockito.kotlin.any(), org.mockito.kotlin.any<(String) -> String>()))
+            .thenReturn(true)
 
         mockMvc.perform(
             MockMvcRequestBuilders.post("/api/v1/reports")
+                .with(jwt().authorities(SimpleGrantedAuthority("SCOPE_sender")))
                 .content(requestBody)
                 .contentType(MediaType.valueOf("application/hl7-v2"))
                 .header("client_id", "testClient")
@@ -171,9 +180,12 @@ class SubmissionControllerTest {
 
         `when`(blobClient.blobUrl).thenReturn(expectedBlobUrl)
         `when`(queueClient.sendMessage(anyString())).thenReturn(sendMessageResult)
+        `when`(authZService.isSenderAuthorized(org.mockito.kotlin.any(), org.mockito.kotlin.any<(String) -> String>()))
+            .thenReturn(true)
 
         mockMvc.perform(
             MockMvcRequestBuilders.post("/api/v1/reports")
+                .with(jwt().authorities(SimpleGrantedAuthority("SCOPE_sender")))
                 .content(requestBody)
                 .contentType(MediaType.valueOf("application/fhir+ndjson"))
                 .header("client_id", "testClient")
@@ -205,6 +217,7 @@ class SubmissionControllerTest {
 
         mockMvc.perform(
             MockMvcRequestBuilders.post("/api/v1/reports")
+                .with(jwt().authorities(SimpleGrantedAuthority("SCOPE_sender")))
                 .content(requestBody)
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("client_id", "testClient")
@@ -221,6 +234,7 @@ class SubmissionControllerTest {
 
         mockMvc.perform(
             MockMvcRequestBuilders.post("/api/v1/reports")
+                .with(jwt().authorities(SimpleGrantedAuthority("SCOPE_sender")))
                 .content(requestBody)
                 .contentType(MediaType.valueOf("application/hl7-v2"))
                 .header("payloadname", "testPayload")
@@ -238,11 +252,14 @@ class SubmissionControllerTest {
         val data = mapOf("key" to "value")
         val requestBody = objectMapper.writeValueAsString(data)
 
+        `when`(authZService.isSenderAuthorized(org.mockito.kotlin.any(), org.mockito.kotlin.any<(String) -> String>()))
+            .thenReturn(true)
         doThrow(RuntimeException("Blob storage failure"))
             .`when`(blobClient).upload(any(ByteArrayInputStream::class.java), anyLong())
 
         mockMvc.perform(
             MockMvcRequestBuilders.post("/api/v1/reports")
+                .with(jwt().authorities(SimpleGrantedAuthority("SCOPE_sender")))
                 .content(requestBody)
                 .contentType(MediaType.parseMediaType("application/hl7-v2"))
                 .header("client_id", "testClient")
@@ -260,11 +277,14 @@ class SubmissionControllerTest {
         val data = mapOf("key" to "value")
         val requestBody = objectMapper.writeValueAsString(data)
 
+        `when`(authZService.isSenderAuthorized(org.mockito.kotlin.any(), org.mockito.kotlin.any<(String) -> String>()))
+            .thenReturn(true)
         doNothing().`when`(blobClient).upload(any(ByteArrayInputStream::class.java), anyLong())
         doThrow(RuntimeException("Queue service failure")).`when`(queueClient).sendMessage(anyString())
 
         mockMvc.perform(
             MockMvcRequestBuilders.post("/api/v1/reports")
+                .with(jwt().authorities(SimpleGrantedAuthority("SCOPE_sender")))
                 .content(requestBody)
                 .contentType(MediaType.parseMediaType("application/hl7-v2"))
                 .header("client_id", "testClient")
@@ -300,9 +320,12 @@ class SubmissionControllerTest {
         // Mock the UUID generation to ensure a predictable report ID
         val uuidMockedStatic = mockStatic(UUID::class.java)
         uuidMockedStatic.`when`<UUID> { UUID.randomUUID() }.thenReturn(reportId)
+        `when`(authZService.isSenderAuthorized(org.mockito.kotlin.any(), org.mockito.kotlin.any<(String) -> String>()))
+            .thenReturn(true)
 
         mockMvc.perform(
             MockMvcRequestBuilders.post("/api/v1/reports")
+                .with(jwt().authorities(SimpleGrantedAuthority("SCOPE_sender")))
                 .content(requestBody)
                 .contentType(MediaType.valueOf("application/hl7-v2"))
                 .header("client_id", "testClient")

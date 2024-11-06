@@ -26,11 +26,18 @@ dependencies {
 
     runtimeOnly("com.nimbusds:oauth2-oidc-sdk:11.19.1")
 
+    // okta
+    // Do not update to 19.0.0 due to breaking issue
+    // downgraded to 18.0.0 for refresh capability
+    implementation("com.okta.sdk:okta-sdk-api:18.0.0")
+    runtimeOnly("com.okta.sdk:okta-sdk-impl:18.0.0")
+
     // Swagger
     implementation("org.springdoc:springdoc-openapi-starter-webflux-ui:2.6.0")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.security:spring-security-test")
+    testImplementation("org.springframework.cloud:spring-cloud-starter-contract-stub-runner")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
     testImplementation("org.mockito.kotlin:mockito-kotlin:5.4.0")
     testImplementation("com.squareup.okhttp3:mockwebserver:4.12.0")

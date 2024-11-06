@@ -12,10 +12,8 @@ object AuthApplicationConstants {
         const val HEALTHCHECK_ENDPOINT_V1 = "/api/v1/healthcheck"
     }
 
-    /**
-     * All Submissions service endpoints defined here
-     */
-    object SubmissionsEndpoints {
-        const val REPORTS_ENDPOINT_V1 = "/api/v1/reports"
+    object Scopes {
+        const val ORGANIZATION_SCOPE = "organization"
+        const val SUBJECT_SCOPE = "sub"
     }
 }

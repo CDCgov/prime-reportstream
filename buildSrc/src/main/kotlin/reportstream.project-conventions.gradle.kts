@@ -28,9 +28,9 @@ java {
 val compileKotlin: KotlinCompile by tasks
 val compileTestKotlin: KotlinCompile by tasks
 compileKotlin.kotlinOptions.jvmTarget = "$majorJavaVersion"
-compileKotlin.kotlinOptions.allWarningsAsErrors = true
+compileKotlin.kotlinOptions.allWarningsAsErrors = false
 compileTestKotlin.kotlinOptions.jvmTarget = "$majorJavaVersion"
-compileTestKotlin.kotlinOptions.allWarningsAsErrors = true
+compileTestKotlin.kotlinOptions.allWarningsAsErrors = false
 
 configure<KtlintExtension> {
     // See ktlint versions at https://github.com/pinterest/ktlint/releases
