@@ -9,7 +9,7 @@ import java.time.OffsetDateTime
  * If it has, the auth request is rejected, to prevent replay attacks.
  *
  * Note:  DPC project implements very similar -
- * See https://github.com/CMSgov/dpc-app/blob/master/dpc-api/src/main/java/gov/cms/dpc/api/auth/jwt/IJTICache.java
+ * See https://github.com/CMSgov/dpc-app/blob/main/dpc-api/src/main/java/gov/cms/dpc/api/auth/jwt/IJTICache.java
  */
 
 abstract class JtiCache : Logging {
