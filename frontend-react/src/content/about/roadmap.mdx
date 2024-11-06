@@ -17,23 +17,27 @@ import site from "../../content/site.json"
 <Sidenav />
 </LayoutSidenav>
 
-<p className="usa-timestamp">Last updated: October 07, 2024</p>
+<p className="usa-timestamp">Last updated: October 29, 2024</p>
 
-## Objectives for FY24
-Learn about our goals and how we are measuring success for this fiscal year (FY), which runs from October 2023 through September 2024.
+## Objectives for FY25
+Learn about our goals and how we are measuring success for this fiscal year (FY), which runs from October 2024 through September 2025.
 
 <hr className="rs-hr--base-lighter-alternate" />
 
 ### Support public health entities with time-sensitive, reportable condition electronic laboratory reporting (ELR) data and broader response readiness.
 * 100% of the 64 <A href="https://www.cdc.gov/epidemiology-laboratory-capacity/php/about/" target="_blank">ELC-funded</A> state, tribal, local, or territorial public health agencies (STLTs) are connected to ReportStream.
-* At least 15 <A href="https://www.cdc.gov/epidemiology-laboratory-capacity/php/about/" target="_blank">ELC-funded</A> STLTs receive live data for two or more reportable conditions from ReportStream via ELR.
-* Complete connection updates for all STLTs currently receiving COVID data so they are able to receive more conditions.
-* Begin updating the connection of organizations sending COVID data so they are able to send additional conditions through ReportStream.
-* Identify one or more new health care organizations, labs, or testing facilities for collaboration on their data reporting needs.
+* Connect at least 5 new healthcare organizations to ReportStream for sending all of their reportable conditions. 
+* Route lab data for at least 15 reportable conditions. 
+* Complete connection updates for all healthcare organizations and STLTs currently receiving COVID data so they are able to send or receive data for more conditions.  
+* Build basic functionality to allow ReportStream to ingest CSV via an API for conditions beyond COVID. 
 
-### Pilot faster, simpler electronic test orders and results (ETOR) data transfer with federal and state public health labs.
-* Complete successful test delivery of ELR from CDC’s infectious disease labs to STLTs.
-* Support pilots for newborn screening ETOR with one or more hospital systems and state public health labs.
+### Facilitate simple, efficient reporting for additional core public health data sources and public health systems.
+* Route hospitalization data from at least one healthcare organization to the CDC <A href="https://www.cdc.gov/nssp/index.html">National Syndromic Surveillance Program</A> (NSSP). 
+* Route hospitalization data from at least one healthcare organization to one STLT. 
+* Connect ReportStream to one federal healthcare system outside of the CDC. 
+* Participate in CDC <A href="https://www.cdc.gov/one-health/index.html">One Health</A> activities and/or CDC <A href="https://emergency.cdc.gov/lrn/">Laboratory Response Network</A>. 
+* Connect ReportStream to three third-party standards/services. 
+* Meet the needs of senders and STLTs by routing data in accordance with the HL7 LRI/LOI spec. 
 
 ## Roadmap
 <hr className="rs-hr--base-lighter-alternate" />
@@ -42,11 +46,11 @@ Learn about our goals and how we are measuring success for this fiscal year (FY)
     isDivided={false}
     sections={[
         {
-            title: "Enable STLTs to use ReportStream for conditions beyond COVID and mpox.",
+            title: "Strengthen response readiness by enabling healthcare organizations and STLTs to use ReportStream for conditions beyond COVID and mpox.",
             tag: "recently-completed",
             body: (
                 <p>
-                    Arkansas, Florida, Guam, Idaho, Illinois, Louisiana, Maine, Massachusetts, Minnesota, and Oklahoma are able to receive flu and RSV data from ReportStream.
+                    Alabama, Maine, Missouri, Montana and South Dakota are able to receive flu and RSV data from ReportStream.
                 </p>
             ),
         },
@@ -54,85 +58,85 @@ Learn about our goals and how we are measuring success for this fiscal year (FY)
             tag: "working-on-now",
             body: (
                 <p>
-                    Onboard or update connections for Alabama, Connecticut, Delaware, Indiana, Iowa, Kentucky, Michigan, Mississippi, Missouri, Montana, New Hampshire, New Jersey, New Mexico, Ohio, Pennsylvania, Puerto Rico, Republic of Marshall Islands, South Dakota, Tennessee, Vermont, Virginia, Washington, Washington D.C., and Wyoming.
+                    Onboard or update current connections for Delaware, New Jersey, Ohio, and Pennsylvania.
                 </p>
             ),
         },
         {
             tag: "next",
             body: (
-                <p>Support remaining STLTs to connect or update their connections to be able to receive additional conditions.</p>
+                <p>Onboard or update connections for American Samoa, Connecticut, Indiana, Iowa, Kentucky, Michigan, Mississippi, New Hampshire, New Mexico, Puerto Rico, Republic of Marshall Islands, Tennessee, Utah, Vermont, Virginia, Washington, Washington D.C., and Wyoming.</p>
+            ),
+        },
+        ,
+        {
+            tag: "next",
+            body: (
+                <p>Onboard 3 senders to ReportStream sending all of their ELR reportable conditions.</p>
             ),
         },
         {
-            title:<p>Partner with <A href="https://www.simplereport.gov/">SimpleReport</A> to help nontraditional and lower-resourced testing sites and facilities report test results and send data to STLTs and the CDC.</p>,
+            title:<p>Route live hospitalization data from a healthcare system to a STLT and the CDC National Syndromic Surveillance Program (NSSP).</p>,
             tag: "recently-completed",
             body: (
-                <p>Contacted nontraditional and lower-resourced HIV senders in Texas as part of targeted health equity improvement work.</p>
-            ),
-        },
-        {
-            tag: "recently-completed",
-            body: (
-                <p>
-                    Alaska, Arizona, California, Colorado, Florida, Hawaii, Idaho, Illinois, Louisiana, Massachusetts, Minnesota, Nevada, New York, and Rhode Island are receiving flu A/B or RSV data.
-                </p>
+                <p>Design and implement an SFTP bucket to allow for submissions to meet submission needs of NSSP.</p>
             ),
         },
         {
             tag: "working-on-now",
             body: (
-                <p>Transmit HIV test results to Los Angeles County and Texas.</p>
+                <p>Align on the technical requirements needed to route admission, discharge, and transfer (ADT) data from a hospital system to CDC NSSP with the Oklahoma State Department of Health.</p>
+            ),
+        },
+        {
+            tag: "next",
+            body: (
+                <p>Connect a hospital system and CDC NSSP to ReportStream to enable routing of ADT data.</p>
+            ),
+        },
+        {
+            title:<p>Connect ReportStream to one federal healthcare system outside of the CDC.</p>,
+            tag: "working-on-now",
+            body: (
+                <p>Route test results from MakeMyTestCount.org to one STLT in production.</p>
+            ),
+        },
+        {
+            tag: "next",
+            body: (
+                <p>Route test results from MakeMyTestCount.org to three more STLTs in production.</p>
+            ),
+        },
+        {
+            title:<p>Participate in the public health community by partnering with other CDC organizations and engaging with third-party health IT standards/services.</p>,
+            tag: "working-on-now",
+            body: (
+                <p>Conduct discovery research to understand TEFCA’s live and upcoming public health use cases.</p>
+            ),
+        },
+        {
+            tag: "next",
+            body: (
+                <p>Develop opportunity brief to identify next steps for ReportStream to participate in TEFCA.</p>
+            ),
+        },
+        {
+            title:<p>Meet the needs of healthcare organizations and STLTs by routing data in accordance with the HL7 LRI/LOI spec.</p>,
+            tag: "recently-completed",
+            body: (
+                <p>Aligned with partners and user research on which part of the LRI/LOI spec will be most immediately useful.</p>
             ),
         },
         {
             tag: "working-on-now",
             body: (
-                <p>Add support for hepatitis C and other STI reporting through SimpleReport.</p>
+                <p>Implement Basic Synchronous Accept ACKs in Submission API per LRI/LOI spec for the ETOR use case.</p>
             ),
         },
         {
             tag: "next",
             body: (
-                <p>Add support for more conditions reporting through SimpleReport.</p>
-            ),
-        },
-        {
-            title:<p>Help at-home test takers and test manufacturers easily report results to STLTs and CDC.</p>,
-            tag: "recently-completed",
-            body: (
-                <p>Route test results from <A href="https://learn.makemytestcount.org/" target="_blank">MakeMyTestCount.org</A> to one STLT in test environment.</p>
-            ),
-        },
-        {
-            tag: "working-on-now",
-            body: (
-                <p>Route test results from <A href="https://learn.makemytestcount.org/" target="_blank">MakeMyTestCount.org</A> to one STLT in production.</p>
-            ),
-        },
-        {
-            tag: "next",
-            body: (
-                <p>Route test results from another OTC testing (point-of-care) sender to one STLT in production.</p>
-            ),
-        },
-        {
-            title: "Facilitate electronic laboratory reporting (ELR) for the CDC infectious disease labs and transmit to STLTs. ",
-            tag: "recently-completed",
-            body: (
-                <p>Complete final internal review of test result data transfer before moving to production.</p>
-            ),
-        },
-        {
-            tag: "next",
-            body: (
-                <p>Execute go-live plan with state public health agencies receiving test results.</p>
-            ),
-        },
-        {
-            tag: "next",
-            body: (
-                <p>Develop product requirements for handling test orders from STLTs to the CDC infectious disease labs.</p>
+                <p>Develop executive summary of LRI and LOI specs and implications for ReportStream. Define high risk areas that should be investigated.</p>
             ),
         },
     ]}

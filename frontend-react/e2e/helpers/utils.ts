@@ -115,7 +115,7 @@ export function fromDateWithTime(date: string, time?: string) {
             .substring(0, time.length - 2)
             .split(":")
             .map(Number);
-        hours = hours + (time.indexOf("pm") !== -1 ? 12 : 0);
+        hours = hours + (time.includes("pm") ? 12 : 0);
         fromDateTime.setHours(hours, minutes, 0, 0);
     } else {
         fromDateTime.setHours(0, 0, 0);
@@ -132,7 +132,7 @@ export function toDateWithTime(date: string, time?: string) {
             .substring(0, time.length - 2)
             .split(":")
             .map(Number);
-        hours = hours + (time.indexOf("pm") !== -1 ? 12 : 0);
+        hours = hours + (time.includes("pm") ? 12 : 0);
         toDateTime.setHours(hours, minutes, 0, 0);
     } else {
         toDateTime.setHours(23, 59, 0);
