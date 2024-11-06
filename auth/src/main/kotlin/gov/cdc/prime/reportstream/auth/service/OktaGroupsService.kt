@@ -9,8 +9,11 @@ import org.springframework.stereotype.Service
 class OktaGroupsService(
     private val oktaGroupsClient: OktaGroupsClient,
     private val oktaGroupsJWTWriter: OktaGroupsJWTWriter,
-) : Logging {
+) {
 
+    /**
+     * Grab Okta groups from the Okta API and write the JWT
+     */
     suspend fun generateOktaGroupsJWT(appId: String): String {
         val groups = oktaGroupsClient.getApplicationGroups(appId)
         return oktaGroupsJWTWriter.write(OktaGroupsJWT(appId, groups))

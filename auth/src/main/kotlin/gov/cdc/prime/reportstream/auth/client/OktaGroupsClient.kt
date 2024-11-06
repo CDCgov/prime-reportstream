@@ -21,11 +21,13 @@ class OktaGroupsClient(
     suspend fun getApplicationGroups(appId: String): List<String> {
         return withContext(Dispatchers.IO) {
             try {
-                applicationGroupsApi
+                val groups = applicationGroupsApi
                     .listApplicationGroupAssignments(appId, null, null, null, "group")
                     .map { it.embedded?.get("group") as Map<*, *> }
                     .map { it["profile"] as Map<*, *> }
                     .map { it["name"] as String }
+                logger.info("$appId is a member of ${groups.joinToString()}")
+                groups
             } catch (ex: Exception) {
                 logger.error("Error retrieving application groups from Okta API", ex)
                 throw ex

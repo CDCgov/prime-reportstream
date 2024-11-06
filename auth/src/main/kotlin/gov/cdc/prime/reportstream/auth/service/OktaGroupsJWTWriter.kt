@@ -22,6 +22,9 @@ class OktaGroupsJWTWriter(
     private val clock: Clock,
 ) {
 
+    /**
+     * generate and sign our custom JWT containing Okta group information for a particular application
+     */
     fun write(model: OktaGroupsJWT): String {
         val now = clock.instant()
         val expires = now.plus(jwtConfig.ttl)

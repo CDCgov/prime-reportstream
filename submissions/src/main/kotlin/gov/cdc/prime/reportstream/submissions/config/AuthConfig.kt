@@ -6,19 +6,19 @@ import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
+/**
+ * Configuration class that sets up our various shared Okta groups JWT classes with
+ * our configured public key
+ */
 @Configuration
 class AuthConfig(
     private val jwtKeyConfig: JWTKeyConfig,
 ) {
 
     @Bean
-    fun oktaGroupsJWTReader(): OktaGroupsJWTReader {
-        return OktaGroupsJWTReader(jwtKeyConfig.jwtEncodedPublicKeyJWK)
-    }
-
-    @Bean
     fun authZService(): AuthZService {
-        return AuthZService(oktaGroupsJWTReader())
+        val oktaGroupsJWTReader = OktaGroupsJWTReader(jwtKeyConfig.jwtEncodedPublicKeyJWK)
+        return AuthZService(oktaGroupsJWTReader)
     }
 
     @ConfigurationProperties(prefix = "auth")

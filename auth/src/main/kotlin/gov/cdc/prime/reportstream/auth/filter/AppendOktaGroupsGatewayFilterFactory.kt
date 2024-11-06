@@ -11,7 +11,8 @@ import org.springframework.stereotype.Component
 import reactor.core.publisher.Mono
 
 /**
- * This filter defines how the Okta-Groups header is added to requests
+ * This filter defines how the Okta-Groups header is added to requests. It follows the conventions
+ * defined in spring-cloud-gateway and is instantiated via configuration under a route's filters.
  */
 @Component
 class AppendOktaGroupsGatewayFilterFactory(

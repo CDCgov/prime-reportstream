@@ -8,7 +8,9 @@ import com.nimbusds.jwt.proc.BadJWTException
 import com.nimbusds.jwt.proc.DefaultJWTClaimsVerifier
 import gov.cdc.prime.reportstream.shared.StringUtilities.base64Decode
 
-
+/**
+ * Common Okta Groups JWT reader and validator
+ */
 class OktaGroupsJWTReader(
     publicKey: JWK,
 ) {
@@ -21,6 +23,9 @@ class OktaGroupsJWTReader(
         setOf(OktaGroupsJWTConstants.OKTA_GROUPS_JWT_GROUP_CLAIM),
     )
 
+    /**
+     * Ensures our JWT is valid, properly signed, active, and contains the correct claims
+     */
     fun read(token: String): OktaGroupsJWT {
         val parsedToken = SignedJWT.parse(token)
         return if (parsedToken.verify(verifier)) {
