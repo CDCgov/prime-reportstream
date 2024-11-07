@@ -236,13 +236,14 @@ class FhirDestinationFilterTests {
     )
 
     private fun makeFhirEngine(metadata: Metadata, settings: SettingsProvider): FHIREngine {
-        val rootReport = mockk<ReportFile>()
+        val rootReport = mockk<ReportFile>(relaxed = true)
         every { rootReport.reportId } returns submittedId
         every { rootReport.sendingOrg } returns "sendingOrg"
         every { rootReport.sendingOrgClient } returns "sendingOrgClient"
         every { reportServiceMock.getRootReport(any()) } returns rootReport
         every { reportServiceMock.getRootReports(any()) } returns listOf(rootReport)
         every { reportServiceMock.getRootItemIndex(any(), any()) } returns 1
+        every { accessSpy.fetchReportFile(any()) } returns rootReport
 
         return FHIREngine.Builder()
             .metadata(metadata)
@@ -260,7 +261,7 @@ class FhirDestinationFilterTests {
         actionHistory.reportsIn.clear()
         actionHistory.reportsOut.clear()
         actionHistory.actionLogs.clear()
-        azureEventService.clear()
+        azureEventService.events.clear()
         clearAllMocks()
     }
 
@@ -325,7 +326,7 @@ class FhirDestinationFilterTests {
             assertThat(actionHistory.reportsIn).hasSize(1)
             assertThat(actionHistory.reportsOut).hasSize(1)
 
-            val azureEvents = azureEventService.getEvents()
+            val azureEvents = azureEventService.events
 
             assertThat(azureEvents).hasSize(1)
             assertThat(azureEvents.first())
@@ -491,7 +492,7 @@ class FhirDestinationFilterTests {
             assertThat(actionHistory.reportsIn).hasSize(1)
             assertThat(actionHistory.reportsOut).hasSize(1)
 
-            val azureEvents = azureEventService.getEvents()
+            val azureEvents = azureEventService.events
             assertThat(azureEvents).hasSize(1)
             assertThat(azureEvents.first())
                 .isInstanceOf(ReportStreamItemEvent::class)

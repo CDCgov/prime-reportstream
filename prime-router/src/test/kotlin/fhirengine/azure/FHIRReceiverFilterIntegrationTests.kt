@@ -34,11 +34,12 @@ import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.observability.bundleDigest.BundleDigestLabResult
 import gov.cdc.prime.router.azure.observability.event.AzureEventService
 import gov.cdc.prime.router.azure.observability.event.AzureEventUtils
+import gov.cdc.prime.router.azure.observability.event.InMemoryAzureEventService
 import gov.cdc.prime.router.azure.observability.event.ItemEventData
-import gov.cdc.prime.router.azure.observability.event.LocalAzureEventServiceImpl
 import gov.cdc.prime.router.azure.observability.event.ReportEventData
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventName
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventProperties
+import gov.cdc.prime.router.azure.observability.event.ReportStreamEventService
 import gov.cdc.prime.router.azure.observability.event.ReportStreamItemEvent
 import gov.cdc.prime.router.common.TestcontainersUtils
 import gov.cdc.prime.router.common.UniversalPipelineTestUtils
@@ -174,12 +175,12 @@ class FHIRReceiverFilterIntegrationTests : Logging {
         )
     )
 
-    val azureEventService = LocalAzureEventServiceImpl()
+    val azureEventService = InMemoryAzureEventService()
 
     @BeforeEach
     fun beforeEach() {
         mockkObject(QueueAccess)
-        every { QueueAccess.sendMessage(any(), any()) } returns Unit
+        every { QueueAccess.sendMessage(any(), any()) } returns ""
         mockkObject(BlobAccess)
         every { BlobAccess getProperty "defaultBlobMetadata" } returns UniversalPipelineTestUtils
             .getBlobContainerMetadata(azuriteContainer)
@@ -214,7 +215,14 @@ class FHIRReceiverFilterIntegrationTests : Logging {
             settings,
             db = ReportStreamTestDatabaseContainer.testDatabaseAccess,
             reportService = ReportService(ReportGraph(ReportStreamTestDatabaseContainer.testDatabaseAccess)),
-            azureEventService = azureEventService
+            azureEventService = azureEventService,
+            reportStreamEventService = ReportStreamEventService(
+                ReportStreamTestDatabaseContainer.testDatabaseAccess, azureEventService,
+                    ReportService(
+                    ReportGraph(ReportStreamTestDatabaseContainer.testDatabaseAccess),
+                    ReportStreamTestDatabaseContainer.testDatabaseAccess
+                )
+            )
         )
     }
 

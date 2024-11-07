@@ -45,7 +45,7 @@ export class RSEndpoint {
     }
 
     get hasDynamicSegments(): boolean {
-        return this.path.indexOf("/:") > -1;
+        return this.path.includes("/:");
     }
 
     // replaces dynamic paths (`/:` prefixed segments) in an endpoint path
@@ -54,30 +54,23 @@ export class RSEndpoint {
     // would return `/world`
     toDynamicUrl(segments?: StringIndexed<string>) {
         if (!segments && this.hasDynamicSegments) {
-            throw new Error(
-                `Attempted to use dynamic url without providing segment values: ${this.path}`,
-            );
+            throw new Error(`Attempted to use dynamic url without providing segment values: ${this.path}`);
         }
         if (!segments) {
             return this.url;
         }
         const pathWithSegments = Object.entries(segments).reduce(
-            (pathWithSegments, [segmentKey, segmentValue]) =>
-                pathWithSegments.replace(`:${segmentKey}`, segmentValue),
+            (pathWithSegments, [segmentKey, segmentValue]) => pathWithSegments.replace(`:${segmentKey}`, segmentValue),
             this.url,
         );
-        if (pathWithSegments.indexOf("/:") > -1) {
-            throw new Error(
-                `missing dynamic path param: ${this.url}, ${JSON.stringify(segments)}`,
-            );
+        if (pathWithSegments.includes("/:")) {
+            throw new Error(`missing dynamic path param: ${this.url}, ${JSON.stringify(segments)}`);
         }
         return pathWithSegments;
     }
 
     // return the complete params that will be passed to axios to make a specific call to this endpoint
-    toAxiosConfig(
-        requestOptions: Partial<AxiosOptionsWithSegments>,
-    ): Partial<AxiosRequestConfig> {
+    toAxiosConfig(requestOptions: Partial<AxiosOptionsWithSegments>): Partial<AxiosRequestConfig> {
         const dynamicUrl = this.toDynamicUrl(requestOptions.segments);
         return {
             ...omit(requestOptions, "segments"), // this is yucky but necessary for now

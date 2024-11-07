@@ -39,15 +39,12 @@ function transformDate(s: string) {
     return new Date(s).toLocaleString();
 }
 
-function transformSubmissions(
-    submissionsResource: SubmissionsResource[],
-): SubmissionsResource[] {
+function transformSubmissions(submissionsResource: SubmissionsResource[]): SubmissionsResource[] {
     const items = submissionsResource.map(
         (eachSubmission): SubmissionsResource => ({
             ...eachSubmission,
             fileDisplayName:
-                eachSubmission.externalName &&
-                eachSubmission.externalName !== ""
+                eachSubmission.externalName && eachSubmission.externalName !== ""
                     ? eachSubmission.externalName
                     : eachSubmission.fileName,
             pk: function (): string {
@@ -61,11 +58,7 @@ function transformSubmissions(
     return items;
 }
 
-const SubmissionTableContent: FC<SubmissionTableContentProps> = ({
-    filterManager,
-    paginationProps,
-    submissions,
-}) => {
+const SubmissionTableContent: FC<SubmissionTableContentProps> = ({ filterManager, paginationProps, submissions }) => {
     const appInsights = useAppInsightsContext();
     const analyticsEventName = `${FeatureName.SUBMISSIONS} | ${EventName.TABLE_FILTER}`;
     const columns: ColumnConfig[] = [
@@ -113,11 +106,7 @@ const SubmissionTableContent: FC<SubmissionTableContentProps> = ({
                     })
                 }
             />
-            <Table
-                config={submissionsConfig}
-                filterManager={filterManager}
-                paginationProps={paginationProps}
-            />
+            <Table config={submissionsConfig} filterManager={filterManager} paginationProps={paginationProps} />
         </>
     );
 };
@@ -150,26 +139,16 @@ function SubmissionTableWithNumberedPagination() {
                     sortdir: sortOrder,
                     showFailed: false,
                 })) as unknown as SubmissionsResource[];
-            } catch (e: any) {
+            } catch (_e: any) {
                 return [] as SubmissionsResource[];
             }
         },
-        [
-            activeMembership?.parsedName,
-            sortOrder,
-            controllerFetch,
-            rangeFrom,
-            rangeTo,
-            isAdmin,
-        ],
+        [activeMembership?.parsedName, sortOrder, controllerFetch, rangeFrom, rangeTo, isAdmin],
     );
 
     // The start cursor is the high value when results are in descending order
     // and the low value when the results are in ascending order.
-    const startCursor =
-        sortOrder === "DESC"
-            ? filterManager.rangeSettings.to
-            : filterManager.rangeSettings.from;
+    const startCursor = sortOrder === "DESC" ? filterManager.rangeSettings.to : filterManager.rangeSettings.from;
     // The API treats the request range as the interval [from, to).
     // When we move the `endCursor` value in ascending requests, the cursor is
     // inclusive: the request will return results whose cursor values are >= the
@@ -218,7 +197,6 @@ function SubmissionTableWithNumberedPagination() {
     );
 }
 
-const SubmissionTable = () =>
-    withCatchAndSuspense(<SubmissionTableWithNumberedPagination />);
+const SubmissionTable = () => withCatchAndSuspense(<SubmissionTableWithNumberedPagination />);
 
 export default SubmissionTable;

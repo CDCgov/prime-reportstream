@@ -65,6 +65,8 @@ enum class ReportStreamEventProperties {
     FILE_LENGTH,
     SENDER_NAME,
     BUNDLE_DIGEST,
+    INGESTION_TYPE,
+    POISON_QUEUE_MESSAGE_ID,
     ;
 
     @JsonKey
@@ -89,6 +91,7 @@ enum class ReportStreamEventName {
     REPORT_LAST_MILE_FAILURE,
     REPORT_NOT_PROCESSABLE,
     ITEM_SENT,
+    PIPELINE_EXCEPTION,
 }
 
 /**

@@ -2,10 +2,7 @@ import { screen } from "@testing-library/react";
 import { userEvent } from "@testing-library/user-event";
 
 import { _exportForTesting } from "./AdminRevHistory";
-import {
-    RSSettingRevision,
-    RSSettingRevisionParams,
-} from "../../hooks/api/UseSettingsRevisions/UseSettingsRevisions";
+import { RSSettingRevision, RSSettingRevisionParams } from "../../hooks/api/UseSettingsRevisions/UseSettingsRevisions";
 import { renderApp } from "../../utils/CustomRenderUtils";
 
 const fakeRows: RSSettingRevision[] = [
@@ -70,11 +67,10 @@ describe("AdminRevHistory", () => {
         // a REAL test would need Cypress to click revisions in the top two accordion lists
         // and verify the diffs are rendering the diffs correctly
 
-        // eslint-disable-next-line react/jsx-pascal-case
         renderApp(<_exportForTesting.AdminRevHistory />);
         // useful: https://testing-library.com/docs/queries/about/
         // we expect 2x because of the right and left list layout
-        // eslint-disable-next-line no-restricted-globals
+
         expect(screen.getAllByText(/local@test.com/).length).toBe(2);
 
         // click an item in each list and make sure the diff loads. (click parent row)
@@ -100,30 +96,24 @@ describe("AdminRevHistory", () => {
 
         // make sure the meta data at the bottom is updated.
         {
-            const leftMetaText =
-                screen.getByTestId("meta-left-data").textContent;
+            const leftMetaText = screen.getByTestId("meta-left-data").textContent;
             expect(leftMetaText).toBe("Flags: isDeleted: true isActive: false");
         }
         {
-            const rightMetaText =
-                screen.getByTestId("meta-right-data").textContent;
-            expect(rightMetaText).toBe(
-                "Flags: isDeleted: false isActive: false",
-            );
+            const rightMetaText = screen.getByTestId("meta-right-data").textContent;
+            expect(rightMetaText).toBe("Flags: isDeleted: false isActive: false");
         }
 
         // look for the unique "Description" text in each diff.
         {
-            const leftDiffText =
-                screen.getByTestId("left-compare-text").textContent ?? "";
-            expect(/ORIGINAL/.test(leftDiffText)).toBe(true);
-            expect(/FIRST_REVISION/.test(leftDiffText)).toBe(false);
+            const leftDiffText = screen.getByTestId("left-compare-text").textContent ?? "";
+            expect(leftDiffText.includes("ORIGINAL")).toBe(true);
+            expect(leftDiffText.includes("FIRST_REVISION")).toBe(false);
         }
         {
-            const rightDiffText =
-                screen.getByTestId("right-compare-text").textContent ?? "";
-            expect(/ORIGINAL/.test(rightDiffText)).toBe(false);
-            expect(/FIRST_REVISION/.test(rightDiffText)).toBe(true);
+            const rightDiffText = screen.getByTestId("right-compare-text").textContent ?? "";
+            expect(rightDiffText.includes("ORIGINAL")).toBe(false);
+            expect(rightDiffText.includes("FIRST_REVISION")).toBe(true);
         }
     });
 });
