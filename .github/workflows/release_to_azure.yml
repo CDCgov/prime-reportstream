@@ -4,7 +4,7 @@ name: Release to Azure
 on:
   push:
     branches:
-      - master
+      - main
       - production
       - test
       - demo1
