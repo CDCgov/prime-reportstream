@@ -102,7 +102,7 @@ in the above example, `NTE.yml` can be referenced in `CA.yml` using the `azure:/
 
 ### Validation failure when syncing locally
 
-The root cause is likely that you are out of sync with `master` branch and there are schema changes in the source code
+The root cause is likely that you are out of sync with `main` branch and there are schema changes in the source code
 that you'll need to pull.
 
 ### Validation failure when syncing to an environment
