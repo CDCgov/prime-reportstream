@@ -19,9 +19,9 @@ As a developer, I want to compare the messages generated from the Covid and Univ
 ### Dev Notes:
 
 - [ ] Fetch [STLT] organization settings from production and load them locally
-- [ ] Use the attached SimpleReport covid postman collection and make sure the message gets routed to [STLT] locally. Modify the message to meet [STLT] filter if needed [Simple Report Covid.postman_collection](https://github.com/CDCgov/prime-reportstream/blob/master/prime-router/docs/onboarding-users/samples/SimpleReport/Simple%20Report%20Covid.postman_collection.json)
-- [ ] Make a copy of the [STLT] organization settings to onboard them to the UP. See How to Migrate an existing receiver to the UP documentation for more details: https://github.com/CDCgov/prime-reportstream/blob/master/prime-router/docs/onboarding-users/migrating-receivers.md
-- [ ] Use this Postman collection to send a FHIR bundle the UP and make sure the message gets routed to the new UP [STLT] receiver. You may need to update the Simple Report sender to use the simple-report-sender-transform.yml if it's not using it. [Simple Report UP.postman_collection](https://github.com/CDCgov/prime-reportstream/blob/master/prime-router/docs/onboarding-users/samples/SimpleReport/Simple%20Report%20UP.postman_collection.json)
+- [ ] Use the attached SimpleReport covid postman collection and make sure the message gets routed to [STLT] locally. Modify the message to meet [STLT] filter if needed [Simple Report Covid.postman_collection](https://github.com/CDCgov/prime-reportstream/blob/main/prime-router/docs/onboarding-users/samples/SimpleReport/Simple%20Report%20Covid.postman_collection.json)
+- [ ] Make a copy of the [STLT] organization settings to onboard them to the UP. See How to Migrate an existing receiver to the UP documentation for more details: https://github.com/CDCgov/prime-reportstream/blob/main/prime-router/docs/onboarding-users/migrating-receivers.md
+- [ ] Use this Postman collection to send a FHIR bundle the UP and make sure the message gets routed to the new UP [STLT] receiver. You may need to update the Simple Report sender to use the simple-report-sender-transform.yml if it's not using it. [Simple Report UP.postman_collection](https://github.com/CDCgov/prime-reportstream/blob/main/prime-router/docs/onboarding-users/samples/SimpleReport/Simple%20Report%20UP.postman_collection.json)
 - To migrate the Covid translation settings start by looking at their current translation settings. If the receiver uses  any of the following settings you will need to create a receiver schema:
 	- receivingApplicationName
 	- receivingApplicationOID
@@ -45,7 +45,7 @@ As a developer, I want to compare the messages generated from the Covid and Univ
     - useOrderingFacilityName not STANDARD
     - receivingOrganization
     - stripInvalidCharsRegex
-    
+
 - More documentation on how to set-up these transforms in the UP will be provided, but for now you can look for examples on how to set this up in either the NY-receiver-transforms or CA-receiver-transforms
 
 - If the receiver uses any of those transforms you will need to create a receiver transform under `metadata/hl7_mapping/receivers/STLTs/` and update the receiver settings to point to this schema.
@@ -60,11 +60,10 @@ As a developer, I want to compare the messages generated from the Covid and Univ
 - If there are no major differences we can move on to sending test messages to the STLTs staging environment.
 
 
-### Acceptance Criteria 
+### Acceptance Criteria
 - [ ] Created and sent data to [STLT] through the covid pipeline locally
 - [ ] Created and sent data to [STLTS] through the universal pipeline locally
 - [ ] Migrated  Covid receiver translation settings to the UP receiver settings
 - [ ] Successfully generated a message with migrated UP receiver settings
 - [ ] Review transforms settings with the team
 - [ ] Compared messages from the covid and universal pipelines and documented differences and review with team
-

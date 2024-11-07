@@ -8,7 +8,7 @@ on:
       - "operations/slack-boltjs-app"
   pull_request:
     branches:
-      - master
+      - main
     paths:
       - "operations/slack-boltjs-app"
 

@@ -3,7 +3,7 @@ name: Deploy Terraform
 on:
   push:
     branches:
-      - master
+      - main
       - production
     paths:
       - '**.tf'

@@ -4,12 +4,12 @@ on:
   pull_request:
     branches:
       - production
-      - master
+      - main
       - test
   push:
     branches:
       - production
-      - master
+      - main
       - test
   schedule:
     - cron: "36 3 * * *"
