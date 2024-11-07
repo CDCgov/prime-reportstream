@@ -3,6 +3,7 @@ package gov.cdc.prime.router
 import com.fasterxml.jackson.annotation.JsonIgnore
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.common.DateUtilities
+import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Converter
 import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
 import java.time.LocalTime
@@ -258,8 +259,14 @@ open class Receiver(
         if (translation is CustomConfiguration) {
             if (this.topic.isUniversalPipeline) {
                 try {
-                    // This is already scheduled for deletion in https://github.com/CDCgov/prime-reportstream/pull/13313
-                    FhirToHl7Converter(translation.schemaName, BlobAccess.defaultBlobMetadata)
+                    // This is already scheduled for deletion in https://github.com/CDCgov/prime-reportstream/pull/13313/files#r1489489429
+                    FhirToHl7Converter(
+                        translation.schemaName,
+                        BlobAccess.BlobContainerMetadata.build(
+                            "metadata",
+                            Environment.get().storageEnvVar
+                        )
+                    )
                 } catch (e: SchemaException) {
                     return e.message
                 }
