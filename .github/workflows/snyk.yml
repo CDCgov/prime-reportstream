@@ -1,6 +1,6 @@
 name: Snyk Java/Kotlin scan
 
-# refresh Snyk console results for Java/Kotlin scans when merging with master
+# refresh Snyk console results for Java/Kotlin scans when merging with main
 on:
   push:
     branches:
