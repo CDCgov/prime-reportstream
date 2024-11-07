@@ -4,6 +4,7 @@
 # TODO need message level conditions to be able to implement FHIR > HL7 mapping
 
 # This segment does not appear in NIST or RADx MARS
+# PRT.2 - inventory indicates to check for "D" but the correct HL7v2 table value is "DE"
 
 resourceType: Location
 
@@ -15,7 +16,7 @@ id:
 status:
   vars:
     prt2: PRT.2
-  condition: $prt2 EQUALS "D" || $prt2 EQUALS "DE"
+  condition: $prt2 EQUALS "DE"
   type: STRING
   value: "inactive"
 

@@ -5,6 +5,7 @@
 # TODO mappings should be treated as incomplete and require tests to be written
 
 # This segment does not appear in NIST or RADx MARS
+# PRT.2 - inventory indicates to check for "D" but the correct HL7v2 table value is "DE"
 
 resourceType: PractitionerRole
 
@@ -16,7 +17,7 @@ id:
 status:
   vars:
     prt2: PRT.2
-  condition: $prt2 EQUALS "D" || $prt2 EQUALS "DE"
+  condition: $prt2 EQUALS "DE"
   type: STRING
   value: "inactive"
 
