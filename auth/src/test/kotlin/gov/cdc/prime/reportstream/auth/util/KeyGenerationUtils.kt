@@ -15,6 +15,10 @@ import kotlin.test.Test
  */
 class KeyGenerationUtils {
 
+    /**
+     * If you remove the @Ignore annotation below and run this test you can create
+     * a random 2048-bit RSA key pair. This will be useful for key rotations.
+     */
     @Ignore
     @Test
     fun generateAndPrintRSAKeyPair() {
