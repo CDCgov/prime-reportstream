@@ -113,6 +113,6 @@
       }
     },
     "base_branches": [
-      "master"
+      "main"
     ]
 }
