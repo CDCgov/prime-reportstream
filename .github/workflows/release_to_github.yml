@@ -3,7 +3,7 @@ name: Release to GitHub
 on:
   push:
     branches:
-      - master
+      - main
       - production
 
 concurrency: ${{ github.ref }}-gh-release

@@ -54,7 +54,7 @@ Below is an example of the organization file
 
 In the above example, the jurisdictional filter searches the `ordering_facility_state` field in the report for anything 
 that matches the code LT. Filters can be applied to the organization or receiver. For more information on filters see: 
-(https://github.com/CDCgov/prime-reportstream/blob/master/prime-router/docs/playbooks/how-to-use-filters.md)
+(https://github.com/CDCgov/prime-reportstream/blob/main/prime-router/docs/playbooks/how-to-use-filters.md)
 
 In addition, there is the translation section, which specifies the output format that will be sent to the receiver. 
 Currently, we have three formats available:
@@ -109,10 +109,10 @@ The mechanism for how each record is translated is laid out in the schema, which
 By default, any HL7 receiver will use the COVID-19 schema and you do not need to create a schema
 specific to your receiver. If they are going to receive a CSV file you *MUST* create a schema. In lieu
 of a schema, we use the `TranslationConfig` to set default values and control HL7 processing. 
-(https://github.com/CDCgov/prime-reportstream/blob/master/prime-router/docs/playbooks/how_to_use_translation_configuration_features.md)
+(https://github.com/CDCgov/prime-reportstream/blob/main/prime-router/docs/playbooks/how_to_use_translation_configuration_features.md)
 
 For additional information on creating a schema see: 
-(https://github.com/CDCgov/prime-reportstream/blob/master/prime-router/docs/how-to-onboard-a-sender.md)
+(https://github.com/CDCgov/prime-reportstream/blob/main/prime-router/docs/how-to-onboard-a-sender.md)
 
 ### Generate test data
 
@@ -151,7 +151,7 @@ If you want to create the data as HL7, that is easy to do as well:
 - Once you've got the kinks out of the organizations.yml, carefully update settings in the staging environment. 
   - `./prime multiple-settings set --help`
 - Create a PR for the change, review, and push. The review is a good chance for someone to doublecheck the filters.
-- It should deploy to staging automagically once the PR is approved and merged into master.
+- It should deploy to staging automagically once the PR is approved and merged into main.
 - Test again in Staging
 - If you are ready, carefully update settings in the prod environment. Especially in production, check the batch 
 timing. NOT every minute, eh?

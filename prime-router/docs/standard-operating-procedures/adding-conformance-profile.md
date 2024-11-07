@@ -141,7 +141,7 @@ v251. That presents the opportunity for reuse.
 ## Resources
 
 - The FHIR to HL7 mappings extensively use [FHIR Path](https://hl7.org/fhirpath/N1/) to access values in FHIR
-- [Mapping schema file structure](https://github.com/CDCgov/prime-reportstream/blob/master/prime-router/docs/design/design/mapping-schemas.md)  
+- [Mapping schema file structure](https://github.com/CDCgov/prime-reportstream/blob/main/prime-router/docs/design/design/mapping-schemas.md)  
   has good information on building elements in the mappings files
 
 # Adding/Updating Validation Configuration(s) for Profiles

@@ -39,4 +39,4 @@
     ```
 
 ## Backup scripts
-  * [Repo](https://github.com/CDCgov/prime-reportstream/tree/master/operations/vpn)
+  * [Repo](https://github.com/CDCgov/prime-reportstream/tree/main/operations/vpn)
