@@ -26,7 +26,7 @@ const val client_assertion = "client_assertion"
 const val scope = "scope"
 
 const val OAUTH_ERROR_BASE_LOCATION =
-    "https://github.com/CDCgov/prime-reportstream/blob/master/prime-router/examples/generate-jwt-python/jwt-errors.md"
+    "https://github.com/CDCgov/prime-reportstream/blob/main/prime-router/examples/generate-jwt-python/jwt-errors.md"
 
 /**
  * HTTP response body that is returned when an error is

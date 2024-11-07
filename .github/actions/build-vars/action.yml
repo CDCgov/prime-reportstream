@@ -103,8 +103,8 @@ runs:
     - name: Set Build Environment - STAGING
       id: build_staging
       if: |
-        (github.event_name != 'pull_request' && github.ref_name == 'master') ||
-        (github.event_name == 'pull_request' && github.base_ref == 'master')
+        (github.event_name != 'pull_request' && github.ref_name == 'main') ||
+        (github.event_name == 'pull_request' && github.base_ref == 'main')
       shell: bash
       run: |
         echo "env_name=staging" >> $GITHUB_OUTPUT
