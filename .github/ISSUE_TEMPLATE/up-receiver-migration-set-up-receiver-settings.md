@@ -45,7 +45,7 @@ As a developer, I want to compare the messages generated from the Covid and Univ
     - useOrderingFacilityName not STANDARD
     - receivingOrganization
     - stripInvalidCharsRegex
-    
+
 - More documentation on how to set-up these transforms in the UP will be provided, but for now you can look for examples on how to set this up in either the NY-receiver-transforms or CA-receiver-transforms
 
 - If the receiver uses any of those transforms you will need to create a receiver transform under `metadata/hl7_mapping/receivers/STLTs/` and update the receiver settings to point to this schema.
@@ -60,11 +60,10 @@ As a developer, I want to compare the messages generated from the Covid and Univ
 - If there are no major differences we can move on to sending test messages to the STLTs staging environment.
 
 
-### Acceptance Criteria 
+### Acceptance Criteria
 - [ ] Created and sent data to [STLT] through the covid pipeline locally
 - [ ] Created and sent data to [STLTS] through the universal pipeline locally
 - [ ] Migrated  Covid receiver translation settings to the UP receiver settings
 - [ ] Successfully generated a message with migrated UP receiver settings
 - [ ] Review transforms settings with the team
 - [ ] Compared messages from the covid and universal pipelines and documented differences and review with team
-
