@@ -17,7 +17,7 @@ versions all remain identical.
 > [Azure cli](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli)
 
 All infrastructure operations must be done behind the environment-specific VPN.
-You can find [directions for configuring your VPN client in prime-router/docs/VPN.md](https://github.com/CDCgov/prime-data-hub/blob/master/prime-router/docs/vpn.md).
+You can find [directions for configuring your VPN client in prime-router/docs/docs-deprecated/vpn.md](https://github.com/CDCgov/prime-reportstream/blob/main/prime-router/docs/docs-deprecated/vpn.md).
 
 ### Resource Group and KeyVault
 In order to deploy, we will need to define our resource group and keyvault. There are some specific keys we need to be pre-populated before we run our terraform as well. 
@@ -48,7 +48,7 @@ data "azurerm_key_vault_secret" "pagerduty_url" {
 
 ## Terraform
 
-For production deploys, always deploy from the `master` branch.
+For production deploys, always deploy from the `main` branch.
 
 Our Terraform code is broken down into two main folders, vars and modules. The vars direcory will contain all the variables needed for the stage you want to deploy to. All variables required to deploy that specific stage should be contained in it's respective folder. This makes it easy to determine where variables need to be changed.
 

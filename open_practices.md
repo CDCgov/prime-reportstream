@@ -61,7 +61,7 @@ If you are interested in using GitHub for non-open source projects, please check
 This checklist was adapted from the CDC IT Guard Rail and put here to help people who don't have access to the intranet.
 
 * [ ] Create a new project using the [template repo](https://github.com/CDCgov/template).
-* [ ] Update your readme.md following the [CDC GitHub Practices for Open Source Projects](https://github.com/CDCgov/template/blob/master/open_practices.md)
+* [ ] Update your readme.md following the [CDC GitHub Practices for Open Source Projects](https://github.com/CDCgov/template/blob/main/open_practices.md)
 * [ ] Choose a license. Most projects are ASL2, but license should meet public health program need. See <https://www.philab.cdc.gov/index.php/2012/03/27/open-source-development-for-public-health-informatics/> for more info on choosing a license.
 * [ ] Remove all sensitive info.
 * [ ] Talk with your ADI, ADS, and ISSO for review and clearance.
