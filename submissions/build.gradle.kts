@@ -1,10 +1,10 @@
 apply(from = rootProject.file("buildSrc/shared.gradle.kts"))
 
 plugins {
-    id("org.springframework.boot") version "3.3.4"
+    id("org.springframework.boot") version "3.3.5"
     id("io.spring.dependency-management") version "1.1.6"
     id("reportstream.project-conventions")
-    kotlin("plugin.spring") version "2.0.20"
+    kotlin("plugin.spring") version "2.0.21"
 }
 
 group = "gov.cdc.prime"
@@ -16,7 +16,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
-    implementation("org.springframework.security:spring-security-oauth2-jose:6.3.3")
+    implementation("org.springframework.security:spring-security-oauth2-jose:6.3.4")
 
     implementation("com.azure.spring:spring-cloud-azure-starter-storage")
     implementation("com.microsoft.azure:applicationinsights-runtime-attach:3.5.4")
