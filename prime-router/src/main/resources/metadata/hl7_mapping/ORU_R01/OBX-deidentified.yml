@@ -1,0 +1,53 @@
+constants:
+  hl7ObservationPath: '/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION(%{resultIndex})'
+
+elements:
+  # OBX 14.1
+  - name: obx-observation-date-time
+    value: [ '""' ]
+    hl7Spec: [ '%{hl7ObservationPath}/OBX-14-1']
+
+  # OBX 24.1
+  - name: obx-test-performing-org-street-addr
+    value: [ '""' ]
+    hl7Spec: [ '%{hl7ObservationPath}/OBX-24-1' ]
+
+  # OBX 24.2
+  - name: obx-test-performing-org-street-addr-2
+    value: [ '""' ]
+    hl7Spec: [ '%{hl7ObservationPath}/OBX-24-2' ]
+
+  # OBX 24.3
+  - name: obx-test-performing-org-city
+    value: [ '""' ]
+    hl7Spec: [ '%{hl7ObservationPath}/OBX-24-3' ]
+
+  # OBX 24.4
+  - name: obx-test-performing-org-state
+    value: [ '""' ]
+    hl7Spec: [ '%{hl7ObservationPath}/OBX-24-4' ]
+
+  # OBX 24.5
+  - name: obx-test-performing-org-zip-code
+    value: [ '""' ]
+    hl7Spec: [ '%{hl7ObservationPath}/OBX-24-5' ]
+
+  # OBX 24.6
+  - name: obx-test-performing-org-country
+    value: [ '""' ]
+    hl7Spec: [ '%{hl7ObservationPath}/OBX-24-6' ]
+
+  # OBX 24.7
+  - name: obx-test-performing-org-address-type
+    value: [ '""' ]
+    hl7Spec: [ '%{hl7ObservationPath}/OBX-24-7' ]
+
+  # OBX 24.8
+  - name: obx-test-performing-org-or-geo-dest
+    value: [ '""' ]
+    hl7Spec: [ '%{hl7ObservationPath}/OBX-24-8' ]
+
+  # OBX 24.9
+  - name: obx-test-performing-org-county
+    value: [ '""' ]
+    hl7Spec: [ '%{hl7ObservationPath}/OBX-24-9' ]

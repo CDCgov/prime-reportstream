@@ -9,6 +9,9 @@ meta:
             src: /assets/img/opengraph/reportstream-tagline.png
             altText: "ReportStream. CDC's free, single connection to streamline your data transfer and improve public health. The words are surrounded by illustration of lines and boxes connected by colorful dots."
 ---
+
+import site from "../site.json";
+
 <HeroWrapper>
     <div className="grid-container">
         <div className="grid-row grid-gap margin-y-3">
@@ -126,7 +129,7 @@ meta:
         <CardGroup>
             <Card gridLayout={{col: "fill"}}>
                 <CardHeader typeof="div">
-                    ### <A href="/assets/pdf/ReportStream_Onepager_20240605.pdf" target="_blank">ReportStream overview PDF <Icon name='FileDownload'/></A>
+                    ### <A href={site.assets.onePager.path} target="_blank">ReportStream overview PDF <Icon name='FileDownload'/></A>
                 </CardHeader>
                 <CardBody>
                     Download a quick summary of ReportStream that you can print and share.
