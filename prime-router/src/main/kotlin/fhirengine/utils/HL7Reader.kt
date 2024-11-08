@@ -13,6 +13,7 @@ import ca.uhn.hl7v2.util.Hl7InputStreamMessageStringIterator
 import ca.uhn.hl7v2.util.Terser
 import ca.uhn.hl7v2.validation.ValidationException
 import ca.uhn.hl7v2.validation.impl.ValidationContextFactory
+import fhirengine.translation.hl7.structures.fhirinventory.message.OML_O21
 import fhirengine.translation.hl7.structures.fhirinventory.message.ORM_O01
 import fhirengine.translation.hl7.structures.fhirinventory.message.ORU_R01
 import fhirengine.utils.ReportStreamCanonicalModelClassFactory
@@ -22,10 +23,8 @@ import org.apache.commons.lang3.exception.ExceptionUtils
 import org.apache.logging.log4j.Level
 import org.apache.logging.log4j.kotlin.Logging
 import java.util.Date
-import ca.uhn.hl7v2.model.v251.message.OML_O21 as v251_OML_O21
 import ca.uhn.hl7v2.model.v251.message.ORU_R01 as v251_ORU_R01
 import ca.uhn.hl7v2.model.v251.segment.MSH as v251_MSH
-import ca.uhn.hl7v2.model.v27.message.OML_O21 as v27_OML_O21
 import ca.uhn.hl7v2.model.v27.message.ORU_R01 as v27_ORU_R01
 import ca.uhn.hl7v2.model.v27.segment.MSH as v27_MSH
 import fhirengine.translation.hl7.structures.nistelr251.message.ORU_R01 as NIST_ELR_ORU_R01
@@ -140,12 +139,6 @@ class HL7Reader(private val actionLogger: ActionLogger) : Logging {
                                 v251_ORU_R01::class.java
                             )
                         }
-                    }
-                    "OML" -> {
-                        return listOf(
-                            v27_OML_O21::class.java,
-                            v251_OML_O21::class.java
-                        )
                     }
                     else -> {
                         logger.warn(
@@ -308,7 +301,7 @@ class HL7Reader(private val actionLogger: ActionLogger) : Logging {
                     DefaultHapiContext(
                         ParserConfiguration(),
                         ValidationContextFactory.noValidation(),
-                        ReportStreamCanonicalModelClassFactory(v27_OML_O21::class.java),
+                        ReportStreamCanonicalModelClassFactory(OML_O21::class.java),
                     )
                 } else if (hl7MessageType?.msh93 == "ORM_O01") {
                     DefaultHapiContext(
