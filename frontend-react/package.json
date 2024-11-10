@@ -111,7 +111,7 @@
   },
   "devDependencies": {
     "@eslint/compat": "^1.2.2",
-    "@eslint/js": "^9.13.0",
+    "@eslint/js": "^9.14.0",
     "@mdx-js/react": "^3.1.0",
     "@mdx-js/rollup": "^3.1.0",
     "@playwright/test": "^1.48.1",
@@ -156,7 +156,7 @@
     "chromatic": "^11.12.6",
     "cross-env": "^7.0.3",
     "dotenv-flow": "^4.1.0",
-    "eslint": "9.13.0",
+    "eslint": "9.14.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-import-resolver-typescript": "^3.6.3",
     "eslint-plugin-import": "^2.31.0",
