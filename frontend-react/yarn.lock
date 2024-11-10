@@ -2332,40 +2332,40 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tanstack/query-core@npm:5.59.13":
-  version: 5.59.13
-  resolution: "@tanstack/query-core@npm:5.59.13"
-  checksum: 2f43f53ecd0151c9f83f822f47a8c882cce234ece2fa4fc575ae1bf865094ff145f5efe7cb9c750541df143804941248aceaf85e7c5346a7897d896845996dff
+"@tanstack/query-core@npm:5.59.20":
+  version: 5.59.20
+  resolution: "@tanstack/query-core@npm:5.59.20"
+  checksum: ed836033c7f34a61e7f152da1067ec170e36e861dc591e2a068f73918bcc641bb50ce90dc3b8d12e047f63f70b2842f72e3328d649c841f5c4ea51fdb95e454b
   languageName: node
   linkType: hard
 
-"@tanstack/query-devtools@npm:5.58.0":
-  version: 5.58.0
-  resolution: "@tanstack/query-devtools@npm:5.58.0"
-  checksum: ba5a2b96a307abb02607a6e8a3378b680871d89b83916fde8b21ae29ca2282eaa3d98638780f08e1c85cdce94258ba88bb5535780fcad004ebd7de608be7dacc
+"@tanstack/query-devtools@npm:5.59.20":
+  version: 5.59.20
+  resolution: "@tanstack/query-devtools@npm:5.59.20"
+  checksum: 5a4f351b0b9bda78095c4074da4d44743076287f07e544f77d840a9061c95fc85e15f80b08a04bb4b907a3cac63176ee79b3627b1dba6323444ba25419e63761
   languageName: node
   linkType: hard
 
-"@tanstack/react-query-devtools@npm:^5.59.15":
-  version: 5.59.15
-  resolution: "@tanstack/react-query-devtools@npm:5.59.15"
+"@tanstack/react-query-devtools@npm:^5.59.20":
+  version: 5.59.20
+  resolution: "@tanstack/react-query-devtools@npm:5.59.20"
   dependencies:
-    "@tanstack/query-devtools": 5.58.0
+    "@tanstack/query-devtools": 5.59.20
   peerDependencies:
-    "@tanstack/react-query": ^5.59.15
+    "@tanstack/react-query": ^5.59.20
     react: ^18 || ^19
-  checksum: 69169f87efc8bd845181f6dea63947e60980e561b6bfb60ce39a7d4b656d4124d0e976fd62d32fa3afd4ebe5af7c64d43ff34bc59b3b189c1d1b74169e73381d
+  checksum: 306f4e992c5351d31a0a3283275a519550787759d3e3e1566ae82acd0353855902b17ad617b2a28b581acfb21086c7e924df3a25e29a044d4fcf7a126f36cc6a
   languageName: node
   linkType: hard
 
-"@tanstack/react-query@npm:^5.59.15":
-  version: 5.59.15
-  resolution: "@tanstack/react-query@npm:5.59.15"
+"@tanstack/react-query@npm:^5.59.20":
+  version: 5.59.20
+  resolution: "@tanstack/react-query@npm:5.59.20"
   dependencies:
-    "@tanstack/query-core": 5.59.13
+    "@tanstack/query-core": 5.59.20
   peerDependencies:
     react: ^18 || ^19
-  checksum: 465aa2cdfc83fe3ebbb3dfe94ad39ac9e047e6808890b9dfd253d7aec31cdc46198af3c3a8dfa6a7212f941db7df1fe9a724540504cc2e3efa1cdffcb2d48164
+  checksum: 2f4740f13dc9cbbf3c4175ac2e4e2788d2df8643940dfd9cc62c8c3d7c8842b2aeda0f58b99cdd2d525c0c78d759a1adfb3118599ab64bd3ce7ce4f027ee6f6b
   languageName: node
   linkType: hard
 
@@ -10356,8 +10356,8 @@ __metadata:
     "@storybook/react-vite": ^8.3.6
     "@storybook/testing-library": ^0.2.2
     "@storybook/theming": ^8.3.6
-    "@tanstack/react-query": ^5.59.15
-    "@tanstack/react-query-devtools": ^5.59.15
+    "@tanstack/react-query": ^5.59.20
+    "@tanstack/react-query-devtools": ^5.59.20
     "@testing-library/dom": ^10.4.0
     "@testing-library/jest-dom": ^6.6.2
     "@testing-library/react": ^16.0.1
@@ -10431,7 +10431,7 @@ __metadata:
     react-idle-timer: ^5.7.2
     react-loader-spinner: ^6.1.6
     react-markdown: ^9.0.1
-    react-query-kit: ^3.3.0
+    react-query-kit: ^3.3.1
     react-router: ^6.27.0
     react-router-dom: ^6.27.0
     react-scroll-sync: ^0.11.2
@@ -10556,15 +10556,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-query-kit@npm:^3.3.0":
-  version: 3.3.0
-  resolution: "react-query-kit@npm:3.3.0"
-  peerDependencies:
-    "@tanstack/react-query": ^4 || ^5
+"react-query-kit@npm:^3.3.1":
+  version: 3.3.1
+  resolution: "react-query-kit@npm:3.3.1"
   peerDependenciesMeta:
     "@tanstack/react-query":
       optional: true
-  checksum: 5551bdfcbe9ba4c50b2fa157811beb80e4a5265682e7c5bb50f148d87ef7d0e1652bb646a0a7b9e0cb8ba72a1c77fb9b86ec6b9f70f69fec15557024ffbebe3f
+  checksum: 32e98bf85cc8a283ee42c9a7a0ef8fdad723feb68801d8c4e664a22d0d643d8991e8eaf303bb9b90d19b1c81fe5b6a9e9e3de597dd73e360dc2b3539c014f390
   languageName: node
   linkType: hard
 
