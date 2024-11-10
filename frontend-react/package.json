@@ -130,7 +130,7 @@
     "@storybook/testing-library": "^0.2.2",
     "@storybook/theming": "^8.3.6",
     "@testing-library/dom": "^10.4.0",
-    "@testing-library/jest-dom": "^6.6.2",
+    "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.0.1",
     "@testing-library/user-event": "^14.5.2",
     "@types/dompurify": "^3.0.5",
@@ -148,8 +148,8 @@
     "@types/react-scroll-sync": "^0.9.0",
     "@types/sanitize-html": "^2.13.0",
     "@vitejs/plugin-react": "^4.3.3",
-    "@vitest/coverage-istanbul": "^2.1.3",
-    "@vitest/ui": "^2.1.3",
+    "@vitest/coverage-istanbul": "^2.1.4",
+    "@vitest/ui": "^2.1.4",
     "autoprefixer": "^10.4.20",
     "browserslist": "^4.24.2",
     "browserslist-useragent-regexp": "^4.1.3",
@@ -169,7 +169,7 @@
     "eslint-plugin-storybook": "^0.10.1",
     "eslint-plugin-testing-library": "^6.4.0",
     "eslint-plugin-vitest": "^0.5.4",
-    "globals": "^15.11.0",
+    "globals": "^15.12.0",
     "husky": "^9.1.6",
     "jsdom": "^25.0.1",
     "lint-staged": "^15.2.10",
@@ -196,7 +196,7 @@
     "vite": "^5.4.10",
     "vite-plugin-checker": "^0.8.0",
     "vite-plugin-svgr": "^4.2.0",
-    "vitest": "^2.1.3"
+    "vitest": "^2.1.4"
   },
   "resolutions": {
     "@types/react": "18.3.11",
