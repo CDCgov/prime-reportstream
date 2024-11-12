@@ -282,4 +282,4 @@ components:
 
   securitySchemes:
     ApiKeyAuth:
-      $ref: 'https://raw.githubusercontent.com/CDCgov/prime-reportstream/master/prime-router/docs/api/components/security_schemes.yml#/ApiKeyAuth'
+      $ref: 'https://raw.githubusercontent.com/CDCgov/prime-reportstream/main/prime-router/docs/api/components/security_schemes.yml#/ApiKeyAuth'

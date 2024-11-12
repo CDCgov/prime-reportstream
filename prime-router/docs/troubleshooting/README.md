@@ -17,6 +17,6 @@ The “oh, no” section
 ### Stop a batch or send (already exists)
 
 ### DNS or SFTP Restart
-([current version](https://github.com/CDCgov/prime-reportstream/blob/master/prime-router/docs/playbooks/dns_or_sftp_restart.md))
+([current version](https://github.com/CDCgov/prime-reportstream/blob/main/prime-router/docs/playbooks/dns_or_sftp_restart.md))
 
 ### Shutdown (already exists)

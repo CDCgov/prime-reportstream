@@ -74,8 +74,4 @@ export const developerResourcesApiSideNav = [
         name: "Responses from ReportStream",
         path: "/developer-resources/api/documentation/responses-from-reportstream",
     },
-    {
-        name: "Sample payloads and output",
-        path: "/developer-resources/api/documentation/sample-payloads-and-output",
-    },
 ];
