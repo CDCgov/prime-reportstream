@@ -135,6 +135,7 @@ class OBXToObservationTests {
         assert(verifyHL7ToFHIRToHL7Mapping("catchall/obx/OBX-to-Observation-obx-33").passed)
     }
 
+    // TODO https://github.com/CDCgov/prime-reportstream/issues/16522
     @Test
     @Ignore
     fun `test correctly handles OBX-33 without extension`() {

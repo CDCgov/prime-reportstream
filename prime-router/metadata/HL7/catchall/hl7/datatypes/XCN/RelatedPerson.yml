@@ -149,13 +149,6 @@ name:
               valueOf: XCN.18
               expressionType: HL7Spec
 
-address:
-  condition: $XADAddress NOT_NULL
-  valueOf: datatypes/XAD/Address
-  expressionType: resource
-  specs: $XADAddress
-  generateList: true
-
 extension:
   vars:
     xcn9: STRING_ALL, XCN.9

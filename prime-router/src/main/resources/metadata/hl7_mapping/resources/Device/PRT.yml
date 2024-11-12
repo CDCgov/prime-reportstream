@@ -9,6 +9,7 @@ elements:
     value: [ '%prtDeviceIndex + 1' ]
     hl7Spec: [ '%{hl7PRTFieldPath}-1' ]
 
+  # TODO reevaluate this mapping https://github.com/CDCgov/prime-reportstream/issues/16479
   - name: observation-set-id
     value: [ '%prtDeviceIndex + 1' ]
     hl7Spec: [ '%{hl7OBXFieldPath}-1' ]

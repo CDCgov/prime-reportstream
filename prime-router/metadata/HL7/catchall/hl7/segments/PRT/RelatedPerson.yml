@@ -1,8 +1,9 @@
 # $schema: ./../../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
 
-# TODO add handling of preferredContactMethod to XTN/ContactPoint
-# TODO need message level conditions to be able to implement FHIR > HL7 mapping
-# TODO mappings should be treated as incomplete and require tests to be written
+# TODO https://github.com/CDCgov/prime-reportstream/issues/16479
+#  - add handling of preferredContactMethod to XTN/ContactPoint
+#  - need message level conditions to be able to implement FHIR > HL7 mapping
+#  - mappings should be treated as incomplete and require tests to be written
 
 # This segment does not appear in NIST or RADx MARS
 
