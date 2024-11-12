@@ -92,6 +92,7 @@ enum class ReportStreamEventName {
     REPORT_NOT_PROCESSABLE,
     ITEM_SENT,
     PIPELINE_EXCEPTION,
+    ITEM_TRANSFORMED,
 }
 
 /**

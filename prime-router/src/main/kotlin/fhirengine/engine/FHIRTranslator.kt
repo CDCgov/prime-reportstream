@@ -6,6 +6,8 @@ import ca.uhn.hl7v2.model.Segment
 import ca.uhn.hl7v2.util.Terser
 import fhirengine.engine.CustomFhirPathFunctions
 import fhirengine.engine.CustomTranslationFunctions
+import gov.cdc.prime.reportstream.shared.BlobUtils
+import gov.cdc.prime.reportstream.shared.BlobUtils.sha256Digest
 import gov.cdc.prime.reportstream.shared.QueueMessage
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.CustomerStatus
@@ -26,6 +28,8 @@ import gov.cdc.prime.router.azure.observability.context.withLoggingContext
 import gov.cdc.prime.router.azure.observability.event.AzureEventService
 import gov.cdc.prime.router.azure.observability.event.AzureEventServiceImpl
 import gov.cdc.prime.router.azure.observability.event.IReportStreamEventService
+import gov.cdc.prime.router.azure.observability.event.ReportStreamEventName
+import gov.cdc.prime.router.azure.observability.event.ReportStreamItemEventBuilder
 import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.fhirengine.config.HL7TranslationConfig
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Context
@@ -114,6 +118,10 @@ class FHIRTranslator(
         logger.trace("Preparing to send original message")
         val originalReport = reportService.getRootReport(message.reportId)
         val bodyBytes = BlobAccess.downloadBlobAsByteArray(originalReport.bodyUrl)
+        val localDigest = BlobUtils.digestToString(sha256Digest(bodyBytes))
+        check(message.digest == localDigest) {
+            "Downloaded file does not match expected file\n$message.digest | $localDigest"
+        }
 
         // get a Report from the message
         val (report, event, blobInfo) = Report.generateReportAndUploadBlob(
@@ -162,6 +170,17 @@ class FHIRTranslator(
             actionHistory,
             topic = message.topic
         )
+
+        val someEvent = ReportStreamItemEventBuilder(
+            reportEventService,
+            azureEventService,
+            ReportStreamEventName.ITEM_TRANSFORMED,
+            report.id,
+            report.bodyURL,
+            message.topic,
+            TaskAction.translate
+        ).buildEvent()
+        azureEventService.trackEvent(someEvent)
 
         return FHIREngineRunResult(
             event,
