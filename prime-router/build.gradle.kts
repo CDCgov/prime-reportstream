@@ -42,7 +42,7 @@ plugins {
     id("com.adarshr.test-logger") version "4.0.0"
     id("jacoco")
     id("org.jetbrains.dokka") version "1.8.20"
-    id("com.avast.gradle.docker-compose") version "0.17.8"
+    id("com.avast.gradle.docker-compose") version "0.17.10"
     id("org.jetbrains.kotlin.plugin.serialization") version "$kotlinVersion"
     id("com.nocwriter.runsql") version ("1.0.3")
     id("io.swagger.core.v3.swagger-gradle-plugin") version "2.2.23"
@@ -868,11 +868,11 @@ dependencies {
     implementation("com.azure:azure-storage-queue:12.22.0") {
         exclude(group = "com.azure", module = "azure-core")
     }
-    implementation("com.azure:azure-security-keyvault-secrets:4.8.7") {
+    implementation("com.azure:azure-security-keyvault-secrets:4.9.0") {
         exclude(group = "com.azure", module = "azure-core")
         exclude(group = "com.azure", module = "azure-core-http-netty")
     }
-    implementation("com.azure:azure-identity:1.13.3") {
+    implementation("com.azure:azure-identity:1.14.0") {
         exclude(group = "com.azure", module = "azure-core")
         exclude(group = "com.azure", module = "azure-core-http-netty")
     }
@@ -903,8 +903,8 @@ dependencies {
     implementation("ca.uhn.hapi.fhir:hapi-fhir-caching-caffeine:7.4.2")
     implementation("ca.uhn.hapi.fhir:hapi-fhir-client:7.4.2")
     // pin
-    implementation("ca.uhn.hapi.fhir:org.hl7.fhir.utilities:6.3.29")
-    implementation("ca.uhn.hapi.fhir:org.hl7.fhir.r4:6.3.24")
+    implementation("ca.uhn.hapi.fhir:org.hl7.fhir.utilities:6.4.0")
+    implementation("ca.uhn.hapi.fhir:org.hl7.fhir.r4:6.4.0")
     implementation("ca.uhn.hapi:hapi-base:2.5.1")
     implementation("ca.uhn.hapi:hapi-structures-v251:2.5.1")
     implementation("ca.uhn.hapi:hapi-structures-v27:2.5.1")
@@ -926,7 +926,7 @@ dependencies {
     implementation("com.zaxxer:HikariCP:6.0.0")
     implementation("org.flywaydb:flyway-core:10.18.2")
     implementation("org.flywaydb:flyway-database-postgresql:10.18.2")
-    implementation("org.commonmark:commonmark:0.23.0")
+    implementation("org.commonmark:commonmark:0.24.0")
     implementation("com.google.guava:guava:33.3.1-jre")
     implementation("com.helger.as2:as2-lib:5.1.2")
     implementation("org.bouncycastle:bcprov-jdk15to18:1.78.1")
@@ -988,7 +988,7 @@ dependencies {
     runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.11.5")
 
     testImplementation(kotlin("test-junit5"))
-    testImplementation("io.mockk:mockk:1.13.12")
+    testImplementation("io.mockk:mockk:1.13.13")
     testImplementation("io.ktor:ktor-client-mock:$ktorVersion")
 
     implementation(project(":shared"))
