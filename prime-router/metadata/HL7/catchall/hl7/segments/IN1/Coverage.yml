@@ -1,0 +1,14 @@
+# $schema: ./../../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
+
+
+authorizationNumber:
+  type: STRING
+  expressionType: HL7Spec
+
+date:
+  type: DATE
+  expressionType: HL7Spec
+
+source:
+  type: STRING
+  expressionType: HL7Spec

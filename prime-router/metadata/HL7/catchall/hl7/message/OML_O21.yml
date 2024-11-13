@@ -48,3 +48,8 @@ resources:
     isReferenced: true
     additionalSegments:
       - MSH
+
+  - resourceName: Coverage
+    segment: .IN1
+    group: PATIENT.INSURANCE
+    resourcePath: segments/IN1/Coverage
