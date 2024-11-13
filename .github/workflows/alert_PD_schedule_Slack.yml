@@ -5,7 +5,8 @@ on:
     - cron: "7 13 * * Mon"  #UTC-5
 
 env:
-  channel: prime-reportstream-engineering
+  channel: temp-cdc-rs-notifications
+  # prime-reportstream-engineering
 
 jobs:
   pre_job:
