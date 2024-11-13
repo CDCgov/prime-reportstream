@@ -24,7 +24,9 @@ import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
+import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
+import gov.cdc.prime.router.report.ReportService
 import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.mockk.clearAllMocks
 import io.mockk.every
@@ -75,6 +77,7 @@ class FhirTranslatorTests {
             )
         )
     )
+    val reportServiceMock = mockk<ReportService>()
 
     private fun makeFhirEngine(
         metadata: Metadata = Metadata(
@@ -87,7 +90,7 @@ class FhirTranslatorTests {
         settings: SettingsProvider = FileSettings().loadOrganizations(oneOrganization),
     ): FHIRTranslator {
         return FHIREngine.Builder().metadata(metadata).settingsProvider(settings).databaseAccess(accessSpy)
-            .blobAccess(blobMock).build(TaskAction.translate) as FHIRTranslator
+            .blobAccess(blobMock).reportService(reportServiceMock).build(TaskAction.translate) as FHIRTranslator
     }
 
     @BeforeEach
@@ -106,10 +109,11 @@ class FhirTranslatorTests {
         val actionLogger = mockk<ActionLogger>()
         val engine = makeFhirEngine()
 
+        val reportId = UUID.randomUUID()
         val message =
             spyk(
                 FhirTranslateQueueMessage(
-                    UUID.randomUUID(),
+                    reportId,
                     BLOB_URL,
                     "test",
                     BLOB_SUB_FOLDER,
@@ -120,6 +124,7 @@ class FhirTranslatorTests {
 
         val bodyFormat = MimeFormat.FHIR
         val bodyUrl = BODY_URL
+        val rootReport = mockk<ReportFile>()
 
         every { actionLogger.hasErrors() } returns false
         every { BlobAccess.downloadBlob(any(), any()) }
@@ -154,6 +159,12 @@ class FhirTranslatorTests {
                 ""
             )
         )
+        every { rootReport.reportId } returns reportId
+        every { rootReport.sendingOrg } returns oneOrganization.name
+        every { rootReport.sendingOrgClient } returns oneOrganization.receivers[0].fullName
+        every { reportServiceMock.getRootReport(any()) } returns rootReport
+        every { reportServiceMock.getRootReports(any()) } returns listOf(rootReport)
+        every { reportServiceMock.getRootItemIndex(any(), any()) } returns 1
 
         // act
         accessSpy.transact { txn ->
@@ -182,9 +193,10 @@ class FhirTranslatorTests {
         val actionLogger = mockk<ActionLogger>()
 
         val engine = makeFhirEngine(settings = settings)
+        val reportId = UUID.randomUUID()
         val message = spyk(
             FhirTranslateQueueMessage(
-                UUID.randomUUID(),
+                reportId,
                 BLOB_URL,
                 "test",
                 BLOB_SUB_FOLDER,
@@ -195,6 +207,7 @@ class FhirTranslatorTests {
 
         val bodyFormat = MimeFormat.FHIR
         val bodyUrl = BODY_URL
+        val rootReport = mockk<ReportFile>()
         every { actionLogger.hasErrors() } returns false
         every { BlobAccess.downloadBlob(any(), any()) }
             .returns(File(VALID_DATA_URL).readText())
@@ -228,6 +241,13 @@ class FhirTranslatorTests {
                 ""
             )
         )
+
+        every { rootReport.reportId } returns reportId
+        every { rootReport.sendingOrg } returns oneOrganization.name
+        every { rootReport.sendingOrgClient } returns oneOrganization.receivers[0].fullName
+        every { reportServiceMock.getRootReport(any()) } returns rootReport
+        every { reportServiceMock.getRootReports(any()) } returns listOf(rootReport)
+        every { reportServiceMock.getRootItemIndex(any(), any()) } returns 1
 
         // act
         accessSpy.transact { txn ->
