@@ -171,7 +171,7 @@ class FHIRTranslator(
             topic = message.topic
         )
 
-        val someEvent = ReportStreamItemEventBuilder(
+        val builder = ReportStreamItemEventBuilder(
             reportEventService,
             azureEventService,
             ReportStreamEventName.ITEM_TRANSFORMED,
@@ -179,8 +179,9 @@ class FHIRTranslator(
             report.bodyURL,
             message.topic,
             TaskAction.translate
-        ).buildEvent()
-        azureEventService.trackEvent(someEvent)
+        )
+        builder.theParentReportId = reportService.getRootReport(report.id).reportId
+        azureEventService.trackEvent(builder.buildEvent())
 
         return FHIREngineRunResult(
             event,
