@@ -33,6 +33,9 @@ extension_2-universalId:
 
 extension_3-universalIdType:
   generateList: true
+  vars:
+    universalIdType: String, HD.3
+  condition: $universalIdType NOT_NULL
   expressionType: nested
   expressionsMap:
     url:
@@ -44,7 +47,7 @@ extension_3-universalIdType:
       expressionType: HL7Spec
 
 extension_4-universalIdUnknownType:
-  condition: $universalIdType NOT_EQUALS ISO && $universalIdType NOT_EQUALS UUID
+  condition: $universalId NOT_NULL && $universalIdType NOT_EQUALS ISO && $universalIdType NOT_EQUALS UUID
   generateList: true
   expressionType: nested
   expressionsMap:
@@ -56,10 +59,11 @@ extension_4-universalIdUnknownType:
       valueOf: HD.2
       expressionType: HL7Spec
   vars:
+    universalId: String, HD.2
     universalIdType: String, HD.3
 
 extension_5-universalIdUnknownType:
-  condition: $universalIdType NULL
+  condition: $universalId NOT_NULL && $universalIdType NULL
   generateList: true
   expressionType: nested
   expressionsMap:
@@ -71,4 +75,5 @@ extension_5-universalIdUnknownType:
       valueOf: HD.2
       expressionType: HL7Spec
   vars:
+    universalId: String, HD.2
     universalIdType: String, HD.3
