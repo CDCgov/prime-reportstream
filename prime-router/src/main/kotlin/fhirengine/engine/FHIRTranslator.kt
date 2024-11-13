@@ -180,7 +180,7 @@ class FHIRTranslator(
             message.topic,
             TaskAction.translate
         )
-        builder.theParentReportId = reportService.getRootReport(report.id).reportId
+        builder.theParentReportId = message.reportId
         azureEventService.trackEvent(builder.buildEvent())
 
         return FHIREngineRunResult(
