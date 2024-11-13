@@ -9,7 +9,7 @@ start:
     dateTimeIn: $start
 _start:
   expressionType: nested
-  condition: $dateTimeIn NOT_NULL
+  condition: $start NOT_NULL
   expressionsMap:
     extension_1:
       generateList: true
@@ -20,7 +20,7 @@ _start:
           value: hl7v2-date-time
         valueString:
           type: STRING
-          valueOf: $dateTimeIn
+          valueOf: $start
           expressionType: HL7Spec
 
 end:
@@ -32,7 +32,7 @@ end:
     dateTimeIn: $end
 _end:
   expressionType: nested
-  condition: $dateTimeOut NOT_NULL
+  condition: $end NOT_NULL
   expressionsMap:
     extension_1:
       generateList: true
@@ -43,5 +43,5 @@ _end:
           value: hl7v2-date-time
         valueString:
           type: STRING
-          valueOf: $dateTimeOut
+          valueOf: $end
           expressionType: HL7Spec
