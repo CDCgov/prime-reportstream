@@ -466,6 +466,8 @@ object CustomFHIRFunctions : FhirPathFunctions {
                 return mutableListOf(StringType(focus[0].toString()))
             }
 
+            // TODO: find a way to pass in these values from receiver settings
+
             val dateTimeFormat = null
             val convertPositiveDateTimeOffsetToNegative = null
             val useHighPrecisionHeaderDateTimeFormat = null
