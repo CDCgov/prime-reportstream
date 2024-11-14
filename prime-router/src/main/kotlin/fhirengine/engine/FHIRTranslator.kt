@@ -120,7 +120,7 @@ class FHIRTranslator(
         val bodyBytes = BlobAccess.downloadBlobAsByteArray(originalReport.bodyUrl)
         val localDigest = BlobUtils.digestToString(sha256Digest(bodyBytes))
         check(message.digest == localDigest) {
-            "Downloaded file does not match expected file\n$message.digest | $localDigest"
+            "Downloaded file does not match expected file\n${message.digest} | $localDigest"
         }
 
         // get a Report from the message
