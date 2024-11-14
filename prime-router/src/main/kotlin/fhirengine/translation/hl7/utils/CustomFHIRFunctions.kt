@@ -3,6 +3,7 @@ package gov.cdc.prime.router.fhirengine.translation.hl7.utils
 import ca.uhn.fhir.model.api.TemporalPrecisionEnum
 import fhirengine.translation.hl7.utils.FhirPathFunctions
 import fhirengine.translation.hl7.utils.helpers.convertDateToAge
+import gov.cdc.prime.router.common.DateUtilities
 import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
 import org.hl7.fhir.r4.fhirpath.FHIRPathUtilityClasses.FunctionDetails
 import org.hl7.fhir.r4.model.Base
@@ -445,11 +446,6 @@ object CustomFHIRFunctions : FhirPathFunctions {
             throw SchemaException("Must call changeTimezone on a single element")
         }
 
-        val inputDate = focus[0] as? BaseDateTimeType ?: throw SchemaException(
-            "Must call changeTimezone on a dateTime, instant, or date; " +
-                "was attempted on a ${focus[0].fhirType()}"
-        )
-
         if (parameters == null || parameters[0].size != 1) {
             throw SchemaException("Must pass a timezone as the parameter")
         }
@@ -465,14 +461,41 @@ object CustomFHIRFunctions : FhirPathFunctions {
             )
         }
 
-        return when (inputDate.precision) {
-            TemporalPrecisionEnum.YEAR, TemporalPrecisionEnum.MONTH, TemporalPrecisionEnum.DAY, null -> mutableListOf(
-                inputDate
+        return if (focus[0] is StringType) {
+            if (focus[0].toString().length <= 8) { // we don't want to convert Date-only strings
+                return mutableListOf(StringType(focus[0].toString()))
+            }
+
+            // TODO: find a way to pass in these values from receiver settings
+
+            val dateTimeFormat = null
+            val convertPositiveDateTimeOffsetToNegative = null
+            val useHighPrecisionHeaderDateTimeFormat = null
+
+            val formattedDate = DateUtilities.formatDateForReceiver(
+                DateUtilities.parseDate((focus[0].toString())),
+                ZoneId.of(inputTimeZone),
+                dateTimeFormat ?: DateUtilities.DateTimeFormat.OFFSET,
+                convertPositiveDateTimeOffsetToNegative ?: false,
+                useHighPrecisionHeaderDateTimeFormat ?: false
             )
 
-            TemporalPrecisionEnum.MINUTE, TemporalPrecisionEnum.SECOND, TemporalPrecisionEnum.MILLI -> mutableListOf(
-                DateTimeType(inputDate.value, inputDate.precision, timezonePassed)
+            mutableListOf(
+                StringType(formattedDate)
             )
+        } else {
+            val inputDate = focus[0] as? BaseDateTimeType ?: throw SchemaException(
+                "Must call changeTimezone on a dateTime, instant, or date; " +
+                    "was attempted on a ${focus[0].fhirType()}"
+            )
+
+            when (inputDate.precision) {
+                TemporalPrecisionEnum.YEAR, TemporalPrecisionEnum.MONTH, TemporalPrecisionEnum.DAY, null ->
+                    mutableListOf(inputDate)
+
+                TemporalPrecisionEnum.MINUTE, TemporalPrecisionEnum.SECOND, TemporalPrecisionEnum.MILLI ->
+                    mutableListOf(DateTimeType(inputDate.value, inputDate.precision, timezonePassed))
+            }
         }
     }
 }
