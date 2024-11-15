@@ -38,6 +38,7 @@ import ca.uhn.hl7v2.model.Group;
 import ca.uhn.hl7v2.model.Structure;
 import ca.uhn.hl7v2.model.v27.segment.*;
 import ca.uhn.hl7v2.parser.ModelClassFactory;
+import fhirengine.translation.hl7.structures.fhirinventory.segment.FT1;
 import fhirengine.translation.hl7.structures.fhirinventory.segment.ORC;
 
 /**
