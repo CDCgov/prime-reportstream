@@ -58,6 +58,9 @@ class HL7ACKUtilsTest {
         val actual = f.hl7Reader.getMessages(ack).first()
 
         val diffs = f.hl7DiffHelper.diffHl7(expected, actual)
+        if (diffs.isNotEmpty()) {
+            println(diffs)
+        }
         assertThat(diffs.size).isEqualTo(0)
     }
 }
