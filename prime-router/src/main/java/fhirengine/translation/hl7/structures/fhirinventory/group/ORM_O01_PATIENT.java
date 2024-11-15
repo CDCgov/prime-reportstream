@@ -38,6 +38,7 @@ import ca.uhn.hl7v2.HL7Exception;
 import ca.uhn.hl7v2.parser.ModelClassFactory;
 import ca.uhn.hl7v2.model.*;
 import ca.uhn.hl7v2.model.v26.group.ORM_O01_INSURANCE;
+import fhirengine.translation.hl7.structures.fhirinventory.segment.AL1;
 import fhirengine.translation.hl7.structures.fhirinventory.segment.NTE;
 import fhirengine.translation.hl7.structures.fhirinventory.segment.PD1;
 import fhirengine.translation.hl7.structures.fhirinventory.segment.PID;

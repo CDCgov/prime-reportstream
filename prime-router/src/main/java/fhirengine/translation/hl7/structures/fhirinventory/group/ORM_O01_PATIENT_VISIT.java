@@ -33,6 +33,7 @@
 package fhirengine.translation.hl7.structures.fhirinventory.group;
 
 import ca.uhn.hl7v2.model.v27.segment.*;
+import fhirengine.translation.hl7.structures.fhirinventory.segment.PV1;
 
 import ca.uhn.hl7v2.HL7Exception;
 import ca.uhn.hl7v2.parser.ModelClassFactory;
