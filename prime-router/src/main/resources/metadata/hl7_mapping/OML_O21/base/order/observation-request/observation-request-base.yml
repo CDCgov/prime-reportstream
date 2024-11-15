@@ -7,6 +7,8 @@ elements:
     schema: classpath:/metadata/hl7_mapping/OML_O21/base/order/observation-request/observation-request.yml
 
   - name: observation-request-observation
+    resource: '%resource.supportingInfo.resolve().ofType(Observation).where(subject.resolve().id = %resource.subject.resolve().id)'
+    resourceIndex: observationIndex
     schema: classpath:/metadata/hl7_mapping/OML_O21/base/order/observation-request/observation/observation.yml
 
   - name: observation-request-specimen
