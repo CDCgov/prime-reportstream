@@ -10,8 +10,9 @@ import io.mockk.mockkStatic
 import io.mockk.unmockkAll
 import org.junit.jupiter.api.AfterEach
 import java.time.Clock
-import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.ZoneId
+import java.time.ZoneOffset
 import java.util.UUID
 import kotlin.test.Test
 
@@ -21,10 +22,9 @@ class HL7ACKUtilsTest {
         val hl7Reader = HL7Reader(ActionLogger())
         val hl7DiffHelper = HL7DiffHelper()
 
-        private val utc = ZoneId.of("UTC")
         private val clock = Clock.fixed(
-            LocalDate.of(2024, 9, 21).atStartOfDay(utc).toInstant(),
-            utc
+            LocalDateTime.of(2024, 9, 21, 0, 0).toInstant(ZoneOffset.UTC),
+            ZoneId.of("UTC")
         )
         val utils = HL7ACKUtils(clock)
     }
@@ -51,7 +51,7 @@ class HL7ACKUtilsTest {
 
         val expected = f.hl7Reader.getMessages(
             """
-            MSH|^~\&|ReportStream|CDC|Epic|Hospital|20240920200000||ACK|$id|T|2.5.1|||NE|NE
+            MSH|^~\&|ReportStream|CDC|Epic|Hospital|20240921000000+0000||ACK|$id|T|2.5.1|||NE|NE
             MSA|CA|4AFA57FE-D41D-4631-9500-286AAAF797E4
         """
         ).first()
