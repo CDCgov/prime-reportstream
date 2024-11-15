@@ -98,7 +98,7 @@ class ORCOBRToServiceRequestDiagnosticReportTests {
     }
 
     @Test
-    fun `test populates SupportingInfo for message types that use them`() { // todo reword
+    fun `test links ServiceRequest to Observation through SupportingInfo`() {
         val testFileName = "catchall/orcobr/orc_obr-to-servicerequest_diagnosticreport-OML-message"
         assert(
             verifyHL7ToFHIRToHL7Mapping(

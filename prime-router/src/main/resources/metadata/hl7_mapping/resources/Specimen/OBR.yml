@@ -7,12 +7,12 @@ elements:
     value: [ '%resource.collection.collected.extension(%`rsext-hl7v2-date-time`).value' ]
     hl7Spec: [ '%{obrFieldPath}-7' ]
 
-  - name: observation-collected-datetime-start
+  - name: observation-collected-period-start
     condition: '%resource.collection.collected.is(Period)'
     value: [ '%resource.collection.collected.start.extension(%`rsext-hl7v2-date-time`).value' ]
     hl7Spec: [ '%{obrFieldPath}-7' ]
 
-  - name: observation-collected-end-datetime
+  - name: observation-collected-period-end
     condition: '%resource.collection.collected.is(Period)'
     value: [ '%resource.collection.collected.end.extension(%`rsext-hl7v2-date-time`).value' ]
     hl7Spec: [ '%{obrFieldPath}-8' ]
