@@ -907,7 +907,6 @@ dependencies {
     implementation("ca.uhn.hapi.fhir:org.hl7.fhir.r4:6.3.24")
     implementation("ca.uhn.hapi:hapi-base:2.5.1")
     implementation("ca.uhn.hapi:hapi-structures-v251:2.5.1")
-    implementation("ca.uhn.hapi:hapi-structures-v26:2.5.1")
     implementation("ca.uhn.hapi:hapi-structures-v27:2.5.1")
     implementation("com.googlecode.libphonenumber:libphonenumber:8.13.46")
     implementation("org.thymeleaf:thymeleaf:3.1.2.RELEASE")

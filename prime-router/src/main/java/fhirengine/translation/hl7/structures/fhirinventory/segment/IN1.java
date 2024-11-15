@@ -34,7 +34,7 @@
 package fhirengine.translation.hl7.structures.fhirinventory.segment;
 
 // import ca.uhn.hl7v2.model.v27.group.*;
-import ca.uhn.hl7v2.model.v26.datatype.*;
+import ca.uhn.hl7v2.model.v27.datatype.*;
 import ca.uhn.hl7v2.HL7Exception;
 import ca.uhn.hl7v2.parser.ModelClassFactory;
 import ca.uhn.hl7v2.parser.DefaultModelClassFactory;
@@ -63,7 +63,7 @@ import ca.uhn.hl7v2.model.Varies;
  * <li>IN1-12: Plan Effective Date (DT) <b>optional </b>
  * <li>IN1-13: Plan Expiration Date (DT) <b>optional </b>
  * <li>IN1-14: Authorization Information (AUI) <b>optional </b>
- * <li>IN1-15: Plan Type (IS) <b>optional </b>
+ * <li>IN1-15: Plan Type (CWE) <b>optional </b>
  * <li>IN1-16: Name Of Insured (XPN) <b>optional repeating</b>
  * <li>IN1-17: Insured's Relationship To Patient (CWE) <b>optional </b>
  * <li>IN1-18: Insured's Date Of Birth (DTM) <b>optional </b>
@@ -133,7 +133,7 @@ public class IN1 extends AbstractSegment {
       this.add(DT.class, false, 1, 0, new Object[]{ getMessage() }, "Plan Effective Date");
       this.add(DT.class, false, 1, 0, new Object[]{ getMessage() }, "Plan Expiration Date");
       this.add(AUI.class, false, 1, 0, new Object[]{ getMessage() }, "Authorization Information");
-      this.add(IS.class, false, 1, 0, new Object[]{ getMessage() }, "Plan Type");
+      this.add(CWE.class, false, 1, 0, new Object[]{ getMessage() }, "Plan Type");
       this.add(XPN.class, false, 0, 0, new Object[]{ getMessage() }, "Name Of Insured");
       this.add(CWE.class, false, 1, 0, new Object[]{ getMessage() }, "Insured's Relationship To Patient");
       this.add(DTM.class, false, 1, 0, new Object[]{ getMessage() }, "Insured's Date Of Birth");
@@ -1177,8 +1177,8 @@ public class IN1 extends AbstractSegment {
    * Returns
    * IN1-15: "Plan Type" - creates it if necessary
    */
-  public IS getPlanType() {
-    IS retVal = this.getTypedField(15, 0);
+  public CWE getPlanType() {
+    CWE retVal = this.getTypedField(15, 0);
     return retVal;
   }
 
@@ -1186,8 +1186,8 @@ public class IN1 extends AbstractSegment {
    * Returns
    * IN1-15: "Plan Type" - creates it if necessary
    */
-  public IS getIn115_PlanType() {
-    IS retVal = this.getTypedField(15, 0);
+  public CWE getIn115_PlanType() {
+    CWE retVal = this.getTypedField(15, 0);
     return retVal;
   }
 
@@ -2541,7 +2541,7 @@ public class IN1 extends AbstractSegment {
       case 11: return new DT(getMessage());
       case 12: return new DT(getMessage());
       case 13: return new AUI(getMessage());
-      case 14: return new IS(getMessage(), Integer.valueOf( 86 ));
+      case 14: return new CWE(getMessage());
       case 15: return new XPN(getMessage());
       case 16: return new CWE(getMessage());
       case 17: return new DTM(getMessage());

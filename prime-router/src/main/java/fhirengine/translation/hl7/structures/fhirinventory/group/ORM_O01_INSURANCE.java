@@ -33,9 +33,9 @@
 
 package fhirengine.translation.hl7.structures.fhirinventory.group;
 
-import fhirengine.translation.hl7.structures.fhirinventory.segment.*;
+import fhirengine.translation.hl7.structures.fhirinventory.segment.IN1;
+import fhirengine.translation.hl7.structures.fhirinventory.segment.IN3;
 import ca.uhn.hl7v2.model.v27.segment.IN2;
-import ca.uhn.hl7v2.model.v27.segment.IN3;
 
 import ca.uhn.hl7v2.HL7Exception;
 import ca.uhn.hl7v2.parser.ModelClassFactory;
@@ -74,10 +74,10 @@ public class ORM_O01_INSURANCE extends AbstractGroup {
   }
 
   /**
-   * Returns "2.6"
+   * Returns "2.7"
    */
   public String getVersion() {
-    return "2.6";
+    return "2.7";
   }
 
 

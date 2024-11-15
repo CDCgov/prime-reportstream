@@ -37,7 +37,6 @@ import ca.uhn.hl7v2.model.v27.segment.*;
 import ca.uhn.hl7v2.HL7Exception;
 import ca.uhn.hl7v2.parser.ModelClassFactory;
 import ca.uhn.hl7v2.model.*;
-import ca.uhn.hl7v2.model.v26.group.ORM_O01_INSURANCE;
 import fhirengine.translation.hl7.structures.fhirinventory.segment.AL1;
 import fhirengine.translation.hl7.structures.fhirinventory.segment.NTE;
 import fhirengine.translation.hl7.structures.fhirinventory.segment.PD1;
@@ -75,8 +74,6 @@ public class ORM_O01_PATIENT extends AbstractGroup {
       this.add(PD1.class, false, false, false);
       this.add(NTE.class, false, true, false);
       this.add(ORM_O01_PATIENT_VISIT.class, false, false, false);
-      // When https://github.com/CDCgov/prime-reportstream/issues/16307 is completed, and we build the java class for
-      // ORM_O01_INSURANCE, the hapi v26 dependencies in the gradle build can be removed.
       this.add(ORM_O01_INSURANCE.class, false, true, false);
       this.add(GT1.class, false, false, false);
       this.add(AL1.class, false, true, false);
