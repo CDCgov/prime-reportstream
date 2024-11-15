@@ -452,6 +452,7 @@ class HL7Reader(private val actionLogger: ActionLogger) : Logging {
                 else -> null
             }
         }
+
         fun getMessageControlId(message: Message): String? {
             return when (val structure = message[MSH_SEGMENT_NAME]) {
                 is NIST_MSH -> structure.msh10_MessageControlID.encode()

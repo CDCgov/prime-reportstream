@@ -488,5 +488,8 @@ OBX|1|test|94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen b
         assertThat(
             HL7Reader.getMessageControlId(message)
         ).isEqualTo("4AFA57FE-D41D-4631-9500-286AAAF797E4")
+        assertThat(
+            HL7Reader.isAckMessage(message)
+        ).isTrue()
     }
 }

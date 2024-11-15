@@ -650,10 +650,12 @@ class ReportFunction(
         val requestBody = request.body
         return if (contentType == "application/hl7-v2" && requestBody != null) {
             try {
+                // Parse HL7 message
                 val maybeMessage = HL7Reader(ActionLogger())
                     .getMessages(requestBody)
                     .firstOrNull()
 
+                // Is the message an ACK?
                 if (maybeMessage != null && HL7Reader.isAckMessage(maybeMessage)) {
                     logger.info("Creating HL7 ACK response")
                     request.createResponseBuilder(HttpStatus.OK)
