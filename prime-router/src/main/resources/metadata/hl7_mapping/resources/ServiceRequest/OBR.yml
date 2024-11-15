@@ -29,21 +29,6 @@ elements:
     value: [ '%resource.occurrence.extension(%`rsext-hl7v2-date-time`).value' ]
     hl7Spec: [ '%{obrFieldPath}-6' ]
 
-  - name: observation-collected-datetime
-    condition: '%resource.specimen.resolve().where(extension(%`rsext-hl7v2Segment`).value = "OBR").collection.collected.is(dateTime)'
-    value: [ '%resource.specimen.resolve().where(extension(%`rsext-hl7v2Segment`).value = "OBR").collection.collected.extension(%`rsext-hl7v2-date-time`).value' ]
-    hl7Spec: [ '%{obrFieldPath}-7' ]
-
-  - name: observation-collected-datetime-start
-    condition: '%resource.specimen.resolve().where(extension(%`rsext-hl7v2Segment`).value = "OBR").collection.collected.is(Period)'
-    value: [ '%resource.specimen.resolve().where(extension(%`rsext-hl7v2Segment`).value = "OBR").collection.collected.start.extension(%`rsext-hl7v2-date-time`).value' ]
-    hl7Spec: [ '%{obrFieldPath}-7' ]
-
-  - name: observation-collected-end-datetime
-    condition: '%resource.specimen.resolve().where(extension(%`rsext-hl7v2Segment`).value = "OBR").collection.collected.is(Period)'
-    value: [ '%resource.specimen.resolve().where(extension(%`rsext-hl7v2Segment`).value = "OBR").collection.collected.end.extension(%`rsext-hl7v2-date-time`).value' ]
-    hl7Spec: [ '%{obrFieldPath}-8' ]
-
   - name: ordering-provider-from-practitioner
     condition: '%context.requester.resolve().is(Practitioner) and %context.requester.resolve().extension(%`rsext-hl7v2Field`).value = "OBR.16"'
     schema: classpath:/metadata/hl7_mapping/resources/Practitioner/XCN.yml

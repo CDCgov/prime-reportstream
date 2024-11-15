@@ -147,6 +147,24 @@
       "extension" : [ {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/obr-observation-request",
         "extension" : [ {
+          "url" : "OBR.7, OBR.8",
+          "valuePeriod" : {
+            "start" : "2023-08-16T12:33:58-05:00",
+            "_start" : {
+              "extension" : [ {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+                "valueString" : "20230816123358-0500"
+              } ]
+            },
+            "end" : "2024-08-16T12:33:58-05:00",
+            "_end" : {
+              "extension" : [ {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+                "valueString" : "20240816123358-0500"
+              } ]
+            }
+          }
+        }, {
           "url" : "OBR.25",
           "valueId" : "F"
         } ]

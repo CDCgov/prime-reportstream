@@ -8,6 +8,12 @@ elements:
     constants:
       obrFieldPath: '/ORDER(%{orderIndex})/OBSERVATION_REQUEST/OBR'
 
+  - name: observation-request-specimen
+    resource: '%resource.specimen.resolve().where(extension(%`rsext-hl7v2Segment`).value = "OBR")'
+    schema: classpath:/metadata/hl7_mapping/resources/Specimen/OBR.yml
+    constants:
+      obrFieldPath: '/ORDER(%{orderIndex})/OBSERVATION_REQUEST/OBR'
+
   - name: observation-request-note
     resource: '%resource.note'
     resourceIndex: noteIndex
