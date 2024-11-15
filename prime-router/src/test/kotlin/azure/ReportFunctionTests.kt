@@ -1201,4 +1201,33 @@ class ReportFunctionTests {
         )
         assert(receiverReturned!!.name == receiver.name)
     }
+
+    @Test
+    fun `return ack if requested`() {
+        val metadata = UnitTestUtils.simpleMetadata
+        val settings = FileSettings().loadOrganizations(oneOrganization)
+        val sender = CovidSender("Test Sender", "test", MimeFormat.CSV, schemaName = "one")
+
+        val engine = makeEngine(metadata, settings)
+        val actionHistory = spyk(ActionHistory(TaskAction.receive))
+        val reportFunc = ReportFunction(engine, actionHistory)
+
+        every { engine.settings.findSender("Test Sender") } returns sender
+
+        val body = """
+            MSH|^~\&|Epic|Hospital|LIMS|StatePHL|20241003000000||ORM^O01^ORM_O01|4AFA57FE-D41D-4631-9500-286AAAF797E4|T|2.5.1|||AL|NE
+        """.trimIndent()
+
+        val req = MockHttpRequestMessage(body)
+        req.httpHeaders += mapOf(
+            "client" to "Test Sender",
+            "content-length" to body.length.toString(),
+            "content-type" to "application/hl7-v2"
+        )
+
+        val response = reportFunc.run(req)
+
+        assertThat(response.status.value()).isEqualTo(200)
+        assertThat(response.getHeader("Content-Type")).isEqualTo("application/hl7-v2")
+    }
 }

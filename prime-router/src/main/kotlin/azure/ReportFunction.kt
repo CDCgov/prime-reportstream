@@ -19,6 +19,7 @@ import com.microsoft.azure.functions.annotation.StorageAccount
 import gov.cdc.prime.router.ActionError
 import gov.cdc.prime.router.ActionLog
 import gov.cdc.prime.router.ActionLogLevel
+import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.InvalidParamMessage
 import gov.cdc.prime.router.InvalidReportMessage
@@ -41,7 +42,9 @@ import gov.cdc.prime.router.cli.ProcessFhirCommands
 import gov.cdc.prime.router.common.AzureHttpUtils.getSenderIP
 import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.common.JacksonMapperUtilities
+import gov.cdc.prime.router.fhirengine.translation.hl7.utils.HL7ACKUtils
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
+import gov.cdc.prime.router.fhirengine.utils.HL7Reader
 import gov.cdc.prime.router.history.azure.SubmissionsFacade
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
 import gov.cdc.prime.router.tokens.Scope
@@ -68,6 +71,7 @@ class ReportFunction(
         workflowEngine.azureEventService,
         workflowEngine.reportService
     ),
+    private val hl7ACKUtils: HL7ACKUtils = HL7ACKUtils(),
 ) : RequestFunction(workflowEngine),
     Logging {
 
@@ -495,6 +499,12 @@ class ReportFunction(
         request: HttpRequestMessage<String?>,
         sender: Sender,
     ): HttpResponseMessage {
+        // check for ACK request
+        val maybeACKResponse = handleAckRequest(request)
+        if (maybeACKResponse != null) {
+            return maybeACKResponse
+        }
+
         // determine if we should be following the sync or async workflow
         val isAsync = processingType(request, sender) == ProcessingType.async
         // allow duplicates 'override' param
@@ -631,6 +641,36 @@ class ReportFunction(
             } catch (e: IllegalArgumentException) {
                 sender.processingType
             }
+        }
+    }
+
+    private fun handleAckRequest(request: HttpRequestMessage<String?>): HttpResponseMessage? {
+        // why does Azure handle Headers case-sensitive???
+        val contentType = request.headers[HttpHeaders.CONTENT_TYPE.lowercase()]
+        val requestBody = request.body
+        return if (contentType == "application/hl7-v2" && requestBody != null) {
+            try {
+                val maybeMessage = HL7Reader(ActionLogger())
+                    .getMessages(requestBody)
+                    .firstOrNull()
+
+                if (maybeMessage != null && HL7Reader.isAckMessage(maybeMessage)) {
+                    logger.info("Creating HL7 ACK response")
+                    request.createResponseBuilder(HttpStatus.OK)
+                        .header(HttpHeaders.CONTENT_TYPE, "application/hl7-v2")
+                        .body(hl7ACKUtils.generateOutgoingACKMessage(maybeMessage))
+                        .build()
+                } else {
+                    logger.trace("Not an HL7 ACK message. Continuing.")
+                    null
+                }
+            } catch (ex: Exception) {
+                logger.warn("Error checking for HL7 ACK. Continuing normal pipeline execution.", ex)
+                null
+            }
+        } else {
+            logger.trace("Not an HL7 ACK message. Continuing.")
+            null
         }
     }
 }

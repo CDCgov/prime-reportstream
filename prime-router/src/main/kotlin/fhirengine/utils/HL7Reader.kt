@@ -424,5 +424,41 @@ class HL7Reader(private val actionLogger: ActionLogger) : Logging {
                 else -> null
             }
         }
+
+        fun isAckMessage(message: Message): Boolean {
+            val acceptAcknowledgmentType = when (val structure = message[MSH_SEGMENT_NAME]) {
+                is NIST_MSH -> structure.msh15_AcceptAcknowledgmentType.value
+                is v27_MSH -> structure.msh15_AcceptAcknowledgmentType.value
+                is v251_MSH -> structure.msh15_AcceptAcknowledgmentType.value
+                else -> null
+            }
+            return acceptAcknowledgmentType == "AL"
+        }
+
+        fun getSendingApplication(message: Message): String? {
+            return when (val structure = message[MSH_SEGMENT_NAME]) {
+                is NIST_MSH -> structure.msh3_SendingApplication.encode()
+                is v27_MSH -> structure.msh3_SendingApplication.encode()
+                is v251_MSH -> structure.msh3_SendingApplication.encode()
+                else -> null
+            }
+        }
+
+        fun getSendingFacility(message: Message): String? {
+            return when (val structure = message[MSH_SEGMENT_NAME]) {
+                is NIST_MSH -> structure.msh4_SendingFacility.encode()
+                is v27_MSH -> structure.msh4_SendingFacility.encode()
+                is v251_MSH -> structure.msh4_SendingFacility.encode()
+                else -> null
+            }
+        }
+        fun getMessageControlId(message: Message): String? {
+            return when (val structure = message[MSH_SEGMENT_NAME]) {
+                is NIST_MSH -> structure.msh10_MessageControlID.encode()
+                is v27_MSH -> structure.msh10_MessageControlID.encode()
+                is v251_MSH -> structure.msh10_MessageControlID.encode()
+                else -> null
+            }
+        }
     }
 }

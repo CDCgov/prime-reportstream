@@ -109,6 +109,10 @@ enum class Environment(
             return get() == LOCAL
         }
 
+        fun isProd(): Boolean {
+            return get() == PROD
+        }
+
         /**
          * Time zone to use for ReportStream. Note that Azure runs on UTC, so this forces our local runs to also be UTC.
          */
