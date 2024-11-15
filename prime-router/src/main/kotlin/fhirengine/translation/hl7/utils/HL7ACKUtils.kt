@@ -21,21 +21,21 @@ class HL7ACKUtils(
         val ackMsh = outgoingAck.msh
         ackMsh.msh1_FieldSeparator.value = "|"
         ackMsh.msh2_EncodingCharacters.value = "^~\\&"
-        ackMsh.msh3_SendingApplication.hd1_NamespaceID.value = "ReportStream"
-        ackMsh.msh4_SendingFacility.hd1_NamespaceID.value = "CDC"
-        ackMsh.msh5_ReceivingApplication.hd1_NamespaceID.value = HL7Reader.getSendingApplication(incomingACKMessage)
-        ackMsh.msh6_ReceivingFacility.hd1_NamespaceID.value = HL7Reader.getSendingFacility(incomingACKMessage)
+        ackMsh.msh3_SendingApplication.parse("ReportStream")
+        ackMsh.msh4_SendingFacility.parse("CDC")
+        ackMsh.msh5_ReceivingApplication.parse(HL7Reader.getSendingApplication(incomingACKMessage))
+        ackMsh.msh6_ReceivingFacility.parse(HL7Reader.getSendingFacility(incomingACKMessage))
         ackMsh.msh7_DateTimeOfMessage.time.setValueToSecond(Date.from(clock.instant()))
-        ackMsh.msh9_MessageType.msg1_MessageCode.value = "ACK"
-        ackMsh.msh10_MessageControlID.value = UUID.randomUUID().toString()
-        ackMsh.msh11_ProcessingID.pt1_ProcessingID.value = if (Environment.isProd()) "P" else "T"
-        ackMsh.msh12_VersionID.versionID.value = "2.5.1"
-        ackMsh.msh15_AcceptAcknowledgmentType.value = "NE"
-        ackMsh.msh16_ApplicationAcknowledgmentType.value = "NE"
+        ackMsh.msh9_MessageType.parse("ACK")
+        ackMsh.msh10_MessageControlID.parse(UUID.randomUUID().toString())
+        ackMsh.msh11_ProcessingID.parse(if (Environment.isProd()) "P" else "T")
+        ackMsh.msh12_VersionID.versionID.parse("2.5.1")
+        ackMsh.msh15_AcceptAcknowledgmentType.parse("NE")
+        ackMsh.msh16_ApplicationAcknowledgmentType.parse("NE")
 
         val ackMsa = outgoingAck.msa
-        ackMsa.msa1_AcknowledgmentCode.value = "CA"
-        ackMsa.msa2_MessageControlID.value = HL7Reader.getMessageControlId(incomingACKMessage)
+        ackMsa.msa1_AcknowledgmentCode.parse("CA")
+        ackMsa.msa2_MessageControlID.parse(HL7Reader.getMessageControlId(incomingACKMessage))
 
         return outgoingAck.toString()
     }
