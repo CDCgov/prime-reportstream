@@ -1476,14 +1476,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@playwright/test@npm:^1.48.1":
-  version: 1.48.1
-  resolution: "@playwright/test@npm:1.48.1"
+"@playwright/test@npm:^1.48.2":
+  version: 1.48.2
+  resolution: "@playwright/test@npm:1.48.2"
   dependencies:
-    playwright: 1.48.1
+    playwright: 1.48.2
   bin:
     playwright: cli.js
-  checksum: 3f3f32dadeea9da4b9f835ba41d6bfabbd4c8d322bbba059250cb7bbdf2ae8fd32d547f64cef0bda492dff32128b4d4d802422525995570ebb57e62605c0557f
+  checksum: 926e9411c800bbbf188271fe399f93d2abb1e50aac7844a44a698b3c6dae6f874a3715b1bf6d2f367dd53adb87d9f5d80d03ef71060901a59b6e227d8ed23826
   languageName: node
   linkType: hard
 
@@ -5797,14 +5797,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-plugin-playwright@npm:^2.0.0":
-  version: 2.0.0
-  resolution: "eslint-plugin-playwright@npm:2.0.0"
+"eslint-plugin-playwright@npm:^2.0.1":
+  version: 2.0.1
+  resolution: "eslint-plugin-playwright@npm:2.0.1"
   dependencies:
     globals: ^13.23.0
   peerDependencies:
     eslint: ">=8.40.0"
-  checksum: 3621107bafe84801a09f664cb0744772ebfd0c235ad2cab7110b80122d1448088a08f6ad6727b5f2658a525bc0be0bde5b97e9a399de4edb5e90fd8600cef476
+  checksum: 0d2f78f83fb049ab36119a11ecf9ee65012e7eb8804f105d009f79137fdca52377ddb736e2b6c391ff0168ae4e0d98210e53031017f787ebaa3a297f84d8b267
   languageName: node
   linkType: hard
 
@@ -9609,12 +9609,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"otpauth@npm:^9.3.4":
-  version: 9.3.4
-  resolution: "otpauth@npm:9.3.4"
+"otpauth@npm:^9.3.5":
+  version: 9.3.5
+  resolution: "otpauth@npm:9.3.5"
   dependencies:
     "@noble/hashes": 1.5.0
-  checksum: eea5ea5c49ce7fce91cf1283d58c8e811c21eff2dc7fe0bd9ce7a2a8cdd69153f1f16c6f29c76e3da47e16ca6449b39ed531630d72b5c9167246a3491494401a
+  checksum: 1c6d3c1a1f122e2b86f259036c062f990ba4352660cf64e485a97e0de962fdb7c5f7d9c66ad5f1a95da29d42f732d9cf0507d301a86d51357ff47bbb9f4ad7d2
   languageName: node
   linkType: hard
 
@@ -10000,27 +10000,27 @@ __metadata:
   languageName: node
   linkType: hard
 
-"playwright-core@npm:1.48.1":
-  version: 1.48.1
-  resolution: "playwright-core@npm:1.48.1"
+"playwright-core@npm:1.48.2":
+  version: 1.48.2
+  resolution: "playwright-core@npm:1.48.2"
   bin:
     playwright-core: cli.js
-  checksum: adf5b43e054e49bcc712d70e71dedab92c362ea76a45a767bdf3d928d3c810a42f6f1c49382f3d44ed005986048001f75cb568605031215dc89a3e56d99d2976
+  checksum: a73ecea379f13f757ec38299871256a130d4abec5688369969a6b1ef6104c67f731a27c9a503a988c3e5b1141048552a3ed8c4d061cb631ff2ebab606835c10a
   languageName: node
   linkType: hard
 
-"playwright@npm:1.48.1":
-  version: 1.48.1
-  resolution: "playwright@npm:1.48.1"
+"playwright@npm:1.48.2":
+  version: 1.48.2
+  resolution: "playwright@npm:1.48.2"
   dependencies:
     fsevents: 2.3.2
-    playwright-core: 1.48.1
+    playwright-core: 1.48.2
   dependenciesMeta:
     fsevents:
       optional: true
   bin:
     playwright: cli.js
-  checksum: 81ca13392ad5e5ca87a226d0f5ff2da958c4e06a01dd6b56b4e4e5b4fec45ef8a8f7f0563ef0f4c725814265b931984d0c841e8524362b24480bcd527aa0c054
+  checksum: 69ffb28b5a94fc21a9bd3439feb363ffebb21c6b00e6d08ffc225787be49005d6b57072ebb043e78378252850f2b7712f8478e6685138a8e445d6fda94a31e28
   languageName: node
   linkType: hard
 
@@ -10340,7 +10340,7 @@ __metadata:
     "@microsoft/applicationinsights-web": ^3.3.3
     "@okta/okta-react": ^6.9.0
     "@okta/okta-signin-widget": ^7.24.2
-    "@playwright/test": ^1.48.1
+    "@playwright/test": ^1.48.2
     "@rest-hooks/rest": ^3.0.3
     "@rest-hooks/test": ^7.3.1
     "@storybook/addon-a11y": ^8.3.6
@@ -10399,7 +10399,7 @@ __metadata:
     eslint-plugin-import: ^2.31.0
     eslint-plugin-jest-dom: ^5.4.0
     eslint-plugin-jsx-a11y: ^6.10.2
-    eslint-plugin-playwright: ^2.0.0
+    eslint-plugin-playwright: ^2.0.1
     eslint-plugin-react: ^7.37.2
     eslint-plugin-react-hooks: ^5.0.0
     eslint-plugin-react-refresh: ^0.4.14
@@ -10419,7 +10419,7 @@ __metadata:
     msw: ^2.4.11
     msw-storybook-addon: ^2.0.3
     npm-run-all: ^4.1.5
-    otpauth: ^9.3.4
+    otpauth: ^9.3.5
     p-limit: ^6.1.0
     patch-package: ^8.0.0
     postcss: ^8.4.47
