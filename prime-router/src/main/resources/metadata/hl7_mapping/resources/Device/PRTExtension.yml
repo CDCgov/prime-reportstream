@@ -1,0 +1,95 @@
+# $schema: ./../../../../../../../metadata/json_schema/fhir/fhir-to-hl7-mapping.json
+
+elements:
+
+  - name: PRT.2
+    value: [ '%resource.extension.where(url = "PRT.2").value' ]
+    hl7Spec: [ '%{hl7PRTFieldPath}-2' ]
+
+  - name: PRT.3
+    resource: '%resource.extension.where(url = "PRT.3").value'
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
+    constants:
+      cweField: '%{hl7PRTFieldPath}-3'
+
+  - name: PRT.4
+    resource: '%resource.extension.where(url = "PRT.4").value'
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
+    constants:
+      cweField: '%{hl7PRTFieldPath}-4'
+
+  # XCN[Practitioner] FHIR > HL7 mappings are largely compatible with XCN[RelatedPerson]
+  # implement union+tail for PRT[PractitionerRole] only
+  - name: PRT.5
+    resource: '%resource.extension.where(url = "PRT.5").value.resolve()'
+    schema: classpath:/metadata/hl7_mapping/resources/Practitioner/XCN.yml
+    resourceIndex: relatedPersonIndex
+    constants:
+      hl7XCNField: '%{hl7PRTFieldPath}-5(%{relatedPersonIndex})'
+
+  - name: PRT.6
+    resource: '%resource.extension.where(url = "PRT.6").value'
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
+    resourceIndex: personProviderTypeIndex
+    constants:
+      cweField: '%{hl7PRTFieldPath}-6(%{personProviderTypeIndex})'
+
+  - name: PRT.7
+    resource: '%resource.extension.where(url = "PRT.7").value'
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
+    resourceIndex: organizationUnitTypeIndex
+    constants:
+      cweField: '%{hl7PRTFieldPath}-7(%{organizationUnitTypeIndex})'
+
+  - name: PRT.8
+    resource: '%resource.extension.where(url = "PRT.8").value.resolve()'
+    schema: classpath:/metadata/hl7_mapping/resources/Organization/XON.yml
+    constants:
+      hl7XONField: '%{hl7PRTFieldPath}-8'
+
+  - name: PRT.9
+    resource: '%resource.extension.where(url = "PRT.9").value.resolve()'
+    schema: classpath:/metadata/hl7_mapping/resources/Location/PL/PL.yml
+    constants:
+      hl7PLField: '%{hl7PRTFieldPath}-9'
+
+  - name: PRT.11
+    value: [ '%resource.extension.where(url = "PRT.11").value' ]
+    hl7Spec: [ '%{hl7PRTFieldPath}-11' ]
+
+  - name: PRT.12
+    value: [ '%resource.extension.where(url = "PRT.12").value' ]
+    hl7Spec: [ '%{hl7PRTFieldPath}-12' ]
+
+  - name: PRT.13
+    resource: '%resource.extension.where(url = "PRT.13").value'
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
+    constants:
+      cweField: '%{hl7PRTFieldPath}-13'
+
+  - name: PRT.14
+    resource: '%resource.extension.where(url = "PRT.14").value'
+    schema: classpath:/metadata/hl7_mapping/datatypes/Address/XAD.yml
+    resourceIndex: addressIndex
+    constants:
+      xadField: '%{hl7PRTFieldPath}-14(%{addressIndex})'
+
+  - name: PRT.15
+    resource: '%resource.extension.where(url = "PRT.15").value'
+    schema: classpath:/metadata/hl7_mapping/datatypes/contactPoint/XTN.yml
+    resourceIndex: telecomIndex
+    constants:
+      hl7TelecomField: '%{hl7PRTFieldPath}-15'
+
+  - name: PRT.23
+    resource: '%resource.extension.where(url = "PRT.23").value'
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
+    constants:
+      cweField: '%{hl7PRTFieldPath}-23'
+
+  - name: PRT.24
+    resource: '%resource.extension.where(url = "PRT.24").value'
+    schema: classpath:/metadata/hl7_mapping/datatypes/identifier/PLN.yml
+    resourceIndex: contactIdentifierIndex
+    constants:
+      plnField: '%{hl7PRTFieldPath}-24(%{contactIdentifierIndex})'

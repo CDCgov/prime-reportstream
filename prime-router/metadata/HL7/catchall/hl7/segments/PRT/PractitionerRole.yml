@@ -1,0 +1,78 @@
+# $schema: ./../../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
+
+# TODO https://github.com/CDCgov/prime-reportstream/issues/16479
+#  - add handling of preferredContactMethod to XTN/ContactPoint
+#  - need message level conditions to be able to implement FHIR > HL7 mapping
+#  - mappings should be treated as incomplete and require tests to be written
+
+# This segment does not appear in NIST or RADx MARS
+# PRT.2 - inventory indicates to check for "D" but the correct HL7v2 table value is "DE"
+
+resourceType: PractitionerRole
+
+id:
+  type: STRING
+  valueOf: "GeneralUtils.generateResourceId()"
+  expressionType: JEXL
+
+status:
+  vars:
+    prt2: PRT.2
+  condition: $prt2 EQUALS "DE"
+  type: STRING
+  value: "inactive"
+
+practitioner:
+  valueOf: datatypes/XCN/Practitioner
+  expressionType: reference
+  specs: PRT.5
+  vars:
+    XADAddress: PRT.14
+
+specialty:
+  valueOf: datatypes/CWE/CodeableConcept
+  expressionType: resource
+  condition: $prt6 NOT_NULL
+  vars:
+    prt6: PRT.6
+  specs: PRT.6
+  constants:
+    hl7v2Field: "PRT.6"
+
+organization:
+  condition: $roleOrg NOT_NULL
+  valueOf: datatypes/XON/Organization
+  expressionType: reference
+  specs: $OBXPractitionerRoleOrganization
+  vars:
+    XADAddress: $OBXPractitionerRoleOrganizationAddress
+    roleOrg: STRING_ALL, $OBXPractitionerRoleOrganization
+
+code:
+  expressionType: nested
+  expressionsMap:
+    coding:
+      generateList: true
+      expressionType: nested
+      expressionsMap:
+        system:
+          type: STRING
+          valueOf: $OBXPractitionerRoleSystem
+        code:
+          type: STRING
+          valueOf: $OBXPractitionerRoleCode
+
+telecom:
+  condition: $prt15 NOT_NULL
+  vars:
+    prt15: STRING_ALL, PRT.15
+    preferredContactMethod: STRING, PRT.23.1
+  expressionType: nested
+  specs: PRT.15 *
+  generateList: true
+  expressionsMap:
+    valueContactPoint:
+      valueOf: datatypes/XTN/ContactPoint
+      expressionType: resource
+      constants:
+        hl7v2Field: "PRT.15"

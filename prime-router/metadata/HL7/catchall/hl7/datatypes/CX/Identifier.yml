@@ -1,7 +1,5 @@
 # $schema: ./../../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
 
-resourceType: Identifier
-
 value:
   type: STRING
   valueOf: CX.1
