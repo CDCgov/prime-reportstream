@@ -252,6 +252,7 @@ class FhirTranslatorTests {
         every { rootReport.sendingOrg } returns oneOrganization.name
         every { rootReport.sendingOrgClient } returns oneOrganization.receivers[0].fullName
         every { rootReport.bodyUrl } returns BLOB_URL
+        every { rootReport.blobDigest } returns reportId.toString().toByteArray(Charsets.UTF_8)
         every { reportServiceMock.getRootReport(any()) } returns rootReport
         every { reportServiceMock.getRootReports(any()) } returns listOf(rootReport)
         every { reportServiceMock.getRootItemIndex(any(), any()) } returns 1

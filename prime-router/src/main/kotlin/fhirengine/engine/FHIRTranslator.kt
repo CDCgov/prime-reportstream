@@ -118,9 +118,10 @@ class FHIRTranslator(
         logger.trace("Preparing to send original message")
         val originalReport = reportService.getRootReport(message.reportId)
         val bodyBytes = BlobAccess.downloadBlobAsByteArray(originalReport.bodyUrl)
+        val originalDigest = BlobUtils.digestToString(originalReport.blobDigest)
         val localDigest = BlobUtils.digestToString(sha256Digest(bodyBytes))
-        check(message.digest == localDigest) {
-            "Downloaded file does not match expected file\n${message.digest} | $localDigest"
+        check(originalDigest == localDigest) {
+            "Downloaded file does not match expected file\n$localDigest | $originalDigest"
         }
 
         // get a Report from the message
