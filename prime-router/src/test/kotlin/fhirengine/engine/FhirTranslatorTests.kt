@@ -16,6 +16,7 @@ import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Receiver
+import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.Topic
@@ -26,6 +27,7 @@ import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.azure.observability.event.AzureEventService
+import gov.cdc.prime.router.azure.observability.event.ReportStreamEventService
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.report.ReportService
 import gov.cdc.prime.router.unittest.UnitTestUtils
@@ -92,8 +94,7 @@ class FhirTranslatorTests {
         settings: SettingsProvider = FileSettings().loadOrganizations(oneOrganization),
     ): FHIRTranslator {
         return FHIREngine.Builder().metadata(metadata).settingsProvider(settings).databaseAccess(accessSpy)
-            .blobAccess(blobMock).reportService(reportServiceMock).azureEventService(azureEventService)
-            .build(TaskAction.translate) as FHIRTranslator
+            .blobAccess(blobMock).reportService(reportServiceMock).build(TaskAction.translate) as FHIRTranslator
     }
 
     @BeforeEach
@@ -128,6 +129,7 @@ class FhirTranslatorTests {
         val bodyFormat = MimeFormat.FHIR
         val bodyUrl = BODY_URL
         val rootReport = mockk<ReportFile>()
+        val reportStreamEventService = mockk<ReportStreamEventService>()
 
         every { actionLogger.hasErrors() } returns false
         every { BlobAccess.downloadBlob(any(), any()) }
@@ -169,7 +171,8 @@ class FhirTranslatorTests {
         every { reportServiceMock.getRootReports(any()) } returns listOf(rootReport)
         every { reportServiceMock.getRootItemIndex(any(), any()) } returns 1
         every { BlobAccess.downloadBlobAsByteArray(any()) } returns "1".toByteArray(Charsets.UTF_8)
-        every { azureEventService.trackEvent(any()) } returns Unit
+        every { reportStreamEventService.sendItemEvent(any(), any<Report>(), any(), any(), any()) } returns Unit
+        every { reportStreamEventService.sendItemEvent(any(), any<ReportFile>(), any(), any(), any()) } returns Unit
 
         // act
         accessSpy.transact { txn ->
@@ -183,7 +186,7 @@ class FhirTranslatorTests {
             BlobAccess.Companion.uploadBlob(any(), any(), any())
             accessSpy.insertTask(any(), any(), any(), any(), any())
             actionHistory.trackActionReceiverInfo(any(), any())
-            azureEventService.trackEvent(any())
+            reportStreamEventService.sendItemEvent(any(), any<Report>(), any(), any(), any())
         }
     }
 
