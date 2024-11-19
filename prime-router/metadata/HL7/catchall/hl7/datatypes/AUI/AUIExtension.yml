@@ -29,7 +29,7 @@ extension:
           type: STRING
           valueOf: AUI.2
         valueString:
-          type: DATE
+          type: STRING
           expressionType: HL7Spec
           valueOf: AUI.2
     - expressionType: nested
