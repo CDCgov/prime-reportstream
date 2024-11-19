@@ -14,7 +14,7 @@ configured in Okta.
 
 ```bash
 # from project root
-# start report stream and all dependant docker containers
+# start ReportStream and all dependent docker containers
 ./gradlew quickRun
 # start submissions service
 ./ gradlew submissions:bootRun
