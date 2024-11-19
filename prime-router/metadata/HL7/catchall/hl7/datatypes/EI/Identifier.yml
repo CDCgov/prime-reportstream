@@ -29,6 +29,7 @@ extension_1-assigning-authority:
     ei2: EI.2
     ei3: EI.3
     ei4: EI.4
+  condition: $ei2 NOT_NULL || $ei3 NOT_NULL || $ei4 NOT_NULL
   expressionsMap:
     url:
       type: SYSTEM_URL
