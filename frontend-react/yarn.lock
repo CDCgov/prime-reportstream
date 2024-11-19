@@ -6576,7 +6576,7 @@ __metadata:
 
 "fsevents@patch:fsevents@*#~builtin<compat/fsevents>, fsevents@patch:fsevents@~2.3.2#~builtin<compat/fsevents>, fsevents@patch:fsevents@~2.3.3#~builtin<compat/fsevents>":
   version: 2.3.3
-  resolution: "fsevents@patch:fsevents@npm%3A2.3.3#~builtin<compat/fsevents>::version=2.3.3&hash=df0bf1"
+  resolution: "fsevents@patch:fsevents@npm%3A2.3.3#~builtin<compat/fsevents>::version=2.3.3&hash=18f3a7"
   dependencies:
     node-gyp: latest
   conditions: os=darwin
@@ -6585,7 +6585,7 @@ __metadata:
 
 "fsevents@patch:fsevents@2.3.2#~builtin<compat/fsevents>":
   version: 2.3.2
-  resolution: "fsevents@patch:fsevents@npm%3A2.3.2#~builtin<compat/fsevents>::version=2.3.2&hash=df0bf1"
+  resolution: "fsevents@patch:fsevents@npm%3A2.3.2#~builtin<compat/fsevents>::version=2.3.2&hash=18f3a7"
   dependencies:
     node-gyp: latest
   conditions: os=darwin
@@ -10431,7 +10431,7 @@ __metadata:
     react-idle-timer: ^5.7.2
     react-loader-spinner: ^6.1.6
     react-markdown: ^9.0.1
-    react-query-kit: ^3.3.0
+    react-query-kit: ^3.3.1
     react-router: ^6.27.0
     react-router-dom: ^6.27.0
     react-scroll-sync: ^0.11.2
@@ -10556,15 +10556,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-query-kit@npm:^3.3.0":
-  version: 3.3.0
-  resolution: "react-query-kit@npm:3.3.0"
-  peerDependencies:
-    "@tanstack/react-query": ^4 || ^5
+"react-query-kit@npm:^3.3.1":
+  version: 3.3.1
+  resolution: "react-query-kit@npm:3.3.1"
   peerDependenciesMeta:
     "@tanstack/react-query":
       optional: true
-  checksum: 5551bdfcbe9ba4c50b2fa157811beb80e4a5265682e7c5bb50f148d87ef7d0e1652bb646a0a7b9e0cb8ba72a1c77fb9b86ec6b9f70f69fec15557024ffbebe3f
+  checksum: 32e98bf85cc8a283ee42c9a7a0ef8fdad723feb68801d8c4e664a22d0d643d8991e8eaf303bb9b90d19b1c81fe5b6a9e9e3de597dd73e360dc2b3539c014f390
   languageName: node
   linkType: hard
 
@@ -10944,7 +10942,7 @@ __metadata:
 
 "resolve@patch:resolve@^1.10.0#~builtin<compat/resolve>, resolve@patch:resolve@^1.22.1#~builtin<compat/resolve>, resolve@patch:resolve@^1.22.4#~builtin<compat/resolve>, resolve@patch:resolve@^1.22.8#~builtin<compat/resolve>":
   version: 1.22.8
-  resolution: "resolve@patch:resolve@npm%3A1.22.8#~builtin<compat/resolve>::version=1.22.8&hash=c3c19d"
+  resolution: "resolve@patch:resolve@npm%3A1.22.8#~builtin<compat/resolve>::version=1.22.8&hash=07638b"
   dependencies:
     is-core-module: ^2.13.0
     path-parse: ^1.0.7
@@ -10957,7 +10955,7 @@ __metadata:
 
 "resolve@patch:resolve@^2.0.0-next.5#~builtin<compat/resolve>":
   version: 2.0.0-next.5
-  resolution: "resolve@patch:resolve@npm%3A2.0.0-next.5#~builtin<compat/resolve>::version=2.0.0-next.5&hash=c3c19d"
+  resolution: "resolve@patch:resolve@npm%3A2.0.0-next.5#~builtin<compat/resolve>::version=2.0.0-next.5&hash=07638b"
   dependencies:
     is-core-module: ^2.13.0
     path-parse: ^1.0.7
@@ -12401,7 +12399,7 @@ __metadata:
 
 "typescript@patch:typescript@^5.6.3#~builtin<compat/typescript>":
   version: 5.6.3
-  resolution: "typescript@patch:typescript@npm%3A5.6.3#~builtin<compat/typescript>::version=5.6.3&hash=14eedb"
+  resolution: "typescript@patch:typescript@npm%3A5.6.3#~builtin<compat/typescript>::version=5.6.3&hash=701156"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver
