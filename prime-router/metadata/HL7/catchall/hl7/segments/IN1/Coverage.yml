@@ -14,3 +14,6 @@ extension:
     - expressionType: resource
       valueOf: datatypes/AUI/AUIExtension
       specs: IN1.14
+    - expressionType: resource
+      valueOf: datatypes/CP/CPExtension
+      specs: IN1.40

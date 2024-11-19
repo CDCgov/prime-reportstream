@@ -37,6 +37,32 @@
 
 #Resource-Extensions
 
+- Resource: Coverage
+  FHIR-Type: Extension
+  HL7-Type:
+    SFT:
+      Example:
+        {
+          "fullUrl": "Device/1710949556824395000.e46a6b46-b8b4-4824-b424-47d55199f4a5",
+          "resource": {
+            "resourceType": "Device",
+            "id": "1710949556824395000.e46a6b46-b8b4-4824-b424-47d55199f4a5",
+            "extension": [
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/software-vendor-org",
+                "valueReference": {
+                  "reference": "Organization/1710949556824000000.1424342d-62d7-420a-bad1-39354a71800c"
+                }
+              }
+            ]
+          }
+        }
+      Extension:
+        - id: composite-price
+          url: "https://reportstream.cdc.gov/fhir/StructureDefinition/composite-price"
+          valueType: Reference
+          hl7Use: IN1.40
+
 - Resource: Device
   FHIR-Type: Extension
   HL7-Type:
@@ -655,7 +681,7 @@
               hl7Use: MSH.21
             - id: MSH.24
               url: "MSH.24"
-              valueType: Extension
+              valueType: Extension # model on this
               hl7Use: MSH.24
               extension:
                 - id: namespace-id

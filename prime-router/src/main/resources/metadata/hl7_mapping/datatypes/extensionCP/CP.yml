@@ -1,0 +1,7 @@
+# $schema: ./../../../../../../../metadata/json_schema/fhir/fhir-to-hl7-mapping.json
+
+elements:
+
+  - name: cp-price-type
+    value: [ '%resource.extension.where(url = "CP.2").value' ]
+    hl7Spec: [ '%{cpField}-2' ]

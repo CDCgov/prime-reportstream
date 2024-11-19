@@ -1,0 +1,29 @@
+# $schema: ./../../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
+
+#url:
+#  type: SYSTEM_URL
+#  valueOf: cp-composite-price
+
+url:
+  type: STRING
+  valueOf: IN1.40
+
+extension:
+  expressionType: nested
+  generateList: true
+  expressions:
+    - expressionType: nested
+      vars:
+        cp2: STRING, CP.2
+      condition: $cp2 NOT_NULL
+      expressionsMap:
+        url:
+          type: STRING
+          valueOf: CP.2
+        valueString:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: CP.2
+
+
+  # todo add CP.1, CP.3, CP.4, CP.5, CP.6

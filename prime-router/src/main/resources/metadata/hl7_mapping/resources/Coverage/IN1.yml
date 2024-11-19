@@ -10,3 +10,9 @@ elements:
     schema: classpath:/metadata/hl7_mapping/datatypes/extensionAUI/AUI.yml
     constants:
       auiField: '%{hl7IN1Field}-14'
+
+  - name: cp-extension
+    resource: '%resource.extension.where(url = "IN1.40")'
+    schema: classpath:/metadata/hl7_mapping/datatypes/extensionCP/CP.yml
+    constants:
+      cpField: '%{hl7IN1Field}-40'
