@@ -1,21 +1,27 @@
 {
   "resourceType" : "Bundle",
-  "id" : "1732045666835460000.55fc475d-e82d-4c9b-883e-47ed43884410",
+  "id" : "1732057647294414000.f08675ab-7730-4a01-8d0d-de982166cc12",
   "meta" : {
-    "lastUpdated" : "2024-11-19T12:47:46.840-07:00"
+    "lastUpdated" : "2024-11-19T16:07:27.298-07:00"
   },
   "identifier" : {
-    "system" : "https://reportstream.cdc.gov/prime-router"
+    "system" : "https://reportstream.cdc.gov/prime-router",
+    "value" : "MSG00001"
   },
   "type" : "message",
+  "timestamp" : "1988-08-18T11:26:00.000-06:00",
   "entry" : [ {
-    "fullUrl" : "MessageHeader/1732045666892993000.8ae67826-9ed7-4113-95d1-8b81e391f28b",
+    "fullUrl" : "MessageHeader/1732057647345875000.94f1fd7c-8396-4f71-8468-9e1ca1623179",
     "resource" : {
       "resourceType" : "MessageHeader",
-      "id" : "1732045666892993000.8ae67826-9ed7-4113-95d1-8b81e391f28b",
+      "id" : "1732057647345875000.94f1fd7c-8396-4f71-8468-9e1ca1623179",
       "meta" : {
         "security" : [ {
           "code" : "SECURITY"
+        } ],
+        "tag" : [ {
+          "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
+          "code" : "P"
         } ]
       },
       "extension" : [ {
@@ -26,13 +32,16 @@
         } ]
       } ],
       "eventCoding" : {
-        "display" : "^^"
+        "system" : "http://terminology.hl7.org/CodeSystem/v2-0003",
+        "code" : "O21",
+        "display" : "OML^O21^OML_O21"
       },
       "destination" : [ {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
           "valueString" : "MSH.5"
         } ],
+        "name" : "GHH LAB, INC.",
         "_endpoint" : {
           "extension" : [ {
             "url" : "http://hl7.org/fhir/StructureDefinition/data-absent-reason",
@@ -40,17 +49,21 @@
           } ]
         },
         "receiver" : {
-          "reference" : "Organization/1732045666892346000.5d41db75-ea74-4889-9852-2cca056df650"
+          "reference" : "Organization/1732057647345300000.25917bfc-a2f9-49ae-a58c-4105c71c967a"
         }
       } ],
       "sender" : {
-        "reference" : "Organization/1732045666869827000.45a15bb0-3ba1-4543-9808-36068a6820c8"
+        "reference" : "Organization/1732057647330910000.631c857a-f311-4c91-9964-cd99fa8cb1cd"
       },
       "source" : {
         "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id",
+          "valueString" : "ADT1"
+        }, {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
           "valueString" : "MSH.3"
         } ],
+        "name" : "ADT1",
         "_endpoint" : {
           "extension" : [ {
             "url" : "http://hl7.org/fhir/StructureDefinition/data-absent-reason",
@@ -60,19 +73,55 @@
       }
     }
   }, {
-    "fullUrl" : "Organization/1732045666869827000.45a15bb0-3ba1-4543-9808-36068a6820c8",
+    "fullUrl" : "Organization/1732057647330910000.631c857a-f311-4c91-9964-cd99fa8cb1cd",
     "resource" : {
       "resourceType" : "Organization",
-      "id" : "1732045666869827000.45a15bb0-3ba1-4543-9808-36068a6820c8"
+      "id" : "1732057647330910000.631c857a-f311-4c91-9964-cd99fa8cb1cd",
+      "identifier" : [ {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
+          "valueString" : "HD.1"
+        } ],
+        "value" : "GOOD HEALTH HOSPITAL"
+      } ]
     }
   }, {
-    "fullUrl" : "Organization/1732045666892346000.5d41db75-ea74-4889-9852-2cca056df650",
+    "fullUrl" : "Organization/1732057647345300000.25917bfc-a2f9-49ae-a58c-4105c71c967a",
     "resource" : {
       "resourceType" : "Organization",
-      "id" : "1732045666892346000.5d41db75-ea74-4889-9852-2cca056df650",
+      "id" : "1732057647345300000.25917bfc-a2f9-49ae-a58c-4105c71c967a",
       "extension" : [ {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
         "valueString" : "MSH.6"
+      } ],
+      "identifier" : [ {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
+          "valueString" : "HD.1"
+        } ],
+        "value" : "GOOD HEALTH HOSPITAL"
+      } ]
+    }
+  }, {
+    "fullUrl" : "Patient/1732057647579379000.0afc3b63-f658-4267-bd5f-46667f909efe",
+    "resource" : {
+      "resourceType" : "Patient",
+      "id" : "1732057647579379000.0afc3b63-f658-4267-bd5f-46667f909efe"
+    }
+  }, {
+    "fullUrl" : "Coverage/1732057647580090000.89d5f8b2-cb56-42fe-a4b3-2f7664c0a87b",
+    "resource" : {
+      "resourceType" : "Coverage",
+      "id" : "1732057647580090000.89d5f8b2-cb56-42fe-a4b3-2f7664c0a87b",
+      "extension" : [ {
+        "url" : "IN1.14.1",
+        "valueString" : "1701"
+      }, {
+        "url" : "IN1.14.2",
+        "valueString" : "19700101"
+      }, {
+        "url" : "IN1.14.3",
+        "valueString" : "DR TEETH AND THE ELECTRIC MAYHEM"
       } ]
     }
   } ]
