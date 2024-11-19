@@ -1,9 +1,5 @@
 # $schema: ./../../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
 
-url:
-  type: SYSTEM_URL
-  valueOf: $auiExtensionName
-
 extension:
   generateList: true
   expressionType: nested

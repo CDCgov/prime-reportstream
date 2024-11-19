@@ -6,6 +6,6 @@ import org.junit.jupiter.api.Test
 class AUIExtensionTests {
     @Test
     fun `test correctly handles ISO universal id type`() {
-        assert(verifyHL7ToFHIRToHL7Mapping("catchall/aui/aui", false, true, true).passed)
+        assert(verifyHL7ToFHIRToHL7Mapping("catchall/aui/aui").passed)
     }
 }
