@@ -117,10 +117,6 @@ class SubmissionControllerIntegrationTest {
         )
             .andExpect(MockMvcResultMatchers.status().isCreated)
 
-        /*
-        {"kty":"RSA","e":"AQAB","n":"nxkL3P_HAyIWRdrjCg9AGGckyrYTkVja52Ak4OcnRLSMdG1jYHfuCJfxlq1BEJn_KASBwwwUtN-OIodc3cUk4Lyp7evDxRUpEiGEEWQ7J03yXgX5HjN8ri1O3HhJTqR94OB8c_9iF9FVxqgVGb2mTqiWI34hJoqz7IaDaDwlIoZvgIJSUJUMuDt-tsXILLgG5Ksz6MqDydycRWFum5eoAwgxQTABUenS337ZEzaKZ3ugpZwVJD08Q2CUCVUPfvpO5lu_4bNxegvG_HxPL7lAQOkI_zWWkHCCCc_NibPOuH88c7ffBCOx3TR6syMiVFbdi9lPOhBqWoRSxKz85BDcPw"}
-         */
-
         // Verify blob was uploaded and read its content
         val blobs: MutableList<BlobItem> = mutableListOf()
         blobContainerClient.listBlobs().iterator().forEachRemaining { blobs.add(it) }

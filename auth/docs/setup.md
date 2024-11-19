@@ -22,12 +22,27 @@ configured in Okta.
 ./gradlew auth:bootRun
 ```
 
+## Setup a Sender
+
+- Sign in to Admin Okta
+- Applications -> Application tab
+- Click "Create App Integration"
+- Select "API Services" and click next
+- Name your sender
+- Copy your client ID and client secret or private key locally to be used while calling the /token endpoint
+- Add the user to the appropriate sender group
+  - You can find this option on the small gear next to your newly created application
+  - Ensure the group has the prefix DHSender_
+
 ## Submitting reports locally
 
 - Retrieve an access token directly from Okta and ensure the JWT contains the "sender" scope
+  - Make a well-formed request to https://reportstream.oktapreview.com/oauth2/default/v1/token to retrieve your access token
+    - [See Okta documentation on that endpoint here](https://developer.okta.com/docs/guides/implement-oauth-for-okta-serviceapp/main/#get-an-access-token)
 - Submit your report to http://localhost:9000/api/v1/reports
   - Note the it's port 9000 which is auth rather than directly to 8880 which is submissions
   - See endpoint definition in [SubmissionController](../../submissions/src/main/kotlin/gov/cdc/prime/reportstream/submissions/controllers/SubmissionController.kt)
+  - Add the access token you retrieved from Okta as a `Bearer` token in the `Authorization` header
 - Inspect the logs if you received a 401 or a 403. This indicates there is an issue with your access token.
 
 ## Notes on secrets
