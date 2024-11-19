@@ -1,0 +1,79 @@
+{
+  "resourceType" : "Bundle",
+  "id" : "1732045666835460000.55fc475d-e82d-4c9b-883e-47ed43884410",
+  "meta" : {
+    "lastUpdated" : "2024-11-19T12:47:46.840-07:00"
+  },
+  "identifier" : {
+    "system" : "https://reportstream.cdc.gov/prime-router"
+  },
+  "type" : "message",
+  "entry" : [ {
+    "fullUrl" : "MessageHeader/1732045666892993000.8ae67826-9ed7-4113-95d1-8b81e391f28b",
+    "resource" : {
+      "resourceType" : "MessageHeader",
+      "id" : "1732045666892993000.8ae67826-9ed7-4113-95d1-8b81e391f28b",
+      "meta" : {
+        "security" : [ {
+          "code" : "SECURITY"
+        } ]
+      },
+      "extension" : [ {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/msh-message-header",
+        "extension" : [ {
+          "url" : "MSH.7",
+          "valueString" : "198808181126"
+        } ]
+      } ],
+      "eventCoding" : {
+        "display" : "^^"
+      },
+      "destination" : [ {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
+          "valueString" : "MSH.5"
+        } ],
+        "_endpoint" : {
+          "extension" : [ {
+            "url" : "http://hl7.org/fhir/StructureDefinition/data-absent-reason",
+            "valueCode" : "unknown"
+          } ]
+        },
+        "receiver" : {
+          "reference" : "Organization/1732045666892346000.5d41db75-ea74-4889-9852-2cca056df650"
+        }
+      } ],
+      "sender" : {
+        "reference" : "Organization/1732045666869827000.45a15bb0-3ba1-4543-9808-36068a6820c8"
+      },
+      "source" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
+          "valueString" : "MSH.3"
+        } ],
+        "_endpoint" : {
+          "extension" : [ {
+            "url" : "http://hl7.org/fhir/StructureDefinition/data-absent-reason",
+            "valueCode" : "unknown"
+          } ]
+        }
+      }
+    }
+  }, {
+    "fullUrl" : "Organization/1732045666869827000.45a15bb0-3ba1-4543-9808-36068a6820c8",
+    "resource" : {
+      "resourceType" : "Organization",
+      "id" : "1732045666869827000.45a15bb0-3ba1-4543-9808-36068a6820c8"
+    }
+  }, {
+    "fullUrl" : "Organization/1732045666892346000.5d41db75-ea74-4889-9852-2cca056df650",
+    "resource" : {
+      "resourceType" : "Organization",
+      "id" : "1732045666892346000.5d41db75-ea74-4889-9852-2cca056df650",
+      "extension" : [ {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
+        "valueString" : "MSH.6"
+      } ]
+    }
+  } ]
+}
