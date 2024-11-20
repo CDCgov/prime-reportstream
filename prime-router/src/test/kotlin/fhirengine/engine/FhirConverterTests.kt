@@ -507,7 +507,7 @@ class FhirConverterTests {
             assertEquals("OID12345", (memberOidExtension!!.value as StringType).value)
         }
     }
-    
+
     @Test
     fun `test fully unmapped condition code stamping logs errors`() {
         val fhirData = File(BATCH_VALID_DATA_URL).readText()

@@ -25,8 +25,6 @@ import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.ConditionStamper
-import gov.cdc.prime.router.azure.ConditionStamper.Companion.CONDITION_CODE_EXTENSION_URL
-import gov.cdc.prime.router.azure.ConditionStamper.Companion.MEMBER_OID_EXTENSION_URL
 import gov.cdc.prime.router.azure.DatabaseLookupTableAccess
 import gov.cdc.prime.router.azure.Event
 import gov.cdc.prime.router.azure.LookupTableConditionMapper

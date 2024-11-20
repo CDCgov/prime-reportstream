@@ -27,11 +27,8 @@ import gov.cdc.prime.router.TestSource
 import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
-import gov.cdc.prime.router.azure.ConditionStamper
 import gov.cdc.prime.router.azure.ConditionStamper.Companion.CONDITION_CODE_EXTENSION_URL
-import gov.cdc.prime.router.azure.ConditionStamper.Companion.MEMBER_OID_EXTENSION_URL
 import gov.cdc.prime.router.azure.DatabaseAccess
-import gov.cdc.prime.router.azure.LookupTableConditionMapper
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.azure.observability.event.InMemoryAzureEventService
@@ -54,7 +51,6 @@ import io.mockk.mockkStatic
 import io.mockk.spyk
 import io.mockk.verify
 import org.hl7.fhir.r4.model.Bundle
-import org.hl7.fhir.r4.model.CodeableConcept
 import org.hl7.fhir.r4.model.Coding
 import org.hl7.fhir.r4.model.Observation
 import org.jooq.tools.jdbc.MockConnection
