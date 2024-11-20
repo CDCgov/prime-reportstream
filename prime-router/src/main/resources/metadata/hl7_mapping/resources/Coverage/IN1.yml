@@ -6,7 +6,7 @@ constants:
 elements:
 
   - name: aui-extension
-    resource: '%resource.extension.where(url = "IN1.14").value'
+    resource: '%resource.extension.where(url = "IN1.14")'
     schema: classpath:/metadata/hl7_mapping/datatypes/extensionAUI/AUI.yml
     constants:
       auiField: '%{hl7IN1Field}-14'
