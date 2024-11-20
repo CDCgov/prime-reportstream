@@ -22,7 +22,7 @@ jobs:
       env_name: ${{ env.VALIDATE_ENV }}
     steps:
       - name: Check out changes
-        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
 
       - name: Build vars
         id: build_vars
@@ -47,7 +47,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check Out Changes
-        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
 
       - name: Connect to VPN and login to Azure
         uses: ./.github/actions/vpn-azure
@@ -101,7 +101,7 @@ jobs:
         env_name: [ demo1, demo2, demo3 ]
     steps:
       - name: Check Out Changes
-        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
 
       - uses: azure/login@a65d910e8af852a8061c627c456678983e180302
         with:
@@ -134,7 +134,7 @@ jobs:
     concurrency: ${{ matrix.env_name }}
     steps:
       - name: Check Out Changes
-        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
 
       - uses: azure/login@a65d910e8af852a8061c627c456678983e180302
         with:
