@@ -5,3 +5,9 @@ elements:
   - name: aui-authorization-number
     value: [ '%resource.extension.where(url = "AUI.1").value' ]
     hl7Spec: [ '%{auiField}-1' ]
+  - name: aui-date
+    value: [ '%resource.extension.where(url = "AUI.1").value' ]
+    hl7Spec: [ '%{auiField}-1' ]
+  - name: aui-source
+    value: [ '%resource.extension.where(url = "AUI.1").value' ]
+    hl7Spec: [ '%{auiField}-1' ]
