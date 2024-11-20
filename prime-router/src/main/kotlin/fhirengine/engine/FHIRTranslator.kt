@@ -190,7 +190,7 @@ class FHIRTranslator(
                         to bundleDigestExtractor.generateDigest(bundle),
                     ReportStreamEventProperties.ORIGINAL_FORMAT to originalReport.bodyFormat,
                     ReportStreamEventProperties.TARGET_FORMAT to receiver.translation.format,
-                    ReportStreamEventProperties.ENRICHMENTS to receiver.translation.schemaName
+                    ReportStreamEventProperties.ENRICHMENTS to listOf(receiver.translation.schemaName)
                 )
             )
             trackingId(bundle)
