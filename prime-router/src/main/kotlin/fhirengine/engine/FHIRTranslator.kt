@@ -160,6 +160,7 @@ class FHIRTranslator(
         actionHistory: ActionHistory,
     ): FHIREngineRunResult {
         logger.trace("Preparing to send translated message")
+        val originalReport = reportService.getRootReport(message.reportId)
         val bundle = FhirTranscoder.decode(BlobAccess.downloadBlob(message.blobURL, message.digest))
         val bodyBytes = getByteArrayFromBundle(receiver, bundle)
 
@@ -193,7 +194,10 @@ class FHIRTranslator(
                 mapOf(
                     ReportStreamEventProperties.RECEIVER_NAME to receiver.fullName,
                     ReportStreamEventProperties.BUNDLE_DIGEST
-                        to bundleDigestExtractor.generateDigest(bundle)
+                        to bundleDigestExtractor.generateDigest(bundle),
+                    ReportStreamEventProperties.ORIGINAL_FORMAT to originalReport.bodyFormat,
+                    ReportStreamEventProperties.TARGET_FORMAT to receiver.translation.format,
+                    ReportStreamEventProperties.ENRICHMENTS to receiver.translation.schemaName
                 )
             )
             trackingId(bundle)

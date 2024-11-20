@@ -67,6 +67,9 @@ enum class ReportStreamEventProperties {
     BUNDLE_DIGEST,
     INGESTION_TYPE,
     POISON_QUEUE_MESSAGE_ID,
+    ENRICHMENTS,
+    ORIGINAL_FORMAT,
+    TARGET_FORMAT,
     ;
 
     @JsonKey
