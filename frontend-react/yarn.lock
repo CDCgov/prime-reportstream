@@ -2654,13 +2654,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/downloadjs@npm:^1.4.6":
-  version: 1.4.6
-  resolution: "@types/downloadjs@npm:1.4.6"
-  checksum: 0e98425946c12315a7b9646edb75285bcc0fda2d59f9d296fa3bf9455ef62d6d73383c52ee86eec50e9b4cee6f9af9dba78c6fb56bc6444395b4ac4f76a86ec0
-  languageName: node
-  linkType: hard
-
 "@types/escodegen@npm:^0.0.6":
   version: 0.0.6
   resolution: "@types/escodegen@npm:0.0.6"
@@ -5143,13 +5136,6 @@ __metadata:
   version: 16.0.3
   resolution: "dotenv@npm:16.0.3"
   checksum: afcf03f373d7a6d62c7e9afea6328e62851d627a4e73f2e12d0a8deae1cd375892004f3021883f8aec85932cd2834b091f568ced92b4774625b321db83b827f8
-  languageName: node
-  linkType: hard
-
-"downloadjs@npm:^1.4.7":
-  version: 1.4.7
-  resolution: "downloadjs@npm:1.4.7"
-  checksum: 4c546a28e7adcb1c290685f923add84e89582549f93502fa1b028194492522f716abb95a70f6ae464067a767e967806970d2a03e6262f8ccbcf3dd68e950d1da
   languageName: node
   linkType: hard
 
@@ -10365,7 +10351,6 @@ __metadata:
     "@trussworks/react-uswds": ^9.1.0
     "@types/dompurify": ^3.0.5
     "@types/dotenv-flow": ^3.3.3
-    "@types/downloadjs": ^1.4.6
     "@types/eslint__js": ^8.42.3
     "@types/github-slugger": ^1.3.0
     "@types/html-to-text": ^9.0.4
@@ -10392,7 +10377,6 @@ __metadata:
     date-fns-tz: ^3.2.0
     dompurify: ^3.1.7
     dotenv-flow: ^4.1.0
-    downloadjs: ^1.4.7
     eslint: 9.13.0
     eslint-config-prettier: ^9.1.0
     eslint-import-resolver-typescript: ^3.6.3
