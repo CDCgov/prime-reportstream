@@ -41,6 +41,12 @@ elements:
       hl7SegmentGroup: '/PATIENT/PATIENT_VISIT'
     schema: classpath:/metadata/hl7_mapping/common/patient-visit.yml
 
+  - name: insurance
+    resource: 'Bundle.entry.resource.ofType(Coverage)'
+    schema: classpath:/metadata/hl7_mapping/resources/Coverage/IN1.yml
+    constants:
+      hl7SegmentGroup: '/PATIENT/INSURANCE'
+
   - name: order
     resource: Bundle.entry.resource.ofType(ServiceRequest)
     condition: '%resource.count() > 0'
@@ -75,9 +81,3 @@ elements:
     schema: classpath:/metadata/hl7_mapping/common/specimen.yml
     constants:
       hl7SpecimenFieldPath: /ORDER/OBSERVATION_REQUEST/SPECIMEN/SPM
-
-  - name: insurance
-    resource: 'Bundle.entry.resource.ofType(Coverage)'
-    schema: classpath:/metadata/hl7_mapping/resources/Coverage/IN1.yml
-    constants:
-      hl7SegmentGroup: '/PATIENT/INSURANCE'
