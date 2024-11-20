@@ -6,6 +6,7 @@ import ca.uhn.hl7v2.model.Segment
 import ca.uhn.hl7v2.util.Terser
 import fhirengine.engine.CustomFhirPathFunctions
 import fhirengine.engine.CustomTranslationFunctions
+import gov.cdc.prime.reportstream.shared.BlobUtils
 import gov.cdc.prime.reportstream.shared.QueueMessage
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.CustomerStatus
@@ -118,7 +119,8 @@ class FHIRTranslator(
     ): FHIREngineRunResult {
         logger.trace("Preparing to send original message")
         val originalReport = reportService.getRootReport(message.reportId)
-        val bodyAsString = BlobAccess.downloadBlob(message.blobURL, message.digest)
+        val bodyAsString =
+            BlobAccess.downloadBlob(originalReport.bodyUrl, BlobUtils.digestToString(originalReport.blobDigest))
 
         // get a Report from the message
         val (report, event, blobInfo) = Report.generateReportAndUploadBlob(
