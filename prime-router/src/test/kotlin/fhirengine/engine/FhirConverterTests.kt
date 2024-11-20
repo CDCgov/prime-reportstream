@@ -27,7 +27,9 @@ import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
+import gov.cdc.prime.router.azure.ConditionStamper
 import gov.cdc.prime.router.azure.DatabaseAccess
+import gov.cdc.prime.router.azure.LookupTableConditionMapper
 import gov.cdc.prime.router.azure.SubmissionTableService
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
@@ -60,9 +62,12 @@ import io.mockk.verify
 import org.hl7.fhir.r4.model.Bundle
 import org.hl7.fhir.r4.model.Coding
 import org.hl7.fhir.r4.model.Observation
+import org.hl7.fhir.r4.model.StringType
 import org.jooq.tools.jdbc.MockConnection
 import org.jooq.tools.jdbc.MockDataProvider
 import org.jooq.tools.jdbc.MockResult
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
@@ -359,7 +364,7 @@ class FhirConverterTests {
                         ObservationMappingConstants.TEST_CODE_KEY,
                         ObservationMappingConstants.CONDITION_CODE_KEY,
                         ObservationMappingConstants.CONDITION_CODE_SYSTEM_KEY,
-                        ObservationMappingConstants.CONDITION_NAME_KEY
+                        ObservationMappingConstants.CONDITION_NAME_KEY,
                     ),
                     listOf(
                         "80382-5",
@@ -439,6 +444,67 @@ class FhirConverterTests {
             transformer.process(any())
             actionHistory.trackCreatedReport(any(), any(), blobInfo = any())
             BlobAccess.Companion.uploadBlob(any(), FhirTranscoder.encode(bundle).toByteArray(), any())
+        }
+    }
+
+    @Test
+    fun `test condition code and member OID stamping`() {
+        @Suppress("ktlint:standard:max-line-length")
+        val fhirRecord =
+            """{"resourceType":"Bundle","id":"1667861767830636000.7db38d22-b713-49fc-abfa-2edba9c12347","meta":{"lastUpdated":"2022-11-07T22:56:07.832+00:00"},"identifier":{"value":"1234d1d1-95fe-462c-8ac6-46728dba581c"},"type":"message","timestamp":"2021-08-03T13:15:11.015+00:00","entry":[{"fullUrl":"Observation/d683b42a-bf50-45e8-9fce-6c0531994f09","resource":{"resourceType":"Observation","id":"d683b42a-bf50-45e8-9fce-6c0531994f09","status":"final","code":{"coding":[{"system":"http://loinc.org","code":"80382-5"}],"text":"Flu A"},"subject":{"reference":"Patient/9473889b-b2b9-45ac-a8d8-191f27132912"},"performer":[{"reference":"Organization/1a0139b9-fc23-450b-9b6c-cd081e5cea9d"}],"valueCodeableConcept":{"coding":[{"system":"http://snomed.info/sct","code":"260373001","display":"Detected"}]},"interpretation":[{"coding":[{"system":"http://terminology.hl7.org/CodeSystem/v2-0078","code":"A","display":"Abnormal"}]}],"method":{"extension":[{"url":"https://reportstream.cdc.gov/fhir/StructureDefinition/testkit-name-id","valueCoding":{"code":"BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B_Becton, Dickinson and Company (BD)"}},{"url":"https://reportstream.cdc.gov/fhir/StructureDefinition/equipment-uid","valueCoding":{"code":"BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B_Becton, Dickinson and Company (BD)"}}],"coding":[{"display":"BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B*"}]},"specimen":{"reference":"Specimen/52a582e4-d389-42d0-b738-bee51cf5244d"},"device":{"reference":"Device/78dc4d98-2958-43a3-a445-76ceef8c0698"}}}]}"""
+
+        val memberOidExtensionURL = "https://reportstream.cdc.gov/fhir/StructureDefinition/test-performed-member-oid"
+
+        metadata.lookupTableStore += mapOf(
+            "observation-mapping" to LookupTable(
+                "observation-mapping",
+                listOf(
+                    listOf(
+                        ObservationMappingConstants.TEST_CODE_KEY,
+                        ObservationMappingConstants.CONDITION_CODE_KEY,
+                        ObservationMappingConstants.CONDITION_CODE_SYSTEM_KEY,
+                        ObservationMappingConstants.CONDITION_NAME_KEY,
+                        ObservationMappingConstants.TEST_OID_KEY
+                    ),
+                    listOf(
+                        "80382-5",
+                        "6142004",
+                        "SNOMEDCT",
+                        "Influenza (disorder)",
+                        "OID12345"
+                    ),
+                    listOf(
+                        "260373001",
+                        "Some Condition Code",
+                        "Condition Code System",
+                        "Condition Name",
+                        "OID67890"
+                    )
+                )
+            )
+        )
+
+        val bundle = FhirContext.forR4().newJsonParser().parseResource(Bundle::class.java, fhirRecord)
+
+        bundle.entry.filter { it.resource is Observation }.forEach {
+            val observation = (it.resource as Observation)
+
+            // Add Condition and Member OID extensions
+            ConditionStamper(LookupTableConditionMapper(metadata)).stampObservation(observation)
+
+            // Assert condition extensions
+            val conditionExtension = observation.code.coding[0].extension.find {
+                it.url == "https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code"
+            }
+            assertNotNull(conditionExtension)
+            assertEquals("6142004", (conditionExtension!!.value as Coding).code)
+
+            // Assert Member OID extension
+            val memberOidExtension = observation.extension.find {
+                it.url == memberOidExtensionURL
+            }
+            assertNotNull(memberOidExtension)
+            assertEquals("OID12345", (memberOidExtension!!.value as StringType).value)
         }
     }
 

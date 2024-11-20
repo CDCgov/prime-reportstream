@@ -3,7 +3,7 @@ package gov.cdc.prime.router.azure.observability.bundleDigest
 import assertk.assertThat
 import assertk.assertions.isDataClassEqualTo
 import fhirengine.engine.CustomFhirPathFunctions
-import gov.cdc.prime.router.azure.ConditionStamper.Companion.conditionCodeExtensionURL
+import gov.cdc.prime.router.azure.ConditionStamper.Companion.CONDITION_CODE_EXTENSION_URL
 import gov.cdc.prime.router.azure.observability.event.CodeSummary
 import gov.cdc.prime.router.azure.observability.event.ObservationSummary
 import gov.cdc.prime.router.azure.observability.event.TestSummary
@@ -152,7 +152,7 @@ class FhirPathBundleDigestExtractorStrategyTests {
         val observation = Observation()
         val coding = Coding()
         val extension = Extension()
-        extension.url = conditionCodeExtensionURL
+        extension.url = CONDITION_CODE_EXTENSION_URL
         extension.setValue(Coding())
         coding.extension = listOf(extension)
         observation.code.coding = listOf(coding)
