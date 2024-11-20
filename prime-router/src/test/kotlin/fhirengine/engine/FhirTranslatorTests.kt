@@ -172,7 +172,6 @@ class FhirTranslatorTests {
         every { reportServiceMock.getRootItemIndex(any(), any()) } returns 1
         every { BlobAccess.downloadBlobAsByteArray(any()) } returns "1".toByteArray(Charsets.UTF_8)
         every { reportStreamEventService.sendItemEvent(any(), any<Report>(), any(), any(), any()) } returns Unit
-        every { reportStreamEventService.sendItemEvent(any(), any<ReportFile>(), any(), any(), any()) } returns Unit
 
         // act
         accessSpy.transact { txn ->
@@ -186,6 +185,7 @@ class FhirTranslatorTests {
             BlobAccess.Companion.uploadBlob(any(), any(), any())
             accessSpy.insertTask(any(), any(), any(), any(), any())
             actionHistory.trackActionReceiverInfo(any(), any())
+            reportStreamEventService.sendItemEvent(any(), any<Report>(), any(), any(), any())
         }
     }
 
@@ -339,6 +339,7 @@ class FhirTranslatorTests {
         every { reportServiceMock.getRootReport(any()) } returns rootReport
         every { reportServiceMock.getRootReports(any()) } returns listOf(rootReport)
         every { reportServiceMock.getRootItemIndex(any(), any()) } returns 1
+        every { reportStreamEventService.sendItemEvent(any(), any<Report>(), any(), any(), any()) } returns Unit
 
         // act
         accessSpy.transact { txn ->
