@@ -6,8 +6,8 @@ elements:
     value: [ '%resource.extension.where(url = "AUI.1").value' ]
     hl7Spec: [ '%{auiField}-1' ]
   - name: aui-date
-    value: [ '%resource.extension.where(url = "AUI.1").value' ]
-    hl7Spec: [ '%{auiField}-1' ]
+    value: [ '%resource.extension.where(url = "AUI.2").value' ]
+    hl7Spec: [ '%{auiField}-2' ]
   - name: aui-source
-    value: [ '%resource.extension.where(url = "AUI.1").value' ]
-    hl7Spec: [ '%{auiField}-1' ]
+    value: [ '%resource.extension.where(url = "AUI.3").value' ]
+    hl7Spec: [ '%{auiField}-3' ]
