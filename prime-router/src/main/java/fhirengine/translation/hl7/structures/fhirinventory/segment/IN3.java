@@ -94,7 +94,7 @@ public class IN3 extends AbstractSegment {
       this.add(SI.class, true, 1, 4, new Object[]{ getMessage() }, "Set ID - IN3");
       this.add(CX.class, false, 1, 0, new Object[]{ getMessage() }, "Certification Number");
       this.add(XCN.class, false, 0, 0, new Object[]{ getMessage() }, "Certified By");
-      this.add(ID.class, false, 1, 1, new Object[]{ getMessage(), new Integer(136) }, "Certification Required");
+      this.add(ID.class, false, 1, 1, new Object[]{ getMessage(), Integer.valueOf(136) }, "Certification Required");
       this.add(MOP.class, false, 1, 0, new Object[]{ getMessage() }, "Penalty");
       this.add(DTM.class, false, 1, 0, new Object[]{ getMessage() }, "Certification Date/Time");
       this.add(DTM.class, false, 1, 0, new Object[]{ getMessage() }, "Certification Modify Date/Time");
@@ -1382,7 +1382,7 @@ public class IN3 extends AbstractSegment {
       case 0: return new SI(getMessage());
       case 1: return new CX(getMessage());
       case 2: return new XCN(getMessage());
-      case 3: return new ID(getMessage(), new Integer( 136 ));
+      case 3: return new ID(getMessage(), Integer.valueOf( 136 ));
       case 4: return new MOP(getMessage());
       case 5: return new DTM(getMessage());
       case 6: return new DTM(getMessage());
