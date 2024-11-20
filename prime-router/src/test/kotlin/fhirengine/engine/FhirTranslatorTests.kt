@@ -218,8 +218,6 @@ class FhirTranslatorTests {
 
         every { actionLogger.hasErrors() } returns false
         every { actionLogger.error(any<ActionLogDetail>()) } returns Unit
-        every { BlobAccess.downloadBlob(any(), any()) }
-            .returns(File(VALID_DATA_URL).readText())
         every { BlobAccess.Companion.uploadBlob(any(), any()) } returns "test"
         every {
             BlobAccess.BlobContainerMetadata.build(
@@ -254,6 +252,7 @@ class FhirTranslatorTests {
         every { rootReport.sendingOrg } returns oneOrganization.name
         every { rootReport.sendingOrgClient } returns oneOrganization.receivers[0].fullName
         every { rootReport.bodyUrl } returns BLOB_URL
+        every { rootReport.bodyFormat } returns "HL7"
         every { rootReport.blobDigest } returns reportId.toString().toByteArray(Charsets.UTF_8)
         every { reportServiceMock.getRootReport(any()) } returns rootReport
         every { reportServiceMock.getRootReports(any()) } returns listOf(rootReport)

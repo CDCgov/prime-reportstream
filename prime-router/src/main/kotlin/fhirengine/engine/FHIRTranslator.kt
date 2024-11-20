@@ -6,8 +6,6 @@ import ca.uhn.hl7v2.model.Segment
 import ca.uhn.hl7v2.util.Terser
 import fhirengine.engine.CustomFhirPathFunctions
 import fhirengine.engine.CustomTranslationFunctions
-import gov.cdc.prime.reportstream.shared.BlobUtils
-import gov.cdc.prime.reportstream.shared.BlobUtils.sha256Digest
 import gov.cdc.prime.reportstream.shared.QueueMessage
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.CustomerStatus
@@ -120,17 +118,12 @@ class FHIRTranslator(
     ): FHIREngineRunResult {
         logger.trace("Preparing to send original message")
         val originalReport = reportService.getRootReport(message.reportId)
-        val bodyBytes = BlobAccess.downloadBlobAsByteArray(originalReport.bodyUrl)
-        val originalDigest = BlobUtils.digestToString(originalReport.blobDigest)
-        val localDigest = BlobUtils.digestToString(sha256Digest(bodyBytes))
-        check(originalDigest == localDigest) {
-            "Downloaded file does not match expected file\n$localDigest | $originalDigest"
-        }
+        val bodyAsString = BlobAccess.downloadBlob(message.blobURL, message.digest)
 
         // get a Report from the message
         val (report, event, blobInfo) = Report.generateReportAndUploadBlob(
             Event.EventAction.SEND,
-            bodyBytes,
+            bodyAsString.toByteArray(),
             listOf(message.reportId),
             receiver,
             this.metadata,

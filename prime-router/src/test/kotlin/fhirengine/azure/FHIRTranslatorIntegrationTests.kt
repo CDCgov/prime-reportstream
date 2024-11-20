@@ -1,7 +1,9 @@
 package gov.cdc.prime.router.fhirengine.azure
 
 import assertk.assertThat
+import assertk.assertions.hasSize
 import assertk.assertions.isEqualTo
+import assertk.assertions.isInstanceOf
 import assertk.assertions.isNotEqualTo
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
@@ -22,7 +24,9 @@ import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.Task
 import gov.cdc.prime.router.azure.observability.event.AzureEventService
 import gov.cdc.prime.router.azure.observability.event.InMemoryAzureEventService
+import gov.cdc.prime.router.azure.observability.event.ReportStreamEventName
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventService
+import gov.cdc.prime.router.azure.observability.event.ReportStreamItemEvent
 import gov.cdc.prime.router.cli.tests.CompareData
 import gov.cdc.prime.router.common.TestcontainersUtils
 import gov.cdc.prime.router.common.UniversalPipelineTestUtils
@@ -191,6 +195,13 @@ class FHIRTranslatorIntegrationTests : Logging {
             QueueAccess.sendMessage(any(), any())
         }
 
+        // check events
+        assertThat(azureEventService.reportStreamEvents[ReportStreamEventName.ITEM_TRANSFORMED]!!).hasSize(1)
+        assertThat(
+            azureEventService
+                .reportStreamEvents[ReportStreamEventName.ITEM_TRANSFORMED]!!.first()
+        ).isInstanceOf<ReportStreamItemEvent>()
+
         // check action table
         UniversalPipelineTestUtils.checkActionTable(listOf(TaskAction.receive, TaskAction.translate))
 
@@ -289,6 +300,13 @@ class FHIRTranslatorIntegrationTests : Logging {
             QueueAccess.sendMessage(any(), any())
         }
 
+        // check events
+        assertThat(azureEventService.reportStreamEvents[ReportStreamEventName.ITEM_TRANSFORMED]!!).hasSize(1)
+        assertThat(
+            azureEventService
+                .reportStreamEvents[ReportStreamEventName.ITEM_TRANSFORMED]!!.first()
+        ).isInstanceOf<ReportStreamItemEvent>()
+
         // check action table
         UniversalPipelineTestUtils.checkActionTable(listOf(TaskAction.receive, TaskAction.translate))
 
@@ -363,6 +381,13 @@ class FHIRTranslatorIntegrationTests : Logging {
         verify(exactly = 0) {
             QueueAccess.sendMessage(any(), any())
         }
+
+        // check events
+        assertThat(azureEventService.reportStreamEvents[ReportStreamEventName.ITEM_TRANSFORMED]!!).hasSize(1)
+        assertThat(
+            azureEventService
+                .reportStreamEvents[ReportStreamEventName.ITEM_TRANSFORMED]!!.first()
+        ).isInstanceOf<ReportStreamItemEvent>()
 
         // check action table
         UniversalPipelineTestUtils.checkActionTable(listOf(TaskAction.receive, TaskAction.translate))
@@ -448,6 +473,13 @@ class FHIRTranslatorIntegrationTests : Logging {
         verify(exactly = 0) {
             QueueAccess.sendMessage(any(), any())
         }
+
+        // check events
+        assertThat(azureEventService.reportStreamEvents[ReportStreamEventName.ITEM_TRANSFORMED]!!).hasSize(1)
+        assertThat(
+            azureEventService
+                .reportStreamEvents[ReportStreamEventName.ITEM_TRANSFORMED]!!.first()
+        ).isInstanceOf<ReportStreamItemEvent>()
 
         // check action table
         UniversalPipelineTestUtils.checkActionTable(listOf(TaskAction.receive, TaskAction.translate))
