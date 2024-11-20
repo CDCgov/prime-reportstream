@@ -59,7 +59,7 @@ class LookupTableConditionMapper(metadata: Metadata) : IConditionMapper {
 
 class ConditionStamper(private val conditionMapper: IConditionMapper) {
     companion object {
-        const val conditionCodeExtensionURL = "https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code"
+        const val CONDITION_CODE_EXTENSION_URL = "https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code"
         const val MEMBER_OID_EXTENSION_URL =
             "https://reportstream.cdc.gov/fhir/StructureDefinition/test-performed-member-oid"
 
@@ -97,7 +97,7 @@ class ConditionStamper(private val conditionMapper: IConditionMapper) {
                 if (conditions.isEmpty()) {
                     code
                 } else {
-                    conditions.forEach { code.addExtension(conditionCodeExtensionURL, it) }
+                    conditions.forEach { code.addExtension(CONDITION_CODE_EXTENSION_URL, it) }
                     mappedSomething = true
                     null
                 }
