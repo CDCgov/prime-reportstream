@@ -1,0 +1,7 @@
+$schema: ./../../../../../../../metadata/json_schema/fhir/fhir-to-hl7-mapping.json
+
+elements:
+
+  - name: aui-authorization-number
+    value: [ '%resource.extension.where(url = "AUI.1").value' ]
+    hl7Spec: [ '%{auiField}-1' ]

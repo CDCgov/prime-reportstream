@@ -11,39 +11,6 @@ extension:
   expressionType: nested
   generateList: true
   expressions:
-    - expressionType: nested
-      vars:
-        in1401: STRING, IN1.14.1
-      condition: $in1401 NOT_NULL
-      expressionsMap:
-        url:
-          type: STRING
-          valueOf: IN1.14.1
-        valueString:
-          type: STRING
-          expressionType: HL7Spec
-          valueOf: IN1.14.1
-    - expressionType: nested
-      vars:
-        in1402: STRING, IN1.14.2
-      condition: $in1402 NOT_NULL
-      expressionsMap:
-        url:
-          type: STRING
-          valueOf: IN1.14.2
-        valueString:
-          type: STRING
-          expressionType: HL7Spec
-          valueOf: IN1.14.2
-    - expressionType: nested
-      vars:
-        in1403: STRING, IN1.14.3
-      condition: $in1403 NOT_NULL
-      expressionsMap:
-        url:
-          type: STRING
-          valueOf: IN1.14.3
-        valueString:
-          type: STRING
-          expressionType: HL7Spec
-          valueOf: IN1.14.3
+    - expressionType: resource
+      valueOf: datatypes/AUI/AUIExtension
+      specs: IN1.14

@@ -1,5 +1,9 @@
 # $schema: ./../../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
 
+url:
+  type: STRING
+  valueOf: IN1.14
+
 extension:
   generateList: true
   expressionType: nested

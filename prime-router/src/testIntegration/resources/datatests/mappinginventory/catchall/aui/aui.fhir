@@ -1,8 +1,8 @@
 {
   "resourceType" : "Bundle",
-  "id" : "1732057647294414000.f08675ab-7730-4a01-8d0d-de982166cc12",
+  "id" : "1732059123065809000.82c8d7d4-3fdf-4d33-aa21-68c5c5b571b0",
   "meta" : {
-    "lastUpdated" : "2024-11-19T16:07:27.298-07:00"
+    "lastUpdated" : "2024-11-19T16:32:03.070-07:00"
   },
   "identifier" : {
     "system" : "https://reportstream.cdc.gov/prime-router",
@@ -11,10 +11,10 @@
   "type" : "message",
   "timestamp" : "1988-08-18T11:26:00.000-06:00",
   "entry" : [ {
-    "fullUrl" : "MessageHeader/1732057647345875000.94f1fd7c-8396-4f71-8468-9e1ca1623179",
+    "fullUrl" : "MessageHeader/1732059123114315000.78f413df-1dcc-4595-bb70-950febac6e9c",
     "resource" : {
       "resourceType" : "MessageHeader",
-      "id" : "1732057647345875000.94f1fd7c-8396-4f71-8468-9e1ca1623179",
+      "id" : "1732059123114315000.78f413df-1dcc-4595-bb70-950febac6e9c",
       "meta" : {
         "security" : [ {
           "code" : "SECURITY"
@@ -49,11 +49,11 @@
           } ]
         },
         "receiver" : {
-          "reference" : "Organization/1732057647345300000.25917bfc-a2f9-49ae-a58c-4105c71c967a"
+          "reference" : "Organization/1732059123113720000.9f190a52-ba4f-47d3-8bc8-762239f771d6"
         }
       } ],
       "sender" : {
-        "reference" : "Organization/1732057647330910000.631c857a-f311-4c91-9964-cd99fa8cb1cd"
+        "reference" : "Organization/1732059123098627000.0c11c907-e1f0-4352-a8b1-6edb879c42c4"
       },
       "source" : {
         "extension" : [ {
@@ -73,10 +73,10 @@
       }
     }
   }, {
-    "fullUrl" : "Organization/1732057647330910000.631c857a-f311-4c91-9964-cd99fa8cb1cd",
+    "fullUrl" : "Organization/1732059123098627000.0c11c907-e1f0-4352-a8b1-6edb879c42c4",
     "resource" : {
       "resourceType" : "Organization",
-      "id" : "1732057647330910000.631c857a-f311-4c91-9964-cd99fa8cb1cd",
+      "id" : "1732059123098627000.0c11c907-e1f0-4352-a8b1-6edb879c42c4",
       "identifier" : [ {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
@@ -86,10 +86,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/1732057647345300000.25917bfc-a2f9-49ae-a58c-4105c71c967a",
+    "fullUrl" : "Organization/1732059123113720000.9f190a52-ba4f-47d3-8bc8-762239f771d6",
     "resource" : {
       "resourceType" : "Organization",
-      "id" : "1732057647345300000.25917bfc-a2f9-49ae-a58c-4105c71c967a",
+      "id" : "1732059123113720000.9f190a52-ba4f-47d3-8bc8-762239f771d6",
       "extension" : [ {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
         "valueString" : "MSH.6"
@@ -103,25 +103,28 @@
       } ]
     }
   }, {
-    "fullUrl" : "Patient/1732057647579379000.0afc3b63-f658-4267-bd5f-46667f909efe",
+    "fullUrl" : "Patient/1732059123367539000.bba5b03f-9fa4-4b91-bc7e-3400524450be",
     "resource" : {
       "resourceType" : "Patient",
-      "id" : "1732057647579379000.0afc3b63-f658-4267-bd5f-46667f909efe"
+      "id" : "1732059123367539000.bba5b03f-9fa4-4b91-bc7e-3400524450be"
     }
   }, {
-    "fullUrl" : "Coverage/1732057647580090000.89d5f8b2-cb56-42fe-a4b3-2f7664c0a87b",
+    "fullUrl" : "Coverage/1732059123368383000.68554fec-13a1-479e-b23c-699327a339a1",
     "resource" : {
       "resourceType" : "Coverage",
-      "id" : "1732057647580090000.89d5f8b2-cb56-42fe-a4b3-2f7664c0a87b",
+      "id" : "1732059123368383000.68554fec-13a1-479e-b23c-699327a339a1",
       "extension" : [ {
-        "url" : "IN1.14.1",
-        "valueString" : "1701"
-      }, {
-        "url" : "IN1.14.2",
-        "valueString" : "19700101"
-      }, {
-        "url" : "IN1.14.3",
-        "valueString" : "DR TEETH AND THE ELECTRIC MAYHEM"
+        "url" : "IN1.14",
+        "extension" : [ {
+          "url" : "AUI.1",
+          "valueString" : "1701"
+        }, {
+          "url" : "AUI.2",
+          "valueString" : "19700101"
+        }, {
+          "url" : "AUI.3",
+          "valueString" : "DR TEETH AND THE ELECTRIC MAYHEM"
+        } ]
       } ]
     }
   } ]
