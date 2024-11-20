@@ -2,6 +2,7 @@ package gov.cdc.prime.router.fhirengine.azure
 
 import assertk.assertThat
 import assertk.assertions.hasSize
+import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
 import assertk.assertions.isEqualToIgnoringGivenProperties
 import assertk.assertions.isInstanceOf
@@ -25,6 +26,8 @@ import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.ConditionStamper
+import gov.cdc.prime.router.azure.ConditionStamper.Companion.CONDITION_CODE_EXTENSION_URL
+import gov.cdc.prime.router.azure.ConditionStamper.Companion.MEMBER_OID_EXTENSION_URL
 import gov.cdc.prime.router.azure.DatabaseLookupTableAccess
 import gov.cdc.prime.router.azure.Event
 import gov.cdc.prime.router.azure.LookupTableConditionMapper
@@ -64,6 +67,8 @@ import io.mockk.mockkObject
 import io.mockk.unmockkAll
 import io.mockk.verify
 import org.apache.logging.log4j.kotlin.Logging
+import org.hl7.fhir.r4.model.CodeableConcept
+import org.hl7.fhir.r4.model.Coding
 import org.jooq.impl.DSL
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -1216,4 +1221,130 @@ class FHIRReceiverFilterIntegrationTests : Logging {
             )
         }
     }
+
+    @Test
+    fun `pass - integration routing filter for stamped conditions`() {
+        // Extract dynamic values from the observation-mapping metadata
+        val testConditionCode = observationMappingMetadata.lookupTableStore["observation-mapping"]!!
+            .FilterBuilder().filter().caseSensitiveDataRowsMap.first()[ObservationMappingConstants.CONDITION_CODE_KEY]
+        val memberOid = observationMappingMetadata.lookupTableStore["observation-mapping"]!!
+            .FilterBuilder().filter().caseSensitiveDataRowsMap.first()[ObservationMappingConstants.CONDITION_CODE_SYSTEM_KEY]
+
+        // Routing filter using the dynamically extracted values
+        val routingFilter = listOf(
+            "%resource.code.coding.extension('$CONDITION_CODE_EXTENSION_URL')" +
+                ".value.where(code in ('$testConditionCode')).exists() " +
+                "and %resource.code.coding.extension('$MEMBER_OID_EXTENSION_URL')" +
+                ".value.where(value = '$memberOid').exists()"
+        )
+
+        val receiverSetupData = listOf(
+            UniversalPipelineTestUtils.ReceiverSetupData(
+                "test-receiver",
+                jurisdictionalFilter = listOf("true"),
+                routingFilter = routingFilter,
+            )
+        )
+
+        val receivers = UniversalPipelineTestUtils.createReceivers(receiverSetupData)
+        val receiver = receivers.single()
+        val org = UniversalPipelineTestUtils.createOrganizationWithReceivers(receivers)
+        val receiverFilter = createReceiverFilter(azureEventService, org)
+
+        // Data setup
+        val reportContents = File(VALID_FHIR_URL).readText()
+        val bundle = FhirTranscoder.decode(reportContents)
+        bundle.getObservations().forEach {
+            // Use the shared stamper to populate the observation
+            stamper.stampObservation(it)
+        }
+        val stampedReportContents = FhirTranscoder.encode(bundle)
+        val report = UniversalPipelineTestUtils.createReport(
+            stampedReportContents,
+            TaskAction.receiver_filter,
+            Event.EventAction.RECEIVER_FILTER,
+            azuriteContainer
+        )
+        val queueMessage = generateQueueMessage(
+            report,
+            stampedReportContents,
+            UniversalPipelineTestUtils.fhirSenderWithNoTransform,
+            receiver.fullName
+        )
+
+        // Execute
+        val fhirFunctions = UniversalPipelineTestUtils.createFHIRFunctionsInstance()
+        fhirFunctions.process(queueMessage, 1, receiverFilter, ActionHistory(TaskAction.receiver_filter))
+
+        // Verify results
+        ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
+            val routedReport = UniversalPipelineTestUtils.fetchChildReports(report, txn, 1).single()
+            assertThat(routedReport.nextAction).isEqualTo(TaskAction.translate)
+
+            val routedContents = String(
+                BlobAccess.downloadBlobAsByteArray(
+                    routedReport.bodyUrl,
+                    UniversalPipelineTestUtils.getBlobContainerMetadata(azuriteContainer)
+                )
+            )
+            val routedBundle = FhirTranscoder.decode(routedContents)
+            assertThat(routedBundle.getObservations()).hasSize(1) // Ensure only matching observation is routed
+        }
+    }
+    
+    @Test
+    fun `fail - integration routing filter does not match stamped conditions`() {
+        // Routing filter that intentionally does not match the condition code
+        val routingFilter = listOf(
+            "%resource.code.coding.extension('${ConditionStamper.CONDITION_CODE_EXTENSION_URL}')" +
+                ".value.where(code in ('WRONG_CODE')).exists() " +
+                "and %resource.code.coding.extension('${ConditionStamper.MEMBER_OID_EXTENSION_URL}')" +
+                ".value.where(value = 'WRONG_OID').exists()"
+        )
+
+        val receiverSetupData = listOf(
+            UniversalPipelineTestUtils.ReceiverSetupData(
+                "test-receiver",
+                jurisdictionalFilter = listOf("true"),
+                routingFilter = routingFilter,
+            )
+        )
+
+        val receivers = UniversalPipelineTestUtils.createReceivers(receiverSetupData)
+        val receiver = receivers.single()
+        val org = UniversalPipelineTestUtils.createOrganizationWithReceivers(receivers)
+        val receiverFilter = createReceiverFilter(azureEventService, org)
+
+        // Data setup
+        val reportContents = File(VALID_FHIR_URL).readText()
+        val bundle = FhirTranscoder.decode(reportContents)
+        bundle.getObservations().forEach {
+            // Use the shared stamper to populate the observation
+            stamper.stampObservation(it)
+        }
+        val stampedReportContents = FhirTranscoder.encode(bundle)
+        val report = UniversalPipelineTestUtils.createReport(
+            stampedReportContents,
+            TaskAction.receiver_filter,
+            Event.EventAction.RECEIVER_FILTER,
+            azuriteContainer
+        )
+        val queueMessage = generateQueueMessage(
+            report,
+            stampedReportContents,
+            UniversalPipelineTestUtils.fhirSenderWithNoTransform,
+            receiver.fullName
+        )
+
+        // Execute
+        val fhirFunctions = UniversalPipelineTestUtils.createFHIRFunctionsInstance()
+        fhirFunctions.process(queueMessage, 1, receiverFilter, ActionHistory(TaskAction.receiver_filter))
+
+        // Verify results
+        ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
+            val routedReports = UniversalPipelineTestUtils.fetchChildReports(report, txn)
+            assertThat(routedReports).isEmpty() // Ensure no routed reports
+        }
+    }
+
 }
