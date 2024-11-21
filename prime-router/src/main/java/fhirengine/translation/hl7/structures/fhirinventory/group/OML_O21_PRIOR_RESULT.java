@@ -33,11 +33,12 @@
 
 package fhirengine.translation.hl7.structures.fhirinventory.group;
 
-import fhirengine.translation.hl7.structures.fhirinventory.segment.AL1;
-
 import ca.uhn.hl7v2.HL7Exception;
 import ca.uhn.hl7v2.parser.ModelClassFactory;
 import ca.uhn.hl7v2.model.*;
+
+import fhirengine.translation.hl7.structures.fhirinventory.segment.AL1;
+
 
 /**
  * <p>Represents a OML_O21_PRIOR_RESULT group structure (a Group object).

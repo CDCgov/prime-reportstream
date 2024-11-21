@@ -33,42 +33,39 @@
 
 package fhirengine.translation.hl7.structures.fhirinventory.group;
 
+import ca.uhn.hl7v2.model.v27.segment.*;
+
 import ca.uhn.hl7v2.HL7Exception;
 import ca.uhn.hl7v2.parser.ModelClassFactory;
 import ca.uhn.hl7v2.model.*;
 
-import fhirengine.translation.hl7.structures.fhirinventory.segment.*;
-
-
 /**
- * <p>Represents a OML_O21_PATIENT_PRIOR group structure (a Group object).
+ * <p>Represents a OML_O21_CONTAINER group structure (a Group object).
  * A Group is an ordered collection of message segments that can repeat together or be optionally in/excluded together.
  * This Group contains the following elements:
  * </p>
  * <ul>
- * <li>1: PID (Patient Identification) <b>  </b></li>
- * <li>2: PD1 (Patient Additional Demographic) <b>optional  </b></li>
- * <li>3: PRT (Participation Information) <b>optional repeating </b></li>
+ * <li>1: SAC (Specimen Container detail) <b>  </b></li>
+ * <li>2: OML_O21_CONTAINER_OBSERVATION (a Group object) <b>optional repeating </b></li>
  * </ul>
  */
 //@SuppressWarnings("unused")
-public class OML_O21_PATIENT_PRIOR extends AbstractGroup {
+public class OML_O21_CONTAINER extends AbstractGroup {
 
   /**
-   * Creates a new OML_O21_PATIENT_PRIOR group
+   * Creates a new OML_O21_CONTAINER group
    */
-  public OML_O21_PATIENT_PRIOR(Group parent, ModelClassFactory factory) {
+  public OML_O21_CONTAINER(Group parent, ModelClassFactory factory) {
     super(parent, factory);
     init(factory);
   }
 
   private void init(ModelClassFactory factory) {
     try {
-      this.add(PID.class, true, false, false);
-      this.add(PD1.class, false, false, false);
-      this.add(PRT.class, false, true, false);
+      this.add(SAC.class, true, false, false);
+      this.add(OML_O21_CONTAINER_OBSERVATION.class, false, true, false);
     } catch(HL7Exception e) {
-      log.error("Unexpected error creating OML_O21_PATIENT_PRIOR - this is probably a bug in the source code generator.", e);
+      log.error("Unexpected error creating OML_O21_CONTAINER - this is probably a bug in the source code generator.", e);
     }
   }
 
@@ -83,22 +80,10 @@ public class OML_O21_PATIENT_PRIOR extends AbstractGroup {
 
   /**
    * Returns
-   * PID (Patient Identification) - creates it if necessary
+   * SAC (Specimen Container detail) - creates it if necessary
    */
-  public PID getPID() {
-    PID retVal = getTyped("PID", PID.class);
-    return retVal;
-  }
-
-
-
-
-  /**
-   * Returns
-   * PD1 (Patient Additional Demographic) - creates it if necessary
-   */
-  public PD1 getPD1() {
-    PD1 retVal = getTyped("PD1", PD1.class);
+  public SAC getSAC() {
+    SAC retVal = getTyped("SAC", SAC.class);
     return retVal;
   }
 
@@ -108,71 +93,71 @@ public class OML_O21_PATIENT_PRIOR extends AbstractGroup {
   /**
    * Returns
    * the first repetition of
-   * PRT (Participation Information) - creates it if necessary
+   * CONTAINER_OBSERVATION (a Group object) - creates it if necessary
    */
-  public PRT getPRT() {
-    PRT retVal = getTyped("PRT", PRT.class);
+  public OML_O21_CONTAINER_OBSERVATION getCONTAINER_OBSERVATION() {
+    OML_O21_CONTAINER_OBSERVATION retVal = getTyped("CONTAINER_OBSERVATION", OML_O21_CONTAINER_OBSERVATION.class);
     return retVal;
   }
 
 
   /**
    * Returns a specific repetition of
-   * PRT (Participation Information) - creates it if necessary
+   * CONTAINER_OBSERVATION (a Group object) - creates it if necessary
    *
    * @param rep The repetition index (0-indexed, i.e. the first repetition is at index 0)
    * @throws HL7Exception if the repetition requested is more than one
    *     greater than the number of existing repetitions.
    */
-  public PRT getPRT(int rep) {
-    PRT retVal = getTyped("PRT", rep, PRT.class);
+  public OML_O21_CONTAINER_OBSERVATION getCONTAINER_OBSERVATION(int rep) {
+    OML_O21_CONTAINER_OBSERVATION retVal = getTyped("CONTAINER_OBSERVATION", rep, OML_O21_CONTAINER_OBSERVATION.class);
     return retVal;
   }
 
   /**
-   * Returns the number of existing repetitions of PRT
+   * Returns the number of existing repetitions of CONTAINER_OBSERVATION
    */
-  public int getPRTReps() {
-    return getReps("PRT");
+  public int getCONTAINER_OBSERVATIONReps() {
+    return getReps("CONTAINER_OBSERVATION");
   }
 
   /**
    * <p>
-   * Returns a non-modifiable List containing all current existing repetitions of PRT.
+   * Returns a non-modifiable List containing all current existing repetitions of CONTAINER_OBSERVATION.
    * <p>
    * <p>
-   * Note that unlike {@link #getPRT()}, this method will not create any reps
+   * Note that unlike {@link #getCONTAINER_OBSERVATION()}, this method will not create any reps
    * if none are already present, so an empty list may be returned.
    * </p>
    */
-  public java.util.List<PRT> getPRTAll() throws HL7Exception {
-    return getAllAsList("PRT", PRT.class);
+  public java.util.List<OML_O21_CONTAINER_OBSERVATION> getCONTAINER_OBSERVATIONAll() throws HL7Exception {
+    return getAllAsList("CONTAINER_OBSERVATION", OML_O21_CONTAINER_OBSERVATION.class);
   }
 
   /**
-   * Inserts a specific repetition of PRT (Participation Information)
+   * Inserts a specific repetition of CONTAINER_OBSERVATION (a Group object)
    * @see AbstractGroup#insertRepetition(Structure, int)
    */
-  public void insertPRT(PRT structure, int rep) throws HL7Exception {
-    super.insertRepetition("PRT", structure, rep);
+  public void insertCONTAINER_OBSERVATION(OML_O21_CONTAINER_OBSERVATION structure, int rep) throws HL7Exception {
+    super.insertRepetition("CONTAINER_OBSERVATION", structure, rep);
   }
 
 
   /**
-   * Inserts a specific repetition of PRT (Participation Information)
+   * Inserts a specific repetition of CONTAINER_OBSERVATION (a Group object)
    * @see AbstractGroup#insertRepetition(Structure, int)
    */
-  public PRT insertPRT(int rep) throws HL7Exception {
-    return (PRT)super.insertRepetition("PRT", rep);
+  public OML_O21_CONTAINER_OBSERVATION insertCONTAINER_OBSERVATION(int rep) throws HL7Exception {
+    return (OML_O21_CONTAINER_OBSERVATION)super.insertRepetition("CONTAINER_OBSERVATION", rep);
   }
 
 
   /**
-   * Removes a specific repetition of PRT (Participation Information)
+   * Removes a specific repetition of CONTAINER_OBSERVATION (a Group object)
    * @see AbstractGroup#removeRepetition(String, int)
    */
-  public PRT removePRT(int rep) throws HL7Exception {
-    return (PRT)super.removeRepetition("PRT", rep);
+  public OML_O21_CONTAINER_OBSERVATION removeCONTAINER_OBSERVATION(int rep) throws HL7Exception {
+    return (OML_O21_CONTAINER_OBSERVATION)super.removeRepetition("CONTAINER_OBSERVATION", rep);
   }
 
 
