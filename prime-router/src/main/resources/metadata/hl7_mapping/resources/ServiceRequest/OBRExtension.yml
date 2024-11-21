@@ -16,21 +16,13 @@ elements:
     constants:
       eiFieldPath: '%{obrFieldPath}-3'
 
-  - name: observation-collected-datetime
+  - name: observation-collected-datetime-start
     value: [ '%resource.extension.where(url = "OBR.7").value.extension(%`rsext-hl7v2-date-time`).value' ]
     hl7Spec: [ '%{obrFieldPath}-7' ]
 
-  - name: observation-collected-period-start
-    resource: '%resource.extension.where(url = "OBR.7, OBR.8").value.start'
-    schema: classpath:/metadata/hl7_mapping/datatypes/dateTime/DTMorDT.yml
-    constants:
-      dtmFieldPath: '%{obrFieldPath}-7'
-
-  - name: observation-collected-period-end
-    resource: '%resource.extension.where(url = "OBR.7, OBR.8").value.end'
-    schema: classpath:/metadata/hl7_mapping/datatypes/dateTime/DTMorDT.yml
-    constants:
-      dtmFieldPath: '%{obrFieldPath}-8'
+  - name: observation-collected-datetime-end
+    value: [ '%resource.extension.where(url = "OBR.8").value.extension(%`rsext-hl7v2-date-time`).value' ]
+    hl7Spec: [ '%{obrFieldPath}-8' ]
 
   - name: specimen-collection-volume
     resource: '%resource.extension.where(url = "OBR.9").value'

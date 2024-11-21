@@ -13926,20 +13926,6 @@
                 "valueString": "filler1"
               },
               {
-                "url": "OBR.7, OBR.8",
-                "valuePeriod": {
-                  "end": "2024-02-20",
-                  "_end": {
-                    "extension": [
-                      {
-                        "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
-                        "valueString": "20240220"
-                      }
-                    ]
-                  }
-                }
-              },
-              {
                 "url": "OBR.21",
                 "valueString": "filler2"
               },
@@ -14087,6 +14073,18 @@
               {
                 "url": "OBR.36",
                 "valueString": "20230806123359-0500"
+              },
+              {
+                "url": "OBR.8",
+                "valueDateTime": "2024-02-20",
+                "_valueDateTime": {
+                  "extension": [
+                    {
+                      "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+                      "valueString": "20240220"
+                    }
+                  ]
+                }
               },
               {
                 "url": "OBR.39",

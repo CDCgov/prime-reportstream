@@ -36,28 +36,8 @@ extension:
           specs: OBR.3
     - expressionType: nested
       vars:
-        obr8: OBR.8
-      condition: $obr8 NOT_NULL
-      generateList: true
-      expressionsMap:
-        url:
-          type: STRING
-          value: OBR.7, OBR.8
-        valuePeriod:
-          expressionType: nested
-          vars:
-            start: OBR.7
-            end: OBR.8
-            dateTimeIn: OBR.7
-            dateTimeOut: OBR.8
-          expressions:
-            - valueOf: datatypes/DR/Period
-              expressionType: resource
-    - expressionType: nested
-      vars:
         obr7: OBR.7
-        obr8: OBR.8
-      condition: $obr7 NOT_NULL && $obr8 NULL
+      condition: $obr7 NOT_NULL
       generateList: true
       expressionsMap:
         url:
@@ -65,16 +45,14 @@ extension:
           value: OBR.7
         valueDateTime:
           expressionType: nested
-          vars:
-            dateTimeIn: OBR.7
           expressions:
             - type: STRING
-              valueOf: "GeneralUtils.dateTimeWithZoneId(dateTimeIn,ZONEID)"
+              valueOf: "GeneralUtils.dateTimeWithZoneId(obr7,ZONEID)"
               expressionType: JEXL
         _valueDateTime:
           expressionType: nested
           expressionsMap:
-            extension_1:
+            extension:
               generateList: true
               expressionType: nested
               expressionsMap:
@@ -84,6 +62,35 @@ extension:
                 valueString:
                   type: STRING
                   valueOf: OBR.7
+                  expressionType: HL7Spec
+    - expressionType: nested
+      vars:
+        obr8: OBR.8
+      condition: $obr8 NOT_NULL
+      generateList: true
+      expressionsMap:
+        url:
+          type: STRING
+          value: OBR.8
+        valueDateTime:
+          expressionType: nested
+          expressions:
+            - type: STRING
+              valueOf: "GeneralUtils.dateTimeWithZoneId(obr8,ZONEID)"
+              expressionType: JEXL
+        _valueDateTime:
+          expressionType: nested
+          expressionsMap:
+            extension:
+              generateList: true
+              expressionType: nested
+              expressionsMap:
+                url:
+                  type: SYSTEM_URL
+                  value: hl7v2-date-time
+                valueString:
+                  type: STRING
+                  valueOf: OBR.8
                   expressionType: HL7Spec
     - expressionType: nested
       vars:
