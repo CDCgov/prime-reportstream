@@ -209,6 +209,7 @@ class FHIRTranslatorIntegrationTests : Logging {
         assertThat(event.params[ReportStreamEventProperties.RECEIVER_NAME]).isEqualTo("phd.x")
         val enrichments = event.params[ReportStreamEventProperties.ENRICHMENTS] as List<*>
         assertThat(enrichments).hasSize(1)
+        assertThat(enrichments.first()).isEqualTo(receiverSetupData.first().schemaName)
 
         // check action table
         UniversalPipelineTestUtils.checkActionTable(listOf(TaskAction.receive, TaskAction.translate))
@@ -321,6 +322,7 @@ class FHIRTranslatorIntegrationTests : Logging {
         assertThat(event.params[ReportStreamEventProperties.RECEIVER_NAME]).isEqualTo("phd.x")
         val enrichments = event.params[ReportStreamEventProperties.ENRICHMENTS] as List<*>
         assertThat(enrichments).hasSize(1)
+        assertThat(enrichments.first()).isEqualTo(receiverSetupData.first().schemaName)
 
         // check action table
         UniversalPipelineTestUtils.checkActionTable(listOf(TaskAction.receive, TaskAction.translate))
@@ -410,6 +412,7 @@ class FHIRTranslatorIntegrationTests : Logging {
         assertThat(event.params[ReportStreamEventProperties.RECEIVER_NAME]).isEqualTo("phd.x")
         val enrichments = event.params[ReportStreamEventProperties.ENRICHMENTS] as List<*>
         assertThat(enrichments).hasSize(1)
+        assertThat(enrichments.first()).isEqualTo(receiverSetupData.first().schemaName)
 
         // check action table
         UniversalPipelineTestUtils.checkActionTable(listOf(TaskAction.receive, TaskAction.translate))
@@ -509,6 +512,7 @@ class FHIRTranslatorIntegrationTests : Logging {
         assertThat(event.params[ReportStreamEventProperties.RECEIVER_NAME]).isEqualTo("phd.x")
         val enrichments = event.params[ReportStreamEventProperties.ENRICHMENTS] as List<*>
         assertThat(enrichments).hasSize(1)
+        assertThat(enrichments.first()).isEqualTo(receiverSetupData.first().schemaName)
 
         // check action table
         UniversalPipelineTestUtils.checkActionTable(listOf(TaskAction.receive, TaskAction.translate))
