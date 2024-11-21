@@ -5635,6 +5635,18 @@
                   "system" : "email",
                   "value" : "MWaKabon@placer.ca.gov"
                 }
+              },
+              {
+                "url" : "OBR.7",
+                "valueDateTime" : "2023-07-24T15:24:00Z",
+                "_valueDateTime" : {
+                  "extension" : [
+                    {
+                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+                      "valueString" : "202307241524"
+                    }
+                  ]
+                }
               }
             ]
           }
@@ -6225,6 +6237,12 @@
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/obr-observation-request",
             "extension" : [
               {
+                "url" : "OBR.16",
+                "valueReference" : {
+                  "reference" : "Practitioner/1731693452435563000.a1c0b0dd-bd8a-4229-a55c-a3f6f0cea9ec"
+                }
+              },
+              {
                 "url" : "OBR.22",
                 "valueString" : "202308021726-0400"
               },
@@ -6233,9 +6251,15 @@
                 "valueId" : "F"
               },
               {
-                "url" : "OBR.16",
-                "valueReference" : {
-                  "reference" : "Practitioner/1716964508680805000.39455907-1413-4e43-9f80-c88959094250"
+                "url" : "OBR.7",
+                "valueDateTime" : "2023-07-24T15:24:00Z",
+                "_valueDateTime" : {
+                  "extension" : [
+                    {
+                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+                      "valueString" : "202307241524"
+                    }
+                  ]
                 }
               }
             ]
@@ -6558,10 +6582,10 @@
       }
     },
     {
-      "fullUrl" : "Practitioner/1716964508680805000.39455907-1413-4e43-9f80-c88959094250",
+      "fullUrl" : "Practitioner/1731693452435563000.a1c0b0dd-bd8a-4229-a55c-a3f6f0cea9ec",
       "resource" : {
         "resourceType" : "Practitioner",
-        "id" : "1716964508680805000.39455907-1413-4e43-9f80-c88959094250",
+        "id" : "1731693452435563000.a1c0b0dd-bd8a-4229-a55c-a3f6f0cea9ec",
         "extension" : [
           {
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority",

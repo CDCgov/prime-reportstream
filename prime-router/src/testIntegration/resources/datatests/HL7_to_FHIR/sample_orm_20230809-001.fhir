@@ -1656,6 +1656,54 @@
                   ],
                   "value" : "421832901"
                 }
+              },
+              {
+                "url" : "OBR.15.1",
+                "valueCodeableConcept" : {
+                  "coding" : [
+                    {
+                      "extension" : [
+                        {
+                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                          "valueString" : "coding"
+                        }
+                      ],
+                      "code" : "440500007"
+                    }
+                  ]
+                }
+              },
+              {
+                "url" : "OBR.15.2",
+                "valueCodeableConcept" : {
+                  "coding" : [
+                    {
+                      "extension" : [
+                        {
+                          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                          "valueString" : "coding"
+                        }
+                      ],
+                      "code" : "Blood spot specimen"
+                    }
+                  ]
+                }
+              },
+              {
+                "url" : "OBR.15.3",
+                "valueString" : "SCT"
+              },
+              {
+                "url" : "OBR.7",
+                "valueDateTime" : "2023-05-06T05:00:00Z",
+                "_valueDateTime" : {
+                  "extension" : [
+                    {
+                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+                      "valueString" : "20230506050000"
+                    }
+                  ]
+                }
               }
             ]
           }

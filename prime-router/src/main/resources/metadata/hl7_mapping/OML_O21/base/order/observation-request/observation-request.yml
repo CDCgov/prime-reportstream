@@ -8,7 +8,15 @@ elements:
     constants:
       obrFieldPath: '/ORDER(%{orderIndex})/OBSERVATION_REQUEST/OBR'
 
-#  - name: observation-request-note
-# todo in second pass, for ORU this is mapped through Observation.note; OML maps through ServiceRequest.note
-# this is already mapped into fhir via ORC/ServiceRequest... where is fhir -> hl7?
-# todo add scearnio in full oml test for an OBSERVATION_REQUEST.NTE
+  - name: observation-request-specimen
+    resource: '%resource.specimen.resolve().where(extension(%`rsext-hl7v2Segment`).value = "OBR")'
+    schema: classpath:/metadata/hl7_mapping/resources/Specimen/OBR.yml
+    constants:
+      obrFieldPath: '/ORDER(%{orderIndex})/OBSERVATION_REQUEST/OBR'
+
+  - name: observation-request-note
+    resource: '%resource.note'
+    resourceIndex: noteIndex
+    schema: classpath:/metadata/hl7_mapping/datatypes/annotation/NTE.yml
+    constants:
+      hl7NotePath: '/ORDER(%{orderIndex})/OBSERVATION_REQUEST'

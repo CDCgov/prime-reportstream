@@ -140,6 +140,15 @@
         "extension" : [ {
           "url" : "OBR.25",
           "valueId" : "Z"
+        }, {
+          "url" : "OBR.7",
+          "valueDateTime" : "2023-08-16T12:33:58-05:00",
+          "_valueDateTime" : {
+            "extension" : [ {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+              "valueString" : "20230816123358-0500"
+            } ]
+          }
         } ]
       } ],
       "status" : "unknown",

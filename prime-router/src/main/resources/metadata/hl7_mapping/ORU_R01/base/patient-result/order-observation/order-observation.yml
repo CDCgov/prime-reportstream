@@ -20,6 +20,12 @@ elements:
     constants:
       obrFieldPath: '/PATIENT_RESULT(%{patientIndex})/ORDER_OBSERVATION(%{orderIndex})/OBR'
 
+  - name: observation-request-specimen
+    resource: '%resource.specimen.resolve().where(extension(%`rsext-hl7v2Segment`).value = "OBR")'
+    schema: classpath:/metadata/hl7_mapping/resources/Specimen/OBR.yml
+    constants:
+      obrFieldPath: '/PATIENT_RESULT(%{patientIndex})/ORDER_OBSERVATION(%{orderIndex})/OBR'
+
   - name: observation-request-diagnostic-report
     resource: '%resource'
     schema: classpath:/metadata/hl7_mapping/resources/DiagnosticReport/OBR.yml

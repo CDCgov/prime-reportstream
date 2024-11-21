@@ -24,8 +24,8 @@ elements:
 
   - name: patient-note
     resource: '%resource.extension(%`rsext-patient-notes`).value'
-    schema: classpath:/metadata/hl7_mapping/datatypes/annotation/NTE.yml
     resourceIndex: noteIndex
+    schema: classpath:/metadata/hl7_mapping/datatypes/annotation/NTE.yml
     constants:
       hl7NotePath: '%{hl7SegmentGroup}'
 
