@@ -1,0 +1,92 @@
+# $schema: ./../../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
+
+
+resourceType: Coverage
+
+id:
+  type: STRING
+  valueOf: "GeneralUtils.generateResourceId()"
+  expressionType: JEXL
+
+payor:
+  valueOf: datatype/Reference
+  expressionType: resource
+  specs: $Organization
+  generateList: true
+
+policyHolder:
+  valueOf: datatype/Reference
+  expressionType: resource
+  specs: $Organization
+  generateList: true
+
+period:
+  expressionType: nested
+  vars:
+    in112: STRING, IN1.12
+    in113: STRING, IN1.13
+  expressionsMap:
+    start:
+      valueOf: "GeneralUtils.dateTimeWithZoneId(in112,ZONEID)"
+      expressionType: JEXL
+    _start:
+      expressionType: nested
+      condition: $in112 NOT_NULL
+      expressionsMap:
+        extension_1:
+          generateList: true
+          expressionType: nested
+          expressionsMap:
+            url:
+              type: SYSTEM_URL
+              value: hl7v2-date-time
+            valueString:
+              type: STRING
+              valueOf: IN1.12
+              expressionType: HL7Spec
+    end:
+      valueOf: "GeneralUtils.dateTimeWithZoneId(in112,ZONEID)"
+      expressionType: JEXL
+    _end:
+      expressionType: nested
+      condition: $in112 NOT_NULL
+      expressionsMap:
+        extension_1:
+          generateList: true
+          expressionType: nested
+          expressionsMap:
+            url:
+              type: SYSTEM_URL
+              value: hl7v2-date-time
+            valueString:
+              type: STRING
+              valueOf: IN1.13
+              expressionType: HL7Spec
+
+type:
+  vars:
+    in115: String, IN1.15
+  condition: $in115 NOT_NULL
+  expressionType: resource
+  valueOf: datatypes/CWE/CodeableConcept
+  specs: IN1.15
+
+## todo add nested expression for if IN1-17 IS NOT patient
+subscriber:
+  valueOf: datatype/Reference
+  expressionType: resource
+  specs: $Patient
+  generateList: true
+
+relationship:
+  vars:
+    in117: String, IN1.17
+  condition: $in117 NOT_NULL
+  expressionType: resource
+  valueOf: datatypes/CWE/CodeableConcept
+  specs: IN1.17
+
+
+
+
+

@@ -15,6 +15,13 @@ resources:
     isReferenced: true
     repeats: false
 
+  - resourceName : Coverage
+    segment: .IN1
+    group: PATIENT.INSURANCE
+    resourcePath: segments/IN1/Coverage
+    isReferenced: false
+    repeats: true
+
   - resourceName: ServiceRequest
     segment: .ORC
     group: ORDER
