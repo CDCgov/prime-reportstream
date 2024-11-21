@@ -214,7 +214,8 @@ class FHIRFunctions(
                 actionLogger.errors.takeIf { it.isNotEmpty() }?.map { it.detail.message }?.toString()
             )
             submissionTableService.insertSubmission(tableEntity)
-            queueAccess.sendMessage("${messageContent.messageQueueName}-poison", message)
+            val encodedMsg = Base64.getEncoder().encodeToString(message.toByteArray())
+            queueAccess.sendMessage("${messageContent.messageQueueName}-poison", encodedMsg)
             return emptyList()
         } catch (ex: Exception) {
             // We're catching anything else that occurs because the most likely cause is a code or configuration error
