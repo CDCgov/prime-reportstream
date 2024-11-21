@@ -213,6 +213,9 @@
             "HL7_BATCH"
           ]
         },
+        "hl7AcknowledgementEnabled": {
+          "type": "boolean"
+        },
         "name": {
           "type": "string"
         },

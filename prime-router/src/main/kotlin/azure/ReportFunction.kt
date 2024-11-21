@@ -19,7 +19,6 @@ import com.microsoft.azure.functions.annotation.StorageAccount
 import gov.cdc.prime.router.ActionError
 import gov.cdc.prime.router.ActionLog
 import gov.cdc.prime.router.ActionLogLevel
-import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.InvalidParamMessage
 import gov.cdc.prime.router.InvalidReportMessage
@@ -31,6 +30,7 @@ import gov.cdc.prime.router.Sender.ProcessingType
 import gov.cdc.prime.router.SubmissionReceiver
 import gov.cdc.prime.router.UniversalPipelineReceiver
 import gov.cdc.prime.router.azure.BlobAccess.Companion.getBlobContainer
+import gov.cdc.prime.router.azure.HttpUtilities.Companion.isSuccessful
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.azure.observability.event.IReportStreamEventService
@@ -44,7 +44,7 @@ import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.HL7ACKUtils
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
-import gov.cdc.prime.router.fhirengine.utils.HL7Reader
+import gov.cdc.prime.router.history.DetailedSubmissionHistory
 import gov.cdc.prime.router.history.azure.SubmissionsFacade
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
 import gov.cdc.prime.router.tokens.Scope
@@ -75,10 +75,10 @@ class ReportFunction(
 ) : RequestFunction(workflowEngine),
     Logging {
 
-        enum class IngestionMethod {
-            SFTP,
-            REST,
-        }
+    enum class IngestionMethod {
+        SFTP,
+        REST,
+    }
 
     /**
      * POST a report to the router
@@ -499,12 +499,6 @@ class ReportFunction(
         request: HttpRequestMessage<String?>,
         sender: Sender,
     ): HttpResponseMessage {
-        // check for ACK request
-        val maybeACKResponse = handleAckRequest(request)
-        if (maybeACKResponse != null) {
-            return maybeACKResponse
-        }
-
         // determine if we should be following the sync or async workflow
         val isAsync = processingType(request, sender) == ProcessingType.async
         // allow duplicates 'override' param
@@ -611,19 +605,7 @@ class ReportFunction(
             SubmissionsFacade.instance.findDetailedSubmissionHistory(txn, null, actionHistory.action)
         }
 
-        val response = request.createResponseBuilder(httpStatus)
-            .header(HttpHeaders.CONTENT_TYPE, "application/json")
-            .body(
-                JacksonMapperUtilities.allowUnknownsMapper
-                    .writeValueAsString(submission)
-            )
-            .header(
-                HttpHeaders.LOCATION,
-                request.uri.resolve(
-                    "/api/waters/report/${submission?.reportId}/history"
-                ).toString()
-            )
-            .build()
+        val response = buildResponse(request, httpStatus, submission, sender)
 
         // queue messages here after all task / action records are in
         actionHistory.queueMessages(workflowEngine)
@@ -644,34 +626,56 @@ class ReportFunction(
         }
     }
 
-    private fun handleAckRequest(request: HttpRequestMessage<String?>): HttpResponseMessage? {
-        // why does Azure handle Headers case-sensitive???
+    private fun buildResponse(
+        request: HttpRequestMessage<String?>,
+        responseStatus: HttpStatus,
+        submission: DetailedSubmissionHistory?,
+        sender: Sender,
+    ): HttpResponseMessage {
+        return handleAckRequest(request, responseStatus, sender) ?: run {
+            request.createResponseBuilder(responseStatus)
+                .header(HttpHeaders.CONTENT_TYPE, "application/json")
+                .body(
+                    JacksonMapperUtilities.allowUnknownsMapper
+                        .writeValueAsString(submission)
+                )
+                .header(
+                    HttpHeaders.LOCATION,
+                    request.uri.resolve(
+                        "/api/waters/report/${submission?.reportId}/history"
+                    ).toString()
+                )
+                .build()
+        }
+    }
+
+    private fun handleAckRequest(
+        request: HttpRequestMessage<String?>,
+        responseStatus: HttpStatus,
+        sender: Sender,
+    ): HttpResponseMessage? {
+        // Azure handles all headers as lowercase
         val contentType = request.headers[HttpHeaders.CONTENT_TYPE.lowercase()]
         val requestBody = request.body
-        return if (contentType == "application/hl7-v2" && requestBody != null) {
+        return if (
+            sender.hl7AcknowledgementEnabled &&
+            responseStatus.isSuccessful() &&
+            contentType == HttpUtilities.hl7V2MediaType &&
+            requestBody != null
+        ) {
             try {
-                // Parse HL7 message
-                val maybeMessage = HL7Reader(ActionLogger())
-                    .getMessages(requestBody)
-                    .firstOrNull()
-
-                // Is the message an ACK?
-                if (maybeMessage != null && HL7Reader.isAckMessage(maybeMessage)) {
+                hl7ACKUtils.generateOutgoingACKMessageIfRequired(requestBody)?.let { responseBody ->
                     logger.info("Creating HL7 ACK response")
-                    request.createResponseBuilder(HttpStatus.OK)
-                        .header(HttpHeaders.CONTENT_TYPE, "application/hl7-v2")
-                        .body(hl7ACKUtils.generateOutgoingACKMessage(maybeMessage))
+                    request.createResponseBuilder(responseStatus)
+                        .header(HttpHeaders.CONTENT_TYPE, HttpUtilities.hl7V2MediaType)
+                        .body(responseBody)
                         .build()
-                } else {
-                    logger.trace("Not an HL7 ACK message. Continuing.")
-                    null
                 }
             } catch (ex: Exception) {
-                logger.warn("Error checking for HL7 ACK. Continuing normal pipeline execution.", ex)
+                logger.warn("Error checking for HL7 ACK.", ex)
                 null
             }
         } else {
-            logger.trace("Not an HL7 ACK message. Continuing.")
             null
         }
     }

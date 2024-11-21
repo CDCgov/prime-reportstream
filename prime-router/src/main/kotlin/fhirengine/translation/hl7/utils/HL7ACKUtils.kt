@@ -2,6 +2,7 @@ package gov.cdc.prime.router.fhirengine.translation.hl7.utils
 
 import ca.uhn.hl7v2.model.Message
 import ca.uhn.hl7v2.model.v251.message.ACK
+import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.fhirengine.utils.HL7Reader
 import java.time.Clock
@@ -17,7 +18,19 @@ class HL7ACKUtils(
     private val clock: Clock = Clock.systemUTC(),
 ) {
 
-    fun generateOutgoingACKMessage(incomingACKMessage: Message): String {
+    fun generateOutgoingACKMessageIfRequired(rawHL7: String): String? {
+        val maybeMessage = HL7Reader(ActionLogger())
+            .getMessages(rawHL7)
+            .firstOrNull()
+
+        return if (maybeMessage != null && HL7Reader.isAckMessage(maybeMessage)) {
+            generateOutgoingACKMessage(maybeMessage)
+        } else {
+            null
+        }
+    }
+
+    private fun generateOutgoingACKMessage(incomingACKMessage: Message): String {
         val outgoingAck = ACK()
 
         val ackMsh = outgoingAck.msh
