@@ -191,7 +191,7 @@ class FHIRTranslator(
                     ReportStreamEventProperties.BUNDLE_DIGEST
                         to bundleDigestExtractor.generateDigest(bundle),
                     ReportStreamEventProperties.ORIGINAL_FORMAT to originalReport.bodyFormat,
-                    ReportStreamEventProperties.TARGET_FORMAT to receiver.translation.format,
+                    ReportStreamEventProperties.TARGET_FORMAT to receiver.translation.format.name,
                     ReportStreamEventProperties.ENRICHMENTS to listOf(receiver.translation.schemaName)
                 )
             )

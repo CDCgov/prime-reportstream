@@ -25,6 +25,7 @@ import gov.cdc.prime.router.azure.db.tables.Task
 import gov.cdc.prime.router.azure.observability.event.AzureEventService
 import gov.cdc.prime.router.azure.observability.event.InMemoryAzureEventService
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventName
+import gov.cdc.prime.router.azure.observability.event.ReportStreamEventProperties
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventService
 import gov.cdc.prime.router.azure.observability.event.ReportStreamItemEvent
 import gov.cdc.prime.router.cli.tests.CompareData
@@ -201,6 +202,13 @@ class FHIRTranslatorIntegrationTests : Logging {
             azureEventService
                 .reportStreamEvents[ReportStreamEventName.ITEM_TRANSFORMED]!!.first()
         ).isInstanceOf<ReportStreamItemEvent>()
+        val event = azureEventService
+            .reportStreamEvents[ReportStreamEventName.ITEM_TRANSFORMED]!!.first() as ReportStreamItemEvent
+        assertThat(event.params[ReportStreamEventProperties.ORIGINAL_FORMAT]).isEqualTo("FHIR")
+        assertThat(event.params[ReportStreamEventProperties.TARGET_FORMAT]).isEqualTo("HL7")
+        assertThat(event.params[ReportStreamEventProperties.RECEIVER_NAME]).isEqualTo("phd.x")
+        val enrichments = event.params[ReportStreamEventProperties.ENRICHMENTS] as List<*>
+        assertThat(enrichments).hasSize(1)
 
         // check action table
         UniversalPipelineTestUtils.checkActionTable(listOf(TaskAction.receive, TaskAction.translate))
@@ -306,6 +314,13 @@ class FHIRTranslatorIntegrationTests : Logging {
             azureEventService
                 .reportStreamEvents[ReportStreamEventName.ITEM_TRANSFORMED]!!.first()
         ).isInstanceOf<ReportStreamItemEvent>()
+        val event = azureEventService
+            .reportStreamEvents[ReportStreamEventName.ITEM_TRANSFORMED]!!.first() as ReportStreamItemEvent
+        assertThat(event.params[ReportStreamEventProperties.ORIGINAL_FORMAT]).isEqualTo("FHIR")
+        assertThat(event.params[ReportStreamEventProperties.TARGET_FORMAT]).isEqualTo("HL7")
+        assertThat(event.params[ReportStreamEventProperties.RECEIVER_NAME]).isEqualTo("phd.x")
+        val enrichments = event.params[ReportStreamEventProperties.ENRICHMENTS] as List<*>
+        assertThat(enrichments).hasSize(1)
 
         // check action table
         UniversalPipelineTestUtils.checkActionTable(listOf(TaskAction.receive, TaskAction.translate))
@@ -388,6 +403,13 @@ class FHIRTranslatorIntegrationTests : Logging {
             azureEventService
                 .reportStreamEvents[ReportStreamEventName.ITEM_TRANSFORMED]!!.first()
         ).isInstanceOf<ReportStreamItemEvent>()
+        val event = azureEventService
+            .reportStreamEvents[ReportStreamEventName.ITEM_TRANSFORMED]!!.first() as ReportStreamItemEvent
+        assertThat(event.params[ReportStreamEventProperties.ORIGINAL_FORMAT]).isEqualTo("FHIR")
+        assertThat(event.params[ReportStreamEventProperties.TARGET_FORMAT]).isEqualTo("FHIR")
+        assertThat(event.params[ReportStreamEventProperties.RECEIVER_NAME]).isEqualTo("phd.x")
+        val enrichments = event.params[ReportStreamEventProperties.ENRICHMENTS] as List<*>
+        assertThat(enrichments).hasSize(1)
 
         // check action table
         UniversalPipelineTestUtils.checkActionTable(listOf(TaskAction.receive, TaskAction.translate))
@@ -480,6 +502,13 @@ class FHIRTranslatorIntegrationTests : Logging {
             azureEventService
                 .reportStreamEvents[ReportStreamEventName.ITEM_TRANSFORMED]!!.first()
         ).isInstanceOf<ReportStreamItemEvent>()
+        val event = azureEventService
+            .reportStreamEvents[ReportStreamEventName.ITEM_TRANSFORMED]!!.first() as ReportStreamItemEvent
+        assertThat(event.params[ReportStreamEventProperties.ORIGINAL_FORMAT]).isEqualTo("FHIR")
+        assertThat(event.params[ReportStreamEventProperties.TARGET_FORMAT]).isEqualTo("FHIR")
+        assertThat(event.params[ReportStreamEventProperties.RECEIVER_NAME]).isEqualTo("phd.x")
+        val enrichments = event.params[ReportStreamEventProperties.ENRICHMENTS] as List<*>
+        assertThat(enrichments).hasSize(1)
 
         // check action table
         UniversalPipelineTestUtils.checkActionTable(listOf(TaskAction.receive, TaskAction.translate))
