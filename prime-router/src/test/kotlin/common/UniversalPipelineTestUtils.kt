@@ -3,6 +3,7 @@ package gov.cdc.prime.router.common
 import assertk.assertThat
 import assertk.assertions.hasSize
 import assertk.assertions.isEqualTo
+import gov.cdc.prime.reportstream.shared.BlobUtils.sha256Digest
 import gov.cdc.prime.router.ClientSource
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.DeepOrganization
@@ -452,7 +453,8 @@ object UniversalPipelineTestUtils {
             event,
             Topic.FULL_ELR,
             parentReport,
-            blobUrl
+            blobUrl,
+            reportContents,
         )
     }
 
@@ -464,6 +466,7 @@ object UniversalPipelineTestUtils {
         topic: Topic,
         parentReport: Report? = null,
         bodyURL: String? = null,
+        reportContents: String,
     ): Report {
         val report = Report(
             fileFormat,
@@ -493,6 +496,7 @@ object UniversalPipelineTestUtils {
                 .setBodyUrl(report.bodyURL)
                 .setSendingOrg(universalPipelineOrganization.name)
                 .setSendingOrgClient("Test Sender")
+                .setBlobDigest(sha256Digest(reportContents.toByteArray(Charsets.UTF_8)))
 
             ReportStreamTestDatabaseContainer.testDatabaseAccess.insertReportFile(
                 reportFile, txn, action
