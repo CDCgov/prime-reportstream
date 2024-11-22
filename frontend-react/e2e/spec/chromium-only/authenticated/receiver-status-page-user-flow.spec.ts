@@ -169,6 +169,7 @@ test.describe(
                     const { organizationName, receiverName, successRate } = adminReceiverStatusPage.timePeriodData[1];
 
                     const receiversStatusRows = adminReceiverStatusPage.receiverStatusRowsLocator;
+                    await expect(receiversStatusRows).toHaveCount(adminReceiverStatusPage.timePeriodData.length);
                     const defaultReceiversStatusRowsCount = await receiversStatusRows.count();
                     const expectedReceiverStatusRow = receiversStatusRows.nthCustom(0);
                     const expectedReceiverStatusRowTitle = adminReceiverStatusPage.getExpectedReceiverStatusRowTitle(
@@ -176,8 +177,6 @@ test.describe(
                         receiverName,
                         successRate,
                     );
-
-                    expect(defaultReceiversStatusRowsCount).toBe(adminReceiverStatusPage.timePeriodData.length);
 
                     await adminReceiverStatusPage.updateFilters({
                         receiverName,
