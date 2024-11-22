@@ -34,10 +34,13 @@
 package fhirengine.translation.hl7.structures.fhirinventory.group;
 
 import ca.uhn.hl7v2.HL7Exception;
+import ca.uhn.hl7v2.model.AbstractGroup;
+import ca.uhn.hl7v2.model.Group;
+import ca.uhn.hl7v2.model.Structure;
 import ca.uhn.hl7v2.parser.ModelClassFactory;
-import ca.uhn.hl7v2.model.*;
-
-import fhirengine.translation.hl7.structures.fhirinventory.segment.*;
+import fhirengine.translation.hl7.structures.fhirinventory.segment.PD1;
+import fhirengine.translation.hl7.structures.fhirinventory.segment.PID;
+import fhirengine.translation.hl7.structures.fhirinventory.segment.PRT;
 
 
 /**

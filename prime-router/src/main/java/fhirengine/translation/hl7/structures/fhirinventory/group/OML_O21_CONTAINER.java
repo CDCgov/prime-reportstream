@@ -33,11 +33,12 @@
 
 package fhirengine.translation.hl7.structures.fhirinventory.group;
 
-import ca.uhn.hl7v2.model.v27.segment.*;
-
 import ca.uhn.hl7v2.HL7Exception;
+import ca.uhn.hl7v2.model.AbstractGroup;
+import ca.uhn.hl7v2.model.Group;
+import ca.uhn.hl7v2.model.Structure;
+import ca.uhn.hl7v2.model.v27.segment.SAC;
 import ca.uhn.hl7v2.parser.ModelClassFactory;
-import ca.uhn.hl7v2.model.*;
 
 /**
  * <p>Represents a OML_O21_CONTAINER group structure (a Group object).

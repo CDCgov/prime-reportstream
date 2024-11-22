@@ -32,12 +32,13 @@
 
 package fhirengine.translation.hl7.structures.fhirinventory.group;
 
-import ca.uhn.hl7v2.model.v27.segment.*;
+import ca.uhn.hl7v2.HL7Exception;
+import ca.uhn.hl7v2.model.AbstractGroup;
+import ca.uhn.hl7v2.model.Group;
+import ca.uhn.hl7v2.model.v27.segment.PV2;
+import ca.uhn.hl7v2.parser.ModelClassFactory;
 import fhirengine.translation.hl7.structures.fhirinventory.segment.PV1;
 
-import ca.uhn.hl7v2.HL7Exception;
-import ca.uhn.hl7v2.parser.ModelClassFactory;
-import ca.uhn.hl7v2.model.*;
 
 /**
  * <p>Represents a ORM_O01_PATIENT_VISIT group structure (a Group object).
