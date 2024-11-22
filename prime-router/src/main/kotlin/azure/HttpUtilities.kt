@@ -436,6 +436,9 @@ class HttpUtilities {
             }
         }
 
+        /**
+         * Is status code 2xx?
+         */
         fun HttpStatus.isSuccessful(): Boolean {
             val status = this.value()
             return status in 200..299

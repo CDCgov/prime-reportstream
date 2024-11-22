@@ -626,29 +626,39 @@ class ReportFunction(
         }
     }
 
+    /**
+     * Returns an ACK response if required. Otherwise returns a JSON response.
+     */
     private fun buildResponse(
         request: HttpRequestMessage<String?>,
         responseStatus: HttpStatus,
         submission: DetailedSubmissionHistory?,
         sender: Sender,
     ): HttpResponseMessage {
-        return handleAckRequest(request, responseStatus, sender) ?: run {
-            request.createResponseBuilder(responseStatus)
-                .header(HttpHeaders.CONTENT_TYPE, "application/json")
-                .body(
-                    JacksonMapperUtilities.allowUnknownsMapper
-                        .writeValueAsString(submission)
-                )
-                .header(
-                    HttpHeaders.LOCATION,
-                    request.uri.resolve(
-                        "/api/waters/report/${submission?.reportId}/history"
-                    ).toString()
-                )
-                .build()
-        }
+        return handleAckRequest(request, responseStatus, sender) ?: request
+            .createResponseBuilder(responseStatus)
+            .header(HttpHeaders.CONTENT_TYPE, "application/json")
+            .body(
+                JacksonMapperUtilities.allowUnknownsMapper
+                    .writeValueAsString(submission)
+            )
+            .header(
+                HttpHeaders.LOCATION,
+                request.uri.resolve(
+                    "/api/waters/report/${submission?.reportId}/history"
+                ).toString()
+            )
+            .build()
     }
 
+    /**
+     * This function will return an HL7 ACK response if the following conditions are met:
+     * - The sender has the "hl7AcknowledgementEnabled" field set to true
+     * - The HL7 message has been processed successfully
+     * - The submitted HL7 contains MSH.15 == "AL"
+     *
+     * @return ACK response or null
+     */
     private fun handleAckRequest(
         request: HttpRequestMessage<String?>,
         responseStatus: HttpStatus,

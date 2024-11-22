@@ -18,12 +18,17 @@ class HL7ACKUtils(
     private val clock: Clock = Clock.systemUTC(),
 ) {
 
+    /**
+     * Parses out raw HL7 message and then checks if MSH.15 == "AL".
+     *
+     * @return HL7 ACK message body or null
+     */
     fun generateOutgoingACKMessageIfRequired(rawHL7: String): String? {
         val maybeMessage = HL7Reader(ActionLogger())
             .getMessages(rawHL7)
             .firstOrNull()
 
-        return if (maybeMessage != null && HL7Reader.isAckMessage(maybeMessage)) {
+        return if (maybeMessage != null && HL7Reader.requiresAckMessageResponse(maybeMessage)) {
             generateOutgoingACKMessage(maybeMessage)
         } else {
             null

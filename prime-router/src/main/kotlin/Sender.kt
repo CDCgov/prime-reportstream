@@ -360,7 +360,6 @@ class MonkeypoxSender : LegacyPipelineSender {
         allowDuplicates,
         senderType,
         primarySubmissionMethod
-
     )
 
     constructor(copy: MonkeypoxSender) : this(
