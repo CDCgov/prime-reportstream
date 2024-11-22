@@ -1,7 +1,7 @@
 apply(from = rootProject.file("buildSrc/shared.gradle.kts"))
 
 plugins {
-    id("org.springframework.boot") version "3.3.5"
+    id("org.springframework.boot") version "3.3.4" // 3.3.5 has breaking bug for appending headers https://github.com/spring-projects/spring-framework/issues/33789
     id("io.spring.dependency-management") version "1.1.6"
     id("reportstream.project-conventions")
     kotlin("plugin.spring") version "2.0.21"
