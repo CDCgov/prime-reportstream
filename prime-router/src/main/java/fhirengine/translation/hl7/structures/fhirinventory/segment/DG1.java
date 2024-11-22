@@ -92,7 +92,7 @@ public class DG1 extends AbstractSegment {
     try {
       this.add(SI.class, true, 1, 4, new Object[]{ getMessage() }, "Set ID - DG1");
       this.add(ID.class, false, 1, 0, new Object[]{ getMessage() }, "Diagnosis Coding Method");
-      this.add(CWE.class, true, 1, 0, new Object[]{ getMessage() }, "Diagnosis Code - DG1");
+      this.add(CWE.class, false, 1, 0, new Object[]{ getMessage() }, "Diagnosis Code - DG1");
       this.add(ST.class, false, 1, 0, new Object[]{ getMessage() }, "Diagnosis Description");
       this.add(DTM.class, false, 1, 0, new Object[]{ getMessage() }, "Diagnosis Date/Time");
       this.add(CWE.class, true, 1, 0, new Object[]{ getMessage() }, "Diagnosis Type");
