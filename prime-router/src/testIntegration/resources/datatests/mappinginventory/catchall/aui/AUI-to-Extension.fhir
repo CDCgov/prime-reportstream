@@ -1,19 +1,20 @@
 {
   "resourceType": "Bundle",
-  "id": "1732322851927717000.6ac98469-1ac1-4276-ba48-0f1ea16db345",
+  "id": "1732324230716018000.38edba19-1d39-4040-85af-9f5f6248813c",
   "meta": {
-    "lastUpdated": "2024-11-22T16:47:31.932-08:00"
+    "lastUpdated": "2024-11-22T17:10:30.720-08:00"
   },
   "identifier": {
-    "system": "https://reportstream.cdc.gov/prime-router"
+    "system": "https://reportstream.cdc.gov/prime-router",
+    "value": "MSG00001"
   },
   "type": "message",
   "entry": [
     {
-      "fullUrl": "MessageHeader/1732322851960246000.b97791be-735a-4dda-b200-d5e2926d12a7",
+      "fullUrl": "MessageHeader/1732324230752828000.fc7cea9d-d7ca-4378-91d4-ea97c86b4787",
       "resource": {
         "resourceType": "MessageHeader",
-        "id": "1732322851960246000.b97791be-735a-4dda-b200-d5e2926d12a7",
+        "id": "1732324230752828000.fc7cea9d-d7ca-4378-91d4-ea97c86b4787",
         "meta": {
           "tag": [
             {
@@ -30,17 +31,17 @@
       }
     },
     {
-      "fullUrl": "Patient/1732322852203183000.666ca36f-e244-49ca-80da-92ed3348a9ab",
+      "fullUrl": "Patient/1732324231018814000.533db9a5-5375-4746-be23-f7140d4a3280",
       "resource": {
         "resourceType": "Patient",
-        "id": "1732322852203183000.666ca36f-e244-49ca-80da-92ed3348a9ab"
+        "id": "1732324231018814000.533db9a5-5375-4746-be23-f7140d4a3280"
       }
     },
     {
-      "fullUrl": "Coverage/1732322852204096000.bbf145fd-d613-439b-8751-4e97c203b06b",
+      "fullUrl": "Coverage/1732324231019741000.a36368bf-6c63-4970-8948-034a92248964",
       "resource": {
         "resourceType": "Coverage",
-        "id": "1732322852204096000.bbf145fd-d613-439b-8751-4e97c203b06b",
+        "id": "1732324231019741000.a36368bf-6c63-4970-8948-034a92248964",
         "extension": [
           {
             "url": "IN1.14",
