@@ -43,6 +43,8 @@ elements:
 
   - name: insurance
     resource: 'Bundle.entry.resource.ofType(Coverage)'
+#    todo: update logic when Coverage.subscriber is mapped (IN1-16/IN1-17)
+#    resource: 'Bundle.entry.resource.ofType(Coverage).where(subscriber.resolve().id = %resource.entry.resource.ofType(Patient).id)'
     schema: classpath:/metadata/hl7_mapping/resources/Coverage/IN1.yml
     constants:
       hl7SegmentGroup: '/PATIENT/INSURANCE'

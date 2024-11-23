@@ -1,19 +1,17 @@
-package gov.cdc.prime.router.datatests.mappinginventory.cnn
+package gov.cdc.prime.router.datatests.mappinginventory.aui
 
 import gov.cdc.prime.router.datatests.mappinginventory.verifyHL7ToFHIRToHL7Mapping
 import org.junit.jupiter.api.Test
 
 class AUIExtensionTests {
     @Test
-    fun `test correctly handles ISO universal id type`() {
+    fun `test AUI mapped to AUIExtension`() {
         assert(
             verifyHL7ToFHIRToHL7Mapping(
-            "catchall/aui/aui",
-            false,
-            false,
-            false,
-            outputSchema = "classpath:/metadata/hl7_mapping/OML_O21/OML_O21-base.yml"
-        ).passed
+                "catchall/aui/AUI-to-Extension",
+                // todo update the schema to OML_O21-base.yml when OML updates are merged to main
+                outputSchema = "classpath:/metadata/hl7_mapping/OML_O21/OML_O21-base.yml"
+            ).passed
         )
     }
 }

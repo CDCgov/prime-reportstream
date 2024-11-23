@@ -15,6 +15,13 @@ resources:
     isReferenced: true
     repeats: false
 
+  - resourceName: Coverage
+    segment: .IN1
+    group: PATIENT.INSURANCE
+    resourcePath: segments/IN1/Coverage
+    repeats: true
+    isReferenced: true
+
   - resourceName: ServiceRequest
     segment: .ORC
     group: ORDER
@@ -48,10 +55,3 @@ resources:
     isReferenced: true
     additionalSegments:
       - MSH
-
-  - resourceName: Coverage
-    segment: .IN1
-    group: PATIENT.INSURANCE
-    resourcePath: segments/IN1/Coverage
-    repeats: true
-    isReferenced: true
