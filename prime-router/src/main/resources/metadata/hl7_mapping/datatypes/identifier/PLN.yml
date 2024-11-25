@@ -1,0 +1,23 @@
+# $schema: ./../../../../../../../metadata/json_schema/fhir/fhir-to-hl7-mapping.json
+
+elements:
+
+  - name: pln-id-number
+    value: [ '%resource.value' ]
+    hl7Spec: [ '%{plnField}-1' ]
+
+  - name: pln-type-of-id-number
+    resource: '%resource.type'
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
+    constants:
+      cweField: '%{plnField}-2'
+
+  - name: pln-state-other-qualifying-information
+    value: [ '%resource.extension.where(url = "PLN.3").value']
+    hl7Spec: [ '%{plnField}-3' ]
+
+  - name: pln-expiration-date
+    resource: '%resource.period.end'
+    constants:
+      dtmFieldPath: '%{plnField}-4'
+    schema: classpath:/metadata/hl7_mapping/datatypes/dateTime/DTMorDT.yml
