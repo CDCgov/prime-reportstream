@@ -113,26 +113,19 @@ export interface ReceiversStatusesDisplayProps {
  *         - perday-perslice-column has 4 color states as well
  *
  */
-export function ReceiversStatusesDisplay({
-    receiverStatuses,
-    onTimePeriodClick,
-}: ReceiversStatusesDisplayProps) {
+export function ReceiversStatusesDisplay({ receiverStatuses, onTimePeriodClick }: ReceiversStatusesDisplayProps) {
     return (
         <ScrollSync horizontal enabled>
             <GridContainer className={"rs-admindash-component"}>
                 {receiverStatuses.map((d) => (
                     <Grid
                         row
-                        key={`perreceiver-${d.organizationName}-${d.receiverName}`}
+                        key={`perreceiver-${d.organizationName}-${d.receiverName}-${d.id}`}
                         className={"perreceiver-row"}
                     >
-                        <Grid
-                            className={`title-column ${SUCCESS_RATE_CLASSNAME_MAP[d.successRateType]}`}
-                        >
+                        <Grid className={`title-column ${SUCCESS_RATE_CLASSNAME_MAP[d.successRateType]}`}>
                             <div className={"title-text"}>
-                                <USLink
-                                    href={`/admin/orgsettings/org/${d.organizationName}`}
-                                >
+                                <USLink href={`/admin/orgsettings/org/${d.organizationName}`}>
                                     {d.organizationName}
                                 </USLink>
                                 <br />
@@ -148,60 +141,37 @@ export function ReceiversStatusesDisplay({
                         <ScrollSyncPane enabled>
                             <Grid row className={"horizontal-scroll"}>
                                 <Grid row className={"week-column"}>
-                                    {d.days.map(
-                                        ({ day, dayString, timePeriods }) => {
-                                            return (
-                                                <GridContainer
-                                                    key={`perday-${dayString}`}
-                                                    className={
-                                                        "perday-component"
-                                                    }
-                                                >
-                                                    <Grid
-                                                        row
-                                                        className={"title-row"}
-                                                    >
-                                                        {dateShortFormat(day)}
-                                                    </Grid>
-                                                    <Grid
-                                                        gap={1}
-                                                        row
-                                                        className={
-                                                            "slices-row slices-row-12"
-                                                        }
-                                                    >
-                                                        {timePeriods.map(
-                                                            (t) => {
-                                                                return (
-                                                                    <Grid
-                                                                        row
-                                                                        key={`slice:${t.end.toISOString()}`}
-                                                                        className={`slice ${SUCCESS_RATE_CLASSNAME_MAP[t.successRateType]} ${MATCHING_FILTER_CLASSNAME_MAP[t.matchingFilter]}`}
-                                                                        role="button"
-                                                                        aria-disabled={
-                                                                            t.successRateType ===
-                                                                            SuccessRate.UNDEFINED
-                                                                        }
-                                                                        onClick={
-                                                                            t.successRateType ===
-                                                                            SuccessRate.UNDEFINED
-                                                                                ? undefined // do not even install a click handler noop
-                                                                                : () =>
-                                                                                      onTimePeriodClick?.(
-                                                                                          t,
-                                                                                      )
-                                                                        }
-                                                                    >
-                                                                        {" "}
-                                                                    </Grid>
-                                                                );
-                                                            },
-                                                        )}
-                                                    </Grid>
-                                                </GridContainer>
-                                            );
-                                        },
-                                    )}
+                                    {d.days.map(({ day, dayString, timePeriods }) => {
+                                        return (
+                                            <GridContainer key={`perday-${dayString}`} className={"perday-component"}>
+                                                <Grid row className={"title-row"}>
+                                                    {dateShortFormat(day)}
+                                                </Grid>
+                                                <Grid gap={1} row className={"slices-row slices-row-12"}>
+                                                    {timePeriods.map((t) => {
+                                                        return (
+                                                            <Grid
+                                                                row
+                                                                key={`slice:${t.end.toISOString()}`}
+                                                                className={`slice ${SUCCESS_RATE_CLASSNAME_MAP[t.successRateType]} ${MATCHING_FILTER_CLASSNAME_MAP[t.matchingFilter]}`}
+                                                                role="button"
+                                                                aria-disabled={
+                                                                    t.successRateType === SuccessRate.UNDEFINED
+                                                                }
+                                                                onClick={
+                                                                    t.successRateType === SuccessRate.UNDEFINED
+                                                                        ? undefined // do not even install a click handler noop
+                                                                        : () => onTimePeriodClick?.(t)
+                                                                }
+                                                            >
+                                                                {" "}
+                                                            </Grid>
+                                                        );
+                                                    })}
+                                                </Grid>
+                                            </GridContainer>
+                                        );
+                                    })}
                                 </Grid>
                             </Grid>
                         </ScrollSyncPane>
