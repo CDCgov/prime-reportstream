@@ -4,10 +4,10 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - master
+      - main
   pull_request:
     branches:
-      - master
+      - main
     paths:
       - "prime-router/**"
       - "frontend-react/**"
@@ -128,7 +128,7 @@ jobs:
             yarn run test:ci
           shell: bash
 
-      - name: Run SonarCloud Scan master or full
+      - name: Run SonarCloud Scan main or full
         if: ( steps.changed-files-yaml.outputs.frontend_any_changed == 'true' && steps.changed-files-yaml.outputs.backend_any_changed == 'true' ) || steps.branch-name.outputs.is_default == 'true'
         uses: ./.github/actions/sonarcloud
         with:

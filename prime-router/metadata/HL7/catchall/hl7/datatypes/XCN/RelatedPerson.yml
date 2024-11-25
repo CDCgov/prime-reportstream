@@ -1,0 +1,183 @@
+# $schema: ./../../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
+
+resourceType: RelatedPerson
+
+id:
+  type: STRING
+  valueOf: "GeneralUtils.generateResourceId()"
+  expressionType: JEXL
+
+identifier:
+  expressionType: nested
+  vars:
+    xcn11: String, XCN.11
+    xcn12: String, XCN.12
+    xcn13: String, XCN.13
+    xcn14: String, XCN.14
+  expressionsMap:
+    value:
+      type: STRING
+      valueOf: XCN.1
+      expressionType: HL7Spec
+    type:
+      condition: $xcn13 NOT_NULL
+      expressionType: resource
+      specs: XCN.13
+      valueOf: datatypes/ID/CodeableConcept
+    extension_1-checkDigit:
+      condition: $xcn11 NOT_NULL
+      generateList: true
+      expressionType: nested
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: identifier-check-digit
+        valueString:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: XCN.11
+    extension_2-checkDigitScheme:
+      condition: $xcn12 NOT_NULL
+      generateList: true
+      expressionType: nested
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: naming-system-check-digit
+        valueCode:
+          valueOf: XCN.12
+          type: STRING
+          expressionType: HL7Spec
+    extension_3-assigningFacility:
+      condition: $xcn14 NOT_NULL
+      generateList: true
+      expressionType: nested
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: identifier-location
+        valueReference:
+          expressionType: reference
+          valueOf: datatypes/HD/Location
+          specs: XCN.14
+
+name:
+  expressionType: nested
+  expressionsMap:
+    family:
+      type: STRING
+      valueOf: XCN.2.1
+      expressionType: HL7Spec
+    _family:
+      expressionType: resource
+      valueOf: datatypes/FN/ExtensionHumanName-family
+      specs: XCN.2
+    given:
+      generateList: true
+      expressionType: nested
+      expressions:
+        - expressionType: HL7Spec
+          valueOf: XCN.3
+          type: STRING
+        - expressionType: HL7Spec
+          valueOf: XCN.4
+          type: STRING
+    suffix:
+      generateList: true
+      expressionType: nested
+      expressions:
+        - expressionType: HL7Spec
+          valueOf: XCN.5
+          type: STRING
+        - expressionType: HL7Spec
+          valueOf: XCN.7
+          type: STRING
+        - expressionType: HL7Spec
+          valueOf: XCN.21
+          type: STRING
+    prefix:
+      type: STRING
+      valueOf: XCN.6
+      expressionType: HL7Spec
+    use:
+      type: NAME_USE
+      valueOf: XCN.10
+      expressionType: HL7Spec
+    # This needs to use variables because the message parses this field using NULLDT since it is deprecated which means that
+    # the values do not get correctly loaded and will not be mapped over correctly using a spec.
+    period_1:
+      vars:
+        xcn19: String, XCN.19
+        xcn20: String, XCN.20
+        start: String, XCN.17.1
+        end: String, XCN.17.2
+      condition: $xcn19 NULL && $xcn20 NULL
+      expressionType: resource
+      valueOf: datatypes/DR/Period
+    # XCN.17 is deprecated so the schema favors using XCN.19/20 if either are populated
+    period_2:
+      vars:
+        xcn19: String, XCN.19
+        xcn20: String, XCN.20
+      condition: $xcn19 NOT_NULL || $xcn20 NOT_NULL
+      expressionType: nested
+      expressionsMap:
+        start:
+          valueOf: "GeneralUtils.dateTimeWithZoneId(periodStart,ZONEID)"
+          expressionType: JEXL
+          vars:
+            periodStart: XCN.19
+        end:
+          valueOf: "GeneralUtils.dateTimeWithZoneId(periodEnd,ZONEID)"
+          expressionType: JEXL
+          vars:
+            periodEnd: XCN.20
+    extension_AssemblyOrder:
+      expressionType: nested
+      generateList: true
+      vars:
+        xcn18: String, XCN.18
+      condition: $xcn18 NOT_NULL
+      expressions:
+        - expressionType: nested
+          expressionsMap:
+            url:
+              type: SYSTEM_URL
+              value: humanname-assembly-order
+            valueCode:
+              type: STRING
+              valueOf: XCN.18
+              expressionType: HL7Spec
+
+extension:
+  vars:
+    xcn9: STRING_ALL, XCN.9
+  generateList: true
+  expressionType: nested
+  expressions:
+    - expressionType: resource
+      condition: $xcn9 NOT_NULL
+      valueOf: datatypes/HD/ExtensionAssigningAuthority
+      specs: XCN.9
+    - expressionType: resource
+      valueOf: datatypes/XCN/XCNExtension
+    - generateList: true
+      expressionType: nested
+      condition: $XCNHL7Field NOT_NULL
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: hl7v2Field
+        valueString:
+          type: STRING
+          valueOf: $XCNHL7Field
+    - generateList: true
+      expressionType: nested
+      condition: $XCNHL7Component NOT_NULL
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: hl7v2Component
+        valueString:
+          type: STRING
+          valueOf: $XCNHL7Component

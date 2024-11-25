@@ -17,6 +17,7 @@ identifier:
     xcn11: String, XCN.11
     xcn12: String, XCN.12
     xcn13: String, XCN.13
+    xcn14: String, XCN.14
   expressionsMap:
     value:
       type: STRING
@@ -88,6 +89,18 @@ identifier:
           valueOf: XCN.12
           type: STRING
           expressionType: HL7Spec
+    extension_3-assigningFacility:
+      condition: $xcn14 NOT_NULL
+      generateList: true
+      expressionType: nested
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: identifier-location
+        valueReference:
+          expressionType: reference
+          valueOf: datatypes/HD/Location
+          specs: XCN.14
 
 name:
   expressionType: nested

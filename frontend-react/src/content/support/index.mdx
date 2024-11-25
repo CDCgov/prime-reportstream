@@ -243,8 +243,7 @@ import site from "../../content/site.json";
                         title: "How do I map to the LIVD table?",
                         content: (<>
                             <p>
-                                LOINC In Vitro Diagnostic (LIVD) mapping provides several <A href="/developer-resources/api/documentation/data-model">data elements</A>
-                                {" "} you’ll need for your ReportStream <A href="/developer-resources/api/getting-started">test file</A>. Including:
+                                LOINC In Vitro Diagnostic (LIVD) mapping provides several data elements you’ll need for your ReportStream <A href="/developer-resources/api/getting-started">test file</A>. Including:
                             </p>
 
                             <ul>
@@ -259,7 +258,6 @@ import site from "../../content/site.json";
                                 When you know the devices you are reporting for, you can use the LIVD mapping table to
                                 identify the device identifier code. The code is in <A href="https://www.cdc.gov/csels/dls/livd-codes.html">column F</A>,
                                 labeled Test Performed LOINC Code.
-                                Then, you can use that code as described in our <A href="/developer-resources/api/documentation/data-model">data model</A>.
                             </p>
                         </>)
                     },
@@ -304,7 +302,7 @@ import site from "../../content/site.json";
                         title: "How can I start sending or receiving more conditions?",
                         content: (<>
                         <p>
-                            If you are interested in additional conditions, <A href="https://app.smartsheetgov.com/b/form/48f580abb9b440549b1a9cf996ba6957">let us know</A> more about your needs. Our team will work with you on a plan based on your needs and capacity. Your connection may need some initial updates to be able to support the new conditions. 
+                            If you are interested in additional conditions, <A href={site.forms.connectWithRS.url}>let us know</A> more about your needs. Our team will work with you on a plan based on your needs and capacity. Your connection may need some initial updates to be able to support the new conditions. 
                         </p>
                         <p>
                             We test the messages based on the requirements of public health entities receiving the data. No data will go live until those testing requirements are met.

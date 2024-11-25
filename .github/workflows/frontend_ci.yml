@@ -18,6 +18,7 @@ env:
   TEST_SENDER_PASSWORD: ${{ secrets.TEST_SENDER_PASSWORD }}
   TEST_RECEIVER_USERNAME: ${{ secrets.TEST_RECEIVER_USERNAME }}
   TEST_RECEIVER_PASSWORD: ${{ secrets.TEST_RECEIVER_PASSWORD }}
+  LOCAL_SITEMAP_URL: "http://localhost:3000/sitemap.xml"
 
 jobs:
   pre-job:
@@ -54,6 +55,108 @@ jobs:
       - name: Run linting
         run: yarn run lint
 
+  pa11y:
+    name: Run Pa11y 508 Compliance Check
+    needs: lint
+    runs-on: ubuntu-20.04 # pinned to this version due to: https://github.com/pa11y/pa11y-ci/issues/198
+    
+    steps:
+      - name: Check out changes
+        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938
+      - name: Use Node.js with yarn
+        uses: actions/setup-node@0a44ba7841725637a19e28fa30b79a866c81b0a6
+        with:
+          node-version-file: frontend-react/.nvmrc
+          cache: yarn
+          cache-dependency-path: frontend-react/yarn.lock
+      - name: Yarn install
+        run: yarn install --immutable
+
+      - name: Run Frontend Server
+        run: |
+          yarn run dev --host 0.0.0.0 --port 3000 &
+          echo $! > server.pid
+          sleep 5  # Wait for the server to start up
+          echo 
+          echo "Checking for sitemap on localhost:3000"
+          if ! curl -s ${{ env.LOCAL_SITEMAP_URL }}; then
+            echo "❌ Server failed to start or sitemap not present"
+            exit 1
+          else
+            echo "✅ Server started successfully"
+          fi
+
+      - name: Install Pa11y
+        run: |
+          echo "Installing google-chrome-stable"
+          sudo apt-get update && sudo apt-get install -y google-chrome-stable jq
+          which google-chrome-stable || echo "google-chrome-stable not found"
+          echo "Installing Pa11y"
+          npm install -g \
+            pa11y@8.0.0 \
+            puppeteer@22.8.2 \
+            --no-save
+
+      - name: Run Pa11y Check # Pa11y is configured in frontend-react/.pa11yci
+        run: |
+          SITEMAP_URL="${{ env.LOCAL_SITEMAP_URL }}"
+          echo "Local Sitemap URL: $SITEMAP_URL"
+
+          echo "Checking Pa11y is installed and accessible"
+          pa11y --version
+          
+          if [ $? -ne 0 ]; then
+            echo "❌ Pa11y installation failed"
+            exit 1
+          else
+            echo "Running sitemap check - curl on localhost:3000"
+
+            if ! curl -s "$SITEMAP_URL"; then
+              echo "❌ Server failed to start or sitemap not accessible"
+              exit 1
+            else
+              echo "✅ Server appears to be running"
+              echo "Extracting URLs from sitemap"
+            
+              # Download the sitemap.xml content
+              curl -s "$SITEMAP_URL" -o sitemap.xml
+
+              # Check if download was successful
+              if [ ! -s sitemap.xml ]; then
+                echo "❌ Failed to download sitemap or file is empty."
+                exit 1
+              fi
+
+              # Extract URLs and save them to sitemap_urls.txt
+              #Linux grep flags: -P for Perl-compatible regex, -o for only matching part, -P for non-greedy matching
+              grep -oP '(?<=<loc>).*?(?=</loc>)' sitemap.xml | sed "s|https://reportstream.cdc.gov|http://localhost:3000|g" > sitemap_urls.txt
+              # OSX 
+              # grep "<loc>" sitemap.xml | sed -E 's/.*<loc>(.*)<\/loc>.*/\1/'| sed "s|https://reportstream.cdc.gov|http://localhost:3000|g" > sitemap_urls.txt
+
+
+              # Check if URLs were extracted successfully
+              if [ -s sitemap_urls.txt ]; then
+                echo "✅ URLs extracted successfully:"
+                cat sitemap_urls.txt
+                echo "Running Pa11y WCAG2AA checks on sitemap URLs"
+                for f in `cat sitemap_urls.txt`;do pa11y -c ./pa11y.json -e htmlcs -e axe -d -s WCAG2AA $f ;done
+                echo "Pa11y WCAG2AA checks complete"
+              else
+                echo "❌ No URLs found in sitemap.xml."
+                exit 1
+              fi
+
+              # Clean up
+              rm sitemap.xml sitemap_urls.txt
+              
+            fi
+          fi
+
+      - name: Stop Frontend Server
+        run: |
+          echo "Stopping Frontend Server"
+          kill $(cat server.pid)
+        
   unit_tests:
     name: Unit tests
     needs: lint

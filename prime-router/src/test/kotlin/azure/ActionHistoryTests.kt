@@ -376,9 +376,9 @@ class ActionHistoryTests {
             ""
         )
         every {
-            mockReportEventService.sendReportEvent(any(), any<ReportFile>(), any(), any())
+            mockReportEventService.sendReportEvent(any(), any<ReportFile>(), any(), any(), any())
         } returns Unit
-        every { mockReportEventService.sendItemEvent(any(), any<ReportFile>(), any(), any()) } returns Unit
+        every { mockReportEventService.sendItemEvent(any(), any<ReportFile>(), any(), any(), any()) } returns Unit
         mockkObject(Report)
         mockkObject(FhirTranscoder)
         every { FhirTranscoder.decode(any(), any()) } returns mockk<Bundle>()
@@ -433,8 +433,8 @@ class ActionHistoryTests {
         assertThat(reportFile.itemCount).isEqualTo(15)
         assertThat(actionHistory1.action.externalName).isEqualTo("filename1")
         verify(exactly = 1) {
-            mockReportEventService.sendReportEvent(any(), any<ReportFile>(), any(), any())
-            mockReportEventService.sendItemEvent(any(), any<ReportFile>(), any(), any())
+            mockReportEventService.sendReportEvent(any(), any<ReportFile>(), any(), any(), any())
+            mockReportEventService.sendItemEvent(any(), any<ReportFile>(), any(), any(), any())
         }
         // not allowed to track the same report twice.
         assertFailure {
@@ -516,9 +516,9 @@ class ActionHistoryTests {
         every { anyConstructed<BundleDigestExtractor>().generateDigest(any()) } returns mockk<BundleDigest>()
         val header = mockk<WorkflowEngine.Header>()
         every {
-            mockReportEventService.sendReportEvent(any(), any<ReportFile>(), any(), any())
+            mockReportEventService.sendReportEvent(any(), any<ReportFile>(), any(), any(), any())
         } returns Unit
-        every { mockReportEventService.sendItemEvent(any(), any<ReportFile>(), any(), any()) } returns Unit
+        every { mockReportEventService.sendItemEvent(any(), any<ReportFile>(), any(), any(), any()) } returns Unit
         val inReportFile = mockk<ReportFile>()
         every { header.reportFile } returns inReportFile
         every { header.content } returns "".toByteArray()
@@ -571,8 +571,8 @@ class ActionHistoryTests {
         assertThat(actionHistory2.reportsOut[uuid]?.schemaName)
             .isEqualTo("STED/NESTED/STLTs/REALLY_LONG_STATE_NAME/REALLY_LONG_STATE_NAME")
         verify(exactly = 2) {
-            mockReportEventService.sendReportEvent(any(), any<ReportFile>(), any(), any())
-            mockReportEventService.sendItemEvent(any(), any<ReportFile>(), any(), any())
+            mockReportEventService.sendReportEvent(any(), any<ReportFile>(), any(), any(), any())
+            mockReportEventService.sendItemEvent(any(), any<ReportFile>(), any(), any(), any())
         }
     }
 
@@ -784,9 +784,9 @@ class ActionHistoryTests {
         every { anyConstructed<BundleDigestExtractor>().generateDigest(any()) } returns mockk<BundleDigest>()
         val header = mockk<WorkflowEngine.Header>()
         every {
-            mockReportEventService.sendReportEvent(any(), any<ReportFile>(), any(), any())
+            mockReportEventService.sendReportEvent(any(), any<ReportFile>(), any(), any(), any())
         } returns Unit
-        every { mockReportEventService.sendItemEvent(any(), any<ReportFile>(), any(), any()) } returns Unit
+        every { mockReportEventService.sendItemEvent(any(), any<ReportFile>(), any(), any(), any()) } returns Unit
         val inReportFile = mockk<ReportFile>()
         every { header.reportFile } returns inReportFile
         every { header.content } returns "".toByteArray()
@@ -837,8 +837,8 @@ class ActionHistoryTests {
         assertContains(blobUrls[0], org.receivers[0].fullName)
         assertContains(blobUrls[1], org.receivers[1].fullName)
         verify(exactly = 2) {
-            mockReportEventService.sendReportEvent(any(), any<ReportFile>(), any(), any())
-            mockReportEventService.sendItemEvent(any(), any<ReportFile>(), any(), any())
+            mockReportEventService.sendReportEvent(any(), any<ReportFile>(), any(), any(), any())
+            mockReportEventService.sendItemEvent(any(), any<ReportFile>(), any(), any(), any())
         }
     }
 

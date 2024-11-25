@@ -67,11 +67,10 @@ describe("AdminRevHistory", () => {
         // a REAL test would need Cypress to click revisions in the top two accordion lists
         // and verify the diffs are rendering the diffs correctly
 
-        // eslint-disable-next-line react/jsx-pascal-case
         renderApp(<_exportForTesting.AdminRevHistory />);
         // useful: https://testing-library.com/docs/queries/about/
         // we expect 2x because of the right and left list layout
-        // eslint-disable-next-line no-restricted-globals
+
         expect(screen.getAllByText(/local@test.com/).length).toBe(2);
 
         // click an item in each list and make sure the diff loads. (click parent row)
