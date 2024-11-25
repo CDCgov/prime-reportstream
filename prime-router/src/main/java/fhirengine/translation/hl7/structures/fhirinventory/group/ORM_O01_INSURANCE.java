@@ -30,43 +30,47 @@
  *
  */
 
+
 package fhirengine.translation.hl7.structures.fhirinventory.group;
 
 import ca.uhn.hl7v2.HL7Exception;
 import ca.uhn.hl7v2.model.AbstractGroup;
 import ca.uhn.hl7v2.model.Group;
-import ca.uhn.hl7v2.model.v27.segment.PV2;
+import ca.uhn.hl7v2.model.v27.segment.IN2;
 import ca.uhn.hl7v2.parser.ModelClassFactory;
-import fhirengine.translation.hl7.structures.fhirinventory.segment.PV1;
+import fhirengine.translation.hl7.structures.fhirinventory.segment.IN1;
+import fhirengine.translation.hl7.structures.fhirinventory.segment.IN3;
 
 
 /**
- * <p>Represents a ORM_O01_PATIENT_VISIT group structure (a Group object).
+ * <p>Represents a ORM_O01_INSURANCE group structure (a Group object).
  * A Group is an ordered collection of message segments that can repeat together or be optionally in/excluded together.
  * This Group contains the following elements:
  * </p>
  * <ul>
- * <li>1: PV1 (Patient Visit) <b>  </b></li>
- * <li>2: PV2 (Patient Visit - Additional Information) <b>optional  </b></li>
+ * <li>1: IN1 (Insurance) <b>  </b></li>
+ * <li>2: IN2 (Insurance Additional Information) <b>optional  </b></li>
+ * <li>3: IN3 (Insurance Additional Information, Certification) <b>optional  </b></li>
  * </ul>
  */
 //@SuppressWarnings("unused")
-public class ORM_O01_PATIENT_VISIT extends AbstractGroup {
+public class ORM_O01_INSURANCE extends AbstractGroup {
 
   /**
-   * Creates a new ORM_O01_PATIENT_VISIT group
+   * Creates a new ORM_O01_INSURANCE group
    */
-  public ORM_O01_PATIENT_VISIT(Group parent, ModelClassFactory factory) {
-     super(parent, factory);
-     init(factory);
+  public ORM_O01_INSURANCE(Group parent, ModelClassFactory factory) {
+    super(parent, factory);
+    init(factory);
   }
 
   private void init(ModelClassFactory factory) {
     try {
-      this.add(PV1.class, true, false, false);
-      this.add(PV2.class, false, false, false);
+      this.add(IN1.class, true, false, false);
+      this.add(IN2.class, false, false, false);
+      this.add(IN3.class, false, false, false);
     } catch(HL7Exception e) {
-      log.error("Unexpected error creating ORM_O01_PATIENT_VISIT - this is probably a bug in the source code generator.", e);
+      log.error("Unexpected error creating ORM_O01_INSURANCE - this is probably a bug in the source code generator.", e);
     }
   }
 
@@ -77,21 +81,43 @@ public class ORM_O01_PATIENT_VISIT extends AbstractGroup {
     return "2.7";
   }
 
-  /**
-   * Returns
-   * PV1 (Patient Visit) - creates it if necessary
-   */
-  public PV1 getPV1() {
-    PV1 retVal = getTyped("PV1", PV1.class);
-    return retVal;
-  }
+
 
   /**
    * Returns
-   * PV2 (Patient Visit - Additional Information) - creates it if necessary
+   * IN1 (Insurance) - creates it if necessary
    */
-  public PV2 getPV2() {
-    PV2 retVal = getTyped("PV2", PV2.class);
+  public IN1 getIN1() {
+    IN1 retVal = getTyped("IN1", IN1.class);
     return retVal;
   }
+
+
+
+
+  /**
+   * Returns
+   * IN2 (Insurance Additional Information) - creates it if necessary
+   */
+  public IN2 getIN2() {
+    IN2 retVal = getTyped("IN2", IN2.class);
+    return retVal;
+  }
+
+
+
+
+  /**
+   * Returns
+   * IN3 (Insurance Additional Information, Certification) - creates it if necessary
+   */
+  public IN3 getIN3() {
+    IN3 retVal = getTyped("IN3", IN3.class);
+    return retVal;
+  }
+
+
+
+
 }
+

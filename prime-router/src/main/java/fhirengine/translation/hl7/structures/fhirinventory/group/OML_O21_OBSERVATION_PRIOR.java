@@ -30,46 +30,47 @@
  *
  */
 
+
 package fhirengine.translation.hl7.structures.fhirinventory.group;
 
+import ca.uhn.hl7v2.HL7Exception;
 import ca.uhn.hl7v2.model.AbstractGroup;
 import ca.uhn.hl7v2.model.Group;
 import ca.uhn.hl7v2.model.Structure;
-import ca.uhn.hl7v2.model.v27.segment.PV2;
-import ca.uhn.hl7v2.HL7Exception;
 import ca.uhn.hl7v2.parser.ModelClassFactory;
+import fhirengine.translation.hl7.structures.fhirinventory.segment.NTE;
+import fhirengine.translation.hl7.structures.fhirinventory.segment.OBX;
 import fhirengine.translation.hl7.structures.fhirinventory.segment.PRT;
-import fhirengine.translation.hl7.structures.fhirinventory.segment.PV1;
 
 /**
- * <p>Represents a OML_O21_PATIENT_VISIT group structure (a Group object).
+ * <p>Represents a OML_O21_OBSERVATION_PRIOR group structure (a Group object).
  * A Group is an ordered collection of message segments that can repeat together or be optionally in/excluded together.
  * This Group contains the following elements:
  * </p>
  * <ul>
- * <li>1: PV1 (Patient Visit) <b>  </b></li>
- * <li>2: PV2 (Patient Visit - Additional Information) <b>optional  </b></li>
- * <li>3: PRT (Participation Information) <b>optional repeating </b></li>
+ * <li>1: OBX (Observation/Result) <b>  </b></li>
+ * <li>2: PRT (Participation Information) <b>optional repeating </b></li>
+ * <li>3: NTE (Notes and Comments) <b>optional repeating </b></li>
  * </ul>
  */
 //@SuppressWarnings("unused")
-public class OML_O21_PATIENT_VISIT extends AbstractGroup {
+public class OML_O21_OBSERVATION_PRIOR extends AbstractGroup {
 
   /**
-   * Creates a new OML_O21_PATIENT_VISIT group
+   * Creates a new OML_O21_OBSERVATION_PRIOR group
    */
-  public OML_O21_PATIENT_VISIT(Group parent, ModelClassFactory factory) {
+  public OML_O21_OBSERVATION_PRIOR(Group parent, ModelClassFactory factory) {
     super(parent, factory);
     init(factory);
   }
 
   private void init(ModelClassFactory factory) {
     try {
-      this.add(PV1.class, true, false, false);
-      this.add(PV2.class, false, false, false);
+      this.add(OBX.class, true, false, false);
       this.add(PRT.class, false, true, false);
+      this.add(NTE.class, false, true, false);
     } catch(HL7Exception e) {
-      log.error("Unexpected error creating OML_O21_PATIENT_VISIT - this is probably a bug in the source code generator.", e);
+      log.error("Unexpected error creating OML_O21_OBSERVATION_PRIOR - this is probably a bug in the source code generator.", e);
     }
   }
 
@@ -80,23 +81,19 @@ public class OML_O21_PATIENT_VISIT extends AbstractGroup {
     return "2.7";
   }
 
-  /**
-   * Returns
-   * PV1 (Patient Visit) - creates it if necessary
-   */
-  public PV1 getPV1() {
-    PV1 retVal = getTyped("PV1", PV1.class);
-    return retVal;
-  }
+
 
   /**
    * Returns
-   * PV2 (Patient Visit - Additional Information) - creates it if necessary
+   * OBX (Observation/Result) - creates it if necessary
    */
-  public PV2 getPV2() {
-    PV2 retVal = getTyped("PV2", PV2.class);
+  public OBX getOBX() {
+    OBX retVal = getTyped("OBX", OBX.class);
     return retVal;
   }
+
+
+
 
   /**
    * Returns
@@ -107,6 +104,7 @@ public class OML_O21_PATIENT_VISIT extends AbstractGroup {
     PRT retVal = getTyped("PRT", PRT.class);
     return retVal;
   }
+
 
   /**
    * Returns a specific repetition of
@@ -149,6 +147,7 @@ public class OML_O21_PATIENT_VISIT extends AbstractGroup {
     super.insertRepetition("PRT", structure, rep);
   }
 
+
   /**
    * Inserts a specific repetition of PRT (Participation Information)
    * @see AbstractGroup#insertRepetition(Structure, int)
@@ -157,6 +156,7 @@ public class OML_O21_PATIENT_VISIT extends AbstractGroup {
     return (PRT)super.insertRepetition("PRT", rep);
   }
 
+
   /**
    * Removes a specific repetition of PRT (Participation Information)
    * @see AbstractGroup#removeRepetition(String, int)
@@ -164,4 +164,80 @@ public class OML_O21_PATIENT_VISIT extends AbstractGroup {
   public PRT removePRT(int rep) throws HL7Exception {
     return (PRT)super.removeRepetition("PRT", rep);
   }
+
+
+
+  /**
+   * Returns
+   * the first repetition of
+   * NTE (Notes and Comments) - creates it if necessary
+   */
+  public NTE getNTE() {
+    NTE retVal = getTyped("NTE", NTE.class);
+    return retVal;
+  }
+
+
+  /**
+   * Returns a specific repetition of
+   * NTE (Notes and Comments) - creates it if necessary
+   *
+   * @param rep The repetition index (0-indexed, i.e. the first repetition is at index 0)
+   * @throws HL7Exception if the repetition requested is more than one
+   *     greater than the number of existing repetitions.
+   */
+  public NTE getNTE(int rep) {
+    NTE retVal = getTyped("NTE", rep, NTE.class);
+    return retVal;
+  }
+
+  /**
+   * Returns the number of existing repetitions of NTE
+   */
+  public int getNTEReps() {
+    return getReps("NTE");
+  }
+
+  /**
+   * <p>
+   * Returns a non-modifiable List containing all current existing repetitions of NTE.
+   * <p>
+   * <p>
+   * Note that unlike {@link #getNTE()}, this method will not create any reps
+   * if none are already present, so an empty list may be returned.
+   * </p>
+   */
+  public java.util.List<NTE> getNTEAll() throws HL7Exception {
+    return getAllAsList("NTE", NTE.class);
+  }
+
+  /**
+   * Inserts a specific repetition of NTE (Notes and Comments)
+   * @see AbstractGroup#insertRepetition(Structure, int)
+   */
+  public void insertNTE(NTE structure, int rep) throws HL7Exception {
+    super.insertRepetition("NTE", structure, rep);
+  }
+
+
+  /**
+   * Inserts a specific repetition of NTE (Notes and Comments)
+   * @see AbstractGroup#insertRepetition(Structure, int)
+   */
+  public NTE insertNTE(int rep) throws HL7Exception {
+    return (NTE)super.insertRepetition("NTE", rep);
+  }
+
+
+  /**
+   * Removes a specific repetition of NTE (Notes and Comments)
+   * @see AbstractGroup#removeRepetition(String, int)
+   */
+  public NTE removeNTE(int rep) throws HL7Exception {
+    return (NTE)super.removeRepetition("NTE", rep);
+  }
+
+
+
 }
+

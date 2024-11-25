@@ -30,19 +30,20 @@
  *
  */
 
+
 package fhirengine.translation.hl7.structures.fhirinventory.group;
 
+import ca.uhn.hl7v2.HL7Exception;
 import ca.uhn.hl7v2.model.AbstractGroup;
 import ca.uhn.hl7v2.model.Group;
 import ca.uhn.hl7v2.model.Structure;
 import ca.uhn.hl7v2.model.v27.segment.PV2;
-import ca.uhn.hl7v2.HL7Exception;
 import ca.uhn.hl7v2.parser.ModelClassFactory;
-import fhirengine.translation.hl7.structures.fhirinventory.segment.PRT;
 import fhirengine.translation.hl7.structures.fhirinventory.segment.PV1;
+import fhirengine.translation.hl7.structures.fhirinventory.segment.PRT;
 
 /**
- * <p>Represents a OML_O21_PATIENT_VISIT group structure (a Group object).
+ * <p>Represents a OML_O21_PATIENT_VISIT_PRIOR group structure (a Group object).
  * A Group is an ordered collection of message segments that can repeat together or be optionally in/excluded together.
  * This Group contains the following elements:
  * </p>
@@ -53,12 +54,12 @@ import fhirengine.translation.hl7.structures.fhirinventory.segment.PV1;
  * </ul>
  */
 //@SuppressWarnings("unused")
-public class OML_O21_PATIENT_VISIT extends AbstractGroup {
+public class OML_O21_PATIENT_VISIT_PRIOR extends AbstractGroup {
 
   /**
-   * Creates a new OML_O21_PATIENT_VISIT group
+   * Creates a new OML_O21_PATIENT_VISIT_PRIOR group
    */
-  public OML_O21_PATIENT_VISIT(Group parent, ModelClassFactory factory) {
+  public OML_O21_PATIENT_VISIT_PRIOR(Group parent, ModelClassFactory factory) {
     super(parent, factory);
     init(factory);
   }
@@ -69,7 +70,7 @@ public class OML_O21_PATIENT_VISIT extends AbstractGroup {
       this.add(PV2.class, false, false, false);
       this.add(PRT.class, false, true, false);
     } catch(HL7Exception e) {
-      log.error("Unexpected error creating OML_O21_PATIENT_VISIT - this is probably a bug in the source code generator.", e);
+      log.error("Unexpected error creating OML_O21_PATIENT_VISIT_PRIOR - this is probably a bug in the source code generator.", e);
     }
   }
 
@@ -80,6 +81,8 @@ public class OML_O21_PATIENT_VISIT extends AbstractGroup {
     return "2.7";
   }
 
+
+
   /**
    * Returns
    * PV1 (Patient Visit) - creates it if necessary
@@ -88,6 +91,9 @@ public class OML_O21_PATIENT_VISIT extends AbstractGroup {
     PV1 retVal = getTyped("PV1", PV1.class);
     return retVal;
   }
+
+
+
 
   /**
    * Returns
@@ -98,6 +104,9 @@ public class OML_O21_PATIENT_VISIT extends AbstractGroup {
     return retVal;
   }
 
+
+
+
   /**
    * Returns
    * the first repetition of
@@ -107,6 +116,7 @@ public class OML_O21_PATIENT_VISIT extends AbstractGroup {
     PRT retVal = getTyped("PRT", PRT.class);
     return retVal;
   }
+
 
   /**
    * Returns a specific repetition of
@@ -149,6 +159,7 @@ public class OML_O21_PATIENT_VISIT extends AbstractGroup {
     super.insertRepetition("PRT", structure, rep);
   }
 
+
   /**
    * Inserts a specific repetition of PRT (Participation Information)
    * @see AbstractGroup#insertRepetition(Structure, int)
@@ -157,6 +168,7 @@ public class OML_O21_PATIENT_VISIT extends AbstractGroup {
     return (PRT)super.insertRepetition("PRT", rep);
   }
 
+
   /**
    * Removes a specific repetition of PRT (Participation Information)
    * @see AbstractGroup#removeRepetition(String, int)
@@ -164,4 +176,8 @@ public class OML_O21_PATIENT_VISIT extends AbstractGroup {
   public PRT removePRT(int rep) throws HL7Exception {
     return (PRT)super.removeRepetition("PRT", rep);
   }
+
+
+
 }
+

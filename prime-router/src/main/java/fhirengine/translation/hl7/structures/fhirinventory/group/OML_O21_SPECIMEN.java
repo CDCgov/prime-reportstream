@@ -35,8 +35,7 @@ package fhirengine.translation.hl7.structures.fhirinventory.group;
 import ca.uhn.hl7v2.HL7Exception;
 import ca.uhn.hl7v2.model.AbstractGroup;
 import ca.uhn.hl7v2.model.Group;
-import ca.uhn.hl7v2.model.v27.group.OML_O21_SPECIMEN_OBSERVATION;
-import ca.uhn.hl7v2.model.v27.group.OML_O21_CONTAINER;
+import ca.uhn.hl7v2.model.Structure;
 import ca.uhn.hl7v2.model.v27.segment.SPM;
 import ca.uhn.hl7v2.parser.ModelClassFactory;
 
