@@ -33,12 +33,14 @@
 
 package fhirengine.translation.hl7.structures.fhirinventory.group;
 
-import ca.uhn.hl7v2.model.v27.segment.*;
-
 import ca.uhn.hl7v2.HL7Exception;
+import ca.uhn.hl7v2.model.AbstractGroup;
+import ca.uhn.hl7v2.model.Group;
+import ca.uhn.hl7v2.model.Structure;
+import ca.uhn.hl7v2.model.v27.segment.PV2;
 import ca.uhn.hl7v2.parser.ModelClassFactory;
-import ca.uhn.hl7v2.model.*;
 import fhirengine.translation.hl7.structures.fhirinventory.segment.PRT;
+import fhirengine.translation.hl7.structures.fhirinventory.segment.PV1;
 
 /**
  * <p>Represents a ORU_R01_VISIT group structure (a Group object).

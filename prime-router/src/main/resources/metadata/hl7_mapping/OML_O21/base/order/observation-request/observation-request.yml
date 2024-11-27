@@ -1,0 +1,22 @@
+# $schema: ./../../../../../../../../../metadata/json_schema/fhir/fhir-to-hl7-mapping.json
+
+elements:
+
+  - name: observation-request-service-request
+    required: true
+    schema: classpath:/metadata/hl7_mapping/resources/ServiceRequest/OBR.yml
+    constants:
+      obrFieldPath: '/ORDER(%{orderIndex})/OBSERVATION_REQUEST/OBR'
+
+  - name: observation-request-specimen
+    resource: '%resource.specimen.resolve().where(extension(%`rsext-hl7v2Segment`).value = "OBR")'
+    schema: classpath:/metadata/hl7_mapping/resources/Specimen/OBR.yml
+    constants:
+      obrFieldPath: '/ORDER(%{orderIndex})/OBSERVATION_REQUEST/OBR'
+
+  - name: observation-request-note
+    resource: '%resource.note'
+    resourceIndex: noteIndex
+    schema: classpath:/metadata/hl7_mapping/datatypes/annotation/NTE.yml
+    constants:
+      hl7NotePath: '/ORDER(%{orderIndex})/OBSERVATION_REQUEST'
