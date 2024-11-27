@@ -1,8 +1,5 @@
 # $schema: ./../../../../../../../metadata/json_schema/fhir/fhir-to-hl7-mapping.json
 
-constants:
-  obrFieldPath: /PATIENT_RESULT(%{patientIndex})/ORDER_OBSERVATION(%{orderIndex})/OBR
-
 elements:
 
   - name: observation-datetime

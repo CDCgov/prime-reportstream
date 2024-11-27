@@ -119,7 +119,16 @@
       "extension" : [ {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Segment",
         "valueString" : "OBR"
-      } ]
+      } ],
+      "collection" : {
+        "collectedDateTime" : "2021-08-16T12:33:58-05:00",
+        "_collectedDateTime" : {
+          "extension" : [ {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+            "valueString" : "20210816123358-0500"
+          } ]
+        }
+      }
     }
   }, {
     "fullUrl" : "ServiceRequest/1710885177785768000.9ad05561-d558-46bd-afd4-18b1b895213f",
@@ -131,6 +140,15 @@
         "extension" : [ {
           "url" : "OBR.25",
           "valueId" : "F"
+        }, {
+          "url" : "OBR.7",
+          "valueDateTime" : "2021-08-16T12:33:58-05:00",
+          "_valueDateTime" : {
+            "extension" : [ {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+              "valueString" : "20210816123358-0500"
+            } ]
+          }
         } ]
       } ],
       "status" : "unknown",
@@ -150,11 +168,11 @@
       "subject" : {
         "reference" : "Patient/1710885177487304000.8acbfe50-ad34-4a1a-b0bf-284256794cae"
       },
-      "effectiveDateTime" : "2023-08-16T12:33:58-05:00",
+      "effectiveDateTime" : "2021-08-16T12:33:58-05:00",
       "_effectiveDateTime" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
-          "valueString" : "20230816123358-0500"
+          "valueString" : "20210816123358-0500"
         } ]
       },
       "specimen" : [ {

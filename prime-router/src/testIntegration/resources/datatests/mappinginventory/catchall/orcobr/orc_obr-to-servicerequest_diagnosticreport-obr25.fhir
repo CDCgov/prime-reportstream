@@ -119,7 +119,16 @@
       "extension" : [ {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Segment",
         "valueString" : "OBR"
-      } ]
+      } ],
+      "collection" : {
+        "collectedDateTime" : "2023-08-16T12:33:58-05:00",
+        "_collectedDateTime" : {
+          "extension" : [ {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+            "valueString" : "20230816123358-0500"
+          } ]
+        }
+      }
     }
   }, {
     "fullUrl" : "ServiceRequest/1722989968971318000.27111d05-0304-40a6-b9f2-36a4d217b030",
@@ -131,6 +140,15 @@
         "extension" : [ {
           "url" : "OBR.25",
           "valueId" : "F"
+        }, {
+          "url" : "OBR.7",
+          "valueDateTime" : "2023-08-16T12:33:58-05:00",
+          "_valueDateTime" : {
+            "extension" : [ {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+              "valueString" : "20230816123358-0500"
+            } ]
+          }
         } ]
       } ],
       "status" : "unknown",

@@ -16,6 +16,20 @@ elements:
     constants:
       eiFieldPath: '%{obrFieldPath}-3'
 
+  - name: observation-collected-datetime-start
+    value: [ '%resource.extension.where(url = "OBR.7").value.extension(%`rsext-hl7v2-date-time`).value' ]
+    hl7Spec: [ '%{obrFieldPath}-7' ]
+
+  - name: observation-collected-datetime-end
+    value: [ '%resource.extension.where(url = "OBR.8").value.extension(%`rsext-hl7v2-date-time`).value' ]
+    hl7Spec: [ '%{obrFieldPath}-8' ]
+
+  - name: specimen-collection-volume
+    resource: '%resource.extension.where(url = "OBR.9").value'
+    schema: classpath:/metadata/hl7_mapping/datatypes/Quantity/CQ.yml
+    constants:
+      cqFieldPath: '%{obrFieldPath}-9'
+
   - name: collector-identifier
     resource: '%resource.extension.where(url = "OBR.10").value.resolve()'
     schema: classpath:/metadata/hl7_mapping/resources/Practitioner/XCN.yml
@@ -38,6 +52,38 @@ elements:
     schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
     constants:
       cweField: '%{obrFieldPath}-13'
+
+  - name: specimen-received-datetime
+    value: [ '%resource.extension.where(url = "OBR.14").value.extension(%`rsext-hl7v2-date-time`).value' ]
+    hl7Spec: [ '%{obrFieldPath}-14' ]
+
+  - name: specimen-source-name
+    resource: '%resource.extension.where(url = "OBR.15.1").value'
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
+    constants:
+      cweField: '%{obrFieldPath}-15-1'
+
+  - name: specimen-source-additives
+    resource: '%resource.extension.where(url = "OBR.15.2").value'
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
+    constants:
+      cweField: '%{obrFieldPath}-15-2'
+
+  - name: specimen-source-collection-method-freetext
+    value: [ '%resource.extension.where(url = "OBR.15.3").value' ]
+    hl7Spec: [ '%{obrFieldPath}-15-3' ]
+
+  - name: specimen-source-body-site
+    resource: '%resource.extension.where(url = "OBR.15.4").value'
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
+    constants:
+      cweField: '%{obrFieldPath}-15-4'
+
+  - name: specimen-source-collection-method-code
+    resource: '%resource.extension.where(url = "OBR.15.6").value'
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
+    constants:
+      cweField: '%{obrFieldPath}-15-6'
 
   - name: call-back-phone-number-obr-from-extension
     condition: '%context.requester.where(extension(%`rsext-callback-number`).value.extension(%`rsext-hl7v2Field`).value[%telecomIndex] = "OBR.17").exists().not()'
@@ -127,7 +173,6 @@ elements:
     constants:
       cneFieldPath: '%{obrFieldPath}-45(%{cweIndex})'
     resourceIndex: cweIndex
-
 
   - name: medically-necessary-duplicate-procedure
     resource: '%resource.extension.where(url = "OBR.48").value'

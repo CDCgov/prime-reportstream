@@ -1,0 +1,56 @@
+# $schema: ./../../../../../../../metadata/json_schema/fhir/fhir-to-hl7-mapping.json
+
+elements:
+
+  - name: observation-collected-datetime
+    condition: '%resource.collection.collected.is(dateTime)'
+    value: [ '%resource.collection.collected.extension(%`rsext-hl7v2-date-time`).value' ]
+    hl7Spec: [ '%{obrFieldPath}-7' ]
+
+  - name: observation-collected-period-start
+    condition: '%resource.collection.collected.is(Period)'
+    value: [ '%resource.collection.collected.start.extension(%`rsext-hl7v2-date-time`).value' ]
+    hl7Spec: [ '%{obrFieldPath}-7' ]
+
+  - name: observation-collected-period-end
+    condition: '%resource.collection.collected.is(Period)'
+    value: [ '%resource.collection.collected.end.extension(%`rsext-hl7v2-date-time`).value' ]
+    hl7Spec: [ '%{obrFieldPath}-8' ]
+
+  - name: specimen-collection-volume
+    resource: '%resource.collection.quantity'
+    constants:
+      cqFieldPath: '%{obrFieldPath}-9'
+    schema: classpath:/metadata/hl7_mapping/datatypes/Quantity/CQ.yml
+
+  - name: specimen-received-datetime
+    value: [ '%resource.receivedTime.extension(%`rsext-hl7v2-date-time`).value' ]
+    hl7Spec: [ '%{obrFieldPath}-14' ]
+
+  - name: specimen-source-name
+    resource: '%resource.type'
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
+    constants:
+      cweField: '%{obrFieldPath}-15-1'
+
+  - name: specimen-source-additives
+    resource: '%resource.container.additive'
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
+    constants:
+      cweField: '%{obrFieldPath}-15-2'
+
+  - name: specimen-source-collection-method-freetext
+    value: [ '%resource.note.where(extension(%`rsext-hl7v2Component`).value = "OBR.15.3").text' ]
+    hl7Spec: [ '%{obrFieldPath}-15-3' ]
+
+  - name: specimen-source-body-site
+    resource: '%resource.collection.bodySite'
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
+    constants:
+      cweField: '%{obrFieldPath}-15-4'
+
+  - name: specimen-source-collection-method-code
+    resource: '%resource.condition'
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
+    constants:
+      cweField: '%{obrFieldPath}-15-6'
