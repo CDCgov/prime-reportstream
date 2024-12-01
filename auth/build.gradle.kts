@@ -27,7 +27,7 @@ dependencies {
     runtimeOnly("com.nimbusds:oauth2-oidc-sdk:11.20.1")
 
     // Swagger
-    implementation("org.springdoc:springdoc-openapi-starter-webflux-ui:2.6.0")
+    implementation("org.springdoc:springdoc-openapi-starter-webflux-ui:2.7.0")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.security:spring-security-test")
