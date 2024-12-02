@@ -9,8 +9,7 @@ class AUIExtensionTests {
         assert(
             verifyHL7ToFHIRToHL7Mapping(
                 "catchall/aui/AUI-to-Extension",
-                // todo update the schema to OML_O21-base.yml when OML updates are merged to main
-                outputSchema = "classpath:/metadata/hl7_mapping/OML_O21/OML_O21-base.yml"
+                outputSchema = "classpath:/metadata/hl7_mapping/OML_O21/OML_O21-test.yml"
             ).passed
         )
     }
