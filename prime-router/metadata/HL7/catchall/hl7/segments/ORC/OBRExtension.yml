@@ -36,6 +36,77 @@ extension:
           specs: OBR.3
     - expressionType: nested
       vars:
+        obr7: OBR.7
+      condition: $obr7 NOT_NULL
+      generateList: true
+      expressionsMap:
+        url:
+          type: STRING
+          value: OBR.7
+        valueDateTime:
+          expressionType: nested
+          expressions:
+            - type: STRING
+              valueOf: "GeneralUtils.dateTimeWithZoneId(obr7,ZONEID)"
+              expressionType: JEXL
+        _valueDateTime:
+          expressionType: nested
+          expressionsMap:
+            extension:
+              generateList: true
+              expressionType: nested
+              expressionsMap:
+                url:
+                  type: SYSTEM_URL
+                  value: hl7v2-date-time
+                valueString:
+                  type: STRING
+                  valueOf: OBR.7
+                  expressionType: HL7Spec
+    - expressionType: nested
+      vars:
+        obr8: OBR.8
+      condition: $obr8 NOT_NULL
+      generateList: true
+      expressionsMap:
+        url:
+          type: STRING
+          value: OBR.8
+        valueDateTime:
+          expressionType: nested
+          expressions:
+            - type: STRING
+              valueOf: "GeneralUtils.dateTimeWithZoneId(obr8,ZONEID)"
+              expressionType: JEXL
+        _valueDateTime:
+          expressionType: nested
+          expressionsMap:
+            extension:
+              generateList: true
+              expressionType: nested
+              expressionsMap:
+                url:
+                  type: SYSTEM_URL
+                  value: hl7v2-date-time
+                valueString:
+                  type: STRING
+                  valueOf: OBR.8
+                  expressionType: HL7Spec
+    - expressionType: nested
+      vars:
+        obr9: STRING, OBR.9
+      condition: $obr9 NOT_NULL
+      specs: OBR.9
+      generateList: true
+      expressionsMap:
+        url:
+          type: STRING
+          value: OBR.9
+        valueQuantity:
+          expressionType: resource
+          valueOf: datatypes/CQ/Quantity
+    - expressionType: nested
+      vars:
         obr10: STRING_ALL, OBR.10
       condition: $obr10 NOT_NULL
       specs: OBR.10 *
@@ -83,6 +154,97 @@ extension:
           expressionType: resource
           valueOf: datatypes/CWE/CodeableConcept
           specs: OBR.13
+    - expressionType: nested
+      vars:
+        obr14: STRING, OBR.14
+      condition: $obr14 NOT_NULL
+      expressionsMap:
+        url:
+          type: STRING
+          value: OBR.14
+        valueDateTime:
+          type: STRING
+          valueOf: "GeneralUtils.dateTimeWithZoneId(dateTimeIn,ZONEID)"
+          expressionType: JEXL
+          vars:
+            dateTimeIn: OBR.14
+        _valueDateTime:
+          condition: $obr14 NOT_NULL
+          expressionType: nested
+          vars:
+            obr14: OBR.14
+          expressionsMap:
+            extension:
+              generateList: true
+              expressionType: nested
+              expressionsMap:
+                url:
+                  type: SYSTEM_URL
+                  value: hl7v2-date-time
+                valueString:
+                  type: STRING
+                  valueOf: $obr14
+                  expressionType: HL7Spec
+    - expressionType: nested
+      vars:
+        obr151: STRING_ALL, OBR.15.1
+      condition: $obr151 NOT_NULL
+      expressionsMap:
+        url:
+          type: STRING
+          value: OBR.15.1
+        valueCodeableConcept:
+          valueOf: datatypes/CWE/CodeableConcept
+          expressionType: resource
+          specs: OBR.15.1
+    - expressionType: nested
+      vars:
+        obr152: STRING_ALL, OBR.15.2
+      condition: $obr152 NOT_NULL
+      expressionsMap:
+        url:
+          type: STRING
+          value: OBR.15.2
+        valueCodeableConcept:
+          valueOf: datatypes/CWE/CodeableConcept
+          expressionType: resource
+          specs: OBR.15.2
+    - expressionType: nested
+      vars:
+        obr153: OBR.15.3
+      condition: $obr153 NOT_NULL
+      expressionsMap:
+        url:
+          type: STRING
+          value: OBR.15.3
+        valueString:
+          type: STRING
+          valueOf: OBR.15.3
+          expressionType: HL7Spec
+    - expressionType: nested
+      vars:
+        obr154: STRING_ALL, OBR.15.4
+      condition: $obr154 NOT_NULL
+      expressionsMap:
+        url:
+          type: STRING
+          value: OBR.15.4
+        valueCodeableConcept:
+          valueOf: datatypes/CWE/CodeableConcept
+          expressionType: resource
+          specs: OBR.15.4
+    - expressionType: nested
+      vars:
+        obr156: STRING_ALL, OBR.15.6
+      condition: $obr156 NOT_NULL
+      expressionsMap:
+        url:
+          type: STRING
+          value: OBR.15.6
+        valueCodeableConcept:
+          valueOf: datatypes/CWE/CodeableConcept
+          expressionType: resource
+          specs: OBR.15.6
     - expressionType: nested
       vars:
         obr16: STRING_ALL, OBR.16

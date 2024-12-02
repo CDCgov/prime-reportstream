@@ -1,0 +1,16 @@
+# $schema: ./../../../../../../../../../metadata/json_schema/fhir/fhir-to-hl7-mapping.json
+
+elements:
+
+  - name: specimen
+    required: true
+    schema: classpath:/metadata/hl7_mapping/resources/Specimen/SPM.yml
+    constants:
+      hl7SpecimenFieldPath: '/ORDER(%{orderIndex})/OBSERVATION_REQUEST/SPECIMEN(%{specimenIndex})/SPM'
+      resultIndex: specimenIndex
+
+  - name: specimen-extension
+    resource: '%resource.extension(%`rsext-spm-specimen`)'
+    schema: classpath:/metadata/hl7_mapping/resources/Specimen/SPMExtension.yml
+    constants:
+      hl7SpecimenFieldPath: '/ORDER(%{orderIndex})/OBSERVATION_REQUEST/SPECIMEN(%{specimenIndex})/SPM'
