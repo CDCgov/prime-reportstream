@@ -44,16 +44,23 @@ class LookupTableConditionMapper(metadata: Metadata) : IConditionMapper {
     }
 
     override fun lookupMemberOid(codings: List<Coding>): Map<String, String> {
-        return mappingTable.FilterBuilder()
-            .isIn(ObservationMappingConstants.TEST_CODE_KEY, codings.map { it.code })
-            .filter().caseSensitiveDataRowsMap.fold(mutableMapOf()) { acc, condition ->
-                val testCode = condition[ObservationMappingConstants.TEST_CODE_KEY] ?: ""
-                val memberOid = condition[ObservationMappingConstants.TEST_OID_KEY] ?: ""
-                if (testCode.isNotEmpty() && memberOid.isNotEmpty()) {
-                    acc[testCode] = memberOid
-                }
-                acc
+        // Extract condition codes using the mapping table, not directly from codings
+        val testCodes = codings.mapNotNull { it.code } // These are the input test codes
+
+        // Filter rows related to condition mappings based on test codes
+        val filteredRows = mappingTable.FilterBuilder()
+            .isIn(ObservationMappingConstants.TEST_CODE_KEY, testCodes) // Map test codes to conditions
+            .filter().caseSensitiveDataRowsMap
+
+        // Create a map of condition codes to member OIDs
+        return filteredRows.fold(mutableMapOf()) { acc, condition ->
+            val conditionCode = condition[ObservationMappingConstants.CONDITION_CODE_KEY] ?: ""
+            val memberOid = condition[ObservationMappingConstants.TEST_OID_KEY] ?: ""
+            if (conditionCode.isNotEmpty() && memberOid.isNotEmpty()) {
+                acc[conditionCode] = memberOid
             }
+            acc
+        }
     }
 }
 
@@ -81,42 +88,48 @@ class ConditionStamper(private val conditionMapper: IConditionMapper) {
      * @return a [ObservationStampingResult] including stamping success and any mapping failures
      */
     fun stampObservation(observation: Observation): ObservationStampingResult {
+        // Extract codes and filter out empty values
         val codeSourcesMap = observation.getCodeSourcesMap().filterValues { it.isNotEmpty() }
         if (codeSourcesMap.values.flatten().isEmpty()) return ObservationStampingResult(false)
 
-        // Lookup conditions and Member OIDs
+        // Lookup conditions mapped to codes
         val conditionsToCode = conditionMapper.lookupConditions(codeSourcesMap.values.flatten())
+
+        // Map test codes to member OIDs
         val memberOidMap = conditionMapper.lookupMemberOid(codeSourcesMap.values.flatten())
 
         var mappedSomething = false
 
-        // Process condition mappings
+        // Process condition mappings for each code
         val failures = codeSourcesMap.mapNotNull { codes ->
-            val unnmapped = codes.value.mapNotNull { code ->
+            val unmapped = codes.value.mapNotNull { code ->
                 val conditions = conditionsToCode.getOrDefault(code, emptyList())
                 if (conditions.isEmpty()) {
+                    // If no conditions are mapped, add this code to failures
                     code
                 } else {
-                    conditions.forEach { code.addExtension(CONDITION_CODE_EXTENSION_URL, it) }
-                    mappedSomething = true
+                    conditions.forEach { conditionCoding ->
+                        // Create a condition-code extension
+                        val conditionCodeExtension = Extension(CONDITION_CODE_EXTENSION_URL)
+                        conditionCodeExtension.setValue(conditionCoding)
+
+                        // Retrieve and add the member OID as a sub-extension
+                        val memberOid = memberOidMap[conditionCoding.code]
+                        if (memberOid != null) {
+                            val memberOidExtension = Extension(MEMBER_OID_EXTENSION_URL)
+                            memberOidExtension.setValue(StringType(memberOid))
+                            conditionCodeExtension.addExtension(memberOidExtension)
+                        }
+
+                        // Attach the condition-code extension to the coding
+                        code.addExtension(conditionCodeExtension)
+                        mappedSomething = true
+                    }
                     null
                 }
             }
-            if (unnmapped.isEmpty()) null else ObservationMappingFailure(codes.key, unnmapped)
+            if (unmapped.isEmpty()) null else ObservationMappingFailure(codes.key, unmapped)
         }
-
-        // Add the Member OID extension to the observation, based on the lookup
-        observation.code.coding.forEach { coding ->
-            val testCode = coding.code
-            val memberOid = memberOidMap[testCode]
-            if (memberOid != null) {
-                val memberOidExtension = Extension(MEMBER_OID_EXTENSION_URL)
-                memberOidExtension.setValue(StringType(memberOid))
-                observation.addExtension(memberOidExtension)
-                mappedSomething = true
-            }
-        }
-
         return ObservationStampingResult(mappedSomething, failures)
     }
 }
