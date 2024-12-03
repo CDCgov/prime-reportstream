@@ -44,6 +44,7 @@ import gov.cdc.prime.router.azure.observability.event.AzureEventServiceImpl
 import gov.cdc.prime.router.azure.observability.event.IReportStreamEventService
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventName
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventProperties
+import gov.cdc.prime.router.common.BaseEngine
 import gov.cdc.prime.router.fhirengine.translation.HL7toFhirTranslator
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirTransformer
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
@@ -52,6 +53,7 @@ import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.fhirengine.utils.HL7Reader
 import gov.cdc.prime.router.fhirengine.utils.HL7Reader.Companion.parseHL7Message
 import gov.cdc.prime.router.fhirengine.utils.getObservations
+import gov.cdc.prime.router.fhirengine.utils.isElr
 import gov.cdc.prime.router.logging.LogMeasuredTime
 import gov.cdc.prime.router.report.ReportService
 import gov.cdc.prime.router.validation.IItemValidator
@@ -508,21 +510,56 @@ class FHIRConverter(
                 }
                 // 'stamp' observations with their condition code
                 if (item.bundle != null) {
+                    val isElr = item.bundle!!.isElr()
                     item.bundle!!.getObservations().forEach { observation ->
-                        val result = stamper.stampObservation(observation)
-                        if (!result.success) {
-                            val logger = actionLogger.getItemLogger(item.index + 1, observation.id)
-                            if (result.failures.isEmpty()) {
-                                logger.warn(UnmappableConditionMessage())
-                            } else {
-                                logger.warn(
-                                    result.failures.map {
-                                    UnmappableConditionMessage(
-                                        it.failures.map { it.code },
-                                        it.source
+                        // Only do this if it is an ELR item.
+                        if (isElr) {
+                            val result = stamper.stampObservation(observation)
+                            if (!result.success) {
+                                val logger = actionLogger.getItemLogger(item.index + 1, observation.id)
+                                if (result.failures.isEmpty()) {
+                                    logger.warn(UnmappableConditionMessage())
+                                } else {
+                                    logger.warn(
+                                        result.failures.map {
+                                            UnmappableConditionMessage(
+                                                it.failures.map { it.code },
+                                                it.source
+                                            )
+                                        }
                                     )
                                 }
-                                )
+//                            } else {
+//                                // TODO Generate an ITEM_TRANSFORMED Azure Event.
+//                                val bundleDigestExtractor = BundleDigestExtractor(
+//                                    FhirPathBundleDigestLabResultExtractorStrategy(
+//                                        CustomContext(
+//                                            item.bundle!!,
+//                                            item.bundle!!,
+//                                            mutableMapOf(),
+//                                            CustomFhirPathFunctions()
+//                                        )
+//                                    )
+//                                )
+//                                reportEventService.sendItemEvent(
+//                                    eventName = ReportStreamEventName.ITEM_TRANSFORMED,
+//                                    childReport = report,
+//                                    pipelineStepName = TaskAction.convert
+//                                ) {
+//                                    parentReportId(message.reportId)
+//                                    params(
+//                                        mapOf(
+//                                            ReportStreamEventProperties.RECEIVER_NAME to receiver.fullName,
+//                                            ReportStreamEventProperties.BUNDLE_DIGEST
+//                                                to bundleDigestExtractor.generateDigest(item.bundle!!),
+//                                            ReportStreamEventProperties.ORIGINAL_FORMAT to format.name,
+//                                            ReportStreamEventProperties.TARGET_FORMAT to MimeFormat.FHIR.name,
+//                                            ReportStreamEventProperties.ENRICHMENTS to
+//                                                listOf(receiver.translation.schemaName)
+//                                        )
+//                                    )
+//                                    trackingId(item.bundle!!)
+//                                }
                             }
                         }
                     }

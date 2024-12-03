@@ -346,6 +346,106 @@ class FhirConverterTests {
     fun `test condition code stamping`() {
         @Suppress("ktlint:standard:max-line-length")
         val fhirRecord =
+            """{"resourceType":"Bundle","id":"1667861767830636000.7db38d22-b713-49fc-abfa-2edba9c12347","meta":{"lastUpdated":"2022-11-07T22:56:07.832+00:00"},"identifier":{"value":"1234d1d1-95fe-462c-8ac6-46728dba581c"},"type":"message","timestamp":"2021-08-03T13:15:11.015+00:00","entry":[{"fullUrl" : "MessageHeader/0993dd0b-6ce5-3caf-a177-0b81cc780c18","resource" : {"resourceType" : "MessageHeader","id" : "0993dd0b-6ce5-3caf-a177-0b81cc780c18","extension" : [ {"url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/encoding-characters","valueString" : "^~\\&#"}, {"url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/character-set","valueString" : "UNICODE UTF-8"}, {"url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/msh-message-header","extension" : [ {"url" : "MSH.7","valueString" : "20230501102531-0400"} ]} ],"eventCoding" : {"system" : "http://terminology.hl7.org/CodeSystem/v2-0003","code" : "R01","display" : "ORU^R01^ORU_R01"},"sender" : {"reference" : "Organization/1710886092467181000.213628f7-9569-4400-a95d-621c3bfbf121"}}},{"fullUrl":"Observation/d683b42a-bf50-45e8-9fce-6c0531994f09","resource":{"resourceType":"Observation","id":"d683b42a-bf50-45e8-9fce-6c0531994f09","status":"final","code":{"coding":[{"system":"http://loinc.org","code":"80382-5"}],"text":"Flu A"},"subject":{"reference":"Patient/9473889b-b2b9-45ac-a8d8-191f27132912"},"performer":[{"reference":"Organization/1a0139b9-fc23-450b-9b6c-cd081e5cea9d"}],"valueCodeableConcept":{"coding":[{"system":"http://snomed.info/sct","code":"260373001","display":"Detected"}]},"interpretation":[{"coding":[{"system":"http://terminology.hl7.org/CodeSystem/v2-0078","code":"A","display":"Abnormal"}]}],"method":{"extension":[{"url":"https://reportstream.cdc.gov/fhir/StructureDefinition/testkit-name-id","valueCoding":{"code":"BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B_Becton, Dickinson and Company (BD)"}},{"url":"https://reportstream.cdc.gov/fhir/StructureDefinition/equipment-uid","valueCoding":{"code":"BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B_Becton, Dickinson and Company (BD)"}}],"coding":[{"display":"BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B*"}]},"specimen":{"reference":"Specimen/52a582e4-d389-42d0-b738-bee51cf5244d"},"device":{"reference":"Device/78dc4d98-2958-43a3-a445-76ceef8c0698"}}}]}"""
+
+        val conditionCodeExtensionURL = "https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code"
+        mockkObject(BlobAccess)
+        mockkObject(Report)
+        metadata.lookupTableStore += mapOf(
+            "observation-mapping" to LookupTable(
+                "observation-mapping",
+                listOf(
+                    listOf(
+                        ObservationMappingConstants.TEST_CODE_KEY,
+                        ObservationMappingConstants.CONDITION_CODE_KEY,
+                        ObservationMappingConstants.CONDITION_CODE_SYSTEM_KEY,
+                        ObservationMappingConstants.CONDITION_NAME_KEY
+                    ),
+                    listOf(
+                        "80382-5",
+                        "6142004",
+                        "SNOMEDCT",
+                        "Influenza (disorder)"
+                    ),
+                    listOf(
+                        "260373001",
+                        "Some Condition Code",
+                        "Condition Code System",
+                        "Condition Name"
+                    )
+                )
+            )
+        )
+
+        // set up
+        val actionHistory = mockk<ActionHistory>()
+        val actionLogger = mockk<ActionLogger>()
+        val transformer = mockk<FhirTransformer>()
+
+        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process) as FHIRConverter)
+        val message = spyk(
+            FhirConvertQueueMessage(
+                UUID.randomUUID(),
+                BLOB_FHIR_URL,
+                "test",
+                BLOB_SUB_FOLDER_NAME,
+                Topic.FULL_ELR,
+                SCHEMA_NAME
+            )
+        )
+
+        val bodyFormat = MimeFormat.FHIR
+        val bodyUrl = "https://anyblob.com"
+
+        every { actionLogger.hasErrors() } returns false
+        every { actionLogger.getItemLogger(any(), any()) } returns actionLogger
+        every { actionLogger.warn(any<List<ActionLogDetail>>()) } just runs
+        every { actionLogger.setReportId(any()) } returns actionLogger
+        every { BlobAccess.downloadBlob(any(), any()) } returns (fhirRecord)
+        every { Report.getFormatFromBlobURL(message.blobURL) } returns MimeFormat.FHIR
+        every { BlobAccess.Companion.uploadBlob(any(), any()) } returns "test"
+        every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
+        every { actionHistory.trackCreatedReport(any(), any(), blobInfo = any()) }.returns(Unit)
+        every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
+        val action = Action()
+        action.actionName = TaskAction.convert
+        every { actionHistory.action } returns action
+        every { engine.getTransformerFromSchema(SCHEMA_NAME) }.returns(transformer)
+        every { transformer.process(any()) } returnsArgument (0)
+
+        // act
+        accessSpy.transact { txn ->
+            engine.run(message, actionLogger, actionHistory, txn)
+        }
+
+        val bundle = FhirContext.forR4().newJsonParser().parseResource(Bundle::class.java, fhirRecord)
+        bundle.entry.filter { it.resource is Observation }.forEach {
+            val observation = (it.resource as Observation)
+            observation.code.coding[0].addExtension(
+                conditionCodeExtensionURL,
+                Coding("SNOMEDCT", "6142004", "Influenza (disorder)")
+            )
+            observation.valueCodeableConcept.coding[0].addExtension(
+                conditionCodeExtensionURL,
+                Coding("Condition Code System", "Some Condition Code", "Condition Name")
+            )
+        }
+
+        // assert
+        verify(exactly = 1) {
+            // TODO clean up assertions
+            // engine.getContentFromFHIR(any(), any())
+            actionHistory.trackExistingInputReport(any())
+            transformer.process(any())
+            actionHistory.trackCreatedReport(any(), any(), blobInfo = any())
+            BlobAccess.Companion.uploadBlob(any(), FhirTranscoder.encode(bundle).toByteArray(), any())
+        }
+    }
+
+    @Test
+    fun `test condition code stamping without message header`() {
+        @Suppress("ktlint:standard:max-line-length")
+        val fhirRecord =
             """{"resourceType":"Bundle","id":"1667861767830636000.7db38d22-b713-49fc-abfa-2edba9c12347","meta":{"lastUpdated":"2022-11-07T22:56:07.832+00:00"},"identifier":{"value":"1234d1d1-95fe-462c-8ac6-46728dba581c"},"type":"message","timestamp":"2021-08-03T13:15:11.015+00:00","entry":[{"fullUrl":"Observation/d683b42a-bf50-45e8-9fce-6c0531994f09","resource":{"resourceType":"Observation","id":"d683b42a-bf50-45e8-9fce-6c0531994f09","status":"final","code":{"coding":[{"system":"http://loinc.org","code":"80382-5"}],"text":"Flu A"},"subject":{"reference":"Patient/9473889b-b2b9-45ac-a8d8-191f27132912"},"performer":[{"reference":"Organization/1a0139b9-fc23-450b-9b6c-cd081e5cea9d"}],"valueCodeableConcept":{"coding":[{"system":"http://snomed.info/sct","code":"260373001","display":"Detected"}]},"interpretation":[{"coding":[{"system":"http://terminology.hl7.org/CodeSystem/v2-0078","code":"A","display":"Abnormal"}]}],"method":{"extension":[{"url":"https://reportstream.cdc.gov/fhir/StructureDefinition/testkit-name-id","valueCoding":{"code":"BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B_Becton, Dickinson and Company (BD)"}},{"url":"https://reportstream.cdc.gov/fhir/StructureDefinition/equipment-uid","valueCoding":{"code":"BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B_Becton, Dickinson and Company (BD)"}}],"coding":[{"display":"BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B*"}]},"specimen":{"reference":"Specimen/52a582e4-d389-42d0-b738-bee51cf5244d"},"device":{"reference":"Device/78dc4d98-2958-43a3-a445-76ceef8c0698"}}}]}"""
 
         val conditionCodeExtensionURL = "https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code"
@@ -438,6 +538,8 @@ class FhirConverterTests {
             actionHistory.trackExistingInputReport(any())
             transformer.process(any())
             actionHistory.trackCreatedReport(any(), any(), blobInfo = any())
+        }
+        verify(exactly = 0) {
             BlobAccess.Companion.uploadBlob(any(), FhirTranscoder.encode(bundle).toByteArray(), any())
         }
     }
@@ -543,6 +645,12 @@ class FhirConverterTests {
             )
         }
     }
+
+//    @Test
+//    fun `test isElr when bundle is empty`() {
+//        val emptyBundle = Bundle()
+//        assertThat(BaseEngine.Companion.isElr(emptyBundle)).isFalse()
+//    }
 
     @Nested
     inner class FhirConverterProcessTest {

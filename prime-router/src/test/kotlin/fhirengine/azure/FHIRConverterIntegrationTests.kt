@@ -53,7 +53,7 @@ import gov.cdc.prime.router.common.badEncodingHL7Record
 import gov.cdc.prime.router.common.cleanHL7Record
 import gov.cdc.prime.router.common.cleanHL7RecordConverted
 import gov.cdc.prime.router.common.cleanHL7RecordConvertedAndTransformed
-import gov.cdc.prime.router.common.conditionCodedValidFHIRRecord1
+import gov.cdc.prime.router.common.conditionCodedValidFHIRRecord1a
 import gov.cdc.prime.router.common.garbledHL7Record
 import gov.cdc.prime.router.common.invalidEmptyFHIRRecord
 import gov.cdc.prime.router.common.invalidHL7Record
@@ -62,8 +62,8 @@ import gov.cdc.prime.router.common.invalidHL7RecordConvertedAndTransformed
 import gov.cdc.prime.router.common.invalidMalformedFHIRRecord
 import gov.cdc.prime.router.common.invalidRadxMarsHL7Message
 import gov.cdc.prime.router.common.unparseableHL7Record
-import gov.cdc.prime.router.common.validFHIRRecord1
-import gov.cdc.prime.router.common.validFHIRRecord2
+import gov.cdc.prime.router.common.validFHIRRecord1a
+import gov.cdc.prime.router.common.validFHIRRecord2a
 import gov.cdc.prime.router.common.validRadxMarsHL7Message
 import gov.cdc.prime.router.common.validRadxMarsHL7MessageConverted
 import gov.cdc.prime.router.db.ReportStreamTestDatabaseContainer
@@ -690,9 +690,9 @@ class FHIRConverterIntegrationTests {
 
         val receivedReportContents =
             listOf(
-                validFHIRRecord1,
+                validFHIRRecord1a,
                 invalidEmptyFHIRRecord,
-                validFHIRRecord2,
+                validFHIRRecord2a,
                 invalidMalformedFHIRRecord
             ).joinToString(
                 "\n"
@@ -748,7 +748,7 @@ class FHIRConverterIntegrationTests {
                 }
                     .map { Pair(it.first, it.second.toString(Charset.defaultCharset())) }
             assertThat(reportAndBundles).transform { pairs -> pairs.map { it.second } }
-                .containsOnly(conditionCodedValidFHIRRecord1, validFHIRRecord2)
+                .containsOnly(conditionCodedValidFHIRRecord1a, validFHIRRecord2a)
             val expectedQueueMessages = reportAndBundles.map { (report, fhirBundle) ->
                 FhirDestinationFilterQueueMessage(
                     report.reportId,
@@ -835,7 +835,7 @@ class FHIRConverterIntegrationTests {
                         patientState = emptyList(),
                         orderingFacilityState = emptyList(),
                         performerState = emptyList(),
-                        eventType = ""
+                        eventType = "ORU^R01^ORU_R01"
                     )
                 )
             )

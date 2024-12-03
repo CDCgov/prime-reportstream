@@ -45,6 +45,7 @@ import org.hl7.fhir.r4.model.Coding
 import org.hl7.fhir.r4.model.DiagnosticReport
 import org.hl7.fhir.r4.model.Endpoint
 import org.hl7.fhir.r4.model.Extension
+import org.hl7.fhir.r4.model.MessageHeader
 import org.hl7.fhir.r4.model.Observation
 import org.hl7.fhir.r4.model.Patient
 import org.hl7.fhir.r4.model.PractitionerRole
@@ -193,6 +194,72 @@ class FHIRBundleHelpersTests {
 
         assertThat(diagnosticReport).isNotNull()
         assertThat(diagnosticReport.getResourceProperties()).isNotEmpty()
+    }
+
+    @Test
+    fun `Test if ELR when bundle is empty`() {
+        val fhirBundle = Bundle()
+        assertThat(fhirBundle.isElr()).isFalse()
+    }
+
+    @Test
+    fun `Test if ELR when bundle is not BundleType MESSAGE`() {
+        val fhirBundle = Bundle()
+        fhirBundle.type = Bundle.BundleType.DOCUMENT
+        assertThat(fhirBundle.isElr()).isFalse()
+    }
+
+    @Test
+    fun `Test if ELR when bundle has no entries`() {
+        val fhirBundle = Bundle()
+        fhirBundle.type = Bundle.BundleType.MESSAGE
+        assertThat(fhirBundle.isElr()).isFalse()
+    }
+
+    @Test
+    fun `Test if ELR when bundle has no MessageHeader`() {
+        val fhirBundle = Bundle()
+        fhirBundle.type = Bundle.BundleType.MESSAGE
+        val entry = Bundle.BundleEntryComponent()
+        fhirBundle.entry.add(0, entry)
+        assertThat(fhirBundle.isElr()).isFalse()
+    }
+
+    @Test
+    fun `Test if ELR when bundle has MessageHeader but no Coding event`() {
+        val fhirBundle = Bundle()
+        fhirBundle.type = Bundle.BundleType.MESSAGE
+        val entry = Bundle.BundleEntryComponent()
+        entry.resource = MessageHeader()
+        fhirBundle.entry.add(0, entry)
+        assertThat(fhirBundle.isElr()).isFalse()
+    }
+
+    @Test
+    fun `Test if ELR when bundle has MessageHeader but Coding event not R01`() {
+        val fhirBundle = Bundle()
+        fhirBundle.type = Bundle.BundleType.MESSAGE
+        val entry = Bundle.BundleEntryComponent()
+        val messageHeader = MessageHeader()
+        val event = Coding()
+        messageHeader.event = event
+        entry.resource = messageHeader
+        fhirBundle.entry.add(0, entry)
+        assertThat(fhirBundle.isElr()).isFalse()
+    }
+
+    @Test
+    fun `Test if ELR when bundle is happy path`() {
+        val fhirBundle = Bundle()
+        fhirBundle.type = Bundle.BundleType.MESSAGE
+        val entry = Bundle.BundleEntryComponent()
+        val messageHeader = MessageHeader()
+        val event = Coding()
+        event.code = "R01"
+        messageHeader.event = event
+        entry.resource = messageHeader
+        fhirBundle.entry.add(0, entry)
+        assertThat(fhirBundle.isElr()).isTrue()
     }
 
     @Test

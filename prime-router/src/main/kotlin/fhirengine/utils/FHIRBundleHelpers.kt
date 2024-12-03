@@ -20,6 +20,7 @@ import org.hl7.fhir.r4.model.Coding
 import org.hl7.fhir.r4.model.DateTimeType
 import org.hl7.fhir.r4.model.DiagnosticReport
 import org.hl7.fhir.r4.model.Extension
+import org.hl7.fhir.r4.model.MessageHeader
 import org.hl7.fhir.r4.model.Observation
 import org.hl7.fhir.r4.model.Patient
 import org.hl7.fhir.r4.model.Property
@@ -114,6 +115,26 @@ fun Bundle.addProvenanceReference() {
         diagnosticReportReference.reference = diagnosticReport.idBase
         provenanceResource.target.add(diagnosticReportReference)
     }
+}
+
+/**
+ * Return true if Bundle contains an ELR in the MessageHeader.
+ *
+ * @return true if the MesssageHeader contains an R01, otherwise false.
+ */
+fun Bundle.isElr(): Boolean {
+    var isElr = false
+    if (this.type == Bundle.BundleType.MESSAGE && this.entry.isNotEmpty()) {
+        // By rule, the first entry must be a MessageHeader
+        val resource = this.entry[0].resource
+        if (resource is MessageHeader) {
+            val event = resource.event
+            if (event is Coding && event.code == "R01") {
+                isElr = true
+            }
+        }
+    }
+    return isElr
 }
 
 /**
