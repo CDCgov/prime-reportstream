@@ -66,6 +66,11 @@ class SubmissionResponseBuilder(
         }
     }
 
+    /**
+     * Figures out in what format we should respond to a submission with
+     *
+     * @return SubmissionResponseType the response type defined in this file
+     */
     private fun determineResponseType(
         sender: Sender,
         responseStatus: HttpStatus,

@@ -17,6 +17,13 @@ class HL7ACKUtils(
     private val clock: Clock = Clock.systemUTC(),
 ) {
 
+    /**
+     * Creates the output ACK message according to the spec defined in #16394
+     *
+     * It will read an incoming message and copy some values over to their required locations
+     *
+     * It will always output HL7 2.5.1 regardless of the version of the incoming HL7 message
+     */
     fun generateOutgoingACKMessage(incomingACKMessage: Message): String {
         val outgoingAck = ACK()
 
