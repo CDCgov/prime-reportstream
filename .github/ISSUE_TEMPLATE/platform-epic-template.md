@@ -8,22 +8,22 @@ assignees: ''
 ---
 
 ## Outcome/Objective 
-<--- State the high-level business or product outcome you want to achieve.-->
+<!--- State the high-level business or product outcome you want to achieve.-->
 
 ## Description 
-<---Links to product(s) brief or description of the work involved.-->
+<!---Links to product(s) brief or description of the work involved.-->
 
 ## Product Requirement(s) 
-<---Outline the specific  business tasks or changes needed to achieve the outcome. (can be a link)-->
+<!---Outline the specific  business tasks or changes needed to achieve the outcome. (can be a link)-->
 
 ## Use Case(s)
-<---Give specific use cases of what needs to be achieved or supported-->
+<!---Give specific use cases of what needs to be achieved or supported-->
 
 ## Dependencies
-<---Identify any systems, teams, or external factors that need to be in place-->
+<!---Identify any systems, teams, or external factors that need to be in place-->
 
 ## Acceptance criteria  
-<---List measurable criteria that will confirm when the technical /business requirements have been met-->
+<!---List measurable criteria that will confirm when the technical /business requirements have been met-->
 
 ## Technical Requirement(s)
 <!---
