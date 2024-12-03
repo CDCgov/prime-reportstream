@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.databind.json.JsonMapper
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.github.ajalt.clikt.core.CliktError
-import com.google.common.net.HttpHeaders
 import com.microsoft.azure.functions.HttpMethod
 import com.microsoft.azure.functions.HttpRequestMessage
 import com.microsoft.azure.functions.HttpResponseMessage
@@ -30,21 +29,18 @@ import gov.cdc.prime.router.Sender.ProcessingType
 import gov.cdc.prime.router.SubmissionReceiver
 import gov.cdc.prime.router.UniversalPipelineReceiver
 import gov.cdc.prime.router.azure.BlobAccess.Companion.getBlobContainer
-import gov.cdc.prime.router.azure.HttpUtilities.Companion.isSuccessful
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.azure.observability.event.IReportStreamEventService
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventName
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventProperties
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventService
+import gov.cdc.prime.router.azure.service.SubmissionResponseBuilder
 import gov.cdc.prime.router.cli.PIIRemovalCommands
 import gov.cdc.prime.router.cli.ProcessFhirCommands
 import gov.cdc.prime.router.common.AzureHttpUtils.getSenderIP
 import gov.cdc.prime.router.common.Environment
-import gov.cdc.prime.router.common.JacksonMapperUtilities
-import gov.cdc.prime.router.fhirengine.translation.hl7.utils.HL7ACKUtils
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
-import gov.cdc.prime.router.history.DetailedSubmissionHistory
 import gov.cdc.prime.router.history.azure.SubmissionsFacade
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
 import gov.cdc.prime.router.tokens.Scope
@@ -71,7 +67,7 @@ class ReportFunction(
         workflowEngine.azureEventService,
         workflowEngine.reportService
     ),
-    private val hl7ACKUtils: HL7ACKUtils = HL7ACKUtils(),
+    private val submissionResponseBuilder: SubmissionResponseBuilder = SubmissionResponseBuilder(),
 ) : RequestFunction(workflowEngine),
     Logging {
 
@@ -605,7 +601,12 @@ class ReportFunction(
             SubmissionsFacade.instance.findDetailedSubmissionHistory(txn, null, actionHistory.action)
         }
 
-        val response = buildResponse(request, httpStatus, submission, sender)
+        val response = submissionResponseBuilder.buildResponse(
+            sender,
+            httpStatus,
+            request,
+            submission
+        )
 
         // queue messages here after all task / action records are in
         actionHistory.queueMessages(workflowEngine)
@@ -623,70 +624,6 @@ class ReportFunction(
             } catch (e: IllegalArgumentException) {
                 sender.processingType
             }
-        }
-    }
-
-    /**
-     * Returns an ACK response if required. Otherwise returns a JSON response.
-     */
-    private fun buildResponse(
-        request: HttpRequestMessage<String?>,
-        responseStatus: HttpStatus,
-        submission: DetailedSubmissionHistory?,
-        sender: Sender,
-    ): HttpResponseMessage {
-        return handleAckRequest(request, responseStatus, sender) ?: request
-            .createResponseBuilder(responseStatus)
-            .header(HttpHeaders.CONTENT_TYPE, "application/json")
-            .body(
-                JacksonMapperUtilities.allowUnknownsMapper
-                    .writeValueAsString(submission)
-            )
-            .header(
-                HttpHeaders.LOCATION,
-                request.uri.resolve(
-                    "/api/waters/report/${submission?.reportId}/history"
-                ).toString()
-            )
-            .build()
-    }
-
-    /**
-     * This function will return an HL7 ACK response if the following conditions are met:
-     * - The sender has the "hl7AcknowledgementEnabled" field set to true
-     * - The HL7 message has been processed successfully
-     * - The submitted HL7 contains MSH.15 == "AL"
-     *
-     * @return ACK response or null
-     */
-    private fun handleAckRequest(
-        request: HttpRequestMessage<String?>,
-        responseStatus: HttpStatus,
-        sender: Sender,
-    ): HttpResponseMessage? {
-        // Azure handles all headers as lowercase
-        val contentType = request.headers[HttpHeaders.CONTENT_TYPE.lowercase()]
-        val requestBody = request.body
-        return if (
-            sender.hl7AcknowledgementEnabled &&
-            responseStatus.isSuccessful() &&
-            contentType == HttpUtilities.hl7V2MediaType &&
-            requestBody != null
-        ) {
-            try {
-                hl7ACKUtils.generateOutgoingACKMessageIfRequired(requestBody)?.let { responseBody ->
-                    logger.info("Creating HL7 ACK response")
-                    request.createResponseBuilder(responseStatus)
-                        .header(HttpHeaders.CONTENT_TYPE, HttpUtilities.hl7V2MediaType)
-                        .body(responseBody)
-                        .build()
-                }
-            } catch (ex: Exception) {
-                logger.warn("Error checking for HL7 ACK.", ex)
-                null
-            }
-        } else {
-            null
         }
     }
 }

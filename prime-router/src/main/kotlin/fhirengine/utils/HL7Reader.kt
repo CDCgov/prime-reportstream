@@ -425,15 +425,13 @@ class HL7Reader(private val actionLogger: ActionLogger) : Logging {
             }
         }
 
-        fun requiresAckMessageResponse(message: Message): Boolean {
-            val acceptAcknowledgmentType = when (val structure = message[MSH_SEGMENT_NAME]) {
+        fun getAcceptAcknowledgmentType(message: Message): String? {
+            return when (val structure = message[MSH_SEGMENT_NAME]) {
                 is NIST_MSH -> structure.msh15_AcceptAcknowledgmentType.value
                 is v27_MSH -> structure.msh15_AcceptAcknowledgmentType.value
                 is v251_MSH -> structure.msh15_AcceptAcknowledgmentType.value
                 else -> null
             }
-            // AL means Always
-            return acceptAcknowledgmentType == "AL"
         }
 
         fun getSendingApplication(message: Message): String? {
