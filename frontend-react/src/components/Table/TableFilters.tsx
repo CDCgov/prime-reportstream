@@ -15,6 +15,7 @@ import {
     RangeSettingsActionType,
 } from "../../hooks/filters/UseDateRange/UseDateRange";
 import { FilterManager } from "../../hooks/filters/UseFilterManager/UseFilterManager";
+import { PageSettingsActionType } from "../../hooks/filters/UsePages/UsePages";
 import { FeatureName } from "../../utils/FeatureName";
 import { appInsights } from "../../utils/TelemetryService/TelemetryService";
 
@@ -101,6 +102,13 @@ function TableFilters({
                 type: RangeSettingsActionType.RESET,
                 payload: { from, to },
             });
+
+            // Reset results to first page upon applying filters
+            filterManager.updatePage({
+                type: PageSettingsActionType.SET_PAGE,
+                payload: { page: 1 },
+            });
+
             cursorManager?.update({
                 type: CursorActionType.RESET,
                 payload: filterManager.sortSettings.order === "DESC" ? to : from,
