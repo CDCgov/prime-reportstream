@@ -81,8 +81,8 @@ resources:
     segment: .IN1
     group: PATIENT.INSURANCE
     resourcePath: segments/IN1/Coverage
-    repeats: true
-    isReferenced: true
+    repeats: false
+    isReferenced: false
 
   - resourceName: ServiceRequest
     segment: .ORC

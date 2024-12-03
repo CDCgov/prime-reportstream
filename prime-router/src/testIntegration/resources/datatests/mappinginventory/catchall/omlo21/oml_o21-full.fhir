@@ -13241,7 +13241,6 @@
       }
     },
     {
-      "fullUrl": "ServiceRequest/1732560947529907000.d8a09a6a-8364-469a-b25b-3af90b0b03a7",
       "fullUrl": "Coverage/1732739201962559000.af1bd55f-2269-4782-a205-39c76d162b0d",
       "resource": {
         "resourceType": "Coverage",
@@ -13268,6 +13267,7 @@
       }
     },
     {
+      "fullUrl": "ServiceRequest/1732560947529907000.d8a09a6a-8364-469a-b25b-3af90b0b03a7",
       "resource": {
         "resourceType": "ServiceRequest",
         "id": "1732560947529907000.d8a09a6a-8364-469a-b25b-3af90b0b03a7",
