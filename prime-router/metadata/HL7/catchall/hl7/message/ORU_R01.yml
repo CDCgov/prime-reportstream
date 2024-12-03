@@ -28,8 +28,8 @@ resources:
       - .NK1
 
   - resourceName: Provenance
-    group: PATIENT_RESULT.PATIENT
     segment: .PID
+    group: PATIENT_RESULT.PATIENT
     resourcePath: segments/PID/Provenance-Patient
 
   - resourceName: RelatedPerson
@@ -45,7 +45,7 @@ resources:
     resourcePath: segments/PV1/Encounter
     isReferenced: true
     additionalSegments:
-      - .PATIENT.VISIT.PV2
+      - .VISIT.PV2
       - MSH
 
   - resourceName: Observation

@@ -171,7 +171,7 @@ abstract class FHIREngine(
                     blobAccess ?: BlobAccess(),
                     azureEventService ?: AzureEventServiceImpl(),
                     reportService ?: ReportService(),
-                    ReportStreamEventService(
+                    reportEventService ?: ReportStreamEventService(
                         databaseAccess ?: databaseAccessSingleton,
                         azureEventService ?: AzureEventServiceImpl(),
                         reportService ?: ReportService()
