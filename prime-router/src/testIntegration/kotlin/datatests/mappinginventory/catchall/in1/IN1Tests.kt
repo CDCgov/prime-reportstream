@@ -9,7 +9,7 @@ class IN1Tests {
         assert(
             verifyHL7ToFHIRToHL7Mapping(
                 "catchall/in1/IN1-to-Coverage",
-                outputSchema = "classpath:/metadata/hl7_mapping/OML_O21/OML_O21-base.yml"
+                outputSchema = "classpath:/metadata/hl7_mapping/OML_O21/OML_O21-test.yml"
             ).passed
         )
     }
