@@ -72,7 +72,7 @@ public class NTE extends AbstractSegment {
   private void init(ModelClassFactory factory) {
     try {
       this.add(SI.class, false, 1, 0, new Object[]{getMessage()}, "Set ID - NTE");
-      this.add(ID.class, false, 1, 1, new Object[]{getMessage(), Integer.valueOf(105)}, "Source of Comment");
+      this.add(ID.class, false, 1, 0, new Object[]{getMessage(), Integer.valueOf(105)}, "Source of Comment");
       this.add(FT.class, false, 0, 0, new Object[]{getMessage()}, "Comment");
       this.add(CWE.class, false, 1, 0, new Object[]{getMessage()}, "Comment Type");
       this.add(XCN.class, false, 1, 0, new Object[]{getMessage()}, "Entered By");

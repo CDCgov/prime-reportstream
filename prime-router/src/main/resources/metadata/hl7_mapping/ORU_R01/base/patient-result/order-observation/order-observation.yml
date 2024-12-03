@@ -5,15 +5,29 @@ elements:
   - name: common-order-service-request
     resource: '%resource.basedOn.resolve()'
     schema: classpath:/metadata/hl7_mapping/resources/ServiceRequest/ORC.yml
+    constants:
+      hl7Order: /PATIENT_RESULT(%{patientIndex})/ORDER_OBSERVATION(%{orderIndex})/ORC
 
   - name: common-order-diagnostic-report
     resource: '%resource'
     schema: classpath:/metadata/hl7_mapping/resources/DiagnosticReport/ORC.yml
+    constants:
+      hl7Order: /PATIENT_RESULT(%{patientIndex})/ORDER_OBSERVATION(%{orderIndex})/ORC
 
   - name: observation-request-service-request
     resource: '%resource.basedOn.resolve()'
     schema: classpath:/metadata/hl7_mapping/resources/ServiceRequest/OBR.yml
+    constants:
+      obrFieldPath: '/PATIENT_RESULT(%{patientIndex})/ORDER_OBSERVATION(%{orderIndex})/OBR'
+
+  - name: observation-request-specimen
+    resource: '%resource.specimen.resolve().where(extension(%`rsext-hl7v2Segment`).value = "OBR")'
+    schema: classpath:/metadata/hl7_mapping/resources/Specimen/OBR.yml
+    constants:
+      obrFieldPath: '/PATIENT_RESULT(%{patientIndex})/ORDER_OBSERVATION(%{orderIndex})/OBR'
 
   - name: observation-request-diagnostic-report
     resource: '%resource'
     schema: classpath:/metadata/hl7_mapping/resources/DiagnosticReport/OBR.yml
+    constants:
+      obrFieldPath: '/PATIENT_RESULT(%{patientIndex})/ORDER_OBSERVATION(%{orderIndex})/OBR'
