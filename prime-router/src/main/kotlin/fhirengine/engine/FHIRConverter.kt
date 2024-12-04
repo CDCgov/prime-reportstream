@@ -260,7 +260,7 @@ class FHIRConverter(
             // TODO: https://github.com/CDCgov/prime-reportstream/issues/14287
             FhirPathUtils
 
-            val processedItems = process(format, input.blobURL, input.blobDigest, input.topic, actionLogger)
+            val processedItems = process(format, input, actionLogger)
 
             // processedItems can be empty in three scenarios:
             // - the blob had no contents, i.e. an empty file was submitted
@@ -452,14 +452,12 @@ class FHIRConverter(
      */
     internal fun process(
         format: MimeFormat,
-        blobURL: String,
-        blobDigest: String,
-        topic: Topic,
+        input: FHIRConvertInput,
         actionLogger: ActionLogger,
         routeReportWithInvalidItems: Boolean = true,
     ): List<IProcessedItem<*>> {
-        val validator = topic.validator
-        val rawReport = BlobAccess.downloadBlob(blobURL, blobDigest)
+        val validator = input.topic.validator
+        val rawReport = BlobAccess.downloadBlob(input.blobURL, input.blobDigest)
         return if (rawReport.isBlank()) {
             actionLogger.error(InvalidReportMessage("Provided raw data is empty."))
             emptyList()
@@ -473,7 +471,7 @@ class FHIRConverter(
                                 "format" to format.name
                             )
                         ) {
-                            getBundlesFromRawHL7(rawReport, validator, topic.hl7ParseConfiguration)
+                            getBundlesFromRawHL7(rawReport, validator, input.topic.hl7ParseConfiguration)
                         }
                     } catch (ex: ParseFailureError) {
                         actionLogger.error(
@@ -529,37 +527,45 @@ class FHIRConverter(
                                         }
                                     )
                                 }
-//                            } else {
-//                                // TODO Generate an ITEM_TRANSFORMED Azure Event.
-//                                val bundleDigestExtractor = BundleDigestExtractor(
-//                                    FhirPathBundleDigestLabResultExtractorStrategy(
-//                                        CustomContext(
-//                                            item.bundle!!,
-//                                            item.bundle!!,
-//                                            mutableMapOf(),
-//                                            CustomFhirPathFunctions()
-//                                        )
-//                                    )
-//                                )
-//                                reportEventService.sendItemEvent(
-//                                    eventName = ReportStreamEventName.ITEM_TRANSFORMED,
-//                                    childReport = report,
-//                                    pipelineStepName = TaskAction.convert
-//                                ) {
-//                                    parentReportId(message.reportId)
-//                                    params(
-//                                        mapOf(
-//                                            ReportStreamEventProperties.RECEIVER_NAME to receiver.fullName,
-//                                            ReportStreamEventProperties.BUNDLE_DIGEST
-//                                                to bundleDigestExtractor.generateDigest(item.bundle!!),
-//                                            ReportStreamEventProperties.ORIGINAL_FORMAT to format.name,
-//                                            ReportStreamEventProperties.TARGET_FORMAT to MimeFormat.FHIR.name,
-//                                            ReportStreamEventProperties.ENRICHMENTS to
-//                                                listOf(receiver.translation.schemaName)
-//                                        )
-//                                    )
-//                                    trackingId(item.bundle!!)
-//                                }
+                            } else {
+                                // TODO Generate an ITEM_TRANSFORMED Azure Event.
+                                val bundleDigestExtractor = BundleDigestExtractor(
+                                    FhirPathBundleDigestLabResultExtractorStrategy(
+                                        CustomContext(
+                                            item.bundle!!,
+                                            item.bundle!!,
+                                            mutableMapOf(),
+                                            CustomFhirPathFunctions()
+                                        )
+                                    )
+                                )
+                                val report = Report(
+                                    MimeFormat.FHIR,
+                                    emptyList(),
+                                    parentItemLineageData = listOf(
+                                        Report.ParentItemLineageData(input.reportId, item.index.toInt() + 1)
+                                    ),
+                                    metadata = this.metadata,
+                                    topic = input.topic,
+                                    nextAction = TaskAction.none
+                                )
+                                reportEventService.sendItemEvent(
+                                    eventName = ReportStreamEventName.ITEM_TRANSFORMED,
+                                    childReport = report,
+                                    pipelineStepName = TaskAction.convert
+                                ) {
+                                    parentReportId(input.reportId)
+                                    params(
+                                        mapOf(
+                                            ReportStreamEventProperties.BUNDLE_DIGEST
+                                                to bundleDigestExtractor.generateDigest(item.bundle!!),
+                                            ReportStreamEventProperties.ORIGINAL_FORMAT to format.name,
+                                            ReportStreamEventProperties.TARGET_FORMAT to MimeFormat.FHIR.name,
+                                            ReportStreamEventProperties.ENRICHMENTS to listOf(input.schemaName)
+                                        )
+                                    )
+                                    trackingId(item.bundle!!)
+                                }
                             }
                         }
                     }
