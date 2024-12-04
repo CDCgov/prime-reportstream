@@ -68,13 +68,6 @@ runs:
       with:
         creds: ${{ inputs.sp-creds }}
 
-    - name: Azure CLI - Show Account
-      uses: azure/cli@v2
-      with:
-        azcliversion: latest
-        inlineScript: |
-          az account show
-
     - name: Terraform Auth
       if: inputs.tf-auth == 'true' && inputs.sp-creds
       env:

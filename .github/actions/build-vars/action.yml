@@ -239,13 +239,6 @@ runs:
       with:
         creds: ${{ inputs.sp-creds }}
 
-    - name: Azure CLI - Show Account
-      uses: azure/cli@v2
-      with:
-        azcliversion: latest
-        inlineScript: |
-          az account show
-
     - name: Fetch VPN DNS IP
       if: inputs.sp-creds != 'false'
       id: fetch_vpn_ip
