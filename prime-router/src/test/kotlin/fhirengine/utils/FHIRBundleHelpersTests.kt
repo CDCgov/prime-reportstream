@@ -254,12 +254,16 @@ class FHIRBundleHelpersTests {
         fhirBundle.type = Bundle.BundleType.MESSAGE
         val entry = Bundle.BundleEntryComponent()
         val messageHeader = MessageHeader()
-        val event = Coding()
+        var event = Coding()
         event.code = "R01"
         messageHeader.event = event
         entry.resource = messageHeader
         fhirBundle.entry.add(0, entry)
         assertThat(fhirBundle.isElr()).isTrue()
+        event.code = "ORU_R01"
+        assertThat(fhirBundle.isElr()).isTrue()
+        event.code = "R21"
+        assertThat(fhirBundle.isElr()).isFalse()
     }
 
     @Test

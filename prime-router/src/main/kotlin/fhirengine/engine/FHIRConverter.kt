@@ -528,7 +528,7 @@ class FHIRConverter(
                                     )
                                 }
                             } else {
-                                // TODO Generate an ITEM_TRANSFORMED Azure Event.
+                                // Generate an ITEM_TRANSFORMED Azure Event.
                                 val bundleDigestExtractor = BundleDigestExtractor(
                                     FhirPathBundleDigestLabResultExtractorStrategy(
                                         CustomContext(

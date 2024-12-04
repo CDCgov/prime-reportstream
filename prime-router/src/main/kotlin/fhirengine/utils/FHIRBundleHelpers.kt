@@ -120,7 +120,7 @@ fun Bundle.addProvenanceReference() {
 /**
  * Return true if Bundle contains an ELR in the MessageHeader.
  *
- * @return true if the MesssageHeader contains an R01, otherwise false.
+ * @return true if has a MesssageHeader that contains an R01 or ORU_R01, otherwise false.
  */
 fun Bundle.isElr(): Boolean {
     var isElr = false
@@ -129,7 +129,7 @@ fun Bundle.isElr(): Boolean {
         val resource = this.entry[0].resource
         if (resource is MessageHeader) {
             val event = resource.event
-            if (event is Coding && event.code == "R01") {
+            if (event is Coding && ((event.code == "R01") || (event.code == "ORU_R01"))) {
                 isElr = true
             }
         }
