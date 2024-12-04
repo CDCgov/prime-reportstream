@@ -432,5 +432,53 @@ class HL7Reader(private val actionLogger: ActionLogger) : Logging {
                 else -> null
             }
         }
+
+        /**
+         * Reads MSH.3 which is the Sending Application field
+         */
+        fun getSendingApplication(message: Message): String? {
+            return when (val structure = message[MSH_SEGMENT_NAME]) {
+                is NIST_MSH -> structure.msh3_SendingApplication.encode()
+                is v27_MSH -> structure.msh3_SendingApplication.encode()
+                is v251_MSH -> structure.msh3_SendingApplication.encode()
+                else -> null
+            }
+        }
+
+        /**
+         * Reads MSH.4 which is the Sending Facility field
+         */
+        fun getSendingFacility(message: Message): String? {
+            return when (val structure = message[MSH_SEGMENT_NAME]) {
+                is NIST_MSH -> structure.msh4_SendingFacility.encode()
+                is v27_MSH -> structure.msh4_SendingFacility.encode()
+                is v251_MSH -> structure.msh4_SendingFacility.encode()
+                else -> null
+            }
+        }
+
+        /**
+         * Reads MSH.10 which is the Message Control ID field
+         */
+        fun getMessageControlId(message: Message): String? {
+            return when (val structure = message[MSH_SEGMENT_NAME]) {
+                is NIST_MSH -> structure.msh10_MessageControlID.encode()
+                is v27_MSH -> structure.msh10_MessageControlID.encode()
+                is v251_MSH -> structure.msh10_MessageControlID.encode()
+                else -> null
+            }
+        }
+
+        /**
+         * Reads MSH.15 which is the Accept Acknowledgment Type field
+         */
+        fun getAcceptAcknowledgmentType(message: Message): String? {
+            return when (val structure = message[MSH_SEGMENT_NAME]) {
+                is NIST_MSH -> structure.msh15_AcceptAcknowledgmentType.encode()
+                is v27_MSH -> structure.msh15_AcceptAcknowledgmentType.encode()
+                is v251_MSH -> structure.msh15_AcceptAcknowledgmentType.encode()
+                else -> null
+            }
+        }
     }
 }
