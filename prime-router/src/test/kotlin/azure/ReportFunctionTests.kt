@@ -39,7 +39,9 @@ import gov.cdc.prime.router.UniversalPipelineReceiver
 import gov.cdc.prime.router.UniversalPipelineSender
 import gov.cdc.prime.router.azure.BlobAccess.BlobContainerMetadata
 import gov.cdc.prime.router.azure.db.enums.TaskAction
+import gov.cdc.prime.router.azure.db.tables.pojos.Action
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
+import gov.cdc.prime.router.azure.observability.event.ReportStreamEventService
 import gov.cdc.prime.router.cli.GetMultipleSettings
 import gov.cdc.prime.router.cli.PIIRemovalCommands
 import gov.cdc.prime.router.cli.ProcessFhirCommands
@@ -50,8 +52,10 @@ import gov.cdc.prime.router.tokens.AuthenticatedClaims
 import gov.cdc.prime.router.tokens.AuthenticationType
 import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.ktor.utils.io.core.toByteArray
+import io.mockk.Runs
 import io.mockk.clearAllMocks
 import io.mockk.every
+import io.mockk.just
 import io.mockk.mockk
 import io.mockk.mockkClass
 import io.mockk.mockkConstructor
@@ -1163,7 +1167,8 @@ class ReportFunctionTests {
         true,
         Sender.SenderType.facility,
         Sender.PrimarySubmissionMethod.manual,
-        Topic.FULL_ELR
+        false,
+        Topic.FULL_ELR,
     )
     val receiver = Receiver(
         "full-elr",
@@ -1200,5 +1205,80 @@ class ReportFunctionTests {
             false
         )
         assert(receiverReturned!!.name == receiver.name)
+    }
+
+    @Test
+    fun `return ack if requested and enabled`() {
+        val mockEngine = mockk<WorkflowEngine>()
+        val mockActionHistory = mockk<ActionHistory>(relaxed = true)
+        val mockReportStreamEventService = mockk<ReportStreamEventService>(relaxed = true)
+        val mockSettings = mockk<SettingsProvider>()
+        val mockReceiver = mockk<UniversalPipelineReceiver>()
+        val mockAction = mockk<Action>()
+        val mockDb = mockk<DatabaseAccess>()
+        mockkObject(BlobAccess.Companion)
+        mockkObject(SubmissionReceiver.Companion)
+
+        val sender = UniversalPipelineSender(
+            name = "Test Sender",
+            organizationName = "org",
+            format = MimeFormat.HL7,
+            hl7AcknowledgementEnabled = true,
+            topic = Topic.FULL_ELR,
+        )
+        val report = Report(
+            Schema(name = "one", topic = Topic.TEST, elements = listOf(Element("a"), Element("b"))), listOf(),
+            sources = listOf(ClientSource("myOrg", "myClient")),
+            metadata = UnitTestUtils.simpleMetadata
+        )
+        val submission = DetailedSubmissionHistory(
+            1,
+            TaskAction.receive,
+            OffsetDateTime.now(),
+            reports = mutableListOf(),
+            logs = emptyList()
+        )
+
+        every { mockEngine.settings } returns mockSettings
+        every { mockSettings.findSender(any()) } returns sender
+        every { BlobAccess.Companion.getBlobConnection(any()) } returns "testconnection"
+        every { SubmissionReceiver.getSubmissionReceiver(any(), any(), any()) } returns mockReceiver
+        every {
+            mockReceiver.validateAndMoveToProcessing(
+                any(), any(), any(), any(), any(), any(), any(), any(), any()
+            )
+        } returns report
+        every { mockEngine.recordAction(any()) } just Runs
+        every { mockActionHistory.action } returns mockAction
+        every { mockAction.actionId } returns 5
+        every { mockEngine.db } returns mockDb
+        // I don't agree with ktlint on this one
+        every {
+            mockDb.transactReturning(
+                any<
+                        (
+                    DataAccessTransaction,
+                ) -> DetailedSubmissionHistory?
+                    >()
+            )
+        } returns submission
+
+        val reportFunction = ReportFunction(mockEngine, mockActionHistory, mockReportStreamEventService)
+
+        val body = """
+            MSH|^~\&|Epic|Hospital|LIMS|StatePHL|20241003000000||ORM^O01^ORM_O01|4AFA57FE-D41D-4631-9500-286AAAF797E4|T|2.5.1|||AL|NE
+        """.trimIndent()
+
+        val req = MockHttpRequestMessage(body)
+        req.httpHeaders += mapOf(
+            "client" to "Test Sender",
+            "content-length" to body.length.toString(),
+            "content-type" to "application/hl7-v2"
+        )
+
+        val response = reportFunction.run(req)
+
+        assertThat(response.status).isEqualTo(HttpStatus.CREATED)
+        assertThat(response.getHeader(HttpHeaders.CONTENT_TYPE)).isEqualTo(HttpUtilities.hl7V2MediaType)
     }
 }
