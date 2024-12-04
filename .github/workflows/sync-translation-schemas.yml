@@ -24,7 +24,7 @@ jobs:
       - name: Login into Azure
         uses: ./.github/actions/vpn-azure
         with:
-          sp-creds: ${AZURE_CREDENTIALS}
+          sp-creds: ${{ env.AZURE_CREDENTIALS }}
 
       - name: Build backend
         uses: ./.github/actions/build-backend

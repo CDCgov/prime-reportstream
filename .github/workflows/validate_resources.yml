@@ -60,7 +60,7 @@ jobs:
           ca-cert: ${{ secrets.CA_CRT}}
           user-crt: ${{ secrets.USER_CRT }}
           user-key: ${{ secrets.USER_KEY }}
-          sp-creds: ${AZURE_CREDENTIALS}
+          sp-creds: ${{ env.AZURE_CREDENTIALS }}
 
       - name: Restart DNS if failure
         uses: ./.github/actions/retry
@@ -108,7 +108,7 @@ jobs:
 
       - uses: azure/login@v2
         with:
-          creds: ${AZURE_CREDENTIALS}
+          creds: ${{ env.AZURE_CREDENTIALS }}
 
       - name: Reduce database replica sizes
         uses: ./.github/actions/retry
@@ -141,7 +141,7 @@ jobs:
 
       - uses: azure/login@v2
         with:
-          creds: ${AZURE_CREDENTIALS}
+          creds: ${{ env.AZURE_CREDENTIALS }}
 
       - name: Fetch VPN DNS IP
         id: fetch_vpn_ip

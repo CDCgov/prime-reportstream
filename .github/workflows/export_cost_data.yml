@@ -31,7 +31,7 @@ jobs:
         uses: ./.github/actions/vpn-azure
         with:
           env-name: ${{ matrix.env }}
-          sp-creds: ${AZURE_CREDENTIALS}
+          sp-creds: ${{ env.AZURE_CREDENTIALS }}
           tf-auth: false
       - name: Run Az Cost CLI
         id: az-cost

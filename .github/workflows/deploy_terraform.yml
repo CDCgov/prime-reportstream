@@ -51,7 +51,7 @@ jobs:
           ca-cert: ${{ secrets.CA_CRT}}
           user-crt: ${{ secrets.USER_CRT }}
           user-key: ${{ secrets.USER_KEY }}
-          sp-creds: ${AZURE_CREDENTIALS}
+          sp-creds: ${{ env.AZURE_CREDENTIALS }}
           tf-auth: true
       - name: Collect Terraform stats
 
@@ -104,7 +104,7 @@ jobs:
           ca-cert: ${{ secrets.CA_CRT}}
           user-crt: ${{ secrets.USER_CRT }}
           user-key: ${{ secrets.USER_KEY }}
-          sp-creds: ${AZURE_CREDENTIALS}
+          sp-creds: ${{ env.AZURE_CREDENTIALS }}
           tf-auth: true
       - name: Use specific version of Terraform
         uses: hashicorp/setup-terraform@b9cd54a3c349d3f38e8881555d616ced269862dd

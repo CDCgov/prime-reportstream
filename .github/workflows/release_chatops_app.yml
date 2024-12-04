@@ -45,7 +45,7 @@ jobs:
 
       - uses: azure/login@v2
         with:
-          creds: ${AZURE_CREDENTIALS}
+          creds: ${{ env.AZURE_CREDENTIALS }}
 
       - name: Set environment variables
         shell: bash

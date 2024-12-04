@@ -40,7 +40,7 @@ jobs:
         uses: ./.github/actions/vpn-azure
         with:
           env-name: ${{ github.event.inputs.env_name }}
-          sp-creds: ${AZURE_CREDENTIALS}
+          sp-creds: ${{ env.AZURE_CREDENTIALS }}
           tf-auth: true
 
       - name: Destroy demo environment

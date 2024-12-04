@@ -65,7 +65,7 @@ jobs:
           version: ${{ github.run_id }}
           upload-build: false
           run-integration-tests: true
-          sp-creds: ${AZURE_CREDENTIALS}
+          sp-creds: ${{ env.AZURE_CREDENTIALS }}
 
       - name: Generate New Schema Docs
         working-directory: ./

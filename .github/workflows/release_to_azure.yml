@@ -36,7 +36,7 @@ jobs:
         id: build_vars
         uses: ./.github/actions/build-vars
         with:
-          sp-creds: ${AZURE_CREDENTIALS}
+          sp-creds: ${{ env.AZURE_CREDENTIALS }}
 
   build_router_release:
     name: "Release: Build Router"
@@ -105,7 +105,7 @@ jobs:
         uses: ./.github/actions/vpn-azure
         with:
           env-name: ${{ needs.pre_job.outputs.env_name }}
-          sp-creds: ${AZURE_CREDENTIALS}
+          sp-creds: ${{ env.AZURE_CREDENTIALS }}
           tf-auth: true
 
       - name: Provision demo environment
@@ -141,7 +141,7 @@ jobs:
         uses: ./.github/actions/vpn-azure
         with:
           env-name: ${{ needs.pre_job.outputs.env_name }}
-          sp-creds: ${AZURE_CREDENTIALS}
+          sp-creds: ${{ env.AZURE_CREDENTIALS }}
 
       - name: Get function app checksum
         env:
@@ -197,7 +197,7 @@ jobs:
           ca-cert: ${{ secrets.CA_CRT}}
           user-crt: ${{ secrets.USER_CRT }}
           user-key: ${{ secrets.USER_KEY }}
-          sp-creds: ${AZURE_CREDENTIALS}
+          sp-creds: ${{ env.AZURE_CREDENTIALS }}
           dns-ip: ${{ needs.pre_job.outputs.dns_ip }}
 
       - name: Deploy backend
@@ -236,7 +236,7 @@ jobs:
           ca-cert: ${{ secrets.CA_CRT}}
           user-crt: ${{ secrets.USER_CRT }}
           user-key: ${{ secrets.USER_KEY }}
-          sp-creds: ${AZURE_CREDENTIALS}
+          sp-creds: ${{ env.AZURE_CREDENTIALS }}
           dns-ip: ${{ needs.pre_job.outputs.dns_ip }}
 
       - name: Deploy frontend
