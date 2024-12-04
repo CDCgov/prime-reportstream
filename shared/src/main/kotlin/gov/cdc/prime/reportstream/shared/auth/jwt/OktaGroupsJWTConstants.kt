@@ -7,5 +7,4 @@ object OktaGroupsJWTConstants {
 
     // Non-application users have okta groups automatically injected into this claim
     const val OKTA_GROUPS_JWT_GROUP_CLAIM = "groups"
-
 }

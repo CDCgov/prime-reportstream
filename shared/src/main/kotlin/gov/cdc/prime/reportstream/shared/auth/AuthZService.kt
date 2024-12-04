@@ -7,7 +7,7 @@ import gov.cdc.prime.reportstream.shared.auth.jwt.OktaGroupsJWTReader
  * Shared authorization service to allow routes to check if an incoming request should be allowed access
  */
 class AuthZService(
-    private val oktaGroupsJWTReader: OktaGroupsJWTReader
+    private val oktaGroupsJWTReader: OktaGroupsJWTReader,
 ) {
 
     private val adminGroup = "DHPrimeAdmins"
@@ -24,8 +24,6 @@ class AuthZService(
             val oktaGroupsJWT = oktaGroupsJWTReader.read(oktaGroupsHeader)
             isSenderAuthorized(clientId, oktaGroupsJWT.groups)
         } ?: false
-
-
     }
 
     /**
@@ -63,6 +61,4 @@ class AuthZService(
             false
         }
     }
-
-
 }

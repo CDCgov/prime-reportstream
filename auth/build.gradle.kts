@@ -1,7 +1,7 @@
 apply(from = rootProject.file("buildSrc/shared.gradle.kts"))
 
 plugins {
-    id("org.springframework.boot") version "3.3.4" // 3.3.5 has breaking bug for appending headers https://github.com/spring-projects/spring-framework/issues/33789
+    id("org.springframework.boot") version "3.4.0"
     id("io.spring.dependency-management") version "1.1.6"
     id("reportstream.project-conventions")
     kotlin("plugin.spring") version "2.0.21"
@@ -36,11 +36,6 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.security:spring-security-test")
     testImplementation("org.springframework.cloud:spring-cloud-starter-contract-stub-runner")
-    testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
-    testImplementation("org.mockito.kotlin:mockito-kotlin:5.4.0")
-    testImplementation("com.squareup.okhttp3:mockwebserver:4.12.0")
-
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 
     compileOnly("org.springframework.boot:spring-boot-devtools")
 }
@@ -54,7 +49,7 @@ configurations.all {
 dependencyManagement {
     imports {
         mavenBom("com.azure.spring:spring-cloud-azure-dependencies:5.18.0")
-        mavenBom("org.springframework.cloud:spring-cloud-dependencies:2023.0.3")
+        mavenBom("org.springframework.cloud:spring-cloud-dependencies:2024.0.0")
     }
 }
 

@@ -2,7 +2,6 @@ package gov.cdc.prime.reportstream.auth.service
 
 import gov.cdc.prime.reportstream.auth.client.OktaGroupsClient
 import gov.cdc.prime.reportstream.shared.auth.jwt.OktaGroupsJWT
-import org.apache.logging.log4j.kotlin.Logging
 import org.springframework.stereotype.Service
 
 @Service

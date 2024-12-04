@@ -22,14 +22,12 @@ import kotlin.test.assertEquals
 
 class OktaGroupsJWTReaderTest {
 
-
     inner class Fixture {
         val clock = Clock.fixed(Instant.now(), ZoneId.of("UTC"))
         val keyPair = generateRSAKeyPair()
         val privateKey = keyPair.first
         val publicKey = keyPair.second
         val service = OktaGroupsJWTReader(publicKey)
-
 
         fun generateRSAKeyPair(): Pair<RSAKey, RSAKey> {
             val keyGen = KeyPairGenerator.getInstance("RSA")
@@ -111,6 +109,4 @@ class OktaGroupsJWTReaderTest {
             f.service.read(jwt)
         }
     }
-
-
 }

@@ -38,5 +38,4 @@ class OktaGroupsJWTReader(
             throw BadJWTException("Invalid signature")
         }
     }
-
 }

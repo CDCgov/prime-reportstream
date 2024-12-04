@@ -1,6 +1,8 @@
 spring:
   application:
     name: "auth"
+  profiles:
+    active: "local"
   security:
     oauth2:
       resourceserver:

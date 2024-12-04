@@ -1,8 +1,6 @@
 package gov.cdc.prime.reportstream.auth.util
 
-import com.nimbusds.jose.jwk.JWK
 import com.nimbusds.jose.jwk.RSAKey
-import gov.cdc.prime.reportstream.shared.StringUtilities.base64Decode
 import gov.cdc.prime.reportstream.shared.StringUtilities.base64Encode
 import java.security.KeyPairGenerator
 import java.security.interfaces.RSAPrivateKey

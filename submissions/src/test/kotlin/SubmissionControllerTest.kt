@@ -13,7 +13,6 @@ import gov.cdc.prime.reportstream.shared.QueueMessage.ObjectMapperProvider
 import gov.cdc.prime.reportstream.shared.auth.AuthZService
 import gov.cdc.prime.reportstream.submissions.TelemetryService
 import gov.cdc.prime.reportstream.submissions.config.AllowedParametersConfig
-import gov.cdc.prime.reportstream.submissions.config.AzureConfig
 import gov.cdc.prime.reportstream.submissions.config.SecurityConfig
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -33,7 +32,8 @@ import org.mockito.MockitoAnnotations
 import org.mockito.kotlin.argumentCaptor
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
-import org.springframework.boot.test.mock.mockito.MockBean
+import org.springframework.boot.test.context.TestConfiguration
+import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Import
 import org.springframework.http.MediaType
 import org.springframework.security.core.authority.SimpleGrantedAuthority
@@ -47,26 +47,54 @@ import java.util.Base64
 import java.util.UUID
 
 @WebMvcTest(SubmissionController::class)
-@Import(AzureConfig::class, SecurityConfig::class, AllowedParametersConfig::class)
+@Import(SecurityConfig::class, AllowedParametersConfig::class)
 class SubmissionControllerTest {
 
     @Autowired
     private lateinit var mockMvc: MockMvc
 
-    @MockBean
+    @Autowired
     private lateinit var blobContainerClient: BlobContainerClient
 
-    @MockBean
+    @Autowired
     private lateinit var queueClient: QueueClient
 
-    @MockBean
+    @Autowired
     private lateinit var tableClient: TableClient
 
-    @MockBean
+    @Autowired
     private lateinit var telemetryService: TelemetryService
 
-    @MockBean
+    @Autowired
     private lateinit var authZService: AuthZService
+
+    @TestConfiguration
+    class Config {
+        @Bean
+        fun blobContainerClient(): BlobContainerClient {
+            return mock()
+        }
+
+        @Bean
+        fun queueClient(): QueueClient {
+            return mock()
+        }
+
+        @Bean
+        fun tableClient(): TableClient {
+            return mock()
+        }
+
+        @Bean
+        fun telemetryService(): TelemetryService {
+            return mock()
+        }
+
+        @Bean
+        fun authZService(): AuthZService {
+            return mock()
+        }
+    }
 
     private lateinit var objectMapper: ObjectMapper
 

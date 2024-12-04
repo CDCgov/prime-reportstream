@@ -4,6 +4,7 @@ import com.github.tomakehurst.wiremock.client.WireMock.aResponse
 import com.github.tomakehurst.wiremock.client.WireMock.get
 import com.github.tomakehurst.wiremock.client.WireMock.stubFor
 import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
+import gov.cdc.prime.reportstream.auth.config.TestOktaClientConfig
 import gov.cdc.prime.reportstream.auth.service.OktaGroupsService
 import io.mockk.coEvery
 import io.mockk.mockk
@@ -19,6 +20,7 @@ import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock
 import org.springframework.cloud.gateway.route.RouteLocator
 import org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder
 import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Import
 import org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers.mockOpaqueToken
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.web.reactive.server.WebTestClient
@@ -33,6 +35,7 @@ import org.springframework.test.web.reactive.server.WebTestClient
 @AutoConfigureWebTestClient
 @SpringBootTest
 @AutoConfigureWireMock(port = 0)
+@Import(TestOktaClientConfig::class)
 class AppendOktaGroupsGatewayFilterFactoryTest @Autowired constructor(
     private val client: WebTestClient,
     private val oktaGroupsService: OktaGroupsService,
@@ -43,7 +46,6 @@ class AppendOktaGroupsGatewayFilterFactoryTest @Autowired constructor(
         @Value("\${wiremock.server.port}") val port: Int,
     ) {
 
-        // we have to set this up this way rather than using @TestMock because of kotlin coroutine support
         @Bean
         fun oktaGroupsService(): OktaGroupsService {
             return mockk()

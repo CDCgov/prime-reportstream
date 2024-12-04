@@ -1,6 +1,8 @@
 spring:
   application:
     name: "auth"
+  profiles:
+    active: "test"
   security:
     oauth2:
       resourceserver:
@@ -17,8 +19,6 @@ spring:
             - Path=/get
           filters:
             - AppendOktaGroups
-  main:
-    lazy-initialization: true
 server.port: 9000
 
 app:
