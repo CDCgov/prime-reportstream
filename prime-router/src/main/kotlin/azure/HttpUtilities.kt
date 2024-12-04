@@ -24,6 +24,7 @@ class HttpUtilities {
     companion object : Logging {
         const val jsonMediaType = "application/json"
         const val fhirMediaType = "application/fhir+json"
+        const val hl7V2MediaType = "application/hl7-v2"
         const val oldApi = "/api/reports"
         const val watersApi = "/api/waters"
         const val tokenApi = "/api/token"
@@ -433,6 +434,14 @@ class HttpUtilities {
                 }
                 return responseCode to response
             }
+        }
+
+        /**
+         * Is status code 2xx?
+         */
+        fun HttpStatus.isSuccessful(): Boolean {
+            val status = this.value()
+            return status in 200..299
         }
     }
 }
