@@ -1,7 +1,7 @@
 apply(from = rootProject.file("buildSrc/shared.gradle.kts"))
 
 plugins {
-    id("org.springframework.boot") version "3.3.5"
+    id("org.springframework.boot") version "3.4.0"
     id("io.spring.dependency-management") version "1.1.6"
     id("reportstream.project-conventions")
     kotlin("plugin.spring") version "2.0.21"
@@ -26,16 +26,16 @@ dependencies {
 
     runtimeOnly("com.nimbusds:oauth2-oidc-sdk:11.20.1")
 
+    // okta
+    implementation("com.okta.sdk:okta-sdk-api:20.0.0")
+    runtimeOnly("com.okta.sdk:okta-sdk-impl:20.0.0")
+
     // Swagger
     implementation("org.springdoc:springdoc-openapi-starter-webflux-ui:2.6.0")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.security:spring-security-test")
-    testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
-    testImplementation("org.mockito.kotlin:mockito-kotlin:5.4.0")
-    testImplementation("com.squareup.okhttp3:mockwebserver:4.12.0")
-
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    testImplementation("org.springframework.cloud:spring-cloud-starter-contract-stub-runner")
 
     compileOnly("org.springframework.boot:spring-boot-devtools")
 }
@@ -49,7 +49,7 @@ configurations.all {
 dependencyManagement {
     imports {
         mavenBom("com.azure.spring:spring-cloud-azure-dependencies:5.18.0")
-        mavenBom("org.springframework.cloud:spring-cloud-dependencies:2023.0.3")
+        mavenBom("org.springframework.cloud:spring-cloud-dependencies:2024.0.0")
     }
 }
 

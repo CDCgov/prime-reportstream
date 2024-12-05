@@ -21,6 +21,7 @@ class SecurityConfig {
             .authorizeHttpRequests { authorize ->
                 authorize
                     // TODO: add routes which require authentication here when required
+                    .requestMatchers("/api/v1/reports").authenticated()
                     .anyRequest().permitAll() // currently allow all requests unauthenticated
             }
             .oauth2ResourceServer {
