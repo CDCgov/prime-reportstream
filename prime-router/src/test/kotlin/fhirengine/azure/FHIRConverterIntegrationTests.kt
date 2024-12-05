@@ -798,7 +798,7 @@ class FHIRConverterIntegrationTests {
             )
 
             assertThat(azureEventService.reportStreamEvents[ReportStreamEventName.ITEM_ACCEPTED]!!).hasSize(2)
-            val event = azureEventService
+            var event = azureEventService
                 .reportStreamEvents[ReportStreamEventName.ITEM_ACCEPTED]!!.last() as ReportStreamItemEvent
             assertThat(event.reportEventData).isEqualToIgnoringGivenProperties(
                 ReportEventData(
@@ -839,6 +839,15 @@ class FHIRConverterIntegrationTests {
                     )
                 )
             )
+            assertThat(azureEventService.reportStreamEvents[ReportStreamEventName.ITEM_TRANSFORMED]!!).hasSize(1)
+            event = azureEventService
+                .reportStreamEvents[ReportStreamEventName.ITEM_TRANSFORMED]!!.first() as ReportStreamItemEvent
+            assertThat(event.reportEventData.parentReportId).isEqualTo(receiveReport.id)
+            assertThat(event.reportEventData.topic).isEqualTo(Topic.FULL_ELR)
+            assertThat(event.reportEventData.pipelineStepName).isEqualTo(TaskAction.convert)
+            assertThat(event.params).hasSize(4)
+            assertThat(event.params[ReportStreamEventProperties.ORIGINAL_FORMAT]).isEqualTo("FHIR")
+            assertThat(event.params[ReportStreamEventProperties.TARGET_FORMAT]).isEqualTo("FHIR")
         }
     }
 
