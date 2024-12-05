@@ -109,8 +109,8 @@
     ]
   },
   "devDependencies": {
-    "@eslint/compat": "^1.2.2",
-    "@eslint/js": "^9.13.0",
+    "@eslint/compat": "^1.2.4",
+    "@eslint/js": "^9.16.0",
     "@mdx-js/react": "^3.1.0",
     "@mdx-js/rollup": "^3.1.0",
     "@playwright/test": "^1.49.0",
@@ -154,7 +154,7 @@
     "chromatic": "^11.20.0",
     "cross-env": "^7.0.3",
     "dotenv-flow": "^4.1.0",
-    "eslint": "9.13.0",
+    "eslint": "9.16.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-import-resolver-typescript": "^3.6.3",
     "eslint-plugin-import": "^2.31.0",
@@ -178,7 +178,7 @@
     "otpauth": "^9.3.5",
     "patch-package": "^8.0.0",
     "postcss": "^8.4.49",
-    "prettier": "^3.3.3",
+    "prettier": "^3.4.2",
     "react-error-boundary": "^4.1.2",
     "remark-frontmatter": "^5.0.0",
     "remark-mdx-frontmatter": "^5.0.0",
