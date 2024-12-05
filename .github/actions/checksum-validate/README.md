@@ -19,13 +19,13 @@ jobs:
       - uses: actions/checkout@v4.1.1
 
       - name: Generate checksum of string
-        uses: JosiahSiegel/checksum-validate-action@v1
+        uses: ./.github/actions/checksum-validate@ebdf8c12c00912d18de93c483b935d51582f9236
         with:
           key: test string
           input: hello world
 
       - name: Generate checksum of command output
-        uses: JosiahSiegel/checksum-validate-action@v1
+        uses: ./.github/actions/checksum-validate@ebdf8c12c00912d18de93c483b935d51582f9236
         with:
           key: test command
           input: $(cat action.yml)
@@ -40,7 +40,7 @@ jobs:
 
       - name: Validate checksum of valid string
         id: valid-string
-        uses: JosiahSiegel/checksum-validate-action@v1
+        uses: ./.github/actions/checksum-validate@ebdf8c12c00912d18de93c483b935d51582f9236
         with:
           key: test string
           validate: true
@@ -49,7 +49,7 @@ jobs:
 
       - name: Validate checksum of valid command output
         id: valid-command
-        uses: JosiahSiegel/checksum-validate-action@v1
+        uses: ./.github/actions/checksum-validate@ebdf8c12c00912d18de93c483b935d51582f9236
         with:
           key: test command
           validate: true
