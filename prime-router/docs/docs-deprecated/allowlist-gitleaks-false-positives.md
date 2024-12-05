@@ -17,7 +17,7 @@ Gitleaks is configured through a [TOML](https://en.wikipedia.org/wiki/Toml) file
 It is important to understand how the different Gitleaks runs pick up the configuration that applies to each type of run:
 
 * **pre-commit hook**: uses the _configuration file from your branch_, only scans those files that are listed as staged
-* **scheduled/nightly run**: uses the _configuration file as present in the "`master`" branch_ and the rules contained in that version of the file will apply on _all_ commits that it scans in its run. This run spans _all_ commits, in _all_ branches, matching the provided (date-based) filter. In other words: your branch "`foo`" that you pushed up last night, will be scanned by the nightly run using the rules defined in the "`master`" branch! **You may have suppressed some false positives in the version of the configuration file in _your_ branch, but unless these are merged into master, they will be ignored by the scheduled run and you will still see failures.**
+* **scheduled/nightly run**: uses the _configuration file as present in the "`main`" branch_ and the rules contained in that version of the file will apply on _all_ commits that it scans in its run. This run spans _all_ commits, in _all_ branches, matching the provided (date-based) filter. In other words: your branch "`foo`" that you pushed up last night, will be scanned by the nightly run using the rules defined in the "`main`" branch! **You may have suppressed some false positives in the version of the configuration file in _your_ branch, but unless these are merged into main, they will be ignored by the scheduled run and you will still see failures.**
 
 Now that we understand how the Nightly Run picks up its configuration information, we can appreciate why there is a distinct process associated with adding suppressions to prevent unnecessary flagging of genuine False Positives by the nightly run.
 
@@ -26,7 +26,7 @@ Now that we understand how the Nightly Run picks up its configuration informatio
 The process for adding a suppression is the same, regardless of whether or not this is for work in progress, or work that's already been pushed up (regardless of its branch).
 
 * Code containing Gitleaks violations is committed in branch "`culprit`", this may or may not already have been pushed up.
-* Check out a new branch off of the "`master`" branch (let's call this one "`gitleaks-culprit`").
+* Check out a new branch off of the "`main`" branch (let's call this one "`gitleaks-culprit`").
 * In "`gitleaks-culprit`", modify the `gitleaks-config.toml` file to have the correct suppressions.
 * Push up the "`gitleaks-culprit`" branch and open a Pull Request, include at least one member of the DevOps team (e.g. @CDCgov/prime-reportstream-devops). The Pull Request _must_ contain an explanation of:
     * What you are suppressing and why it's ok: the specific patterns/values/commits; example:
@@ -35,8 +35,8 @@ The process for adding a suppression is the same, regardless of whether or not t
         * "This commit does not contain any other code except for the addition of test keys, there is nothing else in this commit to be flagged. The suppression disables this particular rule for just this commit. Other rules still apply."
     * Why the suppression will not cause False Negatives; example:
         * "Suppressing the pattern "`it\.key\.contains\(`" in the "Generic Credential" rule set is fine because this value is not a credential, it is a key lookup in an iterator."
-* Get approval for the PR and merge the PR into "`master`" on approval by at least one member of the DevOps team, when the nightly run kicks off, it will now have your suppression(s) applied and not raise a false positive on the changes in your branch.
-* To bring the suppression into your own branch, either `git merge master` into your branch or `git cherrypick` the commit that contains the suppression on to your branch.
+* Get approval for the PR and merge the PR into "`main`" on approval by at least one member of the DevOps team, when the nightly run kicks off, it will now have your suppression(s) applied and not raise a false positive on the changes in your branch.
+* To bring the suppression into your own branch, either `git merge main` into your branch or `git cherrypick` the commit that contains the suppression on to your branch.
 
 # How to Suppress
 

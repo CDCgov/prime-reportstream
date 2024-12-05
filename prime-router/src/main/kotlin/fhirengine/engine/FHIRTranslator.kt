@@ -6,6 +6,7 @@ import ca.uhn.hl7v2.model.Segment
 import ca.uhn.hl7v2.util.Terser
 import fhirengine.engine.CustomFhirPathFunctions
 import fhirengine.engine.CustomTranslationFunctions
+import gov.cdc.prime.reportstream.shared.BlobUtils
 import gov.cdc.prime.reportstream.shared.QueueMessage
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.CustomerStatus
@@ -21,16 +22,21 @@ import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.Event
 import gov.cdc.prime.router.azure.db.Tables
 import gov.cdc.prime.router.azure.db.enums.TaskAction
+import gov.cdc.prime.router.azure.observability.bundleDigest.BundleDigestExtractor
+import gov.cdc.prime.router.azure.observability.bundleDigest.FhirPathBundleDigestLabResultExtractorStrategy
 import gov.cdc.prime.router.azure.observability.context.MDCUtils
 import gov.cdc.prime.router.azure.observability.context.withLoggingContext
 import gov.cdc.prime.router.azure.observability.event.AzureEventService
 import gov.cdc.prime.router.azure.observability.event.AzureEventServiceImpl
 import gov.cdc.prime.router.azure.observability.event.IReportStreamEventService
+import gov.cdc.prime.router.azure.observability.event.ReportStreamEventName
+import gov.cdc.prime.router.azure.observability.event.ReportStreamEventProperties
 import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.fhirengine.config.HL7TranslationConfig
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Context
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Converter
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirTransformer
+import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.HL7Utils.defaultHl7EncodingFiveChars
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.HL7Utils.defaultHl7EncodingFourChars
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
@@ -113,12 +119,13 @@ class FHIRTranslator(
     ): FHIREngineRunResult {
         logger.trace("Preparing to send original message")
         val originalReport = reportService.getRootReport(message.reportId)
-        val bodyBytes = BlobAccess.downloadBlobAsByteArray(originalReport.bodyUrl)
+        val bodyAsString =
+            BlobAccess.downloadBlob(originalReport.bodyUrl, BlobUtils.digestToString(originalReport.blobDigest))
 
         // get a Report from the message
         val (report, event, blobInfo) = Report.generateReportAndUploadBlob(
             Event.EventAction.SEND,
-            bodyBytes,
+            bodyAsString.toByteArray(),
             listOf(message.reportId),
             receiver,
             this.metadata,
@@ -148,10 +155,9 @@ class FHIRTranslator(
         actionHistory: ActionHistory,
     ): FHIREngineRunResult {
         logger.trace("Preparing to send translated message")
-        val bodyBytes =
-            getByteArrayFromBundle(
-                receiver, FhirTranscoder.decode(BlobAccess.downloadBlob(message.blobURL, message.digest))
-            )
+        val originalReport = reportService.getRootReport(message.reportId)
+        val bundle = FhirTranscoder.decode(BlobAccess.downloadBlob(message.blobURL, message.digest))
+        val bodyBytes = getByteArrayFromBundle(receiver, bundle)
 
         val (report, event, blobInfo) = Report.generateReportAndUploadBlob(
             Event.EventAction.BATCH,
@@ -162,6 +168,35 @@ class FHIRTranslator(
             actionHistory,
             topic = message.topic
         )
+
+        val bundleDigestExtractor = BundleDigestExtractor(
+            FhirPathBundleDigestLabResultExtractorStrategy(
+                CustomContext(
+                    bundle,
+                    bundle,
+                    mutableMapOf(),
+                    CustomFhirPathFunctions()
+                )
+            )
+        )
+        reportEventService.sendItemEvent(
+            eventName = ReportStreamEventName.ITEM_TRANSFORMED,
+            childReport = report,
+            pipelineStepName = TaskAction.translate
+        ) {
+            parentReportId(message.reportId)
+            params(
+                mapOf(
+                    ReportStreamEventProperties.RECEIVER_NAME to receiver.fullName,
+                    ReportStreamEventProperties.BUNDLE_DIGEST
+                        to bundleDigestExtractor.generateDigest(bundle),
+                    ReportStreamEventProperties.ORIGINAL_FORMAT to originalReport.bodyFormat,
+                    ReportStreamEventProperties.TARGET_FORMAT to receiver.translation.format.name,
+                    ReportStreamEventProperties.ENRICHMENTS to listOf(receiver.translation.schemaName)
+                )
+            )
+            trackingId(bundle)
+        }
 
         return FHIREngineRunResult(
             event,

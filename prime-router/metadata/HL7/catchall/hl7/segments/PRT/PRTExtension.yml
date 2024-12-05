@@ -1,0 +1,293 @@
+# $schema: ./../../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
+
+url:
+  type: SYSTEM_URL
+  value: prt-extension
+
+extension:
+  generateList: true
+  expressionType: nested
+  expressions:
+    - expressionType: nested
+      vars:
+        prt2: STRING_ALL, PRT.2
+      condition: $prt2 NOT_NULL
+      expressionsMap:
+        url:
+          value: PRT.2
+          type: STRING
+        valueId:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: PRT.2
+    - expressionType: nested
+      vars:
+        prt3: STRING_ALL, PRT.3
+      condition: $prt3 NOT_NULL
+      expressionsMap:
+        url:
+          value: PRT.3
+          type: STRING
+        valueCodeableConcept:
+          valueOf: datatypes/CWE/CodeableConcept
+          specs: PRT.3
+          expressionType: resource
+    - expressionType: nested
+      vars:
+        prt4: STRING_ALL, PRT.4
+      condition: $prt4 NOT_NULL
+      expressionsMap:
+        url:
+          value: PRT.4
+          type: STRING
+        valueCodeableConcept:
+          valueOf: datatypes/CWE/CodeableConcept
+          specs: PRT.4
+          expressionType: resource
+    - expressionType: nested
+      vars:
+        prt5: STRING_ALL, PRT.5
+      condition: $prt5 NOT_NULL
+      specs: PRT.5 *
+      generateList: true
+      expressionsMap:
+        url:
+          type: STRING
+          value: PRT.5
+        valueReference:
+          valueOf: datatypes/XCN/RelatedPerson
+          expressionType: reference
+    - expressionType: nested
+      vars:
+        prt6: STRING_ALL, PRT.6
+      condition: $prt6 NOT_NULL
+      expressionsMap:
+        url:
+          value: PRT.6
+          type: STRING
+        valueCodeableConcept:
+          valueOf: datatypes/CWE/CodeableConcept
+          specs: PRT.6
+          expressionType: resource
+    - expressionType: nested
+      vars:
+        prt7: STRING_ALL, PRT.7
+      condition: $prt7 NOT_NULL
+      expressionsMap:
+        url:
+          value: PRT.7
+          type: STRING
+        valueCodeableConcept:
+          valueOf: datatypes/CWE/CodeableConcept
+          specs: PRT.7
+          expressionType: resource
+    - expressionType: nested
+      vars:
+        prt8: STRING_ALL, PRT.8
+      condition: $prt8 NOT_NULL
+      generateList: true
+      specs: PRT.8 *
+      expressionsMap:
+        url:
+          type: STRING
+          value: PRT.8
+        valueReference:
+          valueOf: datatypes/XON/Organization
+          expressionType: reference
+    - expressionType: nested
+      vars:
+        prt9: STRING_ALL, PRT.9
+      condition: $prt9 NOT_NULL
+      generateList: true
+      specs: PRT.9 *
+      expressionsMap:
+        url:
+          type: STRING
+          value: PRT.9
+        valueReference:
+          valueOf: datatypes/PL/Location
+          expressionType: reference
+    - expressionType: nested
+      vars:
+        prt10: STRING_ALL, PRT.10
+      condition: $prt10 NOT_NULL
+      generateList: true
+      specs: PRT.10 *
+      expressionsMap:
+        url:
+          type: STRING
+          value: PRT.10
+        valueIdentifier:
+          valueOf: datatypes/EI/Device-udiCarrier
+          expressionType: resource
+    - expressionType: nested
+      vars:
+        prt11: STRING, PRT.11
+      condition: $prt11 NOT_NULL
+      expressionsMap:
+        url:
+          value: PRT.11
+          type: STRING
+        valueString:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: PRT.11
+    - expressionType: nested
+      vars:
+        prt12: STRING, PRT.12
+      condition: $prt12 NOT_NULL
+      expressionsMap:
+        url:
+          value: PRT.12
+          type: STRING
+        valueString:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: PRT.12
+    - expressionType: nested
+      vars:
+        prt13: STRING_ALL, PRT.13
+      condition: $prt13 NOT_NULL
+      expressionsMap:
+        url:
+          value: PRT.13
+          type: STRING
+        valueCodeableConcept:
+          valueOf: datatypes/CWE/CodeableConcept
+          specs: PRT.13
+          expressionType: resource
+    - expressionType: nested
+      vars:
+        prt14: STRING_ALL, PRT.14
+      condition: $prt14 NOT_NULL
+      specs: PRT.14 *
+      generateList: true
+      expressionsMap:
+        url:
+          type: STRING
+          value: PRT.14
+        valueAddress:
+          expressionType: resource
+          valueOf: datatypes/XAD/Address
+    - expressionType: nested
+      vars:
+        prt15: STRING_ALL, PRT.15
+      condition: $prt15 NOT_NULL
+      specs: PRT.15 *
+      generateList: true
+      expressionsMap:
+        url:
+          type: STRING
+          value: PRT.15
+        valueAddress:
+          expressionType: resource
+          valueOf: datatypes/XTN/ContactPoint
+    - expressionType: nested
+      vars:
+        prt16: STRING_ALL, PRT.16
+      condition: $prt16 NOT_NULL
+      expressionsMap:
+        url:
+          value: PRT.16
+          type: STRING
+        valueIdentifier:
+          valueOf: datatypes/EI/Device-udiCarrier
+          specs: PRT.16
+          expressionType: resource
+    - expressionType: nested
+      vars:
+        prt17: STRING, PRT.17
+      condition: $prt17 NOT_NULL
+      expressionsMap:
+        url:
+          value: PRT.17
+          type: STRING
+        valueString:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: PRT.17
+    - expressionType: nested
+      vars:
+        prt18: STRING, PRT.18
+      condition: $prt18 NOT_NULL
+      expressionsMap:
+        url:
+          value: PRT.18
+          type: STRING
+        valueString:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: PRT.18
+    - expressionType: nested
+      vars:
+        prt19: STRING, PRT.19
+      condition: $prt19 NOT_NULL
+      expressionsMap:
+        url:
+          value: PRT.19
+          type: STRING
+        valueString:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: PRT.19
+    - expressionType: nested
+      vars:
+        prt20: STRING, PRT.20
+      condition: $prt20 NOT_NULL
+      expressionsMap:
+        url:
+          value: PRT.20
+          type: STRING
+        valueString:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: PRT.20
+    - expressionType: nested
+      vars:
+        prt21: STRING_ALL, PRT.21
+      condition: $prt21 NOT_NULL
+      expressionsMap:
+        url:
+          value: PRT.21
+          type: STRING
+        valueIdentifier:
+          valueOf: datatypes/EI/Identifier
+          specs: PRT.21
+          expressionType: resource
+    - expressionType: nested
+      vars:
+        prt22: STRING_ALL, PRT.22
+      condition: $prt22 NOT_NULL
+      expressionsMap:
+        url:
+          value: PRT.22
+          type: STRING
+        valueCodeableConcept:
+          valueOf: datatypes/CNE/CodeableConcept
+          specs: PRT.22
+          expressionType: resource
+    - expressionType: nested
+      vars:
+        prt23: STRING_ALL, PRT.23
+      condition: $prt23 NOT_NULL
+      expressionsMap:
+        url:
+          value: PRT.23
+          type: STRING
+        valueCodeableConcept:
+          valueOf: datatypes/CWE/CodeableConcept
+          specs: PRT.23
+          expressionType: resource
+    - expressionType: nested
+      vars:
+        prt24: STRING_ALL, PRT.24
+      condition: $prt24 NOT_NULL
+      specs: PRT.24 *
+      generateList: true
+      expressionsMap:
+        url:
+          type: STRING
+          value: PRT.24
+        valueIdentifier:
+          expressionType: resource
+          valueOf: datatypes/PLN/Identifier

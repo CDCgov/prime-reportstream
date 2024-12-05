@@ -6,6 +6,8 @@
 /operations/            @cdcgov/PRIME-ReportStream-DevOps
 /CODEOWNERS             @cdcgov/PRIME-ReportStream-DevOps
 /prime-router/          @cdcgov/PRIME-ReportStream-CODEOWNERS-backend
+/prime-router/src/main/resources/metadata/fhir_transforms/senders/Flexion          @cdcgov/trusted-intermediary
+/prime-router/settings/STLTs/Flexion          @cdcgov/trusted-intermediary
 
 # The CODEOWNERS file takes the last matching line into account. You can make definitions with empty owners to specify paths/files without an owner.
 /prime-router/settings/prod/

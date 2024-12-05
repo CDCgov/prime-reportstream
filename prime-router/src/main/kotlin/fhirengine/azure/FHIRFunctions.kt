@@ -34,6 +34,7 @@ import gov.cdc.prime.router.report.ReportService
 import org.apache.commons.lang3.StringUtils
 import org.apache.logging.log4j.kotlin.Logging
 import org.jooq.exception.DataAccessException
+import java.util.Base64
 
 class FHIRFunctions(
     private val workflowEngine: WorkflowEngine = WorkflowEngine(),
@@ -204,7 +205,7 @@ class FHIRFunctions(
         } catch (ex: SubmissionSenderNotFound) {
             // This is a specific error case that can occur while handling a report via the new Submission service
             // In a situation that the sender is not found there is not enough information to record a report event
-            // and we want a poison queue message to be immediately added so that the configuration can be fixed
+            // so, we want a poison queue message to be immediately added so that the configuration can be fixed
             logger.error(ex)
             val tableEntity = Submission(
                 ex.reportId.toString(),
@@ -213,14 +214,16 @@ class FHIRFunctions(
                 actionLogger.errors.takeIf { it.isNotEmpty() }?.map { it.detail.message }?.toString()
             )
             submissionTableService.insertSubmission(tableEntity)
-            queueAccess.sendMessage("${messageContent.messageQueueName}-poison", message)
+            val encodedMsg = Base64.getEncoder().encodeToString(message.toByteArray())
+            queueAccess.sendMessage("${messageContent.messageQueueName}-poison", encodedMsg)
             return emptyList()
         } catch (ex: Exception) {
             // We're catching anything else that occurs because the most likely cause is a code or configuration error
             // that will not be resolved if the message is automatically retried
             // Instead, the error is recorded as an event and message is manually inserted into the poison queue
             val report = databaseAccess.fetchReportFile(messageContent.reportId)
-            val poisonQueueMessageId = queueAccess.sendMessage("${messageContent.messageQueueName}-poison", message)
+            val encodedMsg = Base64.getEncoder().encodeToString(message.toByteArray())
+            val poisonQueueMessageId = queueAccess.sendMessage("${messageContent.messageQueueName}-poison", encodedMsg)
             fhirEngine.reportEventService.sendReportProcessingError(
                 ReportStreamEventName.PIPELINE_EXCEPTION,
                 report,

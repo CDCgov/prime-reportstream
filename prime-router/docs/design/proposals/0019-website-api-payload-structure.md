@@ -12,7 +12,7 @@ The purpose of this proposal is to align on communication between ReportStream A
     - Resource structures
     - Collection structures
 
-Having a consistent approach to the above would provide some predictability in implementation as we continue to build out the website, and it would help to simplify logic in common UX patterns like search filters and pagination.  (For example, UsePagination.ts contains [visual slot logic](https://github.com/CDCgov/prime-reportstream/blob/master/frontend-react/src/hooks/UsePagination.ts#L26-L84) that could be drastically simplified if there were, say, a `totalCount` included in the response payload.)
+Having a consistent approach to the above would provide some predictability in implementation as we continue to build out the website, and it would help to simplify logic in common UX patterns like search filters and pagination.  (For example, UsePagination.ts contains [visual slot logic](https://github.com/CDCgov/prime-reportstream/blob/main/frontend-react/src/hooks/UsePagination.ts#L26-L84) that could be drastically simplified if there were, say, a `totalCount` included in the response payload.)
 
 **NOTE: This proposal is only intended for the endpoints used by the ReportStream website.**  Although it can be argued that we'd benefit from having a consistent response payload structure across the board, updating our user-facing API signatures may create too much cascading work for our users at the moment.  (However, this could be an item we raise again if we choose to implement API versioning down the line.)
 
