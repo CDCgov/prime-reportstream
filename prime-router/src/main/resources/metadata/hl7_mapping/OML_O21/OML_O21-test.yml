@@ -1,0 +1,8 @@
+# $schema: ./../../../../../../metadata/json_schema/fhir/fhir-to-hl7-mapping.json
+
+hl7Class: ca.uhn.hl7v2.model.v27.message.OML_O21
+
+extends: classpath:/metadata/hl7_mapping/OML_O21/OML_O21-base.yml
+elements:
+  - name: message-headers
+    condition: 'true'
