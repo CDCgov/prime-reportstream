@@ -50,6 +50,7 @@ import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.fhirengine.utils.HL7Reader
+import gov.cdc.prime.router.fhirengine.utils.HL7Reader.Companion.maybeParallelize
 import gov.cdc.prime.router.fhirengine.utils.HL7Reader.Companion.parseHL7Message
 import gov.cdc.prime.router.fhirengine.utils.getObservations
 import gov.cdc.prime.router.logging.LogMeasuredTime
@@ -62,7 +63,6 @@ import org.jooq.Field
 import java.time.OffsetDateTime
 import java.util.UUID
 import java.util.stream.Collectors
-import java.util.stream.Stream
 
 /**
  * Process a message off of the raw-elr azure queue, convert it into FHIR, and store for next step.
@@ -387,7 +387,7 @@ class FHIRConverter(
                                 )
                             }
 
-                        FHIREngineRunResult(
+                            FHIREngineRunResult(
                                 routeEvent,
                                 report,
                                 blobInfo.blobUrl,
@@ -417,7 +417,7 @@ class FHIRConverter(
                     report,
                     TaskAction.convert,
                     "Submitted report was either empty or could not be parsed into HL7"
-                    ) {
+                ) {
                     parentReportId(input.reportId)
                     params(
                         mapOf(
@@ -517,11 +517,11 @@ class FHIRConverter(
                             } else {
                                 logger.warn(
                                     result.failures.map {
-                                    UnmappableConditionMessage(
-                                        it.failures.map { it.code },
-                                        it.source
-                                    )
-                                }
+                                        UnmappableConditionMessage(
+                                            it.failures.map { it.code },
+                                            it.source
+                                        )
+                                    }
                                 )
                             }
                         }
@@ -689,30 +689,30 @@ class FHIRConverter(
         )
     }
 
-    /**
-     * Returns a parallelized stream when the number of items being processed is greater
-     * than the [sequentialLimit]
-     *
-     * @param streamSize the number of items in the stream
-     * @param stream the stream to optionally parallelize
-     *
-     */
-    private fun <ProcessedItemType> maybeParallelize(
-        streamSize: Int,
-        stream: Stream<ProcessedItemType>,
-        message: String,
-    ): Stream<ProcessedItemType> =
-        if (streamSize > sequentialLimit) {
-            withLoggingContext(mapOf("numberOfItems" to streamSize.toString())) {
-                logger.info("$message parallel")
-            }
-            stream.parallel()
-        } else {
-            withLoggingContext(mapOf("numberOfItems" to streamSize.toString())) {
-                logger.info("$message serial")
-            }
-            stream
-        }
+//    /**
+//     * Returns a parallelized stream when the number of items being processed is greater
+//     * than the [sequentialLimit]
+//     *
+//     * @param streamSize the number of items in the stream
+//     * @param stream the stream to optionally parallelize
+//     *
+//     */
+//    private fun <ProcessedItemType> maybeParallelize(
+//        streamSize: Int,
+//        stream: Stream<ProcessedItemType>,
+//        message: String,
+//    ): Stream<ProcessedItemType> =
+//        if (streamSize > sequentialLimit) {
+//            withLoggingContext(mapOf("numberOfItems" to streamSize.toString())) {
+//                logger.info("$message parallel")
+//            }
+//            stream.parallel()
+//        } else {
+//            withLoggingContext(mapOf("numberOfItems" to streamSize.toString())) {
+//                logger.info("$message serial")
+//            }
+//            stream
+//        }
 
     /**
      * Action log detail for tracking an error while processing an HL7 or FHIR item
@@ -748,13 +748,13 @@ class FHIRConverter(
      * transformer in tests.
      */
     fun getTransformerFromSchema(schemaName: String): FhirTransformer? = if (schemaName.isNotBlank()) {
-            withLoggingContext(mapOf("schemaName" to schemaName)) {
-                logger.info("Apply a sender transform to the items in the report")
-            }
-            FhirTransformer(schemaName)
-        } else {
-            null
+        withLoggingContext(mapOf("schemaName" to schemaName)) {
+            logger.info("Apply a sender transform to the items in the report")
         }
+        FhirTransformer(schemaName)
+    } else {
+        null
+    }
 }
 
 /**
