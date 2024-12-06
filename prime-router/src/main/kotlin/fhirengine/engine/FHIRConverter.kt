@@ -325,6 +325,10 @@ class FHIRConverter(
                             // We know from the null check above that this cannot be null
                             val bundle = processedItem.bundle!!
                             transformer?.process(bundle)
+                            logger.info(
+                                "Applied transform - parentReportId=[${input.reportId}]" +
+                                ", childReportId=[], schemaName=[${input.schemaName}]"
+                            )
 
                             // make a 'report'
                             val report = Report(
@@ -384,7 +388,8 @@ class FHIRConverter(
                                     mapOf(
                                         ReportStreamEventProperties.BUNDLE_DIGEST
                                             to bundleDigestExtractor.generateDigest(processedItem.bundle!!),
-                                        ReportStreamEventProperties.ITEM_FORMAT to format
+                                        ReportStreamEventProperties.ITEM_FORMAT to format,
+                                        ReportStreamEventProperties.ENRICHMENTS to input.schemaName
                                     )
                                 )
                             }
@@ -527,48 +532,13 @@ class FHIRConverter(
                                         }
                                     )
                                 }
-                            } else {
-                                // Generate an ITEM_TRANSFORMED Azure Event.
-                                val bundleDigestExtractor = BundleDigestExtractor(
-                                    FhirPathBundleDigestLabResultExtractorStrategy(
-                                        CustomContext(
-                                            item.bundle!!,
-                                            item.bundle!!,
-                                            mutableMapOf(),
-                                            CustomFhirPathFunctions()
-                                        )
-                                    )
-                                )
-                                val report = Report(
-                                    MimeFormat.FHIR,
-                                    emptyList(),
-                                    parentItemLineageData = listOf(
-                                        Report.ParentItemLineageData(input.reportId, item.index.toInt() + 1)
-                                    ),
-                                    metadata = this.metadata,
-                                    topic = input.topic,
-                                    nextAction = TaskAction.none
-                                )
-                                reportEventService.sendItemEvent(
-                                    eventName = ReportStreamEventName.ITEM_TRANSFORMED,
-                                    childReport = report,
-                                    pipelineStepName = TaskAction.convert
-                                ) {
-                                    parentReportId(input.reportId)
-                                    params(
-                                        mapOf(
-                                            ReportStreamEventProperties.BUNDLE_DIGEST
-                                                to bundleDigestExtractor.generateDigest(item.bundle!!),
-                                            ReportStreamEventProperties.ORIGINAL_FORMAT to format.name,
-                                            ReportStreamEventProperties.TARGET_FORMAT to MimeFormat.FHIR.name,
-                                            ReportStreamEventProperties.ENRICHMENTS to listOf(input.schemaName)
-                                        )
-                                    )
-                                    trackingId(item.bundle!!)
-                                }
                             }
                         }
                     }
+                    logger.info(
+                        "Applied transform - parentReportId=[${input.reportId}]" +
+                            ", childReportId=[], schemaName=[${input.schemaName}]"
+                    )
                 }
                 item
             }

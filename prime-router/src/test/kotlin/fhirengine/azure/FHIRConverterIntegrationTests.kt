@@ -508,7 +508,8 @@ class FHIRConverterIntegrationTests {
                         orderingFacilityState = listOf("FL"),
                         performerState = emptyList(),
                         eventType = "ORU^R01^ORU_R01"
-                    )
+                    ),
+                    ReportStreamEventProperties.ENRICHMENTS to ""
                 )
             )
         }
@@ -663,7 +664,8 @@ class FHIRConverterIntegrationTests {
                         orderingFacilityState = listOf("FL"),
                         performerState = emptyList(),
                         eventType = "ORU^R01^ORU_R01"
-                    )
+                    ),
+                    ReportStreamEventProperties.ENRICHMENTS to ""
                 )
             )
         }
@@ -836,18 +838,10 @@ class FHIRConverterIntegrationTests {
                         orderingFacilityState = emptyList(),
                         performerState = emptyList(),
                         eventType = "ORU^R01^ORU_R01"
-                    )
+                    ),
+                    ReportStreamEventProperties.ENRICHMENTS to ""
                 )
             )
-            assertThat(azureEventService.reportStreamEvents[ReportStreamEventName.ITEM_TRANSFORMED]!!).hasSize(1)
-            event = azureEventService
-                .reportStreamEvents[ReportStreamEventName.ITEM_TRANSFORMED]!!.first() as ReportStreamItemEvent
-            assertThat(event.reportEventData.parentReportId).isEqualTo(receiveReport.id)
-            assertThat(event.reportEventData.topic).isEqualTo(Topic.FULL_ELR)
-            assertThat(event.reportEventData.pipelineStepName).isEqualTo(TaskAction.convert)
-            assertThat(event.params).hasSize(4)
-            assertThat(event.params[ReportStreamEventProperties.ORIGINAL_FORMAT]).isEqualTo("FHIR")
-            assertThat(event.params[ReportStreamEventProperties.TARGET_FORMAT]).isEqualTo("FHIR")
         }
     }
 
