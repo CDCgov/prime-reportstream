@@ -1794,13 +1794,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@remix-run/router@npm:1.20.0":
-  version: 1.20.0
-  resolution: "@remix-run/router@npm:1.20.0"
-  checksum: 6bff41117eabb867b17c89baa727580f0a431368b309cd9a1f69767aafa68ea9cac95ff0eeb86d37c2c8655f5cd7c6283d37ae5e6d93e94f648c6112ddb24ede
-  languageName: node
-  linkType: hard
-
 "@rest-hooks/core@npm:^3.2.4":
   version: 3.2.4
   resolution: "@rest-hooks/core@npm:3.2.4"
@@ -10271,8 +10264,8 @@ __metadata:
     react-loader-spinner: ^6.1.6
     react-markdown: ^9.0.1
     react-query-kit: ^3.3.1
-    react-router: ^6.27.0
-    react-router-dom: ^6.27.0
+    react-router: ^7.0.2
+    react-router-dom: ^7.0.2
     react-scroll-sync: ^0.11.2
     react-toastify: ^10.0.6
     rehype-raw: ^7.0.0
@@ -10284,7 +10277,7 @@ __metadata:
     sanitize-html: ^2.13.1
     sass: ^1.81.0
     storybook: ^8.4.6
-    storybook-addon-remix-react-router: ^3.0.1
+    storybook-addon-remix-react-router: ^3.0.2
     ts-node: ^10.9.2
     tslib: ^2.8.1
     tsx: ^4.19.2
@@ -10405,27 +10398,33 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-router-dom@npm:^6.27.0":
-  version: 6.27.0
-  resolution: "react-router-dom@npm:6.27.0"
+"react-router-dom@npm:^7.0.2":
+  version: 7.0.2
+  resolution: "react-router-dom@npm:7.0.2"
   dependencies:
-    "@remix-run/router": 1.20.0
-    react-router: 6.27.0
+    react-router: 7.0.2
   peerDependencies:
-    react: ">=16.8"
-    react-dom: ">=16.8"
-  checksum: de3dcc56297a2879a0e3997fa34ba0f3e1b9986a2ad3ef7991f913902ecf38da0282c98f7834f344ce2d881dbab0a382201a57e9f9ef5e9816febdb26dc038b7
+    react: ">=18"
+    react-dom: ">=18"
+  checksum: 2e8d07701017f73e1edfb3e48718bd9490167320e9213aebc6ce7a1bb6961a201b8413b0374c526ce0086926283ff1e7b4edc78ff0194784b16e4549dcf544ba
   languageName: node
   linkType: hard
 
-"react-router@npm:6.27.0, react-router@npm:^6.27.0":
-  version: 6.27.0
-  resolution: "react-router@npm:6.27.0"
+"react-router@npm:7.0.2, react-router@npm:^7.0.2":
+  version: 7.0.2
+  resolution: "react-router@npm:7.0.2"
   dependencies:
-    "@remix-run/router": 1.20.0
+    "@types/cookie": ^0.6.0
+    cookie: ^1.0.1
+    set-cookie-parser: ^2.6.0
+    turbo-stream: 2.4.0
   peerDependencies:
-    react: ">=16.8"
-  checksum: d22eedc33bcb11891b431655f90eed2d52c2fb3165ad11ca625f62970caf59c4859e6b1a3f92e78902b31ff1a8b2482ebf97ddebb82e9687d1f98730c14e04e6
+    react: ">=18"
+    react-dom: ">=18"
+  peerDependenciesMeta:
+    react-dom:
+      optional: true
+  checksum: a3b42f25fa345bfc51abf608f14ded463f5a32345de8519b7beb35e713f09032e0a2af265e40c51ba9cde5d75c534697cded6f1c7988a1197b1392f2e32225ef
   languageName: node
   linkType: hard
 
@@ -11132,6 +11131,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"set-cookie-parser@npm:^2.6.0":
+  version: 2.7.1
+  resolution: "set-cookie-parser@npm:2.7.1"
+  checksum: 2ef8b351094712f8f7df6d63ed4b10350b24a5b515772690e7dec227df85fcef5bc451c7765f484fd9f36694ece5438d1456407d017f237d0d3351d7dbbd3587
+  languageName: node
+  linkType: hard
+
 "set-function-length@npm:^1.2.1":
   version: 1.2.2
   resolution: "set-function-length@npm:1.2.2"
@@ -11428,9 +11434,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"storybook-addon-remix-react-router@npm:^3.0.1":
-  version: 3.0.1
-  resolution: "storybook-addon-remix-react-router@npm:3.0.1"
+"storybook-addon-remix-react-router@npm:^3.0.2":
+  version: 3.0.2
+  resolution: "storybook-addon-remix-react-router@npm:3.0.2"
   dependencies:
     compare-versions: ^6.0.0
     react-inspector: 6.0.2
@@ -11444,13 +11450,13 @@ __metadata:
     "@storybook/theming": ^8.0.0
     react: ^16.8.0 || ^17.0.0 || ^18.0.0
     react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
-    react-router-dom: ^6.4.0
+    react-router-dom: ^6.4.0 || ^7.0.0
   peerDependenciesMeta:
     react:
       optional: true
     react-dom:
       optional: true
-  checksum: 29948e53fa1eda1c0cf5aa3e679c5d135578abb468e5d3969cd6eb9a7e24546dde6720d437692c5bdbf2c2c16f5553260933e4b8945da967313b447974d093fe
+  checksum: 725ca79a1050a2141a0bb60e5c25f405a39f6a90be31d7ccecb08a1edda1bd9afa4f4829e71217461a0084aaab8db333ca9f4a1a1169de3ef0d161fdedc170ab
   languageName: node
   linkType: hard
 
@@ -12084,6 +12090,13 @@ __metadata:
   bin:
     tsx: dist/cli.mjs
   checksum: 7f9f1b338a73297725a9217cedaaad862f7c81d5264093c74b98a71491ad5413b11248d604c0e650f4f7da6f365249f1426fdb58a1325ab9e15448156b1edff6
+  languageName: node
+  linkType: hard
+
+"turbo-stream@npm:2.4.0":
+  version: 2.4.0
+  resolution: "turbo-stream@npm:2.4.0"
+  checksum: e36f52ed40589f01bede79757a143bef484914d579927235be1fd0c205618994cb5779a39ff8c2a80a87a1464d05771cd75320a9412b15bca03c7ff432e3cdf7
   languageName: node
   linkType: hard
 
