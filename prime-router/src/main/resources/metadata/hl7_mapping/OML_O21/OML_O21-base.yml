@@ -1,6 +1,6 @@
 # $schema: ./../../../../../../metadata/json_schema/fhir/fhir-to-hl7-mapping.json
 
-hl7Class: ca.uhn.hl7v2.model.v27.message.OML_O21
+hl7Class: fhirengine.translation.hl7.structures.fhirinventory.message.OML_O21
 
 constants:
   # Prefix for RS custom extension URLs

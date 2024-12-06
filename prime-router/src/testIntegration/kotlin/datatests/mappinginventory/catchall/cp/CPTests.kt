@@ -5,7 +5,12 @@ import org.junit.jupiter.api.Test
 
 class CPTests {
     @Test
-    fun `test correctly maps cp`() {
-        assert(verifyHL7ToFHIRToHL7Mapping("catchall/in1/in1-to-Coverage", true, true, true).passed)
+    fun `test CP mapped to CPExtension`() {
+        assert(
+            verifyHL7ToFHIRToHL7Mapping(
+                "catchall/cp/cp-to-extension",
+                outputSchema = "classpath:/metadata/hl7_mapping/OML_O21/OML_O21-test.yml"
+            ).passed
+        )
     }
 }

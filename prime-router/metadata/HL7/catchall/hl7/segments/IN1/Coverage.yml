@@ -16,4 +16,21 @@ extension:
       specs: IN1.14
     - expressionType: resource
       valueOf: datatypes/CP/CPExtension
+      constants:
+        cpExtensionName: IN1.37
+      specs: IN1.37
+    - expressionType: resource
+      valueOf: datatypes/CP/CPExtension
+      constants:
+        cpExtensionName: IN1.38
+      specs: IN1.38
+    - expressionType: resource
+      valueOf: datatypes/CP/CPExtension
+      constants:
+        cpExtensionName: IN1.40
       specs: IN1.40
+    - expressionType: resource
+      valueOf: datatypes/CP/CPExtension
+      constants:
+        cpExtensionName: IN1.41
+      specs: IN1.41

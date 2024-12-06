@@ -299,6 +299,7 @@ class TranslationTests {
                         config.expectedFormat == MimeFormat.FHIR -> {
                             val rawHL7 = inputStream.bufferedReader().readText()
                             val expectedRawFhir = expectedStream.bufferedReader().readText()
+                            // see inside method
                             verifyHL7toFhir(rawHL7, result, expectedRawFhir, config.profile)
                         }
 
@@ -313,12 +314,21 @@ class TranslationTests {
                             }
 
                             val afterSenderTransform = if (config.senderTransform != null) {
+//                                val writeFile = File("src/test/resources/fhirengine/smoketest/ahfterenrichment.fhir")
+//                                writeFile.writeBytes(afterEnrichment.readBytes())
                                 runSenderTransformOrEnrichment(afterEnrichment, config.senderTransform)
                             } else {
                                 bundle
                             }
+
+//                            val writeFile2 = File("src/test/resources/fhirengine/smoketest/h2f2h122.fhir")
+//                            writeFile2.writeBytes(afterSenderTransform.readBytes())
+
                             val actualStream =
                                 translateFromFhir(afterSenderTransform, config.outputSchema, config.receiver)
+//                            val writeFile = File("src/test/resources/fhirengine/smoketest/h2f2h-122.hl7")
+//                            writeFile.writeBytes(actualStream.readBytes())
+
                             result.merge(
                                 CompareData().compare(expectedStream, actualStream, null, null)
                             )
@@ -338,6 +348,10 @@ class TranslationTests {
                             check(!config.outputSchema.isNullOrBlank())
                             val actualStream =
                                 translateFromFhir(afterSenderTransform, config.outputSchema, config.receiver)
+
+//                            val writeFile = File("src/test/resources/fhirengine/smoketest/f2h1016.hl7")
+//                            writeFile.writeBytes(actualStream.readBytes())
+
                             result.merge(
                                 CompareData().compare(expectedStream, actualStream, null, null)
                             )
@@ -439,6 +453,9 @@ class TranslationTests {
             } else {
                 actualStream
             }
+
+//            val writeFile = File("src/test/resources/fhirengine/smoketest/h2f11-8.fhir")
+//            writeFile.writeBytes(enrichedStream.readBytes())
 
             result.merge(
                 CompareData().compare(
