@@ -1,18 +1,16 @@
-package gov.cdc.prime.router.datatests.mappinginventory.aui
+package gov.cdc.prime.router.datatests.mappinginventory.cp
 
 import gov.cdc.prime.router.datatests.mappinginventory.verifyHL7ToFHIRToHL7Mapping
 import org.junit.jupiter.api.Test
 
-class AUIExtensionTests {
+class CPTests {
     @Test
-    fun `test AUI mapped to AUIExtension`() {
+    fun `test CP mapped to CPExtension`() {
         assert(
             verifyHL7ToFHIRToHL7Mapping(
-                "catchall/aui/AUI-to-Extension",
+                "catchall/cp/cp-to-extension",
                 outputSchema = "classpath:/metadata/hl7_mapping/OML_O21/OML_O21-test.yml"
             ).passed
         )
     }
 }
-
-// todo rename to lowercase

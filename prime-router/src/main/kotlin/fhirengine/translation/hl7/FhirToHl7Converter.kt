@@ -188,6 +188,12 @@ Logging {
     }
 
     /**
+     * This is where you can set a breakpoint to see what is happening on fhir to hl7
+     * for hl7 to fhir, you have to be in linux ExpressionUtility.evaluate
+     * (line 63s is good for breakpoints, the "top level field name" debugger bp-> entry.getKey() == "period_2",
+     * ex from XAD/Address.yml)
+     * (Any time you see "expressionResult()" you're going to want to step in, otherwise you'll miss the action
+     *
      * Generate HL7 data for an [element] using [bundle] and [context] and starting at the [schemaResource] in the bundle.
      * Set [debug] to true to enable debug statements to the logs.
      */
@@ -288,6 +294,18 @@ Logging {
                     context
                 ) ?: value
                 terser!!.set(resolvedHl7Spec, maybeTruncatedValue)
+                // HAPI is overwriting this at some point. Terser.finder.root gets set with the value from in1-38-1-2 at some point,
+                // but then when in1-38-2 is set this gets overwritten... hapi isn't tracking the ancestors or something properly.
+                // at some point it is losing the context
+
+                // this is a defect, confirmed when removing CP-2+ from cp.yml, it is trying to set it as IN1-38-2 when that happens:
+                // output after doing this change: 11&U|22^R||33
+
+                // I think what's happening is some similar effect to NULLDT issue.
+                // 37-1-2 was ID as expected
+                // 38-1-1 was primitive type NULLDT
+                // 38-1-2 was GenericPrimitive
+
                 logger.trace("Set HL7 $resolvedHl7Spec = $value")
             } catch (e: HL7Exception) {
                 val msg = "Could not set HL7 value for spec $resolvedHl7Spec for element ${element.name}"

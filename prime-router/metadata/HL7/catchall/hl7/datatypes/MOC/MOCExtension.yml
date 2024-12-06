@@ -22,7 +22,7 @@ extension:
           valueOf: MOC.1.1
     - expressionType: nested
       vars:
-        moc1: STRING_ALL, MOC.1
+        moc1: STRING_ALL, MOC.1 # todo this allows for blank 1.2 if only 1.1 gets populated
       condition: $moc1 NOT_NULL
       expressionsMap:
         url:
