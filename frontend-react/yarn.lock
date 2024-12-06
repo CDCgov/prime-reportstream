@@ -2794,10 +2794,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/github-slugger@npm:^1.3.0":
-  version: 1.3.0
-  resolution: "@types/github-slugger@npm:1.3.0"
-  checksum: 6561f26814d7c6bf619b1abfba07930ddc2f71e1e1d58a03c20852fd4086ec17f8ee98a44a8ac77ba917c0ff7052cd3fe74071fba59bd526dff8a3a980e2e528
+"@types/github-slugger@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "@types/github-slugger@npm:2.0.0"
+  dependencies:
+    github-slugger: "*"
+  checksum: 76d5b595baa678f78846c10e47088f6734fc8e2baee2b2657bae7830363eb298db761dd6bcc5e28686dc805084c908cee11fd270d4f48c77176d4d935b37bf7f
   languageName: node
   linkType: hard
 
@@ -6516,7 +6518,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"github-slugger@npm:^2.0.0":
+"github-slugger@npm:*, github-slugger@npm:^2.0.0":
   version: 2.0.0
   resolution: "github-slugger@npm:2.0.0"
   checksum: 250375cde2058f21454872c2c79f72c4637340c30c51ff158ca4ec71cbc478f33d54477d787a662f9207aeb095a2060f155bc01f15329ba8a5fb6698e0fc81f8
@@ -9914,7 +9916,7 @@ __metadata:
     "@types/dompurify": ^3.2.0
     "@types/dotenv-flow": ^3.3.3
     "@types/eslint__js": ^8.42.3
-    "@types/github-slugger": ^1.3.0
+    "@types/github-slugger": ^2.0.0
     "@types/html-to-text": ^9.0.4
     "@types/lodash": ^4.17.13
     "@types/mdx": ^2.0.13
