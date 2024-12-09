@@ -31,6 +31,7 @@ import gov.cdc.prime.router.azure.ConditionStamper.Companion.conditionCodeExtens
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.LookupTableConditionMapper
 import gov.cdc.prime.router.azure.QueueAccess
+import gov.cdc.prime.router.fhirengine.engine.RSMessageType
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import gov.cdc.prime.router.metadata.LookupTable
@@ -264,6 +265,21 @@ class FHIRBundleHelpersTests {
         assertThat(fhirBundle.isElr()).isTrue()
         event.code = "R21"
         assertThat(fhirBundle.isElr()).isFalse()
+    }
+
+    @Test
+    fun `Test current values for rs message type`() {
+        val fhirBundle = Bundle()
+        assertThat(fhirBundle.getRSMessageType()).isEqualTo(RSMessageType.UNKNOWN)
+        fhirBundle.type = Bundle.BundleType.MESSAGE
+        val entry = Bundle.BundleEntryComponent()
+        val messageHeader = MessageHeader()
+        val event = Coding()
+        event.code = "R01"
+        messageHeader.event = event
+        entry.resource = messageHeader
+        fhirBundle.entry.add(0, entry)
+        assertThat(fhirBundle.getRSMessageType()).isEqualTo(RSMessageType.LAB_RESULT)
     }
 
     @Test

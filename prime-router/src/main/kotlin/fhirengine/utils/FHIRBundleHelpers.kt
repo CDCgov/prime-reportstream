@@ -9,6 +9,7 @@ import gov.cdc.prime.router.azure.ConditionStamper.Companion.BUNDLE_CODE_IDENTIF
 import gov.cdc.prime.router.azure.ConditionStamper.Companion.BUNDLE_VALUE_IDENTIFIER
 import gov.cdc.prime.router.azure.ConditionStamper.Companion.conditionCodeExtensionURL
 import gov.cdc.prime.router.codes
+import gov.cdc.prime.router.fhirengine.engine.RSMessageType
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers.Companion.getChildProperties
@@ -135,6 +136,18 @@ fun Bundle.isElr(): Boolean {
         }
     }
     return isElr
+}
+
+/**
+ * Return RSMessageType based on grouping logic.
+ *
+ * @return RSMessageType of this Bundle.
+ */
+fun Bundle.getRSMessageType(): RSMessageType {
+    when {
+        isElr() -> return RSMessageType.LAB_RESULT
+        else -> return RSMessageType.UNKNOWN
+    }
 }
 
 /**

@@ -53,6 +53,7 @@ import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.fhirengine.utils.HL7Reader
 import gov.cdc.prime.router.fhirengine.utils.HL7Reader.Companion.parseHL7Message
 import gov.cdc.prime.router.fhirengine.utils.getObservations
+import gov.cdc.prime.router.fhirengine.utils.getRSMessageType
 import gov.cdc.prime.router.fhirengine.utils.isElr
 import gov.cdc.prime.router.logging.LogMeasuredTime
 import gov.cdc.prime.router.report.ReportService
@@ -513,7 +514,7 @@ class FHIRConverter(
                 }
                 // 'stamp' observations with their condition code
                 if (item.bundle != null) {
-                    val isElr = item.bundle!!.isElr()
+                    val isElr = if (item.bundle!!.getRSMessageType() == RSMessageType.LAB_RESULT) true else false
                     item.bundle!!.getObservations().forEach { observation ->
                         // Only do this if it is an ELR item.
                         if (isElr) {
