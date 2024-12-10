@@ -1,0 +1,195 @@
+{
+  "resourceType": "Bundle",
+  "id": "1733797768446514000.f1548dec-5abc-4302-9b8d-59f755ec9b2f",
+  "meta": {
+    "lastUpdated": "2024-12-09T18:29:28.450-08:00"
+  },
+  "identifier": {
+    "system": "https://reportstream.cdc.gov/prime-router",
+    "value": "MSG00001"
+  },
+  "type": "message",
+  "entry": [
+    {
+      "fullUrl": "MessageHeader/1733797768476500000.9c68bbf7-cd15-490d-a357-ac0d515575f8",
+      "resource": {
+        "resourceType": "MessageHeader",
+        "id": "1733797768476500000.9c68bbf7-cd15-490d-a357-ac0d515575f8",
+        "meta": {
+          "tag": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/v2-0103",
+              "code": "P"
+            }
+          ]
+        },
+        "eventCoding": {
+          "system": "http://terminology.hl7.org/CodeSystem/v2-0003",
+          "code": "O21",
+          "display": "OML^O21^OML_O21"
+        }
+      }
+    },
+    {
+      "fullUrl": "Provenance/1733797768760500000.23e4e2bd-4532-468d-89ec-e012d5702477",
+      "resource": {
+        "resourceType": "Provenance",
+        "id": "1733797768760500000.23e4e2bd-4532-468d-89ec-e012d5702477",
+        "activity": {
+          "coding": [
+            {
+              "display": "OML^O21^OML_O21"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "fullUrl": "Provenance/1733797768767441000.19ac0704-100d-4d66-8cb9-3094fba92b95",
+      "resource": {
+        "resourceType": "Provenance",
+        "id": "1733797768767441000.19ac0704-100d-4d66-8cb9-3094fba92b95",
+        "recorded": "2024-12-09T18:29:28Z",
+        "policy": [
+          "http://hl7.org/fhir/uv/v2mappings/message-oru-r01-to-bundle"
+        ],
+        "activity": {
+          "coding": [
+            {
+              "code": "v2-FHIR transformation"
+            }
+          ]
+        },
+        "agent": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/provenance-participant-type",
+                  "code": "assembler"
+                }
+              ]
+            },
+            "who": {
+              "reference": "Organization/1733797768766853000.2f23f653-749b-4b43-b159-d1d955375f3a"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "Organization/1733797768766853000.2f23f653-749b-4b43-b159-d1d955375f3a",
+      "resource": {
+        "resourceType": "Organization",
+        "id": "1733797768766853000.2f23f653-749b-4b43-b159-d1d955375f3a",
+        "identifier": [
+          {
+            "value": "CDC PRIME - Atlanta"
+          },
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0301"
+                }
+              ]
+            },
+            "system": "urn:ietf:rfc:3986",
+            "value": "2.16.840.1.114222.4.1.237821"
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "Patient/1733797768779870000.bb1ddb84-5fa1-484f-96a4-4616988212fc",
+      "resource": {
+        "resourceType": "Patient",
+        "id": "1733797768779870000.bb1ddb84-5fa1-484f-96a4-4616988212fc"
+      }
+    },
+    {
+      "fullUrl": "Provenance/1733797768780413000.e0ff5861-fd54-4149-8ee0-415a1dcc9123",
+      "resource": {
+        "resourceType": "Provenance",
+        "id": "1733797768780413000.e0ff5861-fd54-4149-8ee0-415a1dcc9123",
+        "target": [
+          {
+            "reference": "Patient/1733797768779870000.bb1ddb84-5fa1-484f-96a4-4616988212fc"
+          }
+        ],
+        "recorded": "2024-12-09T18:29:28Z",
+        "activity": {
+          "coding": [
+            {
+              "system": "https://terminology.hl7.org/CodeSystem/v3-DataOperation",
+              "code": "UPDATE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "fullUrl": "Coverage/1733797768783117000.2931a2e0-097c-481f-9adf-46e114f827b2",
+      "resource": {
+        "resourceType": "Coverage",
+        "id": "1733797768783117000.2931a2e0-097c-481f-9adf-46e114f827b2",
+        "extension": [
+          {
+            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/composite-price",
+            "extension": [
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
+                "valueString": "IN1.40"
+              },
+              {
+                "url": "CP.1.1",
+                "valueDecimal": 33.33
+              },
+              {
+                "url": "CP.1.2",
+                "valueString": "MXN"
+              },
+              {
+                "url": "CP.2",
+                "valueString": "P3"
+              },
+              {
+                "url": "CP.3",
+                "valueDecimal": 3.003
+              },
+              {
+                "url": "CP.4",
+                "valueDecimal": -3
+              },
+              {
+                "url": "CP.5",
+                "valueCodeableConcept": {
+                  "coding": [
+                    {
+                      "extension": [
+                        {
+                          "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                          "valueString": "coding"
+                        },
+                        {
+                          "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                          "valueString": "HL79999"
+                        }
+                      ],
+                      "code": "OR",
+                      "display": "Oven Range"
+                    }
+                  ]
+                }
+              },
+              {
+                "url": "CP.6",
+                "valueString": "P"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}
