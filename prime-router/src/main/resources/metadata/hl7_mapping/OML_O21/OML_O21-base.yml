@@ -34,6 +34,15 @@ elements:
     resourceIndex: patientIndex
     schema: classpath:/metadata/hl7_mapping/OML_O21/base/patient/patient-base.yml
 
+  - name: insurance
+    resource: 'Bundle.entry.resource.ofType(Coverage)'
+    #    todo: update logic when Coverage.subscriber is mapped (IN1-16/IN1-17)
+    #          https://github.com/CDCgov/prime-reportstream/issues/15500
+    #    resource: 'Bundle.entry.resource.ofType(Coverage).where(subscriber.resolve().id = %resource.entry.resource.ofType(Patient).id)'
+    schema: classpath:/metadata/hl7_mapping/resources/Coverage/IN1.yml
+    constants:
+      hl7SegmentGroup: '/PATIENT/INSURANCE'
+
   - name: order-base
     resource: 'Bundle.entry.resource.ofType(ServiceRequest).where(subject.resolve().id = %resource.entry.resource.ofType(Patient).id)'
     resourceIndex: orderIndex

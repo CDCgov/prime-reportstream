@@ -13241,6 +13241,32 @@
       }
     },
     {
+      "fullUrl": "Coverage/1732739201962559000.af1bd55f-2269-4782-a205-39c76d162b0d",
+      "resource": {
+        "resourceType": "Coverage",
+        "id": "1732739201962559000.af1bd55f-2269-4782-a205-39c76d162b0d",
+        "extension": [
+          {
+            "url": "IN1.14",
+            "extension": [
+              {
+                "url": "AUI.1",
+                "valueString": "1701"
+              },
+              {
+                "url": "AUI.2",
+                "valueString": "19700101"
+              },
+              {
+                "url": "AUI.3",
+                "valueString": "DR TEETH AND THE ELECTRIC MAYHEM"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
       "fullUrl": "ServiceRequest/1732560947529907000.d8a09a6a-8364-469a-b25b-3af90b0b03a7",
       "resource": {
         "resourceType": "ServiceRequest",
