@@ -125,6 +125,11 @@ updates:
     schedule:
       interval: "daily"
 
+  - package-ecosystem: "github-actions"
+    directory: "/.github/actions/checksum-validate"
+    schedule:
+      interval: "daily"
+
   # Frontend
   - package-ecosystem: "npm"
     directory: "/frontend-react"

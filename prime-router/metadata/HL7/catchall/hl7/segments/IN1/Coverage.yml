@@ -1,0 +1,16 @@
+# $schema: ./../../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
+
+resourceType: Coverage
+
+id:
+  type: STRING
+  valueOf: "GeneralUtils.generateResourceId()"
+  expressionType: JEXL
+
+extension:
+  expressionType: nested
+  generateList: true
+  expressions:
+    - expressionType: resource
+      valueOf: datatypes/AUI/AUIExtension
+      specs: IN1.14

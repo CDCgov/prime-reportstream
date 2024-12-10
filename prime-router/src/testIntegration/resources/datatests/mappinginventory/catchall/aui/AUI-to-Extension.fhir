@@ -1,0 +1,67 @@
+{
+  "resourceType": "Bundle",
+  "id": "1732324230716018000.38edba19-1d39-4040-85af-9f5f6248813c",
+  "meta": {
+    "lastUpdated": "2024-11-22T17:10:30.720-08:00"
+  },
+  "identifier": {
+    "system": "https://reportstream.cdc.gov/prime-router",
+    "value": "MSG00001"
+  },
+  "type": "message",
+  "entry": [
+    {
+      "fullUrl": "MessageHeader/1732324230752828000.fc7cea9d-d7ca-4378-91d4-ea97c86b4787",
+      "resource": {
+        "resourceType": "MessageHeader",
+        "id": "1732324230752828000.fc7cea9d-d7ca-4378-91d4-ea97c86b4787",
+        "meta": {
+          "tag": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/v2-0103",
+              "code": "P"
+            }
+          ]
+        },
+        "eventCoding": {
+          "system": "http://terminology.hl7.org/CodeSystem/v2-0003",
+          "code": "O21",
+          "display": "OML^O21^OML_O21"
+        }
+      }
+    },
+    {
+      "fullUrl": "Patient/1732324231018814000.533db9a5-5375-4746-be23-f7140d4a3280",
+      "resource": {
+        "resourceType": "Patient",
+        "id": "1732324231018814000.533db9a5-5375-4746-be23-f7140d4a3280"
+      }
+    },
+    {
+      "fullUrl": "Coverage/1732324231019741000.a36368bf-6c63-4970-8948-034a92248964",
+      "resource": {
+        "resourceType": "Coverage",
+        "id": "1732324231019741000.a36368bf-6c63-4970-8948-034a92248964",
+        "extension": [
+          {
+            "url": "IN1.14",
+            "extension": [
+              {
+                "url": "AUI.1",
+                "valueString": "1701"
+              },
+              {
+                "url": "AUI.2",
+                "valueString": "19700101"
+              },
+              {
+                "url": "AUI.3",
+                "valueString": "DR TEETH AND THE ELECTRIC MAYHEM"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

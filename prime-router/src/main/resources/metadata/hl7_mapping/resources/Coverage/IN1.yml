@@ -1,0 +1,12 @@
+# $schema: ./../../../../../../../metadata/json_schema/fhir/fhir-to-hl7-mapping.json
+
+constants:
+  hl7IN1Field: '%{hl7SegmentGroup}/IN1'
+
+elements:
+
+  - name: aui-extension
+    resource: '%resource.extension.where(url = "IN1.14")'
+    schema: classpath:/metadata/hl7_mapping/datatypes/extensionAUI/AUI.yml
+    constants:
+      auiField: '%{hl7IN1Field}-14'
