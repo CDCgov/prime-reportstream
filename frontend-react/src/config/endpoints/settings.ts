@@ -8,6 +8,10 @@ export enum ServicesUrls {
     PUBLIC_KEYS = "/settings/organizations/:orgName/public-keys",
 }
 
+export enum ReportsUrls {
+    TESTING = "/reports/testing",
+}
+
 export interface RSSettings {
     version: number;
     createdAt: string;
@@ -104,5 +108,13 @@ export const servicesEndpoints: RSApiEndpoints = {
         path: ServicesUrls.PUBLIC_KEYS,
         method: HTTPMethods.POST,
         queryKey: "createPublicKey",
+    }),
+};
+
+export const reportsEndpoints: RSApiEndpoints = {
+    testing: new RSEndpoint({
+        path: ReportsUrls.TESTING,
+        method: HTTPMethods.GET,
+        queryKey: "reportsTesting",
     }),
 };
