@@ -174,7 +174,7 @@ class ReportGraph(
             .leftJoin(REPORT_LINEAGE)
             .on(REPORT_FILE.REPORT_ID.eq(REPORT_LINEAGE.CHILD_REPORT_ID))
             .where(REPORT_LINEAGE.PARENT_REPORT_ID.isNull())
-            .orderBy(REPORT_FILE.REPORT_ID.asc())
+            .orderBy(REPORT_FILE.ACTION_ID.asc())
             .fetchOneInto(Item::class.java)
         return rootItem
     }
@@ -478,6 +478,7 @@ class ReportGraph(
         .leftJoin(REPORT_LINEAGE)
         .on(REPORT_FILE.REPORT_ID.eq(REPORT_LINEAGE.CHILD_REPORT_ID))
         .where(REPORT_LINEAGE.PARENT_REPORT_ID.isNull())
+        .orderBy(REPORT_FILE.ACTION_ID.asc())
 
     /**
      * Accepts a list of ids and walks down the report lineage graph
