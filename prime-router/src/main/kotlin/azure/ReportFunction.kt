@@ -192,7 +192,7 @@ class ReportFunction(
                     null
                 }
                 val bundle = if (result.bundle != null) {
-                    result.bundle.toString()
+                    FhirTranscoder.encode(result.bundle!!)
                 } else {
                     null
                 }
