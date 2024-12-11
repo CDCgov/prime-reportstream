@@ -326,10 +326,6 @@ class FHIRConverter(
                             // We know from the null check above that this cannot be null
                             val bundle = processedItem.bundle!!
                             transformer?.process(bundle)
-                            logger.info(
-                                "Applied transform - parentReportId=[${input.reportId}]" +
-                                ", childReportId=[], schemaName=[${input.schemaName}]"
-                            )
 
                             // make a 'report'
                             val report = Report(
@@ -341,6 +337,12 @@ class FHIRConverter(
                                 metadata = this.metadata,
                                 topic = input.topic,
                                 nextAction = TaskAction.destination_filter
+                            )
+
+                            logger.info(
+                                "Applied transform - parentReportId=[${input.reportId}]" +
+                                    ", childReportId=[${report.id}], schemaName=[${input.schemaName}]" +
+                                    ", trackingId=[${processedItem.getTrackingId()}]"
                             )
 
                             // create route event
@@ -514,9 +516,8 @@ class FHIRConverter(
                 }
                 // 'stamp' observations with their condition code
                 if (item.bundle != null) {
-                    val isElr = if (item.bundle!!.getRSMessageType() == RSMessageType.LAB_RESULT) true else false
+                    val isElr = item.bundle!!.getRSMessageType() == RSMessageType.LAB_RESULT
                     item.bundle!!.getObservations().forEach { observation ->
-                        // Only do this if it is an ELR item.
                         if (isElr) {
                             val result = stamper.stampObservation(observation)
                             if (!result.success) {

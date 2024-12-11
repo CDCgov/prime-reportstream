@@ -646,12 +646,6 @@ class FhirConverterTests {
         }
     }
 
-//    @Test
-//    fun `test isElr when bundle is empty`() {
-//        val emptyBundle = Bundle()
-//        assertThat(BaseEngine.Companion.isElr(emptyBundle)).isFalse()
-//    }
-
     @Nested
     inner class FhirConverterProcessTest {
 
