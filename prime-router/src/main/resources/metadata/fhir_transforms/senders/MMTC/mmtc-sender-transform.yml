@@ -10,3 +10,23 @@ elements:
     resource: "Bundle.entry.resource.ofType(ServiceRequest).requester.resolve().organization.resolve().address"
     bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/state-from-zip-code").value[x]'
     value: [ '%resource.postalCode.getStateFromZipCode()' ]
+
+  # Ticket 16776
+  # Temporary override for MSH 5 and 6 until original fields are updated
+  - name: msh-5-and-6-namespace-info-override
+    condition: 'true'
+    resource: 'Bundle'
+    value: [ '"CDC PRIME"' ]
+    hl7Spec: [ 'MSH-5-1' , 'MSH-6-1' ]
+
+  - name: msh-5-and-6-universal-id-override
+    condition: 'true'
+    resource: 'Bundle'
+    value: [ '"2.16.840.1.114222.4.1.237821"' ]
+    hl7Spec: [ 'MSH-5-2' , 'MSH-6-2' ]
+
+  - name: msh-5-and-6-universal-id-type-override
+    condition: 'true'
+    resource: 'Bundle'
+    value: [ '"ISO"' ]
+    hl7Spec: [ 'MSH-5-3' , 'MSH-6-3' ]
