@@ -11,6 +11,7 @@ meta:
 backToTop: true
 ---
 import Sidenav from "./sidenav.mdx"
+import site from "../site.json";
 
 <LayoutSidenav>
 <Sidenav/>
@@ -35,7 +36,7 @@ From the start, we work with your unique requirements and preferences to create 
         headingLevel:"h3",
         title: "2. Complete interest form",
         content: (<>
-        <p>Let us know you want to get started by filling out and submitting the <A href="https://app.smartsheetgov.com/b/form/8c71931f25e64e42bf1fef32900bdecd" target="_blank">interest form</A>. You’ll answer a few questions about your needs, like how many messages you might be sending and data format.</p>
+        <p>Let us know you want to get started by filling out and submitting the <A href={site.forms.healthcareOrganizationInterest.url} target="_blank">interest form</A>. You’ll answer a few questions about your needs, like how many messages you might be sending and data format.</p>
         <p>Our terms of service is also available to review in the interest form. You’ll need to agree to our <A href="/terms-of-service">terms of service</A> before you begin sending data. You can sign this at any point during your onboarding or when you fill out the form.</p>
         <p>Our team will be in touch within 48 hours of receiving your form to schedule a kickoff call.</p>
         </>),
@@ -67,7 +68,7 @@ From the start, we work with your unique requirements and preferences to create 
 ]} />
 If you're not connected with a ReportStream team member yet, get started by letting us know more about your needs.
 
-<A className="usa-button" href="https://app.smartsheetgov.com/b/form/48f580abb9b440549b1a9cf996ba6957" target="_blank">Get started</A>
+<A className="usa-button" href={site.forms.connectWithRS.url} target="_blank">Get started</A>
 
 {
 /* pending approval
@@ -109,7 +110,7 @@ Multiple jurisdictions, multiple formats and requirements. Just one connection f
 <Card gridLayout={{tablet: {col: 4}}}>
 
 <CardHeader>
-### <A href="/assets/pdf/ReportStream_Onepager_20230621.pdf" target="_blank">ReportStream overview PDF <Icon name='FileDownload'/></A>
+### <A href={site.assets.onePager.path} target="_blank">ReportStream overview PDF <Icon name='FileDownload'/></A>
 </CardHeader>
 <CardBody>
 Download a quick summary of ReportStream that you can print and share.

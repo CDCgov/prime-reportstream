@@ -5,7 +5,8 @@ on:
     - cron: "7 13 * * Mon"  #UTC-5
 
 env:
-  channel: prime-reportstream-engineering
+  channel: temp-cdc-rs-notifications
+  # prime-reportstream-engineering
 
 jobs:
   pre_job:
@@ -82,7 +83,7 @@ jobs:
           🔸"Next": *"${{ env.Schedules_oncallSchedule_3_NextPersonName }}"* : \`"${{ env.Schedules_oncallSchedule_3_NextFrom }}"\` _until_ \`"${{ env.Schedules_oncallSchedule_3_NextUntil }}"\`
         icon-emoji: ':alarm_clock:'
         channel:  ${{ env.channel }}
-        webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
+        webhook-url: ${{ secrets.SLACK_NOTIFICATIONS_WEBHOOK_URL }}
         color: good
 
   PDAlert_WeekDays:
@@ -133,5 +134,5 @@ jobs:
           ❗"Now": *"${{ env.Schedules_oncallSchedule_3_OnCallPersonName }}"*
         icon-emoji: ':alarm_clock:'
         channel:  ${{ env.channel }}
-        webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
+        webhook-url: ${{ secrets.SLACK_NOTIFICATIONS_WEBHOOK_URL }}
         color: good

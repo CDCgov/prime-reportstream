@@ -21,10 +21,22 @@ import gov.cdc.prime.router.Hl7Configuration
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.Receiver
+import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportStreamFilter
+import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.ConditionStamper
 import gov.cdc.prime.router.azure.LookupTableConditionMapper
+import gov.cdc.prime.router.azure.db.enums.TaskAction
+import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
+import gov.cdc.prime.router.azure.observability.event.IReportStreamEventService
+import gov.cdc.prime.router.azure.observability.event.ItemEventData
+import gov.cdc.prime.router.azure.observability.event.ReportEventData
+import gov.cdc.prime.router.azure.observability.event.ReportStreamEventName
+import gov.cdc.prime.router.azure.observability.event.ReportStreamItemEventBuilder
+import gov.cdc.prime.router.azure.observability.event.ReportStreamItemProcessingErrorEventBuilder
+import gov.cdc.prime.router.azure.observability.event.ReportStreamReportEventBuilder
+import gov.cdc.prime.router.azure.observability.event.ReportStreamReportProcessingErrorEventBuilder
 import gov.cdc.prime.router.cli.CommandUtilities.Companion.abort
 import gov.cdc.prime.router.cli.helpers.HL7DiffHelper
 import gov.cdc.prime.router.common.Environment
@@ -248,7 +260,7 @@ class ProcessFhirCommands : CliktCommand(
 
         val senderSchemaName = when {
             senderSchema != null -> senderSchema
-            senderSchemaParam != null -> senderSchemaParam
+            isCli && senderSchemaParam != null -> senderSchemaParam
             else -> null
         }
 
@@ -260,7 +272,7 @@ class ProcessFhirCommands : CliktCommand(
             receiver != null && receiver.enrichmentSchemaNames.isNotEmpty() -> {
                 receiver.enrichmentSchemaNames.joinToString(",")
             }
-            enrichmentSchemaNames != null -> enrichmentSchemaNames
+            isCli && enrichmentSchemaNames != null -> enrichmentSchemaNames
             else -> null
         }
 
@@ -374,12 +386,16 @@ class ProcessFhirCommands : CliktCommand(
             // this is just for logging so it is fine to just make it up
             UUID.randomUUID().toString()
         }
-        val result = FHIRReceiverFilter().evaluateObservationConditionFilters(
-            receiver,
-            bundle,
-            ActionLogger(),
-            trackingId
-        )
+        // TODO: https://github.com/CDCgov/prime-reportstream/issues/16407
+        val result =
+            FHIRReceiverFilter(
+                reportStreamEventService = NoopReportStreamEventService()
+            ).evaluateObservationConditionFilters(
+                receiver,
+                bundle,
+                ActionLogger(),
+                trackingId
+            )
         if (result is ReceiverFilterEvaluationResult.Success) {
             return result.bundle
         } else {
@@ -454,19 +470,19 @@ class ProcessFhirCommands : CliktCommand(
         }
 
         val receiverTransformSchemaName = when {
-            receiver != null && receiver.schemaName.isNotEmpty() -> receiver.enrichmentSchemaNames.joinToString(",")
-            receiverSchema != null -> receiverSchema
+            receiver != null && receiver.schemaName.isNotEmpty() -> receiver.schemaName
+            isCli && receiverSchema != null -> receiverSchema
             else -> null
         }
 
         if (receiverTransformSchemaName != null) {
             val message = FhirToHl7Converter(
-                receiverSchema!!,
+                receiverTransformSchemaName,
                 BlobAccess.BlobContainerMetadata.build("metadata", Environment.get().storageEnvVar),
                 context = FhirToHl7Context(
                     CustomFhirPathFunctions(),
                     config = HL7TranslationConfig(
-                        hl7Configuration,
+                        hl7Configuration = hl7Configuration,
                         receiver
                     ),
                     translationFunctions = CustomTranslationFunctions(),
@@ -847,5 +863,117 @@ class FhirPathCommand : CliktCommand(
         }
         stringValue.append("\n}\n")
         return stringValue.toString()
+    }
+}
+
+// This exists only because ProcessFhirCommands instantiates a FHIRReceiverFilter to access a function that likely could be
+// made static
+// TODO: https://github.com/CDCgov/prime-reportstream/issues/16407
+class NoopReportStreamEventService : IReportStreamEventService {
+    override fun sendQueuedEvents() {
+        throw NotImplementedError()
+    }
+
+    override fun sendReportEvent(
+        eventName: ReportStreamEventName,
+        childReport: Report,
+        pipelineStepName: TaskAction,
+        shouldQueue: Boolean,
+        initializer: ReportStreamReportEventBuilder.() -> Unit,
+    ) {
+        throw NotImplementedError()
+    }
+
+    override fun sendReportEvent(
+        eventName: ReportStreamEventName,
+        childReport: ReportFile,
+        pipelineStepName: TaskAction,
+        shouldQueue: Boolean,
+        initializer: ReportStreamReportEventBuilder.() -> Unit,
+    ) {
+        throw NotImplementedError()
+    }
+
+    override fun sendReportProcessingError(
+        eventName: ReportStreamEventName,
+        childReport: ReportFile,
+        pipelineStepName: TaskAction,
+        error: String,
+        shouldQueue: Boolean,
+        initializer: ReportStreamReportProcessingErrorEventBuilder.() -> Unit,
+    ) {
+        throw NotImplementedError()
+    }
+
+    override fun sendReportProcessingError(
+        eventName: ReportStreamEventName,
+        childReport: Report,
+        pipelineStepName: TaskAction,
+        error: String,
+        shouldQueue: Boolean,
+        initializer: ReportStreamReportProcessingErrorEventBuilder.() -> Unit,
+    ) {
+        throw NotImplementedError()
+    }
+
+    override fun sendItemEvent(
+        eventName: ReportStreamEventName,
+        childReport: Report,
+        pipelineStepName: TaskAction,
+        shouldQueue: Boolean,
+        initializer: ReportStreamItemEventBuilder.() -> Unit,
+    ) {
+        throw NotImplementedError()
+    }
+
+    override fun sendItemEvent(
+        eventName: ReportStreamEventName,
+        childReport: ReportFile,
+        pipelineStepName: TaskAction,
+        shouldQueue: Boolean,
+        initializer: ReportStreamItemEventBuilder.() -> Unit,
+    ) {
+        throw NotImplementedError()
+    }
+
+    override fun sendItemProcessingError(
+        eventName: ReportStreamEventName,
+        childReport: ReportFile,
+        pipelineStepName: TaskAction,
+        error: String,
+        shouldQueue: Boolean,
+        initializer: ReportStreamItemProcessingErrorEventBuilder.() -> Unit,
+    ) {
+        throw NotImplementedError()
+    }
+
+    override fun sendItemProcessingError(
+        eventName: ReportStreamEventName,
+        childReport: Report,
+        pipelineStepName: TaskAction,
+        error: String,
+        shouldQueue: Boolean,
+        initializer: ReportStreamItemProcessingErrorEventBuilder.() -> Unit,
+    ) {
+        throw NotImplementedError()
+    }
+
+    override fun getReportEventData(
+        childReportId: UUID,
+        childBodyUrl: String,
+        parentReportId: UUID?,
+        pipelineStepName: TaskAction,
+        topic: Topic?,
+    ): ReportEventData {
+        throw NotImplementedError()
+    }
+
+    override fun getItemEventData(
+        childItemIndex: Int,
+        parentReportId: UUID,
+        parentItemIndex: Int,
+        trackingId: String?,
+    ): ItemEventData {
+        throw NotImplementedError()
     }
 }

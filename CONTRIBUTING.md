@@ -69,7 +69,7 @@ Once your changes and tests are ready to submit for review:
 
 2. **Rebase your changes**
 
-    Update your local repository with the most recent code from the principal repository, and rebase your branch on top of the latest master branch. We prefer your initial changes to be squashed into a single commit. Later, if we ask you to make changes, add the changes as separate commits.  This makes the changes easier to review.  
+    Update your local repository with the most recent code from the principal repository, and rebase your branch on top of the latest main branch. We prefer your initial changes to be squashed into a single commit. Later, if we ask you to make changes, add the changes as separate commits.  This makes the changes easier to review.  
 
 3. **Submit a pull request**
 

@@ -35,14 +35,14 @@ apply(from = rootProject.file("buildSrc/shared.gradle.kts"))
 plugins {
     val kotlinVersion by System.getProperties()
     id("reportstream.project-conventions")
-    id("org.flywaydb.flyway") version "10.18.2"
+    id("org.flywaydb.flyway") version "10.21.0"
     id("nu.studer.jooq") version "9.0"
     id("com.github.johnrengelman.shadow") version "8.1.1"
     id("com.microsoft.azure.azurefunctions") version "1.16.1"
     id("com.adarshr.test-logger") version "4.0.0"
     id("jacoco")
     id("org.jetbrains.dokka") version "1.8.20"
-    id("com.avast.gradle.docker-compose") version "0.17.8"
+    id("com.avast.gradle.docker-compose") version "0.17.10"
     id("org.jetbrains.kotlin.plugin.serialization") version "$kotlinVersion"
     id("com.nocwriter.runsql") version ("1.0.3")
     id("io.swagger.core.v3.swagger-gradle-plugin") version "2.2.23"
@@ -75,7 +75,7 @@ val javaVersion = when (appJvmTarget) {
 }
 val ktorVersion = "2.3.12"
 val kotlinVersion by System.getProperties()
-val jacksonVersion = "2.18.0"
+val jacksonVersion = "2.18.1"
 jacoco.toolVersion = "0.8.12"
 
 // Local database information, first one wins:
@@ -840,7 +840,7 @@ buildscript {
         // will need to be removed once this issue is resolved in Maven.
         classpath("net.minidev:json-smart:2.5.1")
         // as per flyway v10 docs the postgres flyway module must be on the project buildpath
-        classpath("org.flywaydb:flyway-database-postgresql:10.18.2")
+        classpath("org.flywaydb:flyway-database-postgresql:10.21.0")
     }
 }
 
@@ -868,15 +868,15 @@ dependencies {
     implementation("com.azure:azure-storage-queue:12.22.0") {
         exclude(group = "com.azure", module = "azure-core")
     }
-    implementation("com.azure:azure-security-keyvault-secrets:4.8.7") {
+    implementation("com.azure:azure-security-keyvault-secrets:4.9.0") {
         exclude(group = "com.azure", module = "azure-core")
         exclude(group = "com.azure", module = "azure-core-http-netty")
     }
-    implementation("com.azure:azure-identity:1.13.3") {
+    implementation("com.azure:azure-identity:1.14.2") {
         exclude(group = "com.azure", module = "azure-core")
         exclude(group = "com.azure", module = "azure-core-http-netty")
     }
-    implementation("com.nimbusds:nimbus-jose-jwt:9.41.1")
+    implementation("com.nimbusds:nimbus-jose-jwt:9.47")
     implementation("org.apache.logging.log4j:log4j-api:2.24.0")
     implementation("org.apache.logging.log4j:log4j-core:2.24.0")
     implementation("org.apache.logging.log4j:log4j-slf4j2-impl:2.24.0")
@@ -898,17 +898,17 @@ dependencies {
             branch = "master"
         }
     }
-    implementation("ca.uhn.hapi.fhir:hapi-fhir-structures-r4:7.4.2")
+    implementation("ca.uhn.hapi.fhir:hapi-fhir-structures-r4:7.4.5")
     // https://mvnrepository.com/artifact/ca.uhn.hapi.fhir/hapi-fhir-caching-caffeine
-    implementation("ca.uhn.hapi.fhir:hapi-fhir-caching-caffeine:7.4.2")
-    implementation("ca.uhn.hapi.fhir:hapi-fhir-client:7.4.2")
+    implementation("ca.uhn.hapi.fhir:hapi-fhir-caching-caffeine:7.4.5")
+    implementation("ca.uhn.hapi.fhir:hapi-fhir-client:7.4.5")
     // pin
-    implementation("ca.uhn.hapi.fhir:org.hl7.fhir.utilities:6.3.29")
-    implementation("ca.uhn.hapi.fhir:org.hl7.fhir.r4:6.3.24")
+    implementation("ca.uhn.hapi.fhir:org.hl7.fhir.utilities:6.4.0")
+    implementation("ca.uhn.hapi.fhir:org.hl7.fhir.r4:6.4.0")
     implementation("ca.uhn.hapi:hapi-base:2.5.1")
     implementation("ca.uhn.hapi:hapi-structures-v251:2.5.1")
     implementation("ca.uhn.hapi:hapi-structures-v27:2.5.1")
-    implementation("com.googlecode.libphonenumber:libphonenumber:8.13.46")
+    implementation("com.googlecode.libphonenumber:libphonenumber:8.13.50")
     implementation("org.thymeleaf:thymeleaf:3.1.2.RELEASE")
     implementation("com.sendgrid:sendgrid-java:4.10.3")
     implementation("com.okta.jwt:okta-jwt-verifier:0.5.7")
@@ -923,15 +923,15 @@ dependencies {
     implementation("commons-codec:commons-codec:1.17.1")
     implementation("commons-io:commons-io:2.17.0")
     implementation("org.postgresql:postgresql:42.7.4")
-    implementation("com.zaxxer:HikariCP:6.0.0")
-    implementation("org.flywaydb:flyway-core:10.18.2")
-    implementation("org.flywaydb:flyway-database-postgresql:10.18.2")
-    implementation("org.commonmark:commonmark:0.23.0")
+    implementation("com.zaxxer:HikariCP:6.2.0")
+    implementation("org.flywaydb:flyway-core:10.21.0")
+    implementation("org.flywaydb:flyway-database-postgresql:10.21.0")
+    implementation("org.commonmark:commonmark:0.24.0")
     implementation("com.google.guava:guava:33.3.1-jre")
     implementation("com.helger.as2:as2-lib:5.1.2")
-    implementation("org.bouncycastle:bcprov-jdk15to18:1.78.1")
-    implementation("org.bouncycastle:bcprov-jdk18on:1.78.1")
-    implementation("org.bouncycastle:bcmail-jdk15to18:1.78.1")
+    implementation("org.bouncycastle:bcprov-jdk15to18:1.79")
+    implementation("org.bouncycastle:bcprov-jdk18on:1.79")
+    implementation("org.bouncycastle:bcmail-jdk15to18:1.79")
 
     implementation("commons-net:commons-net:3.11.1")
     implementation("com.cronutils:cron-utils:9.2.1")
@@ -988,7 +988,7 @@ dependencies {
     runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.11.5")
 
     testImplementation(kotlin("test-junit5"))
-    testImplementation("io.mockk:mockk:1.13.12")
+    testImplementation("io.mockk:mockk:1.13.13")
     testImplementation("io.ktor:ktor-client-mock:$ktorVersion")
 
     implementation(project(":shared"))

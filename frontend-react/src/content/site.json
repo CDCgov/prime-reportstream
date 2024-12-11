@@ -41,6 +41,10 @@
     "contactUs": {
       "name": "Contact us",
       "url": "https://app.smartsheetgov.com/b/form/95d2f16b772c42d8aaa0ef5db28a6838"
+    },
+    "healthcareOrganizationInterest": {
+      "name": "Healthcare Organization Interest Form",
+      "url": "https://app.smartsheetgov.com/b/form/8c71931f25e64e42bf1fef32900bdecd"
     }
   },
   "assets": {
@@ -48,10 +52,21 @@
       "path": "/assets/csv/ReportStream-StandardCSV-ExampleData-20220509.csv"
     },
     "programmersGuidePdf": {
-      "path": "/assets/pdf/ReportStream-Programmers-Guide-v4.6.pdf"
+      "path": "/assets/pdf/ReportStream-Programmers-Guide-v4.7.pdf"
     },
     "exampleHl7": {
       "path": "/assets/hl7/Example-hl7-file.hl7"
+    },
+    "onePager": {
+      "path": "/assets/pdf/ReportStream_Onepager_20240605.pdf"
+    }
+  },
+  "external": {
+    "nistValidationSuite": {
+      "url": "https://hl7v2-elr-testing.nist.gov/mu-elr/"
+    },
+    "nistGeneralValidationTool": {
+      "url": "https://hl7v2-gvt.nist.gov/gvt/#/home"
     }
   }
 }

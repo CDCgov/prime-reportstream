@@ -40,9 +40,7 @@ runs:
         sed -i "s/\(dhcp-option DNS \).*/\1${{ inputs.dns-ip }}/" .github/vpn/${{ inputs.env-name }}.ovpn
       shell: bash
 
-    - uses: josiahsiegel/action-connect-ovpn@794339aff94452216c97f609476c367a43a31295
-    ## DevSecOps - Aquia (Replace) - uses: ./.github/actions/action-connect-ovpn
-
+    - uses: ./.github/actions/connect-ovpn
       if: inputs.env-name && inputs.ca-cert != 'false'
       id: connect_vpn
       with:
@@ -65,7 +63,7 @@ runs:
         fi
       shell: bash
 
-    - uses: azure/login@a65d910e8af852a8061c627c456678983e180302
+    - uses: azure/login@v2
       if: inputs.sp-creds
       with:
         creds: ${{ inputs.sp-creds }}

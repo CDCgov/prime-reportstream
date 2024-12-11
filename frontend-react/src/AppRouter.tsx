@@ -45,11 +45,12 @@ const ManagingYourConnectionIndex = lazy(
     lazyRouteMarkdown(() => import("./content/managing-your-connection/index.mdx")),
 );
 const SupportIndex = lazy(lazyRouteMarkdown(() => import("./content/support/index.mdx")));
-const ReportStreamApiDocumentationPayloads = lazy(
+// Page currently archived
+/*const ReportStreamApiDocumentationPayloads = lazy(
     lazyRouteMarkdown(
         () => import("./content/developer-resources/reportstream-api/documentation/SamplePayloadsAndOutput.mdx"),
     ),
-);
+);*/
 
 /* Public Pages */
 const TermsOfService = lazy(() => import("./pages/TermsOfService"));
@@ -269,13 +270,14 @@ export const appRoutes: RouteObject[] = [
                                             isContentPage: true,
                                         },
                                     },
-                                    {
+                                    // Page currently archived
+                                    /*{
                                         path: "sample-payloads-and-output",
                                         element: <ReportStreamApiDocumentationPayloads />,
                                         handle: {
                                             isContentPage: true,
                                         },
-                                    },
+                                    },*/
                                 ],
                             },
                         ],

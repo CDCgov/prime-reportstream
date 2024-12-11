@@ -230,7 +230,8 @@ esac
 if [[ ${RC?} != 0 ]]; then
     error "(return code=${RC?}) Your code may contain secrets, consult the output above and/or one of the following files for more details:"
     error "     - ${REPO_ROOT?}/${REPORT_JSON?}"
-    error "     - ${REPO_ROOT?}/${LOGFILE?}"
+    # no log file currently, check the output of whatever ran this
+    # error "     - ${REPO_ROOT?}/${LOGFILE?}"
 fi
 
 exit ${RC?}

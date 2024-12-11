@@ -9,7 +9,7 @@ not careful with them, you can really mess up the application. Spider-Man rules 
 Below are the steps for how to most safely check and merge in the dependabot PRs:
 
 ## Steps
-1. Open the dependabot's pull request to be merged and identify if the PR is out of date from master.  If so, create a new comment in the PR with the text
+1. Open the dependabot's pull request to be merged and identify if the PR is out of date from main.  If so, create a new comment in the PR with the text
    `@dependabot rebase` to let dependabot rebase the branch for you.  If you use any other method then dependabot will not be able to keep track of the PR.
 2. Verify that the build for the PR is successful.  Note that the unit, integration and smoke tests are run as part of the build.
 3. Read the updated library's changelog and identify and communicate any risks you find.  When in doubt ask! Library changes can affect many parts of the system.

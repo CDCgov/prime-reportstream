@@ -1,0 +1,12 @@
+extends: classpath:/metadata/fhir_transforms/senders/original-pipeline-transforms.yml
+
+elements:
+  - name: patient-state-from-zip-code
+    resource: "Bundle.entry.resource.ofType(Patient).address"
+    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/state-from-zip-code").value[x]'
+    value: [ '%resource.postalCode.getStateFromZipCode()' ]
+
+  - name: ordering-facility-state-from-zip-code
+    resource: "Bundle.entry.resource.ofType(ServiceRequest).requester.resolve().organization.resolve().address"
+    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/state-from-zip-code").value[x]'
+    value: [ '%resource.postalCode.getStateFromZipCode()' ]

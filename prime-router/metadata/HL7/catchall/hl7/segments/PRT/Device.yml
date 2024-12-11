@@ -1,6 +1,7 @@
 # $schema: ./../../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
 
 # This segment does not appear in NIST or RADx MARS
+# PRT.2 - inventory indicates to check for "D" but the correct HL7v2 table value is "DE"
 
 resourceType: Device
 
@@ -9,10 +10,109 @@ id:
   valueOf: "GeneralUtils.generateResourceId()"
   expressionType: JEXL
 
+status:
+  vars:
+    prt2: PRT.2
+  condition: $prt2 EQUALS "DE"
+  type: STRING
+  value: "inactive"
+
 udiCarrier:
-  valueOf: datatypes/EI/Device-udiCarrier
-  expressionType: resource
+  expressionType: nested
   generateList: true
-  specs: PRT.10
-  constants:
-    hl7v2Field: "PRT.10"
+  vars:
+    prt10: STRING_ALL, PRT.10
+    prt16: STRING_ALL, PRT.16
+  expressions:
+    - expressionType: resource
+      condition: $prt10 NOT_NULL
+      valueOf: datatypes/EI/Device-udiCarrier
+      generateList: true
+      specs: PRT.10 *
+      constants:
+        hl7v2Field: "PRT.10"
+    - expressionType: resource
+      condition: $prt16 NOT_NULL
+      valueOf: datatypes/EI/Device-udiCarrier
+      specs: PRT.16
+      constants:
+        hl7v2Field: "PRT.16"
+
+manufactureDate:
+  type: STRING
+  valueOf: "GeneralUtils.dateTimeWithZoneId(dateTimeIn,ZONEID)"
+  expressionType: JEXL
+  vars:
+    dateTimeIn: PRT.17
+_manufactureDate:
+  expressionType: nested
+  vars:
+    dateTimeIn: PRT.17
+  condition: $dateTimeIn NOT_NULL
+  expressionsMap:
+    extension_1:
+      generateList: true
+      expressionType: nested
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: hl7v2-date-time
+        valueString:
+          type: STRING
+          valueOf: $dateTimeIn
+          expressionType: HL7Spec
+
+expirationDate:
+  type: STRING
+  valueOf: "GeneralUtils.dateTimeWithZoneId(dateTimeIn,ZONEID)"
+  expressionType: JEXL
+  vars:
+    dateTimeIn: PRT.18
+_expirationDate:
+  expressionType: nested
+  vars:
+    dateTimeIn: PRT.18
+  condition: $dateTimeIn NOT_NULL
+  expressionsMap:
+    extension_1:
+      generateList: true
+      expressionType: nested
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: hl7v2-date-time
+        valueString:
+          type: STRING
+          valueOf: $dateTimeIn
+          expressionType: HL7Spec
+
+lotNumber:
+  type: STRING
+  valueOf: PRT.19
+  expressionType: HL7Spec
+
+serialNumber:
+  type: STRING
+  valueOf: PRT.20
+  expressionType: HL7Spec
+
+distinctIdentifier:
+  type: STRING
+  valueOf: PRT.21
+  expressionType: HL7Spec
+_distinctIdentifier:
+  valueOf: datatypes/EI/Identifier
+  expressionType: resource
+  specs: PRT.21
+
+type:
+  valueOf: datatypes/CNE/CodeableConcept
+  specs: PRT.22
+  expressionType: resource
+
+extension:
+  generateList: true
+  expressionType: nested
+  expressions:
+    - expressionType: resource
+      valueOf: segments/PRT/PRTExtension

@@ -11,6 +11,7 @@ meta:
 backToTop: true
 ---
 import Sidenav from "./sidenav.mdx"
+import site from "../site.json"
 
 <LayoutSidenav>
 <Sidenav/>
@@ -508,9 +509,9 @@ You may also be interested in:
                     pandemics and gives us more flexibility for future
                     data types in public health. If your jurisdiction is
                     interested in REST/HTTP transport,{" "}
-                    <a href="https://app.smartsheetgov.com/b/form/48f580abb9b440549b1a9cf996ba6957">
+                    <A href={site.forms.connectWithRS.url}>
                         connect with our team
-                    </a>
+                    </A>
                     .
                 </p>
             ),

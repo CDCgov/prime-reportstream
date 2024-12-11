@@ -2,16 +2,16 @@
 
 ReportStream production deployments take place on Tuesdays and Thursday around 10am EST.
 
-The testing and staging environments are automatically deployed on every merge into `master` through our Continuous Deployment pipeline.
+The testing and staging environments are automatically deployed on every merge into `main` through our Continuous Deployment pipeline.
 
 ## How is ReportStream deployed?
 
 We automatically deploy changes through [GitHub Actions](.github/workflows/release.yml) based on changes in target branches as described in the table below. These changes can only enter these branches through successfully reviewed Pull Requests.
 
 | Changes are merged into branch | Changes get deployed into environment(s) | Release Builds |
-|:--|:--|:--|
-| `master` | test and staging | *[pre-release](https://github.com/CDCgov/prime-reportstream/releases/tag/v-pre-release) (staging) |
-| `production` | production | [release](https://github.com/CDCgov/prime-reportstream/releases/latest) |
+|:-------------------------------|:--|:--|
+| `main`                         | test and staging | *[pre-release](https://github.com/CDCgov/prime-reportstream/releases/tag/v-pre-release) (staging) |
+| `production`                   | production | [release](https://github.com/CDCgov/prime-reportstream/releases/latest) |
 
 \* ⚠️*Returns "404 not found" if no changes have been merged since the last release.*
 
@@ -39,11 +39,11 @@ In preparation for our Tuesday and Thursday deployments, a cutoff time has been 
 | Tuesday, 10am EST | Monday, 12pm EST |
 | Thursday, 10am EST | Wednesday, 12pm EST |
 
-The cutoff time is automatically enforced via automatic branching from `master` into a dedicated deployment branch targeting the `production` branch through a [GitHub Action](.github/workflows/prepare_deployment_branch.yaml).
+The cutoff time is automatically enforced via automatic branching from `main` into a dedicated deployment branch targeting the `production` branch through a [GitHub Action](.github/workflows/prepare_deployment_branch.yaml).
 
-1. At the specified cut-off time (Mondays and Wednesdays at noon ET), the GitHub action creates a new branch named `deployment/YYYY-MM-DD` (where the YYYY-MM-DD is `today + 1day`, i.e. the date of the deployment, not the date of the branching) which branches from `master`. This branch now contains everything that was present in `master` at that cut-off time. This is the content that is/will be part of the production deployment.
+1. At the specified cut-off time (Mondays and Wednesdays at noon ET), the GitHub action creates a new branch named `deployment/YYYY-MM-DD` (where the YYYY-MM-DD is `today + 1day`, i.e. the date of the deployment, not the date of the branching) which branches from `main`. This branch now contains everything that was present in `main` at that cut-off time. This is the content that is/will be part of the production deployment.
 1. A new PR from the deployment branch is filed to merge `deployment/YYYY-MM-DD` into `production`. The PR has title `"Deployment of YYYY-MM-DD"` and is tagged with the [`deployment` tag](https://github.com/CDCgov/prime-reportstream/issues?q=label%3Adeployment).
-1. The contents of `master` is deployed to the staging environment for verification
+1. The contents of `main` is deployed to the staging environment for verification
     * Manual testing takes place
 1. The PR is reviewed by the team
 1. The PR is merged during the specified deployment window by an approved team member.

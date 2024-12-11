@@ -1,0 +1,79 @@
+name: 'Connect-VPN-action'
+description: 'Connect VPN action'
+branding:
+  icon: 'shield'
+  color: 'orange'
+inputs:
+  SECRET:
+    description: 'Username and password for access vpn'
+    required: false
+    default: ''
+  TLS_KEY:
+    description: 'User key for access vpn'
+    required: false
+    default: ''
+  PING_URL:
+    description: 'For check success or fail'
+    required: true
+    default: '127.0.0.1'
+  FILE_OVPN:
+    description: 'Location file open vpn'
+    required: true
+    default: './config.ovpn'
+outputs:
+  STATUS:
+    description: 'Status for check connect vpn'
+    value: ${{ steps.vpn_status.outputs.vpn-status }}
+runs:
+  using: "composite"
+  steps:
+    - name: Install OpenVPN
+      run: |
+        sudo apt-get update
+        sudo apt-get install openvpn
+        sudo apt-get install openvpn-systemd-resolved
+      shell: bash
+
+    - name: Validate OpenVPN Version
+      run: |
+        echo -e "\nOpenVPN Version:" ;
+        openvpn --version ;
+      shell: bash
+
+    - name: Connect VPN
+      env:
+        TLS_KEY: ${{ inputs.TLS_KEY }}
+        CA_CRT: ${{ env.CA_CRT}}
+        USER_CRT: ${{ env.USER_CRT }}
+        USER_KEY: ${{ env.USER_KEY }}
+        SECRET: ${{ inputs.SECRET }}
+      shell: bash
+      run: |
+        echo "$TLS_KEY" | base64 -d > tls.key
+        echo "$CA_CRT" | base64 -d > ca.crt
+        echo "$USER_CRT" | base64 -d > user.crt
+        echo "$USER_KEY" | base64 -d > user.key
+        echo "$SECRET" | base64 -d > secret.txt
+
+        echo -e "sudo openvpn --config ${{ inputs.FILE_OVPN }} --daemon" ;
+        sudo openvpn --config ${{ inputs.FILE_OVPN }} --daemon
+
+    - name: VPN Status
+      id: vpn_status
+      env:
+        PING_URL: ${{ inputs.PING_URL }}
+      shell: bash
+      run: |
+        sleep 5
+        if ping -c 2 $PING_URL > /dev/null 2>&1; then
+
+          # echo -e "\nPinging URL: ${{ inputs.PING_URL }}" ;
+          # ping -c 3 ${{ inputs.PING_URL }} ;
+
+          echo "vpn-status=true" >> $GITHUB_OUTPUT
+
+          echo -e "\nIP Route:" ;
+          ip route ;
+        else
+          echo "vpn-status=false" >> $GITHUB_OUTPUT
+        fi

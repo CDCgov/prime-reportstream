@@ -27,6 +27,7 @@ import org.jooq.tools.jdbc.MockResult
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import java.util.Base64
 import java.util.UUID
 
 class FHIRFunctionsTests {
@@ -66,7 +67,11 @@ class FHIRFunctionsTests {
             .databaseAccess(accessSpy)
             .build()
         every { accessSpy.fetchReportFile(any()) } returns mockk<ReportFile>(relaxed = true)
-        return FHIRFunctions(workflowEngine, databaseAccess = accessSpy)
+        return FHIRFunctions(
+            workflowEngine,
+            databaseAccess = accessSpy,
+            submissionTableService = mockk<SubmissionTableService>()
+        )
     }
 
     @Test
@@ -76,7 +81,14 @@ class FHIRFunctionsTests {
         val mockReportEventService = mockk<IReportStreamEventService>(relaxed = true)
         val init = slot<ReportStreamReportProcessingErrorEventBuilder.() -> Unit>()
         every {
-            mockReportEventService.sendReportProcessingError(any(), any<ReportFile>(), any(), any(), capture(init))
+            mockReportEventService.sendReportProcessingError(
+                any(),
+                any<ReportFile>(),
+                any(),
+                any(),
+                any(),
+                capture(init)
+            )
         } returns Unit
         val mockFHIRConverter = mockk<FHIRConverter>(relaxed = true)
         every { mockFHIRConverter.run(any(), any(), any(), any()) } throws RuntimeException("Error")
@@ -87,13 +99,14 @@ class FHIRFunctionsTests {
         verify(exactly = 1) {
             QueueAccess.sendMessage(
                 "${QueueMessage.elrConvertQueueName}-poison",
-                queueMessage
+                Base64.getEncoder().encodeToString(queueMessage.toByteArray())
             )
             mockReportEventService.sendReportProcessingError(
                 ReportStreamEventName.PIPELINE_EXCEPTION,
                 any<ReportFile>(),
                 TaskAction.convert,
                 "Error",
+                any(),
                 init.captured
             )
         }
@@ -112,7 +125,7 @@ class FHIRFunctionsTests {
         verify(exactly = 0) {
             QueueAccess.sendMessage(
                 "${QueueMessage.elrConvertQueueName}-poison",
-                queueMessage
+                Base64.getEncoder().encodeToString(queueMessage.toByteArray())
             )
         }
     }

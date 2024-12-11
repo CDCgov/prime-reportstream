@@ -13,6 +13,7 @@ import Step2 from "./Step2.mdx";
 import Step3 from "./Step3.mdx";
 import Step4 from "./Step4.mdx";
 import Sidenav from "../Sidenav.mdx";
+import site from "../../../site.json";
 
 <LayoutSidenav><Sidenav /></LayoutSidenav>
 
@@ -24,7 +25,7 @@ import Sidenav from "../Sidenav.mdx";
 Examples in this guide use curl commands for simplicity with the assumption you’ll be coding these calls into your sending system.
 You can also use a program like Postman to test submissions.
 
-<p className="text-base">**Last updated:** 9/9/24</p>
+<p className="text-base">**Last updated:** 11/4/24</p>
 
 ***
 
@@ -32,16 +33,18 @@ You can also use a program like Postman to test submissions.
 
 To prepare your file for testing, set up a sample file with fake data (artificially created, non-PII data).
 
-Currently, ReportStream can accept either HL7 or FHIR data. 
-We can send you a file with fake data to review that will always successfully validate against the NIST HL7v2 validator. 
-Note that because the data in those files are computer-generated, it may not feel realistic in some places.
+Currently, ReportStream can accept either HL7 or FHIR data. We can provide a sample HL7 file with fake data 
+to review <A href={site.forms.contactUs.url}>upon request</A>.
 
 <Alert type="tip">For this step, you can refer to formatting requirements for 
 [HL7v2.5.1 ORU-R01](https://www.hl7.org/implement/standards/product_brief.cfm?product_id=185) or 
 [RADxMARS](https://www.nibib.nih.gov/covid-19/radx-tech-program/mars/hl7v2-getting-started) for OTC (over the counter) test data.</Alert>
 
-When you’ve formatted your fake (non-PII) data file, test your data model using using the 
-[NIST General Validation Tool](https://hl7v2-gvt.nist.gov/gvt/#/home), and correct any errors you receive. 
+When you’ve formatted your fake (non-PII) data file, test your data model using the
+<A href={site.external.nistValidationSuite.url}>NIST Electronic Lab Reporting (ELR) Validation Suite</A>. 
+(Note: If you’re testing OTC data, use the <A href={site.external.nistGeneralValidationTool.url}>NIST HL7 General Validation Tool</A> and 
+select “RADx MARS HL7v2” from the tool scope dropdown. Navigate to the “Context-free” tab and select the “Onboarding” profile group).
+Correct any errors you receive.
 
 <h2 className="rs-numbered">Set up authentication and test your API connection</h2>
 

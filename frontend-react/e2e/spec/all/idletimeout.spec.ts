@@ -4,10 +4,9 @@ import process from "node:process";
 import { OrganizationPage } from "../../pages/authenticated/admin/organization";
 import { test as baseTest } from "../../test";
 
-const timeout = parseInt(process.env.VITE_IDLE_TIMEOUT ?? "20000");
-// Add/Sub 500 ms to account for variance
-const timeoutLow = timeout - 500;
-const timeoutHigh = timeout + 500;
+const timeout = parseInt(process.env.VITE_IDLE_TIMEOUT ?? "900000");
+const timeoutLow = timeout - 1000;
+const timeoutHigh = timeout + 1000;
 
 export interface OrganizationPageFixtures {
     organizationPage: OrganizationPage;
@@ -37,6 +36,7 @@ const test = baseTest.extend<OrganizationPageFixtures>({
             frontendWarningsLogPath,
             isFrontendWarningsLog,
         });
+        await page.page.clock.install();
         await page.goto();
         await use(page);
     },
@@ -44,20 +44,22 @@ const test = baseTest.extend<OrganizationPageFixtures>({
 
 test.use({ storageState: "e2e/.auth/admin.json" });
 
-test.skip("Does not trigger early", async ({ organizationPage }) => {
-    await expect(organizationPage.page.getByRole("banner").first()).toBeVisible();
-    await organizationPage.page.keyboard.down("Tab");
+test.describe("Idle time out", () => {
+    test("Does not trigger early", async ({ organizationPage }) => {
+        await expect(organizationPage.page.getByRole("banner").first()).toBeVisible();
+        await organizationPage.page.keyboard.down("Tab");
 
-    const start = new Date();
+        await organizationPage.page.clock.fastForward(timeoutLow);
 
-    await organizationPage.page.waitForRequest(/\/oauth2\/default\/v1\/revoke/, {
-        timeout: timeoutHigh,
+        await expect(organizationPage.page.getByRole("banner").first()).toBeVisible();
     });
 
-    const end = new Date();
+    test("Triggers on time", async ({ organizationPage }) => {
+        await expect(organizationPage.page.getByRole("banner").first()).toBeVisible();
+        await organizationPage.page.keyboard.down("Tab");
 
-    const idleTime = Math.abs(end.valueOf() - start.valueOf());
+        await organizationPage.page.clock.fastForward(timeoutHigh);
 
-    expect(idleTime).not.toBeLessThan(timeoutLow);
-    expect(idleTime).not.toBeGreaterThan(timeoutHigh);
+        await expect(organizationPage.page.getByRole("link", { name: "Login" })).toBeVisible();
+    });
 });

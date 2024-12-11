@@ -6,14 +6,18 @@ spring:
       resourceserver:
         jwt:
           issuer-uri: https://reportstream.oktapreview.com/oauth2/ausekaai7gUuUtHda1d7
-  server:
-    port: 8880
+
+server:
+  port: 8880
+
+auth:
+  jwtEncodedPublicKeyJWK: eyJrdHkiOiJSU0EiLCJlIjoiQVFBQiIsIm4iOiJuVlE1VDUwWTdDc0FmSF9aWXNCMGFFUUdieVhySVB0NTV0bk5MZk1JZDBtYlgzWWN1UHpxVVBtUnNiWGI2Y09iaVdPWTVmeTZQbF9oRkN5SzZ6b2pTUnFoV0J3Z0xwejY1SDc1UnZtWTljYVBud0tJd085aGlLZkdNbkMyR29LdTZLWi1wUUs1eUdpRTBEaFVEYTRDeDFrSHg2UlRTNWhJeUdkdEU5eTl4aUJTREk4MjR5dXBnVnlKRi1TVy14cEg1UVh3LWxpTEZ1UHBIWmdadDI0SFVGUE8zUmpxcldOY2RZRnRLTS1kaHNaTExBenRwRlIwaWpjczVIR2NtRWVadGlpUEljMWlQX01aVkZJX1JudVB3MHFsQ0VEMXhQZ2p5eHNPdlJwOUh1Tzk0NV96eWJva3JjOVVtOWNmelNMR3daZ0lJb0dlV21zZVFhZHRnLW53UFEifQ==
 
 azure:
   storage:
     connection-string: ${AZURE_STORAGE_CONNECTION_STRING:DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://localhost:10000/devstoreaccount1;QueueEndpoint=http://localhost:10001/devstoreaccount1;TableEndpoint=http://127.0.0.1:10002/devstoreaccount1;}
     container-name: ${AZURE_STORAGE_CONTAINER_NAME:reports}
-    queue-name: ${AZURE_STORAGE_QUEUE_NAME:elr-fhir-receive}
+    queue-name: ${AZURE_STORAGE_QUEUE_NAME:elr-fhir-convert-submission}
     table-name: ${AZURE_STORAGE_TABLE_NAME:submission}
 
 allowed:

@@ -11,6 +11,7 @@ import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DataAccessTransaction
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.Event
+import gov.cdc.prime.router.azure.SubmissionTableService
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.observability.event.AzureEventService
 import gov.cdc.prime.router.azure.observability.event.AzureEventServiceImpl
@@ -39,11 +40,7 @@ abstract class FHIREngine(
     val blob: BlobAccess = BlobAccess(),
     val azureEventService: AzureEventService = AzureEventServiceImpl(),
     val reportService: ReportService = ReportService(ReportGraph(db), db),
-    val reportEventService: IReportStreamEventService = ReportStreamEventService(
-        db,
-        azureEventService,
-        reportService
-    ),
+    val reportEventService: IReportStreamEventService,
 ) : BaseEngine() {
 
     /**
@@ -65,6 +62,7 @@ abstract class FHIREngine(
         var azureEventService: AzureEventService? = null,
         var reportService: ReportService? = null,
         var reportEventService: IReportStreamEventService? = null,
+        var submissionTableService: SubmissionTableService? = null,
     ) {
         /**
          * Set the metadata instance.
@@ -110,6 +108,10 @@ abstract class FHIREngine(
             this.reportEventService = reportEventService
         }
 
+        fun submissionTableService(submissionTableService: SubmissionTableService) = apply {
+            this.submissionTableService = submissionTableService
+        }
+
         /**
          * Build the fhir engine instance.
          * @return the fhir engine instance
@@ -123,21 +125,18 @@ abstract class FHIREngine(
 
             // create the correct FHIREngine type for the action being taken
             return when (taskAction) {
-                TaskAction.receive -> FHIRReceiver(
-                    metadata ?: Metadata.getInstance(),
-                    settingsProvider!!,
-                    databaseAccess ?: databaseAccessSingleton,
-                    blobAccess ?: BlobAccess(),
-                    azureEventService ?: AzureEventServiceImpl(),
-                    reportService ?: ReportService(),
-                )
                 TaskAction.process -> FHIRConverter(
                     metadata ?: Metadata.getInstance(),
                     settingsProvider!!,
                     databaseAccess ?: databaseAccessSingleton,
                     blobAccess ?: BlobAccess(),
                     azureEventService ?: AzureEventServiceImpl(),
-                    reportService ?: ReportService()
+                    reportService ?: ReportService(),
+                    ReportStreamEventService(
+                        databaseAccess ?: databaseAccessSingleton,
+                        azureEventService ?: AzureEventServiceImpl(),
+                        reportService ?: ReportService()
+                    )
                 )
                 TaskAction.destination_filter -> FHIRDestinationFilter(
                     metadata ?: Metadata.getInstance(),
@@ -145,7 +144,12 @@ abstract class FHIREngine(
                     databaseAccess ?: databaseAccessSingleton,
                     blobAccess ?: BlobAccess(),
                     azureEventService ?: AzureEventServiceImpl(),
-                    reportService ?: ReportService()
+                    reportService ?: ReportService(),
+                    ReportStreamEventService(
+                        databaseAccess ?: databaseAccessSingleton,
+                        azureEventService ?: AzureEventServiceImpl(),
+                        reportService ?: ReportService()
+                    )
                 )
                 TaskAction.receiver_filter -> FHIRReceiverFilter(
                     metadata ?: Metadata.getInstance(),
@@ -154,13 +158,24 @@ abstract class FHIREngine(
                     blobAccess ?: BlobAccess(),
                     azureEventService ?: AzureEventServiceImpl(),
                     reportService ?: ReportService(),
+                    ReportStreamEventService(
+                        databaseAccess ?: databaseAccessSingleton,
+                        azureEventService ?: AzureEventServiceImpl(),
+                        reportService ?: ReportService()
+                    )
                 )
                 TaskAction.translate -> FHIRTranslator(
                     metadata ?: Metadata.getInstance(),
                     settingsProvider!!,
                     databaseAccess ?: databaseAccessSingleton,
                     blobAccess ?: BlobAccess(),
-                    azureEventService ?: AzureEventServiceImpl()
+                    azureEventService ?: AzureEventServiceImpl(),
+                    reportService ?: ReportService(),
+                    reportEventService ?: ReportStreamEventService(
+                        databaseAccess ?: databaseAccessSingleton,
+                        azureEventService ?: AzureEventServiceImpl(),
+                        reportService ?: ReportService()
+                    )
                 )
                 else -> throw NotImplementedError("Invalid action type for FHIR engine")
             }

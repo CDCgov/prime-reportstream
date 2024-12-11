@@ -1,5 +1,5 @@
 # How to Onboard a New Organization to Receive Data
-Add subsections that mimic the linked resources: ([Brandon’s version](https://docs.google.com/document/d/1noB3lK2Nc_vbD4s5ZHgdTjgIjhCii63x_2bjBz7GM1I/edit#heading=h.be9yxi8thtdw), [Github version](https://github.com/CDCgov/prime-reportstream/blob/master/prime-router/docs/how-to-onboard-a-sender.md))
+Add subsections that mimic the linked resources: ([Brandon’s version](https://docs.google.com/document/d/1noB3lK2Nc_vbD4s5ZHgdTjgIjhCii63x_2bjBz7GM1I/edit#heading=h.be9yxi8thtdw), [Github version](https://github.com/CDCgov/prime-reportstream/blob/main/prime-router/docs/how-to-onboard-a-sender.md))
 
 ## Welcome
 
@@ -71,7 +71,7 @@ used as the schema name in the next step.
 * In the above example, the jurisdictional filter uses FHIR path to check if the patient or Test performer 
 are in the state of LT. `Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state` and `Bundle.entry.resource.ofType(Patient).address.state` are shorthand FHIR paths defined in `metadata/tables/local/fhirpath_filter_shorthand.csv`
 * Filters can be applied to the organization or receiver. For more information on filters see: 
-(https://github.com/CDCgov/prime-reportstream/blob/master/prime-router/docs/universal-pipeline/route.md)
+(https://github.com/CDCgov/prime-reportstream/blob/main/prime-router/docs/universal-pipeline/route.md)
 * In addition, there is the translation section, which specifies the output format that will be sent to the receiver. 
 Currently, we have three formats available:
     - HL7
@@ -122,7 +122,7 @@ The mechanism for how each record is translated is laid out in the schema, which
 * By default, any HL7 receiver will use the universal or covid schema and you do not need to create a schema
 specific to your receiver.
 * In the UP for HL7 v2 we have to check what HL7 message type they want to receive data in. We support ADT_A01, OML_O21 and ORU_R01. Depending on the message type we can set `translationSchema` to the respective message type schema.
-* If the receiver wants specific receiver transforms that are not supported by the translation settings a schema can be created for them. More information on how to manage translation schemas can be found here (https://github.com/CDCgov/prime-reportstream/blob/master/prime-router/docs/universal-pipeline/translate.md)
+* If the receiver wants specific receiver transforms that are not supported by the translation settings a schema can be created for them. More information on how to manage translation schemas can be found here (https://github.com/CDCgov/prime-reportstream/blob/main/prime-router/docs/universal-pipeline/translate.md)
 
 
 ### 3. Test and commit, and deploy to Test and maybe Prod
@@ -131,7 +131,7 @@ specific to your receiver.
 * Once you've got the kinks out of the organizations.yml, carefully update settings in the staging environment. 
 * `./prime multiple-settings set --help`
 * Create a PR for the change, review, and push. The review is a good chance for someone to doublecheck the filters.
-* It should deploy to staging automagically once the PR is approved and merged into master.
+* It should deploy to staging automagically once the PR is approved and merged into main.
 * Test again in Staging
 * If you are ready, carefully update settings in the prod environment. Especially in production, check the batch 
 timing. NOT every minute, eh?
@@ -176,7 +176,7 @@ output here: `/prime-router/build/sftp`
 
 ### 5. Create access to the Download site
 
-* If the organization has elected for download access, set up an Okta account.
+* If the organization has elected for download access, [set up an Okta account](./okta-account-creation.md).
 * If you are testing in Test, obviously you'll need to set up access to that download site.
 
 ### 6. Validation in Prod

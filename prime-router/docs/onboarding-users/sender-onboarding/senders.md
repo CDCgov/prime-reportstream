@@ -1,6 +1,6 @@
 # How to Onboard a New Organization to Send Data
 
-Add subsections that mimic the linked resources: ([Brandon’s version](https://docs.google.com/document/d/1noB3lK2Nc_vbD4s5ZHgdTjgIjhCii63x_2bjBz7GM1I/edit#heading=h.be9yxi8thtdw), [Github version](https://github.com/CDCgov/prime-reportstream/blob/master/prime-router/docs/how-to-onboard-a-sender.md))
+Add subsections that mimic the linked resources: ([Brandon’s version](https://docs.google.com/document/d/1noB3lK2Nc_vbD4s5ZHgdTjgIjhCii63x_2bjBz7GM1I/edit#heading=h.be9yxi8thtdw), [Github version](https://github.com/CDCgov/prime-reportstream/blob/main/prime-router/docs/how-to-onboard-a-sender.md))
 Note for content writer: If there is overlap with the previous "Pipeline Configuration" section, hyperlink and reference the content instead of rewriting it..
 
 ## Sender Onboarding Process Overview
@@ -91,7 +91,7 @@ You only need to do this step once, not every time you submit reports. If you ne
 
 ### Mapping sender codes to observation-mapping table
 
-Prior to testing we need to make sure the codes that the sender will be sending are mapped in the observation-mapping table. In order to accomplish this we will need the list of LOINC/SNOMED order and result codes the sender will be sending (also known as a "compendium") in a CSV file. More info on this process can be found in the [mapping-sender-codes-to-condition document](https://github.com/CDCgov/prime-reportstream/blob/master/prime-router/docs/onboarding-users/sender-onboarding/mapping-sender-codes-to-condition.md).
+Prior to testing we need to make sure the codes that the sender will be sending are mapped in the observation-mapping table. In order to accomplish this we will need the list of LOINC/SNOMED order and result codes the sender will be sending (also known as a "compendium") in a CSV file. More info on this process can be found in the [mapping-sender-codes-to-condition document](https://github.com/CDCgov/prime-reportstream/blob/main/prime-router/docs/onboarding-users/sender-onboarding/mapping-sender-codes-to-condition.md).
 
 ### Note
 In order to test a sender, you must create (or have in your possession) a file that matches the format

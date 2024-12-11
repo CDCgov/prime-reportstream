@@ -46,8 +46,8 @@ unless pursuant to an existing contract or agreement.
 ## Privacy Standard Notice
 This repository contains only non-sensitive, publicly available data and
 information. All material and community participation is covered by the
-[Disclaimer](https://github.com/CDCgov/template/blob/master/DISCLAIMER.md)
-and [Code of Conduct](https://github.com/CDCgov/template/blob/master/code-of-conduct.md).
+[Disclaimer](https://github.com/CDCgov/template/blob/main/DISCLAIMER.md)
+and [Code of Conduct](https://github.com/CDCgov/template/blob/main/code-of-conduct.md).
 For more information about CDC's privacy policy, please visit [http://www.cdc.gov/other/privacy.html](https://www.cdc.gov/other/privacy.html).
 
 ## Contributing Standard Notice
@@ -80,6 +80,6 @@ published through the [CDC web site](http://www.cdc.gov).
 
 ## Additional Standard Notices
 Please refer to [CDC's Template Repository](https://github.com/CDCgov/template)
-for more information about [contributing to this repository](https://github.com/CDCgov/template/blob/master/CONTRIBUTING.md),
-[public domain notices and disclaimers](https://github.com/CDCgov/template/blob/master/DISCLAIMER.md),
-and [code of conduct](https://github.com/CDCgov/template/blob/master/code-of-conduct.md).
+for more information about [contributing to this repository](https://github.com/CDCgov/template/blob/main/CONTRIBUTING.md),
+[public domain notices and disclaimers](https://github.com/CDCgov/template/blob/main/DISCLAIMER.md),
+and [code of conduct](https://github.com/CDCgov/template/blob/main/code-of-conduct.md).
