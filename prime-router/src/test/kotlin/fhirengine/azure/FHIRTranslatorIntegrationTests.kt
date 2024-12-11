@@ -816,7 +816,7 @@ class FHIRTranslatorIntegrationTests : Logging {
         val org = UniversalPipelineTestUtils.createOrganizationWithReceivers(receivers)
         val translator = createFHIRTranslator(azureEventService, org)
         val reportContents = File(HL7_WITH_BIRTH_TIME).readText()
-        val receiveReport = UniversalPipelineTestUtils.createReport(
+        val convertReport = UniversalPipelineTestUtils.createReport(
             reportContents,
             TaskAction.convert,
             Event.EventAction.CONVERT,
@@ -825,7 +825,7 @@ class FHIRTranslatorIntegrationTests : Logging {
             fileName = "originalhl7.hl7"
         )
         val queueMessage = generateQueueMessage(
-            receiveReport,
+            convertReport,
             reportContents,
             UniversalPipelineTestUtils.hl7SenderWithSendOriginal,
             "phd.x"
@@ -846,7 +846,7 @@ class FHIRTranslatorIntegrationTests : Logging {
         // verify task and report_file tables were updated correctly in the Translate function (new task and new
         // record file created)
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
-            val report = fetchChildReports(receiveReport, txn, 1).single()
+            val report = fetchChildReports(convertReport, txn, 1).single()
             assertThat(report.nextAction).isEqualTo(TaskAction.send)
             assertThat(report.receivingOrg).isEqualTo("phd")
             assertThat(report.receivingOrgSvc).isEqualTo("x")
@@ -897,7 +897,7 @@ class FHIRTranslatorIntegrationTests : Logging {
         val org = UniversalPipelineTestUtils.createOrganizationWithReceivers(receivers)
         val translator = createFHIRTranslator(azureEventService, org)
         val reportContents = File(MULTIPLE_TARGETS_FHIR_PATH).readText()
-        val receiveReport = UniversalPipelineTestUtils.createReport(
+        val convertReport = UniversalPipelineTestUtils.createReport(
             reportContents,
             TaskAction.convert,
             Event.EventAction.CONVERT,
@@ -906,7 +906,7 @@ class FHIRTranslatorIntegrationTests : Logging {
         )
 
         val queueMessage = generateQueueMessage(
-            receiveReport,
+            convertReport,
             reportContents,
             UniversalPipelineTestUtils.fhirSenderWithSendOriginal,
             "phd.x"
@@ -927,7 +927,7 @@ class FHIRTranslatorIntegrationTests : Logging {
         // verify task and report_file tables were updated correctly in the Translate function (new task and new
         // record file created)
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
-            val report = fetchChildReports(receiveReport, txn, 1).single()
+            val report = fetchChildReports(convertReport, txn, 1).single()
             assertThat(report.nextAction).isEqualTo(TaskAction.send)
             assertThat(report.receivingOrg).isEqualTo("phd")
             assertThat(report.receivingOrgSvc).isEqualTo("x")
