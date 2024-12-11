@@ -123,6 +123,7 @@ The mechanism for how each record is translated is laid out in the schema, which
 specific to your receiver.
 * In the UP for HL7 v2 we have to check what HL7 message type they want to receive data in. We support ADT_A01, OML_O21 and ORU_R01. Depending on the message type we can set `translationSchema` to the respective message type schema.
 * If the receiver wants specific receiver transforms that are not supported by the translation settings a schema can be created for them. More information on how to manage translation schemas can be found here (https://github.com/CDCgov/prime-reportstream/blob/main/prime-router/docs/universal-pipeline/translate.md)
+  * For example: the `convertDateTimesToReceiverLocalTime` translation is no longer able to be used directly. If this setting is present, it should be set to `false`. To enable similar functionality to convert datetimes instead, an enrichment schema can be added under the `enrichmentSchemaNames` list.
 
 
 ### 3. Test and commit, and deploy to Test and maybe Prod

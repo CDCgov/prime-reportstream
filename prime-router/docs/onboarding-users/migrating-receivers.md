@@ -68,7 +68,7 @@ In order to migrate existing covid pipeline settings to the UP a few settings ne
 * `schemaName:` Schema name specifies how the RS FHIR bundle should be translated to HL7 if the receiver's format is HL7. 
 If they're receiving HL7 v2 ORU_R01. The schema name can be updated to `azure:/metadata/hl7_mapping/ORU_R01/ORU_R01-base.yml`. 
 If the receiver has any specific receiver transforms the schema name should be updated to point to the schema location.
-* `convertDateTimesToReceiverLocalTime` This setting is no longer able to be used directly. If this setting is present, it should be set to `false`. To enable similar functionality to convert datetimes instead, an enrichment schema can be added under the `enrichmentSchemaNames` list.
+* `convertDateTimesToReceiverLocalTime` This setting is no longer able to be used directly. If this setting is present, it should be set to `false`. To enable similar functionality to convert datetimes instead, an enrichment schema can be added under the `enrichmentSchemaNames` list. See also: [Translate#extending-schemas](https://github.com/CDCgov/prime-reportstream/blob/master/prime-router/docs/universal-pipeline/translate.md#extending-schemas)
 * `jurisdictionalFilter:` The jurisdictional filter needs to be updated to use FHIR path. 
 The most common way to route messages to a STLT is based on the patient's or performer's state. 
 The FHIR path for that looks like this: `"(Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state = 'MT') or (Bundle.entry.resource.ofType(Patient).address.state = 'MT')"`
@@ -167,6 +167,7 @@ If the receiver has any of the following settings enabled they will need a recei
 - suppressAoe: true
 - defaultAoeToUnknown
 - replaceUnicodeWithAscii
+- convertDateTimesToReceiverLocalTime: false
 - useBlankInsteadOfUnknown
 - usePid14ForPatientEmail: true
 - suppressNonNPI
