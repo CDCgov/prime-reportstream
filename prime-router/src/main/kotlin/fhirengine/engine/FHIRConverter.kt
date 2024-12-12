@@ -537,10 +537,6 @@ class FHIRConverter(
                             }
                         }
                     }
-                    logger.info(
-                        "Applied transform - parentReportId=[${input.reportId}]" +
-                            ", childReportId=[], schemaName=[${input.schemaName}]"
-                    )
                 }
                 item
             }
