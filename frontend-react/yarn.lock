@@ -2573,23 +2573,23 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@testing-library/react@npm:^16.0.1":
-  version: 16.0.1
-  resolution: "@testing-library/react@npm:16.0.1"
+"@testing-library/react@npm:^16.1.0":
+  version: 16.1.0
+  resolution: "@testing-library/react@npm:16.1.0"
   dependencies:
     "@babel/runtime": ^7.12.5
   peerDependencies:
     "@testing-library/dom": ^10.0.0
-    "@types/react": ^18.0.0
-    "@types/react-dom": ^18.0.0
-    react: ^18.0.0
-    react-dom: ^18.0.0
+    "@types/react": ^18.0.0 || ^19.0.0
+    "@types/react-dom": ^18.0.0 || ^19.0.0
+    react: ^18.0.0 || ^19.0.0
+    react-dom: ^18.0.0 || ^19.0.0
   peerDependenciesMeta:
     "@types/react":
       optional: true
     "@types/react-dom":
       optional: true
-  checksum: 1837db473ea018cf2b5d0cbfffb7a30d0d759e5a7f23aad431441c77bcc3d2533250cd003a61878fd908267df47404cedcb5914f12d79e413002c659652b37fd
+  checksum: 5dc8e7abda23d108c29f43cdacd43fad750e981ee87ee8902fb349a2683f2f774ef1136f2d3ef3d9efb87e8b04426c43d7b46e95511cd7c9d37b10c3bdd3e9e2
   languageName: node
   linkType: hard
 
@@ -9853,7 +9853,7 @@ __metadata:
     "@tanstack/react-query-devtools": ^5.62.2
     "@testing-library/dom": ^10.4.0
     "@testing-library/jest-dom": ^6.6.3
-    "@testing-library/react": ^16.0.1
+    "@testing-library/react": ^16.1.0
     "@testing-library/user-event": ^14.5.2
     "@trussworks/react-uswds": ^9.1.0
     "@types/dompurify": ^3.2.0
@@ -9942,7 +9942,7 @@ __metadata:
     tsx: ^4.19.2
     typescript: ^5.7.2
     typescript-eslint: ^8.16.0
-    undici: ~6.20.1
+    undici: ~7.1.0
     use-deep-compare-effect: ^1.8.1
     uuid: ^11.0.3
     vite: ^6.0.3
@@ -11825,10 +11825,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"undici@npm:~6.20.1":
-  version: 6.20.1
-  resolution: "undici@npm:6.20.1"
-  checksum: 3bb1405b406fa0e913ff4ec6fd310c9b4d950b7064ba5949b2f616c1f13070d26f5558aefb4b56b2eafb555925443ce44cb801e143d2417ecf12ddf8d5c05cf6
+"undici@npm:~7.1.0":
+  version: 7.1.0
+  resolution: "undici@npm:7.1.0"
+  checksum: 277844351541703e44754949c7b78512317ef38d117bb7c2c42496a64e0c69b29a5bdcd6f4bfcb55193c0e4a29e95a7685f378cdef32140bc2de51e3757a7337
   languageName: node
   linkType: hard
 
