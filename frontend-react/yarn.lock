@@ -6194,21 +6194,22 @@ __metadata:
   languageName: node
   linkType: hard
 
-"focus-trap-react@npm:^10.3.1":
-  version: 10.3.1
-  resolution: "focus-trap-react@npm:10.3.1"
+"focus-trap-react@npm:^11.0.0":
+  version: 11.0.0
+  resolution: "focus-trap-react@npm:11.0.0"
   dependencies:
-    focus-trap: ^7.6.1
+    focus-trap: ^7.6.2
     tabbable: ^6.2.0
   peerDependencies:
-    prop-types: ^15.8.1
-    react: ">=16.3.0"
-    react-dom: ">=16.3.0"
-  checksum: 7992402b86a2ebada9232f36388fe7997e395365f1ca89927114caf84c53c546940c066b0a60417b01b4b366d97d0ac313d7c65ef69b74d188fc0863f850f480
+    "@types/react": ^18.0.0 || ^19.0.0
+    "@types/react-dom": ^18.0.0 || ^19.0.0
+    react: ^18.0.0 || ^19.0.0
+    react-dom: ^18.0.0 || ^19.0.0
+  checksum: 7255fff9577041ce214969ee7637ed8b027d1bb56f217bcb75b5624d499a854b7703b318438f9a2ea3800b5007dac69eaaa09593c8c8b44a59038aea879d67f0
   languageName: node
   linkType: hard
 
-"focus-trap@npm:^7.6.1":
+"focus-trap@npm:^7.6.2":
   version: 7.6.2
   resolution: "focus-trap@npm:7.6.2"
   dependencies:
@@ -9898,7 +9899,7 @@ __metadata:
     eslint-plugin-testing-library: ^7.1.1
     eslint-plugin-vitest: ^0.5.4
     export-to-csv-fix-source-map: ^0.2.1
-    focus-trap-react: ^10.3.1
+    focus-trap-react: ^11.0.0
     globals: ^15.13.0
     history: ^5.3.0
     html-to-text: ^9.0.5
