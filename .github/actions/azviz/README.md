@@ -1,8 +1,8 @@
 # AzViz (Azure Visualizer) action
 
 ![](https://badgen.net/badge/icon/gitguardian/green?icon=gitguardian&label)
-[![Linux runner](https://github.com/JosiahSiegel/AzViz-action/actions/workflows/test_linux_runner.yml/badge.svg)](https://github.com/JosiahSiegel/AzViz-action/actions/workflows/test_linux_runner.yml)
-[![Windows runner](https://github.com/JosiahSiegel/AzViz-action/actions/workflows/test_windows_runner.yml/badge.svg)](https://github.com/JosiahSiegel/AzViz-action/actions/workflows/test_windows_runner.yml)
+[![Linux runner](https://github.com/CDCgov/prime-reportstream/.github/workflows/azviz--test_linux_runner.yml/badge.svg)](https://github.com/CDCgov/prime-reportstream/.github/workflows/azviz--test_linux_runner.yml)
+[![Windows runner](https://github.com/CDCgov/prime-reportstream/.github/workflows/azviz--test_windows_runner.yml/badge.svg)](https://github.com/CDCgov/prime-reportstream/.github/workflows/azviz--test_windows_runner.yml)
 
 ## ☕ Please donate to [AzViz Developer](https://github.com/PrateekKumarSingh/AzViz#readme)
 
@@ -77,7 +77,7 @@ jobs:
           with:
             creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }} 
             enable-AzPSSession: true
-        - uses: JosiahSiegel/AzViz-action@v1.0.3
+        - uses: CDCgov/prime-reportstream/.github/actions/azviz@663e24299a6336f1ff8dbddadfac1ba5d462f731aaa
           with:
             resource-group: ${{ github.event.inputs.resource-group }}
             out-file: ${{ github.event.inputs.out-file }}
