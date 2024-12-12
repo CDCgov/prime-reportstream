@@ -1,13 +1,4 @@
-import {
-    GridContainer,
-    Label,
-    Modal,
-    ModalRef,
-    Select,
-    SiteAlert,
-    TextInput,
-    Tooltip,
-} from "@trussworks/react-uswds";
+import { GridContainer, Label, Modal, ModalRef, Select, SiteAlert, TextInput, Tooltip } from "@trussworks/react-uswds";
 
 import { endOfDay, startOfDay, subDays } from "date-fns";
 import { useCallback, useMemo, useRef, useState } from "react";
@@ -32,22 +23,16 @@ function AdminReceiverDashboardPage() {
         end: endOfDay(new Date()),
     });
 
-    const [startDate, setStartDate] = useState<Date>(
-        defaultDatesRef.current.start,
-    );
+    const [startDate, setStartDate] = useState<Date>(defaultDatesRef.current.start);
     const [endDate, setEndDate] = useState<Date>(defaultDatesRef.current.end);
     // this is the text input box filter
     const [filterReceiver, setFilterReceiver] = useState("");
     const [filterResultMessage, setFilterResultMessage] = useState("");
-    const [filterSuccessState, setFilterSuccessState] = useState<SuccessRate>(
-        SuccessRate.UNDEFINED,
-    );
+    const [filterSuccessState, setFilterSuccessState] = useState<SuccessRate>(SuccessRate.UNDEFINED);
 
     // used to show hide the modal
     const modalShowInfoRef = useRef<ModalRef>(null);
-    const [timePeriodStatuses, setTimePeriodStatuses] = useState<
-        RSReceiverStatusParsed[]
-    >([]);
+    const [timePeriodStatuses, setTimePeriodStatuses] = useState<RSReceiverStatusParsed[]>([]);
 
     const handleTimePeriodClick = useCallback(({ entries }: TimePeriodData) => {
         setTimePeriodStatuses(entries);
@@ -70,28 +55,13 @@ function AdminReceiverDashboardPage() {
         [endDate, filterResultMessage, results, startDate, timePeriodMinutes],
     );
 
-    if (data.length === 0) {
-        return <div>No Data</div>;
-    }
-
-    const filteredData = filterStatuses(
-        data,
-        filterReceiver,
-        filterSuccessState,
-    );
-
-    if (filteredData.length === 0) {
-        return <div>No data matching filters</div>;
-    }
+    const filteredData = filterStatuses(data, filterReceiver, filterSuccessState);
 
     return (
         <GridContainer>
             <Helmet>
                 <title>Receiver status dashboard - Admin</title>
-                <meta
-                    property="og:image"
-                    content="/assets/img/opengraph/reportstream.png"
-                />
+                <meta property="og:image" content="/assets/img/opengraph/reportstream.png" />
                 <meta
                     property="og:image:alt"
                     content='"ReportStream" surrounded by an illustration of lines and boxes connected by colorful dots.'
@@ -102,24 +72,16 @@ function AdminReceiverDashboardPage() {
                 <section>
                     CRON job results that check if receivers are working.
                     <br />
-                    Each slot is a 2hr time slice. Colored slots had a check
-                    run. Clicking on a slot shows details.
+                    Each slot is a 2hr time slice. Colored slots had a check run. Clicking on a slot shows details.
                 </section>
                 <SiteAlert variant="info">
                     {
                         "Times shown are in YOUR LOCAL timezone. Be aware that receivers and servers may be in different zones."
                     }
                 </SiteAlert>
-                <form
-                    autoComplete="off"
-                    className="grid-row margin-0"
-                    name="filter"
-                >
+                <form autoComplete="off" className="grid-row margin-0" name="filter">
                     <div className="flex-auto margin-1">
-                        <Label
-                            className="font-sans-xs usa-label text-no-wrap"
-                            htmlFor="input_filter_receivers"
-                        >
+                        <Label className="font-sans-xs usa-label text-no-wrap" htmlFor="input_filter_receivers">
                             Date range:
                         </Label>
                         <DateRangePickerAtomic
@@ -132,10 +94,7 @@ function AdminReceiverDashboardPage() {
                         />
                     </div>
                     <div className="flex-fill margin-1">
-                        <Label
-                            className="font-sans-xs usa-label text-no-wrap"
-                            htmlFor="input_filter_receivers"
-                        >
+                        <Label className="font-sans-xs usa-label text-no-wrap" htmlFor="input_filter_receivers">
                             Receiver Name:
                         </Label>
                         <Tooltip
@@ -148,18 +107,13 @@ function AdminReceiverDashboardPage() {
                                 type="text"
                                 autoComplete="off"
                                 aria-autocomplete="none"
-                                onChange={(evt) =>
-                                    setFilterReceiver(evt.target.value)
-                                }
+                                onChange={(evt) => setFilterReceiver(evt.target.value)}
                             />
                         </Tooltip>
                     </div>
 
                     <div className="flex-fill margin-1">
-                        <Label
-                            className="font-sans-xs usa-label text-no-wrap"
-                            htmlFor="input_filter_errors"
-                        >
+                        <Label className="font-sans-xs usa-label text-no-wrap" htmlFor="input_filter_errors">
                             Results Message:
                         </Label>
                         <Tooltip
@@ -172,60 +126,38 @@ function AdminReceiverDashboardPage() {
                                 type="text"
                                 autoComplete="off"
                                 aria-autocomplete="none"
-                                onChange={(evt) =>
-                                    setFilterResultMessage(evt.target.value)
-                                }
+                                onChange={(evt) => setFilterResultMessage(evt.target.value)}
                             />
                         </Tooltip>
                     </div>
 
                     <div className="flex-fill margin-1">
-                        <Label
-                            className="font-sans-xs usa-label text-no-wrap"
-                            htmlFor="successrate-dropdown"
-                        >
+                        <Label className="font-sans-xs usa-label text-no-wrap" htmlFor="successrate-dropdown">
                             Success Type:
                         </Label>
-                        <Tooltip
-                            className="fixed-tooltip"
-                            label="Show only rows in one of these states."
-                        >
+                        <Tooltip className="fixed-tooltip" label="Show only rows in one of these states.">
                             <Select
                                 id="successrate-dropdown"
                                 name="successrate-dropdown"
                                 onChange={(evt) =>
-                                    setFilterSuccessState(
-                                        (evt?.target?.value as SuccessRate) ||
-                                            SuccessRate.UNDEFINED,
-                                    )
+                                    setFilterSuccessState((evt?.target?.value as SuccessRate) || SuccessRate.UNDEFINED)
                                 }
                             >
-                                <option value={SuccessRate.UNDEFINED}>
-                                    Show All
-                                </option>
-                                <option value={SuccessRate.ALL_FAILURE}>
-                                    Failed
-                                </option>
-                                <option value={SuccessRate.MIXED_SUCCESS}>
-                                    Mixed success
-                                </option>
+                                <option value={SuccessRate.UNDEFINED}>Show All</option>
+                                <option value={SuccessRate.ALL_FAILURE}>Failed</option>
+                                <option value={SuccessRate.MIXED_SUCCESS}>Mixed success</option>
                             </Select>
                         </Tooltip>
                     </div>
                 </form>
-                <ReceiversStatusesDisplay
-                    receiverStatuses={filteredData}
-                    onTimePeriodClick={handleTimePeriodClick}
-                />
-                <Modal
-                    isLarge={true}
-                    className="rs-admindash-modal"
-                    ref={modalShowInfoRef}
-                    id={"showSuccessDetails"}
-                >
-                    <TimePeriodModalInner
-                        receiverStatuses={timePeriodStatuses}
+                {filteredData.length > 0 && (
+                    <ReceiversStatusesDisplay
+                        receiverStatuses={filteredData}
+                        onTimePeriodClick={handleTimePeriodClick}
                     />
+                )}
+                <Modal isLarge={true} className="rs-admindash-modal" ref={modalShowInfoRef} id={"showSuccessDetails"}>
+                    <TimePeriodModalInner receiverStatuses={timePeriodStatuses} />
                 </Modal>
                 <HipaaNotice />
             </article>

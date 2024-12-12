@@ -32,11 +32,7 @@ export const MATCHING_FILTER_CLASSNAME_MAP = {
  * build the dictionary with a special path+key
  * @param dataIn
  */
-export const sortStatusData = <
-    T extends RSReceiverStatus[] | RSReceiverStatusParsed[],
->(
-    dataIn: T,
-): T => {
+export const sortStatusData = <T extends RSReceiverStatus[] | RSReceiverStatusParsed[]>(dataIn: T): T => {
     const data = structuredClone(dataIn);
     const { orgNameMaxLength, receiverNameMaxLength } = data.reduce(
         (prev, curr) => {
@@ -58,23 +54,17 @@ export const sortStatusData = <
     );
 
     // sorting by organizationName, then receiverName, then connectionCheckStartedAt
-    data.sort(
-        (
-            d1: RSReceiverStatus | RSReceiverStatusParsed,
-            d2: RSReceiverStatus | RSReceiverStatusParsed,
-        ) => {
-            // ideally the shape of this type will change so that all receivers, regardless if any status data was found, will get sorted
-            const [sortStrA, sortStrB] = [d1, d2].map(
-                (x) =>
-                    `${x.organizationName.padEnd(orgNameMaxLength, "-")}${x.receiverName.padEnd(receiverNameMaxLength, "-")}${new Date(x.connectionCheckStartedAt || Date.now()).toISOString()}`,
-            );
+    data.sort((d1: RSReceiverStatus | RSReceiverStatusParsed, d2: RSReceiverStatus | RSReceiverStatusParsed) => {
+        // ideally the shape of this type will change so that all receivers, regardless if any status data was found, will get sorted
+        const [sortStrA, sortStrB] = [d1, d2].map(
+            (x) =>
+                `${x.organizationName.padEnd(orgNameMaxLength, "-")}${x.receiverName.padEnd(receiverNameMaxLength, "-")}${new Date(x.connectionCheckStartedAt || Date.now()).toISOString()}`,
+        );
 
-            const result =
-                sortStrA > sortStrB ? 1 : sortStrA < sortStrB ? -1 : 0;
+        const result = sortStrA > sortStrB ? 1 : sortStrA < sortStrB ? -1 : 0;
 
-            return result;
-        },
-    );
+        return result;
+    });
 
     return data;
 };
@@ -103,33 +93,24 @@ export function createStatusTimePeriodData({
 }): ReceiverStatusTimePeriod[] {
     const inter = interval(startDate, endDate, { assertPositive: true });
     const numTimePeriodsPerDay = (24 * 60) / timePeriodMinutes;
-    if (numTimePeriodsPerDay % 1 !== 0)
-        throw new Error("Invalid time period duration");
+    if (numTimePeriodsPerDay % 1 !== 0) throw new Error("Invalid time period duration");
 
-    const timePeriodLabels = Array.from(Array(numTimePeriodsPerDay).keys()).map(
-        (_, i) =>
-            addMinutes(
-                startDate,
-                (i + 1) * timePeriodMinutes,
-            ).toLocaleTimeString(),
+    const timePeriodLabels = Array.from(Array(numTimePeriodsPerDay).keys()).map((_, i) =>
+        addMinutes(startDate, (i + 1) * timePeriodMinutes).toLocaleTimeString(),
     );
     const sortedData = sortStatusData(data).map((d) => ({
         ...d,
         connectionCheckCompletedAt: new Date(d.connectionCheckCompletedAt),
         connectionCheckStartedAt: new Date(d.connectionCheckStartedAt),
     }));
-    const receiverIds = Array.from(
-        new Set(sortedData.map((d) => d.receiverId)),
-    );
+    const receiverIds = Array.from(new Set(sortedData.map((d) => d.receiverId)));
 
     return receiverIds.map((id) => {
         const entries = sortedData.filter((d) => d.receiverId === id);
         const { organizationName, receiverName } = entries[0];
         const days = eachDayOfInterval(inter).map((day) => {
             const dayEntries = entries.filter(
-                (e) =>
-                    e.connectionCheckCompletedAt.toLocaleDateString() ===
-                    day.toLocaleDateString(),
+                (e) => e.connectionCheckCompletedAt.toLocaleDateString() === day.toLocaleDateString(),
             );
             const dayString = day.toLocaleDateString();
             const timePeriods = timePeriodLabels.map((time) => {
@@ -137,26 +118,18 @@ export function createStatusTimePeriodData({
                 const end = addMinutes(start, timePeriodMinutes);
 
                 const timePeriodEntries = dayEntries.filter((e) => {
-                    return (
-                        e.connectionCheckCompletedAt >= start &&
-                        e.connectionCheckCompletedAt < end
-                    );
+                    return e.connectionCheckCompletedAt >= start && e.connectionCheckCompletedAt < end;
                 });
                 const agg = timePeriodEntries.reduce(
-                    (
-                        agg,
-                        { connectionCheckSuccessful, connectionCheckResult },
-                    ) => {
+                    (agg, { connectionCheckSuccessful, connectionCheckResult }) => {
                         if (connectionCheckSuccessful) agg.success += 1;
                         else {
                             agg.fail += 1;
-                            if (
-                                connectionCheckResult
-                                    .toLowerCase()
-                                    .includes(filterResultMessage.toLowerCase())
-                            ) {
-                                agg.isResultFilterMatch = true;
-                            }
+                            if (!agg.isResultFilterMatch)
+                                agg.isResultFilterMatch = isConnectionResultMatch(
+                                    connectionCheckResult,
+                                    filterResultMessage,
+                                );
                         }
                         return agg;
                     },
@@ -188,6 +161,7 @@ export function createStatusTimePeriodData({
                     successRateType,
                     matchingFilter,
                     entries: timePeriodEntries,
+                    q: filterResultMessage,
                 };
             });
             return {
@@ -208,10 +182,7 @@ export function createStatusTimePeriodData({
             },
             { success: 0, fail: 0 },
         );
-        const successRate =
-            !!success || !!fail
-                ? Math.round((100 * success) / (success + fail))
-                : 0;
+        const successRate = !!success || !!fail ? Math.round((100 * success) / (success + fail)) : 0;
         const successRateType =
             !success && !fail
                 ? SuccessRate.UNDEFINED
@@ -270,12 +241,14 @@ export function filterStatuses(
 ) {
     return statuses.filter(({ receiverName, successRateType }) => {
         const result =
-            (!receiverNameLike ||
-                receiverName.toLowerCase().includes(receiverNameLike)) &&
-            (!successRateLike ||
-                successRateLike === SuccessRate.UNDEFINED ||
-                successRateType === successRateLike);
+            (!receiverNameLike || receiverName.toLowerCase().includes(receiverNameLike)) &&
+            (!successRateLike || successRateLike === SuccessRate.UNDEFINED || successRateType === successRateLike);
 
         return result;
     });
+}
+
+export function isConnectionResultMatch(result: string, query: string) {
+    if (query === "") return true;
+    return result.toLowerCase().includes(query.toLowerCase());
 }

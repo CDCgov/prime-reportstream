@@ -21,6 +21,8 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.context.annotation.Import
 import org.springframework.http.MediaType
+import org.springframework.security.core.authority.SimpleGrantedAuthority
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.DynamicPropertyRegistry
 import org.springframework.test.context.DynamicPropertySource
@@ -96,11 +98,22 @@ class SubmissionControllerIntegrationTest {
 
         mockMvc.perform(
             MockMvcRequestBuilders.post("/api/v1/reports")
+                .with(jwt().authorities(SimpleGrantedAuthority("SCOPE_sender")))
                 .content(requestBody)
                 .contentType(MediaType.valueOf("application/hl7-v2"))
-                .header("client_id", "testClient")
+                .header("client_id", "org.test")
                 .header("payloadname", "testPayload")
                 .header("x-azure-clientip", "127.0.0.1")
+                .header(
+                    "Okta-Groups",
+                    "eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJhcHBJZCIsIm5iZiI6MTczMDkxMTczMiwiaXNzIjoiSSdtIHRoZSBpc3N1ZXIiLCJ" +
+                        "ncm91cHMiOlsiREhTZW5kZXJfb3JnIl0sImV4cCI6NDg4NDUxMTczNywiaWF0IjoxNzMwOTExNzM3LCJqdGkiOiI1YjA" +
+                        "5MjhjMC1jMDZmLTQ5OGItOWFmZS1kZDEwODJlNDliMmIifQ.EP3v_kCzWGTWIhhibwTWSzQGMSYVvogbqvrLiwSbTD0X" +
+                        "ADRhiBlD4AIJwa_aUp9Zxnc6fbNKPIHWydzYZNUzzMmRkIzSYfmcj1oRjvf0HiXqw-8tSBT1sTBOlpGxWpTuPPnvV9A7" +
+                        "ZqqJ614v8x_NyxPdswOdfFpgtSb_nDFLaLR3Tzo5A0JFeNWtlOd8U2gp6a57vggCFt9vDMhrOq8QC6gYJPUn1u7Z_Xfd" +
+                        "C1XSm7r3DwcItMbqtVVY1ngixMI7CB0bChcJPgHI37P03IMsVscFrXlPPwxSUkdAe1xZW9w9i0-sI7iLIy78k4gMMXgH" +
+                        "W64oopgua3Fdalo-LhDsJA"
+                )
         )
             .andExpect(MockMvcResultMatchers.status().isCreated)
 
@@ -124,7 +137,7 @@ class SubmissionControllerIntegrationTest {
 //        val queueMessageContent = objectMapper.readValue(/* content = */ messages[0].body.toString(), /* valueType = */
 //            QueueMessage.ReceiveQueueMessage::class.java)
         val headers = deserializedMessage.headers as Map<*, *>
-        assertEquals("testClient", headers["client_id"])
+        assertEquals("org.test", headers["client_id"])
         assertEquals("application/hl7-v2;charset=UTF-8", headers["Content-Type"])
         assertEquals("testPayload", headers["payloadname"])
         assertEquals("127.0.0.1", headers["x-azure-clientip"])

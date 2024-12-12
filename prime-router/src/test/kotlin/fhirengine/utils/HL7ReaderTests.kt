@@ -469,4 +469,27 @@ OBX|1|test|94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen b
         val obxSegment = Terser(messages[0]).getSegment("/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION/OBX") as OBX
         assertThat(obxSegment.getObservationValue(0).data).isInstanceOf(CWE::class)
     }
+
+    @Test
+    fun `extract MSH segment values`() {
+        val actionLogger = ActionLogger()
+        val hL7Reader = HL7Reader(actionLogger)
+
+        @Suppress("ktlint:standard:max-line-length")
+        val rawMessage = "MSH|^~\\&|Epic|Hospital|LIMS|StatePHL|20241003000000||ORM^O01^ORM_O01|4AFA57FE-D41D-4631-9500-286AAAF797E4|T|2.5.1|||AL|NE"
+        val message = hL7Reader.getMessages(rawMessage).first()
+
+        assertThat(
+            HL7Reader.getSendingApplication(message)
+        ).isEqualTo("Epic")
+        assertThat(
+            HL7Reader.getSendingFacility(message),
+        ).isEqualTo("Hospital")
+        assertThat(
+            HL7Reader.getMessageControlId(message)
+        ).isEqualTo("4AFA57FE-D41D-4631-9500-286AAAF797E4")
+        assertThat(
+            HL7Reader.getAcceptAcknowledgmentType(message)
+        ).isEqualTo("AL")
+    }
 }

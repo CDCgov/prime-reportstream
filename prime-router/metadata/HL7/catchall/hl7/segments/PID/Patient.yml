@@ -91,9 +91,15 @@ contact:
           vars:
             nk141: STRING, NK1.41
     relationship:
-      valueOf: datatypes/CWE/CodeableConcept
-      expressionType: resource
-      specs: NK1.7
+      generateList: true
+      expressionType: nested
+      expressions:
+      - valueOf: datatypes/CWE/CodeableConcept
+        expressionType: resource
+        specs: NK1.3
+      - valueOf: datatypes/CWE/CodeableConcept
+        expressionType: resource
+        specs: NK1.7
     period:
       vars:
         startDate: NK1.8

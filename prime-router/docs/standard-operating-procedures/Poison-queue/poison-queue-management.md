@@ -1,6 +1,6 @@
 ## Context
 
-Each step in both the Universal Pipeline has built in logic that retries the function five times before moving the failing message to a poison queue. The exceptions to this rule are the "Receive" step which has no retry logic and the "Send" step which has custom retry logic. More information on retry logic for the send step can be found in the Universal Pipeline [send step documentation](https://github.com/CDCgov/prime-reportstream/blob/master/prime-router/docs/universal-pipeline/send.md)
+Each step in both the Universal Pipeline has built in logic that retries the function five times before moving the failing message to a poison queue. The exceptions to this rule are the "Receive" step which has no retry logic and the "Send" step which has custom retry logic. More information on retry logic for the send step can be found in the Universal Pipeline [send step documentation](https://github.com/CDCgov/prime-reportstream/blob/main/prime-router/docs/universal-pipeline/send.md)
 
 ## Poison Queues
 ![Azure-queues](Azure-queues.png)

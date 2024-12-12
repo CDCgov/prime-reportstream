@@ -9,9 +9,14 @@ elements:
     value: [ '%prtDeviceIndex + 1' ]
     hl7Spec: [ '%{hl7PRTFieldPath}-1' ]
 
+  # TODO reevaluate this mapping https://github.com/CDCgov/prime-reportstream/issues/16479
   - name: observation-set-id
     value: [ '%prtDeviceIndex + 1' ]
     hl7Spec: [ '%{hl7OBXFieldPath}-1' ]
+
+  - name: prt-extension-values
+    resource: '%resource.extension(%`rsext-prt-extension`)'
+    schema: classpath:/metadata/hl7_mapping/resources/Device/PRTExtension.yml
 
   - name: placer-order-number
     resource: '%resource.udiCarrier.where(extension(%`rsext-hl7v2Field`).value = "PRT.10")'
@@ -19,3 +24,41 @@ elements:
       eiFieldPath: '%{hl7PRTFieldPath}(%{entityIdIndex})-10'
     schema: classpath:/metadata/hl7_mapping/datatypes/device-udiCarrier/EI.yml
     resourceIndex: entityIdIndex
+
+  - name: udi-device-identifier
+    resource: '%resource.udiCarrier.where(extension(%`rsext-hl7v2Field`).value = "PRT.16")'
+    constants:
+      eiFieldPath: '%{hl7PRTFieldPath}-16'
+    schema: classpath:/metadata/hl7_mapping/datatypes/device-udiCarrier/EI.yml
+
+  - name: device-manufacture-date
+    resource: '%resource.manufactureDate'
+    constants:
+      dtmFieldPath: '%{hl7PRTFieldPath}-17'
+    schema: classpath:/metadata/hl7_mapping/datatypes/dateTime/DTMorDT.yml
+
+  - name: device-expiry-date
+    resource: '%resource.expirationDate'
+    constants:
+      dtmFieldPath: '%{hl7PRTFieldPath}-18'
+    schema: classpath:/metadata/hl7_mapping/datatypes/dateTime/DTMorDT.yml
+
+  - name: device-lot-number
+    value: [ '%resource.lotNumber' ]
+    hl7Spec: [ '%{hl7PRTFieldPath}-19' ]
+
+  - name: device-serial-number
+    value: [ '%resource.serialNumber' ]
+    hl7Spec: [ '%{hl7PRTFieldPath}-20' ]
+
+  - name: device-donation-identification
+    resource: '%resource.distinctIdentifier'
+    schema: classpath:/metadata/hl7_mapping/datatypes/identifier/EI.yml
+    constants:
+      hl7EIField: '%{hl7PRTFieldPath}-21'
+
+  - name: device-type
+    resource: '%resource.type'
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CNE.yml
+    constants:
+      cneFieldPath: '%{hl7PRTFieldPath}-22'

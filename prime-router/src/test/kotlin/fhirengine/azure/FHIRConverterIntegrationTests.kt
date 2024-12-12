@@ -96,6 +96,7 @@ import tech.tablesaw.api.StringColumn
 import tech.tablesaw.api.Table
 import java.nio.charset.Charset
 import java.time.OffsetDateTime
+import java.util.Base64
 import java.util.UUID
 
 @Testcontainers
@@ -334,8 +335,7 @@ class FHIRConverterIntegrationTests {
             verify(exactly = 1) {
                 QueueAccess.sendMessage(
                     "${QueueMessage.elrSubmissionConvertQueueName}-poison",
-                    queueMessage
-
+                    Base64.getEncoder().encodeToString(queueMessage.toByteArray())
                 )
             }
         }

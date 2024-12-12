@@ -48,7 +48,7 @@ file and then add or remove rows as needed. The Condition Code System for any ma
 
 *********Important, ensure that when editing the file locally, entries containing longer codes do not get converted to a different format (If editing in excel, it will attempt to use scientific notation for longer numeric values)*********
 
-All tables should be updated in staging first using any of the below methods and smoke tests run against staging prior to pushing changes to production. In order to run the smoke tests use the ./prime test CLI command. Steps to run this tests against the staging environment can be found in the "Deployment Process" document pinned to the top to #prime-reportstream-deployment channel or in the [running-tests document](https://github.com/CDCgov/prime-reportstream/blob/master/prime-router/docs/getting-started/running-tests.md). In order to run any commands against the remote environments, you will first need to run the ./prime login --env <prod-or-staging> CLI command to obtain an access token.
+All tables should be updated in staging first using any of the below methods and smoke tests run against staging prior to pushing changes to production. In order to run the smoke tests use the ./prime test CLI command. Steps to run this tests against the staging environment can be found in the "Deployment Process" document pinned to the top to #prime-reportstream-deployment channel or in the [running-tests document](https://github.com/CDCgov/prime-reportstream/blob/main/prime-router/docs/getting-started/running-tests.md). In order to run any commands against the remote environments, you will first need to run the ./prime login --env <prod-or-staging> CLI command to obtain an access token.
 
 ### Updating RCTC valuesets
 
@@ -220,10 +220,10 @@ Sign up for an account, download the CSV, and map the data from it
 
 ## Sender Onboarding
 
-As part of sender onboarding we will need to check the list of codes that the sender will be sending against the list of codes that are mapped in the observation-mapping table. In order to accomplish this we will need the list of LOINC/SNOMED order and result codes the sender will be sending (also known as a "compendium") in a CSV file. Information on this process can be found in [senders.md](https://github.com/CDCgov/prime-reportstream/blob/master/prime-router/docs/onboarding-users/senders.md)
+As part of sender onboarding we will need to check the list of codes that the sender will be sending against the list of codes that are mapped in the observation-mapping table. In order to accomplish this we will need the list of LOINC/SNOMED order and result codes the sender will be sending (also known as a "compendium") in a CSV file. Information on this process can be found in [senders.md](https://github.com/CDCgov/prime-reportstream/blob/main/prime-router/docs/onboarding-users/senders.md)
 
 ### How to map condition to LOINC/SNOMED code not found in RCTC and not an AOE
 
 The RCTC is frequently updated and should contain the majority of codes that we receive. In the event we need to map a Lab Developed Test (LDT) or a LOINC/SNOMED code that is not represented in the RCTC
 we will need to determine what standardized SNOMED condition code it should be mapped to. In some cases this will be obvious and we can use our best judgment (i.e. a test for Flu should be mapped to Influenza, a test for chlamydia should be mapped to chlmydia etc.).
-In cases where the condition is not obvious we should check with the sender (this will usually be accomplished in the sender onboarding as described in [sender.md](https://github.com/CDCgov/prime-reportstream/blob/master/prime-router/docs/onboarding-users/sender-onboarding/senders.md)). The sender's assertion of the appropriate condition the code is mapped to should be validated with a receiving STLT.
+In cases where the condition is not obvious we should check with the sender (this will usually be accomplished in the sender onboarding as described in [sender.md](https://github.com/CDCgov/prime-reportstream/blob/main/prime-router/docs/onboarding-users/sender-onboarding/senders.md)). The sender's assertion of the appropriate condition the code is mapped to should be validated with a receiving STLT.

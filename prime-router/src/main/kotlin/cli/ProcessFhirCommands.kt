@@ -260,7 +260,7 @@ class ProcessFhirCommands : CliktCommand(
 
         val senderSchemaName = when {
             senderSchema != null -> senderSchema
-            senderSchemaParam != null -> senderSchemaParam
+            isCli && senderSchemaParam != null -> senderSchemaParam
             else -> null
         }
 
@@ -272,7 +272,7 @@ class ProcessFhirCommands : CliktCommand(
             receiver != null && receiver.enrichmentSchemaNames.isNotEmpty() -> {
                 receiver.enrichmentSchemaNames.joinToString(",")
             }
-            enrichmentSchemaNames != null -> enrichmentSchemaNames
+            isCli && enrichmentSchemaNames != null -> enrichmentSchemaNames
             else -> null
         }
 
@@ -470,19 +470,19 @@ class ProcessFhirCommands : CliktCommand(
         }
 
         val receiverTransformSchemaName = when {
-            receiver != null && receiver.schemaName.isNotEmpty() -> receiver.enrichmentSchemaNames.joinToString(",")
-            receiverSchema != null -> receiverSchema
+            receiver != null && receiver.schemaName.isNotEmpty() -> receiver.schemaName
+            isCli && receiverSchema != null -> receiverSchema
             else -> null
         }
 
         if (receiverTransformSchemaName != null) {
             val message = FhirToHl7Converter(
-                receiverSchema!!,
+                receiverTransformSchemaName,
                 BlobAccess.BlobContainerMetadata.build("metadata", Environment.get().storageEnvVar),
                 context = FhirToHl7Context(
                     CustomFhirPathFunctions(),
                     config = HL7TranslationConfig(
-                        hl7Configuration,
+                        hl7Configuration = hl7Configuration,
                         receiver
                     ),
                     translationFunctions = CustomTranslationFunctions(),

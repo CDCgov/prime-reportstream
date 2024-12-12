@@ -1,0 +1,210 @@
+# $schema: ./../../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
+
+# TODO https://github.com/CDCgov/prime-reportstream/issues/16479
+#  - add handling of preferredContactMethod to XTN/ContactPoint
+#  - need message level conditions to be able to implement FHIR > HL7 mapping
+#  - mappings should be treated as incomplete and require tests to be written
+
+# This segment does not appear in NIST or RADx MARS
+
+# PRT.5: Many mappings are a duplicate of XCN[RelatedPerson] (first repetition only)
+
+resourceType: RelatedPerson
+
+id:
+  type: STRING
+  valueOf: "GeneralUtils.generateResourceId()"
+  expressionType: JEXL
+  
+relationship:
+  valueOf: datatypes/CWE/CodeableConcept
+  expressionType: resource
+  specs: PRT.4
+
+identifier:
+  expressionType: nested
+  vars:
+    xcn11: String, PRT.5.11
+    xcn12: String, PRT.5.12
+    xcn13: String, PRT.5.13
+    xcn14: String, PRT.5.14
+  expressionsMap:
+    value:
+      type: STRING
+      valueOf: PRT.5.1
+      expressionType: HL7Spec
+    type:
+      condition: $xcn13 NOT_NULL
+      expressionType: resource
+      specs: PRT.5.13
+      valueOf: datatypes/ID/CodeableConcept
+    extension_1-checkDigit:
+      condition: $xcn11 NOT_NULL
+      generateList: true
+      expressionType: nested
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: identifier-check-digit
+        valueString:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: PRT.5.11
+    extension_2-checkDigitScheme:
+      condition: $xcn12 NOT_NULL
+      generateList: true
+      expressionType: nested
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: naming-system-check-digit
+        valueCode:
+          valueOf: PRT.5.12
+          type: STRING
+          expressionType: HL7Spec
+    extension_3-assigningFacility:
+      condition: $xcn14 NOT_NULL
+      generateList: true
+      expressionType: nested
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: identifier-location
+        valueReference:
+          expressionType: reference
+          valueOf: datatypes/HD/Location
+          specs: PRT.5.14
+
+name:
+  expressionType: nested
+  expressionsMap:
+    family:
+      type: STRING
+      valueOf: PRT.5.2.1
+      expressionType: HL7Spec
+    _family:
+      expressionType: resource
+      valueOf: datatypes/FN/ExtensionHumanName-family
+      specs: PRT.5.2
+    given:
+      generateList: true
+      expressionType: nested
+      expressions:
+        - expressionType: HL7Spec
+          valueOf: PRT.5.3
+          type: STRING
+        - expressionType: HL7Spec
+          valueOf: PRT.5.4
+          type: STRING
+    suffix:
+      generateList: true
+      expressionType: nested
+      expressions:
+        - expressionType: HL7Spec
+          valueOf: PRT.5.5
+          type: STRING
+        - expressionType: HL7Spec
+          valueOf: PRT.5.7
+          type: STRING
+        - expressionType: HL7Spec
+          valueOf: PRT.5.21
+          type: STRING
+    prefix:
+      type: STRING
+      valueOf: PRT.5.6
+      expressionType: HL7Spec
+    use:
+      type: NAME_USE
+      valueOf: PRT.5.10
+      expressionType: HL7Spec
+    # This needs to use variables because the message parses this field using NULLDT since it is deprecated which means that
+    # the values do not get correctly loaded and will not be mapped over correctly using a spec.
+    period_1:
+      vars:
+        xcn19: String, PRT.5.19
+        xcn20: String, PRT.5.20
+        start: String, PRT.5.17.1
+        end: String, PRT.5.17.2
+      condition: $xcn19 NULL && $xcn20 NULL
+      expressionType: resource
+      valueOf: datatypes/DR/Period
+    # XCN.17 is deprecated so the schema favors using XCN.19/20 if either are populated
+    period_2:
+      vars:
+        xcn19: String, PRT.5.19
+        xcn20: String, PRT.5.20
+      condition: $xcn19 NOT_NULL || $xcn20 NOT_NULL
+      expressionType: nested
+      expressionsMap:
+        start:
+          valueOf: "GeneralUtils.dateTimeWithZoneId(periodStart,ZONEID)"
+          expressionType: JEXL
+          vars:
+            periodStart: PRT.5.19
+        end:
+          valueOf: "GeneralUtils.dateTimeWithZoneId(periodEnd,ZONEID)"
+          expressionType: JEXL
+          vars:
+            periodEnd: PRT.5.20
+    extension_AssemblyOrder:
+      expressionType: nested
+      generateList: true
+      vars:
+        xcn18: String, PRT.5.18
+      condition: $xcn18 NOT_NULL
+      expressions:
+        - expressionType: nested
+          expressionsMap:
+            url:
+              type: SYSTEM_URL
+              value: humanname-assembly-order
+            valueCode:
+              type: STRING
+              valueOf: PRT.5.18
+              expressionType: HL7Spec
+
+address:
+  vars:
+    prt14: STRING_ALL, PRT.14
+  condition: $prt14 NOT_NULL
+  valueOf: datatypes/XAD/Address
+  expressionType: resource
+  specs: PRT.14
+  generateList: true
+
+period:
+  vars:
+    start: String, PRT.11
+    end: String, PRT.12
+  expressionType: resource
+  valueOf: datatypes/DR/Period
+
+telecom:
+  condition: $prt15 NOT_NULL
+  vars:
+    prt15: STRING_ALL, PRT.15
+    preferredContactMethod: STRING, PRT.23.1
+  expressionType: nested
+  specs: PRT.15 *
+  generateList: true
+  expressionsMap:
+    valueContactPoint:
+      valueOf: datatypes/XTN/ContactPoint
+      expressionType: resource
+      constants:
+        hl7v2Field: "PRT.15"
+
+extension:
+  vars:
+    xcn9: STRING_ALL, PRT.5.9
+  generateList: true
+  expressionType: nested
+  expressions:
+    - expressionType: resource
+      condition: $xcn9 NOT_NULL
+      valueOf: datatypes/HD/ExtensionAssigningAuthority
+      specs: PRT.5.9
+    - expressionType: resource
+      valueOf: segments/PRT/PRTExtension
+
+
