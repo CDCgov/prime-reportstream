@@ -10,29 +10,29 @@ required.
 - Scopes are in the format of `{organization}.{senderOrReceiver}.{role}` 
 - `organization` and `senderOrReceiver` can be omitted with a wildcard `*` or `default`
 
-There are 4 possible roles
+There are four possible roles
 
 | Role       | Definition                                                                |
 |------------|---------------------------------------------------------------------------|
 | primeadmin | system administrator with full access to all endpoints                    |
 | admin      | administrator with access to endpoints that manage their own organization |
-| report     | user with read access to endpoints scoped to their organization           |
+| user       | user with read access to endpoints scoped to their organization           |
 | report     | able to submit a report as an organization                                |
 
 
 Here are some examples given an organization of md-phd (Maryland Public Health Department)
 
-| Scope                   | Access                                                      |
-|-------------------------|-------------------------------------------------------------|
-| `*.*.primeadmin`        | System Administrator                                        |
-| `md-phd.*.admin`        | Organization Administrator                                  |
-| `md-phd.*.user`         | Organization User                                           |
-| `md-phd.*.report`       | Organization Report Submitter                               |
-| `md-phd.default.admin`  | Organization Administrator                                  |
-| `md-phd.default.user`   | Organization User                                           |
-| `md-phd.default.report` | Organization Report Submitter                               |
-| `md-phd.abc.admin`      | Organization Administrator scoped to abc sender or receiver |
-| `md-phd.abc.user`       | Organization User scoped to abc sender or receiver          |
+| Scope                   | Access                                                                 |
+|-------------------------|------------------------------------------------------------------------|
+| `*.*.primeadmin`        | System Administrator                                                   |
+| `md-phd.*.admin`        | Organization Administrator for md-phd                                  |
+| `md-phd.*.user`         | Organization User for md-phd                                           |
+| `md-phd.*.report`       | Organization Report Submitter for md-phd                               |
+| `md-phd.default.admin`  | Organization Administrator for md-phd                                  |
+| `md-phd.default.user`   | Organization User for md-phd                                           |
+| `md-phd.default.report` | Organization Report Submitter for md-phd                               |
+| `md-phd.abc.admin`      | Organization Administrator for md-phd scoped to abc sender or receiver |
+| `md-phd.abc.user`       | Organization User for md-phd scoped to abc sender or receiver          |
 
 
 
@@ -42,10 +42,10 @@ ReportStream endpoints.
 ### Server2Server
 
 This is ReportStream code that handles the client credentials OAuth 2.0 flow. This is most often used in machine-to-machine 
-communication such as senders. The important bit for authorization happens based on the scope requested in the request 
-to the /api/token endpoint. A member of the engagement team sets up a public key under a specific scope in the 
-organization settings. When a request for an access token comes in with a requested scope, we check the JWT assertion 
-against the public key under that scope in settings.
+communication such as senders. The important bit for authorization happens based on the scope requested in the call 
+to the /api/token endpoint. A member of the engagement team sets up an organization's public key under a specific scope 
+in the organization settings. When a request for an access token comes in with a requested scope, we check the JWT 
+assertion against the public key under that scope in settings.
 
 If the request is successful, an access token is granted with a scope matching the pattern above.
 
@@ -53,9 +53,9 @@ If the request is successful, an access token is granted with a scope matching t
 
 Users are all set up under our Okta instance. We add users to appropriate groups in Okta that correspond to what they 
 should be allowed to access. Those groups are in a custom claim called `organization` in the access token which 
-we then map to scopes that our system can handle.
+we then map to scopes that our system can handle. Scopes internal to okta are ignored.
 
-Here is the Okta group to Scope mapping strategy given an organization of md-phd (Maryland Public Health Department)
+Here is the Okta group to scope mapping strategy given an organization of md-phd (Maryland Public Health Department)
 
 | Okta Group              | ReportStream Scope |
 |-------------------------|--------------------|
@@ -69,8 +69,9 @@ Here is the Okta group to Scope mapping strategy given an organization of md-phd
 
 ### Azure Function Keys
 
-This is the default authentication process built into the Azure functions library. It is still used on some endpoints 
-for its simplicity of setup. It includes no authorization check at all and should be deprecated for that reason.
+This is the default authentication process built into the Azure functions library. It is a simple shared secret that is 
+stored in Azure and shared with the client. It is still used on some endpoints for its simplicity of setup. It includes
+no authorization check at all and should be deprecated for that reason.
 
 
 ## Authorization requirements by endpoint
@@ -135,4 +136,4 @@ for its simplicity of setup. It includes no authorization check at all and shoul
 | [SubmissionFunction](../../src/main/kotlin/history/azure/SubmissionFunction.kt)           | getReportDetailedHistory    | GET              | /api/waters/report/{id}/history                                         | [AuthenticatedClaims](../../src/main/kotlin/tokens/AuthenticatedClaims.kt)                 | System Admin, org admin, org user, or report                     | Organization                     |
 | [SubmissionFunction](../../src/main/kotlin/history/azure/SubmissionFunction.kt)           | getEtorMetadataForHistory   | GET              | /api/waters/report/{reportId}/history/etorMetadata                      | [AuthenticatedClaims](../../src/main/kotlin/tokens/AuthenticatedClaims.kt)                 | System Admin, org admin, org user, or report                     | Organization                     |
 
-*This is valid as of 12/11/24
+*This is valid as of 12/12/24
