@@ -3,7 +3,6 @@ package gov.cdc.prime.router.validation
 import assertk.assertThat
 import assertk.assertions.isFalse
 import assertk.assertions.isTrue
-import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.fhirengine.utils.HL7Reader
 import org.junit.jupiter.api.Test
 
@@ -17,8 +16,8 @@ class MarsOtcElrOnboardingValidatorTests {
             this.javaClass.classLoader.getResourceAsStream("validation/marsotcelr/fail_onboarding_pass_prod.hl7")
 
         val sampleMessage = sampleMessageInputStream!!.bufferedReader().use { it.readText() }
-        val messages = HL7Reader(ActionLogger()).getMessages(sampleMessage)
-        val report = validator.validate(messages[0])
+        val message = HL7Reader.parseHL7Message(sampleMessage, null)
+        val report = validator.validate(message)
         assertThat(report.isValid()).isFalse()
     }
 
@@ -28,8 +27,8 @@ class MarsOtcElrOnboardingValidatorTests {
             this.javaClass.classLoader.getResourceAsStream("validation/marsotcelr/valid.hl7")
 
         val sampleMessage = sampleMessageInputStream!!.bufferedReader().use { it.readText() }
-        val messages = HL7Reader(ActionLogger()).getMessages(sampleMessage)
-        val report = validator.validate(messages[0])
+        val message = HL7Reader.parseHL7Message(sampleMessage, null)
+        val report = validator.validate(message)
         assertThat(report.isValid()).isTrue()
     }
 }

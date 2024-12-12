@@ -1,11 +1,11 @@
 package gov.cdc.prime.router.azure.service
 
 import ca.uhn.hl7v2.model.Message
+import ca.uhn.hl7v2.util.Hl7InputStreamMessageStringIterator
 import com.google.common.net.HttpHeaders
 import com.microsoft.azure.functions.HttpRequestMessage
 import com.microsoft.azure.functions.HttpResponseMessage
 import com.microsoft.azure.functions.HttpStatus
-import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.azure.HttpUtilities
 import gov.cdc.prime.router.azure.HttpUtilities.Companion.isSuccessful
@@ -106,12 +106,12 @@ class SubmissionResponseBuilder(
             contentType == HttpUtilities.hl7V2MediaType &&
             requestBody != null
         ) {
-            val hl7Reader = HL7Reader(ActionLogger())
-            val messages = hl7Reader.getMessages(requestBody)
-            val isBatch = hl7Reader.isBatch(requestBody, messages.size)
+            val hl7Reader = HL7Reader()
+            val messageCount = Hl7InputStreamMessageStringIterator(requestBody.byteInputStream()).asSequence().count()
+            val isBatch = hl7Reader.isBatch(requestBody, messageCount)
 
-            if (!isBatch && messages.size == 1) {
-                val message = messages.first()
+            if (!isBatch && messageCount == 1) {
+                val message = HL7Reader.parseHL7Message(requestBody, null)
                 val acceptAcknowledgementType = HL7Reader.getAcceptAcknowledgmentType(message)
                 val ackResponseRequired = acceptAcknowledgmentTypeRespondValues.contains(acceptAcknowledgementType)
                 if (ackResponseRequired) {

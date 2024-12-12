@@ -2,7 +2,6 @@ package gov.cdc.prime.router.fhirengine.translation.hl7.utils
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
-import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.cli.helpers.HL7DiffHelper
 import gov.cdc.prime.router.fhirengine.utils.HL7Reader
 import io.mockk.every
@@ -19,7 +18,6 @@ import kotlin.test.Test
 class HL7ACKUtilsTest {
 
     inner class Fixture {
-        val hl7Reader = HL7Reader(ActionLogger())
         val hl7DiffHelper = HL7DiffHelper()
 
         private val clock = Clock.fixed(
@@ -45,17 +43,18 @@ class HL7ACKUtilsTest {
         val incomingMessage = """
             MSH|^~\&|Epic|Hospital|LIMS|StatePHL|20241003000000||ORM^O01^ORM_O01|4AFA57FE-D41D-4631-9500-286AAAF797E4|T|2.5.1|||AL|NE
         """.trimIndent()
-        val parsedIncomingMessage = f.hl7Reader.getMessages(incomingMessage).first()
+        val parsedIncomingMessage = HL7Reader.parseHL7Message(incomingMessage, null)
 
         val ack = f.utils.generateOutgoingACKMessage(parsedIncomingMessage)
 
-        val expected = f.hl7Reader.getMessages(
+        val expected = HL7Reader.parseHL7Message(
             """
             MSH|^~\&|ReportStream|CDC|Epic|Hospital|20240921000000+0000||ACK|$id|T|2.5.1|||NE|NE
             MSA|CA|4AFA57FE-D41D-4631-9500-286AAAF797E4
-        """
-        ).first()
-        val actual = f.hl7Reader.getMessages(ack).first()
+        """,
+                null
+        )
+        val actual = HL7Reader.parseHL7Message(ack, null)
 
         val diffs = f.hl7DiffHelper.diffHl7(expected, actual)
         if (diffs.isNotEmpty()) {

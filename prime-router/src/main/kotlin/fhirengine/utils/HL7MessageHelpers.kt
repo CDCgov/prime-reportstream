@@ -2,7 +2,6 @@ package gov.cdc.prime.router.fhirengine.utils
 
 import ca.uhn.hl7v2.model.v251.datatype.DTM
 import ca.uhn.hl7v2.util.Terser
-import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.Hl7Configuration
 import gov.cdc.prime.router.Receiver
 import org.apache.logging.log4j.kotlin.Logging
@@ -34,12 +33,12 @@ object HL7MessageHelpers : Logging {
         val useBatchHeaders = receiver.translation.useBatchHeaders
         // Grab the first message to extract some data if not set in the settings
         val firstMessage = if (hl7RawMsgs.isNotEmpty()) {
-            val messages = HL7Reader(ActionLogger()).getMessages(hl7RawMsgs[0])
-            if (messages.isEmpty()) {
+            val message = HL7Reader.parseHL7Message(hl7RawMsgs[0], null)
+            if (message.isEmpty) {
                 logger.warn("Unable to extract batch header values from HL7: ${hl7RawMsgs[0].take(80)} ...")
                 null
             } else {
-                Terser(messages[0])
+                Terser(message)
             }
         } else {
             null
