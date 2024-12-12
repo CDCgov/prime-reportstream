@@ -9,6 +9,7 @@ import gov.cdc.prime.router.azure.ConditionStamper.Companion.BUNDLE_CODE_IDENTIF
 import gov.cdc.prime.router.azure.ConditionStamper.Companion.BUNDLE_VALUE_IDENTIFIER
 import gov.cdc.prime.router.azure.ConditionStamper.Companion.conditionCodeExtensionURL
 import gov.cdc.prime.router.codes
+import gov.cdc.prime.router.fhirengine.engine.RSMessageType
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers.Companion.getChildProperties
@@ -20,6 +21,7 @@ import org.hl7.fhir.r4.model.Coding
 import org.hl7.fhir.r4.model.DateTimeType
 import org.hl7.fhir.r4.model.DiagnosticReport
 import org.hl7.fhir.r4.model.Extension
+import org.hl7.fhir.r4.model.MessageHeader
 import org.hl7.fhir.r4.model.Observation
 import org.hl7.fhir.r4.model.Patient
 import org.hl7.fhir.r4.model.Property
@@ -113,6 +115,38 @@ fun Bundle.addProvenanceReference() {
         val diagnosticReportReference = Reference(diagnosticReport.idBase)
         diagnosticReportReference.reference = diagnosticReport.idBase
         provenanceResource.target.add(diagnosticReportReference)
+    }
+}
+
+/**
+ * Return true if Bundle contains an ELR in the MessageHeader.
+ *
+ * @return true if has a MesssageHeader that contains an R01 or ORU_R01, otherwise false.
+ */
+fun Bundle.isElr(): Boolean {
+    var isElr = false
+    if (this.type == Bundle.BundleType.MESSAGE && this.entry.isNotEmpty()) {
+        // By rule, the first entry must be a MessageHeader
+        val resource = this.entry[0].resource
+        if (resource is MessageHeader) {
+            val event = resource.event
+            if (event is Coding && ((event.code == "R01") || (event.code == "ORU_R01"))) {
+                isElr = true
+            }
+        }
+    }
+    return isElr
+}
+
+/**
+ * Return RSMessageType based on grouping logic.
+ *
+ * @return RSMessageType of this Bundle.
+ */
+fun Bundle.getRSMessageType(): RSMessageType {
+    when {
+        isElr() -> return RSMessageType.LAB_RESULT
+        else -> return RSMessageType.UNKNOWN
     }
 }
 
