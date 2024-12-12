@@ -492,12 +492,18 @@ class FhirConverterTests {
             }
             assertNotNull("Condition-code extension not found.", conditionExtension)
 
-            // Assert member OID sub-extension exists within condition-code extension
+            // Navigate into the nested extensions to find member OID
             val oidSubExtension = conditionExtension!!.extension.find {
                 it.url == memberOidExtensionURL
             }
             assertNotNull("Member OID sub-extension not found in condition-code extension.", oidSubExtension)
-            assertEquals("Member OID value does not match", (oidSubExtension!!.value as StringType).value, "OID12345")
+
+            // Assert that the member OID value matches expected
+            val memberOidValue = oidSubExtension!!.extension.find {
+                it.url == memberOidExtensionURL
+            }?.value as? StringType
+            assertNotNull("Member OID value not found.", memberOidValue)
+            assertEquals("OID12345", memberOidValue!!.value)
         }
     }
 

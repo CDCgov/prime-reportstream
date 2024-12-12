@@ -111,13 +111,13 @@ class ConditionStamper(private val conditionMapper: IConditionMapper) {
                     conditions.forEach { conditionCoding ->
                         // Create a condition-code extension
                         val conditionCodeExtension = Extension(CONDITION_CODE_EXTENSION_URL)
-                        conditionCodeExtension.setValue(conditionCoding)
+                        conditionCodeExtension.addExtension(Extension(CONDITION_CODE_EXTENSION_URL, conditionCoding))
 
                         // Retrieve and add the member OID as a sub-extension
                         val memberOid = memberOidMap[conditionCoding.code]
                         if (memberOid != null) {
                             val memberOidExtension = Extension(MEMBER_OID_EXTENSION_URL)
-                            memberOidExtension.setValue(StringType(memberOid))
+                            memberOidExtension.addExtension(Extension(MEMBER_OID_EXTENSION_URL, StringType(memberOid)))
                             conditionCodeExtension.addExtension(memberOidExtension)
                         }
 
