@@ -144,9 +144,9 @@ fun Bundle.isElr(): Boolean {
  * @return RSMessageType of this Bundle.
  */
 fun Bundle.getRSMessageType(): RSMessageType {
-    when {
-        isElr() -> return RSMessageType.LAB_RESULT
-        else -> return RSMessageType.UNKNOWN
+    return when {
+        isElr() -> RSMessageType.LAB_RESULT
+        else -> RSMessageType.UNKNOWN
     }
 }
 
