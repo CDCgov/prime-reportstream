@@ -1,0 +1,48 @@
+name: Automate Dependency Updates
+
+on:
+  push:
+    branches:
+      - "dependabot/*"
+
+jobs:
+  update-dependencies:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Create a new branch
+        run: |
+          git checkout -b update-branch
+          git push origin update-branch
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.PAT_TOKEN }}
+          branch: update-branch
+          title: "Automated Dependency Updates"
+          body: "Automated dependency updates from GitHub Actions."
+          base: main
+          commit-message: "Update dependencies"
+
+      - name: Merge Pull Request
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const prNumber =  context.payload.pull_request.number;
+            await github.pulls.merge({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: prNumber,
+              merge_method: "squash"
+            });
+          github-token: ${{ secrets.PAT_TOKEN }}
+
