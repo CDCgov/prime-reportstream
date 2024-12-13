@@ -13262,6 +13262,222 @@
                 "valueString": "DR TEETH AND THE ELECTRIC MAYHEM"
               }
             ]
+          },
+          {
+            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/composite-price",
+            "extension": [
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
+                "valueString": "IN1.37"
+              },
+              {
+                "url": "CP.1.1",
+                "valueDecimal": 11.11
+              },
+              {
+                "url": "CP.1.2",
+                "valueString": "USD"
+              },
+              {
+                "url": "CP.2",
+                "valueString": "P1"
+              },
+              {
+                "url": "CP.3",
+                "valueDecimal": 1.001
+              },
+              {
+                "url": "CP.4",
+                "valueDecimal": -1
+              },
+              {
+                "url": "CP.5",
+                "valueCodeableConcept": {
+                  "coding": [
+                    {
+                      "extension": [
+                        {
+                          "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                          "valueString": "coding"
+                        },
+                        {
+                          "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                          "valueString": "HL79999"
+                        }
+                      ],
+                      "code": "R",
+                      "display": "Range Units"
+                    }
+                  ]
+                }
+              },
+              {
+                "url": "CP.6",
+                "valueString": "F"
+              }
+            ]
+          },
+          {
+            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/composite-price",
+            "extension": [
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
+                "valueString": "IN1.38"
+              },
+              {
+                "url": "CP.1.1",
+                "valueDecimal": 22.22
+              },
+              {
+                "url": "CP.1.2",
+                "valueString": "RUB"
+              },
+              {
+                "url": "CP.2",
+                "valueString": "P2"
+              },
+              {
+                "url": "CP.3",
+                "valueDecimal": 2.002
+              },
+              {
+                "url": "CP.4",
+                "valueDecimal": -2
+              },
+              {
+                "url": "CP.5",
+                "valueCodeableConcept": {
+                  "coding": [
+                    {
+                      "extension": [
+                        {
+                          "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                          "valueString": "coding"
+                        },
+                        {
+                          "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                          "valueString": "HL79999"
+                        }
+                      ],
+                      "code": "RR",
+                      "display": "Russian Rubble"
+                    }
+                  ]
+                }
+              },
+              {
+                "url": "CP.6",
+                "valueString": "F"
+              }
+            ]
+          },
+          {
+            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/composite-price",
+            "extension": [
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
+                "valueString": "IN1.40"
+              },
+              {
+                "url": "CP.1.1",
+                "valueDecimal": 33.33
+              },
+              {
+                "url": "CP.1.2",
+                "valueString": "MXN"
+              },
+              {
+                "url": "CP.2",
+                "valueString": "P3"
+              },
+              {
+                "url": "CP.3",
+                "valueDecimal": 3.003
+              },
+              {
+                "url": "CP.4",
+                "valueDecimal": -3
+              },
+              {
+                "url": "CP.5",
+                "valueCodeableConcept": {
+                  "coding": [
+                    {
+                      "extension": [
+                        {
+                          "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                          "valueString": "coding"
+                        },
+                        {
+                          "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                          "valueString": "HL79999"
+                        }
+                      ],
+                      "code": "OR",
+                      "display": "Oven Range"
+                    }
+                  ]
+                }
+              },
+              {
+                "url": "CP.6",
+                "valueString": "P"
+              }
+            ]
+          },
+          {
+            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/composite-price",
+            "extension": [
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
+                "valueString": "IN1.41"
+              },
+              {
+                "url": "CP.1.1",
+                "valueDecimal": 44.44
+              },
+              {
+                "url": "CP.1.2",
+                "valueString": "CAD"
+              },
+              {
+                "url": "CP.2",
+                "valueString": "P4"
+              },
+              {
+                "url": "CP.3",
+                "valueDecimal": 4.004
+              },
+              {
+                "url": "CP.4",
+                "valueDecimal": -4
+              },
+              {
+                "url": "CP.5",
+                "valueCodeableConcept": {
+                  "coding": [
+                    {
+                      "extension": [
+                        {
+                          "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                          "valueString": "coding"
+                        },
+                        {
+                          "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                          "valueString": "HL79999"
+                        }
+                      ],
+                      "code": "HHR",
+                      "display": "Home Home Range"
+                    }
+                  ]
+                }
+              },
+              {
+                "url": "CP.6",
+                "valueString": "P"
+              }
+            ]
           }
         ]
       }
