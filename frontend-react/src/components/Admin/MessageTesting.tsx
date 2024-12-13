@@ -82,22 +82,26 @@ function ReportTesting() {
     };
 
     const RadioField = ({ title, body, index }: { title: string; body: string; index: number }) => {
-        const openJsonInNewTab = () => {
-            // Your JSON object or string
-            const jsonString = JSON.stringify(JSON.parse(body), null, 2);
+        const openTextInNewTab = () => {
+            let formattedContent = body;
 
-            // Create a Blob from the JSON string
-            const blob = new Blob([jsonString], { type: "application/json" });
+            // Check if the content is JSON and format it
+            try {
+                formattedContent = JSON.stringify(JSON.parse(body), null, 2);
+            } catch {
+                formattedContent = body;
+            }
 
-            // Create an object URL for the Blob
+            const blob = new Blob([formattedContent], { type: "text/plain" });
+
             const url = URL.createObjectURL(blob);
 
-            // Open the URL in a new browser tab
             window.open(url, "_blank");
 
-            // Revoke the URL after some time to free up memory
-            setTimeout(() => URL.revokeObjectURL(url), 1000);
+            // Revoke the URL to free up memory
+            URL.revokeObjectURL(url);
         };
+
         return (
             <div className="usa-radio bg-base-lightest padding-2 border-bottom-1px border-gray-30">
                 <input
@@ -111,7 +115,7 @@ function ReportTesting() {
                 />
                 <label className="usa-radio__label margin-top-0" htmlFor={`message-${index}`}>
                     {title}{" "}
-                    <Button type="button" unstyled onClick={openJsonInNewTab}>
+                    <Button type="button" unstyled onClick={openTextInNewTab}>
                         View message
                         <Icon name="Visibility" className="text-tbottom margin-left-05" />
                     </Button>
