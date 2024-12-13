@@ -16,12 +16,12 @@ import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers.Companion.getChil
 import io.github.linuxforhealth.hl7.data.Hl7RelatedGeneralUtils
 import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.Bundle
+import org.hl7.fhir.r4.model.CodeType
 import org.hl7.fhir.r4.model.CodeableConcept
 import org.hl7.fhir.r4.model.Coding
 import org.hl7.fhir.r4.model.DateTimeType
 import org.hl7.fhir.r4.model.DiagnosticReport
 import org.hl7.fhir.r4.model.Extension
-import org.hl7.fhir.r4.model.MessageHeader
 import org.hl7.fhir.r4.model.Observation
 import org.hl7.fhir.r4.model.Patient
 import org.hl7.fhir.r4.model.Property
@@ -125,15 +125,17 @@ fun Bundle.addProvenanceReference() {
  */
 fun Bundle.isElr(): Boolean {
     var isElr = false
-    if (this.type == Bundle.BundleType.MESSAGE && this.entry.isNotEmpty()) {
-        // By rule, the first entry must be a MessageHeader
-        val resource = this.entry[0].resource
-        if (resource is MessageHeader) {
-            val event = resource.event
-            if (event is Coding && ((event.code == "R01") || (event.code == "ORU_R01"))) {
-                isElr = true
-            }
-        }
+    val code = FhirPathUtils.evaluate(
+        null,
+        this,
+        this,
+        "Bundle.entry.resource.ofType(MessageHeader).event.code"
+    )
+        .filterIsInstance<CodeType>()
+        .firstOrNull()
+        ?.code
+    if (code != null && ((code == "R01") || (code == "ORU_R01"))) {
+        isElr = true
     }
     return isElr
 }
