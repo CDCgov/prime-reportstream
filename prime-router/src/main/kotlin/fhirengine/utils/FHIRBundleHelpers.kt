@@ -124,7 +124,6 @@ fun Bundle.addProvenanceReference() {
  * @return true if has a MesssageHeader that contains an R01 or ORU_R01, otherwise false.
  */
 fun Bundle.isElr(): Boolean {
-    var isElr = false
     val code = FhirPathUtils.evaluate(
         null,
         this,
@@ -134,10 +133,7 @@ fun Bundle.isElr(): Boolean {
         .filterIsInstance<CodeType>()
         .firstOrNull()
         ?.code
-    if (code != null && ((code == "R01") || (code == "ORU_R01"))) {
-        isElr = true
-    }
-    return isElr
+    return ((code == "R01") || (code == "ORU_R01"))
 }
 
 /**
