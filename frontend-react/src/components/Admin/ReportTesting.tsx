@@ -1,26 +1,84 @@
-import { Button, GridContainer } from "@trussworks/react-uswds";
+import { Button, GridContainer, Textarea } from "@trussworks/react-uswds";
+import { ChangeEvent, useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { useParams } from "react-router";
 import { AdminFormWrapper } from "./AdminFormWrapper";
 import { EditReceiverSettingsParams } from "./EditReceiverSettings";
 import useReportTesting from "../../hooks/api/reports/UseReportTesting";
+import { Icon } from "../../shared";
 import AdminFetchAlert from "../alerts/AdminFetchAlert";
 import Spinner from "../Spinner";
 import Title from "../Title";
-import { Icon } from "../../shared";
-import { useState } from "react";
 
 function ReportTesting() {
     const { orgname, receivername } = useParams<EditReceiverSettingsParams>();
     const { testMessages, isDisabled, isLoading } = useReportTesting();
-    const [selectedOption, setSelectedOption] = useState(null);
+    const [selectedOption, setSelectedOption] = useState<string | null>(null);
+    const [currentTestMessages, setCurrentTestMessages] = useState(testMessages);
+    const [openCustomMessage, setOpenCustomMessage] = useState(false);
+    const [customMessageNumber, setCustomMessageNumber] = useState(1);
+
     if (isDisabled) {
         return <AdminFetchAlert />;
     }
-    if (isLoading || !testMessages) return <Spinner />;
+    if (isLoading || !currentTestMessages) return <Spinner />;
 
-    const handleSelect = (event) => {
-        setSelectedOption(event.target.value); // Update the selected option in state
+    const handleSelect = (event: ChangeEvent<HTMLInputElement>) => {
+        setSelectedOption(event.target.value);
+    };
+
+    const handleAddCustomMessage = () => {
+        setSelectedOption(null);
+        setOpenCustomMessage(true);
+    };
+
+    const CustomMessage = () => {
+        const [text, setText] = useState("");
+        const handleTextareaChange = (event: ChangeEvent<HTMLTextAreaElement>) => {
+            setText(event.target.value);
+        };
+        const handleAddCustomMessage = () => {
+            const dateCreated = new Date();
+            setCurrentTestMessages([
+                ...currentTestMessages,
+                {
+                    dateCreated: dateCreated.toString(),
+                    fileName: `Custom message ${customMessageNumber}`,
+                    reportBody: text,
+                },
+            ]);
+            setCustomMessageNumber(customMessageNumber + 1);
+            setText("");
+            setOpenCustomMessage(false);
+        };
+
+        return (
+            <div className="width-full">
+                <p className="text-bold">Enter custom message</p>
+                <p>Custom messages do not save to the bank after you log out.</p>
+                <Textarea
+                    value={text}
+                    onChange={handleTextareaChange}
+                    id="custom-message-text"
+                    name="custom-message-text"
+                    className="width-full maxw-full margin-bottom-205"
+                />
+                <div className="width-full text-right">
+                    <Button
+                        type="button"
+                        outline
+                        onClick={() => {
+                            setOpenCustomMessage(false);
+                        }}
+                    >
+                        Cancel
+                    </Button>
+                    <Button type="button" onClick={handleAddCustomMessage} disabled={text.length === 0}>
+                        Add
+                    </Button>
+                </div>
+            </div>
+        );
     };
 
     const RadioField = ({ title, body, index }: { title: string; body: string; index: number }) => {
@@ -47,8 +105,9 @@ function ReportTesting() {
                     id={`message-${index}`}
                     type="radio"
                     name="message-test-form"
-                    value={title}
+                    value={body}
                     onChange={handleSelect}
+                    checked={selectedOption === body}
                 />
                 <label className="usa-radio__label margin-top-0" htmlFor={`message-${index}`}>
                     {title}{" "}
@@ -84,18 +143,19 @@ function ReportTesting() {
                     <p>
                         Test a message from the message bank or by entering a custom message. You can view test results
                         in this window while you are logged in. To save for later reference, you can open messages, test
-                        results and output messages in separate tabs. 
+                        results and output messages in separate tabs.
                     </p>
                     <hr />
                     <p className="font-sans-xl text-bold">Test message bank</p>
                     <form>
                         <fieldset className="usa-fieldset bg-base-lightest padding-3">
-                            {testMessages?.map((item, index) => (
+                            {currentTestMessages?.map((item, index) => (
                                 <RadioField key={index} index={index} title={item.fileName} body={item.reportBody} />
                             ))}
+                            {openCustomMessage && <CustomMessage />}
                         </fieldset>
                         <div className="padding-top-4">
-                            <Button type="button" outline>
+                            <Button type="button" outline onClick={handleAddCustomMessage}>
                                 Test custom message
                             </Button>
                             <Button disabled={!selectedOption} type="button">

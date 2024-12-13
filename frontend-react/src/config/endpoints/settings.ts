@@ -26,6 +26,12 @@ export interface RSService extends RSSettings {
     customerStatus?: string;
 }
 
+export interface RSMessage {
+    dateCreated: string;
+    fileName: string;
+    reportBody: string;
+}
+
 export interface RSOrganizationSettings extends RSSettings {
     description: string;
     filters: string[];

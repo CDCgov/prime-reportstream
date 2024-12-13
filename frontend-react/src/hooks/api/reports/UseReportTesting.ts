@@ -1,6 +1,6 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useCallback } from "react";
-import { reportsEndpoints, RSReceiver } from "../../../config/endpoints/settings";
+import { reportsEndpoints, RSMessage } from "../../../config/endpoints/settings";
 import useSessionContext from "../../../contexts/Session/useSessionContext";
 import { Organizations } from "../../UseAdminSafeOrganizationName/UseAdminSafeOrganizationName";
 
@@ -13,7 +13,7 @@ const useReportTesting = () => {
 
     const memoizedDataFetch = useCallback(() => {
         if (isAdmin) {
-            return authorizedFetch<RSReceiver[]>({}, testing);
+            return authorizedFetch<RSMessage[]>({}, testing);
         }
         return null;
     }, [isAdmin, authorizedFetch]);
