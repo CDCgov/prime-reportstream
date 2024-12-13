@@ -4,7 +4,7 @@ import { Helmet } from "react-helmet-async";
 import { useParams } from "react-router";
 import { AdminFormWrapper } from "./AdminFormWrapper";
 import { EditReceiverSettingsParams } from "./EditReceiverSettings";
-import useReportTesting from "../../hooks/api/reports/UseReportTesting";
+import useReportTesting from "../../hooks/api/messages/UseMessageTesting";
 import { Icon } from "../../shared";
 import AdminFetchAlert from "../alerts/AdminFetchAlert";
 import Spinner from "../Spinner";
