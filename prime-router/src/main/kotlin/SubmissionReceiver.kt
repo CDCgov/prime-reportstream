@@ -292,7 +292,9 @@ class UniversalPipelineReceiver : SubmissionReceiver {
 //                        actionLogs
 //                    )
 //                }
-
+                if (messageCount == 0 && !actionLogs.hasErrors()) {
+                    actionLogs.error(InvalidReportMessage("Unable to find HL7 messages in provided data."))
+                }
                 // check for valid message type
                 Hl7InputStreamMessageStringIterator(content.byteInputStream()).asSequence()
                     .forEachIndexed { index, rawItem ->
