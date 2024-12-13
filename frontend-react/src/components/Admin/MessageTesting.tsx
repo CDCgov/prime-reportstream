@@ -6,7 +6,9 @@ import { AdminFormWrapper } from "./AdminFormWrapper";
 import { EditReceiverSettingsParams } from "./EditReceiverSettings";
 import useReportTesting from "../../hooks/api/messages/UseMessageTesting";
 import { Icon } from "../../shared";
+import { FeatureName } from "../../utils/FeatureName";
 import AdminFetchAlert from "../alerts/AdminFetchAlert";
+import Crumbs, { CrumbsProps } from "../Crumbs";
 import Spinner from "../Spinner";
 import Title from "../Title";
 
@@ -17,6 +19,15 @@ function ReportTesting() {
     const [currentTestMessages, setCurrentTestMessages] = useState(testMessages);
     const [openCustomMessage, setOpenCustomMessage] = useState(false);
     const [customMessageNumber, setCustomMessageNumber] = useState(1);
+    const crumbProps: CrumbsProps = {
+        crumbList: [
+            {
+                label: FeatureName.RECEIVER_SETTINGS,
+                path: `/admin/orgreceiversettings/org/${orgname}/receiver/${receivername}/action/edit`,
+            },
+            { label: FeatureName.MESSAGE_TESTING },
+        ],
+    };
 
     if (isDisabled) {
         return <AdminFetchAlert />;
@@ -129,6 +140,9 @@ function ReportTesting() {
             <Helmet>
                 <title>Message testing - ReportStream</title>
             </Helmet>
+            <GridContainer>
+                <Crumbs {...crumbProps}></Crumbs>
+            </GridContainer>
             <AdminFormWrapper
                 header={
                     <>
