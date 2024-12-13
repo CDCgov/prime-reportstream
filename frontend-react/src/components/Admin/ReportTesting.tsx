@@ -8,14 +8,20 @@ import AdminFetchAlert from "../alerts/AdminFetchAlert";
 import Spinner from "../Spinner";
 import Title from "../Title";
 import { Icon } from "../../shared";
+import { useState } from "react";
 
 function ReportTesting() {
     const { orgname, receivername } = useParams<EditReceiverSettingsParams>();
     const { testMessages, isDisabled, isLoading } = useReportTesting();
+    const [selectedOption, setSelectedOption] = useState(null);
     if (isDisabled) {
         return <AdminFetchAlert />;
     }
     if (isLoading || !testMessages) return <Spinner />;
+
+    const handleSelect = (event) => {
+        setSelectedOption(event.target.value); // Update the selected option in state
+    };
 
     const RadioField = ({ title, body, index }: { title: string; body: string; index: number }) => {
         const openJsonInNewTab = () => {
@@ -42,18 +48,19 @@ function ReportTesting() {
                     type="radio"
                     name="message-test-form"
                     value={title}
+                    onChange={handleSelect}
                 />
-                <label className="usa-radio__label" htmlFor={`message-${index}`}>
+                <label className="usa-radio__label margin-top-0" htmlFor={`message-${index}`}>
                     {title}{" "}
                     <Button type="button" unstyled onClick={openJsonInNewTab}>
-                        View message <Icon name="Visibility" />
+                        View message
+                        <Icon name="Visibility" className="text-tbottom margin-left-05" />
                     </Button>
                 </label>
             </div>
         );
     };
 
-    console.log("testMessages = ", testMessages);
     return (
         <>
             <Helmet>
@@ -87,6 +94,14 @@ function ReportTesting() {
                                 <RadioField key={index} index={index} title={item.fileName} body={item.reportBody} />
                             ))}
                         </fieldset>
+                        <div className="padding-top-4">
+                            <Button type="button" outline>
+                                Test custom message
+                            </Button>
+                            <Button disabled={!selectedOption} type="button">
+                                Run test
+                            </Button>
+                        </div>
                     </form>
                 </GridContainer>
             </AdminFormWrapper>
