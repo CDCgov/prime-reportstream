@@ -8824,9 +8824,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"msw@npm:^2.6.7":
-  version: 2.6.7
-  resolution: "msw@npm:2.6.7"
+"msw@npm:^2.6.8":
+  version: 2.6.8
+  resolution: "msw@npm:2.6.8"
   dependencies:
     "@bundled-es-modules/cookie": ^2.0.1
     "@bundled-es-modules/statuses": ^1.0.1
@@ -8853,7 +8853,7 @@ __metadata:
       optional: true
   bin:
     msw: cli/index.js
-  checksum: 0aca4b1cf4939d6a6dae4901ddbf535f71e6d34d4594ceaf85f09ffaca44da0cb14ce5bb18350be720444330150f14ee9deeddeffa84d6a2dde777fcda17dfb0
+  checksum: 5847c78a19413647edfc215452479b389ecaca155581726ac63c82e61bc388f2dd69f4efce9f9b867fb18405a1d748ecaf6ceab00cca26e743673baa20015a79
   languageName: node
   linkType: hard
 
@@ -9907,7 +9907,7 @@ __metadata:
     lint-staged: ^15.2.10
     lodash: ^4.17.21
     mockdate: ^3.0.5
-    msw: ^2.6.7
+    msw: ^2.6.8
     msw-storybook-addon: ^2.0.4
     npm-run-all: ^4.1.5
     otpauth: ^9.3.5
