@@ -923,7 +923,7 @@ dependencies {
     implementation("commons-codec:commons-codec:1.17.1")
     implementation("commons-io:commons-io:2.17.0")
     implementation("org.postgresql:postgresql:42.7.4")
-    implementation("com.zaxxer:HikariCP:6.2.0")
+    implementation("com.zaxxer:HikariCP:6.2.1")
     implementation("org.flywaydb:flyway-core:10.21.0")
     implementation("org.flywaydb:flyway-database-postgresql:10.21.0")
     implementation("org.commonmark:commonmark:0.24.0")
