@@ -1161,7 +1161,7 @@
       conditionFilter:
         # Accept all conditions except Covid results in the LIVD look up table
         # Covid flows through the Covid pipeline
-        - "%resource.livdTableLookup('Component').contains('coronavirus').not()"
+        - "%resource.interpretation.coding.code = 'A' and (%resource.code.coding.extension('https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code').value.where(code  in ('840539006')).exists())"
       timing:
         operation: MERGE
         numberPerDay: 1440 # Every minute
