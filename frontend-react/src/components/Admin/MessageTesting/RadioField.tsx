@@ -48,7 +48,7 @@ export const RadioField = ({
                     {title}{" "}
                     <Button type="button" unstyled onClick={openTextInNewTab}>
                         View message
-                        <Icon.Visibility className="text-tbottom margin-left-05" />
+                        <Icon.Visibility className="text-tbottom margin-left-05" aria-label="View message" />
                     </Button>
                 </>
             }

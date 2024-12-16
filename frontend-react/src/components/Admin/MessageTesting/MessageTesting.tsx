@@ -4,7 +4,7 @@ import { Helmet } from "react-helmet-async";
 import { useParams } from "react-router";
 import { CustomMessage } from "./CustomMessage";
 import { RadioField } from "./RadioField";
-import useReportTesting from "../../../hooks/api/messages/UseMessageTesting";
+import useTestMessages from "../../../hooks/api/messages/UseTestMessages";
 import { FeatureName } from "../../../utils/FeatureName";
 import AdminFetchAlert from "../../alerts/AdminFetchAlert";
 import Crumbs, { CrumbsProps } from "../../Crumbs";
@@ -15,7 +15,7 @@ import { EditReceiverSettingsParams } from "../EditReceiverSettings";
 
 function ReportTesting() {
     const { orgname, receivername } = useParams<EditReceiverSettingsParams>();
-    const { testMessages, isDisabled, isLoading } = useReportTesting();
+    const { testMessages, isDisabled, isLoading } = useTestMessages();
     const [selectedOption, setSelectedOption] = useState<string | null>(null);
     const [currentTestMessages, setCurrentTestMessages] = useState(testMessages);
     const [openCustomMessage, setOpenCustomMessage] = useState(false);

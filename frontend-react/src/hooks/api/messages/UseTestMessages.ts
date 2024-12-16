@@ -6,7 +6,21 @@ import { Organizations } from "../../UseAdminSafeOrganizationName/UseAdminSafeOr
 
 const { testing } = reportsEndpoints;
 
-const useReportTesting = () => {
+/**
+ * Custom hook to fetch and manage "Test Messages" data for the current session.
+ *
+ * @description
+ * This hook fetches "Test Messages" from the backend. While the UI and design refer to this feature as
+ * "Test Messages," the corresponding API endpoint is `/api/reports/testing`, which uses the "Reports" nomenclature.
+ * This discrepancy exists between the backend naming convention ("Reports") and the frontend display ("Messages").
+ *
+ * @returns {object} The hook returns the following:
+ * - `testMessages` (`RSMessage[] | undefined`): The fetched array of test messages.
+ * - `isDisabled` (`boolean`): Indicates whether the feature is disabled for the current user.
+ * - Other properties from `useSuspenseQuery` (e.g., `isLoading`, `isError`, `error`).
+ */
+
+const useTestMessages = () => {
     const { activeMembership, authorizedFetch } = useSessionContext();
     const parsedName = activeMembership?.parsedName;
     const isAdmin = Boolean(parsedName) && parsedName === Organizations.PRIMEADMINS;
@@ -31,4 +45,4 @@ const useReportTesting = () => {
     };
 };
 
-export default useReportTesting;
+export default useTestMessages;
