@@ -1,16 +1,17 @@
 # Authorization Deep Dive
 
-## Current implementation
+## Current Design
 
 To authorize a user for an endpoint, we compare the scopes that are present on the access token versus what scope is 
 required.
 
 ### Scope Design
 
+- A client can have multiple scopes
 - Scopes are in the format of `{organization}.{senderOrReceiver}.{role}` 
 - `organization` and `senderOrReceiver` can be omitted with a wildcard `*` or `default`
 
-There are four possible roles
+There are four possible roles. 
 
 | Role       | Definition                                                                |
 |------------|---------------------------------------------------------------------------|
@@ -42,18 +43,18 @@ ReportStream endpoints.
 ### Server2Server
 
 This is ReportStream code that handles the client credentials OAuth 2.0 flow. This is most often used in machine-to-machine 
-communication such as senders. The important bit for authorization happens based on the scope requested in the call 
-to the /api/token endpoint. A member of the engagement team sets up an organization's public key under a specific scope 
-in the organization settings. When a request for an access token comes in with a requested scope, we check the JWT 
-assertion against the public key under that scope in settings.
+communication such as senders submitting reports. The important bit for authorization happens based on the scope requested 
+in the call to the /api/token endpoint. A member of the engagement team sets up an organization's public key under a 
+specific scope in the organization settings. When a request for an access token comes in with a requested scope, we check 
+the JWT assertion was signed with the public key under that scope in settings.
 
 If the request is successful, an access token is granted with a scope matching the pattern above.
 
 ### Okta
 
 Users are all set up under our Okta instance. We add users to appropriate groups in Okta that correspond to what they 
-should be allowed to access. Those groups are in a custom claim called `organization` in the access token which 
-we then map to scopes that our system can handle. Scopes internal to okta are ignored.
+should be allowed to access. Those groups are in a custom string array claim called `organization` in the access token 
+which we then map to scopes that our system can handle. Scopes internal to okta are ignored.
 
 Here is the Okta group to scope mapping strategy given an organization of md-phd (Maryland Public Health Department)
 
@@ -72,6 +73,17 @@ Here is the Okta group to scope mapping strategy given an organization of md-phd
 This is the default authentication process built into the Azure functions library. It is a simple shared secret that is 
 stored in Azure and shared with the client. It is still used on some endpoints for its simplicity of setup. It includes
 no authorization check at all and should be deprecated for that reason.
+
+### Current system pros
+- Flexible for onboarding senders/receivers to allow them to use the system they prefer
+- The scopes are fine-grained allowing us to be specific about what resources a client should be able to access
+
+### Current system cons
+- x-function-key authentication is almost a backdoor into our system given that it does not do authorization
+- Scopes are difficult to understand and are often tailored to a single client rather than generic permissions
+- Authorization code is spread widely across the codebase with a lot of duplication
+- Okta group to scope mapping is clunky and prone to errors based on group naming in the Okta admin portal
+- Difficult to keep track of which client is using what authentication system
 
 
 ## Authorization requirements by endpoint
@@ -136,4 +148,4 @@ no authorization check at all and should be deprecated for that reason.
 | [SubmissionFunction](../../src/main/kotlin/history/azure/SubmissionFunction.kt)           | getReportDetailedHistory    | GET              | /api/waters/report/{id}/history                                         | [AuthenticatedClaims](../../src/main/kotlin/tokens/AuthenticatedClaims.kt)                 | System Admin, org admin, org user, or report                     | Organization                     |
 | [SubmissionFunction](../../src/main/kotlin/history/azure/SubmissionFunction.kt)           | getEtorMetadataForHistory   | GET              | /api/waters/report/{reportId}/history/etorMetadata                      | [AuthenticatedClaims](../../src/main/kotlin/tokens/AuthenticatedClaims.kt)                 | System Admin, org admin, org user, or report                     | Organization                     |
 
-*This is valid as of 12/12/24
+*This is valid as of 12/16/24
