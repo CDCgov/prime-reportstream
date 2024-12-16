@@ -98,7 +98,7 @@ object FhirPathUtils : Logging {
                 pathEngine.evaluate(appContext, focusResource, bundle, bundle, expressionNode)
             }
         } catch (e: FHIRLexer.FHIRLexerException) {
-            logger.error("${e.javaClass.name}: Syntax error in FHIR Path $expression.")
+            logger.error("${e.message}: Syntax error in FHIR Path $expression.")
             emptyList()
         } catch (e: IndexOutOfBoundsException) {
             // This happens when a non-string value is given to an extension field.
