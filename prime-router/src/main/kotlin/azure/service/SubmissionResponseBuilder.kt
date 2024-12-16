@@ -106,9 +106,8 @@ class SubmissionResponseBuilder(
             contentType == HttpUtilities.hl7V2MediaType &&
             requestBody != null
         ) {
-            val hl7Reader = HL7Reader()
             val messageCount = Hl7InputStreamMessageStringIterator(requestBody.byteInputStream()).asSequence().count()
-            val isBatch = hl7Reader.isBatch(requestBody, messageCount)
+            val isBatch = HL7Reader.isBatch(requestBody, messageCount)
 
             if (!isBatch && messageCount == 1) {
                 val message = HL7Reader.parseHL7Message(requestBody, null)

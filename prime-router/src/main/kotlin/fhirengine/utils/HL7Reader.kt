@@ -23,16 +23,6 @@ private const val MSH_SEGMENT_NAME = "MSH"
  * Converts raw HL7 data (message or batch) to HL7 message objects.
  */
 class HL7Reader {
-
-    /**
-     * Takes a [rawMessage] and the number of messages [numMessages] in the rawMessage and determines if it is a batch
-     * or singular HL7 message. It will qualify as a batch message if it follows the HL7 standards and have the Hl7
-     * batch headers which start with "FHS" or if they left off the batch headers and just sent multiple messages
-     */
-    fun isBatch(rawMessage: String, numMessages: Int): Boolean {
-        return rawMessage.startsWith("FHS") || numMessages > 1
-    }
-
     companion object {
 
         // This regex is used to replace \n with \r while not replacing \r\n
@@ -303,6 +293,15 @@ class HL7Reader {
                 is v251_MSH -> structure.msh15_AcceptAcknowledgmentType.encode()
                 else -> null
             }
+        }
+
+        /**
+         * Takes a [rawMessage] and the number of messages [numMessages] in the rawMessage and determines if it is a batch
+         * or singular HL7 message. It will qualify as a batch message if it follows the HL7 standards and have the Hl7
+         * batch headers which start with "FHS" or if they left off the batch headers and just sent multiple messages
+         */
+        fun isBatch(rawMessage: String, numMessages: Int): Boolean {
+            return rawMessage.startsWith("FHS") || numMessages > 1
         }
     }
 }

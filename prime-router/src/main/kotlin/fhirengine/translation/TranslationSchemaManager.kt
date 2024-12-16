@@ -41,7 +41,6 @@ class TranslationSchemaManager : Logging {
             Regex("/$previousValidBlobName-$timestampRegex")
         private val previousPreviousValidBlobNameRegex =
             Regex("/$previousPreviousValidBlobName-$timestampRegex")
-        private val hL7Reader = HL7Reader()
 
         /**
          * Container class that holds the current state for a schema type in a particular azure store.

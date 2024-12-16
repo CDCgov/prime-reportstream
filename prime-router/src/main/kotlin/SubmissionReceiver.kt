@@ -269,9 +269,8 @@ class UniversalPipelineReceiver : SubmissionReceiver {
 
         when (sender.format) {
             MimeFormat.HL7 -> {
-                val hl7Reader = HL7Reader()
                 val messageCount = Hl7InputStreamMessageStringIterator(content.byteInputStream()).asSequence().count()
-                val isBatch = hl7Reader.isBatch(content, messageCount)
+                val isBatch = HL7Reader.isBatch(content, messageCount)
 
                 // create a Report for this incoming HL7 message to use for tracking in the database
                 report = Report(

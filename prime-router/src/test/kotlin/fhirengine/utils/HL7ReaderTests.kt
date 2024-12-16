@@ -57,8 +57,6 @@ class HL7ReaderTests {
 
     @Test
     fun `test isBatch with FSH Header`() {
-        val hl7Reader = HL7Reader()
-
         val goodData1 = """
             FHS|^~\&|||0.0.0.0.1|0.0.0.0.1|202106221314-0400
             BHS|^~\&|||0.0.0.0.1|0.0.0.0.1|202106221314-0400
@@ -78,7 +76,7 @@ class HL7ReaderTests {
             BTS|2
             FTS|1
         """.trimIndent()
-        val isBatch = hl7Reader.isBatch(
+        val isBatch = HL7Reader.isBatch(
             goodData1,
             Hl7InputStreamMessageStringIterator(goodData1.byteInputStream()).asSequence().count()
         )
@@ -87,8 +85,6 @@ class HL7ReaderTests {
 
     @Test
     fun `test isBatch without FSH Header`() {
-        val hl7Reader = HL7Reader()
-
         val goodData1 = """          
             MSH|^~\&|CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO|Avante at Ormond Beach^10D0876999^CLIA|PRIME_DOH|Prime ReportStream|20210210170737||ORU^R01^ORU_R01|371784|P|2.5.1|||NE|NE|USA||||PHLabReportNoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO
             SFT|Centers for Disease Control and Prevention|0.1-SNAPSHOT|PRIME ReportStream|0.1-SNAPSHOT||20210210
@@ -117,7 +113,7 @@ class HL7ReaderTests {
             NTE|1|L|This is a note|RE
             SPM|1|b518ef23-1d9a-40c1-ac4b-ed7b438dfc4b||258500001^Nasopharyngeal swab^SCT||||71836000^Nasopharyngeal structure (body structure)^SCT^^^^2020-09-01|||||||||202102090000-0600|202102090000-0600      
         """.trimIndent()
-        val isBatch = hl7Reader.isBatch(
+        val isBatch = HL7Reader.isBatch(
             goodData1,
             Hl7InputStreamMessageStringIterator(goodData1.byteInputStream()).asSequence().count()
         )
@@ -126,8 +122,6 @@ class HL7ReaderTests {
 
     @Test
     fun `test isBatch singular message`() {
-        val hl7Reader = HL7Reader()
-
         val goodData1 = """           
             MSH|^~\&|CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO|Avante at Ormond Beach^10D0876999^CLIA|PRIME_DOH|Prime ReportStream|20210210170737||ORU^R01^ORU_R01|371784|P|2.5.1|||NE|NE|USA||||PHLabReportNoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO
             SFT|Centers for Disease Control and Prevention|0.1-SNAPSHOT|PRIME ReportStream|0.1-SNAPSHOT||20210210
@@ -143,7 +137,7 @@ class HL7ReaderTests {
             NTE|1|L|This is a note|RE
             SPM|1|b518ef23-1d9a-40c1-ac4b-ed7b438dfc4b||258500001^Nasopharyngeal swab^SCT||||71836000^Nasopharyngeal structure (body structure)^SCT^^^^2020-09-01|||||||||202102090000-0600|202102090000-0600           
         """.trimIndent()
-        val isBatch = hl7Reader.isBatch(
+        val isBatch = HL7Reader.isBatch(
             goodData1,
             Hl7InputStreamMessageStringIterator(goodData1.byteInputStream()).asSequence().count()
         )
