@@ -27,7 +27,7 @@ export interface RSService extends RSSettings {
 }
 
 export interface RSMessage {
-    dateCreated: string;
+    dateCreated?: string;
     fileName: string;
     reportBody: string;
 }

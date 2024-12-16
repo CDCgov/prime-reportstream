@@ -7,7 +7,7 @@ import { SenderType } from "./utils/DataDashboardUtils";
 import { lazyRouteMarkdown } from "./utils/LazyRouteMarkdown";
 import { PERMISSIONS } from "./utils/UsefulTypes";
 
-const ReportTestingPage = lazy(() => import("./components/Admin/MessageTesting"));
+const ReportTestingPage = lazy(() => import("./components/Admin/MessageTesting/MessageTesting"));
 /* Content Pages */
 const Home = lazy(lazyRouteMarkdown(() => import("./content/home/index.mdx")));
 const About = lazy(lazyRouteMarkdown(() => import("./content/about/index.mdx")));
