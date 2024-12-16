@@ -1,4 +1,4 @@
-import { Button, GridContainer, Textarea } from "@trussworks/react-uswds";
+import { Button, GridContainer, Radio, Textarea } from "@trussworks/react-uswds";
 import { ChangeEvent, useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { useParams } from "react-router";
@@ -114,24 +114,24 @@ function ReportTesting() {
         };
 
         return (
-            <div className="usa-radio bg-base-lightest padding-2 border-bottom-1px border-gray-30">
-                <input
-                    className="usa-radio__input"
-                    id={`message-${index}`}
-                    type="radio"
-                    name="message-test-form"
-                    value={body}
-                    onChange={handleSelect}
-                    checked={selectedOption === body}
-                />
-                <label className="usa-radio__label margin-top-0" htmlFor={`message-${index}`}>
-                    {title}{" "}
-                    <Button type="button" unstyled onClick={openTextInNewTab}>
-                        View message
-                        <Icon name="Visibility" className="text-tbottom margin-left-05" />
-                    </Button>
-                </label>
-            </div>
+            <Radio
+                id={`message-${index}`}
+                name="message-test-form"
+                value={body}
+                onChange={handleSelect}
+                checked={selectedOption === body}
+                className="usa-radio bg-base-lightest padding-2 border-bottom-1px border-gray-30"
+                label={
+                    <>
+                        {" "}
+                        {title}{" "}
+                        <Button type="button" unstyled onClick={openTextInNewTab}>
+                            View message
+                            <Icon name="Visibility" className="text-tbottom margin-left-05" />
+                        </Button>
+                    </>
+                }
+            />
         );
     };
 
