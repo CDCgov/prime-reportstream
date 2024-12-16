@@ -44,7 +44,7 @@ ReportStream endpoints.
 
 This is ReportStream code that handles the client credentials OAuth 2.0 flow. This is most often used in machine-to-machine 
 communication such as senders submitting reports. The important bit for authorization happens based on the scope requested 
-in the call to the /api/token endpoint. A member of the engagement team sets up an organization's public key under a 
+in the call to the `/api/token` endpoint. A member of the engagement team sets up an organization's public key under a 
 specific scope in the organization settings. When a request for an access token comes in with a requested scope, we check 
 the JWT assertion was signed with the public key under that scope in settings.
 
