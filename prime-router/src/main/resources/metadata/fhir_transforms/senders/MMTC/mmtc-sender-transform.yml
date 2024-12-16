@@ -13,20 +13,33 @@ elements:
 
   # Ticket 16776
   # Temporary override for MSH 5 and 6 until original fields are updated
-  - name: msh-5-and-6-namespace-info-override
-    condition: 'true'
-    resource: 'Bundle'
+
+  - name: msh-5-1-override
+    resource: "Bundle.entry.resource.ofType(MessageHeader)"
+    bundleProperty: '%resource.destination.where(extension("https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field").value = "MSH.5").name'
     value: [ '"CDC PRIME"' ]
-    hl7Spec: [ 'MSH-5-1' , 'MSH-6-1' ]
 
-  - name: msh-5-and-6-universal-id-override
-    condition: 'true'
-    resource: 'Bundle'
+  - name: msh-5-2-override
+    resource: "Bundle.entry.resource.ofType(MessageHeader)"
+    bundleProperty: '%resource.destination.where(extension("https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field").value = "MSH.5").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id").value'
     value: [ '"2.16.840.1.114222.4.1.237821"' ]
-    hl7Spec: [ 'MSH-5-2' , 'MSH-6-2' ]
 
-  - name: msh-5-and-6-universal-id-type-override
-    condition: 'true'
-    resource: 'Bundle'
+  - name: msh-5-3-override
+    resource: "Bundle.entry.resource.ofType(MessageHeader)"
+    bundleProperty: '%resource.destination.where(extension("https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field").value = "MSH.5").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type").value'
     value: [ '"ISO"' ]
-    hl7Spec: [ 'MSH-5-3' , 'MSH-6-3' ]
+
+  - name: msh-6-1-override
+    resource: "Bundle.entry.resource.ofType(MessageHeader)"
+    bundleProperty: '%resource.destination.receiver.resolve().where(extension("https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field").value = "MSH.6").name'
+    value: [ '"CDC PRIME"' ]
+
+  - name: msh-6-2-override
+    resource: "Bundle.entry.resource.ofType(MessageHeader)"
+    bundleProperty: '%resource.destination.receiver.resolve().where(extension("https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field").value = "MSH.6").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id").value'
+    value: [ '"2.16.840.1.114222.4.1.237821"' ]
+
+  - name: msh-6-3-override
+    resource: "Bundle.entry.resource.ofType(MessageHeader)"
+    bundleProperty: '%resource.destination.receiver.resolve().where(extension("https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field").value = "MSH.6").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type").value'
+    value: [ '"ISO"' ]
