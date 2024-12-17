@@ -10,7 +10,7 @@ POST to the token URL, as in the example below, noting the following:
 Here is an example ‘curl’ POST:
 
 <CodeSnippet>
-    curl -X POST -H "Content-Type: application/x-www-form-urlencoded" -d "scope=<span className="text-highlight">healthy-labs</span>.default.report&grant_type=client_credentials&client_assertion_type=urn:ietf:params:oauth:client-assertion-type:jwt-bearer&client_assertion=&lt;token-signing-secret&gt;"
+    curl -X POST -H "Content-Type: application/x-www-form-urlencoded" -d "scope=<span className="text-highlight">healthy-labs</span>.*.report&grant_type=client_credentials&client_assertion_type=urn:ietf:params:oauth:client-assertion-type:jwt-bearer&client_assertion=&lt;token-signing-secret&gt;"
         "https://staging.prime.cdc.gov/api/token"
 </CodeSnippet>
 
@@ -22,6 +22,6 @@ You should get something like this back, which will be valid for five minutes:
     &nbsp;&nbsp;"token_type": "bearer",
     &nbsp;&nbsp;"expires_in": 300,
     &nbsp;&nbsp;"expires_at_seconds": 1625260982,
-    &nbsp;&nbsp;"scope": "<span className="text-highlight">healthy-labs</span>.default.report"
+    &nbsp;&nbsp;"scope": "<span className="text-highlight">healthy-labs</span>.*.report"
     &#125;
 </CodeSnippet>
