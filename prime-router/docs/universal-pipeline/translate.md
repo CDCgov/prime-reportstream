@@ -63,7 +63,7 @@ California specifies receiving HL7 ORU_R01 messages that mostly match the conver
 the
 datetimes changed to be PST.
 
-Another enrichment schema extension for converting time zones can be added to replace the function of the `convertDateTimesToReceiverLocalTime` translation field. An example of this is for the US Mountain time zone. Example: [datetime-to-local-mtz.yml](prime-router/docs/onboarding-users/migrating-receivers.md)
+Another enrichment schema extension for converting time zones can be added to supplement the function of the `convertDateTimesToReceiverLocalTime` translation field. An example of this is for the US Mountain time zone. Example: [datetime-to-local-mtz.yml](prime-router/docs/onboarding-users/migrating-receivers.md)
 
 #### De-identification
 
