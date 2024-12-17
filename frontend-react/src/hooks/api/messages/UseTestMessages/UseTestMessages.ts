@@ -1,8 +1,8 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useCallback } from "react";
-import { reportsEndpoints, RSMessage } from "../../../config/endpoints/settings";
-import useSessionContext from "../../../contexts/Session/useSessionContext";
-import { Organizations } from "../../UseAdminSafeOrganizationName/UseAdminSafeOrganizationName";
+import { reportsEndpoints, RSMessage } from "../../../../config/endpoints/reports";
+import useSessionContext from "../../../../contexts/Session/useSessionContext";
+import { Organizations } from "../../../UseAdminSafeOrganizationName/UseAdminSafeOrganizationName";
 
 const { testing } = reportsEndpoints;
 
@@ -15,7 +15,7 @@ const { testing } = reportsEndpoints;
  * This discrepancy exists between the backend naming convention ("Reports") and the frontend display ("Messages").
  *
  * @returns {object} The hook returns the following:
- * - `testMessages` (`RSMessage[] | undefined`): The fetched array of test messages.
+ * - `data` (`RSMessage[] | undefined`): The fetched array of test messages.
  * - `isDisabled` (`boolean`): Indicates whether the feature is disabled for the current user.
  * - Other properties from `useSuspenseQuery` (e.g., `isLoading`, `isError`, `error`).
  */
@@ -40,7 +40,7 @@ const useTestMessages = () => {
 
     return {
         ...useSuspenseQueryResult,
-        testMessages: data,
+        data: data ?? [],
         isDisabled: !isAdmin,
     };
 };
