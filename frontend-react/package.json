@@ -172,7 +172,7 @@
     "jsdom": "^25.0.1",
     "lint-staged": "^15.2.11",
     "mockdate": "^3.0.5",
-    "msw": "^2.6.7",
+    "msw": "^2.6.8",
     "msw-storybook-addon": "^2.0.4",
     "npm-run-all": "^4.1.5",
     "otpauth": "^9.3.6",
