@@ -920,7 +920,7 @@ class FHIRReceiverFilterIntegrationTests : Logging {
                 ReportStreamEventProperties.FILTER_TYPE to ReportStreamFilterType.QUALITY_FILTER,
                 ReportStreamEventProperties.BUNDLE_DIGEST to BundleDigestLabResult(
                     observationSummaries = AzureEventUtils.getObservationSummaries(bundle),
-                    eventType = "",
+                    eventType = "ORU^R01^ORU_R01",
                     patientState = emptyList(),
                     performerState = emptyList(),
                     orderingFacilityState = emptyList()
