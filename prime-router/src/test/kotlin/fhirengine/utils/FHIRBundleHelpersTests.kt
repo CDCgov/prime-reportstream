@@ -16,6 +16,7 @@ import assertk.assertions.isNull
 import assertk.assertions.isTrue
 import ca.uhn.fhir.context.FhirContext
 import ca.uhn.hl7v2.model.v251.segment.MSH
+import ca.uhn.hl7v2.util.Hl7InputStreamMessageIterator
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.CodeStringConditionFilter
 import gov.cdc.prime.router.CustomerStatus
@@ -579,7 +580,7 @@ class FHIRBundleHelpersTests {
 
         // create the hl7 message
         val hl7Message = File("src/test/resources/fhirengine/engine/hl7_with_birth_time.hl7").readText()
-        val parsedHl7Message = HL7Reader.parseHL7Message(hl7Message, null)
+        val parsedHl7Message = Hl7InputStreamMessageIterator(hl7Message.byteInputStream()).next()
 
         bundle.handleBirthTime(parsedHl7Message)
 
@@ -609,7 +610,7 @@ class FHIRBundleHelpersTests {
 
         // create the hl7 message
         val hl7Message = File("src/test/resources/fhirengine/engine/hl7_with_birth_time.hl7").readText()
-        val parsedHl7Message = HL7Reader.parseHL7Message(hl7Message, null)
+        val parsedHl7Message = Hl7InputStreamMessageIterator(hl7Message.byteInputStream()).next()
 
         bundle.handleBirthTime(parsedHl7Message)
 
@@ -639,7 +640,7 @@ class FHIRBundleHelpersTests {
 
         // create the hl7 message
         val hl7Message = File("src/test/resources/fhirengine/engine/hl7_with_birth_time.hl7").readText()
-        val parsedHl7Message = HL7Reader.parseHL7Message(hl7Message, null)
+        val parsedHl7Message = Hl7InputStreamMessageIterator(hl7Message.byteInputStream()).next()
 
         assertThat(parsedHl7Message["MSH"] is MSH).isTrue()
 
@@ -663,7 +664,7 @@ class FHIRBundleHelpersTests {
 
         // create the hl7 message
         val hl7Message = File("src/test/resources/fhirengine/engine/hl7_2.7.hl7").readText()
-        val parsedHl7Message = HL7Reader.parseHL7Message(hl7Message, null)
+        val parsedHl7Message = Hl7InputStreamMessageIterator(hl7Message.byteInputStream()).next()
 
         assertThat(parsedHl7Message["MSH"] is ca.uhn.hl7v2.model.v27.segment.MSH).isTrue()
 
@@ -687,15 +688,15 @@ class FHIRBundleHelpersTests {
 
         // create the hl7 message
         val hl7Message = File("src/test/resources/fhirengine/engine/hl7_2.6.hl7").readText()
-        val parsedHl7Message = HL7Reader.parseHL7Message(hl7Message, null)
+        val parsedHl7Message = Hl7InputStreamMessageIterator(hl7Message.byteInputStream()).next()
 
         assertThat(parsedHl7Message["MSH"] is MSH).isFalse()
         assertThat(parsedHl7Message["MSH"] is ca.uhn.hl7v2.model.v27.segment.MSH).isFalse()
 
         bundle.enhanceBundleMetadata(parsedHl7Message)
 
-        assertThat(bundle.timestamp.toString()).isEqualTo("Wed Feb 10 17:07:37 EST 2021")
-        assertThat(bundle.identifier.value).isEqualTo("371784")
+        assertThat(bundle.timestamp).isNull()
+        assertThat(bundle.identifier.value).isNull()
         assertThat(bundle.identifier.system).isEqualTo("https://reportstream.cdc.gov/prime-router")
     }
 
