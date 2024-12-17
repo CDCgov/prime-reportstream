@@ -1,0 +1,9 @@
+MSH|^~\&|AbbottInformatics^2.16.840.1.113883.3.8589.4.1.22^ISO|AbbottInformatics^00Z0000002^CLIA|CDC PRIME^2.16.840.1.114222.4.1.237821^ISO|CDC PRIME^2.16.840.1.114222.4.1.237821^ISO|20241204094313+0100||ORU^R01^ORU_R01|20241204094313+0100_Your Test Kit ID|T|2.5.1|||NE|NE|||||PHLabReport-NoAck^ELR251R1_Rcvr_Prof^2.16.840.1.113883.9.11^ISO
+SFT|Meadows Design, LLC|1.0.0|RADx MARS Hub API|1.0.0||
+PID|1||c2sense079177^^^&2.16.840.1.113883.3.8589.4.1.22&ISO^PI||Smith^Rebecca^P||20241204|F||2076-8^Native Hawaiian or Other Pacific Islander^HL70005^^^^2.5.1|^^^^60013^^^^||^^PH^^^111^1111111|||||||||H^Hispanic or Latino^HL70189^^^^2.5.1
+ORC|RE||Your Test Kit ID^^2.16.840.1.113883.3.8589.4.1.22^ISO|||||||||^^SA.Proctor|||||||||SA.Proctor|^^^^60013^^^^|^^PH^^^111^1111111|
+OBR|1||Your Test Kit ID^^2.16.840.1.113883.3.8589.4.1.22^ISO|94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay^LN^^^^2.71|||20241204094313+0100|||||||||^^SA.Proctor||||||20241204094313+0100|||F
+OBX|1|CWE|94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay^LN^^^^2.71||260415000^Not Detected^SCT^^^^20210301|||N^Normal^HL70078^^^^2.5.1|||F||||00Z0000016||10811877011337_DIT^^99ELR^^^^Vunknown||20241204094313+0100||||SA.Proctor^^^^^&2.16.840.1.113883.3.8589.4.1.152&ISO^XX^^^00Z0000016|13 Fake AtHome Test Street^^Fake City|
+NTE|1|L|10811877011337_DIT
+OBX|2|NM|35659-2^Age at specimen collection^LN^^^^2.71||28|a^year^UCUM^^^^2.1|||||F||||00Z0000016||||||||SA.Proctor^^^^^&2.16.840.1.113883.3.8589.4.1.152&ISO^XX^^^00Z0000016|13 Fake AtHome Test Street^^Fake City|||||QST
+SPM|1|^Your Test Kit ID&&2.16.840.1.113883.3.8589.4.1.22&ISO||697989009^Anterior nares swab (specimen)^SCT^^^^20210301|||||||||||||20241204094313+0100|20241204094313+0100

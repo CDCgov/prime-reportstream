@@ -48,3 +48,4 @@ resource "azurerm_container_group" "chatops" {
     var.storage_account
   ]
 }
+

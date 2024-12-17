@@ -123,11 +123,10 @@ class ReportGraph(
     }
 
     /**
-     * Recursively goes up the report_linage table from any report until it reaches
-     * a report with an action type of "receive" (the root report)
+     * Recursively goes up the report_lineage table from any report until it reaches
+     * a report that does not appear in report_lineage as a child report (the root report)
      *
-     * This will return null if no report with action type "receive" is present or if
-     * the root is passed in
+     * This will return null if the root is passed in
      */
     fun getRootReport(childReportId: UUID): ReportFile? {
         return db.transactReturning { txn ->
@@ -172,19 +171,19 @@ class ReportGraph(
             .from(cte)
             .join(REPORT_FILE)
             .on(REPORT_FILE.REPORT_ID.eq(ItemGraphTable.ITEM_GRAPH.PARENT_REPORT_ID))
-            .join(ACTION)
-            .on(ACTION.ACTION_ID.eq(REPORT_FILE.ACTION_ID))
-            .where(ACTION.ACTION_NAME.eq(TaskAction.receive))
+            .leftJoin(REPORT_LINEAGE)
+            .on(REPORT_FILE.REPORT_ID.eq(REPORT_LINEAGE.CHILD_REPORT_ID))
+            .where(REPORT_LINEAGE.PARENT_REPORT_ID.isNull())
+            .orderBy(REPORT_FILE.ACTION_ID.asc())
             .fetchOneInto(Item::class.java)
         return rootItem
     }
 
     /**
-     * Recursively goes up the report_linage table from any report until it reaches
-     * all reports with an action type of "receive" (the root report)
+     * Recursively goes up the report_lineage table from any report until it reaches
+     * all reports that do not appear in report_lineage as a child report (the root report)
      *
-     * This will return null if no report with action type "receive" is present or if
-     * the root is passed in
+     * This will return null if the root is passed in
      *
      * If the passed in report ID has multiple root reports, they will all be returned
      */
@@ -476,9 +475,10 @@ class ReportGraph(
         .from(cte)
         .join(REPORT_FILE)
         .on(REPORT_FILE.REPORT_ID.eq(cte.field(0, UUID::class.java)))
-        .join(ACTION)
-        .on(ACTION.ACTION_ID.eq(REPORT_FILE.ACTION_ID))
-        .where(ACTION.ACTION_NAME.eq(TaskAction.receive))
+        .leftJoin(REPORT_LINEAGE)
+        .on(REPORT_FILE.REPORT_ID.eq(REPORT_LINEAGE.CHILD_REPORT_ID))
+        .where(REPORT_LINEAGE.PARENT_REPORT_ID.isNull())
+        .orderBy(REPORT_FILE.ACTION_ID.asc())
 
     /**
      * Accepts a list of ids and walks down the report lineage graph
