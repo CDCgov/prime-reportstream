@@ -128,6 +128,8 @@ After updating the receiver to route messages to the UP it should look like this
         enrichmentSchemaNames:
             # Example enrichment schema for US Mountain time zone
             - "azure:/fhir_transforms/common/datetime-to-local/datetime-to-local-us-mtz.yml"
+            # Use this path variant instead for local testing
+            - "classpath:/metadata/fhir_transforms/common/datetime-to-local-mtz.yml"
 ```
 
 ### 3. Send test message from SimpleReport to STLT
