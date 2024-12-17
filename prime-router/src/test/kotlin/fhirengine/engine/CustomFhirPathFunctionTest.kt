@@ -344,7 +344,7 @@ class CustomFhirPathFunctionTest {
         mockkObject(Metadata)
         every { Metadata.getInstance() } returns UnitTestUtils.simpleMetadata
 
-        val result = CustomFhirPathFunctions().getStateFromZipCode(mutableListOf(StringType("92356")))
+        val result = CustomFhirPathFunctions().getStateFromZipCode(mutableListOf(StringType("92356-7678")))
 
         assertThat(
             (result[0] as StringType).value
