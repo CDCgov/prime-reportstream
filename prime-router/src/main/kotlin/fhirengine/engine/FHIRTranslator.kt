@@ -94,7 +94,7 @@ class FHIRTranslator(
                     }
                 }
             }
-            else -> {
+                else -> {
                 // Handle the case where casting failed
                 throw RuntimeException(
                     "Message was not a FhirTranslateQueueMessage and cannot be " +

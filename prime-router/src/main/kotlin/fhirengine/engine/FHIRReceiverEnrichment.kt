@@ -26,21 +26,32 @@ class FHIRReceiverEnrichment(
     reportStreamEventService: IReportStreamEventService,
 ) : FHIREngine(metadata, settings, db, blob, azureEventService, reportService, reportStreamEventService) {
     /**
-     * Accepts a [FhirTranslateQueueMessage] [message] and, based on its parameters, sends a report to the next pipeline
-     * step containing either the first ancestor's blob or a new blob that has been translated per
+     * Accepts a [FhirReceiverEnrichmentQueueMessage] [message] and, based on its parameters, sends a report to the
+     * next pipeline step containing either the first ancestor's blob or a new blob that has been translated per
      * the receiver's settings, pending the passed topic's (found in [message]) isSendOriginal property
-     * [actionHistory] and [actionLogger] ensure all activities are recorded to the database and logged
+     * [actionHistory] and [actionLogger] ensure all activities are recorded to the database and logged.
      */
     override fun <T : QueueMessage> doWork(
         message: T,
         actionLogger: ActionLogger,
         actionHistory: ActionHistory,
     ): List<FHIREngineRunResult> {
-        return emptyList()
+        when (message) {
+            is FhirReceiverEnrichmentQueueMessage -> {
+                return emptyList()
+            }
+            else -> {
+                // Handle the case where casting failed
+                throw RuntimeException(
+                    "Message was not a FhirReceiverEnrichmentQueueMessage and cannot be " +
+                        "processed by FHIRReceiverEnrichment: $message"
+                )
+            }
+        }
     }
 
     // TODO Change these to correct values.
     override val finishedField: Field<OffsetDateTime> = Tables.TASK.TRANSLATED_AT
-    override val engineType: String = "Translate"
+    override val engineType: String = "ReceiverEnrichment"
     override val taskAction: TaskAction = TaskAction.receiver_enrichment
 }
