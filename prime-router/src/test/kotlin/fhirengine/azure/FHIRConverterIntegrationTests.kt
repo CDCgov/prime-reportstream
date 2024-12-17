@@ -508,7 +508,8 @@ class FHIRConverterIntegrationTests {
                         orderingFacilityState = listOf("FL"),
                         performerState = emptyList(),
                         eventType = "ORU^R01^ORU_R01"
-                    )
+                    ),
+                    ReportStreamEventProperties.ENRICHMENTS to ""
                 )
             )
         }
@@ -663,7 +664,8 @@ class FHIRConverterIntegrationTests {
                         orderingFacilityState = listOf("FL"),
                         performerState = emptyList(),
                         eventType = "ORU^R01^ORU_R01"
-                    )
+                    ),
+                    ReportStreamEventProperties.ENRICHMENTS to ""
                 )
             )
         }
@@ -798,7 +800,7 @@ class FHIRConverterIntegrationTests {
             )
 
             assertThat(azureEventService.reportStreamEvents[ReportStreamEventName.ITEM_ACCEPTED]!!).hasSize(2)
-            val event = azureEventService
+            var event = azureEventService
                 .reportStreamEvents[ReportStreamEventName.ITEM_ACCEPTED]!!.last() as ReportStreamItemEvent
             assertThat(event.reportEventData).isEqualToIgnoringGivenProperties(
                 ReportEventData(
@@ -835,8 +837,9 @@ class FHIRConverterIntegrationTests {
                         patientState = emptyList(),
                         orderingFacilityState = emptyList(),
                         performerState = emptyList(),
-                        eventType = ""
-                    )
+                        eventType = "ORU^R01^ORU_R01"
+                    ),
+                    ReportStreamEventProperties.ENRICHMENTS to ""
                 )
             )
         }
