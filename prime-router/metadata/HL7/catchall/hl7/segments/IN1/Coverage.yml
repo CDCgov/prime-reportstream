@@ -2,47 +2,82 @@
 
 resourceType: Coverage
 
+# IN1.4 references IN1.5 for address but both fields are repeatable; use IN1Extension for these fields
+# IN1.10 and IN1.49 are mapped to the same FHIR extension; use IN1Extension for these fields
+# IN1.10 when CX.5 is not "SN" has a definition that conflicts with XON[Organization] with no clear hierarchy
+
 id:
   type: STRING
   valueOf: "GeneralUtils.generateResourceId()"
   expressionType: JEXL
 
-extension:
-  expressionType: nested
-  generateList: true
+payor:
+  expressionType: reference
+  valueOf: datatypes/XON/Organization
+  specs: IN1.4
+  vars:
+    XADAddress: IN1.5
+
+period:
+  valueOf: datatypes/DR/Period
+  expressionType: resource
+  vars:
+    start: IN1.12
+    end: IN1.13
+    dateTimeIn: IN1.12
+    dateTimeOut: IN1.13
+
+policyHolder:
+  expressionType: reference
+  valueOf: datatypes/XON/Organization
+  specs: IN1.11
+
+relationship:
+  expressionType: resource
+  valueOf: datatypes/CWE/CodeableConcept
+  specs: IN1.17
+
+subscriber:
+  expressionType: reference
+  vars:
+    in117: STRING, IN1.17.1
   expressions:
-    - expressionType: resource
-      valueOf: datatypes/AUI/AUIExtension
-      specs: IN1.14
-    - expressionType: resource
+    - condition: in117 EQUALS "patient"
+      valueOf: datatypes/XPN/Patient
+      specs: IN1.16
+    - condition: in117 NOT_EQUALS "patient"
+      valueOf: datatypes/XPN/RelatedPerson
+      specs: IN1.16
+
+type:
+  expressionType: resource
+  valueOf: datatypes/CWE/CodeableConcept
+  specs: IN1.15
+
+extension:
+  generateList: true
+  expressionType: nested
+  expressions:
+    - expressionType: nested
       vars:
-        in137: STRING, IN1.37
-      condition: $in137 NOT_NULL
-      valueOf: datatypes/CP/CPExtension
-      constants:
-        cpExtensionName: IN1.37
-      specs: IN1.37
+        in1105: STRING, IN1.10.5
+      condition: $in1105 EQUALS "SN"
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: extension-subscriber-id
+        valueAttachment:
+          valueOf: datatypes/CX/Identifier
+          expressionType: resource
+          specs: IN1.10
+    - expressionType: nested
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: extension-subscriber-id
+        valueAttachment:
+          valueOf: datatypes/CX/Identifier
+          expressionType: resource
+          specs: IN1.49
     - expressionType: resource
-      vars:
-        in138: STRING, IN1.38
-      condition: $in138 NOT_NULL
-      valueOf: datatypes/CP/CPExtension
-      constants:
-        cpExtensionName: IN1.38
-      specs: IN1.38
-    - expressionType: resource
-      vars:
-        in140: STRING, IN1.40
-      condition: $in140 NOT_NULL
-      valueOf: datatypes/CP/CPExtension
-      constants:
-        cpExtensionName: IN1.40
-      specs: IN1.40
-    - expressionType: resource
-      vars:
-        in141: STRING, IN1.41
-      condition: $in141 NOT_NULL
-      valueOf: datatypes/CP/CPExtension
-      constants:
-        cpExtensionName: IN1.41
-      specs: IN1.41
+      valueOf: segments/IN1/IN1Extension
