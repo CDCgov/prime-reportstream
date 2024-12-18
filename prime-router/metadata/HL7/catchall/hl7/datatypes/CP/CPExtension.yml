@@ -1,0 +1,103 @@
+# $schema: ./../../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
+
+url:
+  type: SYSTEM_URL
+  value: composite-price
+
+extension:
+  expressionType: nested
+  generateList: true
+  expressions:
+    - expressionType: nested
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: hl7v2Field
+        valueString:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: $cpExtensionName
+    - expressionType: nested
+      vars:
+        cp11: STRING, CP.1
+      condition: $cp11 NOT_NULL
+      expressionsMap:
+        url:
+          type: STRING
+          value: CP.1.1
+        valueDecimal:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: CP.1.1
+    - expressionType: nested
+      vars:
+        cp12: STRING, CP.1.2
+      condition: $cp12 NOT_NULL
+      expressionsMap:
+        url:
+          type: STRING
+          value: CP.1.2
+        valueString:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: CP.1.2
+    - expressionType: nested
+      vars:
+        cp2: STRING, CP.2
+      condition: $cp2 NOT_NULL
+      expressionsMap:
+        url:
+          type: STRING
+          valueOf: CP.2
+        valueString:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: CP.2
+    - expressionType: nested
+      vars:
+        cp3: STRING, CP.3
+      condition: $cp3 NOT_NULL
+      expressionsMap:
+        url:
+          type: STRING
+          valueOf: CP.3
+        valueDecimal:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: CP.3
+    - expressionType: nested
+      vars:
+        cp4: STRING, CP.4
+      condition: $cp4 NOT_NULL
+      expressionsMap:
+        url:
+          type: STRING
+          valueOf: CP.4
+        valueDecimal:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: CP.4
+    - expressionType: nested
+      vars:
+        cp5: STRING_ALL, CP.5
+      condition: $cp5 NOT_NULL
+      expressionsMap:
+        url:
+          type: STRING
+          value: CP.5
+        valueCodeableConcept:
+          valueOf: datatypes/CWE/CodeableConcept
+          specs: CP.5
+          expressionType: resource
+    - expressionType: nested
+      vars:
+        cp6: STRING, CP.6
+      condition: $cp6 NOT_NULL
+      expressionsMap:
+        url:
+          type: STRING
+          valueOf: CP.6
+        valueString:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: CP.6
