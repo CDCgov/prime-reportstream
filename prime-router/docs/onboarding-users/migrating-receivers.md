@@ -72,7 +72,8 @@ If the receiver has any specific receiver transforms the schema name should be u
 * `jurisdictionalFilter:` The jurisdictional filter needs to be updated to use FHIR path. 
 The most common way to route messages to a STLT is based on the patient's or performer's state. 
 The FHIR path for that looks like this: `"(Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state = 'MT') or (Bundle.entry.resource.ofType(Patient).address.state = 'MT')"`
-* `routingFilter:` Most STLTs in the covid pipeline are using a filter that specifies Flu results should not be routed to them. This filter can be removed from STLTs in the UP. a `conditionFilter` shoudl be added though to limit them just to Covid tests `# Accept COVID only 
+* `routingFilter:` Most STLTs in the covid pipeline are using a filter that specifies Flu results should not be routed to them. This filter can be removed from STLTs in the UP.
+*  `conditionFilter` should be added to limit results according to the STLTs requirement. This is an exanple to only route Covid tests `# Accept COVID only 
 "(%resource.code.coding.extension('https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code').value.where(code  in ('840539006')).exists())"`
 * `qualityFilter:` The covid pipeline has functionality to add default quality filters if the filter is empty. 
 The UP doesn't have default quality filters, so if a STLT that is being migrated to the UP doesn't have qualityFilters the default qualityFilters will have to be added manually.
