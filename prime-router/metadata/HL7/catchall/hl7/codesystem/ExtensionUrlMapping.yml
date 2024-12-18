@@ -52,6 +52,8 @@
   url: "http://hl7.org/fhir/StructureDefinition/patient-animal"
 - id: "relationship"
   url: "https://hl7.org/fhir/StructureDefinition/relationship"
+- id: "extension-subscriber-id"
+  url: "http://hl7.org/fhir/R5/StructureDefinition/extension-subscriberId"
 
 ## Datatypes
 

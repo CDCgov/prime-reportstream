@@ -1,0 +1,12 @@
+# $schema: ./../../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
+
+resourceType: RelatedPerson
+
+id:
+  type: STRING
+  valueOf: "GeneralUtils.generateResourceId()"
+  expressionType: JEXL
+
+name:
+  expressionType: resource
+  valueOf: datatypes/XPN/HumanName

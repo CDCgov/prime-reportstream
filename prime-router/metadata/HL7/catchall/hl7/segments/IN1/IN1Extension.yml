@@ -1,0 +1,110 @@
+# $schema: ./../../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
+
+url:
+  type: SYSTEM_URL
+  value: in1-coverage
+
+extension:
+  expressionType: nested
+  generateList: true
+  expressions:
+    - expressionType: nested
+      specs: IN1.3 *
+      condition: $in13 NOT_NULL
+      generateList: true
+      vars:
+        in13: STRING_ALL, IN1.3
+      expressionsMap:
+        url:
+          type: STRING
+          value: IN1.3
+        valueIdentifier:
+          valueOf: datatypes/CX/Identifier
+          expressionType: resource
+    - expressionType: nested
+      vars:
+        in14: STRING_ALL, IN1.4
+      condition: $in14 NOT_NULL
+      specs: IN1.4 *
+      generateList: true
+      expressionsMap:
+        url:
+          type: STRING
+          value: IN1.4
+        valueReference:
+          valueOf: datatypes/XON/Organization
+          expressionType: reference
+    - expressionType: nested
+      vars:
+        in15: STRING_ALL, IN1.5
+      condition: $in15 NOT_NULL
+      specs: IN1.5 *
+      generateList: true
+      expressionsMap:
+        url:
+          type: STRING
+          value: IN1.5
+        valueAddress:
+          expressionType: resource
+          valueOf: datatypes/XAD/Address
+    - expressionType: nested
+      specs: IN1.10 *
+      condition: $in110 NOT_NULL
+      generateList: true
+      vars:
+        in110: STRING_ALL, IN1.10
+      expressionsMap:
+        url:
+          type: STRING
+          value: IN1.10
+        valueIdentifier:
+          valueOf: datatypes/CX/Identifier
+          expressionType: resource
+    - expressionType: resource
+      valueOf: datatypes/AUI/AUIExtension
+      specs: IN1.14
+    - expressionType: resource
+      vars:
+        in137: STRING, IN1.37
+      condition: $in137 NOT_NULL
+      valueOf: datatypes/CP/CPExtension
+      constants:
+        cpExtensionName: IN1.37
+      specs: IN1.37
+    - expressionType: resource
+      vars:
+        in138: STRING, IN1.38
+      condition: $in138 NOT_NULL
+      valueOf: datatypes/CP/CPExtension
+      constants:
+        cpExtensionName: IN1.38
+      specs: IN1.38
+    - expressionType: resource
+      vars:
+        in140: STRING, IN1.40
+      condition: $in140 NOT_NULL
+      valueOf: datatypes/CP/CPExtension
+      constants:
+        cpExtensionName: IN1.40
+      specs: IN1.40
+    - expressionType: resource
+      vars:
+        in141: STRING, IN1.41
+      condition: $in141 NOT_NULL
+      valueOf: datatypes/CP/CPExtension
+      constants:
+        cpExtensionName: IN1.41
+      specs: IN1.41
+    - expressionType: nested
+      specs: IN1.49 *
+      condition: $in149 NOT_NULL
+      generateList: true
+      vars:
+        in149: STRING_ALL, IN1.49
+      expressionsMap:
+        url:
+          type: STRING
+          value: IN1.49
+        valueIdentifier:
+          valueOf: datatypes/CX/Identifier
+          expressionType: resource
