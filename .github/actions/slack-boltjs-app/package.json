@@ -1,0 +1,27 @@
+{
+  "name": "slack-bolt",
+  "version": "1.0.0",
+  "description": "A secure and simple Bolt app for Slack ChatOps",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node -r dotenv/config src/index.js"
+  },
+  "dependencies": {
+    "dotenv": "^16",
+    "@slack/bolt": "^3.18.0",
+    "node-localstorage": "^3.0.5"
+  },
+  "engines": {
+    "node": "^20",
+    "npm": "^10"
+  },
+  "repository": {
+    "url": "https://github.com/JosiahSiegel/slack-boltjs-app"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "eslint": "9.3.0",
+    "eslint-config-eslint": "^10.0.0"
+  }
+}
