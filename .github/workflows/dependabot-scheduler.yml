@@ -5,7 +5,6 @@ on:
     branches:
       - "dependabot/*"
 
-
 jobs:
   update-dependencies:
     runs-on: ubuntu-latest
