@@ -2,7 +2,7 @@
 
 > *Only uses built-in GitHub runner commands
 
-[![Test Action](https://github.com/JosiahSiegel/reliable-pull-request-action/actions/workflows/test-action.yml/badge.svg)](https://github.com/JosiahSiegel/reliable-pull-request-action/actions/workflows/test-action.yml)
+[![Test Action](https://github.com/CDCgov/prime-reportstream/.github/workflows/reliable-pull-request--test-action.yml/badge.svg)](https://github.com/CDCgov/prime-reportstream/.github/workflows/reliable-pull-request--test-action.yml)
 
 ## Synopsis
 
@@ -25,7 +25,7 @@ jobs:
 
       - name: Create Pull Request
         id: create_pr
-        uses: JosiahSiegel/reliable-pull-request-action@v1.0.0
+        uses: CDCgov/prime-reportstream/.github/actions/reliable-pull-request@ae8d0c88126329ee363a35392793d0bc94cb82e7
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
