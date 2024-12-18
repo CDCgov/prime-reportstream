@@ -1,8 +1,8 @@
 # Slack-Boltjs-App
 
-[![CodeQL](https://github.com/JosiahSiegel/slack-boltjs-app/actions/workflows/codeql.yml/badge.svg)](https://github.com/JosiahSiegel/slack-bolt/actions/workflows/codeql.yml)
-[![njsscan sarif](https://github.com/JosiahSiegel/slack-boltjs-app/actions/workflows/njsscan.yml/badge.svg)](https://github.com/JosiahSiegel/slack-bolt/actions/workflows/njsscan.yml)
-[![Codacy Badge](https://app.codacy.com/project/badge/Grade/3f3ee15eaf3f4c81915d658008e01c3f)](https://app.codacy.com/gh/JosiahSiegel/slack-boltjs-app/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
+[![CodeQL](https://github.com/CDCgov/prime-reportstream/.github/workflows/slack-boltjs-app--codeql.yml/badge.svg)](https://github.com/JosiahSiegel/slack-bolt/actions/workflows/codeql.yml)
+[![njsscan sarif](https://github.com/CDCgov/prime-reportstream/.github/workflows/slack-boltjs-app--njsscan.yml/badge.svg)](https://github.com/JosiahSiegel/slack-bolt/actions/workflows/njsscan.yml)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/3f3ee15eaf3f4c81915d658008e01c3f)](https://app.codacy.com/gh/CDCgov/prime-reportstream/.github/actions/slack-boltjs-app/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
 
 ![](https://avatars.slack-edge.com/2023-04-24/5159910288243_7af56ae264408f296381_128.png)
 
@@ -78,6 +78,6 @@ Tips:
 ---
 
 [Glitch](https://glitch.com/~slack-boltjs-app)
-[GitHub](https://github.com/JosiahSiegel/slack-boltjs-app)
+[GitHub](https://github.com/CDCgov/prime-reportstream/.github/actions/slack-boltjs-app)
 
 [1]: https://slack.com/help/articles/115004151203-Slack-Connect-guide--work-with-external-organizations

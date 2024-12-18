@@ -17,7 +17,7 @@
     "npm": "^10"
   },
   "repository": {
-    "url": "https://github.com/JosiahSiegel/slack-boltjs-app"
+    "url": "https://github.com/CDCgov/prime-reportstream/.github/actions/slack-boltjs-app"
   },
   "license": "MIT",
   "devDependencies": {
