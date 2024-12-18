@@ -335,7 +335,7 @@ extension:
           expressionType: HL7Spec
           valueOf: OBR.22
     - expressionType: resource
-      valueOf: datatypes/MOC/Extension
+      valueOf: datatypes/MOC/MOCExtension
       vars:
         obr23: STRING_ALL, OBR.23
       condition: $obr23 NOT_NULL

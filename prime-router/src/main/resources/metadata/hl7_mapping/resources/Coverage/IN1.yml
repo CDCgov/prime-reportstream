@@ -5,8 +5,32 @@ constants:
 
 elements:
 
-  - name: aui-extension
+  - name: in1-authorization-information
     resource: '%resource.extension.where(url = "IN1.14")'
     schema: classpath:/metadata/hl7_mapping/datatypes/extensionAUI/AUI.yml
     constants:
       auiField: '%{hl7IN1Field}-14'
+
+  - name: in1-policy-deductable
+    resource: '%resource.extension(%`rsext-composite-price`).where(extension(%`rsext-hl7v2Field`).value = "IN1.37")'
+    schema: classpath:/metadata/hl7_mapping/datatypes/extensionCP/CP.yml
+    constants:
+      cpField: '%{hl7IN1Field}-37'
+
+  - name: in1-policy-limit-amount
+    resource: '%resource.extension(%`rsext-composite-price`).where(extension(%`rsext-hl7v2Field`).value = "IN1.38")'
+    schema: classpath:/metadata/hl7_mapping/datatypes/extensionCP/CP.yml
+    constants:
+      cpField: '%{hl7IN1Field}-38'
+
+  - name: in1-room-rate-semi-private
+    resource: '%resource.extension(%`rsext-composite-price`).where(extension(%`rsext-hl7v2Field`).value = "IN1.40")'
+    schema: classpath:/metadata/hl7_mapping/datatypes/extensionCP/CP.yml
+    constants:
+      cpField: '%{hl7IN1Field}-40'
+
+  - name: in1-room-rate-private
+    resource: '%resource.extension(%`rsext-composite-price`).where(extension(%`rsext-hl7v2Field`).value = "IN1.41")'
+    schema: classpath:/metadata/hl7_mapping/datatypes/extensionCP/CP.yml
+    constants:
+      cpField: '%{hl7IN1Field}-41'
