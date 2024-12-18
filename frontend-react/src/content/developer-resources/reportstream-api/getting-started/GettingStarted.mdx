@@ -47,7 +47,7 @@ to review <A href={site.forms.contactUs.url}>upon request</A>.
 When you’ve formatted your fake (non-PII) data file, test your data model using the
 <A href={site.external.nistValidationSuite.url}>NIST Electronic Lab Reporting (ELR) Validation Suite</A>. 
 Note: If you’re testing OTC data, use the <A href={site.external.nistGeneralValidationTool.url}>NIST HL7 General Validation Tool</A> and 
-select RADx MARS HL7v2 from the dropdown. Navigate to the Context-free tab and select the Onboarding profile group.
+select** RADx MARS HL7v2** from the **Tool Scopes** dropdown. Navigate to the **Context-free** tab and select the **Onboarding** profile group.
 Correct any errors you receive.
 
 <h2 className="rs-numbered">Map your codes</h2>
@@ -57,27 +57,27 @@ We will ensure that all potential codes you might send to ReportStream are mappe
 <Accordion bordered multiselectable items={[
     {
         headingLevel: "h3",
-        title: "Step 2.1: Set up your file.",
+        title: "Step 2.1: Set up your file",
         content: <Step2_1 />,
-        id: 1
+        id: "2_1"
     },
     {
         headingLevel: "h3",
         title: "Step 2.2: Input all result codes",
         content: <Step2_2 />,
-        id: 2
+        id: "2_2"
     },
     {
         headingLevel: "h3",
         title: "Step 2.3: Input all organism codes (if applicable)",
         content: <Step2_3 />,
-        id: 3
+        id: "2_3"
     },
     {
         headingLevel: "h3",
         title: "Step 2.4: Upload your file",
         content: <Step2_4 />,
-        id: 4
+        id: "2_4"
     },
 ]} />
 
@@ -105,25 +105,25 @@ The data submitted are sent as the payload of the POST, as is, with no changes.
         headingLevel: "h3",
         title: "Step 3.1: Prior to submission, send your public key to ReportStream.",
         content: <Step3_1 />,
-        id: 1
+        id: "3_1"
     },
     {
         headingLevel: "h3",
         title: "Step 3.2: At the time of submission, generate a signed JWT using your private key",
         content: <Step3_2 />,
-        id: 2
+        id: "3_2"
     },
     {
         headingLevel: "h3",
         title: "Step 3.3: Send the signed JWT to ReportStream to get a temporary bearer token",
         content: <Step3_3 />,
-        id: 3
+        id: "3_3"
     },
     {
         headingLevel: "h3",
         title: "Step 3.4: Submit data to ReportStream using the bearer token",
         content: <Step3_4 />,
-        id: 4
+        id: "3_4"
     },
 ]} />
 
