@@ -114,7 +114,6 @@ class FHIRConverter(
         companion object {
 
             private val clientIdHeader = "client_id"
-            private val payloadNameHeader = "payloadname"
 
             /**
              * Converts a [FhirConvertQueueMessage] into the input to the convert processing
@@ -161,7 +160,6 @@ class FHIRConverter(
                 val blobSubFolderName = message.blobSubFolderName
 
                 val clientId = message.headers[clientIdHeader]
-                val payloadName = message.headers[payloadNameHeader]
                 val sender = clientId?.takeIf { it.isNotBlank() }?.let { settings.findSender(it) }
                 if (sender == null) {
                     throw SubmissionSenderNotFound(clientId ?: "", reportId, blobUrl)
@@ -183,8 +181,7 @@ class FHIRConverter(
                 // is properly recorded in the report file table with the correct sender
                 actionHistory.trackExternalInputReport(
                     report,
-                    BlobAccess.BlobInfo(format, blobUrl, blobDigest.toByteArray()),
-                    payloadName
+                    BlobAccess.BlobInfo(format, blobUrl, blobDigest.toByteArray())
                 )
                 actionHistory.trackActionSenderInfo(sender.fullName)
 
