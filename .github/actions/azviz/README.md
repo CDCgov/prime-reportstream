@@ -1,8 +1,5 @@
 # AzViz (Azure Visualizer) action
-
-![](https://badgen.net/badge/icon/gitguardian/green?icon=gitguardian&label)
-[![Linux runner](https://github.com/CDCgov/prime-reportstream/.github/workflows/azviz--test_linux_runner.yml/badge.svg)](https://github.com/CDCgov/prime-reportstream/.github/workflows/azviz--test_linux_runner.yml)
-[![Windows runner](https://github.com/CDCgov/prime-reportstream/.github/workflows/azviz--test_windows_runner.yml/badge.svg)](https://github.com/CDCgov/prime-reportstream/.github/workflows/azviz--test_windows_runner.yml)
+Note: This GitHub Action is imported from: https://github.com/josiahsiegel/azviz-action
 
 ## ☕ Please donate to [AzViz Developer](https://github.com/PrateekKumarSingh/AzViz#readme)
 
@@ -75,7 +72,7 @@ jobs:
         - name: Login to Azure
           uses: azure/login@v1
           with:
-            creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }} 
+            creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
             enable-AzPSSession: true
         - uses: CDCgov/prime-reportstream/.github/actions/azviz@663e24299a6336f1ff8dbddadfac1ba5d462f731aaa
           with:
