@@ -31,4 +31,15 @@ class MarsOtcElrValidatorTests {
         val report = validator.validate(message)
         assertThat(report.isValid()).isTrue()
     }
+
+    @Test
+    fun `test valid RADxMARS message with NIST invalid MSH-5-1, MSH-5-2, MSH-6-1, MSH-6-2 `() {
+        val sampleMessageInputStream =
+            this.javaClass.classLoader.getResourceAsStream("validation/marsotcelr/valid_altered_msh.hl7")
+
+        val sampleMessage = sampleMessageInputStream!!.bufferedReader().use { it.readText() }
+        val messages = HL7Reader(ActionLogger()).getMessages(sampleMessage)
+        val report = validator.validate(messages[0])
+        assertThat(report.isValid()).isTrue()
+    }
 }
