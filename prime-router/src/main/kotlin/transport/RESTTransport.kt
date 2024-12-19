@@ -204,7 +204,6 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
                         actionHistory.setActionType(TaskAction.send_warning)
                         actionHistory.trackActionResult(t.response.status, msg)
                         RetryToken.allItems
-
                     }
                 }
 
