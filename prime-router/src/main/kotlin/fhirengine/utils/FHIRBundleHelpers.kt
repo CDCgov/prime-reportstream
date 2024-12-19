@@ -9,12 +9,14 @@ import gov.cdc.prime.router.azure.ConditionStamper.Companion.BUNDLE_CODE_IDENTIF
 import gov.cdc.prime.router.azure.ConditionStamper.Companion.BUNDLE_VALUE_IDENTIFIER
 import gov.cdc.prime.router.azure.ConditionStamper.Companion.conditionCodeExtensionURL
 import gov.cdc.prime.router.codes
+import gov.cdc.prime.router.fhirengine.engine.RSMessageType
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers.Companion.getChildProperties
 import io.github.linuxforhealth.hl7.data.Hl7RelatedGeneralUtils
 import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.Bundle
+import org.hl7.fhir.r4.model.CodeType
 import org.hl7.fhir.r4.model.CodeableConcept
 import org.hl7.fhir.r4.model.Coding
 import org.hl7.fhir.r4.model.DateTimeType
@@ -113,6 +115,36 @@ fun Bundle.addProvenanceReference() {
         val diagnosticReportReference = Reference(diagnosticReport.idBase)
         diagnosticReportReference.reference = diagnosticReport.idBase
         provenanceResource.target.add(diagnosticReportReference)
+    }
+}
+
+/**
+ * Return true if Bundle contains an ELR in the MessageHeader.
+ *
+ * @return true if has a MesssageHeader that contains an R01 or ORU_R01, otherwise false.
+ */
+fun Bundle.isElr(): Boolean {
+    val code = FhirPathUtils.evaluate(
+        null,
+        this,
+        this,
+        "Bundle.entry.resource.ofType(MessageHeader).event.code"
+    )
+        .filterIsInstance<CodeType>()
+        .firstOrNull()
+        ?.code
+    return ((code == "R01") || (code == "ORU_R01"))
+}
+
+/**
+ * Return RSMessageType based on grouping logic.
+ *
+ * @return RSMessageType of this Bundle.
+ */
+fun Bundle.getRSMessageType(): RSMessageType {
+    return when {
+        isElr() -> RSMessageType.LAB_RESULT
+        else -> RSMessageType.UNKNOWN
     }
 }
 

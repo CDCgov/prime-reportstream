@@ -34,8 +34,8 @@ The History Details API can be queried later to get full information about expec
 
 Example ReportStream response to an async submission:
 
-```
-{
+<CodeSnippet>
+{`{
    "submissionId":1604,
    "timestamp":"2022-02-10T13:50:19.162694Z",
    "sender":"simple_report.default",
@@ -49,21 +49,30 @@ Example ReportStream response to an async submission:
    "topic":"covid-19",
    "warningCount":0,
    "errorCount":0
-}
-```
+}`}
+</CodeSnippet>
 
 ReportStream features a History Details API that can be later queried to obtain the actual destinations and relevant detail using your existing private/public key pair.
 
-The request is made with the submissionId in the earlier example:
+The request can be made by using either the submissionId or id returned in the API response. Using the earlier example:
 
-```
-https://prime.cdc.gov/api/history/simple_report/submissions/1588
-```
+Using SubmissionID:
+
+<CodeSnippet>
+https://prime.cdc.gov/api/waters/report/1588/history 
+</CodeSnippet>
+
+Using ID:
+
+<CodeSnippet>
+https://prime.cdc.gov/api/waters/report/3597ad7d-b92c-4bc0-a8fc-d909ed87bc90/history 
+</CodeSnippet>
+
 
 Response:
 
-```
-{
+<CodeSnippet>
+{`{
     "submissionId": 1588,
     "timestamp": "2022-02-09T16:59:33.789532Z",
     "sender": "simple_report",
@@ -110,10 +119,45 @@ Response:
     "topic": "covid-19",
     "warningCount": 0,
     "errorCount": 0
-}
-```
+}`}
+</CodeSnippet>
 
 The sentReports sections contain details about where and when the reports were transmitted.
+
+Additionally, you can retrieve the complete list of submissions made to ReportStream by calling this API: 
+
+<CodeSnippet>
+https://prime.cdc.gov/api/waters/org/simple_report.default/submissions  
+</CodeSnippet>
+
+Response:
+
+<CodeSnippet>
+{`[
+  {
+    "submissionId": 158,
+    "timestamp": "2024-11-19T22:47:23.852Z",
+    "sender": "simple_report.default",
+    "httpStatus": 201,
+    "id": "8e33a43c-7513-4973-ac9f-5bd4e1cfcadb",
+    "topic": "full-elr",
+    "reportItemCount": 1,
+    "fileName": "ignore.ignore-full-elr-e2e%2F8e33a43c-7513-4973-ac9f-5bd4e1cfcadb.hl7",
+    "fileType": "HL7"
+  },
+  {
+    "submissionId": 154,
+    "timestamp": "2024-11-19T22:43:59.600Z",
+    "sender": "simple_report.default",
+    "httpStatus": 201,
+    "id": "b36e5ef2-2d8f-4a4b-b0a6-b8408309b816",
+    "topic": "full-elr",
+    "reportItemCount": 1,
+    "fileName": "ignore.ignore-full-elr-e2e%2Fb36e5ef2-2d8f-4a4b-b0a6-b8408309b816.hl7",
+    "fileType": "HL7"
+  }
+]`}
+</CodeSnippet>
 
 ## JSON error responses
 
@@ -121,8 +165,8 @@ In error cases, no report "id" UUID is returned, because no report was created b
 
 Example failure response and identical HistoryAPI response (Note the "id" is null, and the “httpStatus” is not 201):
 
-```
-{
+<CodeSnippet>
+{`{
     "submissionId": 1594,
     "timestamp": "2022-02-09T20:44:55.055545Z",
     "sender": "simple_report",
@@ -143,13 +187,13 @@ Example failure response and identical HistoryAPI response (Note the "id" is nul
     "topic": null,
     "warningCount": 0,
     "errorCount": 1
-}
-```
+}`}
+</CodeSnippet>
 
 Example of a report level error:
 
-```
-{
+<CodeSnippet>
+{`{
     "submissionId": 1599,
     "timestamp": "2022-02-09T20:56:16.82117Z",
     "sender": "strac",
@@ -170,6 +214,7 @@ Example of a report level error:
     "topic": null,
     "warningCount": 0,
     "errorCount": 1
-}
-```
+}`}
+</CodeSnippet>
+
 </LayoutMain>
