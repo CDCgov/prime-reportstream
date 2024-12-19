@@ -68,6 +68,7 @@ In order to migrate existing covid pipeline settings to the UP a few settings ne
 * `schemaName:` Schema name specifies how the RS FHIR bundle should be translated to HL7 if the receiver's format is HL7. 
 If they're receiving HL7 v2 ORU_R01. The schema name can be updated to `azure:/metadata/hl7_mapping/ORU_R01/ORU_R01-base.yml`. 
 If the receiver has any specific receiver transforms the schema name should be updated to point to the schema location.
+* `convertDateTimesToReceiverLocalTime` This setting is used to convert datetimes to a specified time zone. If this setting is used an enrichment schema should be added under the `enrichmentSchemaNames` list to ensure compatibility with datetime conversions for all receivers. See also: [Translate#extending-schemas](https://github.com/CDCgov/prime-reportstream/blob/main/prime-router/docs/universal-pipeline/translate.md#extending-schemas)
 * `jurisdictionalFilter:` The jurisdictional filter needs to be updated to use FHIR path. 
 The most common way to route messages to a STLT is based on the patient's or performer's state. 
 The FHIR path for that looks like this: `"(Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state = 'MT') or (Bundle.entry.resource.ofType(Patient).address.state = 'MT')"`
@@ -102,6 +103,10 @@ After updating the receiver to route messages to the UP it should look like this
         customerStatus: "testing"
         translation: !<HL7>
             schemaName: "azure:/metadata/hl7_mapping/ORU_R01/ORU_R01-base.yml"
+            convertDateTimesToReceiverLocalTime: true
+        # These two settings are used with convertDateTimesToReceiverLocalTime translation
+        timeZone: "MOUNTAIN"
+        dateTimeFormat: "OFFSET"
         jurisdictionalFilter:
             - "(Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state.exists() and Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state = 'TX') or (Bundle.entry.resource.ofType(Patient).address.state.exists() and Bundle.entry.resource.ofType(Patient).address.state = 'TX')"
         qualityFilter:
@@ -120,6 +125,11 @@ After updating the receiver to route messages to the UP it should look like this
         conditionFilter:
             # Accept COVID only
             - "(%resource.code.coding.extension('https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code').value.where(code in ('840539006')).exists())"
+        enrichmentSchemaNames:
+            # Example enrichment schema for US Mountain time zone
+            - "azure:/fhir_transforms/common/datetime-to-local/datetime-to-local-us-mtz.yml"
+            # Use this path variant instead for local testing
+            - "classpath:/metadata/fhir_transforms/common/datetime-to-local-mtz.yml"
 ```
 
 ### 3. Send test message from SimpleReport to STLT
@@ -163,6 +173,7 @@ If the receiver has any of the following settings enabled they will need a recei
 - suppressAoe: true
 - defaultAoeToUnknown
 - replaceUnicodeWithAscii
+- convertDateTimesToReceiverLocalTime: true
 - useBlankInsteadOfUnknown
 - usePid14ForPatientEmail: true
 - suppressNonNPI
