@@ -15,31 +15,31 @@ elements:
   # Temporary override for MSH 5 and 6 until original fields are updated
 
   - name: msh-5-1-override
-    resource: "Bundle.entry.resource.ofType(MessageHeader)"
-    bundleProperty: '%resource.destination.where(extension("https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field").value = "MSH.5").name'
+    resource: 'Bundle.entry.resource.ofType(MessageHeader).destination.where(extension("https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field").value = "MSH.5")'
+    bundleProperty: '%resource.name'
     value: [ '"CDC PRIME"' ]
 
   - name: msh-5-2-override
-    resource: "Bundle.entry.resource.ofType(MessageHeader)"
-    bundleProperty: '%resource.destination.where(extension("https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field").value = "MSH.5").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id").value'
+    resource: 'Bundle.entry.resource.ofType(MessageHeader).destination.where(extension("https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field").value = "MSH.5")'
+    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id").value[x]'
     value: [ '"2.16.840.1.114222.4.1.237821"' ]
 
   - name: msh-5-3-override
-    resource: "Bundle.entry.resource.ofType(MessageHeader)"
-    bundleProperty: '%resource.destination.where(extension("https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field").value = "MSH.5").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type").value'
+    resource: 'Bundle.entry.resource.ofType(MessageHeader).destination.where(extension("https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field").value = "MSH.5")'
+    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type").value[x]'
     value: [ '"ISO"' ]
 
   - name: msh-6-1-override
-    resource: "Bundle.entry.resource.ofType(MessageHeader)"
-    bundleProperty: '%resource.destination.receiver.resolve().where(extension("https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field").value = "MSH.6").name'
+    resource: 'Bundle.entry.resource.ofType(MessageHeader).destination.receiver.resolve().where(extension("https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field").value = "MSH.6")'
+    bundleProperty: '%resource.name'
     value: [ '"CDC PRIME"' ]
 
   - name: msh-6-2-override
-    resource: "Bundle.entry.resource.ofType(MessageHeader)"
-    bundleProperty: '%resource.destination.receiver.resolve().where(extension("https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field").value = "MSH.6").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id").value'
+    resource: 'Bundle.entry.resource.ofType(MessageHeader).destination.receiver.resolve().where(extension("https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field").value = "MSH.6")'
+    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id").value[x]'
     value: [ '"2.16.840.1.114222.4.1.237821"' ]
 
   - name: msh-6-3-override
-    resource: "Bundle.entry.resource.ofType(MessageHeader)"
-    bundleProperty: '%resource.destination.receiver.resolve().where(extension("https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field").value = "MSH.6").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type").value'
+    resource: 'Bundle.entry.resource.ofType(MessageHeader).destination.receiver.resolve().where(extension("https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field").value = "MSH.6")'
+    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type").value[x]'
     value: [ '"ISO"' ]
