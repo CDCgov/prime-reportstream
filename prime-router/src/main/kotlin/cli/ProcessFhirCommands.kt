@@ -223,8 +223,8 @@ class ProcessFhirCommands : CliktCommand(
                 (isCli && outputFormat == MimeFormat.HL7.toString()) ||
                     (
                         receiver != null &&
-                        (receiver.format == MimeFormat.HL7 || receiver.format == MimeFormat.HL7_BATCH)
-                    )
+                            (receiver.format == MimeFormat.HL7 || receiver.format == MimeFormat.HL7_BATCH)
+                        )
                 ) -> {
                 val (bundle2, inputMessage) = convertHl7ToFhir(contents, receiver)
 
@@ -297,7 +297,7 @@ class ProcessFhirCommands : CliktCommand(
         }
     }
 
-        private fun evaluateReceiverFilters(receiver: Receiver?, messageOrBundle: MessageOrBundle, isCli: Boolean) {
+    private fun evaluateReceiverFilters(receiver: Receiver?, messageOrBundle: MessageOrBundle, isCli: Boolean) {
         if (receiver != null && messageOrBundle.bundle != null) {
             val reportStreamFilters = mutableListOf<Pair<String, ReportStreamFilter>>()
             reportStreamFilters.add(Pair("Jurisdictional Filter", receiver.jurisdictionalFilter))
@@ -516,6 +516,7 @@ class ProcessFhirCommands : CliktCommand(
      * look like.
      * @return a FHIR bundle and the parsed HL7 input that represents the data in the one HL7 message
      */
+    @Suppress("DEPRECATION")
     private fun convertHl7ToFhir(hl7String: String, receiver: Receiver?): Pair<Bundle, Message> {
         val hasFiveEncodingChars = hl7MessageHasFiveEncodingChars(hl7String)
         // Some HL7 2.5.1 implementations have adopted the truncation character # that was added in 2.7

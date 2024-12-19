@@ -1,17 +1,26 @@
 package gov.cdc.prime.router.fhirengine.utils
 
+import ca.uhn.hl7v2.AbstractHL7Exception
 import ca.uhn.hl7v2.DefaultHapiContext
+import ca.uhn.hl7v2.ErrorCode
 import ca.uhn.hl7v2.HL7Exception
 import ca.uhn.hl7v2.HapiContext
 import ca.uhn.hl7v2.model.Message
 import ca.uhn.hl7v2.parser.ParserConfiguration
 import ca.uhn.hl7v2.util.Hl7InputStreamMessageIterator
+import ca.uhn.hl7v2.util.Hl7InputStreamMessageStringIterator
 import ca.uhn.hl7v2.util.Terser
+import ca.uhn.hl7v2.validation.ValidationException
 import ca.uhn.hl7v2.validation.impl.ValidationContextFactory
 import fhirengine.translation.hl7.structures.fhirinventory.message.OML_O21
 import fhirengine.translation.hl7.structures.fhirinventory.message.ORM_O01
 import fhirengine.translation.hl7.structures.fhirinventory.message.ORU_R01
 import fhirengine.utils.ReportStreamCanonicalModelClassFactory
+import gov.cdc.prime.router.ActionLogger
+import gov.cdc.prime.router.InvalidReportMessage
+import org.apache.commons.lang3.exception.ExceptionUtils
+import org.apache.logging.log4j.Level
+import org.apache.logging.log4j.kotlin.logger
 import java.util.Date
 import ca.uhn.hl7v2.model.v251.segment.MSH as v251_MSH
 import ca.uhn.hl7v2.model.v27.segment.MSH as v27_MSH
@@ -27,6 +36,7 @@ class HL7Reader {
 
         // This regex is used to replace \n with \r while not replacing \r\n
         val newLineRegex = Regex("(?<!\r)\n")
+        private val logger = logger()
 
         /**
          * Class captures the details from the MSH segment and can be used to map
@@ -51,32 +61,9 @@ class HL7Reader {
         )
 
         /**
-         * Map of configured message types to their configuration
-         */
-        val messageToConfigMap = mapOf(
-            HL7MessageType(
-                "ORU_R01",
-                "2.5.1",
-                "2.16.840.1.113883.9.10"
-            ) to HL7MessageParseAndConvertConfiguration(
-                ORU_R01::class.java,
-                "./metadata/HL7/catchall"
-            ),
-            HL7MessageType(
-                "ORU_R01",
-                "2.5.1",
-                "2.16.840.1.113883.9.11"
-            ) to HL7MessageParseAndConvertConfiguration(
-                ORU_R01::class.java,
-                "./metadata/HL7/catchall"
-            )
-        )
-
-        // TODO: https://github.com/CDCgov/prime-reportstream/issues/14116
-        /**
          * Accepts a raw HL7 string and uses the MSH segment to detect the [HL7MessageType] which is then used
-         * to parse the string into an instance of [Message]. If the type is not one that is configured in
-         * [messageToConfigMap] the default HAPI parsing logic is used
+         * to parse the string into an instance of [Message]. If the type is not one that is supported in
+         * [getHL7ParsingContext] the default HAPI parsing logic is used
          *
          * @param rawHL7 the HL7 string to convert into a [Message]
          *
@@ -164,6 +151,7 @@ class HL7Reader {
         }
 
         // map of HL7 message profiles: maps profile to configuration directory path
+        @Deprecated("This field is only in use for the CLI", level = DeprecationLevel.WARNING)
         val profileDirectoryMap: Map<MessageProfile, String> = mapOf(
             // TODO: https://github.com/CDCgov/prime-reportstream/issues/14124
             // Pair(MessageProfile("ORU", "NIST_ELR"), "./metadata/HL7/v251-elr"),
@@ -211,6 +199,7 @@ class HL7Reader {
          * @param rawmessage string representative of hl7 messages
          * @return the message profile, or null if there is no message
          */
+        @Deprecated("This function is only in use for the CLI", level = DeprecationLevel.WARNING)
         fun getMessageProfile(rawmessage: String): MessageProfile? {
             val iterator = Hl7InputStreamMessageIterator(rawmessage.byteInputStream())
             if (!iterator.hasNext()) return null
@@ -302,6 +291,50 @@ class HL7Reader {
          */
         fun isBatch(rawMessage: String, numMessages: Int): Boolean {
             return rawMessage.startsWith("FHS") || numMessages > 1
+        }
+
+        /**
+         * Takes an [exception] thrown by the HL7 HAPI library, gets the root cause and logs the error into [actionLogger].
+         * Sample error messages returned by the HAPI library are:
+         *  Error Code = DATA_TYPE_ERROR-102: 'test' in record 3 is invalid for version 2.5.1
+         *  Error Code = REQUIRED_FIELD_MISSING-101: Can't find version ID - MSH.12 is null
+         * This functions only logs messages that contain meaningful data.
+         *
+         */
+        fun logHL7ParseFailure(
+            exception: Hl7InputStreamMessageStringIterator.ParseFailureError,
+            isError: Boolean = true,
+            logLevel: Level = Level.ERROR,
+            actionLogger: ActionLogger,
+        ) {
+            logger.log(logLevel, "Failed to parse message: ${exception.message}")
+
+            // Get the exception root cause and log it accordingly
+            when (val rootCause = ExceptionUtils.getRootCause(exception)) {
+                is AbstractHL7Exception -> recordError(rootCause, isError, actionLogger)
+                else -> throw rootCause
+            }
+        }
+
+        fun recordError(exception: AbstractHL7Exception, isError: Boolean, actionLogger: ActionLogger) {
+            val errorMessage: String = when (exception) {
+                is ValidationException -> "Validation Failed: ${exception.message}"
+
+                is HL7Exception -> {
+                    when (exception.errorCode) {
+                        ErrorCode.REQUIRED_FIELD_MISSING.code -> "Required field missing: ${exception.message}"
+                        ErrorCode.DATA_TYPE_ERROR.code -> "Data type error: ${exception.message}"
+                        else -> "Failed to parse message"
+                    }
+                }
+
+                else -> "Failed to parse message"
+            }
+            if (isError) {
+                actionLogger.error(InvalidReportMessage(errorMessage))
+            } else {
+                actionLogger.warn(InvalidReportMessage(errorMessage))
+            }
         }
     }
 }

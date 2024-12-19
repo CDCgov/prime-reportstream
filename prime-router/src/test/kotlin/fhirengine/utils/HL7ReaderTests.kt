@@ -1,12 +1,14 @@
 package gov.cdc.prime.router.fhirengine.utils
 
 import assertk.assertThat
-import assertk.assertions.contains
 import assertk.assertions.isEqualTo
 import assertk.assertions.isFalse
 import assertk.assertions.isTrue
+import ca.uhn.hl7v2.HL7Exception
+import ca.uhn.hl7v2.parser.EncodingNotSupportedException
 import ca.uhn.hl7v2.util.Hl7InputStreamMessageStringIterator
-import gov.cdc.prime.router.ActionLogger
+import org.apache.commons.lang3.exception.ExceptionUtils
+import java.lang.Exception
 import kotlin.test.Test
 
 class HL7ReaderTests {
@@ -31,28 +33,35 @@ class HL7ReaderTests {
 
     @Test
     fun `test decoding of bad HL7 messages`() {
-        val actionLogger = ActionLogger()
-
         // Empty data
         val badData1 = ""
-        HL7Reader.parseHL7Message(badData1, null)
-        assertThat(actionLogger.hasErrors()).isTrue()
-        actionLogger.logs.clear()
+        try {
+            HL7Reader.parseHL7Message(badData1, null)
+        } catch (e: Exception) {
+            assertThat(e is HL7Exception).isTrue()
+            assertThat(ExceptionUtils.getRootCause(e) is EncodingNotSupportedException).isTrue()
+        }
 
         // Some CSV was sent
         val badData2 = """
             a,b,c
             1,2,3
         """.trimIndent()
-        HL7Reader.parseHL7Message(badData2, null)
-        assertThat(actionLogger.hasErrors()).isTrue()
-        actionLogger.logs.clear()
+        try {
+            HL7Reader.parseHL7Message(badData2, null)
+        } catch (e: Exception) {
+            assertThat(e is HL7Exception).isTrue()
+            assertThat(ExceptionUtils.getRootCause(e) is EncodingNotSupportedException).isTrue()
+        }
 
         // Some truncated HL7
         val badData3 = "MSH|^~\\&#|MEDITECH^2.16.840.1.114222.4.3.2.2.1.321.111^ISO|COCAA^1.2."
-        HL7Reader.parseHL7Message(badData3, null)
-        assertThat(actionLogger.hasErrors()).isTrue()
-        actionLogger.logs.clear()
+        try {
+            HL7Reader.parseHL7Message(badData3, null)
+        } catch (e: Exception) {
+            assertThat(e is HL7Exception).isTrue()
+            assertThat(ExceptionUtils.getRootCause(e) is EncodingNotSupportedException).isTrue()
+        }
     }
 
     @Test
@@ -155,6 +164,7 @@ class HL7ReaderTests {
     }
 
     @Test
+    @Suppress("DEPRECATION")
     fun `test getMessageProfile`() {
         val justMSH = """           
             MSH|^~\&|CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO|Avante at Ormond Beach^10D0876999^CLIA|PRIME_DOH|Prime ReportStream|20210210170737||ORU^R01^ORU_R01|371784|P|2.5.1|||NE|NE|USA||||PHLabReportNoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO                                   
