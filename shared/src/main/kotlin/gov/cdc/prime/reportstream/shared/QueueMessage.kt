@@ -91,6 +91,11 @@ interface QueueMessage {
         const val elrTranslationQueueName = "elr-fhir-translate"
 
         /**
+         * Constant for receiver enrichment queue on UP.
+         */
+        const val elrReceiverEnrichmentQueueName = "elr-fhir-receiver-enrichment-queue"
+
+        /**
          * Constant for send queue
          */
         const val elrSendQueueName = "send"
