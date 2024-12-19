@@ -182,55 +182,36 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
             logger.severe(t.stackTraceToString())
             // do some additional handling of the error here. if we are dealing with a 400 error, we
             // probably don't want to retry unless it is a 429 and the issue is due to overzealous rate-limiting.
-            // if the error is a 500 we can do a retry, but both should probably throw a pager duty notification
+            // if the error is not a client exception or is a 429 we can do a retry, but both should probably throw a pager duty notification
             when (t) {
-                is ClientRequestException -> {
-                    if (t.response.status.value == 429) {
+                is ResponseException -> {
+                    // retry on any response exception that is not a client exception unless it is a 429
+                    if (t.response.status.value <400 || t.response.status.value ==429 || t.response.status.value >=500 ) {
                         logger.severe(
                             "Received ${t.response.status.value}: ${t.response.status.description} " +
                                 "from the server ${t.response.request.url}, ${t.response.version}." +
                                 " This may be recoverable. Will retry."
                         )
-                    actionHistory.setActionType(TaskAction.send_warning)
-                    actionHistory.trackActionResult(t.response.status, msg)
-                    RetryToken.allItems
-                } else {
-                    logger.severe(
-                        "Received ${t.response.status.value}: ${t.response.status.description} " +
-                            "requesting ${t.response.request.url}. This is not recoverable. Will not retry."
-                    )
+                        actionHistory.setActionType(TaskAction.send_warning)
+                        actionHistory.trackActionResult(t.response.status, msg)
+                        RetryToken.allItems
+                    } else {
+                        logger.severe(
+                            "Received ${t.response.status.value}: ${t.response.status.description} " +
+                                "requesting ${t.response.request.url}. This is not recoverable. Will not retry."
+                        )
+                    }
                     actionHistory.setActionType(TaskAction.send_error)
                     actionHistory.trackActionResult(t.response.status, msg)
                     null
                 }
-            }
-                is ServerResponseException -> {
-                    // this is largely duplicated code as below, but we may want to add additional
-                    // instrumentation based on the specific error type we're getting. One benefit
-                    // we can use now is getting the specific response information from the
-                    // ServerResponseException
-                    (t).let {
-                        logger.severe(
-                            "Received ${it.response.status.value}: ${it.response.status.description} " +
-                                "from the server ${it.response.request.url}, ${it.response.version}." +
-                                " This may be recoverable. Will retry."
-                        )
-                    }
-                    actionHistory.setActionType(TaskAction.send_warning)
-                    actionHistory.trackActionResult(t.response.status, msg)
-                    RetryToken.allItems
-                }
-
                 else -> {
                     // this is an unknown exception, and maybe not one related to ktor, so we should
                     // track, but try again
                     actionHistory.setActionType(TaskAction.send_warning)
-                    if (t is ResponseException) {
-                        actionHistory.trackActionResult(t.response.status, msg)
-                    } else {
-                        actionHistory.trackActionResult(msg)
-                    }
+                    actionHistory.trackActionResult(msg)
                     RetryToken.allItems
+                    }
                 }
             }
         }
