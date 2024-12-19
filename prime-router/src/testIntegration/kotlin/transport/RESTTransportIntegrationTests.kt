@@ -141,8 +141,8 @@ class RESTTransportIntegrationTests : TransportIntegrationTests() {
         return mockJsonResponse(jsonResponse, HttpStatusCode.Unauthorized)
     }
 
-    private fun mockJsonResponseWithTooManyRequests(jsonResponse: String): HttpClient{
-        return mockJsonResponse(jsonResponse,HttpStatusCode.TooManyRequests)
+    private fun mockJsonResponseWithTooManyRequests(jsonResponse: String): HttpClient {
+        return mockJsonResponse(jsonResponse, HttpStatusCode.TooManyRequests)
     }
 
     private fun mockJsonResponseWithUnknown(jsonResponse: String): HttpClient {
