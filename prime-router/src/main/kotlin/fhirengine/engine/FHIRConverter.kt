@@ -44,6 +44,7 @@ import gov.cdc.prime.router.azure.observability.event.AzureEventServiceImpl
 import gov.cdc.prime.router.azure.observability.event.IReportStreamEventService
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventName
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventProperties
+import gov.cdc.prime.router.common.BaseEngine
 import gov.cdc.prime.router.fhirengine.translation.HL7toFhirTranslator
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirTransformer
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
@@ -52,6 +53,8 @@ import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.fhirengine.utils.HL7Reader
 import gov.cdc.prime.router.fhirengine.utils.HL7Reader.Companion.parseHL7Message
 import gov.cdc.prime.router.fhirengine.utils.getObservations
+import gov.cdc.prime.router.fhirengine.utils.getRSMessageType
+import gov.cdc.prime.router.fhirengine.utils.isElr
 import gov.cdc.prime.router.logging.LogMeasuredTime
 import gov.cdc.prime.router.report.ReportService
 import gov.cdc.prime.router.validation.IItemValidator
@@ -258,7 +261,7 @@ class FHIRConverter(
             // TODO: https://github.com/CDCgov/prime-reportstream/issues/14287
             FhirPathUtils
 
-            val processedItems = process(format, input.blobURL, input.blobDigest, input.topic, actionLogger)
+            val processedItems = process(format, input, actionLogger)
 
             // processedItems can be empty in three scenarios:
             // - the blob had no contents, i.e. an empty file was submitted
@@ -336,6 +339,12 @@ class FHIRConverter(
                                 nextAction = TaskAction.destination_filter
                             )
 
+                            logger.info(
+                                "Applied transform - parentReportId=[${input.reportId}]" +
+                                    ", childReportId=[${report.id}], schemaName=[${input.schemaName}]" +
+                                    ", trackingId=[${processedItem.getTrackingId()}]"
+                            )
+
                             // create route event
                             val routeEvent = ProcessEvent(
                                 Event.EventAction.DESTINATION_FILTER,
@@ -382,7 +391,8 @@ class FHIRConverter(
                                     mapOf(
                                         ReportStreamEventProperties.BUNDLE_DIGEST
                                             to bundleDigestExtractor.generateDigest(processedItem.bundle!!),
-                                        ReportStreamEventProperties.ITEM_FORMAT to format
+                                        ReportStreamEventProperties.ITEM_FORMAT to format,
+                                        ReportStreamEventProperties.ENRICHMENTS to input.schemaName
                                     )
                                 )
                             }
@@ -450,14 +460,12 @@ class FHIRConverter(
      */
     internal fun process(
         format: MimeFormat,
-        blobURL: String,
-        blobDigest: String,
-        topic: Topic,
+        input: FHIRConvertInput,
         actionLogger: ActionLogger,
         routeReportWithInvalidItems: Boolean = true,
     ): List<IProcessedItem<*>> {
-        val validator = topic.validator
-        val rawReport = BlobAccess.downloadBlob(blobURL, blobDigest)
+        val validator = input.topic.validator
+        val rawReport = BlobAccess.downloadBlob(input.blobURL, input.blobDigest)
         return if (rawReport.isBlank()) {
             actionLogger.error(InvalidReportMessage("Provided raw data is empty."))
             emptyList()
@@ -471,7 +479,7 @@ class FHIRConverter(
                                 "format" to format.name
                             )
                         ) {
-                            getBundlesFromRawHL7(rawReport, validator, topic.hl7ParseConfiguration)
+                            getBundlesFromRawHL7(rawReport, validator, input.topic.hl7ParseConfiguration)
                         }
                     } catch (ex: ParseFailureError) {
                         actionLogger.error(
@@ -508,21 +516,24 @@ class FHIRConverter(
                 }
                 // 'stamp' observations with their condition code
                 if (item.bundle != null) {
+                    val isElr = item.bundle!!.getRSMessageType() == RSMessageType.LAB_RESULT
                     item.bundle!!.getObservations().forEach { observation ->
-                        val result = stamper.stampObservation(observation)
-                        if (!result.success) {
-                            val logger = actionLogger.getItemLogger(item.index + 1, observation.id)
-                            if (result.failures.isEmpty()) {
-                                logger.warn(UnmappableConditionMessage())
-                            } else {
-                                logger.warn(
-                                    result.failures.map {
-                                        UnmappableConditionMessage(
-                                            it.failures.map { it.code },
-                                            it.source
-                                        )
-                                    }
-                                )
+                        if (isElr) {
+                            val result = stamper.stampObservation(observation)
+                            if (!result.success) {
+                                val logger = actionLogger.getItemLogger(item.index + 1, observation.id)
+                                if (result.failures.isEmpty()) {
+                                    logger.warn(UnmappableConditionMessage())
+                                } else {
+                                    logger.warn(
+                                        result.failures.map {
+                                            UnmappableConditionMessage(
+                                                it.failures.map { it.code },
+                                                it.source
+                                            )
+                                        }
+                                    )
+                                }
                             }
                         }
                     }
