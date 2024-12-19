@@ -38,8 +38,8 @@ class MarsOtcElrValidatorTests {
             this.javaClass.classLoader.getResourceAsStream("validation/marsotcelr/valid_altered_msh.hl7")
 
         val sampleMessage = sampleMessageInputStream!!.bufferedReader().use { it.readText() }
-        val messages = HL7Reader(ActionLogger()).getMessages(sampleMessage)
-        val report = validator.validate(messages[0])
+        val message = HL7Reader.parseHL7Message(sampleMessage, null)
+        val report = validator.validate(message)
         assertThat(report.isValid()).isTrue()
     }
 }
