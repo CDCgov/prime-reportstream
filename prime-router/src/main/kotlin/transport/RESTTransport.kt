@@ -25,9 +25,7 @@ import gov.cdc.prime.router.tokens.AuthUtils
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.engine.apache.Apache
-import io.ktor.client.plugins.ClientRequestException
 import io.ktor.client.plugins.ResponseException
-import io.ktor.client.plugins.ServerResponseException
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.plugins.expectSuccess
@@ -183,34 +181,39 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
             // do some additional handling of the error here. if we are dealing with a 400 error, we
             // probably don't want to retry unless it is a 429 and the issue is due to overzealous rate-limiting.
             when (t) {
+                // do not retry on any response exception that is a client exception unless it is a 429
                 is ResponseException -> {
-                    // do not retry on any response exception that is a client exception unless it is a 429
-                    if (t.response.status.value in 400..499 && t.response.status.value != 429 ) {
-                        logger.severe(
-                            "Received ${t.response.status.value}: ${t.response.status.description} " +
-                                "requesting ${t.response.request.url}. This is not recoverable. Will not retry."
-                        )
+                    if (t.response.status.value in 400..499 && t.response.status.value != 429) {
+                        (t).let {
+                            logger.severe(
+                                "Received ${it.response.status.value}: ${it.response.status.description} " +
+                                    "requesting ${it.response.request.url}. This is not recoverable. Will not retry."
+                            )
+                        }
                         actionHistory.setActionType(TaskAction.send_error)
                         actionHistory.trackActionResult(t.response.status, msg)
                         null
                     } else {
-                        logger.severe(
-                            "Received ${t.response.status.value}: ${t.response.status.description} " +
-                                "from the server ${t.response.request.url}, ${t.response.version}." +
-                                " this may be recoverable. Will retry."
-                        )
+                        (t).let {
+                            logger.severe(
+                                "Received ${it.response.status.value}: ${it.response.status.description} " +
+                                    "from the server ${it.response.request.url}, ${it.response.version}." +
+                                    " This may be recoverable. Will retry."
+                            )
+                        }
                         actionHistory.setActionType(TaskAction.send_warning)
                         actionHistory.trackActionResult(t.response.status, msg)
                         RetryToken.allItems
+
                     }
                 }
+
                 else -> {
                     // this is an unknown exception, and maybe not one related to ktor, so we should
                     // track, but try again
                     actionHistory.setActionType(TaskAction.send_warning)
                     actionHistory.trackActionResult(msg)
                     RetryToken.allItems
-                    }
                 }
             }
         }
