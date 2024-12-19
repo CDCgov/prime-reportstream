@@ -102,7 +102,6 @@ class RESTTransportIntegrationTests : TransportIntegrationTests() {
             """{"error": {"code": 401,"message": "Mock unauthorized error."}}"""
         )
     }
-
     private fun mockClientPostOk(): HttpClient {
         return mockJsonResponseWithSuccess(
             """{"status": "Success", 
@@ -115,6 +114,12 @@ class RESTTransportIntegrationTests : TransportIntegrationTests() {
     private fun mockClientPostError(): HttpClient {
         return mockJsonResponseWithError(
             """{"error": {"code": 500,"message": "Mock internal server error."}}"""
+        )
+    }
+
+    private fun mockClientTooManyRequests(): HttpClient {
+        return mockJsonResponseWithTooManyRequests(
+            """{"error": {"code": 429,"message": "Mock too many requests error."}}"""
         )
     }
 
@@ -134,6 +139,10 @@ class RESTTransportIntegrationTests : TransportIntegrationTests() {
 
     private fun mockJsonResponseWithUnauthorized(jsonResponse: String): HttpClient {
         return mockJsonResponse(jsonResponse, HttpStatusCode.Unauthorized)
+    }
+
+    private fun mockJsonResponseWithTooManyRequests(jsonResponse: String): HttpClient{
+        return mockJsonResponse(jsonResponse,HttpStatusCode.TooManyRequests)
     }
 
     private fun mockJsonResponseWithUnknown(jsonResponse: String): HttpClient {
@@ -493,6 +502,31 @@ hnm8COa8Kr+bnTqzScpQuOfujHcFEtfcYUGfSS6HusxidwXx+lYi1A==
     fun `test connecting to mock service postReport unhappy path`() {
         val header = makeHeader()
         val mockRestTransport = spyk(RESTTransport(mockClientPostError()))
+        every { mockRestTransport.lookupDefaultCredential(any()) }.returns(
+            UserApiKeyCredential("test-user", "test-key")
+        )
+        every { runBlocking { mockRestTransport.getAuthTokenWithUserApiKey(any(), any(), any(), any()) } }.returns(
+            TokenInfo("MockToken", 1000, "MockRefreshToken", null, "bearer")
+        )
+        val retryItems = mockRestTransport.send(
+            transportType,
+            header,
+            reportId,
+            "test",
+            null,
+            context,
+            actionHistory,
+            mockk<IReportStreamEventService>(relaxed = true),
+            mockk<ReportService>(relaxed = true)
+        )
+        assertThat(retryItems).isNotNull()
+        assertThat(actionHistory.action.httpStatus).isNotNull()
+    }
+
+    @Test
+    fun `test connecting to mock service too many requests error`() {
+        val header = makeHeader()
+        val mockRestTransport = spyk(RESTTransport(mockClientTooManyRequests()))
         every { mockRestTransport.lookupDefaultCredential(any()) }.returns(
             UserApiKeyCredential("test-user", "test-key")
         )
