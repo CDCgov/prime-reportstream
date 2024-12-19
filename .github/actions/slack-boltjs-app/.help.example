@@ -1,0 +1,32 @@
+USAGE
+    [<@bot>] gh-deploy [<branch>] to [<branch>] [OPTIONAL: for <owner/repo>]
+
+EXAMPLES
+    @MyBot gh-deploy master to feature3
+    @MyBot gh-deploy feature1 to feature3 for my/awesome_repo
+
+==========================================================================
+
+USAGE
+    [<@bot>] gh-lock [add|remove|show] [<branch>]
+
+EXAMPLES
+    @MyBot gh-lock add feature3
+    @MyBot gh-lock remove feature1
+
+==========================================================================
+
+USAGE
+    [<@bot>] gh-run [<workflow file>] [OPTIONAL: <owner/repo> <branch>] [OPTIONAL: --inputs <a:b,c:d>] 
+
+EXAMPLES
+    @MyBot gh-run log_management.yml --inputs name:alpha,desc:uat env
+    @MyBot gh-run log_management.yml my/awesome_repo main --inputs name:alpha,desc:uat env
+
+==========================================================================
+
+USAGE
+    [<@bot>] gh-targets
+
+EXAMPLES
+    @bot gh-targets
