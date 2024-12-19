@@ -303,20 +303,19 @@ class HL7Reader {
          */
         fun logHL7ParseFailure(
             exception: Hl7InputStreamMessageStringIterator.ParseFailureError,
-            isError: Boolean = true,
-            logLevel: Level = Level.ERROR,
             actionLogger: ActionLogger,
+            logLevel: Level = Level.ERROR,
         ) {
             logger.log(logLevel, "Failed to parse message: ${exception.message}")
 
             // Get the exception root cause and log it accordingly
             when (val rootCause = ExceptionUtils.getRootCause(exception)) {
-                is AbstractHL7Exception -> recordError(rootCause, isError, actionLogger)
+                is AbstractHL7Exception -> recordError(rootCause, actionLogger)
                 else -> throw rootCause
             }
         }
 
-        fun recordError(exception: AbstractHL7Exception, isError: Boolean, actionLogger: ActionLogger) {
+        fun recordError(exception: AbstractHL7Exception, actionLogger: ActionLogger) {
             val errorMessage: String = when (exception) {
                 is ValidationException -> "Validation Failed: ${exception.message}"
 
@@ -330,11 +329,7 @@ class HL7Reader {
 
                 else -> "Failed to parse message"
             }
-            if (isError) {
-                actionLogger.error(InvalidReportMessage(errorMessage))
-            } else {
-                actionLogger.warn(InvalidReportMessage(errorMessage))
-            }
+            actionLogger.error(InvalidReportMessage(errorMessage))
         }
     }
 }
