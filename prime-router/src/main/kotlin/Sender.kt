@@ -31,6 +31,7 @@ import java.time.OffsetDateTime
  * @property allowDuplicates if false a duplicate submission will be rejected
  * @property senderType one of four broad sender categories
  * @property primarySubmissionMethod Sender preference for submission - manual or automatic
+ * @property hl7AcknowledgementEnabled should we return an HL7 ACK response if MSH.15 == "AL"?
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonTypeInfo(
@@ -59,6 +60,7 @@ abstract class Sender(
     val allowDuplicates: Boolean = true,
     val senderType: SenderType? = null,
     val primarySubmissionMethod: PrimarySubmissionMethod? = null,
+    val hl7AcknowledgementEnabled: Boolean = false,
     override var version: Int? = null,
     override var createdBy: String? = null,
     override var createdAt: OffsetDateTime? = null,
@@ -194,6 +196,7 @@ class UniversalPipelineSender : Sender {
         allowDuplicates: Boolean = true,
         senderType: SenderType? = null,
         primarySubmissionMethod: PrimarySubmissionMethod? = null,
+        hl7AcknowledgementEnabled: Boolean = false,
         topic: Topic,
     ) : super(
         topic,
@@ -205,7 +208,8 @@ class UniversalPipelineSender : Sender {
         processingType,
         allowDuplicates,
         senderType,
-        primarySubmissionMethod
+        primarySubmissionMethod,
+        hl7AcknowledgementEnabled
     )
 
     constructor(copy: UniversalPipelineSender) : this(
@@ -214,6 +218,7 @@ class UniversalPipelineSender : Sender {
         copy.format,
         copy.customerStatus,
         copy.schemaName,
+        hl7AcknowledgementEnabled = copy.hl7AcknowledgementEnabled,
         topic = copy.topic,
     )
 

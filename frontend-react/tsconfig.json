@@ -22,6 +22,6 @@
       "@trussworks/react-uswds/lib/*": ["./node_modules/@trussworks/react-uswds/lib/*"]
     }
   },
-  "include": ["./src", "./e2e", "./__mocks__", "playwright.config.ts", "eslint.config.js"],
+  "include": ["./src", "./e2e", "./__mocks__", "playwright.config.ts", "eslint.config.js", "./pa11y-net-logger.js"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

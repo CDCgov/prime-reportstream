@@ -53,4 +53,4 @@ elements:
     condition: '%resource.exists()'
     schema: classpath:/metadata/hl7_mapping/resources/Patient/DR.yml
     constants:
-      hl7DRField: '%{hl7XADField}-10'
+      hl7DRField: '%{hl7XADField}-12'

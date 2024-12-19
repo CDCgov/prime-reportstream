@@ -2,7 +2,7 @@
 
 elements:
   - name: specimen-set-id
-    value: [ '"1"' ]
+    value: [ '%resultIndex + 1' ]
     hl7Spec: [ '%{hl7SpecimenFieldPath}-1' ]
 
   - name: specimen-identifier

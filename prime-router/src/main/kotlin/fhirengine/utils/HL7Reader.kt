@@ -13,6 +13,8 @@ import ca.uhn.hl7v2.util.Hl7InputStreamMessageStringIterator
 import ca.uhn.hl7v2.util.Terser
 import ca.uhn.hl7v2.validation.ValidationException
 import ca.uhn.hl7v2.validation.impl.ValidationContextFactory
+import fhirengine.translation.hl7.structures.fhirinventory.message.OML_O21
+import fhirengine.translation.hl7.structures.fhirinventory.message.ORM_O01
 import fhirengine.translation.hl7.structures.fhirinventory.message.ORU_R01
 import fhirengine.utils.ReportStreamCanonicalModelClassFactory
 import gov.cdc.prime.router.ActionLogger
@@ -21,7 +23,6 @@ import org.apache.commons.lang3.exception.ExceptionUtils
 import org.apache.logging.log4j.Level
 import org.apache.logging.log4j.kotlin.Logging
 import java.util.Date
-import ca.uhn.hl7v2.model.v251.message.OML_O21 as v251_OML_O21
 import ca.uhn.hl7v2.model.v251.message.ORU_R01 as v251_ORU_R01
 import ca.uhn.hl7v2.model.v251.segment.MSH as v251_MSH
 import ca.uhn.hl7v2.model.v27.message.ORU_R01 as v27_ORU_R01
@@ -138,11 +139,6 @@ class HL7Reader(private val actionLogger: ActionLogger) : Logging {
                                 v251_ORU_R01::class.java
                             )
                         }
-                    }
-                    "OML" -> {
-                        return listOf(
-                            v251_OML_O21::class.java
-                        )
                     }
                     else -> {
                         logger.warn(
@@ -301,6 +297,18 @@ class HL7Reader(private val actionLogger: ActionLogger) : Logging {
                         ValidationContextFactory.noValidation(),
                         ReportStreamCanonicalModelClassFactory(ORU_R01::class.java),
                     )
+                } else if (hl7MessageType?.msh93 == "OML_O21") {
+                    DefaultHapiContext(
+                        ParserConfiguration(),
+                        ValidationContextFactory.noValidation(),
+                        ReportStreamCanonicalModelClassFactory(OML_O21::class.java),
+                    )
+                } else if (hl7MessageType?.msh93 == "ORM_O01") {
+                    DefaultHapiContext(
+                        ParserConfiguration(),
+                        ValidationContextFactory.noValidation(),
+                        ReportStreamCanonicalModelClassFactory(ORM_O01::class.java),
+                    )
                 } else {
                     DefaultHapiContext(ValidationContextFactory.noValidation())
                 }
@@ -421,6 +429,54 @@ class HL7Reader(private val actionLogger: ActionLogger) : Logging {
                 "ORM" -> "PATIENT"
                 "OML" -> "PATIENT"
                 "ORU" -> "PATIENT_RESULT/PATIENT"
+                else -> null
+            }
+        }
+
+        /**
+         * Reads MSH.3 which is the Sending Application field
+         */
+        fun getSendingApplication(message: Message): String? {
+            return when (val structure = message[MSH_SEGMENT_NAME]) {
+                is NIST_MSH -> structure.msh3_SendingApplication.encode()
+                is v27_MSH -> structure.msh3_SendingApplication.encode()
+                is v251_MSH -> structure.msh3_SendingApplication.encode()
+                else -> null
+            }
+        }
+
+        /**
+         * Reads MSH.4 which is the Sending Facility field
+         */
+        fun getSendingFacility(message: Message): String? {
+            return when (val structure = message[MSH_SEGMENT_NAME]) {
+                is NIST_MSH -> structure.msh4_SendingFacility.encode()
+                is v27_MSH -> structure.msh4_SendingFacility.encode()
+                is v251_MSH -> structure.msh4_SendingFacility.encode()
+                else -> null
+            }
+        }
+
+        /**
+         * Reads MSH.10 which is the Message Control ID field
+         */
+        fun getMessageControlId(message: Message): String? {
+            return when (val structure = message[MSH_SEGMENT_NAME]) {
+                is NIST_MSH -> structure.msh10_MessageControlID.encode()
+                is v27_MSH -> structure.msh10_MessageControlID.encode()
+                is v251_MSH -> structure.msh10_MessageControlID.encode()
+                else -> null
+            }
+        }
+
+        /**
+         * Reads MSH.15 which is the Accept Acknowledgment Type field
+         */
+        fun getAcceptAcknowledgmentType(message: Message): String? {
+            return when (val structure = message[MSH_SEGMENT_NAME]) {
+                is NIST_MSH -> structure.msh15_AcceptAcknowledgmentType.encode()
+                is v27_MSH -> structure.msh15_AcceptAcknowledgmentType.encode()
+                is v251_MSH -> structure.msh15_AcceptAcknowledgmentType.encode()
                 else -> null
             }
         }

@@ -96,6 +96,7 @@ import tech.tablesaw.api.StringColumn
 import tech.tablesaw.api.Table
 import java.nio.charset.Charset
 import java.time.OffsetDateTime
+import java.util.Base64
 import java.util.UUID
 
 @Testcontainers
@@ -334,8 +335,7 @@ class FHIRConverterIntegrationTests {
             verify(exactly = 1) {
                 QueueAccess.sendMessage(
                     "${QueueMessage.elrSubmissionConvertQueueName}-poison",
-                    queueMessage
-
+                    Base64.getEncoder().encodeToString(queueMessage.toByteArray())
                 )
             }
         }
@@ -508,7 +508,8 @@ class FHIRConverterIntegrationTests {
                         orderingFacilityState = listOf("FL"),
                         performerState = emptyList(),
                         eventType = "ORU^R01^ORU_R01"
-                    )
+                    ),
+                    ReportStreamEventProperties.ENRICHMENTS to ""
                 )
             )
         }
@@ -663,7 +664,8 @@ class FHIRConverterIntegrationTests {
                         orderingFacilityState = listOf("FL"),
                         performerState = emptyList(),
                         eventType = "ORU^R01^ORU_R01"
-                    )
+                    ),
+                    ReportStreamEventProperties.ENRICHMENTS to ""
                 )
             )
         }
@@ -798,7 +800,7 @@ class FHIRConverterIntegrationTests {
             )
 
             assertThat(azureEventService.reportStreamEvents[ReportStreamEventName.ITEM_ACCEPTED]!!).hasSize(2)
-            val event = azureEventService
+            var event = azureEventService
                 .reportStreamEvents[ReportStreamEventName.ITEM_ACCEPTED]!!.last() as ReportStreamItemEvent
             assertThat(event.reportEventData).isEqualToIgnoringGivenProperties(
                 ReportEventData(
@@ -835,8 +837,9 @@ class FHIRConverterIntegrationTests {
                         patientState = emptyList(),
                         orderingFacilityState = emptyList(),
                         performerState = emptyList(),
-                        eventType = ""
-                    )
+                        eventType = "ORU^R01^ORU_R01"
+                    ),
+                    ReportStreamEventProperties.ENRICHMENTS to ""
                 )
             )
         }

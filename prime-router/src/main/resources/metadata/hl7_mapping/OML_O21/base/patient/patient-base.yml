@@ -1,0 +1,12 @@
+# $schema: ./../../../../../../../../../metadata/json_schema/fhir/fhir-to-hl7-mapping.json
+
+elements:
+
+  - name: patient
+    required: true
+    schema: classpath:/metadata/hl7_mapping/OML_O21/base/patient/patient.yml
+
+  - name: patient-visit
+    condition: '%resource.count() = 1'
+    resource: 'Bundle.entry.resource.ofType(Encounter)'
+    schema: classpath:/metadata/hl7_mapping/OML_O21/base/patient/patient-visit.yml

@@ -63,7 +63,7 @@ runs:
         fi
       shell: bash
 
-    - uses: azure/login@a65d910e8af852a8061c627c456678983e180302
+    - uses: azure/login@v2
       if: inputs.sp-creds
       with:
         creds: ${{ inputs.sp-creds }}

@@ -1,0 +1,83 @@
+# action.yml
+name: 'Generate Azure resource topology diagrams with AzViz (Azure Visualizer)'
+description: 'Run AzViz against one or more Azure Resource Groups'
+branding:
+  icon: 'download-cloud'  
+  color: 'blue'
+inputs:
+  resource-group:
+    description: Comma-seperated resource group list
+    required: true
+  out-file:
+    description: Graph export path
+    required: true
+    default: viz.svg
+  sub-name:
+    description: Azure subscription name
+    required: true
+    default: Pay-As-You-Go
+  theme:
+    description: Graph theme (dark, light, neon)
+    required: false
+    default: neon
+  depth:
+    description: Level of Azure Resource Sub-category to be included in vizualization (1 or 2)
+    required: false
+    default: '1'
+  verbosity:
+    description: Level of information to included in vizualization (1 or 2)
+    required: false
+    default: '1'
+  format:
+    description: Graph format (png or svg)
+    required: true
+    default: svg
+  direction:
+    description: Direction in which resource groups are plotted on the visualization (left-to-right or top-to-bottom)
+    required: false
+    default: top-to-bottom
+  exclude-types:
+    description: Exclude resources via string search
+    required: false
+    default: '*excludethisthing1,excludethisthing2*'
+  splines:
+    description: Controls how edges appear in visualization. ('spline', 'polyline', 'curved', 'ortho', 'line')
+    required: false
+    default: spline
+
+runs:
+  using: "composite"
+  steps:
+    - name: Choco install graphviz
+      if: runner.os == 'Windows'
+      uses: crazy-max/ghaction-chocolatey@v1
+      with:
+        args: install graphviz
+    - name: Apt-get install graphviz
+      if: runner.os != 'Windows'
+      run: |
+        sudo apt-get update;
+        sudo apt-get install graphviz -y;
+      shell: bash
+    - name: 'Install AzViz module'
+      shell: pwsh
+      run: |
+        [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12;
+        Install-Module -Name AzViz -AllowClobber -Confirm:$False -Force;
+        Import-Module AzViz;
+    - name: Run AzViz
+      uses: azure/powershell@v1
+      with:
+        azPSVersion: 'latest'
+        inlineScript: |
+          ${{ github.action_path }}/viz_run.ps1 `
+            -RESOURCE_GROUP '${{ inputs.resource-group }}' `
+            -OUT_FILE '${{ inputs.out-file }}' `
+            -SUB_NAME '${{ inputs.sub-name }}' `
+            -THEME '${{ inputs.theme }}' `
+            -DEPTH ${{ inputs.depth }} `
+            -VERBOSITY ${{ inputs.verbosity }} `
+            -FORMAT '${{ inputs.format }}' `
+            -DIRECTION '${{ inputs.direction }}' `
+            -EXCLUDE_TYPES '${{ inputs.exclude-types }}' `
+            -SPLINES '${{ inputs.splines }}'
