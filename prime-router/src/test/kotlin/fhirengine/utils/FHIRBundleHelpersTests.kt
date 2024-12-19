@@ -31,7 +31,6 @@ import gov.cdc.prime.router.azure.ConditionStamper
 import gov.cdc.prime.router.azure.ConditionStamper.Companion.conditionCodeExtensionURL
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.LookupTableConditionMapper
-import gov.cdc.prime.router.azure.QueueAccess
 import gov.cdc.prime.router.fhirengine.engine.RSMessageType
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
@@ -78,7 +77,6 @@ class FHIRBundleHelpersTests {
     val connection = MockConnection(dataProvider)
     val accessSpy = spyk(DatabaseAccess(connection))
     val blobMock = mockkClass(BlobAccess::class)
-    val queueMock = mockkClass(QueueAccess::class)
     val metadata = Metadata(schema = Schema(name = "None", topic = Topic.FULL_ELR, elements = emptyList()))
     private val shorthandLookupTable = emptyMap<String, String>().toMutableMap()
 
