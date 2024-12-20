@@ -13,7 +13,7 @@ elements:
 
   # Ticket 16776
   # Temporary override for MSH 5 and 6 until original fields are updated
-
+  # If this override is removed, the associated test files should also be removed: mmtc-msh5-msh6-sender-override.hl7
   - name: msh-5-1-override
     resource: 'Bundle.entry.resource.ofType(MessageHeader).destination.where(extension("https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field").value = "MSH.5")'
     bundleProperty: '%resource.name'
@@ -29,17 +29,18 @@ elements:
     bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type").value[x]'
     value: [ '"ISO"' ]
 
+    # Assume that HL7 messages will have these extension properties...
   - name: msh-6-1-override
-    resource: 'Bundle.entry.resource.ofType(MessageHeader).destination.receiver.resolve().where(extension("https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field").value = "MSH.6")'
-    bundleProperty: '%resource.name'
+    resource: 'Bundle.entry.resource.ofType(MessageHeader).destination.receiver.resolve().where(extension("https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field").value = "MSH.6").identifier.where(extension("https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field").value = "HD.1")'
+    bundleProperty: '%resource.value'
     value: [ '"CDC PRIME"' ]
 
   - name: msh-6-2-override
-    resource: 'Bundle.entry.resource.ofType(MessageHeader).destination.receiver.resolve().where(extension("https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field").value = "MSH.6")'
-    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id").value[x]'
+    resource: 'Bundle.entry.resource.ofType(MessageHeader).destination.receiver.resolve().where(extension("https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field").value = "MSH.6").identifier.where(extension("https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field").value = "HD.2,HD.3")'
+    bundleProperty: '%resource.value'
     value: [ '"2.16.840.1.114222.4.1.237821"' ]
 
   - name: msh-6-3-override
-    resource: 'Bundle.entry.resource.ofType(MessageHeader).destination.receiver.resolve().where(extension("https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field").value = "MSH.6")'
-    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type").value[x]'
+    resource: 'Bundle.entry.resource.ofType(MessageHeader).destination.receiver.resolve().where(extension("https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field").value = "MSH.6").identifier.where(extension("https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field").value = "HD.2,HD.3")'
+    bundleProperty: '%resource.type.coding[0].code'
     value: [ '"ISO"' ]
