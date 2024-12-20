@@ -40,16 +40,13 @@ object HL7MessageHelpers : Logging {
         val firstMessage = if (hl7RawMsgs.isNotEmpty()) {
             try {
                 val message = HL7Reader.parseHL7Message(hl7RawMsgs[0], null)
-                if (message.isEmpty) {
-                    logger.warn("Unable to extract batch header values from HL7: ${hl7RawMsgs[0].take(80)} ...")
-                    null
-                } else {
-                    Terser(message)
-                }
+                Terser(message)
             } catch (exception: Hl7InputStreamMessageStringIterator.ParseFailureError) {
+                logger.warn("Unable to extract batch header values from HL7: ${hl7RawMsgs[0].take(80)} ...")
                 HL7Reader.logHL7ParseFailure(exception, actionLogger)
                 null
             } catch (exception: AbstractHL7Exception) {
+                logger.warn("Unable to extract batch header values from HL7: ${hl7RawMsgs[0].take(80)} ...")
                 HL7Reader.recordError(exception, actionLogger)
                 null
             }
