@@ -9,6 +9,19 @@ extension:
   generateList: true
   expressions:
     - expressionType: nested
+      specs: IN1.2
+      condition: $in12 NOT_NULL
+      generateList: true
+      vars:
+        in12: STRING_ALL, IN1.2
+      expressionsMap:
+        url:
+          type: STRING
+          value: IN1.2
+        valueCodeableConcept:
+          valueOf: datatypes/CWE/CodeableConcept
+          expressionType: resource
+    - expressionType: nested
       specs: IN1.3 *
       condition: $in13 NOT_NULL
       generateList: true

@@ -1,0 +1,305 @@
+# $schema: ./../../../../../../../metadata/json_schema/fhir/fhir-to-hl7-mapping.json
+
+elements:
+
+  - name: IN1.2
+    resource: '%resource.extension.where(url = "IN1.2").value'
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
+    constants:
+      cweField: '%{hl7IN1Field}-2'
+
+  - name: IN1.3
+    resource: '%resource.extension.where(url = "IN1.3").value'
+    schema: classpath:/metadata/hl7_mapping/datatypes/identifier/CX.yml
+    resourceIndex: cxIndex
+    constants:
+      cxField: '%{hl7IN1Field}-3(%{cxIndex})'
+
+  - name: IN1.4
+    resource: '%resource.extension.where(url = "IN1.4").value.resolve()'
+    schema: classpath:/metadata/hl7_mapping/resources/Organization/XON.yml
+    resourceIndex: xonIndex
+    constants:
+      hl7XONField: '%{hl7IN1Field}-4(%{xonIndex})'
+
+  - name: IN1.5
+    resource: '%resource.extension.where(url = "IN1.5").value'
+    schema: classpath:/metadata/hl7_mapping/datatypes/Address/XAD.yml
+    resourceIndex: xadIndex
+    constants:
+      xadField: '%{hl7IN1Field}-5(%{xadIndex})'
+
+  - name: IN1.6
+    resource: '%resource.extension.where(url = "IN1.6").value'
+    schema: classpath:/metadata/hl7_mapping/datatypes/HumanName/XPN.yml
+    resourceIndex: xpnIndex
+    constants:
+      xpnField: '%{hl7IN1Field}-6(%{xpnIndex})'
+
+  - name: IN1.7
+    resource: '%resource.extension.where(url = "IN1.7").value'
+    schema: classpath:/metadata/hl7_mapping/datatypes/contactPoint/XTN.yml
+    resourceIndex: telecomIndex
+    constants:
+      hl7TelecomField: '%{hl7IN1Field}-7'
+
+  - name: IN1.8
+    value: [ '%resource.extension.where(url = "IN1.8").value' ]
+    hl7Spec: [ '%{hl7IN1Field}-8' ]
+
+  - name: IN1.9
+    resource: '%resource.extension.where(url = "IN1.9").value.resolve()'
+    schema: classpath:/metadata/hl7_mapping/resources/Organization/XON.yml
+    resourceIndex: xonIndex
+    constants:
+      hl7XONField: '%{hl7IN1Field}-9(%{xonIndex})'
+
+  - name: IN1.10
+    resource: '%resource.extension.where(url = "IN1.10").value'
+    schema: classpath:/metadata/hl7_mapping/datatypes/identifier/CX.yml
+    resourceIndex: cxIndex
+    constants:
+      cxField: '%{hl7IN1Field}-10(%{cxIndex})'
+
+  - name: IN1.11
+    resource: '%resource.extension.where(url = "IN1.11").value.resolve()'
+    schema: classpath:/metadata/hl7_mapping/resources/Organization/XON.yml
+    resourceIndex: xonIndex
+    constants:
+      hl7XONField: '%{hl7IN1Field}-11(%{xonIndex})'
+
+  - name: IN1.14
+    resource: '%resource.extension.where(url = "IN1.14")'
+    schema: classpath:/metadata/hl7_mapping/datatypes/extensionAUI/AUI.yml
+    constants:
+      auiField: '%{hl7IN1Field}-14'
+
+  - name: IN1.15
+    resource: '%resource.extension.where(url = "IN1.15").value'
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
+    constants:
+      cweField: '%{hl7IN1Field}-15'
+
+  - name: IN1.16
+    resource: '%resource.extension.where(url = "IN1.16").value'
+    schema: classpath:/metadata/hl7_mapping/datatypes/HumanName/XPN.yml
+    resourceIndex: xpnIndex
+    constants:
+      xpnField: '%{hl7IN1Field}-16(%{xpnIndex})'
+
+  - name: IN1.17
+    resource: '%resource.extension.where(url = "IN1.17").value'
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
+    constants:
+      cweField: '%{hl7IN1Field}-17'
+
+  - name: IN1.18
+    resource: '%resource.extension.where(url = "IN1.18").value'
+    schema: classpath:/metadata/hl7_mapping/datatypes/dateTime/DTMorDT.yml
+    constants:
+      dtmFieldPath: '%{hl7IN1Field}-18'
+
+  - name: IN1.19
+    resource: '%resource.extension.where(url = "IN1.19").value'
+    schema: classpath:/metadata/hl7_mapping/datatypes/Address/XAD.yml
+    resourceIndex: xadIndex
+    constants:
+      xadField: '%{hl7IN1Field}-19(%{xadIndex})'
+
+  - name: IN1.20
+    resource: '%resource.extension.where(url = "IN1.20").value'
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
+    constants:
+      cweField: '%{hl7IN1Field}-20'
+
+  - name: IN1.21
+    resource: '%resource.extension.where(url = "IN1.21").value'
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
+    constants:
+      cweField: '%{hl7IN1Field}-21'
+
+  - name: IN1.22
+    value: [ '%resource.extension.where(url = "IN1.22").value' ]
+    hl7Spec: [ '%{hl7IN1Field}-22' ]
+
+  - name: IN1.23
+    value: [ '%resource.extension.where(url = "IN1.23").value' ]
+    hl7Spec: [ '%{hl7IN1Field}-23' ]
+
+  - name: IN1.24
+    resource: '%resource.extension.where(url = "IN1.24").value'
+    schema: classpath:/metadata/hl7_mapping/datatypes/dateTime/DTMorDT.yml
+    constants:
+      dtmFieldPath: '%{hl7IN1Field}-24'
+
+  - name: IN1.25
+    value: [ '%resource.extension.where(url = "IN1.25").value' ]
+    hl7Spec: [ '%{hl7IN1Field}-25' ]
+
+  - name: IN1.26
+    resource: '%resource.extension.where(url = "IN1.26").value'
+    schema: classpath:/metadata/hl7_mapping/datatypes/dateTime/DTMorDT.yml
+    constants:
+      dtmFieldPath: '%{hl7IN1Field}-26'
+
+  - name: IN1.27
+    resource: '%resource.extension.where(url = "IN1.27").value'
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
+    constants:
+      cweField: '%{hl7IN1Field}-27'
+
+  - name: IN1.28
+    value: [ '%resource.extension.where(url = "IN1.28").value' ]
+    hl7Spec: [ '%{hl7IN1Field}-28' ]
+
+  - name: IN1.29
+    resource: '%resource.extension.where(url = "IN1.29").value'
+    schema: classpath:/metadata/hl7_mapping/datatypes/dateTime/DTMorDT.yml
+    constants:
+      dtmFieldPath: '%{hl7IN1Field}-29'
+
+  - name: IN1.30
+    resource: '%resource.extension.where(url = "IN1.30").value.resolve()'
+    schema: classpath:/metadata/hl7_mapping/resources/Practitioner/XCN.yml
+    resourceIndex: relatedPersonIndex
+    constants:
+      hl7XCNField: '%{hl7IN1Field}-30(%{relatedPersonIndex})'
+
+  - name: IN1.31
+    resource: '%resource.extension.where(url = "IN1.31").value'
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
+    constants:
+      cweField: '%{hl7IN1Field}-31'
+
+  - name: IN1.32
+    resource: '%resource.extension.where(url = "IN1.32").value'
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
+    constants:
+      cweField: '%{hl7IN1Field}-32'
+
+  - name: IN1.33
+    value: [ '%resource.extension.where(url = "IN1.33").value' ]
+    hl7Spec: [ '%{hl7IN1Field}-33' ]
+
+  - name: IN1.34
+    value: [ '%resource.extension.where(url = "IN1.34").value' ]
+    hl7Spec: [ '%{hl7IN1Field}-34' ]
+
+  - name: IN1.35
+    resource: '%resource.extension.where(url = "IN1.35").value'
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
+    constants:
+      cweField: '%{hl7IN1Field}-35'
+
+  - name: IN1.36
+    value: [ '%resource.extension.where(url = "IN1.36").value' ]
+    hl7Spec: [ '%{hl7IN1Field}-36' ]
+
+  - name: IN1.37
+    resource: '%resource.extension(%`rsext-composite-price`).where(extension(%`rsext-hl7v2Field`).value = "IN1.37")'
+    schema: classpath:/metadata/hl7_mapping/datatypes/extensionCP/CP.yml
+    constants:
+      cpField: '%{hl7IN1Field}-37'
+
+  - name: IN1.38
+    resource: '%resource.extension(%`rsext-composite-price`).where(extension(%`rsext-hl7v2Field`).value = "IN1.38")'
+    schema: classpath:/metadata/hl7_mapping/datatypes/extensionCP/CP.yml
+    constants:
+      cpField: '%{hl7IN1Field}-38'
+
+  - name: IN1.39
+    value: [ '%resource.extension.where(url = "IN1.39").value' ]
+    hl7Spec: [ '%{hl7IN1Field}-39' ]
+
+  - name: IN1.40
+    resource: '%resource.extension(%`rsext-composite-price`).where(extension(%`rsext-hl7v2Field`).value = "IN1.40")'
+    schema: classpath:/metadata/hl7_mapping/datatypes/extensionCP/CP.yml
+    constants:
+      cpField: '%{hl7IN1Field}-40'
+
+  - name: IN1.41
+    resource: '%resource.extension(%`rsext-composite-price`).where(extension(%`rsext-hl7v2Field`).value = "IN1.41")'
+    schema: classpath:/metadata/hl7_mapping/datatypes/extensionCP/CP.yml
+    constants:
+      cpField: '%{hl7IN1Field}-41'
+
+  - name: IN1.42
+    resource: '%resource.extension.where(url = "IN1.42").value'
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
+    constants:
+      cweField: '%{hl7IN1Field}-42'
+
+  - name: IN1.43
+    resource: '%resource.extension.where(url = "IN1.43").value'
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
+    constants:
+      cweField: '%{hl7IN1Field}-43'
+
+  - name: IN1.44
+    resource: '%resource.extension.where(url = "IN1.44").value'
+    schema: classpath:/metadata/hl7_mapping/datatypes/Address/XAD.yml
+    resourceIndex: xadIndex
+    constants:
+      xadField: '%{hl7IN1Field}-44(%{xadIndex})'
+
+  - name: IN1.45
+    value: [ '%resource.extension.where(url = "IN1.45").value' ]
+    hl7Spec: [ '%{hl7IN1Field}-45' ]
+
+  - name: IN1.46
+    resource: '%resource.extension.where(url = "IN1.46").value'
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
+    constants:
+      cweField: '%{hl7IN1Field}-46'
+
+  - name: IN1.47
+    resource: '%resource.extension.where(url = "IN1.47").value'
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
+    constants:
+      cweField: '%{hl7IN1Field}-47'
+
+  - name: IN1.48
+    resource: '%resource.extension.where(url = "IN1.48").value'
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
+    constants:
+      cweField: '%{hl7IN1Field}-48'
+
+  - name: IN1.49
+    resource: '%resource.extension.where(url = "IN1.49").value'
+    schema: classpath:/metadata/hl7_mapping/datatypes/identifier/CX.yml
+    resourceIndex: cxIndex
+    constants:
+      cxField: '%{hl7IN1Field}-49(%{cxIndex})'
+
+  - name: IN1.50
+    resource: '%resource.extension.where(url = "IN1.50").value'
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
+    constants:
+      cweField: '%{hl7IN1Field}-50'
+
+  - name: IN1.51
+    resource: '%resource.extension.where(url = "IN1.51").value'
+    schema: classpath:/metadata/hl7_mapping/datatypes/dateTime/DTMorDT.yml
+    constants:
+      dtmFieldPath: '%{hl7IN1Field}-51'
+
+  - name: IN1.52
+    value: [ '%resource.extension.where(url = "IN1.52").value' ]
+    hl7Spec: [ '%{hl7IN1Field}-52' ]
+
+  - name: IN1.53
+    resource: '%resource.extension.where(url = "IN1.53").value'
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
+    constants:
+      cweField: '%{hl7IN1Field}-53'
+
+  - name: IN1.54
+    resource: '%resource.extension.where(url = "IN1.54").value'
+    schema: classpath:/metadata/hl7_mapping/datatypes/identifier/CX.yml
+    resourceIndex: cxIndex
+    constants:
+      cxField: '%{hl7IN1Field}-54(%{cxIndex})'
+
+  - name: IN1.55
+    value: [ '%resource.extension.where(url = "IN1.55").value' ]
+    hl7Spec: [ '%{hl7IN1Field}-55' ]
