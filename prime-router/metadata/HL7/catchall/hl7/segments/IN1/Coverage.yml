@@ -2,6 +2,7 @@
 
 resourceType: Coverage
 
+# IN1.2 CWE[Identifier] is a subset of the input CWE; maps identifier.name which does not exist; use IN1Extension
 # IN1.4 references IN1.5 for address but both fields are repeatable; use IN1Extension for these fields
 # IN1.10 and IN1.49 are mapped to the same FHIR extension; use IN1Extension for these fields
 # IN1.10 when CX.5 is not "SN" has a definition that conflicts with XON[Organization] with no clear hierarchy
