@@ -1,5 +1,6 @@
 package gov.cdc.prime.router
 
+import ca.uhn.hl7v2.util.Hl7InputStreamMessageStringIterator
 import gov.cdc.prime.reportstream.shared.BlobUtils
 import gov.cdc.prime.reportstream.shared.QueueMessage
 import gov.cdc.prime.router.azure.ActionHistory
@@ -268,14 +269,14 @@ class UniversalPipelineReceiver : SubmissionReceiver {
 
         when (sender.format) {
             MimeFormat.HL7 -> {
-                val messages = HL7Reader(actionLogs).getMessages(content)
-                val isBatch = HL7Reader(actionLogs).isBatch(content, messages.size)
-                // create a Report for this incoming HL7 message to use for tracking in the database
+                val messageCount = Hl7InputStreamMessageStringIterator(content.byteInputStream()).asSequence().count()
+                val isBatch = HL7Reader.isBatch(content, messageCount)
 
+                // create a Report for this incoming HL7 message to use for tracking in the database
                 report = Report(
                     if (isBatch) MimeFormat.HL7_BATCH else MimeFormat.HL7,
                     sources,
-                    messages.size,
+                    messageCount,
                     metadata = metadata,
                     nextAction = TaskAction.convert,
                     topic = sender.topic,
@@ -290,12 +291,14 @@ class UniversalPipelineReceiver : SubmissionReceiver {
 //                        actionLogs
 //                    )
 //                }
-
-                // check for valid message type
-                messages.forEachIndexed {
-                    idx, element ->
-                    MessageType.validateMessageType(element, actionLogs, idx + 1)
+                if (messageCount == 0 && !actionLogs.hasErrors()) {
+                    actionLogs.error(InvalidReportMessage("Unable to find HL7 messages in provided data."))
                 }
+                // check for valid message type
+                Hl7InputStreamMessageStringIterator(content.byteInputStream()).asSequence()
+                    .forEachIndexed { index, rawItem ->
+                        MessageType.validateMessageType(HL7Reader.parseHL7Message(rawItem, null), actionLogs, index + 1)
+                    }
             }
 
             MimeFormat.FHIR -> {
