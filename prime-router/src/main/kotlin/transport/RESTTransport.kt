@@ -25,9 +25,7 @@ import gov.cdc.prime.router.tokens.AuthUtils
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.engine.apache.Apache
-import io.ktor.client.plugins.ClientRequestException
 import io.ktor.client.plugins.ResponseException
-import io.ktor.client.plugins.ServerResponseException
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.plugins.expectSuccess
@@ -181,47 +179,39 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
             logger.severe(msg)
             logger.severe(t.stackTraceToString())
             // do some additional handling of the error here. if we are dealing with a 400 error, we
-            // probably don't want to retry, and we need to stop now
-            // if the error is a 500 we can do a retry, but both should probably throw a pager duty notification
+            // probably don't want to retry unless it is a 429 and the issue is due to overzealous rate-limiting.
             when (t) {
-                is ClientRequestException -> {
-                    (t).let {
-                        logger.severe(
-                            "Received ${it.response.status.value}: ${it.response.status.description} " +
-                                "requesting ${it.response.request.url}. This is not recoverable. Will not retry."
-                        )
+                // do not retry on any response exception that is a client exception unless it is a 429
+                is ResponseException -> {
+                    if (t.response.status.value in 400..499 && t.response.status.value != 429) {
+                        (t).let {
+                            logger.severe(
+                                "Received ${it.response.status.value}: ${it.response.status.description} " +
+                                    "requesting ${it.response.request.url}. This is not recoverable. Will not retry."
+                            )
+                        }
+                        actionHistory.setActionType(TaskAction.send_error)
+                        actionHistory.trackActionResult(t.response.status, msg)
+                        null
+                    } else {
+                        (t).let {
+                            logger.severe(
+                                "Received ${it.response.status.value}: ${it.response.status.description} " +
+                                    "from the server ${it.response.request.url}, ${it.response.version}." +
+                                    " This may be recoverable. Will retry."
+                            )
+                        }
+                        actionHistory.setActionType(TaskAction.send_warning)
+                        actionHistory.trackActionResult(t.response.status, msg)
+                        RetryToken.allItems
                     }
-                    actionHistory.setActionType(TaskAction.send_error)
-                    actionHistory.trackActionResult(t.response.status, msg)
-                    null
-                }
-
-                is ServerResponseException -> {
-                    // this is largely duplicated code as below, but we may want to add additional
-                    // instrumentation based on the specific error type we're getting. One benefit
-                    // we can use now is getting the specific response information from the
-                    // ServerResponseException
-                    (t).let {
-                        logger.severe(
-                            "Received ${it.response.status.value}: ${it.response.status.description} " +
-                                "from the server ${it.response.request.url}, ${it.response.version}." +
-                                " This may be recoverable. Will retry."
-                        )
-                    }
-                    actionHistory.setActionType(TaskAction.send_warning)
-                    actionHistory.trackActionResult(t.response.status, msg)
-                    RetryToken.allItems
                 }
 
                 else -> {
                     // this is an unknown exception, and maybe not one related to ktor, so we should
                     // track, but try again
                     actionHistory.setActionType(TaskAction.send_warning)
-                    if (t is ResponseException) {
-                        actionHistory.trackActionResult(t.response.status, msg)
-                    } else {
-                        actionHistory.trackActionResult(msg)
-                    }
+                    actionHistory.trackActionResult(msg)
                     RetryToken.allItems
                 }
             }
