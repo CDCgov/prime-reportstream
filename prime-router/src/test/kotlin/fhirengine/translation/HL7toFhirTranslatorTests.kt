@@ -14,7 +14,7 @@ import org.hl7.fhir.r4.model.Bundle
 import org.hl7.fhir.r4.model.DateTimeType
 import org.hl7.fhir.r4.model.Patient
 import kotlin.test.Test
-
+// comment to test the build
 class HL7toFhirTranslatorTests {
     private val translator = HL7toFhirTranslator()
     private val supportedHL7 = """
