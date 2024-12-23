@@ -11,7 +11,6 @@ import ca.uhn.hl7v2.ErrorCode
 import ca.uhn.hl7v2.HL7Exception
 import ca.uhn.hl7v2.model.Message
 import ca.uhn.hl7v2.parser.EncodingNotSupportedException
-import ca.uhn.hl7v2.util.Hl7InputStreamMessageStringIterator
 import org.apache.commons.lang3.exception.ExceptionUtils
 import java.lang.Exception
 import java.text.SimpleDateFormat
@@ -171,7 +170,7 @@ OBX|1|test|94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen b
         """.trimIndent()
         val isBatch = HL7Reader.isBatch(
             goodData1,
-            Hl7InputStreamMessageStringIterator(goodData1.byteInputStream()).asSequence().count()
+            HL7MessageHelpers.messageCount(goodData1)
         )
         assertThat(isBatch).isTrue()
     }
@@ -208,7 +207,7 @@ OBX|1|test|94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen b
         """.trimIndent()
         val isBatch = HL7Reader.isBatch(
             goodData1,
-            Hl7InputStreamMessageStringIterator(goodData1.byteInputStream()).asSequence().count()
+            HL7MessageHelpers.messageCount(goodData1)
         )
         assertThat(isBatch).isTrue()
     }
@@ -232,7 +231,7 @@ OBX|1|test|94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen b
         """.trimIndent()
         val isBatch = HL7Reader.isBatch(
             goodData1,
-            Hl7InputStreamMessageStringIterator(goodData1.byteInputStream()).asSequence().count()
+            HL7MessageHelpers.messageCount(goodData1)
         )
         assertThat(isBatch).isFalse()
     }

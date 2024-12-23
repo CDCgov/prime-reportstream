@@ -103,4 +103,8 @@ object HL7MessageHelpers : Logging {
 
         return builder.toString()
     }
+
+    fun messageCount(rawHl7: String): Int {
+        return Hl7InputStreamMessageStringIterator(rawHl7.byteInputStream()).asSequence().count()
+    }
 }

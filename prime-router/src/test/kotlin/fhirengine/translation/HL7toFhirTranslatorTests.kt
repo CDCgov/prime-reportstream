@@ -6,8 +6,8 @@ import assertk.assertions.isEqualTo
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
-import ca.uhn.hl7v2.util.Hl7InputStreamMessageStringIterator
 import gov.cdc.prime.router.fhirengine.translation.HL7toFhirTranslator
+import gov.cdc.prime.router.fhirengine.utils.HL7MessageHelpers
 import gov.cdc.prime.router.fhirengine.utils.HL7Reader
 import io.github.linuxforhealth.hl7.data.Hl7RelatedGeneralUtils
 import org.hl7.fhir.r4.model.Bundle
@@ -50,7 +50,7 @@ OBX|1|CWE|94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by
     fun `test get message template`() {
         val message = HL7Reader.parseHL7Message(supportedHL7, null)
         assertThat(
-            Hl7InputStreamMessageStringIterator(supportedHL7.byteInputStream()).asSequence().count()
+            HL7MessageHelpers.messageCount(supportedHL7)
         ).isEqualTo(1)
         assertThat(translator.getMessageTemplateType(message)).isEqualTo("ORU_R01")
     }
@@ -59,7 +59,7 @@ OBX|1|CWE|94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by
     fun `test get message model`() {
         val supportedMessage = HL7Reader.parseHL7Message(supportedHL7, null)
         assertThat(
-            Hl7InputStreamMessageStringIterator(supportedHL7.byteInputStream()).asSequence().count()
+            HL7MessageHelpers.messageCount(supportedHL7)
         ).isEqualTo(1)
         val model = translator.getHL7MessageModel(supportedMessage)
         assertThat(model).isNotNull()
@@ -76,7 +76,7 @@ DG1|1||F11.129^Opioid abuse with intoxication,unspecified^I10C|||W|||||||||1
         """.trimIndent()
         val unsupportedMessage = HL7Reader.parseHL7Message(unsupportedHL7, null)
         assertThat(
-            Hl7InputStreamMessageStringIterator(unsupportedHL7.byteInputStream()).asSequence().count()
+            HL7MessageHelpers.messageCount(unsupportedHL7)
         ).isEqualTo(1)
         assertFailure { translator.getHL7MessageModel(unsupportedMessage) }
     }
@@ -86,7 +86,7 @@ DG1|1||F11.129^Opioid abuse with intoxication,unspecified^I10C|||W|||||||||1
         // Note that FHIR content will be tested as an integration test
         val message = HL7Reader.parseHL7Message(supportedHL7, null)
         assertThat(
-            Hl7InputStreamMessageStringIterator(supportedHL7.byteInputStream()).asSequence().count()
+            HL7MessageHelpers.messageCount(supportedHL7)
         ).isEqualTo(1)
         val bundle = translator.translate(message)
         assertThat(bundle).isNotNull()
@@ -98,7 +98,7 @@ DG1|1||F11.129^Opioid abuse with intoxication,unspecified^I10C|||W|||||||||1
     fun `test birth date extension addition`() {
         val message = HL7Reader.parseHL7Message(supportedHL7ORMWithBirthDateTime, null)
         assertThat(
-            Hl7InputStreamMessageStringIterator(supportedHL7ORMWithBirthDateTime.byteInputStream()).asSequence().count()
+            HL7MessageHelpers.messageCount(supportedHL7ORMWithBirthDateTime)
         ).isEqualTo(1)
         val bundle = translator.translate(message)
         assertThat(bundle).isNotNull()
@@ -123,7 +123,7 @@ DG1|1||F11.129^Opioid abuse with intoxication,unspecified^I10C|||W|||||||||1
     fun `test birth date extension is missing when birthdate is only date`() {
         val message = HL7Reader.parseHL7Message(supportedHL7ORMWithBirthDate, null)
         assertThat(
-            Hl7InputStreamMessageStringIterator(supportedHL7ORMWithBirthDate.byteInputStream()).asSequence().count()
+            HL7MessageHelpers.messageCount(supportedHL7ORMWithBirthDateTime)
         ).isEqualTo(1)
         val bundle = translator.translate(message)
         assertThat(bundle).isNotNull()

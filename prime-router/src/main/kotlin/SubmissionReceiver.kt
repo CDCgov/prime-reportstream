@@ -12,6 +12,7 @@ import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.fhirengine.engine.FhirConvertQueueMessage
 import gov.cdc.prime.router.fhirengine.engine.MessageType
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
+import gov.cdc.prime.router.fhirengine.utils.HL7MessageHelpers
 import gov.cdc.prime.router.fhirengine.utils.HL7Reader
 
 /**
@@ -269,7 +270,7 @@ class UniversalPipelineReceiver : SubmissionReceiver {
 
         when (sender.format) {
             MimeFormat.HL7 -> {
-                val messageCount = Hl7InputStreamMessageStringIterator(content.byteInputStream()).asSequence().count()
+                val messageCount = HL7MessageHelpers.messageCount(content)
                 val isBatch = HL7Reader.isBatch(content, messageCount)
 
                 // create a Report for this incoming HL7 message to use for tracking in the database

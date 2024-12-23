@@ -1,7 +1,6 @@
 package gov.cdc.prime.router.azure.service
 
 import ca.uhn.hl7v2.model.Message
-import ca.uhn.hl7v2.util.Hl7InputStreamMessageStringIterator
 import com.google.common.net.HttpHeaders
 import com.microsoft.azure.functions.HttpRequestMessage
 import com.microsoft.azure.functions.HttpResponseMessage
@@ -11,6 +10,7 @@ import gov.cdc.prime.router.azure.HttpUtilities
 import gov.cdc.prime.router.azure.HttpUtilities.Companion.isSuccessful
 import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.HL7ACKUtils
+import gov.cdc.prime.router.fhirengine.utils.HL7MessageHelpers
 import gov.cdc.prime.router.fhirengine.utils.HL7Reader
 import gov.cdc.prime.router.history.DetailedSubmissionHistory
 import org.apache.logging.log4j.kotlin.Logging
@@ -106,7 +106,7 @@ class SubmissionResponseBuilder(
             contentType == HttpUtilities.hl7V2MediaType &&
             requestBody != null
         ) {
-            val messageCount = Hl7InputStreamMessageStringIterator(requestBody.byteInputStream()).asSequence().count()
+            val messageCount = HL7MessageHelpers.messageCount(requestBody)
             val isBatch = HL7Reader.isBatch(requestBody, messageCount)
 
             if (!isBatch && messageCount == 1) {
