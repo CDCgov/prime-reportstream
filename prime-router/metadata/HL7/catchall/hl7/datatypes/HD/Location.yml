@@ -25,7 +25,7 @@ identifier_1:
       valueOf: HD.2
 
 extension_1-unknownUniversalIdType:
-  condition: $universalId NOT_EQUALS ISO && $universalId NOT_EQUALS UUID
+  condition: $universalId NOT_NULL && $universalIdType NOT_EQUALS ISO && $universalIdType NOT_EQUALS UUID
   generateList: true
   expressionType: nested
   expressionsMap:
@@ -37,10 +37,11 @@ extension_1-unknownUniversalIdType:
       type: STRING
       valueOf: HD.2
   vars:
-    universalId: STRING, HD.3
+    universalId: String, HD.2
+    universalIdType: STRING, HD.3
 
 extension_2-unknownUniversalIdType:
-  condition: $universalId NULL
+  condition: $universalId NOT_NULL && $universalIdType NULL
   generateList: true
   expressionType: nested
   expressionsMap:
@@ -52,7 +53,8 @@ extension_2-unknownUniversalIdType:
       type: STRING
       valueOf: HD.2
   vars:
-    universalId: STRING, HD.3
+    universalId: String, HD.2
+    universalIdType: STRING, HD.3
 
 extension_3-universalIdType:
   generateList: true

@@ -1,0 +1,47 @@
+# $schema: ./../../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
+
+value:
+  type: STRING
+  valueOf: PLN.1
+  expressionType: HL7Spec
+
+type:
+  valueOf: datatypes/CWE/CodeableConcept
+  specs: PLN.2
+  expressionType: resource
+
+period:
+  vars:
+    endDate: PLN.4
+  condition: $endDate NOT_NULL
+  expressionType: nested
+  expressionsMap:
+    end:
+      valueOf: "GeneralUtils.dateTimeWithZoneId(endDate,ZONEID)"
+      expressionType: JEXL
+    _end:
+      expressionType: nested
+      expressionsMap:
+        extension_1:
+          generateList: true
+          expressionType: nested
+          expressionsMap:
+            url:
+              type: SYSTEM_URL
+              value: hl7v2-date-time
+            valueString:
+              type: STRING
+              valueOf: $endDate
+              expressionType: HL7Spec
+
+extension:
+  generateList: true
+  expressionType: nested
+  expressionsMap:
+    url:
+      type: STRING
+      value: PLN.3
+    valueString:
+      type: STRING
+      expressionType: HL7Spec
+      valueOf: PLN.3

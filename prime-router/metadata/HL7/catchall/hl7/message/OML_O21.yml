@@ -8,12 +8,81 @@ resources:
     repeats: false
     isReferenced: false
 
+  - resourceName: Provenance
+    segment: MSH
+    resourcePath: segments/MSH/Provenance-Source
+
+  - resourceName: Provenance
+    segment: MSH
+    resourcePath: segments/MSH/Provenance-Transformation
+
   - resourceName: Patient
     segment: .PID
     group: PATIENT
     resourcePath: segments/PID/Patient
     isReferenced: true
     repeats: false
+    additionalSegments:
+      - .PD1
+      - MSH
+      - .NTE
+      - .NK1
+
+  - resourceName: Provenance
+    segment: .PID
+    group: PATIENT
+    resourcePath: segments/PID/Provenance-Patient
+
+  - resourceName: RelatedPerson
+    segment: .NK1
+    group: PATIENT
+    resourcePath: segments/NK1/RelatedPerson
+    isReferenced: false
+    repeats: true
+
+  - resourceName: Encounter
+    segment: .PV1
+    group: PATIENT.PATIENT_VISIT
+    resourcePath: segments/PV1/Encounter
+    isReferenced: true
+    additionalSegments:
+      - .PV2
+      - MSH
+
+  - resourceName: OrderObservation
+    segment: .OBSERVATION_REQUEST.OBSERVATION.OBX
+    group: ORDER
+    resourcePath: segments/OBX/Observation
+    repeats: true
+    isReferenced: true
+    additionalSegments:
+      - .ORC
+      - .OBSERVATION_REQUEST.OBR
+      - .OBSERVATION_REQUEST.OBSERVATION.NTE
+      - MSH
+
+  - resourceName: OMLSpecimenSource
+    segment: .OBSERVATION_REQUEST.OBR
+    group: ORDER
+    resourcePath: segments/ORC/Specimen
+    isReferenced: true
+    repeats: true
+
+  - resourceName: OMLSpecimen
+    segment: .OBSERVATION_REQUEST.SPECIMEN.SPM
+    group: ORDER
+    resourcePath: segments/SPM/Specimen
+    repeats: true
+    isReferenced: true
+    additionalSegments:
+      - MSH
+
+  - resourceName: Coverage
+    segment: .IN1
+    group: PATIENT.INSURANCE
+    resourcePath: segments/IN1/Coverage
+    repeats: false
+    isReferenced: false
 
   - resourceName: ServiceRequest
     segment: .ORC
@@ -27,24 +96,4 @@ resources:
       - PATIENT.PATIENT_VISIT.PV1
       - MSH
       - PATIENT.PID
-
-  - resourceName: Observation
-    segment: .OBSERVATION_REQUEST.OBSERVATION.OBX
-    group: ORDER
-    resourcePath: segments/OBX/Observation
-    repeats: true
-    isReferenced: true
-    additionalSegments:
-      - .ORC
-      - .OBSERVATION_REQUEST.OBR
-      - .OBSERVATION_REQUEST.OBSERVATION.NTE
-      - MSH
-
-  - resourceName: Specimen
-    segment: SPECIMEN.SPM
-    group: ORDER.OBSERVATION_REQUEST
-    resourcePath: segments/SPM/Specimen
-    repeats: true
-    isReferenced: true
-    additionalSegments:
-      - MSH
+      - .OBSERVATION_REQUEST.OBSERVATION.OBX
