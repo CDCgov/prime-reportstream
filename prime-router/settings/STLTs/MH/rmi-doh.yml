@@ -1,3 +1,4 @@
+---
 - name: "rmi-doh"
   description: "Marshall Island Health Informatics Department"
   jurisdiction: "STATE"
@@ -13,7 +14,7 @@
       topic: "full-elr"
       customerStatus: "active"
       translation:
-        schemaName: "azure:/metadata/hl7_mapping/receivers/STLTs/MH/MH-receiver-transform.yml"
+        schemaName: "azure:/hl7_mapping/receivers/STLTs/MH/MH-receiver-transform.yml"
         useTestProcessingMode: false
         useBatchHeaders: true
         receivingApplicationName: "RMI_DOH"
@@ -69,8 +70,9 @@
       processingModeFilter: []
       reverseTheQualityFilter: false
       conditionFilter:
-        # Accept COVID only
-        - "(%resource.code.coding.extension('https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code').value.where(code  in ('840539006')).exists())"
+        # RSV: 55735004, COVID: 840539006 (Antigen) | 895448002 - Antibody result, FLU (A or B by Antigen): 6142004, FLU (A or B by Culture and Identification Method): 541131000124102.
+        # Multiplex (All),
+        - "(%resource.code.coding.extension('https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code').value.where(code in ('55735004'|'6142004'|'840539006'|'895448002'|'541131000124102')).exists())"
       mappedConditionFilter: []
       deidentify: false
       deidentifiedValue: ""
@@ -91,6 +93,7 @@
         filePath: ./upload
         credentialName: DEFAULT-SFTP
       externalName: null
-      enrichmentSchemaNames: []
-      timeZone: null
+      enrichmentSchemaNames:
+        - "azure:/fhir_transforms/common/datetime-to-local/datetime-to-local-majuro.yml"
+      timeZone: "MAJURO"
       dateTimeFormat: "OFFSET"
