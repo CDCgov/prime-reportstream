@@ -34,14 +34,10 @@ runs:
         sudo apt-get install openvpn-systemd-resolved
       shell: bash
 
-    - name: Validate OpenVPN
+    - name: Validate OpenVPN Version
       run: |
         echo -e "\nOpenVPN Version:" ;
         openvpn --version ;
-        echo -e "\nPinging URL: ${{ inputs.PING_URL }}" ;
-        ping -c 3 ${{ inputs.PING_URL }} ;
-        echo -e "\nIP Route:" ;
-        ip route ;
       shell: bash
 
     - name: Connect VPN
@@ -70,7 +66,14 @@ runs:
       run: |
         sleep 5
         if ping -c 2 $PING_URL > /dev/null 2>&1; then
+
+          # echo -e "\nPinging URL: ${{ inputs.PING_URL }}" ;
+          # ping -c 3 ${{ inputs.PING_URL }} ;
+
           echo "vpn-status=true" >> $GITHUB_OUTPUT
+
+          echo -e "\nIP Route:" ;
+          ip route ;
         else
           echo "vpn-status=false" >> $GITHUB_OUTPUT
         fi

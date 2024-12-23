@@ -65,6 +65,10 @@
 - id: "xon-organization"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xon-organization"
 
+# CP -> Extension
+- id: "composite-price"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/composite-price"
+
 # CX -> Identifier
 - id: "assigning-facility"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility"
@@ -208,6 +212,10 @@
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/analysis-date-time"
 - id: "obx-observation"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/obx-observation"
+
+# PRT
+- id: "prt-extension"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/prt-extension"
 
 # SPM -> Specimen
 - id: "specimen-source-site-modifier"
