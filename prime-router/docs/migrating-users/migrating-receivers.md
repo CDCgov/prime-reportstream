@@ -68,6 +68,7 @@ In order to migrate existing covid pipeline settings to the UP a few settings ne
 * `schemaName:` Schema name specifies how the RS FHIR bundle should be translated to HL7 if the receiver's format is HL7. 
 If they're receiving HL7 v2 ORU_R01. The schema name can be updated to `azure:/metadata/hl7_mapping/ORU_R01/ORU_R01-base.yml`. 
 If the receiver has any specific receiver transforms the schema name should be updated to point to the schema location.
+* `convertDateTimesToReceiverLocalTime` This setting is used to convert datetimes to a specified time zone. If this setting is used an enrichment schema should be added under the `enrichmentSchemaNames` list to ensure compatibility with datetime conversions for all receivers. See also: [Translate#extending-schemas](https://github.com/CDCgov/prime-reportstream/blob/main/prime-router/docs/universal-pipeline/translate.md#extending-schemas)
 * `jurisdictionalFilter:` The jurisdictional filter needs to be updated to use FHIR path. 
 The most common way to route messages to a STLT is based on the patient's or performer's state. 
 The FHIR path for that looks like this: `"(Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state = 'MT') or (Bundle.entry.resource.ofType(Patient).address.state = 'MT')"`
@@ -102,6 +103,10 @@ After updating the receiver to route messages to the UP it should look like this
         customerStatus: "testing"
         translation: !<HL7>
             schemaName: "azure:/metadata/hl7_mapping/ORU_R01/ORU_R01-base.yml"
+            convertDateTimesToReceiverLocalTime: true
+        # These two settings are used with convertDateTimesToReceiverLocalTime translation
+        timeZone: "MOUNTAIN"
+        dateTimeFormat: "OFFSET"
         jurisdictionalFilter:
             - "(Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state.exists() and Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state = 'TX') or (Bundle.entry.resource.ofType(Patient).address.state.exists() and Bundle.entry.resource.ofType(Patient).address.state = 'TX')"
         qualityFilter:
@@ -120,6 +125,11 @@ After updating the receiver to route messages to the UP it should look like this
         conditionFilter:
             # Accept COVID only
             - "(%resource.code.coding.extension('https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code').value.where(code in ('840539006')).exists())"
+        enrichmentSchemaNames:
+            # Example enrichment schema for US Mountain time zone
+            - "azure:/fhir_transforms/common/datetime-to-local/datetime-to-local-us-mtz.yml"
+            # Use this path variant instead for local testing
+            - "classpath:/metadata/fhir_transforms/common/datetime-to-local-mtz.yml"
 ```
 
 ### 3. Send test message from SimpleReport to STLT
@@ -127,14 +137,14 @@ After updating the receiver to route messages to the UP it should look like this
 At the time this documentation was written the only sender onboarded to the UP is SimpleReport. 
 Therefore, to test sending reports to STLTs we can only use reports generated from SimpleReport. 
 The most up to date messages can be found here:
-* [UP SR FHIR bundle](./samples/SimpleReport/SR_UP_02262024.fhir)
-* [CP SR CSV message](./samples/SimpleReport/SR_CP_02262024.csv)  
+* [UP SR FHIR bundle](../onboarding-users/samples/SimpleReport/SR_UP_02262024.fhir)
+* [CP SR CSV message](../onboarding-users/samples/SimpleReport/SR_CP_02262024.csv)  
 However, they continue making updates to their messages so a more up-to-date message can be retrieved by following these instructions: [Simple Report Test data](#simple-report-test-data)   
 Make sure to update the patient state or facility state to match the jurisdictional filter of the state being migrated.
 
 After deciding what message to use the following postman collections can be used to send reports using ReportStream's API as a Simple Report Covid and UP sender.
-* [SimpleReport covid postman collection](./samples/SimpleReport/Simple%20Report%20Covid.postman_collection.json)
-* [SimpleReport UP postman collection](./samples/SimpleReport/Simple%20Report%20UP.postman_collection.json)   
+* [SimpleReport covid postman collection](../onboarding-users/samples/SimpleReport/Simple%20Report%20Covid.postman_collection.json)
+* [SimpleReport UP postman collection](../onboarding-users/samples/SimpleReport/Simple%20Report%20UP.postman_collection.json)   
 Make sure to replace the Body request with a most up-to-date message if needed.
 
 The API will return a Submission Id and report Id that can be used to find the status of the submission by calling this API:
@@ -163,6 +173,7 @@ If the receiver has any of the following settings enabled they will need a recei
 - suppressAoe: true
 - defaultAoeToUnknown
 - replaceUnicodeWithAscii
+- convertDateTimesToReceiverLocalTime: true
 - useBlankInsteadOfUnknown
 - usePid14ForPatientEmail: true
 - suppressNonNPI
@@ -170,6 +181,8 @@ If the receiver has any of the following settings enabled they will need a recei
 - useOrderingFacilityName not STANDARD
 - receivingOrganization
 - stripInvalidCharsRegex
+- deidentify
+- deidentifiedValue
 
 Examples on how to create and set-up a receiver schema can be found under `src/main/resources/hl7_mapping/receivers/STLTs`
 More information on how transforms in the UP work can be found in the [transform design doc](../design/design/transformations.md)
@@ -217,7 +230,7 @@ Once we have data we can notify the STLT to start reviewing the messages.
 A quick and easy way to get test data to send to a STLT is by going into SimpleReport's test environment https://test.simplereport.gov.   
 * Access can be requested on the [shared-simple-report-universal-pipeline](https://nava.slack.com/archives/C0411VC78DN) thread.   
 * Instructions on how to send a test message can be found on this youtube playlist https://www.youtube.com/playlist?list=PL3U3nqqPGhab0sys3ombZmwOplRYlBOBF.     
-* The file [SR upload](./samples/SimpleReport/SR-UPLOAD.csv) can be used test sending reports through SimpleReport's CSV upload.    
+* The file [SR upload](../onboarding-users/samples/SimpleReport/SR-UPLOAD.csv) can be used test sending reports through SimpleReport's CSV upload.    
 * To route the report to a specific STLT either the patient or facility state needs to updated to the STLT's jurisdiction. Keep in mind that if they are not updated the message might get routed to the incorrect STLT.
 * The report sent by SimpleReport can be found in the Azure BlobStorage. The UP message will be stored in the `receive/simple_report.fullelr` and the covid pipeline message will be stored in `receive/simple_report.default`. This message can be used locally to test any new sender or receiver transforms.
 * To access the blob storage. Microsoft Storage Explorer needs to be installed and login with your CDC SU credentials.
@@ -232,12 +245,12 @@ Sometimes STLTs use the same SFTP server or REST endpoint for test and productio
 * A spreadsheet that keeps track of where to find a receiver's transport and their status can be found here: https://cdc.sharepoint.com/:x:/r/teams/ReportStream/_layouts/15/doc2.aspx?sourcedoc=%7B28EDE785-0FC9-4921-BCD0-B423F3C5E92A%7D&file=Receiver%20Staging%20Connection%20Test%20-%20Jan%202024.xlsx&action=default&mobileredirect=true
 * If the transport can't be found we'll need to get that information from the STLT during the kick-off call and request new credentials if necessary.
 
-Once the STLT's transport has been found. It can be tested by following these instructions [How to Check Transport](./transport/how-to-check-transport.md)
+Once the STLT's transport has been found. It can be tested by following these instructions [How to Check Transport](../onboarding-users/transport/how-to-check-transport.md)
 * Status returns "Network error": This probably means their SFTP server needs to be whitelisted.
 * Status returns anything related to credentials: This probably means the credentials were not created correctly or are not present.
     * Instructions on how to create credentials can be found here:
-        * [REST](./transport/rest.md)
-        * [SFTP](./transport/sftp.md)
+        * [REST](../onboarding-users/transport/rest.md)
+        * [SFTP](../onboarding-users/transport/sftp.md)
 
 
 ## How to check if STLT needs to be whitelisted
