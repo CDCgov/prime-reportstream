@@ -276,7 +276,7 @@ internal class ReceiverTests {
     }
 
     @Test
-    fun `test MOJURO receiver timezone`() {
+    fun `test MAJURO receiver timezone`() {
         val shouldWork1 =
             ZonedDateTime.of(2024, 12, 20, 0, 0, 0, 0, ZoneId.of(USTimeZone.MAJURO.zoneId)).toOffsetDateTime()
         assertThat(shouldWork1).isNotEqualTo("2024-12-20T00:00+12:00")
