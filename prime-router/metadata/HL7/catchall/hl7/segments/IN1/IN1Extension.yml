@@ -139,20 +139,14 @@ extension:
         valueReference:
           valueOf: datatypes/XON/Organization
           expressionType: reference
-    - expressionType: nested
-      specs: IN1.14
-      condition: $in114 NOT_NULL
-      generateList: true
+    - expressionType: resource
+      valueOf: datatypes/AUI/AUIExtension
       vars:
         in114: STRING_ALL, IN1.14
-      expressionsMap:
-        url:
-          type: STRING
-          value: IN1.14
-        extension:
-          expressionType: resource
-          valueOf: datatypes/AUI/AUIExtension
-          specs: IN1.14
+      condition: $in114 NOT_NULL
+      specs: IN1.14
+      constants:
+        auiExtensionName: IN1.14
     - expressionType: nested
       specs: IN1.15
       condition: $in115 NOT_NULL

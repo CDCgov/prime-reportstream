@@ -39,14 +39,16 @@ relationship:
   specs: IN1.17
 
 subscriber:
-  expressionType: reference
+  expressionType: nested
   vars:
     in117: STRING, IN1.17.1
   expressions:
     - condition: in117 EQUALS "patient"
+      expressionType: reference
       valueOf: datatypes/XPN/Patient
       specs: IN1.16
     - condition: in117 NOT_EQUALS "patient"
+      expressionType: reference
       valueOf: datatypes/XPN/RelatedPerson
       specs: IN1.16
 
