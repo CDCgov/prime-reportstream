@@ -50,7 +50,7 @@
         receivingOrganization: null
         convertPositiveDateTimeOffsetToNegative: false
         stripInvalidCharsRegex: null
-        convertDateTimesToReceiverLocalTime: false
+        convertDateTimesToReceiverLocalTime: true
         useHighPrecisionHeaderDateTimeFormat: false
         type: "HL7"
         truncationConfig:
