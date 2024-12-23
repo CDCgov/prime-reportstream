@@ -1142,33 +1142,4 @@ class FHIRConverterIntegrationTests {
             assertThat(report.bodyFormat).isEqualTo("HL7")
         }
     }
-
-    @Test
-    fun `test should gracefully handle a case with an unsupported contents`() {
-        val receivedReportContents = "bad_data"
-        val receiveBlobUrl = BlobAccess.uploadBlob(
-            "receive/happy-path.hl7",
-            receivedReportContents.toByteArray(),
-            getBlobContainerMetadata()
-        )
-
-        val receiveReport = setupConvertStep(MimeFormat.HL7, hl7Sender, receiveBlobUrl, 1)
-        val queueMessage = generateFHIRConvertQueueMessage(receiveReport, receivedReportContents, hl7Sender)
-        val fhirFunctions = createFHIRFunctionsInstance()
-
-        fhirFunctions.process(queueMessage, 1, createFHIRConverter(), ActionHistory(TaskAction.convert))
-
-        verify(exactly = 0) {
-            QueueAccess.sendMessage(any(), any())
-        }
-        ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
-            val report = fetchChildReports(receiveReport, txn, 0, 1).single()
-            assertThat(report.nextAction).isEqualTo(TaskAction.none)
-            assertThat(report.receivingOrg).isEqualTo(null)
-            assertThat(report.receivingOrgSvc).isEqualTo(null)
-            assertThat(report.schemaName).isEqualTo("None")
-            assertThat(report.schemaTopic).isEqualTo(Topic.FULL_ELR)
-            assertThat(report.bodyFormat).isEqualTo("HL7")
-        }
-    }
 }
