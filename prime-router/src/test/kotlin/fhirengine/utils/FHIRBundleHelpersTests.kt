@@ -16,6 +16,7 @@ import assertk.assertions.isNull
 import assertk.assertions.isTrue
 import ca.uhn.fhir.context.FhirContext
 import ca.uhn.hl7v2.model.v251.segment.MSH
+import ca.uhn.hl7v2.util.Hl7InputStreamMessageIterator
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.CodeStringConditionFilter
 import gov.cdc.prime.router.CustomerStatus
@@ -30,7 +31,6 @@ import gov.cdc.prime.router.azure.ConditionStamper
 import gov.cdc.prime.router.azure.ConditionStamper.Companion.conditionCodeExtensionURL
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.LookupTableConditionMapper
-import gov.cdc.prime.router.azure.QueueAccess
 import gov.cdc.prime.router.fhirengine.engine.RSMessageType
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
@@ -77,7 +77,6 @@ class FHIRBundleHelpersTests {
     val connection = MockConnection(dataProvider)
     val accessSpy = spyk(DatabaseAccess(connection))
     val blobMock = mockkClass(BlobAccess::class)
-    val queueMock = mockkClass(QueueAccess::class)
     val metadata = Metadata(schema = Schema(name = "None", topic = Topic.FULL_ELR, elements = emptyList()))
     private val shorthandLookupTable = emptyMap<String, String>().toMutableMap()
 
@@ -666,12 +665,11 @@ class FHIRBundleHelpersTests {
         val bundle = messages[0]
         assertThat(bundle).isNotNull()
 
-        // create the hl7 reader
-        val hl7Reader = HL7Reader(actionLogger)
+        // create the hl7 message
         val hl7Message = File("src/test/resources/fhirengine/engine/hl7_with_birth_time.hl7").readText()
-        val hl7messages = hl7Reader.getMessages(hl7Message)
+        val parsedHl7Message = Hl7InputStreamMessageIterator(hl7Message.byteInputStream()).next()
 
-        bundle.handleBirthTime(hl7messages[0])
+        bundle.handleBirthTime(parsedHl7Message)
 
         val patient = FhirPathUtils.evaluate(
             CustomContext(bundle, bundle),
@@ -697,12 +695,11 @@ class FHIRBundleHelpersTests {
         val bundle = messages[0]
         assertThat(bundle).isNotNull()
 
-        // create the hl7 reader
-        val hl7Reader = HL7Reader(actionLogger)
+        // create the hl7 message
         val hl7Message = File("src/test/resources/fhirengine/engine/hl7_with_birth_time.hl7").readText()
-        val hl7messages = hl7Reader.getMessages(hl7Message)
+        val parsedHl7Message = Hl7InputStreamMessageIterator(hl7Message.byteInputStream()).next()
 
-        bundle.handleBirthTime(hl7messages[0])
+        bundle.handleBirthTime(parsedHl7Message)
 
         val patient = FhirPathUtils.evaluate(
             CustomContext(bundle, bundle),
@@ -728,14 +725,13 @@ class FHIRBundleHelpersTests {
         val bundle = messages[0]
         assertThat(bundle).isNotNull()
 
-        // create the hl7 reader
-        val hl7Reader = HL7Reader(actionLogger)
+        // create the hl7 message
         val hl7Message = File("src/test/resources/fhirengine/engine/hl7_with_birth_time.hl7").readText()
-        val hl7Messages = hl7Reader.getMessages(hl7Message)
+        val parsedHl7Message = Hl7InputStreamMessageIterator(hl7Message.byteInputStream()).next()
 
-        assertThat(hl7Messages[0]["MSH"] is MSH).isTrue()
+        assertThat(parsedHl7Message["MSH"] is MSH).isTrue()
 
-        bundle.enhanceBundleMetadata(hl7Messages[0])
+        bundle.enhanceBundleMetadata(parsedHl7Message)
 
         val expectedDate = Date(1612994857000) // Wednesday, February 10, 2021 10:07:37 PM GMT
         assertThat(bundle.timestamp).isEqualTo(expectedDate)
@@ -753,14 +749,13 @@ class FHIRBundleHelpersTests {
         val bundle = messages[0]
         assertThat(bundle).isNotNull()
 
-        // create the hl7 reader
-        val hl7Reader = HL7Reader(actionLogger)
+        // create the hl7 message
         val hl7Message = File("src/test/resources/fhirengine/engine/hl7_2.7.hl7").readText()
-        val hl7Messages = hl7Reader.getMessages(hl7Message)
+        val parsedHl7Message = Hl7InputStreamMessageIterator(hl7Message.byteInputStream()).next()
 
-        assertThat(hl7Messages[0]["MSH"] is ca.uhn.hl7v2.model.v27.segment.MSH).isTrue()
+        assertThat(parsedHl7Message["MSH"] is ca.uhn.hl7v2.model.v27.segment.MSH).isTrue()
 
-        bundle.enhanceBundleMetadata(hl7Messages[0])
+        bundle.enhanceBundleMetadata(parsedHl7Message)
 
         val expectedDate = Date(1612994857000) // Wednesday, February 10, 2021 10:07:37 PM GMT
         assertThat(bundle.timestamp).isEqualTo(expectedDate)
@@ -778,15 +773,14 @@ class FHIRBundleHelpersTests {
         val bundle = messages[0]
         assertThat(bundle).isNotNull()
 
-        // create the hl7 reader
-        val hl7Reader = HL7Reader(actionLogger)
+        // create the hl7 message
         val hl7Message = File("src/test/resources/fhirengine/engine/hl7_2.6.hl7").readText()
-        val hl7Messages = hl7Reader.getMessages(hl7Message)
+        val parsedHl7Message = Hl7InputStreamMessageIterator(hl7Message.byteInputStream()).next()
 
-        assertThat(hl7Messages[0]["MSH"] is MSH).isFalse()
-        assertThat(hl7Messages[0]["MSH"] is ca.uhn.hl7v2.model.v27.segment.MSH).isFalse()
+        assertThat(parsedHl7Message["MSH"] is MSH).isFalse()
+        assertThat(parsedHl7Message["MSH"] is ca.uhn.hl7v2.model.v27.segment.MSH).isFalse()
 
-        bundle.enhanceBundleMetadata(hl7Messages[0])
+        bundle.enhanceBundleMetadata(parsedHl7Message)
 
         assertThat(bundle.timestamp).isNull()
         assertThat(bundle.identifier.value).isNull()

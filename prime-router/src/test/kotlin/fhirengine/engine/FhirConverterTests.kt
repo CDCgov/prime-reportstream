@@ -11,7 +11,6 @@ import ca.uhn.fhir.validation.ResultSeverityEnum
 import ca.uhn.fhir.validation.SingleValidationMessage
 import ca.uhn.fhir.validation.ValidationResult
 import ca.uhn.hl7v2.util.Hl7InputStreamMessageStringIterator
-import fhirengine.translation.hl7.structures.nistelr251.message.ORU_R01
 import gov.cdc.prime.router.ActionLogDetail
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.CustomerStatus
@@ -922,16 +921,6 @@ class FhirConverterTests {
         fun `should process an HL7 message with a registered profile`() {
             mockkObject(BlobAccess)
             mockkObject(HL7Reader.Companion)
-            every { HL7Reader.Companion.messageToConfigMap } returns mapOf(
-                HL7Reader.Companion.HL7MessageType(
-                    "ORU_R01",
-                    "2.5.1",
-                    "2.16.840.1.113883.9.11"
-                ) to HL7Reader.Companion.HL7MessageParseAndConvertConfiguration(
-                    ORU_R01::class.java,
-                    "./metadata/test_fhir_mapping"
-                )
-            )
 
             val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process) as FHIRConverter)
             val actionLogger = ActionLogger()
