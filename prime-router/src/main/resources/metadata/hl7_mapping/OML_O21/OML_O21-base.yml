@@ -40,6 +40,7 @@ elements:
     #          https://github.com/CDCgov/prime-reportstream/issues/15500
     #    resource: 'Bundle.entry.resource.ofType(Coverage).where(subscriber.resolve().id = %resource.entry.resource.ofType(Patient).id)'
     schema: classpath:/metadata/hl7_mapping/resources/Coverage/IN1.yml
+    resourceIndex: insuranceIndex
     constants:
       hl7SegmentGroup: '/PATIENT/INSURANCE'
 

@@ -1,8 +1,8 @@
 {
   "resourceType": "Bundle",
-  "id": "1732324230716018000.38edba19-1d39-4040-85af-9f5f6248813c",
+  "id": "1735006980111338000.b38abe5c-0a18-4f70-a836-7c875ca4adce",
   "meta": {
-    "lastUpdated": "2024-11-22T17:10:30.720-08:00"
+    "lastUpdated": "2024-12-23T21:23:00.122-05:00"
   },
   "identifier": {
     "system": "https://reportstream.cdc.gov/prime-router",
@@ -11,10 +11,10 @@
   "type": "message",
   "entry": [
     {
-      "fullUrl": "MessageHeader/1732324230752828000.fc7cea9d-d7ca-4378-91d4-ea97c86b4787",
+      "fullUrl": "MessageHeader/1735006980187049000.d69a7a3f-a518-47b6-bb1e-0a75b3f0dfd6",
       "resource": {
         "resourceType": "MessageHeader",
-        "id": "1732324230752828000.fc7cea9d-d7ca-4378-91d4-ea97c86b4787",
+        "id": "1735006980187049000.d69a7a3f-a518-47b6-bb1e-0a75b3f0dfd6",
         "meta": {
           "tag": [
             {
@@ -31,32 +31,128 @@
       }
     },
     {
-      "fullUrl": "Patient/1732324231018814000.533db9a5-5375-4746-be23-f7140d4a3280",
+      "fullUrl": "Provenance/1735006980861946000.77be6ff2-6472-4d92-ada9-eefea04529a8",
       "resource": {
-        "resourceType": "Patient",
-        "id": "1732324231018814000.533db9a5-5375-4746-be23-f7140d4a3280"
+        "resourceType": "Provenance",
+        "id": "1735006980861946000.77be6ff2-6472-4d92-ada9-eefea04529a8",
+        "activity": {
+          "coding": [
+            {
+              "display": "OML^O21^OML_O21"
+            }
+          ]
+        }
       }
     },
     {
-      "fullUrl": "Coverage/1732324231019741000.a36368bf-6c63-4970-8948-034a92248964",
+      "fullUrl": "Provenance/1735006980874311000.5022e05f-980c-4c18-8367-fac4d8c189a7",
+      "resource": {
+        "resourceType": "Provenance",
+        "id": "1735006980874311000.5022e05f-980c-4c18-8367-fac4d8c189a7",
+        "recorded": "2024-12-23T21:23:00Z",
+        "policy": [
+          "http://hl7.org/fhir/uv/v2mappings/message-oru-r01-to-bundle"
+        ],
+        "activity": {
+          "coding": [
+            {
+              "code": "v2-FHIR transformation"
+            }
+          ]
+        },
+        "agent": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/provenance-participant-type",
+                  "code": "assembler"
+                }
+              ]
+            },
+            "who": {
+              "reference": "Organization/1735006980872828000.913c76ac-3f78-4cfe-a4d9-5d8e0dc9641a"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "Organization/1735006980872828000.913c76ac-3f78-4cfe-a4d9-5d8e0dc9641a",
+      "resource": {
+        "resourceType": "Organization",
+        "id": "1735006980872828000.913c76ac-3f78-4cfe-a4d9-5d8e0dc9641a",
+        "identifier": [
+          {
+            "value": "CDC PRIME - Atlanta"
+          },
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0301"
+                }
+              ]
+            },
+            "system": "urn:ietf:rfc:3986",
+            "value": "2.16.840.1.114222.4.1.237821"
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "Patient/1735006980891397000.5458f6c9-357d-4922-b24b-e56db77820d3",
+      "resource": {
+        "resourceType": "Patient",
+        "id": "1735006980891397000.5458f6c9-357d-4922-b24b-e56db77820d3"
+      }
+    },
+    {
+      "fullUrl": "Provenance/1735006980892272000.80a680a8-0528-4616-9df8-c2b3f674e2c6",
+      "resource": {
+        "resourceType": "Provenance",
+        "id": "1735006980892272000.80a680a8-0528-4616-9df8-c2b3f674e2c6",
+        "target": [
+          {
+            "reference": "Patient/1735006980891397000.5458f6c9-357d-4922-b24b-e56db77820d3"
+          }
+        ],
+        "recorded": "2024-12-23T21:23:00Z",
+        "activity": {
+          "coding": [
+            {
+              "system": "https://terminology.hl7.org/CodeSystem/v3-DataOperation",
+              "code": "UPDATE"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "fullUrl": "Coverage/1735006980895408000.a775d917-198a-43a7-905a-0b7937b09c9d",
       "resource": {
         "resourceType": "Coverage",
-        "id": "1732324231019741000.a36368bf-6c63-4970-8948-034a92248964",
+        "id": "1735006980895408000.a775d917-198a-43a7-905a-0b7937b09c9d",
         "extension": [
           {
-            "url": "IN1.14",
+            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/in1-coverage",
             "extension": [
               {
-                "url": "AUI.1",
-                "valueString": "1701"
-              },
-              {
-                "url": "AUI.2",
-                "valueString": "19700101"
-              },
-              {
-                "url": "AUI.3",
-                "valueString": "DR TEETH AND THE ELECTRIC MAYHEM"
+                "url": "IN1.14",
+                "extension": [
+                  {
+                    "url": "AUI.1",
+                    "valueString": "1701"
+                  },
+                  {
+                    "url": "AUI.2",
+                    "valueString": "19700101"
+                  },
+                  {
+                    "url": "AUI.3",
+                    "valueString": "DR TEETH AND THE ELECTRIC MAYHEM"
+                  }
+                ]
               }
             ]
           }

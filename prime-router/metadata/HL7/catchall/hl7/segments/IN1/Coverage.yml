@@ -16,10 +16,13 @@ id:
 
 payor:
   expressionType: reference
+  condition: $in14 NOT_NULL || $in15 NOT_NULL
   valueOf: datatypes/XON/Organization
   specs: IN1.4
   vars:
     XADAddress: IN1.5
+    in14: STRING_ALL, IN1.4
+    in15: STRING_ALL, IN1.5
 
 period:
   valueOf: datatypes/DT/Period
@@ -30,8 +33,11 @@ period:
 
 policyHolder:
   expressionType: reference
+  condition: $in111 NOT_NULL
   valueOf: datatypes/XON/Organization
   specs: IN1.11
+  vars:
+    in111: STRING_ALL, IN1.11
 
 relationship:
   expressionType: resource
@@ -43,11 +49,11 @@ subscriber:
   vars:
     in117: STRING, IN1.17.1
   expressions:
-    - condition: in117 EQUALS "patient"
-      expressionType: reference
-      valueOf: datatypes/XPN/Patient
-      specs: IN1.16
-    - condition: in117 NOT_EQUALS "patient"
+    - condition: $in117 EQUALS patient || $in117 EQUALS SEL
+      valueOf: datatype/Reference
+      expressionType: resource
+      specs: $Patient
+    - condition: $in117 NOT_NULL && $in117 NOT_EQUALS patient && $in117 NOT_EQUALS SEL
       expressionType: reference
       valueOf: datatypes/XPN/RelatedPerson
       specs: IN1.16
@@ -64,21 +70,24 @@ extension:
     - expressionType: nested
       vars:
         in1105: STRING, IN1.10.5
-      condition: $in1105 EQUALS "SN"
+      condition: $in1105 EQUALS SN
       expressionsMap:
         url:
           type: SYSTEM_URL
           value: extension-subscriber-id
-        valueAttachment:
+        valueIdentifier:
           valueOf: datatypes/CX/Identifier
           expressionType: resource
           specs: IN1.10
     - expressionType: nested
+      vars:
+        in149: STRING, IN1.49
+      condition: $in149 NOT_NULL
       expressionsMap:
         url:
           type: SYSTEM_URL
           value: extension-subscriber-id
-        valueAttachment:
+        valueIdentifier:
           valueOf: datatypes/CX/Identifier
           expressionType: resource
           specs: IN1.49

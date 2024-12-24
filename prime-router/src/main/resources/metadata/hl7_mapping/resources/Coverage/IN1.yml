@@ -4,6 +4,9 @@ constants:
   hl7IN1Field: '%{hl7SegmentGroup}/IN1'
 
 elements:
+  - name: in1-set-id
+    value: [ '%insuranceIndex + 1' ]
+    hl7Spec: [ '%{hl7IN1Field}-1' ]
 
   - name: in1-insurance-company-name
     resource: '%resource.payor.resolve().ofType(Organization)'
