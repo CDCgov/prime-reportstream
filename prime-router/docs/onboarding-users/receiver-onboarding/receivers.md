@@ -166,7 +166,7 @@ transport:
 
 * NOTE: If developing on an Apple Mac with a Silicon chip please follow our guide in place of the above three commands:
 
-- [Using Apple Silicon Macs for Development](../docs-deprecated/getting-started/Using-an-apple-silicon-mac.md)
+- [Using Apple Silicon Macs for Development](../../docs-deprecated/getting-started/Using-an-apple-silicon-mac.md)
 
 * At this point, once the container is loaded you can submit a file via curl:
 ```shell
@@ -191,7 +191,7 @@ output here: `/prime-router/build/sftp`
 ### 8. Set up transport
 
 ReportStream supports the below forms of transport for receivers and can be configured through the `transport` receiver setting.
-- [SFTP](./transport/sftp.md)
-- [SOAP](./transport/soap.md)
-- [REST](./transport/rest.md)
-- [Azure Blob](./transport/blob.md)
+- [SFTP](../transport/sftp.md)
+- [SOAP](../transport/soap.md)
+- [REST](../transport/rest.md)
+- [Azure Blob](../transport/blob.md)
