@@ -283,6 +283,10 @@
 - id: "nte-annotation"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/nte-annotation"
 
+# IN1 -> Coverage
+- id: "in1-coverage"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/in1-coverage"
+
 ## Generic
 
 # internal indicator of sender, usable for filtering

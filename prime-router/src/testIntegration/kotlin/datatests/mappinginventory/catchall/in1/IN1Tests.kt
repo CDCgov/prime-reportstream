@@ -13,4 +13,14 @@ class IN1Tests {
             ).passed
         )
     }
+
+    @Test
+    fun `test IN1 mapped to Coverage with subscriber id and self relation`() {
+        assert(
+            verifyHL7ToFHIRToHL7Mapping(
+                "catchall/in1/IN1-to-Coverage-IN1-10-SN-IN1-17-SEL",
+                outputSchema = "classpath:/metadata/hl7_mapping/OML_O21/OML_O21-test.yml"
+            ).passed
+        )
+    }
 }
