@@ -3,12 +3,12 @@ import { Helmet } from "react-helmet-async";
 import { useParams } from "react-router";
 import { AdminFormWrapper } from "../../../components/Admin/AdminFormWrapper";
 import { EditReceiverSettingsParams } from "../../../components/Admin/EditReceiverSettings";
-import MessageTestingBody from "../../../components/Admin/MessageTesting/MessageTestingBody";
+import MessageTestingForm from "../../../components/Admin/MessageTesting/MessageTestingForm";
 import Crumbs, { CrumbsProps } from "../../../components/Crumbs";
 import Title from "../../../components/Title";
 import { FeatureName } from "../../../utils/FeatureName";
 
-const AdminReportTestingPage = () => {
+const AdminMessageTestingPage = () => {
     const { orgname, receivername } = useParams<EditReceiverSettingsParams>();
     const crumbProps: CrumbsProps = {
         crumbList: [
@@ -41,10 +41,19 @@ const AdminReportTestingPage = () => {
                     </>
                 }
             >
-                <MessageTestingBody />
+                <GridContainer>
+                    <p>
+                        Test a message from the message bank or by entering a custom message. You can view test results
+                        in this window while you are logged in. To save for later reference, you can open messages, test
+                        results and output messages in separate tabs.
+                    </p>
+                    <hr />
+                    <p className="font-sans-xl text-bold">Test message bank</p>
+                    <MessageTestingForm />
+                </GridContainer>
             </AdminFormWrapper>
         </>
     );
 };
 
-export default AdminReportTestingPage;
+export default AdminMessageTestingPage;
