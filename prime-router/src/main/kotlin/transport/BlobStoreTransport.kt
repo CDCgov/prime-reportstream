@@ -33,7 +33,9 @@ class BlobStoreTransport : ITransport {
             context.logger.info("About to copy $bodyUrl to $envVar:$storageName")
             val blobConnection = BlobAccess.BlobContainerMetadata.build(transportType)
             val blobFile = BlobAccess.copyBlob(bodyUrl)
+            context.logger.info("New blob filename will be $externalFileName")
             val newUrl = BlobAccess.uploadBlob(externalFileName, blobFile, blobConnection)
+            context.logger.info("New blob URL is $newUrl")
             val msg = "Successfully copied $bodyUrl to $newUrl"
             context.logger.info(msg)
             actionHistory.trackActionResult(msg)
