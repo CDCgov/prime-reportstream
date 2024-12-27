@@ -1,16 +1,12 @@
-import { FormEventHandler, useCallback, useState } from "react";
-import MessageTestingFormBase, {
-    type MessageTestingFormBaseProps,
-    type MessageTestingFormValues,
-} from "./MessageTestingFormBase";
-import MessageTestingResult from "./MessageTestingResult";
+import { Button } from "@trussworks/react-uswds";
+import { ChangeEvent, useState } from "react";
+import { MessageTestingCustomMessage } from "./MessageTestingCustomMessage";
+import { MessageTestingRadioField } from "./MessageTestingRadioField";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { errorMessageResult, passMessageResult, warningMessageResult } from "./MessageTestingResult.fixtures";
-import type { RSMessage, RSMessageResult } from "../../../config/endpoints/reports";
+import { warningMessageResult } from "./MessageTestingResult.fixtures";
+import type { RSMessage } from "../../../config/endpoints/reports";
 import useTestMessages from "../../../hooks/api/messages/UseTestMessages/UseTestMessages";
 import AdminFetchAlert from "../../alerts/AdminFetchAlert";
-
-export interface MessageTestingFormProps extends Omit<MessageTestingFormBaseProps, "testMessages"> {}
 
 export interface RSSubmittedMessage extends Omit<RSMessage, "dateCreated"> {
     dateCreated: Date;
@@ -18,39 +14,107 @@ export interface RSSubmittedMessage extends Omit<RSMessage, "dateCreated"> {
 
 const fakeResultData = warningMessageResult;
 
-/**
- * Data fetching wrapper for {@link MessageTestingFormBase}
- * @see {@link MessageTestingFormBase}
- */
 const MessageTestingForm = () => {
+    // // TODO: Replace with submission hook
+    // const [resultData, setResultData] = useState<RSMessageResult | null>(null);
+    // const [submittedMessage, setSubmittedMessage] = useState<RSSubmittedMessage | null>(null);
+
+    // const handleSubmit = useCallback<FormEventHandler<HTMLFormElement>>((e) => {
+    //     const formData = Object.fromEntries(
+    //         new FormData(e.currentTarget).entries(),
+    //     ) as unknown as MessageTestingFormValues;
+
+    //     // TODO: Remove fake result data usage, and Submit formData.testMessageBody to server
+    //     setSubmittedMessage({
+    //         fileName: formData.testMessage,
+    //         reportBody: formData.testMessageBody,
+    //         dateCreated: new Date(),
+    //     });
+    //     setResultData(fakeResultData);
+    // }, []);
+
+    // if (submittedMessage && resultData) {
+    //     return <MessageTestingResult result={resultData} message={submittedMessage} />;
+    // }
+
     const { data, isDisabled } = useTestMessages();
-    // TODO: Replace with submission hook
-    const [resultData, setResultData] = useState<RSMessageResult | null>(null);
-    const [submittedMessage, setSubmittedMessage] = useState<RSSubmittedMessage | null>(null);
+    const [selectedOption, setSelectedOption] = useState<string | null>(null);
+    const [currentTestMessages, setCurrentTestMessages] = useState(data);
+    const [openCustomMessage, setOpenCustomMessage] = useState(false);
+    const [customMessageNumber, setCustomMessageNumber] = useState(1);
 
-    const handleSubmit = useCallback<FormEventHandler<HTMLFormElement>>((e) => {
-        const formData = Object.fromEntries(
-            new FormData(e.currentTarget).entries(),
-        ) as unknown as MessageTestingFormValues;
+    const handleSelect = (event: ChangeEvent<HTMLInputElement>) => {
+        setSelectedOption(event.target.value);
+    };
 
-        // TODO: Remove fake result data usage, and Submit formData.testMessageBody to server
-        setSubmittedMessage({
-            fileName: formData.testMessage,
-            reportBody: formData.testMessageBody,
-            dateCreated: new Date(),
-        });
-        setResultData(fakeResultData);
-    }, []);
+    const handleAddCustomMessage = () => {
+        setSelectedOption(null);
+        setOpenCustomMessage(true);
+    };
 
     if (isDisabled) {
         return <AdminFetchAlert />;
     }
 
-    if (submittedMessage && resultData) {
-        return <MessageTestingResult result={resultData} message={submittedMessage} />;
-    }
+    /**
+     * Insert selected message body into hidden field so that parent submit handler has complete form
+     */
+    // const handleSubmit = useCallback<FormEventHandler<HTMLFormElement>>(
+    //     (e) => {
+    //         e.preventDefault();
 
-    return <MessageTestingFormBase testMessages={data} onSubmit={handleSubmit} id="test-message-form" />;
+    //         const formData = Object.fromEntries(
+    //             new FormData(e.currentTarget).entries(),
+    //         ) as MessageTestingFormValuesInternal;
+    //         const testMessage = allTestMessages.find((m) => m.fileName === formData.testMessage);
+
+    //         if (testMessage == null) throw new Error("Invalid message");
+    //         if (inputRef.current == null) throw new Error("Input ref missing");
+
+    //         inputRef.current.value = testMessage.reportBody;
+    //         onSubmit?.(e);
+    //     },
+    //     [allTestMessages, onSubmit],
+    // );
+
+    return (
+        <section className="bg-base-lightest padding-3">
+            {!currentTestMessages.length && <p>No test messages available</p>}
+            {!!currentTestMessages.length && (
+                <form>
+                    <fieldset className="usa-fieldset bg-base-lightest padding-3">
+                        {currentTestMessages?.map((item, index) => (
+                            <MessageTestingRadioField
+                                key={index}
+                                index={index}
+                                title={item.fileName}
+                                body={item.reportBody}
+                                handleSelect={handleSelect}
+                                selectedOption={selectedOption}
+                            />
+                        ))}
+                        {openCustomMessage && (
+                            <MessageTestingCustomMessage
+                                customMessageNumber={customMessageNumber}
+                                currentTestMessages={currentTestMessages}
+                                setCustomMessageNumber={setCustomMessageNumber}
+                                setCurrentTestMessages={setCurrentTestMessages}
+                                setOpenCustomMessage={setOpenCustomMessage}
+                            />
+                        )}
+                    </fieldset>
+                    <div className="padding-top-4">
+                        <Button type="button" outline onClick={handleAddCustomMessage}>
+                            Test custom message
+                        </Button>
+                        <Button disabled={!selectedOption} type="button">
+                            Run test
+                        </Button>
+                    </div>
+                </form>
+            )}
+        </section>
+    );
 };
 
 export default MessageTestingForm;

@@ -7,6 +7,7 @@ import MessageTestingForm from "../../../components/Admin/MessageTesting/Message
 import Crumbs, { CrumbsProps } from "../../../components/Crumbs";
 import Title from "../../../components/Title";
 import { FeatureName } from "../../../utils/FeatureName";
+import { useState } from "react";
 
 const AdminMessageTestingPage = () => {
     const { orgname, receivername } = useParams<EditReceiverSettingsParams>();
@@ -19,6 +20,12 @@ const AdminMessageTestingPage = () => {
             { label: FeatureName.MESSAGE_TESTING },
         ],
     };
+    enum MessageTestingSteps {
+        StepOne = "MessageTestSelection",
+        StepTwo = "MessageTestResults",
+    }
+    const [currentMessageTestStep, setCurrentMessageTestStep] = useState(MessageTestingSteps.StepOne);
+
     return (
         <>
             <Helmet>
@@ -49,7 +56,8 @@ const AdminMessageTestingPage = () => {
                     </p>
                     <hr />
                     <p className="font-sans-xl text-bold">Test message bank</p>
-                    <MessageTestingForm />
+                    {currentMessageTestStep === MessageTestingSteps.StepOne && <MessageTestingForm />}
+                    {currentMessageTestStep === MessageTestingSteps.StepTwo && <MessageTestingResult />}
                 </GridContainer>
             </AdminFormWrapper>
         </>
