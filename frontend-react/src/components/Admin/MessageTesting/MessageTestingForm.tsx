@@ -17,6 +17,7 @@ interface MessageTestingFormProps {
     setCurrentTestMessages: (messages: RSMessage[]) => void;
     customMessageNumber: number;
     setCustomMessageNumber: (number: number) => void;
+    handleSubmit: () => void;
 }
 
 const fakeResultData = warningMessageResult;
@@ -27,6 +28,7 @@ const MessageTestingForm = ({
     setCurrentTestMessages,
     customMessageNumber,
     setCustomMessageNumber,
+    handleSubmit,
 }: MessageTestingFormProps) => {
     // // TODO: Replace with submission hook
     // const [resultData, setResultData] = useState<RSMessageResult | null>(null);
@@ -91,7 +93,7 @@ const MessageTestingForm = ({
         <section className="bg-base-lightest padding-3">
             {!currentTestMessages.length && <p>No test messages available</p>}
             {!!currentTestMessages.length && (
-                <form>
+                <form onSubmit={handleSubmit}>
                     <fieldset className="usa-fieldset bg-base-lightest padding-3">
                         {currentTestMessages?.map((item, index) => (
                             <MessageTestingRadioField
@@ -117,7 +119,7 @@ const MessageTestingForm = ({
                         <Button type="button" outline onClick={handleAddCustomMessage}>
                             Test custom message
                         </Button>
-                        <Button disabled={!selectedOption} type="button">
+                        <Button disabled={!selectedOption} type="submit">
                             Run test
                         </Button>
                     </div>

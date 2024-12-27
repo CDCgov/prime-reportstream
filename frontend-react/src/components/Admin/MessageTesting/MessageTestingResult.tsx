@@ -7,8 +7,8 @@ import Alert, { type AlertProps } from "../../../shared/Alert/Alert";
 import { USLinkButton } from "../../USLink";
 
 export interface MessageTestingResultProps extends PropsWithChildren {
-    message: RSSubmittedMessage;
-    result: RSMessageResult;
+    submittedMessage: RSSubmittedMessage;
+    resultData: RSMessageResult;
 }
 
 const errorFields: (keyof RSMessageResult)[] = [
@@ -23,16 +23,16 @@ const warningFields: (keyof RSMessageResult)[] = [
     "receiverTransformWarnings",
 ];
 
-const MessageTestingResult = ({ result, message, ...props }: MessageTestingResultProps) => {
+const MessageTestingResult = ({ resultData, submittedMessage, ...props }: MessageTestingResultProps) => {
     const isPassed =
-        result.senderTransformPassed &&
-        result.filtersPassed &&
-        result.enrichmentSchemaPassed &&
-        result.receiverTransformPassed;
+        resultData.senderTransformPassed &&
+        resultData.filtersPassed &&
+        resultData.enrichmentSchemaPassed &&
+        resultData.receiverTransformPassed;
     const isWarned =
-        !!result.senderTransformWarnings.length &&
-        !!result.enrichmentSchemaWarnings.length &&
-        !!result.receiverTransformWarnings;
+        !!resultData.senderTransformWarnings.length &&
+        !!resultData.enrichmentSchemaWarnings.length &&
+        !!resultData.receiverTransformWarnings;
 
     const alertType: AlertProps["type"] = !isPassed ? "error" : isWarned ? "warning" : "success";
     const alertHeading = language[`${alertType}AlertHeading`];
@@ -40,15 +40,15 @@ const MessageTestingResult = ({ result, message, ...props }: MessageTestingResul
 
     return (
         <section {...props}>
-            <h2>Test results: {message.fileName}</h2>
-            <USLinkButton>{"<"} Select new message</USLinkButton>
-            Test run: {message.dateCreated.toISOString()}
+            <h2>Test results: {submittedMessage.fileName}</h2>
+            <USLinkButton>{"<"} Select new submittedMessage</USLinkButton>
+            Test run: {submittedMessage.dateCreated.toISOString()}
             <Alert type={alertType} heading={alertHeading}>
                 {alertBody}
             </Alert>
             {errorFields.map((f) => {
-                const arr = result[f];
-                if (arr != null && !Array.isArray(arr)) throw new Error("Invalid result");
+                const arr = resultData[f];
+                if (arr != null && !Array.isArray(arr)) throw new Error("Invalid resultData");
                 if (!arr?.length) return null;
 
                 return (
@@ -61,8 +61,8 @@ const MessageTestingResult = ({ result, message, ...props }: MessageTestingResul
                 );
             })}
             {warningFields.map((f) => {
-                const arr = result[f];
-                if (arr != null && !Array.isArray(arr)) throw new Error("Invalid result");
+                const arr = resultData[f];
+                if (arr != null && !Array.isArray(arr)) throw new Error("Invalid resultData");
                 if (!arr?.length) return null;
 
                 return (
@@ -74,29 +74,29 @@ const MessageTestingResult = ({ result, message, ...props }: MessageTestingResul
                     />
                 );
             })}
-            {result.message && (
+            {resultData.submittedMessage && (
                 <Accordion
-                    key={`output-message-accordion`}
+                    key={`output-submittedMessage-accordion`}
                     items={[
                         {
-                            title: "Output message",
-                            content: result.message,
+                            title: "Output submittedMessage",
+                            content: resultData.submittedMessage,
                             expanded: false,
                             headingLevel: "h3",
-                            id: `output-message-list`,
+                            id: `output-submittedMessage-list`,
                         },
                     ]}
                 />
             )}
             <Accordion
-                key="test-message-accordion"
+                key="test-submittedMessage-accordion"
                 items={[
                     {
-                        title: "Test message",
-                        content: message.reportBody,
+                        title: "Test submittedMessage",
+                        content: submittedMessage.reportBody,
                         expanded: false,
                         headingLevel: "h3",
-                        id: "test-message-list",
+                        id: "test-submittedMessage-list",
                     },
                 ]}
             />

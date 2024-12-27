@@ -1,14 +1,27 @@
 import { GridContainer } from "@trussworks/react-uswds";
-import { useState } from "react";
+import { FormEventHandler, useCallback, useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { useParams } from "react-router";
 import { AdminFormWrapper } from "../../../components/Admin/AdminFormWrapper";
 import { EditReceiverSettingsParams } from "../../../components/Admin/EditReceiverSettings";
-import MessageTestingForm from "../../../components/Admin/MessageTesting/MessageTestingForm";
+import MessageTestingForm, { RSSubmittedMessage } from "../../../components/Admin/MessageTesting/MessageTestingForm";
+import MessageTestingResult from "../../../components/Admin/MessageTesting/MessageTestingResult";
+import { warningMessageResult } from "../../../components/Admin/MessageTesting/MessageTestingResult.fixtures";
 import Crumbs, { CrumbsProps } from "../../../components/Crumbs";
 import Title from "../../../components/Title";
+import { RSMessageResult } from "../../../config/endpoints/reports";
 import useTestMessages from "../../../hooks/api/messages/UseTestMessages/UseTestMessages";
 import { FeatureName } from "../../../utils/FeatureName";
+
+export interface MessageTestingFormValuesInternal {
+    testMessage?: string;
+    testMessageBody?: string;
+}
+
+export interface MessageTestingFormValues {
+    testMessage: string;
+    testMessageBody: string;
+}
 
 const AdminMessageTestingPage = () => {
     const { orgname, receivername } = useParams<EditReceiverSettingsParams>();
@@ -28,9 +41,28 @@ const AdminMessageTestingPage = () => {
 
     // Sets which step of the Message Testing process the user is at
     const [currentMessageTestStep, setCurrentMessageTestStep] = useState(MessageTestingSteps.StepOne);
+    // Sets data required for the MessageTestingForm
     const { data, isDisabled } = useTestMessages();
     const [currentTestMessages, setCurrentTestMessages] = useState(data);
     const [customMessageNumber, setCustomMessageNumber] = useState(1);
+    const fakeResultData = warningMessageResult;
+    const handleSubmit = useCallback<FormEventHandler<HTMLFormElement>>((e) => {
+        const formData = Object.fromEntries(
+            new FormData(e.currentTarget).entries(),
+        ) as unknown as MessageTestingFormValues;
+
+        // TODO: Remove fake result data usage, and Submit formData.testMessageBody to server
+        setSubmittedMessage({
+            fileName: formData.testMessage,
+            reportBody: formData.testMessageBody,
+            dateCreated: new Date(),
+        });
+        setResultData(fakeResultData);
+        setCurrentMessageTestStep(MessageTestingSteps.StepTwo);
+    }, []);
+    // Sets data required for the MessageTestingResult
+    const [resultData, setResultData] = useState<RSMessageResult | null>(null);
+    const [submittedMessage, setSubmittedMessage] = useState<RSSubmittedMessage | null>(null);
 
     return (
         <>
@@ -69,9 +101,12 @@ const AdminMessageTestingPage = () => {
                             setCurrentTestMessages={setCurrentTestMessages}
                             customMessageNumber={customMessageNumber}
                             setCustomMessageNumber={setCustomMessageNumber}
+                            handleSubmit={handleSubmit}
                         />
                     )}
-                    {currentMessageTestStep === MessageTestingSteps.StepTwo && <MessageTestingResult />}
+                    {currentMessageTestStep === MessageTestingSteps.StepTwo && (
+                        <MessageTestingResult resultData={resultData} submittedMessage={submittedMessage} />
+                    )}
                 </GridContainer>
             </AdminFormWrapper>
         </>
