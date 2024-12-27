@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.databind.json.JsonMapper
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.github.ajalt.clikt.core.CliktError
+import com.github.doyaaaaaken.kotlincsv.dsl.csvReader
 import com.microsoft.azure.functions.HttpMethod
 import com.microsoft.azure.functions.HttpRequestMessage
 import com.microsoft.azure.functions.HttpResponseMessage
@@ -21,6 +22,7 @@ import gov.cdc.prime.router.ActionLogLevel
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.InvalidParamMessage
 import gov.cdc.prime.router.InvalidReportMessage
+import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.ReportId
@@ -36,18 +38,22 @@ import gov.cdc.prime.router.azure.observability.event.ReportStreamEventName
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventProperties
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventService
 import gov.cdc.prime.router.azure.service.SubmissionResponseBuilder
+import gov.cdc.prime.router.cli.FileUtilities
+import gov.cdc.prime.router.cli.LookupTableCompareMappingCommand
 import gov.cdc.prime.router.cli.PIIRemovalCommands
 import gov.cdc.prime.router.cli.ProcessFhirCommands
 import gov.cdc.prime.router.common.AzureHttpUtils.getSenderIP
 import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.history.azure.SubmissionsFacade
+import gov.cdc.prime.router.metadata.ObservationMappingConstants
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
 import gov.cdc.prime.router.tokens.Scope
 import gov.cdc.prime.router.tokens.authenticationFailure
 import gov.cdc.prime.router.tokens.authorizationFailure
 import kotlinx.serialization.json.Json
 import org.apache.logging.log4j.kotlin.Logging
+import java.io.ByteArrayOutputStream
 import java.io.File
 import java.nio.charset.StandardCharsets
 import java.util.UUID
@@ -131,6 +137,67 @@ class ReportFunction(
             return processGetMessageFromTestBankRequest(request)
         }
         return HttpUtilities.unauthorizedResponse(request)
+    }
+
+    /**
+     * POST a CSV with test codes and conditions to compare with existing
+     * code to condition observation mapping table
+     *
+     * @return annotated CSV with mapping result
+     */
+    @FunctionName("compareCodeConditionMappingPostRequest")
+    fun checkConditionMappingPostRequest(
+        @HttpTrigger(
+            name = "compareCodeConditionMappingPostRequest",
+            methods = [HttpMethod.POST],
+            authLevel = AuthorizationLevel.ANONYMOUS,
+            route = "compareCodeConditionMapping"
+        ) request: HttpRequestMessage<String?>,
+    ): HttpResponseMessage {
+        val senderName = extractClient(request)
+        if (senderName.isBlank()) {
+            return HttpUtilities.bad(request, "Expected a '$CLIENT_PARAMETER' query parameter")
+        }
+
+        actionHistory.trackActionParams(request)
+        try {
+            val claims = AuthenticatedClaims.authenticate(request)
+                ?: return HttpUtilities.unauthorizedResponse(request, authenticationFailure)
+
+            val sender = workflowEngine.settings.findSender(senderName)
+                ?: return HttpUtilities.bad(request, "'$CLIENT_PARAMETER:$senderName': unknown client")
+
+            if (!claims.authorizedForSendOrReceive(sender, request)) {
+                return HttpUtilities.unauthorizedResponse(request, authorizationFailure)
+            }
+
+            // Read request body CSV
+            val bodyCsvText = request.body ?: ""
+            val bodyCsv = csvReader().readAllWithHeader(bodyCsvText)
+
+            // Get observation mapping table
+            val tableMapper = LookupTableConditionMapper(Metadata())
+            val observationMappingTable = tableMapper.mappingTable.caseSensitiveDataRowsMap
+            val tableTestCodeMap = observationMappingTable.associateBy { it[ObservationMappingConstants.TEST_CODE_KEY] }
+
+            // Compare request CSV with table using CLI wrapper
+            val comparisonThing = LookupTableCompareMappingCommand.compareMappings(
+                compendium = bodyCsv, tableTestCodeMap = tableTestCodeMap
+            )
+
+            // Create output CSV with mapping comparison result
+            val outputCsv = ByteArrayOutputStream()
+            FileUtilities.saveTableAsCSV(outputCsv, comparisonThing)
+
+            return HttpUtilities.okResponse(request, outputCsv.toString())
+        } catch (ex: Exception) {
+            if (ex.message != null) {
+                logger.error(ex.message!!, ex)
+            } else {
+                logger.error(ex)
+            }
+            return HttpUtilities.internalErrorResponse(request)
+        }
     }
 
     /**
