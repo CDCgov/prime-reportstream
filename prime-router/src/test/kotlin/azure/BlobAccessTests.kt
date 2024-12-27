@@ -709,7 +709,6 @@ class BlobAccessTests {
         mockkClass(BlobAccess::class)
         mockkObject(BlobAccess.Companion)
         val testUrl = "http://testurl/testfile"
-        every { BlobAccess.Companion.getBlobConnection(any()) } returns "testconnection"
         every { BlobAccess.Companion.downloadBlobAsByteArray(testUrl) }.returns("testblob".toByteArray())
         val fromBytes = BlobAccess.copyBlob(testUrl)
 
