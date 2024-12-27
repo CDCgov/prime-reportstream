@@ -5,16 +5,29 @@ import { MessageTestingRadioField } from "./MessageTestingRadioField";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { warningMessageResult } from "./MessageTestingResult.fixtures";
 import type { RSMessage } from "../../../config/endpoints/reports";
-import useTestMessages from "../../../hooks/api/messages/UseTestMessages/UseTestMessages";
 import AdminFetchAlert from "../../alerts/AdminFetchAlert";
 
 export interface RSSubmittedMessage extends Omit<RSMessage, "dateCreated"> {
     dateCreated: Date;
 }
 
+interface MessageTestingFormProps {
+    isDisabled: boolean;
+    currentTestMessages: RSMessage[];
+    setCurrentTestMessages: (messages: RSMessage[]) => void;
+    customMessageNumber: number;
+    setCustomMessageNumber: (number: number) => void;
+}
+
 const fakeResultData = warningMessageResult;
 
-const MessageTestingForm = () => {
+const MessageTestingForm = ({
+    isDisabled,
+    currentTestMessages,
+    setCurrentTestMessages,
+    customMessageNumber,
+    setCustomMessageNumber,
+}: MessageTestingFormProps) => {
     // // TODO: Replace with submission hook
     // const [resultData, setResultData] = useState<RSMessageResult | null>(null);
     // const [submittedMessage, setSubmittedMessage] = useState<RSSubmittedMessage | null>(null);
@@ -37,11 +50,8 @@ const MessageTestingForm = () => {
     //     return <MessageTestingResult result={resultData} message={submittedMessage} />;
     // }
 
-    const { data, isDisabled } = useTestMessages();
     const [selectedOption, setSelectedOption] = useState<string | null>(null);
-    const [currentTestMessages, setCurrentTestMessages] = useState(data);
     const [openCustomMessage, setOpenCustomMessage] = useState(false);
-    const [customMessageNumber, setCustomMessageNumber] = useState(1);
 
     const handleSelect = (event: ChangeEvent<HTMLInputElement>) => {
         setSelectedOption(event.target.value);

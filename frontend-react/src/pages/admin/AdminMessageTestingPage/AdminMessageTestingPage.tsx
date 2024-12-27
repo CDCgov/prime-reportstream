@@ -1,4 +1,5 @@
 import { GridContainer } from "@trussworks/react-uswds";
+import { useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { useParams } from "react-router";
 import { AdminFormWrapper } from "../../../components/Admin/AdminFormWrapper";
@@ -6,8 +7,8 @@ import { EditReceiverSettingsParams } from "../../../components/Admin/EditReceiv
 import MessageTestingForm from "../../../components/Admin/MessageTesting/MessageTestingForm";
 import Crumbs, { CrumbsProps } from "../../../components/Crumbs";
 import Title from "../../../components/Title";
+import useTestMessages from "../../../hooks/api/messages/UseTestMessages/UseTestMessages";
 import { FeatureName } from "../../../utils/FeatureName";
-import { useState } from "react";
 
 const AdminMessageTestingPage = () => {
     const { orgname, receivername } = useParams<EditReceiverSettingsParams>();
@@ -24,7 +25,12 @@ const AdminMessageTestingPage = () => {
         StepOne = "MessageTestSelection",
         StepTwo = "MessageTestResults",
     }
+
+    // Sets which step of the Message Testing process the user is at
     const [currentMessageTestStep, setCurrentMessageTestStep] = useState(MessageTestingSteps.StepOne);
+    const { data, isDisabled } = useTestMessages();
+    const [currentTestMessages, setCurrentTestMessages] = useState(data);
+    const [customMessageNumber, setCustomMessageNumber] = useState(1);
 
     return (
         <>
@@ -56,7 +62,15 @@ const AdminMessageTestingPage = () => {
                     </p>
                     <hr />
                     <p className="font-sans-xl text-bold">Test message bank</p>
-                    {currentMessageTestStep === MessageTestingSteps.StepOne && <MessageTestingForm />}
+                    {currentMessageTestStep === MessageTestingSteps.StepOne && (
+                        <MessageTestingForm
+                            isDisabled={isDisabled}
+                            currentTestMessages={currentTestMessages}
+                            setCurrentTestMessages={setCurrentTestMessages}
+                            customMessageNumber={customMessageNumber}
+                            setCustomMessageNumber={setCustomMessageNumber}
+                        />
+                    )}
                     {currentMessageTestStep === MessageTestingSteps.StepTwo && <MessageTestingResult />}
                 </GridContainer>
             </AdminFormWrapper>
