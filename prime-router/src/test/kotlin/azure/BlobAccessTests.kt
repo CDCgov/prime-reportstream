@@ -708,32 +708,13 @@ class BlobAccessTests {
     fun `copy blob`() {
         mockkClass(BlobAccess::class)
         mockkObject(BlobAccess.Companion)
-        every { BlobAccess.Companion.getBlobConnection(any()) } returns "testconnection"
-
         val testUrl = "http://testurl/testfile"
-        val testFile = BlobAccess.BlobInfo.getBlobFilename(testUrl)
-        val testBlobMetadata = BlobAccess.BlobContainerMetadata.build("testcontainer", "testenvvar")
-
+        every { BlobAccess.Companion.getBlobConnection(any()) } returns "testconnection"
         every { BlobAccess.Companion.downloadBlobAsByteArray(testUrl) }.returns("testblob".toByteArray())
-        every {
-            BlobAccess.Companion.uploadBlob(
-                testFile,
-                "testblob".toByteArray(),
-                testBlobMetadata
-            )
-        }.returns("http://testurl2")
+        val fromBytes = BlobAccess.copyBlob(testUrl)
 
-        val result = BlobAccess.copyBlob(testUrl, testBlobMetadata)
-
-        verify(exactly = 1) { BlobAccess.Companion.downloadBlobAsByteArray(testUrl, any(), any()) }
-        verify(exactly = 1) {
-            BlobAccess.Companion.uploadBlob(
-                testFile,
-                "testblob".toByteArray(),
-                testBlobMetadata
-            )
-        }
-        assertThat(result).isEqualTo("http://testurl2")
+        verify(exactly = 1) { BlobAccess.Companion.downloadBlobAsByteArray(any()) }
+        assertThat(fromBytes).isEqualTo("testblob".toByteArray())
     }
 
     @Test
