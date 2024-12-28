@@ -74,12 +74,6 @@ elements:
     constants:
       auiField: '%{hl7IN1Field}-14'
 
-  - name: IN1.15
-    resource: '%resource.extension.where(url = "IN1.15").value'
-    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
-    constants:
-      cweField: '%{hl7IN1Field}-15'
-
   - name: IN1.16
     resource: '%resource.extension.where(url = "IN1.16").value'
     schema: classpath:/metadata/hl7_mapping/datatypes/HumanName/XPN.yml

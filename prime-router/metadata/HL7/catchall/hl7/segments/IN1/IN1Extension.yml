@@ -148,19 +148,6 @@ extension:
       constants:
         auiExtensionName: IN1.14
     - expressionType: nested
-      specs: IN1.15
-      condition: $in115 NOT_NULL
-      generateList: true
-      vars:
-        in115: STRING_ALL, IN1.15
-      expressionsMap:
-        url:
-          type: STRING
-          value: IN1.15
-        valueCodeableConcept:
-          valueOf: datatypes/CWE/CodeableConcept
-          expressionType: resource
-    - expressionType: nested
       specs: IN1.16 *
       condition: $in116 NOT_NULL
       generateList: true

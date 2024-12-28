@@ -38,6 +38,7 @@ policyHolder:
   specs: IN1.11
   vars:
     in111: STRING_ALL, IN1.11
+    CXIdentifier: IN1.10
 
 relationship:
   expressionType: resource

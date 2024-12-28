@@ -1,8 +1,8 @@
 {
   "resourceType": "Bundle",
-  "id": "1735021554610938000.2eb3aef0-7ab2-4f45-add6-c76f699a1754",
+  "id": "1735363731986903000.318b991d-ebb6-4cbf-924f-9d8d066cab47",
   "meta": {
-    "lastUpdated": "2024-12-24T01:25:54.622-05:00"
+    "lastUpdated": "2024-12-28T00:28:51.997-05:00"
   },
   "identifier": {
     "system": "https://reportstream.cdc.gov/prime-router",
@@ -11,10 +11,10 @@
   "type": "message",
   "entry": [
     {
-      "fullUrl": "MessageHeader/1735021554686934000.639124a1-b1be-4048-9151-eb6b3222f968",
+      "fullUrl": "MessageHeader/1735363732055110000.20e399e8-79ad-4194-ae2c-657454ba86bf",
       "resource": {
         "resourceType": "MessageHeader",
-        "id": "1735021554686934000.639124a1-b1be-4048-9151-eb6b3222f968",
+        "id": "1735363732055110000.20e399e8-79ad-4194-ae2c-657454ba86bf",
         "meta": {
           "tag": [
             {
@@ -31,10 +31,10 @@
       }
     },
     {
-      "fullUrl": "Provenance/1735021555354859000.e24d49d2-af28-48e4-9f1d-bbe6d87c7d01",
+      "fullUrl": "Provenance/1735363732660921000.b8830225-8196-423f-a3ac-97b4db3ad10d",
       "resource": {
         "resourceType": "Provenance",
-        "id": "1735021555354859000.e24d49d2-af28-48e4-9f1d-bbe6d87c7d01",
+        "id": "1735363732660921000.b8830225-8196-423f-a3ac-97b4db3ad10d",
         "activity": {
           "coding": [
             {
@@ -45,11 +45,11 @@
       }
     },
     {
-      "fullUrl": "Provenance/1735021555366775000.083723a1-a999-4750-9420-536fff0cb215",
+      "fullUrl": "Provenance/1735363732671324000.0adefef0-88dd-4040-8f90-875d28b6a5dc",
       "resource": {
         "resourceType": "Provenance",
-        "id": "1735021555366775000.083723a1-a999-4750-9420-536fff0cb215",
-        "recorded": "2024-12-24T01:25:55Z",
+        "id": "1735363732671324000.0adefef0-88dd-4040-8f90-875d28b6a5dc",
+        "recorded": "2024-12-28T00:28:52Z",
         "policy": [
           "http://hl7.org/fhir/uv/v2mappings/message-oru-r01-to-bundle"
         ],
@@ -71,17 +71,17 @@
               ]
             },
             "who": {
-              "reference": "Organization/1735021555365830000.65a43606-b9a6-4a7f-8414-138d3100c41f"
+              "reference": "Organization/1735363732670608000.786bd0e3-2c89-493d-a83a-af7a31103fb2"
             }
           }
         ]
       }
     },
     {
-      "fullUrl": "Organization/1735021555365830000.65a43606-b9a6-4a7f-8414-138d3100c41f",
+      "fullUrl": "Organization/1735363732670608000.786bd0e3-2c89-493d-a83a-af7a31103fb2",
       "resource": {
         "resourceType": "Organization",
-        "id": "1735021555365830000.65a43606-b9a6-4a7f-8414-138d3100c41f",
+        "id": "1735363732670608000.786bd0e3-2c89-493d-a83a-af7a31103fb2",
         "identifier": [
           {
             "value": "CDC PRIME - Atlanta"
@@ -101,10 +101,10 @@
       }
     },
     {
-      "fullUrl": "Patient/1735021555386527000.cc7d7259-8cd1-467c-8fc7-9bdc7161346b",
+      "fullUrl": "Patient/1735363732687446000.8385087d-024b-4883-ac37-a0c596f3880b",
       "resource": {
         "resourceType": "Patient",
-        "id": "1735021555386527000.cc7d7259-8cd1-467c-8fc7-9bdc7161346b",
+        "id": "1735363732687446000.8385087d-024b-4883-ac37-a0c596f3880b",
         "identifier": [
           {
             "extension": [
@@ -143,16 +143,16 @@
       }
     },
     {
-      "fullUrl": "Provenance/1735021555387742000.f57d7495-4777-4978-be14-fef0c7300991",
+      "fullUrl": "Provenance/1735363732688381000.984b2e64-4f8d-4f77-9f82-eb57557c513e",
       "resource": {
         "resourceType": "Provenance",
-        "id": "1735021555387742000.f57d7495-4777-4978-be14-fef0c7300991",
+        "id": "1735363732688381000.984b2e64-4f8d-4f77-9f82-eb57557c513e",
         "target": [
           {
-            "reference": "Patient/1735021555386527000.cc7d7259-8cd1-467c-8fc7-9bdc7161346b"
+            "reference": "Patient/1735363732687446000.8385087d-024b-4883-ac37-a0c596f3880b"
           }
         ],
-        "recorded": "2024-12-24T01:25:55Z",
+        "recorded": "2024-12-28T00:28:52Z",
         "activity": {
           "coding": [
             {
@@ -164,10 +164,10 @@
       }
     },
     {
-      "fullUrl": "Coverage/1735021555421963000.6fc9fb64-3fec-4eba-b637-94fe5b72ab92",
+      "fullUrl": "Coverage/1735363732716244000.077f8e62-9a8f-4be4-be88-88598a4f5d37",
       "resource": {
         "resourceType": "Coverage",
-        "id": "1735021555421963000.6fc9fb64-3fec-4eba-b637-94fe5b72ab92",
+        "id": "1735363732716244000.077f8e62-9a8f-4be4-be88-88598a4f5d37",
         "extension": [
           {
             "url": "http://hl7.org/fhir/R5/StructureDefinition/extension-subscriberId",
@@ -234,22 +234,6 @@
                     "valueString": "DR TEETH AND THE ELECTRIC MAYHEM"
                   }
                 ]
-              },
-              {
-                "url": "IN1.15",
-                "valueCodeableConcept": {
-                  "coding": [
-                    {
-                      "extension": [
-                        {
-                          "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
-                          "valueString": "coding"
-                        }
-                      ],
-                      "code": "2"
-                    }
-                  ]
-                }
               },
               {
                 "url": "IN1.16",
@@ -378,14 +362,14 @@
                 "valueString": "Y"
               },
               {
-                "url": "IN1.4",
-                "valueReference": {
-                  "reference": "Organization/1735021555397031000.7b299d3f-2159-402b-9403-e6a3f1bdf9aa"
-                }
-              },
-              {
                 "url": "IN1.24",
                 "valueString": "20241223"
+              },
+              {
+                "url": "IN1.4",
+                "valueReference": {
+                  "reference": "Organization/1735363732696358000.541c9204-1f10-4a6f-a512-a4c3091841fd"
+                }
               },
               {
                 "url": "IN1.25",
@@ -430,7 +414,7 @@
               {
                 "url": "IN1.30",
                 "valueReference": {
-                  "reference": "Practitioner/1735021555406787000.110f698d-9cde-43ac-b172-e55f263ac893"
+                  "reference": "Practitioner/1735363732702123000.0da4f962-5f5a-4d0b-beff-b9a68ed7f58c"
                 }
               },
               {
@@ -470,6 +454,10 @@
                 "valueString": "176"
               },
               {
+                "url": "IN1.34",
+                "valueString": "2"
+              },
+              {
                 "url": "IN1.5",
                 "valueAddress": {
                   "extension": [
@@ -501,10 +489,6 @@
                   "postalCode": "79998",
                   "country": "\"\""
                 }
-              },
-              {
-                "url": "IN1.34",
-                "valueString": "2"
               },
               {
                 "url": "IN1.35",
@@ -779,29 +763,6 @@
                 }
               },
               {
-                "url": "IN1.6",
-                "valueHumanName": {
-                  "extension": [
-                    {
-                      "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn-human-name",
-                      "extension": [
-                        {
-                          "url": "XPN.2",
-                          "valueString": "John"
-                        }
-                      ]
-                    }
-                  ],
-                  "family": "Jones",
-                  "given": [
-                    "John"
-                  ],
-                  "prefix": [
-                    "Mr."
-                  ]
-                }
-              },
-              {
                 "url": "IN1.44",
                 "valueAddress": {
                   "extension": [
@@ -826,6 +787,29 @@
                   "city": "LIVERPOOL",
                   "state": "NY",
                   "postalCode": "13088"
+                }
+              },
+              {
+                "url": "IN1.6",
+                "valueHumanName": {
+                  "extension": [
+                    {
+                      "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn-human-name",
+                      "extension": [
+                        {
+                          "url": "XPN.2",
+                          "valueString": "John"
+                        }
+                      ]
+                    }
+                  ],
+                  "family": "Jones",
+                  "given": [
+                    "John"
+                  ],
+                  "prefix": [
+                    "Mr."
+                  ]
                 }
               },
               {
@@ -945,6 +929,12 @@
                 }
               },
               {
+                "url": "IN1.54",
+                "valueIdentifier": {
+                  "value": "10222"
+                }
+              },
+              {
                 "url": "IN1.7",
                 "valueContactPoint": {
                   "extension": [
@@ -970,12 +960,6 @@
                 }
               },
               {
-                "url": "IN1.54",
-                "valueIdentifier": {
-                  "value": "10222"
-                }
-              },
-              {
                 "url": "IN1.55",
                 "valueString": "A"
               },
@@ -986,7 +970,7 @@
               {
                 "url": "IN1.9",
                 "valueReference": {
-                  "reference": "Organization/1735021555419360000.b24dcd94-da4e-4de9-96ad-4f06be789e42"
+                  "reference": "Organization/1735363732713632000.b016e77a-db25-41e0-bd0c-9de1452b87ea"
                 }
               },
               {
@@ -998,7 +982,7 @@
               {
                 "url": "IN1.11",
                 "valueReference": {
-                  "reference": "Organization/1735021555420266000.c78e4815-cef0-4208-83fe-4758d6050ffb"
+                  "reference": "Organization/1735363732714482000.fee77860-ab61-4d33-bcd7-fb6e635c9ce4"
                 }
               }
             ]
@@ -1018,10 +1002,10 @@
           ]
         },
         "policyHolder": {
-          "reference": "Organization/1735021555422902000.5fd6a949-d456-4f98-a0a8-73bf752bfcc6"
+          "reference": "Organization/1735363732717266000.dbdfd0c9-b4b5-4d1d-be54-f649fe3fb381"
         },
         "subscriber": {
-          "reference": "RelatedPerson/1735021555421849000.7bf35938-4986-4934-bc77-83bcdee2b315"
+          "reference": "RelatedPerson/1735363732716141000.61bac251-b2d8-48fa-bfad-9126df8cc69d"
         },
         "relationship": {
           "coding": [
@@ -1058,24 +1042,24 @@
         },
         "payor": [
           {
-            "reference": "Organization/1735021555421285000.7ec52026-2634-485a-9e58-5a8eee341a13"
+            "reference": "Organization/1735363732715562000.ef097382-6b97-42a5-8eef-b63b419ab4b7"
           }
         ]
       }
     },
     {
-      "fullUrl": "Organization/1735021555397031000.7b299d3f-2159-402b-9403-e6a3f1bdf9aa",
+      "fullUrl": "Organization/1735363732696358000.541c9204-1f10-4a6f-a512-a4c3091841fd",
       "resource": {
         "resourceType": "Organization",
-        "id": "1735021555397031000.7b299d3f-2159-402b-9403-e6a3f1bdf9aa",
+        "id": "1735363732696358000.541c9204-1f10-4a6f-a512-a4c3091841fd",
         "name": "AETNA US HEALTHCARE"
       }
     },
     {
-      "fullUrl": "Practitioner/1735021555406787000.110f698d-9cde-43ac-b172-e55f263ac893",
+      "fullUrl": "Practitioner/1735363732702123000.0da4f962-5f5a-4d0b-beff-b9a68ed7f58c",
       "resource": {
         "resourceType": "Practitioner",
-        "id": "1735021555406787000.110f698d-9cde-43ac-b172-e55f263ac893",
+        "id": "1735363732702123000.0da4f962-5f5a-4d0b-beff-b9a68ed7f58c",
         "extension": [
           {
             "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority",
@@ -1151,26 +1135,26 @@
       }
     },
     {
-      "fullUrl": "Organization/1735021555419360000.b24dcd94-da4e-4de9-96ad-4f06be789e42",
+      "fullUrl": "Organization/1735363732713632000.b016e77a-db25-41e0-bd0c-9de1452b87ea",
       "resource": {
         "resourceType": "Organization",
-        "id": "1735021555419360000.b24dcd94-da4e-4de9-96ad-4f06be789e42",
+        "id": "1735363732713632000.b016e77a-db25-41e0-bd0c-9de1452b87ea",
         "name": "AETNA SERVICES INC"
       }
     },
     {
-      "fullUrl": "Organization/1735021555420266000.c78e4815-cef0-4208-83fe-4758d6050ffb",
+      "fullUrl": "Organization/1735363732714482000.fee77860-ab61-4d33-bcd7-fb6e635c9ce4",
       "resource": {
         "resourceType": "Organization",
-        "id": "1735021555420266000.c78e4815-cef0-4208-83fe-4758d6050ffb",
+        "id": "1735363732714482000.fee77860-ab61-4d33-bcd7-fb6e635c9ce4",
         "name": "AETNA US HEALTHCARE"
       }
     },
     {
-      "fullUrl": "Organization/1735021555421285000.7ec52026-2634-485a-9e58-5a8eee341a13",
+      "fullUrl": "Organization/1735363732715562000.ef097382-6b97-42a5-8eef-b63b419ab4b7",
       "resource": {
         "resourceType": "Organization",
-        "id": "1735021555421285000.7ec52026-2634-485a-9e58-5a8eee341a13",
+        "id": "1735363732715562000.ef097382-6b97-42a5-8eef-b63b419ab4b7",
         "name": "AETNA US HEALTHCARE",
         "address": [
           {
@@ -1207,10 +1191,10 @@
       }
     },
     {
-      "fullUrl": "RelatedPerson/1735021555421849000.7bf35938-4986-4934-bc77-83bcdee2b315",
+      "fullUrl": "RelatedPerson/1735363732716141000.61bac251-b2d8-48fa-bfad-9126df8cc69d",
       "resource": {
         "resourceType": "RelatedPerson",
-        "id": "1735021555421849000.7bf35938-4986-4934-bc77-83bcdee2b315",
+        "id": "1735363732716141000.61bac251-b2d8-48fa-bfad-9126df8cc69d",
         "name": [
           {
             "extension": [
@@ -1238,10 +1222,15 @@
       }
     },
     {
-      "fullUrl": "Organization/1735021555422902000.5fd6a949-d456-4f98-a0a8-73bf752bfcc6",
+      "fullUrl": "Organization/1735363732717266000.dbdfd0c9-b4b5-4d1d-be54-f649fe3fb381",
       "resource": {
         "resourceType": "Organization",
-        "id": "1735021555422902000.5fd6a949-d456-4f98-a0a8-73bf752bfcc6",
+        "id": "1735363732717266000.dbdfd0c9-b4b5-4d1d-be54-f649fe3fb381",
+        "identifier": [
+          {
+            "value": "19"
+          }
+        ],
         "name": "AETNA US HEALTHCARE"
       }
     }
