@@ -27,6 +27,7 @@ abstract class Event(val eventAction: EventAction, val at: OffsetDateTime?) {
         PROCESS_WARNING, // when an attempt at a process action fails, but will be retried
         PROCESS_ERROR, // when an attempt at a process action fails permanently
         DESTINATION_FILTER,
+        RECEIVER_ENRICHMENT,
         RECEIVER_FILTER,
         RECEIVE,
         CONVERT, // for universal pipeline converting to FHIR
@@ -50,6 +51,7 @@ abstract class Event(val eventAction: EventAction, val at: OffsetDateTime?) {
                 PROCESS_WARNING -> TaskAction.process_warning
                 PROCESS_ERROR -> TaskAction.process_error
                 DESTINATION_FILTER -> TaskAction.destination_filter
+                RECEIVER_ENRICHMENT -> TaskAction.receiver_enrichment
                 RECEIVER_FILTER -> TaskAction.receiver_filter
                 RECEIVE -> TaskAction.receive
                 CONVERT -> TaskAction.convert

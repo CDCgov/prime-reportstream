@@ -151,6 +151,19 @@ abstract class FHIREngine(
                         reportService ?: ReportService()
                     )
                 )
+                TaskAction.receiver_enrichment -> FHIRReceiverEnrichment(
+                    metadata ?: Metadata.getInstance(),
+                    settingsProvider!!,
+                    databaseAccess ?: databaseAccessSingleton,
+                    blobAccess ?: BlobAccess(),
+                    azureEventService ?: AzureEventServiceImpl(),
+                    reportService ?: ReportService(),
+                    ReportStreamEventService(
+                        databaseAccess ?: databaseAccessSingleton,
+                        azureEventService ?: AzureEventServiceImpl(),
+                        reportService ?: ReportService()
+                    )
+                )
                 TaskAction.receiver_filter -> FHIRReceiverFilter(
                     metadata ?: Metadata.getInstance(),
                     settingsProvider!!,
