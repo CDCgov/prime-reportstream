@@ -4407,10 +4407,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"clsx@npm:^2.1.0":
-  version: 2.1.0
-  resolution: "clsx@npm:2.1.0"
-  checksum: 43fefc29b6b49c9476fbce4f8b1cc75c27b67747738e598e6651dd40d63692135dc60b18fa1c5b78a2a9ba8ae6fd2055a068924b94e20b42039bd53b78b98e1d
+"clsx@npm:^2.1.1":
+  version: 2.1.1
+  resolution: "clsx@npm:2.1.1"
+  checksum: acd3e1ab9d8a433ecb3cc2f6a05ab95fe50b4a3cfc5ba47abb6cbf3754585fcb87b84e90c822a1f256c4198e3b41c7f6c391577ffc8678ad587fc0976b24fd57
   languageName: node
   linkType: hard
 
@@ -6246,21 +6246,22 @@ __metadata:
   languageName: node
   linkType: hard
 
-"focus-trap-react@npm:^10.3.1":
-  version: 10.3.1
-  resolution: "focus-trap-react@npm:10.3.1"
+"focus-trap-react@npm:^11.0.1":
+  version: 11.0.1
+  resolution: "focus-trap-react@npm:11.0.1"
   dependencies:
-    focus-trap: ^7.6.1
+    focus-trap: ^7.6.2
     tabbable: ^6.2.0
   peerDependencies:
-    prop-types: ^15.8.1
-    react: ">=16.3.0"
-    react-dom: ">=16.3.0"
-  checksum: 7992402b86a2ebada9232f36388fe7997e395365f1ca89927114caf84c53c546940c066b0a60417b01b4b366d97d0ac313d7c65ef69b74d188fc0863f850f480
+    "@types/react": ^18.0.0 || ^19.0.0
+    "@types/react-dom": ^18.0.0 || ^19.0.0
+    react: ^18.0.0 || ^19.0.0
+    react-dom: ^18.0.0 || ^19.0.0
+  checksum: 6ebdc816705b05b8584841ad887dbe839b06413fb7724c90a54973481cd23df72e00bd07bf65458cac77ba7b7473c1b8aeff67388600c8e9fde77b14b061e79f
   languageName: node
   linkType: hard
 
-"focus-trap@npm:^7.6.1":
+"focus-trap@npm:^7.6.2":
   version: 7.6.2
   resolution: "focus-trap@npm:7.6.2"
   dependencies:
@@ -9862,14 +9863,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-error-boundary@npm:^4.1.2":
-  version: 4.1.2
-  resolution: "react-error-boundary@npm:4.1.2"
+"react-error-boundary@npm:^5.0.0":
+  version: 5.0.0
+  resolution: "react-error-boundary@npm:5.0.0"
   dependencies:
     "@babel/runtime": ^7.12.5
   peerDependencies:
     react: ">=16.13.1"
-  checksum: afe692f1bbbfb5998b49e1001d7682a3cbfdc623dca1318b408e738606f3450d925c28fbbfa5dc84d2cf285d17c2e7f079d59386a27da354dea9c902a935149b
+  checksum: 4fa78890bb254fe1f0ee1eed893ac161a27482c4567f7667ef83a8339432eb99e323ee69757f01f4864e0037b01a9b6822735ea122f02e749d0bf7a781d9ea53
   languageName: node
   linkType: hard
 
@@ -9957,7 +9958,7 @@ __metadata:
     eslint-plugin-testing-library: ^7.1.1
     eslint-plugin-vitest: ^0.5.4
     export-to-csv-fix-source-map: ^0.2.1
-    focus-trap-react: ^10.3.1
+    focus-trap-react: ^11.0.1
     globals: ^15.13.0
     history: ^5.3.0
     html-to-text: ^9.0.5
@@ -9976,7 +9977,7 @@ __metadata:
     prettier: ^3.4.2
     react: ^18.3.1
     react-dom: ^18.3.1
-    react-error-boundary: ^4.1.2
+    react-error-boundary: ^5.0.0
     react-helmet-async: ^2.0.5
     react-idle-timer: ^5.7.2
     react-loader-spinner: ^6.1.6
@@ -9985,7 +9986,7 @@ __metadata:
     react-router: ~6.28.0
     react-router-dom: ~6.28.0
     react-scroll-sync: ^0.11.2
-    react-toastify: ^10.0.6
+    react-toastify: ^11.0.2
     rehype-raw: ^7.0.0
     rehype-slug: ^5.1.0
     remark-frontmatter: ^5.0.0
@@ -10152,15 +10153,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-toastify@npm:^10.0.6":
-  version: 10.0.6
-  resolution: "react-toastify@npm:10.0.6"
+"react-toastify@npm:^11.0.2":
+  version: 11.0.2
+  resolution: "react-toastify@npm:11.0.2"
   dependencies:
-    clsx: ^2.1.0
+    clsx: ^2.1.1
   peerDependencies:
-    react: ">=18"
-    react-dom: ">=18"
-  checksum: 89fa24718eba0800e2bc1f88121a6e119efd87df26344d5b3c86442d4a13fbd65b67932e01bd6442758f4fe3f5eca6c8fc80c1dfb51c8dc2a4ec06bdaf9762da
+    react: ^18 || ^19
+    react-dom: ^18 || ^19
+  checksum: b951638b517e110f09a60f8164d759d29d480132832d574a57b5724ed6887ec728401f6fe9bf00d4a70ec5edb5a7871fc45f18ddeffdecf677b1dbbdddc55b2c
   languageName: node
   linkType: hard
 
