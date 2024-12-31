@@ -507,6 +507,76 @@ class CustomFHIRFunctionsTests {
     }
 
     @Test
+    fun `test changeTimezone with date as string - success`() {
+        val date = StringType("20241220194528.4230+0000")
+        val timezone = StringType("UTC")
+        val timezoneFormat = StringType("HIGH_PRECISION_OFFSET")
+        val convertToNegative = StringType("true")
+        val useHighPrecision = StringType("true")
+        var parameters: MutableList<Base> = mutableListOf(timezone, timezoneFormat, convertToNegative, useHighPrecision)
+
+        // test format
+        var outputDate = CustomFHIRFunctions.changeTimezone(
+            mutableListOf(date),
+            mutableListOf(parameters)
+        )
+        assertThat(outputDate[0]).isInstanceOf(StringType::class.java)
+        assertThat(outputDate[0].primitiveValue()).isEqualTo("20241220194528.4230-0000")
+
+        // test timezone change with offset format
+        timezone.value = "America/Phoenix"
+        timezoneFormat.value = "OFFSET"
+        convertToNegative.value = "false"
+        useHighPrecision.value = "false"
+
+        outputDate = CustomFHIRFunctions.changeTimezone(
+            mutableListOf(date),
+            mutableListOf(parameters)
+        )
+        assertThat(outputDate[0]).isInstanceOf(StringType::class.java)
+        assertThat(outputDate[0].primitiveValue()).isEqualTo("20241220124528-0700")
+
+        // test different format for input date
+        val date2 = StringType("2021-08-09T08:52:34-04:00")
+        timezone.value = "America/Phoenix"
+        timezoneFormat.value = "OFFSET"
+        convertToNegative.value = "false"
+        useHighPrecision.value = "false"
+
+        outputDate = CustomFHIRFunctions.changeTimezone(
+            mutableListOf(date2),
+            mutableListOf(parameters)
+        )
+        assertThat(outputDate[0]).isInstanceOf(StringType::class.java)
+        assertThat(outputDate[0].primitiveValue()).isEqualTo("20210809055234-0700")
+
+        // test date without time
+        val date3 = StringType("2021-08-09")
+        timezone.value = "America/Phoenix"
+        timezoneFormat.value = "OFFSET"
+        convertToNegative.value = "false"
+        useHighPrecision.value = "false"
+
+        outputDate = CustomFHIRFunctions.changeTimezone(
+            mutableListOf(date3),
+            mutableListOf(parameters)
+        )
+        assertThat(outputDate[0]).isInstanceOf(StringType::class.java)
+        assertThat(outputDate[0].primitiveValue()).isEqualTo("2021-08-09")
+
+        // test timezone change with required param only
+        timezone.value = "America/Phoenix"
+        parameters = mutableListOf(timezone)
+
+        outputDate = CustomFHIRFunctions.changeTimezone(
+            mutableListOf(date),
+            mutableListOf(parameters)
+        )
+        assertThat(outputDate[0]).isInstanceOf(StringType::class.java)
+        assertThat(outputDate[0].primitiveValue()).isEqualTo("20241220124528-0700")
+    }
+
+    @Test
     fun `test deidentifies a human name`() {
         val name = HumanName()
         name.given = mutableListOf(StringType("foo"), StringType("bar"))

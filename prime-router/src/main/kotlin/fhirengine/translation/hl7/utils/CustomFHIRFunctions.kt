@@ -14,7 +14,9 @@ import org.hl7.fhir.r4.model.HumanName
 import org.hl7.fhir.r4.model.IntegerType
 import org.hl7.fhir.r4.model.StringType
 import java.time.DateTimeException
+import java.time.LocalDate
 import java.time.ZoneId
+import java.time.format.DateTimeParseException
 import java.util.TimeZone
 
 /**
@@ -446,8 +448,17 @@ object CustomFHIRFunctions : FhirPathFunctions {
             throw SchemaException("Must call changeTimezone on a single element")
         }
 
-        if (parameters == null || parameters[0].size != 1) {
+        if (parameters == null || parameters.first().isEmpty()) {
             throw SchemaException("Must pass a timezone as the parameter")
+        }
+
+        var dateTimeFormat = DateUtilities.DateTimeFormat.OFFSET
+        if (parameters.first().size > 1) {
+            try {
+                dateTimeFormat = DateUtilities.DateTimeFormat.valueOf(parameters.first()[1].primitiveValue())
+            } catch (e: IllegalArgumentException) {
+                throw SchemaException("Date time format not found.")
+            }
         }
 
         val inputTimeZone = parameters.first().first().primitiveValue()
@@ -462,27 +473,24 @@ object CustomFHIRFunctions : FhirPathFunctions {
         }
 
         return if (focus[0] is StringType) {
-            if (focus[0].toString().length <= 8) { // we don't want to convert Date-only strings
+            val inputDate = try {
+                DateUtilities.parseDate((focus[0].toString()))
+            } catch (e: DateTimeParseException) {
+                throw SchemaException("Error trying to change time zone: " + e.message)
+            }
+
+            if (inputDate is LocalDate) {
                 return mutableListOf(StringType(focus[0].toString()))
             }
 
-            // TODO: find a way to pass in these values from receiver settings
-
-            val dateTimeFormat = null
-            val convertPositiveDateTimeOffsetToNegative = null
-            val useHighPrecisionHeaderDateTimeFormat = null
-
             val formattedDate = DateUtilities.formatDateForReceiver(
-                DateUtilities.parseDate((focus[0].toString())),
+                inputDate,
                 ZoneId.of(inputTimeZone),
-                dateTimeFormat ?: DateUtilities.DateTimeFormat.OFFSET,
-                convertPositiveDateTimeOffsetToNegative ?: false,
-                useHighPrecisionHeaderDateTimeFormat ?: false
+                dateTimeFormat,
+                parameters.first().getOrNull(2)?.primitiveValue()?.toBoolean() ?: false,
+                parameters.first().getOrNull(3)?.primitiveValue()?.toBoolean() ?: false
             )
-
-            mutableListOf(
-                StringType(formattedDate)
-            )
+            mutableListOf(StringType(formattedDate))
         } else {
             val inputDate = focus[0] as? BaseDateTimeType ?: throw SchemaException(
                 "Must call changeTimezone on a dateTime, instant, or date; " +
