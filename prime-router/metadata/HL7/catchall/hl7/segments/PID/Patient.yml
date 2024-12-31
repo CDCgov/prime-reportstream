@@ -423,14 +423,21 @@ meta:
           expressionType: reference
           specs: PID.34
 
-generalPractitioner_Organization:
-  condition: $pd13 NOT_NULL
+generalPractitioner:
+  expressionType: nested
   generateList: true
-  specs: PD1.3 *
   vars:
     pd13: STRING_ALL, PD1.3
-  valueOf: datatypes/XON/Organization
-  expressionType: reference
+    pd14: STRING_ALL, PD1.4
+  expressions:
+    - condition: $pd13 NOT_NULL
+      valueOf: datatypes/XON/Organization
+      expressionType: reference
+      specs: PD1.3 *
+    - condition: $pd14 NOT_NULL
+      valueOf: datatypes/XCN/Practitioner
+      expressionType: reference
+      specs: PD1.4 *
 
 extension:
   expressionType: nested
