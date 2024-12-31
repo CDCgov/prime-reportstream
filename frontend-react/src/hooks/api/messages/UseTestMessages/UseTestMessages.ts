@@ -4,7 +4,7 @@ import { reportsEndpoints, RSMessage } from "../../../../config/endpoints/report
 import useSessionContext from "../../../../contexts/Session/useSessionContext";
 import { Organizations } from "../../../UseAdminSafeOrganizationName/UseAdminSafeOrganizationName";
 
-const { testing } = reportsEndpoints;
+const { test } = reportsEndpoints;
 
 /**
  * Custom hook to fetch and manage "Test Messages" data for the current session.
@@ -27,12 +27,12 @@ const useTestMessages = () => {
 
     const memoizedDataFetch = useCallback(() => {
         if (isAdmin) {
-            return authorizedFetch<RSMessage[]>({}, testing);
+            return authorizedFetch<RSMessage[]>({}, test);
         }
         return null;
     }, [isAdmin, authorizedFetch]);
     const useSuspenseQueryResult = useSuspenseQuery({
-        queryKey: [testing.queryKey, activeMembership],
+        queryKey: [test.queryKey, activeMembership],
         queryFn: memoizedDataFetch,
     });
 

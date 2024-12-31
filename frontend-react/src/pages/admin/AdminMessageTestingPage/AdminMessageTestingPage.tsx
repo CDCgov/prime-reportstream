@@ -1,15 +1,17 @@
 import { GridContainer } from "@trussworks/react-uswds";
-import { FormEventHandler, useCallback, useState } from "react";
+import { useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { useParams } from "react-router";
 import { AdminFormWrapper } from "../../../components/Admin/AdminFormWrapper";
 import { EditReceiverSettingsParams } from "../../../components/Admin/EditReceiverSettings";
-import MessageTestingForm, { RSSubmittedMessage } from "../../../components/Admin/MessageTesting/MessageTestingForm";
+import MessageTestingForm from "../../../components/Admin/MessageTesting/MessageTestingForm";
 import MessageTestingResult from "../../../components/Admin/MessageTesting/MessageTestingResult";
-import { warningMessageResult } from "../../../components/Admin/MessageTesting/MessageTestingResult.fixtures";
 import Crumbs, { CrumbsProps } from "../../../components/Crumbs";
+import Spinner from "../../../components/Spinner";
+import { StaticAlert, StaticAlertType } from "../../../components/StaticAlert";
 import Title from "../../../components/Title";
-import { RSMessageResult } from "../../../config/endpoints/reports";
+import { RSMessage } from "../../../config/endpoints/reports";
+import useTestMessageResult from "../../../hooks/api/messages/UseTestMessageResult/UseTestMessageResult";
 import useTestMessages from "../../../hooks/api/messages/UseTestMessages/UseTestMessages";
 import { FeatureName } from "../../../utils/FeatureName";
 
@@ -23,6 +25,11 @@ export interface MessageTestingFormValues {
     testMessageBody: string;
 }
 
+enum MessageTestingSteps {
+    StepOne = "MessageTestSelection",
+    StepTwo = "MessageTestResults",
+}
+
 const AdminMessageTestingPage = () => {
     const { orgname, receivername } = useParams<EditReceiverSettingsParams>();
     const crumbProps: CrumbsProps = {
@@ -34,35 +41,33 @@ const AdminMessageTestingPage = () => {
             { label: FeatureName.MESSAGE_TESTING },
         ],
     };
-    enum MessageTestingSteps {
-        StepOne = "MessageTestSelection",
-        StepTwo = "MessageTestResults",
-    }
 
-    // Sets which step of the Message Testing process the user is at
-    const [currentMessageTestStep, setCurrentMessageTestStep] = useState(MessageTestingSteps.StepOne);
+    // Sets step of the Message Testing process laid out in the MessageTestingSteps enum
+    const [currentMessageTestStep, setCurrentMessageTestStep] = useState<MessageTestingSteps>(
+        MessageTestingSteps.StepOne,
+    );
+
     // Sets data required for the MessageTestingForm
-    const { data, isDisabled } = useTestMessages();
-    const [currentTestMessages, setCurrentTestMessages] = useState(data);
-    const [customMessageNumber, setCustomMessageNumber] = useState(1);
-    const fakeResultData = warningMessageResult;
-    const handleSubmit = useCallback<FormEventHandler<HTMLFormElement>>((e) => {
-        const formData = Object.fromEntries(
-            new FormData(e.currentTarget).entries(),
-        ) as unknown as MessageTestingFormValues;
-
-        // TODO: Remove fake result data usage, and Submit formData.testMessageBody to server
-        setSubmittedMessage({
-            fileName: formData.testMessage,
-            reportBody: formData.testMessageBody,
-            dateCreated: new Date(),
-        });
-        setResultData(fakeResultData);
+    const { data: messageData, isDisabled } = useTestMessages();
+    const { setRequestBody, isLoading, data: testResultData } = useTestMessageResult();
+    const [selectedOption, setSelectedOption] = useState<RSMessage | null>(null);
+    const [currentTestMessages, setCurrentTestMessages] = useState<RSMessage[]>(messageData);
+    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        setRequestBody(selectedOption?.reportBody ? selectedOption.reportBody : null);
         setCurrentMessageTestStep(MessageTestingSteps.StepTwo);
-    }, []);
-    // Sets data required for the MessageTestingResult
-    const [resultData, setResultData] = useState<RSMessageResult | null>(null);
-    const [submittedMessage, setSubmittedMessage] = useState<RSSubmittedMessage | null>(null);
+    };
+
+    // If a user is _not_ a PrimeAdmin, block this feature
+    if (isDisabled) {
+        return (
+            <StaticAlert
+                type={StaticAlertType.Error}
+                heading="Access denied"
+                message="Please try again as a PrimeAdmin"
+            />
+        );
+    }
 
     return (
         <>
@@ -94,18 +99,27 @@ const AdminMessageTestingPage = () => {
                     </p>
                     <hr />
                     <p className="font-sans-xl text-bold">Test message bank</p>
-                    {currentMessageTestStep === MessageTestingSteps.StepOne && (
-                        <MessageTestingForm
-                            isDisabled={isDisabled}
-                            currentTestMessages={currentTestMessages}
-                            setCurrentTestMessages={setCurrentTestMessages}
-                            customMessageNumber={customMessageNumber}
-                            setCustomMessageNumber={setCustomMessageNumber}
-                            handleSubmit={handleSubmit}
-                        />
-                    )}
-                    {currentMessageTestStep === MessageTestingSteps.StepTwo && (
-                        <MessageTestingResult resultData={resultData} submittedMessage={submittedMessage} />
+                    {isLoading ? (
+                        <Spinner />
+                    ) : (
+                        <>
+                            {currentMessageTestStep === MessageTestingSteps.StepOne && (
+                                <MessageTestingForm
+                                    currentTestMessages={currentTestMessages}
+                                    setSelectedOption={setSelectedOption}
+                                    setCurrentTestMessages={setCurrentTestMessages}
+                                    handleSubmit={handleSubmit}
+                                    selectedOption={selectedOption}
+                                />
+                            )}
+                            {currentMessageTestStep === MessageTestingSteps.StepTwo && (
+                                <MessageTestingResult
+                                    isLoading={isLoading}
+                                    resultData={testResultData}
+                                    submittedMessage={selectedOption}
+                                />
+                            )}
+                        </>
                     )}
                 </GridContainer>
             </AdminFormWrapper>

@@ -1,14 +1,14 @@
 import { Accordion } from "@trussworks/react-uswds";
 import type { PropsWithChildren } from "react";
 import language from "./language.json";
-import type { RSSubmittedMessage } from "./MessageTestingForm";
-import type { RSMessageResult } from "../../../config/endpoints/reports";
+import type { RSMessage, RSMessageResult } from "../../../config/endpoints/reports";
 import Alert, { type AlertProps } from "../../../shared/Alert/Alert";
 import { USLinkButton } from "../../USLink";
 
 export interface MessageTestingResultProps extends PropsWithChildren {
-    submittedMessage: RSSubmittedMessage;
-    resultData: RSMessageResult;
+    submittedMessage: RSMessage | null;
+    isLoading: boolean;
+    resultData: any; // temporary typing
 }
 
 const errorFields: (keyof RSMessageResult)[] = [
@@ -40,9 +40,9 @@ const MessageTestingResult = ({ resultData, submittedMessage, ...props }: Messag
 
     return (
         <section {...props}>
-            <h2>Test results: {submittedMessage.fileName}</h2>
+            <h2>Test results: {submittedMessage?.fileName}</h2>
             <USLinkButton>{"<"} Select new submittedMessage</USLinkButton>
-            Test run: {submittedMessage.dateCreated.toISOString()}
+            Test run: {submittedMessage?.dateCreated}
             <Alert type={alertType} heading={alertHeading}>
                 {alertBody}
             </Alert>
@@ -74,13 +74,13 @@ const MessageTestingResult = ({ resultData, submittedMessage, ...props }: Messag
                     />
                 );
             })}
-            {resultData.submittedMessage && (
+            {resultData.message && (
                 <Accordion
                     key={`output-submittedMessage-accordion`}
                     items={[
                         {
                             title: "Output submittedMessage",
-                            content: resultData.submittedMessage,
+                            content: resultData.message,
                             expanded: false,
                             headingLevel: "h3",
                             id: `output-submittedMessage-list`,
@@ -93,7 +93,7 @@ const MessageTestingResult = ({ resultData, submittedMessage, ...props }: Messag
                 items={[
                     {
                         title: "Test submittedMessage",
-                        content: submittedMessage.reportBody,
+                        content: submittedMessage?.reportBody,
                         expanded: false,
                         headingLevel: "h3",
                         id: "test-submittedMessage-list",

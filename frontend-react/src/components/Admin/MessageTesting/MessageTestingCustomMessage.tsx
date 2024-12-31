@@ -1,5 +1,5 @@
 import { Button, Textarea } from "@trussworks/react-uswds";
-import { ChangeEvent, Dispatch, SetStateAction, useState } from "react";
+import { ChangeEvent, useState } from "react";
 import { RSMessage } from "../../../config/endpoints/reports";
 
 export const MessageTestingCustomMessage = ({
@@ -12,7 +12,7 @@ export const MessageTestingCustomMessage = ({
     customMessageNumber: number;
     currentTestMessages: { fileName: string; reportBody: string }[];
     setCustomMessageNumber: (value: number) => void;
-    setCurrentTestMessages: Dispatch<SetStateAction<RSMessage[] | null>>;
+    setCurrentTestMessages: (messages: RSMessage[]) => void;
     setOpenCustomMessage: (value: boolean) => void;
 }) => {
     const [text, setText] = useState("");
