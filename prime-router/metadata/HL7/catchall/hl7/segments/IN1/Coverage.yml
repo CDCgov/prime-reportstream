@@ -14,6 +14,11 @@ id:
   valueOf: "GeneralUtils.generateResourceId()"
   expressionType: JEXL
 
+beneficiary:
+  expressionType: resource
+  valueOf: datatype/Reference
+  specs: $Patient
+
 payor:
   expressionType: reference
   condition: $in14 NOT_NULL || $in15 NOT_NULL
