@@ -31,6 +31,7 @@ import gov.cdc.prime.router.azure.ConditionStamper.Companion.conditionCodeExtens
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.LookupTableConditionMapper
 import gov.cdc.prime.router.azure.QueueAccess
+import gov.cdc.prime.router.fhirengine.engine.RSMessageType
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import gov.cdc.prime.router.metadata.LookupTable
@@ -45,6 +46,7 @@ import org.hl7.fhir.r4.model.Coding
 import org.hl7.fhir.r4.model.DiagnosticReport
 import org.hl7.fhir.r4.model.Endpoint
 import org.hl7.fhir.r4.model.Extension
+import org.hl7.fhir.r4.model.MessageHeader
 import org.hl7.fhir.r4.model.Observation
 import org.hl7.fhir.r4.model.Patient
 import org.hl7.fhir.r4.model.PractitionerRole
@@ -193,6 +195,91 @@ class FHIRBundleHelpersTests {
 
         assertThat(diagnosticReport).isNotNull()
         assertThat(diagnosticReport.getResourceProperties()).isNotEmpty()
+    }
+
+    @Test
+    fun `Test if ELR when bundle is empty`() {
+        val fhirBundle = Bundle()
+        assertThat(fhirBundle.isElr()).isFalse()
+    }
+
+    @Test
+    fun `Test if ELR when bundle is not BundleType MESSAGE`() {
+        val fhirBundle = Bundle()
+        fhirBundle.type = Bundle.BundleType.DOCUMENT
+        assertThat(fhirBundle.isElr()).isFalse()
+    }
+
+    @Test
+    fun `Test if ELR when bundle has no entries`() {
+        val fhirBundle = Bundle()
+        fhirBundle.type = Bundle.BundleType.MESSAGE
+        assertThat(fhirBundle.isElr()).isFalse()
+    }
+
+    @Test
+    fun `Test if ELR when bundle has no MessageHeader`() {
+        val fhirBundle = Bundle()
+        fhirBundle.type = Bundle.BundleType.MESSAGE
+        val entry = Bundle.BundleEntryComponent()
+        fhirBundle.entry.add(0, entry)
+        assertThat(fhirBundle.isElr()).isFalse()
+    }
+
+    @Test
+    fun `Test if ELR when bundle has MessageHeader but no Coding event`() {
+        val fhirBundle = Bundle()
+        fhirBundle.type = Bundle.BundleType.MESSAGE
+        val entry = Bundle.BundleEntryComponent()
+        entry.resource = MessageHeader()
+        fhirBundle.entry.add(0, entry)
+        assertThat(fhirBundle.isElr()).isFalse()
+    }
+
+    @Test
+    fun `Test if ELR when bundle has MessageHeader but Coding event not R01`() {
+        val fhirBundle = Bundle()
+        fhirBundle.type = Bundle.BundleType.MESSAGE
+        val entry = Bundle.BundleEntryComponent()
+        val messageHeader = MessageHeader()
+        val event = Coding()
+        messageHeader.event = event
+        entry.resource = messageHeader
+        fhirBundle.entry.add(0, entry)
+        assertThat(fhirBundle.isElr()).isFalse()
+    }
+
+    @Test
+    fun `Test if ELR when bundle is happy path`() {
+        val fhirBundle = Bundle()
+        fhirBundle.type = Bundle.BundleType.MESSAGE
+        val entry = Bundle.BundleEntryComponent()
+        val messageHeader = MessageHeader()
+        var event = Coding()
+        event.code = "R01"
+        messageHeader.event = event
+        entry.resource = messageHeader
+        fhirBundle.entry.add(0, entry)
+        assertThat(fhirBundle.isElr()).isTrue()
+        event.code = "ORU_R01"
+        assertThat(fhirBundle.isElr()).isTrue()
+        event.code = "R21"
+        assertThat(fhirBundle.isElr()).isFalse()
+    }
+
+    @Test
+    fun `Test current values for rs message type`() {
+        val fhirBundle = Bundle()
+        assertThat(fhirBundle.getRSMessageType()).isEqualTo(RSMessageType.UNKNOWN)
+        fhirBundle.type = Bundle.BundleType.MESSAGE
+        val entry = Bundle.BundleEntryComponent()
+        val messageHeader = MessageHeader()
+        val event = Coding()
+        event.code = "R01"
+        messageHeader.event = event
+        entry.resource = messageHeader
+        fhirBundle.entry.add(0, entry)
+        assertThat(fhirBundle.getRSMessageType()).isEqualTo(RSMessageType.LAB_RESULT)
     }
 
     @Test

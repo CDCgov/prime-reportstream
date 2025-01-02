@@ -14,6 +14,9 @@ class HealthController(
 
     private val applicationStart = timeSource.markNow()
 
+    /**
+     * Simple endpoint that returns a healthcheck with uptime
+     */
     @GetMapping(
         AuthApplicationConstants.Endpoints.HEALTHCHECK_ENDPOINT_V1,
         produces = [MediaType.APPLICATION_JSON_VALUE]

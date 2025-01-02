@@ -4,7 +4,9 @@ hl7Class: ca.uhn.hl7v2.model.v27.message.ORU_R01
 constants:
   # Prefix for RS custom extension URLs
   rsext: '"https://reportstream.cdc.gov/fhir/StructureDefinition/"'
+
 elements:
+
   - name: message-header
     condition: >
       Bundle.entry.resource.ofType(MessageHeader).exists() and
@@ -20,11 +22,10 @@ elements:
 
   - name: software-segment-legacy
     condition: >
-      Bundle.entry.resource.ofType(MessageHeader).exists()
-      and Bundle.entry.resource.ofType(MessageHeader).source.extension(%`rsext-software-vendor-org`).exists()
+      Bundle.entry.resource.ofType(MessageHeader).exists() and
+      Bundle.entry.resource.ofType(MessageHeader).source.extension(%`rsext-software-vendor-org`).exists()
     resource: 'Bundle.entry.resource.ofType(MessageHeader)'
     schema: classpath:/metadata/hl7_mapping/resources/MessageHeader/SFT.yml
-
 
   - name: patient-result
     resource: 'Bundle.entry.resource.ofType(Patient)'

@@ -1,0 +1,111 @@
+# action.yml
+name: Checksum Validate Action
+description: Generate and validate checksums
+branding:
+  icon: 'lock'
+  color: 'orange'
+inputs:
+  validate:
+    description: Check if checksums match
+    default: false
+  key:
+    description: String to keep unique checksums separate
+    required: true
+  fail-invalid:
+    description: Fail step if invalid checksum
+    default: false
+  input:
+    description: String or command for checksum
+    required: true
+outputs:
+  valid:
+    description: True if checksums match
+    value: ${{ steps.validate_checksum.outputs.valid }}
+
+runs:
+  using: "composite"
+  steps:
+
+    # CHECKSUM START
+    - name: Generate SHA
+      uses: nick-fields/retry@v3.0.0
+      with:
+        max_attempts: 5
+        retry_on: any
+        timeout_seconds: 10
+        retry_wait_seconds: 15
+        command: |
+          function fail {
+              printf '%s\n' "$1" >&2
+              exit "${2-1}"
+          }
+          input_cmd="${{ inputs.input }}" || fail
+          sha="$(echo "$input_cmd" | sha256sum)"
+          echo "sha=$sha" >> $GITHUB_ENV
+          echo "success=true" >> $GITHUB_ENV
+
+    - name: Get input SHA
+      if: env.success
+      id: input_sha
+      shell: bash
+      run: echo "sha=${{ env.sha }}" >> $GITHUB_OUTPUT
+
+    - name: Get input SHA
+      if: env.success != 'true'
+      shell: bash
+      run: |
+        echo "failed to generate sha"
+        exit 1
+    # CHECKSUM END
+
+    # UPLOAD FILE START
+    - name: Create checksum file
+      if: inputs.validate != 'true'
+      shell: bash
+      run: |
+        echo "${{ steps.input_sha.outputs.sha }}" > "${{ github.sha }}-${{ inputs.key }}.txt"
+
+    - name: Upload checksum file
+      if: inputs.validate != 'true'
+      uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3
+      with:
+        name: "${{ github.sha }}-${{ inputs.key }}.txt"
+        path: "${{ github.sha }}-${{ inputs.key }}.txt"
+        retention-days: 5
+    # UPLOAD FILE END
+
+    # VALIDATE FILE START
+    - name: Download checksum file
+      if: inputs.validate == 'true'
+      uses: actions/download-artifact@eaceaf801fd36c7dee90939fad912460b18a1ffe
+      with:
+        name: "${{ github.sha }}-${{ inputs.key }}.txt"
+
+    - name: Validate pre and post checksums
+      if: inputs.validate == 'true'
+      id: validate_checksum
+      shell: bash
+      run: |
+        echo "${{ steps.input_sha.outputs.sha }}" > "${{ github.sha }}-${{ inputs.key }}-2.txt"
+        DIFF=$(diff -q "${{ github.sha }}-${{ inputs.key }}-2.txt" "${{ github.sha }}-${{ inputs.key }}.txt") || true
+        codevalid=true
+        if [ "$DIFF" != "" ]
+        then
+          codevalid=false
+        fi
+        echo "valid=$codevalid" >> $GITHUB_OUTPUT
+
+    - name: Create summary
+      if: inputs.validate == 'true'
+      run: |
+        # Use ternary operator to assign emoji based on validity
+        emoji=${{ steps.validate_checksum.outputs.valid == 'true' && '✅' || '❌' }}
+        valid=${{ steps.validate_checksum.outputs.valid == 'true' && 'valid' || 'INVALID' }}
+        echo "### $emoji ${{ inputs.key }} checksum $valid $emoji" >> $GITHUB_STEP_SUMMARY
+      shell: bash
+    # VALIDATE FILE END
+
+    - name: Fail if invalid checksum
+      if: inputs.validate == 'true' && steps.validate_checksum.outputs.valid == 'false' && inputs.fail-invalid == 'true'
+      run: exit 1
+      shell: bash

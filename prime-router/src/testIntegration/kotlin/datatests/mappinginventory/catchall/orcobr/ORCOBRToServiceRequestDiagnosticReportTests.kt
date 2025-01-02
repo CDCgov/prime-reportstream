@@ -68,8 +68,14 @@ class ORCOBRToServiceRequestDiagnosticReportTests {
     }
 
     @Test
-    fun `test correctly handles the effective when OBR8 is not populated`() {
+    fun `test correctly handles the effectiveDateTime when OBR8 is not populated`() {
         val testFileName = "catchall/orcobr/orc_obr-to-servicerequest_diagnosticreport-obr8-not-populated"
+        assert(verifyHL7ToFHIRToHL7Mapping(testFileName).passed)
+    }
+
+    @Test
+    fun `test correctly handles the effectivePeriod when OBR8 is populated`() {
+        val testFileName = "catchall/orcobr/orc_obr-to-servicerequest_diagnosticreport-obr8-populated"
         assert(verifyHL7ToFHIRToHL7Mapping(testFileName).passed)
     }
 
@@ -89,5 +95,16 @@ class ORCOBRToServiceRequestDiagnosticReportTests {
     fun `test does not map OBR25 when OBRExtension is not populated`() {
         val testFileName = "catchall/orcobr/orc_obr-to-servicerequest_diagnosticreport-obr25-obrext-not-populated"
         assert(verifyHL7ToFHIRToHL7Mapping(testFileName, true, false, true).passed)
+    }
+
+    @Test
+    fun `test links ServiceRequest to Observation through SupportingInfo`() {
+        val testFileName = "catchall/orcobr/orc_obr-to-servicerequest_diagnosticreport-OML-message"
+        assert(
+            verifyHL7ToFHIRToHL7Mapping(
+            testFileName,
+            outputSchema = "classpath:/metadata/hl7_mapping/OML_O21/OML_O21-test.yml"
+        ).passed
+        )
     }
 }

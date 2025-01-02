@@ -378,7 +378,7 @@ class CustomFhirPathFunctions : FhirPathFunctions {
         val lookupTable = metadata.findLookupTable("zip-code-data")
         var filters = lookupTable?.FilterBuilder() ?: error("Could not find table zip-code-data")
 
-        val zipCode = focus[0].primitiveValue()
+        val zipCode = focus[0].primitiveValue().substringBefore("-")
         filters = filters.isEqualTo("zipcode", zipCode)
         val result = filters.findAllUnique("state_abbr")
 

@@ -4,15 +4,18 @@ on:
   pull_request:
     branches:
       - production
-      - master
+      - main
       - test
   push:
     branches:
       - production
-      - master
+      - main
       - test
   schedule:
     - cron: "36 3 * * *"
+
+env:
+  AZURE_CREDENTIALS: '{"clientId":"${{ secrets.AZURE_CLIENT_ID }}","clientSecret":"${{ secrets.AZURE_CLIENT_SECRET }}","subscriptionId":"${{ secrets.AZURE_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.AZURE_TENANT_ID }}"}'
 
 jobs:
   pre_job:
@@ -57,7 +60,7 @@ jobs:
           ca-cert: ${{ secrets.CA_CRT}}
           user-crt: ${{ secrets.USER_CRT }}
           user-key: ${{ secrets.USER_KEY }}
-          sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
+          sp-creds: ${{ env.AZURE_CREDENTIALS }}
 
       - name: Restart DNS if failure
         uses: ./.github/actions/retry
@@ -103,9 +106,9 @@ jobs:
       - name: Check Out Changes
         uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938
 
-      - uses: azure/login@a65d910e8af852a8061c627c456678983e180302
+      - uses: azure/login@v2
         with:
-          creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
+          creds: ${{ env.AZURE_CREDENTIALS }}
 
       - name: Reduce database replica sizes
         uses: ./.github/actions/retry
@@ -136,9 +139,9 @@ jobs:
       - name: Check Out Changes
         uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938
 
-      - uses: azure/login@a65d910e8af852a8061c627c456678983e180302
+      - uses: azure/login@v2
         with:
-          creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
+          creds: ${{ env.AZURE_CREDENTIALS }}
 
       - name: Fetch VPN DNS IP
         id: fetch_vpn_ip

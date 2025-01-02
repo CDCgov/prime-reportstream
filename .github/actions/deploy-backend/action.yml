@@ -332,10 +332,7 @@ runs:
 
     - name: Validate function app checksum
       if: inputs.checksum-validation == 'true'
-
-      uses: JosiahSiegel/checksum-validate-action@ebdf8c12c00912d18de93c483b935d51582f9236
-      ## DevSecOps - Aquia (Replace) uses: ./.github/actions/checksum-validate-action
-
+      uses: ./.github/actions/checksum-validate
       with:
         key: backend
         validate: true
