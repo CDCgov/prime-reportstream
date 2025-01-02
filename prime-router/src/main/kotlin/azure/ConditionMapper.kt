@@ -53,14 +53,17 @@ class LookupTableConditionMapper(metadata: Metadata) : IConditionMapper {
             .filter().caseSensitiveDataRowsMap
 
         // Create a map of condition codes to member OIDs
-        return filteredRows.fold(mutableMapOf()) { acc, condition ->
-            val conditionCode = condition[ObservationMappingConstants.CONDITION_CODE_KEY] ?: ""
-            val memberOid = condition[ObservationMappingConstants.TEST_OID_KEY] ?: ""
-            if (conditionCode.isNotEmpty() && memberOid.isNotEmpty()) {
-                acc[conditionCode] = memberOid
+        return filteredRows
+            .mapNotNull { condition ->
+                val conditionCode = condition[ObservationMappingConstants.CONDITION_CODE_KEY]
+                val memberOid = condition[ObservationMappingConstants.TEST_OID_KEY]
+                if (!conditionCode.isNullOrEmpty() && !memberOid.isNullOrEmpty()) {
+                    conditionCode to memberOid
+                } else {
+                    null
+                }
             }
-            acc
-        }
+            .toMap()
     }
 }
 
