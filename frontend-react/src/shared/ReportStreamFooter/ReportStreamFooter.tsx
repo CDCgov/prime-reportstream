@@ -68,7 +68,7 @@ export const ReportStreamFooter = () => {
                                 </IdentifierLink>
                             </IdentifierLinkItem>
                             <IdentifierLinkItem>
-                                <IdentifierLink href="https://www.cdc.gov/od/foia">
+                                <IdentifierLink href="https://www.cdc.gov/foia/">
                                     FOIA requests
                                 </IdentifierLink>
                             </IdentifierLinkItem>
