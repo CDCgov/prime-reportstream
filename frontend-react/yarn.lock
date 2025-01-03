@@ -2933,7 +2933,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react-dom@npm:~18.3.1":
+"@types/react-dom@npm:^18.3.1":
   version: 18.3.5
   resolution: "@types/react-dom@npm:18.3.5"
   peerDependencies:
@@ -2972,7 +2972,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react@npm:~18.3.11":
+"@types/react@npm:^18.3.11":
   version: 18.3.18
   resolution: "@types/react@npm:18.3.18"
   dependencies:
@@ -5840,7 +5840,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint@npm:9.17.0":
+"eslint@npm:^9.17.0":
   version: 9.17.0
   resolution: "eslint@npm:9.17.0"
   dependencies:
@@ -9830,7 +9830,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-dom@npm:^16.8.0 || ^17.0.0 || ^18.0.0, react-dom@npm:~18.3.1":
+"react-dom@npm:^16.8.0 || ^17.0.0 || ^18.0.0, react-dom@npm:^18.3.1":
   version: 18.3.1
   resolution: "react-dom@npm:18.3.1"
   dependencies:
@@ -9914,8 +9914,8 @@ __metadata:
     "@types/lodash": ^4.17.13
     "@types/mdx": ^2.0.13
     "@types/node": ^20.12.5
-    "@types/react": ~18.3.11
-    "@types/react-dom": ~18.3.1
+    "@types/react": ^18.3.11
+    "@types/react-dom": ^18.3.1
     "@types/react-router-dom": ^5.3.3
     "@types/react-scroll-sync": ^0.9.0
     "@types/sanitize-html": ^2.13.0
@@ -9934,7 +9934,7 @@ __metadata:
     date-fns-tz: ^3.2.0
     dompurify: ^3.2.3
     dotenv-flow: ^4.1.0
-    eslint: 9.17.0
+    eslint: ^9.17.0
     eslint-config-prettier: ^9.1.0
     eslint-import-resolver-typescript: ^3.6.3
     eslint-plugin-import: ^2.31.0
@@ -9964,16 +9964,16 @@ __metadata:
     patch-package: ^8.0.0
     postcss: ^8.4.49
     prettier: ^3.4.2
-    react: ~18.3.1
-    react-dom: ~18.3.1
+    react: ^18.3.1
+    react-dom: ^18.3.1
     react-error-boundary: ^4.1.2
     react-helmet-async: ^2.0.5
     react-idle-timer: ^5.7.2
     react-loader-spinner: ^6.1.6
     react-markdown: ^9.0.1
     react-query-kit: ^3.3.1
-    react-router: ~6.28.0
-    react-router-dom: ~6.28.0
+    react-router: ^6.28.0
+    react-router-dom: ^6.28.0
     react-scroll-sync: ^0.11.2
     react-toastify: ^10.0.6
     rehype-raw: ^7.0.0
@@ -9991,7 +9991,7 @@ __metadata:
     tsx: ^4.19.2
     typescript: ^5.7.2
     typescript-eslint: ^8.16.0
-    undici: ~6.20.1
+    undici: ^6.20.1
     use-deep-compare-effect: ^1.8.1
     uuid: ^11.0.3
     vite: ^6.0.6
@@ -10106,27 +10106,27 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-router-dom@npm:~6.28.0":
-  version: 6.28.0
-  resolution: "react-router-dom@npm:6.28.0"
+"react-router-dom@npm:^6.28.0":
+  version: 6.28.1
+  resolution: "react-router-dom@npm:6.28.1"
   dependencies:
     "@remix-run/router": 1.21.0
-    react-router: 6.28.0
+    react-router: 6.28.1
   peerDependencies:
     react: ">=16.8"
     react-dom: ">=16.8"
-  checksum: 0cf4658a92bc66f50ec9d8518c36aa5a402bcadce71fb624ed6f900d73a29ea87ff904a4f2c42279107e75e80cc08c6192563fadcc5d4e642e6d476e38e83b21
+  checksum: 85380f5f3448fc8b64463bc7d64a053f724e64c4c50e64a3d57d450d3b365815e902927a8ff927c162d82093976bcbba70157dff1ade1ba0ae464ad3472518cb
   languageName: node
   linkType: hard
 
-"react-router@npm:6.28.0, react-router@npm:~6.28.0":
-  version: 6.28.0
-  resolution: "react-router@npm:6.28.0"
+"react-router@npm:6.28.1, react-router@npm:^6.28.0":
+  version: 6.28.1
+  resolution: "react-router@npm:6.28.1"
   dependencies:
     "@remix-run/router": 1.21.0
   peerDependencies:
     react: ">=16.8"
-  checksum: 23246ca957b5c2bc8d6f9a81fee2df2ce4fc3feca3ec27c2fd85999568fc1299a4e8273e4ab70b6f3acd43a1fb45e0c93cb01ef77e68c9f9e1f7e4f42a1419ea
+  checksum: c1c4fe644a7197437f9ce9b8b621e79f9620b7a7b1192c9d1d44a6971b08af94408f3e63bd2cf122903c27d9a73b2e5632e4ca428e9ac0bf1d61e325968d4994
   languageName: node
   linkType: hard
 
@@ -10154,7 +10154,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react@npm:^16.8.0 || ^17.0.0 || ^18.0.0, react@npm:~18.3.1":
+"react@npm:^16.8.0 || ^17.0.0 || ^18.0.0, react@npm:^18.3.1":
   version: 18.3.1
   resolution: "react@npm:18.3.1"
   dependencies:
@@ -11919,10 +11919,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"undici@npm:~6.20.1":
-  version: 6.20.1
-  resolution: "undici@npm:6.20.1"
-  checksum: 3bb1405b406fa0e913ff4ec6fd310c9b4d950b7064ba5949b2f616c1f13070d26f5558aefb4b56b2eafb555925443ce44cb801e143d2417ecf12ddf8d5c05cf6
+"undici@npm:^6.20.1":
+  version: 6.21.0
+  resolution: "undici@npm:6.21.0"
+  checksum: bc2eb26c4b010a4f816314d48d4529f62b1116405097b2c5f0ac68247c56049a857d11a9f05b237818f04ce4f51d6f5e8d6fcc6aae2ab816c2b7318a9706727c
   languageName: node
   linkType: hard
 
