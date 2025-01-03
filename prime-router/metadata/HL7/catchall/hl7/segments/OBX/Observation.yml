@@ -18,7 +18,6 @@ resourceType: Observation
 # Not implementing OBX.32 not in mapping not in NIST
 # OBX.33 is repeatable but maps to specimen on Observation which is not, so it's all captured in OBXExtension
 
-
 id:
   type: STRING
   valueOf: "GeneralUtils.generateResourceId()"

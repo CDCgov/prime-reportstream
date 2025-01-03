@@ -1,6 +1,7 @@
 package gov.cdc.prime.reportstream.shared
 
 import org.apache.commons.lang3.StringUtils
+import java.util.Base64
 
 /**
  * A collection of string utilities
@@ -44,4 +45,10 @@ object StringUtilities {
             }
         return truncated.trimEnd()
     }
+
+    /**
+     * Handy extension functions for base 64 encoding/decoding
+     */
+    fun String.base64Encode(): String = Base64.getEncoder().encodeToString(this.toByteArray(Charsets.UTF_8))
+    fun String.base64Decode(): String = String(Base64.getDecoder().decode(this), Charsets.UTF_8)
 }

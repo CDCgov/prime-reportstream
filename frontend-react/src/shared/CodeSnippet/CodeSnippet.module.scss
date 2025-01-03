@@ -1,32 +1,32 @@
-@use "src/global-modules" as *;
+@use "../../global-modules.scss" as *;
 
 .CodeSnippet {
-    :global {
-        .code_snippet {
-            word-wrap: break-word;
+  :global {
+    .code_snippet {
+      word-wrap: break-word;
 
-            p {
-                @include u-margin(0px);
-            }
-        }
-
-        .text-highlight {
-            @include u-text("primary-vivid");
-            background-color: transparent;
-        }
-
-        .usa-tooltip {
-            height: fit-content;
-        }
-
-        .usa-tooltip__body {
-            @include u-font("sans", "md");
-        }
-
-        .fixed-tooltip {
-            color: black;
-            margin-right: unset;
-            @include u-margin-left(8px);
-        }
+      p {
+        @include u-margin(0px);
+      }
     }
+
+    .text-highlight {
+      @include u-text("primary-vivid");
+      background-color: transparent;
+    }
+
+    .usa-tooltip {
+      height: fit-content;
+    }
+
+    .usa-tooltip__body {
+      @include u-font("sans", "md");
+    }
+
+    .fixed-tooltip {
+      color: black;
+      margin-right: unset;
+      @include u-margin-left(8px);
+    }
+  }
 }
