@@ -2580,23 +2580,23 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@testing-library/react@npm:^16.0.1":
-  version: 16.0.1
-  resolution: "@testing-library/react@npm:16.0.1"
+"@testing-library/react@npm:^16.1.0":
+  version: 16.1.0
+  resolution: "@testing-library/react@npm:16.1.0"
   dependencies:
     "@babel/runtime": ^7.12.5
   peerDependencies:
     "@testing-library/dom": ^10.0.0
-    "@types/react": ^18.0.0
-    "@types/react-dom": ^18.0.0
-    react: ^18.0.0
-    react-dom: ^18.0.0
+    "@types/react": ^18.0.0 || ^19.0.0
+    "@types/react-dom": ^18.0.0 || ^19.0.0
+    react: ^18.0.0 || ^19.0.0
+    react-dom: ^18.0.0 || ^19.0.0
   peerDependenciesMeta:
     "@types/react":
       optional: true
     "@types/react-dom":
       optional: true
-  checksum: 1837db473ea018cf2b5d0cbfffb7a30d0d759e5a7f23aad431441c77bcc3d2533250cd003a61878fd908267df47404cedcb5914f12d79e413002c659652b37fd
+  checksum: 5dc8e7abda23d108c29f43cdacd43fad750e981ee87ee8902fb349a2683f2f774ef1136f2d3ef3d9efb87e8b04426c43d7b46e95511cd7c9d37b10c3bdd3e9e2
   languageName: node
   linkType: hard
 
@@ -6574,10 +6574,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"globals@npm:^15.13.0":
-  version: 15.13.0
-  resolution: "globals@npm:15.13.0"
-  checksum: 3f98514ce25a21150b246fbd63aeaeb271a93b3340cf7f4f6e9934d3b37dbb4b0fddef9c470183097dcfd2e8757bb86bbae701588f0e376667d8d9d6f665db3b
+"globals@npm:^15.14.0":
+  version: 15.14.0
+  resolution: "globals@npm:15.14.0"
+  checksum: fa993433a01bf4a118904fbafbcff34db487fce83f73da75fb4a8653afc6dcd72905e6208c49bab307ff0980928273d0ecd1cfc67e1a4782dabfbd92c234ab68
   languageName: node
   linkType: hard
 
@@ -9894,7 +9894,7 @@ __metadata:
     "@tanstack/react-query-devtools": ^5.62.11
     "@testing-library/dom": ^10.4.0
     "@testing-library/jest-dom": ^6.6.3
-    "@testing-library/react": ^16.0.1
+    "@testing-library/react": ^16.1.0
     "@testing-library/user-event": ^14.5.2
     "@trussworks/react-uswds": ^9.1.0
     "@types/dompurify": ^3.2.0
@@ -9940,7 +9940,7 @@ __metadata:
     eslint-plugin-vitest: ^0.5.4
     export-to-csv-fix-source-map: ^0.2.1
     focus-trap-react: ^10.3.1
-    globals: ^15.13.0
+    globals: ^15.14.0
     history: ^5.3.0
     html-to-text: ^9.0.5
     husky: ^9.1.7
@@ -9982,7 +9982,7 @@ __metadata:
     tsx: ^4.19.2
     typescript: ^5.7.2
     typescript-eslint: ^8.19.0
-    undici: ~6.20.1
+    undici: ~7.2.0
     use-deep-compare-effect: ^1.8.1
     uuid: ^11.0.3
     vite: ^6.0.6
@@ -11915,10 +11915,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"undici@npm:~6.20.1":
-  version: 6.20.1
-  resolution: "undici@npm:6.20.1"
-  checksum: 3bb1405b406fa0e913ff4ec6fd310c9b4d950b7064ba5949b2f616c1f13070d26f5558aefb4b56b2eafb555925443ce44cb801e143d2417ecf12ddf8d5c05cf6
+"undici@npm:~7.2.0":
+  version: 7.2.0
+  resolution: "undici@npm:7.2.0"
+  checksum: 791821c0f2d7a74598366b59ecf1f8304a5b26502e2e446fd796d9408e93029b8498d7f91579f598e75e24b514a83655e938856e958ea185e9dc2eedf6fcdfcf
   languageName: node
   linkType: hard
 
