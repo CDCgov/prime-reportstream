@@ -1,0 +1,12 @@
+elements:
+  - name: hl7-datetime-to-local
+    resource: "Bundle.descendants().where(url='https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time')"
+    bundleProperty: "%resource.value[x]"
+    value: ["%resource.value.changeTimezone('US/Central','LOCAL')"]
+
+  - name: message-date-time-to-local
+    resource: 'Bundle.entry.resource.ofType(MessageHeader).extension("https://reportstream.cdc.gov/fhir/StructureDefinition/msh-message-header").extension("MSH.7")'
+    condition: '%resource.value.exists()'
+    bundleProperty: '%resource.value[x]'
+    value: ["%resource.value.changeTimezone('US/Central','LOCAL')"]
+
