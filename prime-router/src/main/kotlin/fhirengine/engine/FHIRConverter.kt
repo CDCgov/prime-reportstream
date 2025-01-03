@@ -397,7 +397,7 @@ class FHIRConverter(
                                 )
                             }
 
-                        FHIREngineRunResult(
+                            FHIREngineRunResult(
                                 routeEvent,
                                 report,
                                 blobInfo.blobUrl,
@@ -427,7 +427,7 @@ class FHIRConverter(
                     report,
                     TaskAction.convert,
                     "Submitted report was either empty or could not be parsed into HL7"
-                    ) {
+                ) {
                     parentReportId(input.reportId)
                     params(
                         mapOf(
@@ -759,13 +759,13 @@ class FHIRConverter(
      * transformer in tests.
      */
     fun getTransformerFromSchema(schemaName: String): FhirTransformer? = if (schemaName.isNotBlank()) {
-            withLoggingContext(mapOf("schemaName" to schemaName)) {
-                logger.info("Apply a sender transform to the items in the report")
-            }
-            FhirTransformer(schemaName)
-        } else {
-            null
+        withLoggingContext(mapOf("schemaName" to schemaName)) {
+            logger.info("Apply a sender transform to the items in the report")
         }
+        FhirTransformer(schemaName)
+    } else {
+        null
+    }
 }
 
 /**
