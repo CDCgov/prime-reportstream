@@ -111,9 +111,13 @@ object CustomFHIRFunctions : FhirPathFunctions {
 
             CustomFHIRFunctionNames.ChangeTimezone -> {
                 FunctionDetails(
-                    "changes the timezone of a dateTime, instant, or date resource to the timezone passed in",
+                    "changes the timezone of a dateTime, instant, or date resource to the timezone passed in. " +
+                        "optional params: " +
+                        "dateTimeFormat ('OFFSET', 'LOCAL', 'HIGH_PRECISION_OFFSET', 'DATE_ONLY')(default: 'OFFSET')," +
+                        " convertPositiveDateTimeOffsetToNegative (boolean)(default: false)," +
+                        " useHighPrecisionHeaderDateTimeFormat (boolean)(default: false)",
                     1,
-                    1
+                    4
                 )
             }
 
@@ -453,9 +457,9 @@ object CustomFHIRFunctions : FhirPathFunctions {
         }
 
         var dateTimeFormat = DateUtilities.DateTimeFormat.OFFSET
-        if (parameters.first().size > 1) {
+        if (parameters.size > 1) {
             try {
-                dateTimeFormat = DateUtilities.DateTimeFormat.valueOf(parameters.first()[1].primitiveValue())
+                dateTimeFormat = DateUtilities.DateTimeFormat.valueOf(parameters.get(1).first().primitiveValue())
             } catch (e: IllegalArgumentException) {
                 throw SchemaException("Date time format not found.")
             }
@@ -487,8 +491,8 @@ object CustomFHIRFunctions : FhirPathFunctions {
                 inputDate,
                 ZoneId.of(inputTimeZone),
                 dateTimeFormat,
-                parameters.first().getOrNull(2)?.primitiveValue()?.toBoolean() ?: false,
-                parameters.first().getOrNull(3)?.primitiveValue()?.toBoolean() ?: false
+                parameters.getOrNull(2)?.first()?.primitiveValue()?.toBoolean() ?: false,
+                parameters.getOrNull(3)?.first()?.primitiveValue()?.toBoolean() ?: false
             )
             mutableListOf(StringType(formattedDate))
         } else {
