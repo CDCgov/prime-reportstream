@@ -32,7 +32,7 @@ class BlobStoreTransport : ITransport {
             val bodyUrl = header.reportFile.bodyUrl ?: error("Report ${header.reportFile.reportId} has no blob to copy")
             context.logger.info("About to copy $bodyUrl to $envVar:$storageName")
             val blobConnection = BlobAccess.BlobContainerMetadata.build(transportType)
-            val blobFile = BlobAccess.copyBlob(bodyUrl)
+            val blobFile = BlobAccess.downloadBlobAsByteArray(bodyUrl)
             context.logger.info("New blob filename will be $externalFileName")
             val newUrl = BlobAccess.uploadBlob(externalFileName, blobFile, blobConnection)
             context.logger.info("New blob URL is $newUrl")

@@ -705,18 +705,6 @@ class BlobAccessTests {
     }
 
     @Test
-    fun `copy blob`() {
-        mockkClass(BlobAccess::class)
-        mockkObject(BlobAccess.Companion)
-        val testUrl = "http://testurl/testfile"
-        every { BlobAccess.Companion.downloadBlobAsByteArray(testUrl) }.returns("testblob".toByteArray())
-        val fromBytes = BlobAccess.copyBlob(testUrl)
-
-        verify(exactly = 1) { BlobAccess.Companion.downloadBlobAsByteArray(any()) }
-        assertThat(fromBytes).isEqualTo("testblob".toByteArray())
-    }
-
-    @Test
     fun `delete blob`() {
         val testUrl = "http://deleteblob"
         mockkClass(BlobAccess::class)

@@ -402,15 +402,6 @@ class BlobAccess() : Logging {
         }
 
         /**
-         * Copy a blob at [fromBlobUrl] to a blob in [blobConnInfo]
-         */
-        fun copyBlob(fromBlobUrl: String): ByteArray {
-            val fromBytes = downloadBlobAsByteArray(fromBlobUrl)
-            logger.info("Ready to copy ${fromBytes.size} bytes from $fromBlobUrl")
-            return fromBytes
-        }
-
-        /**
          * Accepts a [BlobItemAndPreviousVersions] and grabs the most recent previous version and updates
          * the blob to it.
          *
