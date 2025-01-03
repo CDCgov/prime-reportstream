@@ -9510,12 +9510,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"p-limit@npm:^6.1.0":
-  version: 6.1.0
-  resolution: "p-limit@npm:6.1.0"
+"p-limit@npm:^6.2.0":
+  version: 6.2.0
+  resolution: "p-limit@npm:6.2.0"
   dependencies:
     yocto-queue: ^1.1.1
-  checksum: 0c98d8fc1006b70fc7423232a47e8d026dc69279b06fe7ff8b4c0cc8023de2b6bb8991b609d93c3dec691a7a362ab0f0157df521d931a01fec192a5e404b9ee5
+  checksum: ea46ba4a3013daa3335833013156bdcdd8f5c67b49ad2f33b34832b0d528f003d29b55bf5beeedc39ba9d9ada3dab7b1f4b890db3ebc8260a044a011126c6fc9
   languageName: node
   linkType: hard
 
@@ -10160,7 +10160,7 @@ __metadata:
     msw: ^2.7.0
     npm-run-all: ^4.1.5
     otpauth: ^9.3.6
-    p-limit: ^6.1.0
+    p-limit: ^6.2.0
     patch-package: ^8.0.0
     postcss: ^8.4.49
     prettier: ^3.4.2
