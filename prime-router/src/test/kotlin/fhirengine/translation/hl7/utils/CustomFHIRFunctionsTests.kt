@@ -510,7 +510,7 @@ class CustomFHIRFunctionsTests {
     fun `test changeTimezone with date as string - success`() {
         val date = StringType("20241220194528.4230+0000")
         val timezone = StringType("UTC")
-        val timezoneFormat = StringType("HIGH_PRECISION_OFFSET")
+        val dateTimeFormat = StringType("HIGH_PRECISION_OFFSET")
         val convertToNegative = StringType("true")
         val useHighPrecision = StringType("false")
 
@@ -518,7 +518,7 @@ class CustomFHIRFunctionsTests {
         var outputDate = CustomFHIRFunctions.changeTimezone(
             mutableListOf(date),
             mutableListOf(
-                mutableListOf(timezone), mutableListOf(timezoneFormat), mutableListOf(convertToNegative),
+                mutableListOf(timezone), mutableListOf(dateTimeFormat), mutableListOf(convertToNegative),
                 mutableListOf(useHighPrecision)
             )
         )
@@ -527,14 +527,14 @@ class CustomFHIRFunctionsTests {
 
         // test timezone change with offset format
         timezone.value = "America/Phoenix"
-        timezoneFormat.value = "OFFSET"
+        dateTimeFormat.value = "OFFSET"
         convertToNegative.value = "false"
         useHighPrecision.value = "false"
 
         outputDate = CustomFHIRFunctions.changeTimezone(
             mutableListOf(date),
             mutableListOf(
-                mutableListOf(timezone), mutableListOf(timezoneFormat), mutableListOf(convertToNegative),
+                mutableListOf(timezone), mutableListOf(dateTimeFormat), mutableListOf(convertToNegative),
                 mutableListOf(useHighPrecision)
             )
         )
@@ -544,14 +544,14 @@ class CustomFHIRFunctionsTests {
         // test different format for input date
         val date2 = StringType("2021-08-09T08:52:34-04:00")
         timezone.value = "America/Phoenix"
-        timezoneFormat.value = "LOCAL"
+        dateTimeFormat.value = "LOCAL"
         convertToNegative.value = "false"
         useHighPrecision.value = "false"
 
         outputDate = CustomFHIRFunctions.changeTimezone(
             mutableListOf(date2),
             mutableListOf(
-                mutableListOf(timezone), mutableListOf(timezoneFormat), mutableListOf(convertToNegative),
+                mutableListOf(timezone), mutableListOf(dateTimeFormat), mutableListOf(convertToNegative),
                 mutableListOf(useHighPrecision)
             )
         )
@@ -561,14 +561,14 @@ class CustomFHIRFunctionsTests {
         // test date without time should return same date string
         val date3 = StringType("2021-08-09")
         timezone.value = "America/Phoenix"
-        timezoneFormat.value = "OFFSET"
+        dateTimeFormat.value = "OFFSET"
         convertToNegative.value = "false"
         useHighPrecision.value = "false"
 
         outputDate = CustomFHIRFunctions.changeTimezone(
             mutableListOf(date3),
             mutableListOf(
-                mutableListOf(timezone), mutableListOf(timezoneFormat), mutableListOf(convertToNegative),
+                mutableListOf(timezone), mutableListOf(dateTimeFormat), mutableListOf(convertToNegative),
                 mutableListOf(useHighPrecision)
             )
         )
@@ -584,6 +584,40 @@ class CustomFHIRFunctionsTests {
         )
         assertThat(outputDate[0]).isInstanceOf(StringType::class.java)
         assertThat(outputDate[0].primitiveValue()).isEqualTo("20241220124528-0700")
+    }
+
+    @Test
+    fun `test changeTimezone with date as string - exception`() {
+        val date = StringType("20241220194528.4230+0000")
+        val timezone = StringType("UTC")
+        val dateTimeFormat = StringType("HIGH_PRECISION_OFFSET")
+        val convertToNegative = StringType("true")
+        val useHighPrecision = StringType("false")
+
+        assertFailure {
+            dateTimeFormat.value = "HIGH_PRECISION_OFFS"
+            // test invalid dateTime format
+            CustomFHIRFunctions.changeTimezone(
+                mutableListOf(date),
+                mutableListOf(
+                    mutableListOf(timezone), mutableListOf(dateTimeFormat), mutableListOf(convertToNegative),
+                    mutableListOf(useHighPrecision)
+                )
+            )
+        }.hasClass(SchemaException::class.java)
+
+        assertFailure {
+            dateTimeFormat.value = "HIGH_PRECISION_OFFSET"
+            date.value = "2021-08-09T"
+            // test invalid dateTime string input
+            CustomFHIRFunctions.changeTimezone(
+                mutableListOf(date),
+                mutableListOf(
+                    mutableListOf(timezone), mutableListOf(dateTimeFormat), mutableListOf(convertToNegative),
+                    mutableListOf(useHighPrecision)
+                )
+            )
+        }.hasClass(SchemaException::class.java)
     }
 
     @Test
