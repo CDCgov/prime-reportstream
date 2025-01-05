@@ -2459,10 +2459,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tanstack/query-core@npm:5.62.9":
-  version: 5.62.9
-  resolution: "@tanstack/query-core@npm:5.62.9"
-  checksum: 3dc3ca1654a3e3a3f92e569d2bf9e8c09b6bb670562090af357db7e95175ad0397a01dfd2c2eda34bdfe0666e7d6fb841d0c435223119681b1ba1f28d4fcd6b1
+"@tanstack/query-core@npm:5.62.15":
+  version: 5.62.15
+  resolution: "@tanstack/query-core@npm:5.62.15"
+  checksum: aac6b76e5a7797d8b4b561e460ff3582c262dc0c14c1730182f138c7215724d09cb6e1c987e105076dd039c2e72b32f62d108ed5bd3b7184b10ce8cef2eeb747
   languageName: node
   linkType: hard
 
@@ -2473,26 +2473,26 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tanstack/react-query-devtools@npm:^5.62.11":
-  version: 5.62.11
-  resolution: "@tanstack/react-query-devtools@npm:5.62.11"
+"@tanstack/react-query-devtools@npm:^5.62.15":
+  version: 5.62.15
+  resolution: "@tanstack/react-query-devtools@npm:5.62.15"
   dependencies:
     "@tanstack/query-devtools": 5.62.9
   peerDependencies:
-    "@tanstack/react-query": ^5.62.11
+    "@tanstack/react-query": ^5.62.15
     react: ^18 || ^19
-  checksum: c16732d639a91060dfaa68dd9e41c57b13baf626523034f944759196293e861c37596d2ecddf9d5de6d85981a98513b18ef4a2d5cb6d470d4260cd12039e1df1
+  checksum: 322acb77cb779235ecfbeab9dfa6dd2941fff2dceb2ecadf51559c2916d8120f99717d6745534ee38fe2a56f01fb7b0c0f40c5cfa65384ec13bfc7d5a6bdbec3
   languageName: node
   linkType: hard
 
-"@tanstack/react-query@npm:^5.62.11":
-  version: 5.62.11
-  resolution: "@tanstack/react-query@npm:5.62.11"
+"@tanstack/react-query@npm:^5.62.15":
+  version: 5.62.15
+  resolution: "@tanstack/react-query@npm:5.62.15"
   dependencies:
-    "@tanstack/query-core": 5.62.9
+    "@tanstack/query-core": 5.62.15
   peerDependencies:
     react: ^18 || ^19
-  checksum: dcd0fc21eead400f385299f3afd230a98884a8eda5fe55e1803bf0b2657ddf109509afcb12f3c23ef143ec8debcbece908c99c59729c3ab911068619015c0eb7
+  checksum: 7a53d0c568803d61f01ebb62bdbdfad96d16f654fcd3126b7f992f93f18929d2376606bcdceb105b17ce2aa0d8ea695cd78038313ecb7a100229512d90d7b5cd
   languageName: node
   linkType: hard
 
@@ -9827,8 +9827,8 @@ __metadata:
     "@storybook/react-vite": ^8.4.7
     "@storybook/testing-library": ^0.2.2
     "@storybook/theming": ^8.4.7
-    "@tanstack/react-query": ^5.62.11
-    "@tanstack/react-query-devtools": ^5.62.11
+    "@tanstack/react-query": ^5.62.15
+    "@tanstack/react-query-devtools": ^5.62.15
     "@testing-library/dom": ^10.4.0
     "@testing-library/jest-dom": ^6.6.3
     "@testing-library/react": ^16.1.0
