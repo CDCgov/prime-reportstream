@@ -98,7 +98,6 @@ const AdminMessageTestingPage = () => {
                         results and output messages in separate tabs.
                     </p>
                     <hr />
-                    <p className="font-sans-xl text-bold">Test message bank</p>
                     {isLoading ? (
                         <Spinner />
                     ) : (
@@ -114,9 +113,11 @@ const AdminMessageTestingPage = () => {
                             )}
                             {currentMessageTestStep === MessageTestingSteps.StepTwo && (
                                 <MessageTestingResult
-                                    isLoading={isLoading}
                                     resultData={testResultData}
                                     submittedMessage={selectedOption}
+                                    handleGoBack={() => {
+                                        setCurrentMessageTestStep(MessageTestingSteps.StepOne);
+                                    }}
                                 />
                             )}
                         </>

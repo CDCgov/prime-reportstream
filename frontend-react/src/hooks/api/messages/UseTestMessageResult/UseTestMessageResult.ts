@@ -13,7 +13,7 @@ const { testResult } = reportsEndpoints;
  * Custom hook to fetch validation for a single test report.
  *
  * @returns {object} The hook returns the following:
- * @property {RSMessageResult} data - The fetched test message results (empty array if none).
+ * @property {RSMessageResult | []} data - The fetched test message results (empty array if none).
  * @property {function} setRequestBody - A setter for the request body used by the query.
  * @property {boolean} isLoading - `true` while the query is fetching.
  * @property {boolean} isError - `true` if the query encountered an error.
@@ -21,7 +21,6 @@ const { testResult } = reportsEndpoints;
  * @property {"loading" | "error" | "success" | "idle"} status - The status of the query.
  * @property {boolean} isDisabled - Indicates whether the feature is disabled (for non-admin users).
  */
-
 const useTestMessageResult = () => {
     const { activeMembership, authorizedFetch } = useSessionContext();
     const { receivername } = useParams();
@@ -31,22 +30,34 @@ const useTestMessageResult = () => {
 
     const [requestBody, setRequestBody] = useState<string | null>(null);
 
-    const fetchData = useCallback(() => {
-        return authorizedFetch<RSMessageResult>(
-            {
-                params: {
-                    receiverName: receivername,
-                    organizationName: adminSafeOrgName,
+    const fetchData = useCallback(async () => {
+        try {
+            // Attempt the fetch
+            const result = await authorizedFetch<RSMessageResult>(
+                {
+                    params: {
+                        receiverName: receivername,
+                        organizationName: adminSafeOrgName,
+                    },
+                    data: requestBody,
                 },
-                data: requestBody,
-            },
-            testResult,
-        );
+                testResult,
+            );
+
+            return result;
+        } catch (err) {
+            // Ensure we're rejecting with an actual Error object
+            if (err instanceof Error) {
+                return Promise.reject(err);
+            } else {
+                return Promise.reject(new Error(String(err)));
+            }
+        }
     }, [authorizedFetch, receivername, adminSafeOrgName, requestBody]);
 
     // Use 'enabled' to conditionally run the query whenever `requestBody` changes
     // and the user is an admin. If requestBody is empty or user isn't admin, no fetch is made.
-    const { data, isLoading, isError, error, status } = useQuery({
+    const { data, isLoading, status } = useQuery<RSMessageResult, Error>({
         queryKey: [testResult.queryKey, activeMembership, receivername, adminSafeOrgName, requestBody],
         queryFn: fetchData,
         enabled: isAdmin && Boolean(requestBody),
@@ -56,8 +67,6 @@ const useTestMessageResult = () => {
         data: data ?? [],
         setRequestBody,
         isLoading,
-        isError,
-        error,
         status,
         isDisabled: !isAdmin,
     };

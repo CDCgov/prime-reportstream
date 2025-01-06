@@ -37,42 +37,45 @@ const MessageTestingForm = ({
     };
 
     return (
-        <section className="bg-base-lightest padding-3">
-            {!currentTestMessages.length && <p>No test messages available</p>}
-            {!!currentTestMessages.length && (
-                <form onSubmit={handleSubmit}>
-                    <fieldset className="usa-fieldset bg-base-lightest padding-3">
-                        {currentTestMessages?.map((item, index) => (
-                            <MessageTestingRadioField
-                                key={index}
-                                index={index}
-                                title={item.fileName}
-                                body={item.reportBody}
-                                handleSelect={() => handleSelect(item)}
-                                selectedOption={selectedOption?.reportBody ? selectedOption.reportBody : null}
-                            />
-                        ))}
-                        {openCustomMessage && (
-                            <MessageTestingCustomMessage
-                                customMessageNumber={customMessageNumber}
-                                currentTestMessages={currentTestMessages}
-                                setCustomMessageNumber={setCustomMessageNumber}
-                                setCurrentTestMessages={setCurrentTestMessages}
-                                setOpenCustomMessage={setOpenCustomMessage}
-                            />
-                        )}
-                    </fieldset>
-                    <div className="padding-top-4">
-                        <Button type="button" outline onClick={handleAddCustomMessage}>
-                            Test custom message
-                        </Button>
-                        <Button disabled={!selectedOption} type="submit">
-                            Run test
-                        </Button>
-                    </div>
-                </form>
-            )}
-        </section>
+        <>
+            <p className="font-sans-xl text-bold">Test message bank</p>
+            <section className="bg-base-lightest padding-3">
+                {!currentTestMessages.length && <p>No test messages available</p>}
+                {!!currentTestMessages.length && (
+                    <form onSubmit={handleSubmit}>
+                        <fieldset className="usa-fieldset bg-base-lightest padding-3">
+                            {currentTestMessages?.map((item, index) => (
+                                <MessageTestingRadioField
+                                    key={index}
+                                    index={index}
+                                    title={item.fileName}
+                                    body={item.reportBody}
+                                    handleSelect={() => handleSelect(item)}
+                                    selectedOption={selectedOption?.reportBody ? selectedOption.reportBody : null}
+                                />
+                            ))}
+                            {openCustomMessage && (
+                                <MessageTestingCustomMessage
+                                    customMessageNumber={customMessageNumber}
+                                    currentTestMessages={currentTestMessages}
+                                    setCustomMessageNumber={setCustomMessageNumber}
+                                    setCurrentTestMessages={setCurrentTestMessages}
+                                    setOpenCustomMessage={setOpenCustomMessage}
+                                />
+                            )}
+                        </fieldset>
+                        <div className="padding-top-4">
+                            <Button type="button" outline onClick={handleAddCustomMessage}>
+                                Test custom message
+                            </Button>
+                            <Button disabled={!selectedOption} type="submit">
+                                Run test
+                            </Button>
+                        </div>
+                    </form>
+                )}
+            </section>
+        </>
     );
 };
 
