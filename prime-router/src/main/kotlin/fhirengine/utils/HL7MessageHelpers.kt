@@ -39,7 +39,7 @@ object HL7MessageHelpers : Logging {
         // Grab the first message to extract some data if not set in the settings
         val firstMessage = if (hl7RawMsgs.isNotEmpty()) {
             try {
-                val message = HL7Reader.parseHL7Message(hl7RawMsgs[0], null)
+                val message = HL7Reader.parseHL7Message(hl7RawMsgs[0])
                 Terser(message)
             } catch (exception: Hl7InputStreamMessageStringIterator.ParseFailureError) {
                 logger.warn("Unable to extract batch header values from HL7: ${hl7RawMsgs[0].take(80)} ...")

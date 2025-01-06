@@ -49,76 +49,58 @@ class HL7Reader {
         data class HL7MessageType(val msh93: String, val msh12: String, val msh213: String)
 
         /**
-         * Configuration class that contains details on how to parse an HL7 message and then how
-         * to convert it to FHIR
-         *
-         * @param messageModelClass a class that inherits from [Message]
-         * @param hl7toFHIRMappingLocation the location of the mappings files to convert the message to FHIR
-         */
-        data class HL7MessageParseAndConvertConfiguration(
-            val messageModelClass: Class<out Message>,
-            val hl7toFHIRMappingLocation: String,
-        )
-
-        /**
          * Accepts a raw HL7 string and uses the MSH segment to detect the [HL7MessageType] which is then used
          * to parse the string into an instance of [Message]. If the type is not one that is supported in
          * [getHL7ParsingContext] the default HAPI parsing logic is used
          *
          * @param rawHL7 the HL7 string to convert into a [Message]
          *
-         * @return a [Pair<Message, HL7MessageParseAndConvertConfiguration?>] with parsed message and optional type
+         * @return a [Message] with parsed message and optional type
          */
         fun parseHL7Message(
             rawHL7: String,
-            parseConfiguration: HL7MessageParseAndConvertConfiguration?,
         ): Message {
             // A carriage return is the official segment delimiter; a newline is not recognized so we replace
             // them
 
             val carriageReturnFixedHL7 = rawHL7.replace(newLineRegex, "\r")
             val hl7MessageType = getMessageType(carriageReturnFixedHL7)
-            return getHL7ParsingContext(hl7MessageType, parseConfiguration).pipeParser.parse(carriageReturnFixedHL7)
+            return getHL7ParsingContext(hl7MessageType).pipeParser.parse(carriageReturnFixedHL7)
         }
 
         /**
          * Creates a HAPI context that can be used to parse an HL7 string.  If no configuration is passed, the function
          * will return a context with the HAPI defaults which will defer to that library to determine the kind of message
          *
-         * @param hl7MessageParseAndConvertConfiguration optional configuration to use when creating a context
          */
         private fun getHL7ParsingContext(
             hl7MessageType: HL7MessageType?,
-            hl7MessageParseAndConvertConfiguration: HL7MessageParseAndConvertConfiguration?,
         ): HapiContext {
-            return if (hl7MessageParseAndConvertConfiguration == null) {
-                if (hl7MessageType?.msh93 == "ORU_R01") {
+            return when (hl7MessageType?.msh93) {
+                "ORU_R01" -> {
                     DefaultHapiContext(
                         ParserConfiguration(),
                         ValidationContextFactory.noValidation(),
                         ReportStreamCanonicalModelClassFactory(ORU_R01::class.java),
                     )
-                } else if (hl7MessageType?.msh93 == "OML_O21") {
+                }
+                "OML_O21" -> {
                     DefaultHapiContext(
                         ParserConfiguration(),
                         ValidationContextFactory.noValidation(),
                         ReportStreamCanonicalModelClassFactory(OML_O21::class.java),
                     )
-                } else if (hl7MessageType?.msh93 == "ORM_O01") {
+                }
+                "ORM_O01" -> {
                     DefaultHapiContext(
                         ParserConfiguration(),
                         ValidationContextFactory.noValidation(),
                         ReportStreamCanonicalModelClassFactory(ORM_O01::class.java),
                     )
-                } else {
+                }
+                else -> {
                     DefaultHapiContext(ValidationContextFactory.noValidation())
                 }
-            } else {
-                DefaultHapiContext(
-                    ParserConfiguration(),
-                    ValidationContextFactory.noValidation(),
-                    ReportStreamCanonicalModelClassFactory(hl7MessageParseAndConvertConfiguration.messageModelClass),
-                )
             }
         }
 
@@ -136,7 +118,7 @@ class HL7Reader {
          */
         @Throws(HL7Exception::class)
         internal fun getMessageType(rawHL7: String): HL7MessageType {
-            val message = getHL7ParsingContext(null, null)
+            val message = getHL7ParsingContext(null)
                 .pipeParser
                 // In order to determine the message configuration, only parse the MSH segment since the type of message
                 // is required in order to accurately parse the message in its entirety

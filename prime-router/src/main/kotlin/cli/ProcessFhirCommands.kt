@@ -523,10 +523,8 @@ class ProcessFhirCommands : CliktCommand(
         // However, the library used to encode the HL7 message throws an error it there are more than 4 encoding
         // characters, so this work around exists for that scenario
         val stringToEncode = hl7String.replace("MSH|^~\\&#|", "MSH|^~\\&|")
-        val hl7message = HL7Reader.parseHL7Message(
-            stringToEncode,
-            null
-        )
+        val hl7message = HL7Reader.parseHL7Message(stringToEncode)
+
         // if a hl7 parsing failure happens, throw error and show the message
         if (hl7message.toString().lowercase().contains("failed")) {
             throw CliktError("HL7 parser failure. $hl7message")

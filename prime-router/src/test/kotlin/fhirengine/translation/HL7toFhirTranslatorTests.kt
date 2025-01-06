@@ -48,7 +48,7 @@ OBX|1|CWE|94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by
 
     @Test
     fun `test get message template`() {
-        val message = HL7Reader.parseHL7Message(supportedHL7, null)
+        val message = HL7Reader.parseHL7Message(supportedHL7)
         assertThat(
             HL7MessageHelpers.messageCount(supportedHL7)
         ).isEqualTo(1)
@@ -57,7 +57,7 @@ OBX|1|CWE|94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by
 
     @Test
     fun `test get message model`() {
-        val supportedMessage = HL7Reader.parseHL7Message(supportedHL7, null)
+        val supportedMessage = HL7Reader.parseHL7Message(supportedHL7)
         assertThat(
             HL7MessageHelpers.messageCount(supportedHL7)
         ).isEqualTo(1)
@@ -74,7 +74,7 @@ ORC|NW|ORD448811^NIST EHR|||||||20120628070100|||5742200012^Radon^Nicholas^^^^^^
 OBR|1|ORD448811^NIST EHR||1000^Hepatitis A  B  C Panel^99USL|||20120628070100|||||||||5742200012^Radon^Nicholas^^^^^^NPI^L^^^NPI
 DG1|1||F11.129^Opioid abuse with intoxication,unspecified^I10C|||W|||||||||1
         """.trimIndent()
-        val unsupportedMessage = HL7Reader.parseHL7Message(unsupportedHL7, null)
+        val unsupportedMessage = HL7Reader.parseHL7Message(unsupportedHL7)
         assertThat(
             HL7MessageHelpers.messageCount(unsupportedHL7)
         ).isEqualTo(1)
@@ -84,7 +84,7 @@ DG1|1||F11.129^Opioid abuse with intoxication,unspecified^I10C|||W|||||||||1
     @Test
     fun `test a quick translation to FHIR`() {
         // Note that FHIR content will be tested as an integration test
-        val message = HL7Reader.parseHL7Message(supportedHL7, null)
+        val message = HL7Reader.parseHL7Message(supportedHL7)
         assertThat(
             HL7MessageHelpers.messageCount(supportedHL7)
         ).isEqualTo(1)
@@ -96,7 +96,7 @@ DG1|1||F11.129^Opioid abuse with intoxication,unspecified^I10C|||W|||||||||1
 
     @Test
     fun `test birth date extension addition`() {
-        val message = HL7Reader.parseHL7Message(supportedHL7ORMWithBirthDateTime, null)
+        val message = HL7Reader.parseHL7Message(supportedHL7ORMWithBirthDateTime)
         assertThat(
             HL7MessageHelpers.messageCount(supportedHL7ORMWithBirthDateTime)
         ).isEqualTo(1)
@@ -121,7 +121,7 @@ DG1|1||F11.129^Opioid abuse with intoxication,unspecified^I10C|||W|||||||||1
 
     @Test
     fun `test birth date extension is missing when birthdate is only date`() {
-        val message = HL7Reader.parseHL7Message(supportedHL7ORMWithBirthDate, null)
+        val message = HL7Reader.parseHL7Message(supportedHL7ORMWithBirthDate)
         assertThat(
             HL7MessageHelpers.messageCount(supportedHL7ORMWithBirthDateTime)
         ).isEqualTo(1)

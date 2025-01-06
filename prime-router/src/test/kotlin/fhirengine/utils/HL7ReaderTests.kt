@@ -41,7 +41,7 @@ class HL7ReaderTests {
         // Empty data
         val badData1 = ""
         try {
-            HL7Reader.parseHL7Message(badData1, null)
+            HL7Reader.parseHL7Message(badData1)
         } catch (e: Exception) {
             assertThat(e is HL7Exception).isTrue()
             assertThat(ExceptionUtils.getRootCause(e) is EncodingNotSupportedException).isTrue()
@@ -53,7 +53,7 @@ class HL7ReaderTests {
             1,2,3
         """.trimIndent()
         try {
-            HL7Reader.parseHL7Message(badData2, null)
+            HL7Reader.parseHL7Message(badData2)
         } catch (e: Exception) {
             assertThat(e is HL7Exception).isTrue()
             assertThat(ExceptionUtils.getRootCause(e) is EncodingNotSupportedException).isTrue()
@@ -62,7 +62,7 @@ class HL7ReaderTests {
         // Some truncated HL7
         val badData3 = "MSH|^~\\&#|MEDITECH^2.16.840.1.114222.4.3.2.2.1.321.111^ISO|COCAA^1.2."
         try {
-            HL7Reader.parseHL7Message(badData3, null)
+            HL7Reader.parseHL7Message(badData3)
         } catch (e: Exception) {
             assertThat(e is HL7Exception).isTrue()
             assertThat(ExceptionUtils.getRootCause(e) is EncodingNotSupportedException).isTrue()
@@ -86,7 +86,7 @@ OBX|6|CWE|82810-3^Pregnant^LN^^^^2.69||N^No^HL70136||||||F|||202102090000-0600||
 NTE|1|L|This is a note|RE
 SPM|1|b518ef23-1d9a-40c1-ac4b-ed7b438dfc4b||258500001^Nasopharyngeal swab^SCT||||71836000^Nasopharyngeal structure (body structure)^SCT^^^^2020-09-01|||||||||202102090000-0600|202102090000-0600
         """.trimIndent()
-        val message = HL7Reader.parseHL7Message(goodData1, null)
+        val message = HL7Reader.parseHL7Message(goodData1)
         assertThat(message.isEmpty).isFalse()
     }
 
@@ -101,7 +101,7 @@ ORC|RE|73a6e9bd-aaec-418e-813a-0ad33366ca85|73a6e9bd-aaec-418e-813a-0ad33366ca85
 OBR|1|73a6e9bd-aaec-418e-813a-0ad33366ca85|b518ef23-1d9a-40c1-ac4b-ed7b438dfc4b|94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay^LN|||202102090000-0600|202102090000-0600||||||||1629082607^Eddin^Husam^^^^^^CMS&2.16.840.1.113883.3.249&ISO^^^^NPI|^WPN^^^1^386^6825220|||||202102090000-0600|||F
 OBX|1|CWE|94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay^LN||260415000^Not detected^SCT|||N^Normal (applies to non-numeric results)^HL70078|||F|||202102090000-0600|||CareStart COVID-19 Antigen test_Access Bio, Inc._EUA^^99ELR||202102090000-0600||||Avante at Ormond Beach^^^^^CLIA&2.16.840.1.113883.4.7&ISO^^^^10D0876999^CLIA|170 North King Road^^Ormond Beach^FL^32174^^^^12127
             """.trimIndent()
-            val message = HL7Reader.parseHL7Message(rawData, null)
+            val message = HL7Reader.parseHL7Message(rawData)
             assertThat(message.isEmpty).isFalse()
             return message
         }
@@ -127,7 +127,7 @@ OBX|1|CWE|94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by
 MSH|^~\&|CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO|Avante at Ormond Beach^10D0876999^CLIA|PRIME_DOH|Prime ReportStream|20210210170737||ORU^R01^ORU_R01|371784|P||||NE|NE|USA||||PHLabReportNoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO
         """.trimIndent()
         try {
-            HL7Reader.parseHL7Message(goodData1, null)
+            HL7Reader.parseHL7Message(goodData1)
         } catch (e: HL7Exception) {
             assertThat(e.errorCode).isEqualTo(ErrorCode.REQUIRED_FIELD_MISSING.code)
             assertThat(ExceptionUtils.getMessage(e)).contains("Can't find version ID - MSH.12 is null")
@@ -141,7 +141,7 @@ MSH|^~\&|CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO|
 OBX|1|test|94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay^LN||260415000^Not detected^SCT|||N^Normal (applies to non-numeric results)^HL70078|||F|||202102090000-0600|||CareStart COVID-19 Antigen test_Access Bio, Inc._EUA^^99ELR||202102090000-0600||||Avante at Ormond Beach^^^^^CLIA&2.16.840.1.113883.4.7&ISO^^^^10D0876999^CLIA|170 North King Road^^Ormond Beach^FL^32174^^^^12127
         """.trimIndent()
         try {
-            HL7Reader.parseHL7Message(goodData1, null)
+            HL7Reader.parseHL7Message(goodData1)
         } catch (e: HL7Exception) {
             assertThat(ExceptionUtils.getMessage(e)).contains("trying to set data type of OBX-5")
         }
@@ -241,7 +241,7 @@ OBX|1|test|94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen b
         val justMSH = """           
             MSH|^~\&|CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO|Avante at Ormond Beach^10D0876999^CLIA|PRIME_DOH|Prime ReportStream|20210210170737||ORU^R01^ORU_R01|371784|P|2.5.1|||NE|NE|USA||||PHLabReportNoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO                                   
         """.trimIndent()
-        val message = HL7Reader.parseHL7Message(justMSH, null)
+        val message = HL7Reader.parseHL7Message(justMSH)
         val type = HL7Reader.getMessageType(message)
         assertThat(type).isEqualTo("ORU")
     }
@@ -279,7 +279,7 @@ OBX|1|test|94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen b
             SFT|Centers for Disease Control and Prevention|0.1-SNAPSHOT|PRIME ReportStream|0.1-SNAPSHOT||20210210
             PID|1||2a14112c-ece1-4f82-915c-7b3a8d152eda^^^Avante at Ormond Beach^PI||Buckridge^Kareem^Millie^^^^L||195808100102034|F||2106-3^White^HL70005^^^^2.5.1|688 Leighann Inlet^^South Rodneychester^TX^67071^^^^48077||7275555555:1:^PRN^^roscoe.wilkinson@email.com^1^211^2240784|||||||||U^Unknown^HL70189||||||||N                       
         """.trimIndent()
-        val message = HL7Reader.parseHL7Message(birthTimeMessage, null)
+        val message = HL7Reader.parseHL7Message(birthTimeMessage)
         val type = HL7Reader.getBirthTime(message)
         assertThat(type).isEqualTo("195808100102034")
     }
@@ -291,7 +291,7 @@ OBX|1|test|94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen b
             SFT|Centers for Disease Control and Prevention|0.1-SNAPSHOT|PRIME ReportStream|0.1-SNAPSHOT||20210210
             PID|1||2a14112c-ece1-4f82-915c-7b3a8d152eda^^^Avante at Ormond Beach^PI||Buckridge^Kareem^Millie^^^^L||19580810|F||2106-3^White^HL70005^^^^2.5.1|688 Leighann Inlet^^South Rodneychester^TX^67071^^^^48077||7275555555:1:^PRN^^roscoe.wilkinson@email.com^1^211^2240784|||||||||U^Unknown^HL70189||||||||N                       
         """.trimIndent()
-        val message = HL7Reader.parseHL7Message(birthDateMessage, null)
+        val message = HL7Reader.parseHL7Message(birthDateMessage)
         val type = HL7Reader.getBirthTime(message)
         assertThat(type).isEqualTo("19580810")
     }
@@ -303,7 +303,7 @@ OBX|1|test|94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen b
             SFT|Centers for Disease Control and Prevention|0.1-SNAPSHOT|PRIME ReportStream|0.1-SNAPSHOT||20210210
             PID|1||2a14112c-ece1-4f82-915c-7b3a8d152eda^^^Avante at Ormond Beach^PI||Buckridge^Kareem^Millie^^^^L||19580810|F||2106-3^White^HL70005^^^^2.5.1|688 Leighann Inlet^^South Rodneychester^TX^67071^^^^48077||7275555555:1:^PRN^^roscoe.wilkinson@email.com^1^211^2240784|||||||||U^Unknown^HL70189||||||||N                       
         """.trimIndent()
-        val message = HL7Reader.parseHL7Message(birthDateMessage, null)
+        val message = HL7Reader.parseHL7Message(birthDateMessage)
         val type = HL7Reader.getPatientPath(message)
         assertThat(type).isEqualTo("PATIENT")
     }
@@ -315,7 +315,7 @@ OBX|1|test|94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen b
             SFT|Centers for Disease Control and Prevention|0.1-SNAPSHOT|PRIME ReportStream|0.1-SNAPSHOT||20210210
             PID|1||2a14112c-ece1-4f82-915c-7b3a8d152eda^^^Avante at Ormond Beach^PI||Buckridge^Kareem^Millie^^^^L||19580810|F||2106-3^White^HL70005^^^^2.5.1|688 Leighann Inlet^^South Rodneychester^TX^67071^^^^48077||7275555555:1:^PRN^^roscoe.wilkinson@email.com^1^211^2240784|||||||||U^Unknown^HL70189||||||||N                       
         """.trimIndent()
-        val message = HL7Reader.parseHL7Message(birthDateMessage, null)
+        val message = HL7Reader.parseHL7Message(birthDateMessage)
         val type = HL7Reader.getPatientPath(message)
         assertThat(type).isEqualTo("PATIENT")
     }
@@ -327,7 +327,7 @@ OBX|1|test|94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen b
             SFT|Centers for Disease Control and Prevention|0.1-SNAPSHOT|PRIME ReportStream|0.1-SNAPSHOT||20210210
             PID|1||2a14112c-ece1-4f82-915c-7b3a8d152eda^^^Avante at Ormond Beach^PI||Buckridge^Kareem^Millie^^^^L||19580810|F||2106-3^White^HL70005^^^^2.5.1|688 Leighann Inlet^^South Rodneychester^TX^67071^^^^48077||7275555555:1:^PRN^^roscoe.wilkinson@email.com^1^211^2240784|||||||||U^Unknown^HL70189||||||||N                       
         """.trimIndent()
-        val message = HL7Reader.parseHL7Message(birthDateMessage, null)
+        val message = HL7Reader.parseHL7Message(birthDateMessage)
         val type = HL7Reader.getPatientPath(message)
         assertThat(type).isEqualTo("PATIENT_RESULT/PATIENT")
     }
@@ -339,7 +339,7 @@ OBX|1|test|94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen b
             SFT|Centers for Disease Control and Prevention|0.1-SNAPSHOT|PRIME ReportStream|0.1-SNAPSHOT||20210210
             PID|1||2a14112c-ece1-4f82-915c-7b3a8d152eda^^^Avante at Ormond Beach^PI||Buckridge^Kareem^Millie^^^^L||19580810|F||2106-3^White^HL70005^^^^2.5.1|688 Leighann Inlet^^South Rodneychester^TX^67071^^^^48077||7275555555:1:^PRN^^roscoe.wilkinson@email.com^1^211^2240784|||||||||U^Unknown^HL70189||||||||N                       
         """.trimIndent()
-        val message = HL7Reader.parseHL7Message(birthDateMessage, null)
+        val message = HL7Reader.parseHL7Message(birthDateMessage)
         val type = HL7Reader.getPatientPath(message)
         assertThat(type).isEqualTo(null)
     }
@@ -349,7 +349,7 @@ OBX|1|test|94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen b
         @Suppress("ktlint:standard:max-line-length")
         val rawMessage =
             "MSH|^~\\&|Epic|Hospital|LIMS|StatePHL|20241003000000||ORM^O01^ORM_O01|4AFA57FE-D41D-4631-9500-286AAAF797E4|T|2.5.1|||AL|NE"
-        val message = HL7Reader.parseHL7Message(rawMessage, null)
+        val message = HL7Reader.parseHL7Message(rawMessage)
 
         assertThat(
             HL7Reader.getSendingApplication(message)

@@ -106,8 +106,8 @@ OBR|1||232270000212^ProPhase Diagnostics^2.16.840.1.114222.4.1.238646^ISO|55454-
 
     @Test
     fun `diff hl7`() {
-        val inputMessage = HL7Reader.parseHL7Message(originalMessage, null)
-        val outputMessage = HL7Reader.parseHL7Message(comparisonMessage, null)
+        val inputMessage = HL7Reader.parseHL7Message(originalMessage)
+        val outputMessage = HL7Reader.parseHL7Message(comparisonMessage)
         val differences = hl7DiffHelper.diffHl7(inputMessage, outputMessage)
         assertThat(differences.size).isEqualTo(15)
         val differences2 = hl7DiffHelper.diffHl7(outputMessage, inputMessage)
@@ -116,7 +116,7 @@ OBR|1||232270000212^ProPhase Diagnostics^2.16.840.1.114222.4.1.238646^ISO|55454-
 
     @Test
     fun `test index structure`() {
-        val outputMessage = HL7Reader.parseHL7Message(comparisonMessage, null)
+        val outputMessage = HL7Reader.parseHL7Message(comparisonMessage)
         val outputNames = outputMessage.names
         val outputMap: MutableMap<String, Segment> = mutableMapOf()
 
@@ -133,8 +133,8 @@ OBR|1||232270000212^ProPhase Diagnostics^2.16.840.1.114222.4.1.238646^ISO|55454-
 
     @Test
     fun `test compareHl7Type primitive`() {
-        val inputMessage = HL7Reader.parseHL7Message(originalMessage, null)
-        val outputMessage = HL7Reader.parseHL7Message(comparisonMessage, null)
+        val inputMessage = HL7Reader.parseHL7Message(originalMessage)
+        val outputMessage = HL7Reader.parseHL7Message(comparisonMessage)
         val inputVal = ST(inputMessage)
         inputVal.value = "blah"
         val outputVal = ST(outputMessage)
@@ -168,8 +168,8 @@ OBR|1||232270000212^ProPhase Diagnostics^2.16.840.1.114222.4.1.238646^ISO|55454-
 
     @Test
     fun `test compareHl7Type varies`() {
-        val inputMessage = HL7Reader.parseHL7Message(originalMessage, null)
-        val outputMessage = HL7Reader.parseHL7Message(comparisonMessage, null)
+        val inputMessage = HL7Reader.parseHL7Message(originalMessage)
+        val outputMessage = HL7Reader.parseHL7Message(comparisonMessage)
         val inputType = ST(inputMessage)
         inputType.value = "blah"
         val outputType = ST(outputMessage)
@@ -208,7 +208,7 @@ OBR|1||232270000212^ProPhase Diagnostics^2.16.840.1.114222.4.1.238646^ISO|55454-
 
     @Test
     fun `test compareHl7Type composite`() {
-        val inputMessage = HL7Reader.parseHL7Message(originalMessage, null)
+        val inputMessage = HL7Reader.parseHL7Message(originalMessage)
         val id = ID(inputMessage)
         id.value = "blah"
         val nm = NM(inputMessage)
@@ -224,7 +224,7 @@ OBR|1||232270000212^ProPhase Diagnostics^2.16.840.1.114222.4.1.238646^ISO|55454-
         )
         assertThat(sameComposite).isEmpty()
 
-        val outputMessage = HL7Reader.parseHL7Message(comparisonMessage, null)
+        val outputMessage = HL7Reader.parseHL7Message(comparisonMessage)
         val differentComposite = hl7DiffHelper.compareHl7Type(
             "",
             inputMessage.msh.getField(4)[0],
@@ -239,8 +239,8 @@ OBR|1||232270000212^ProPhase Diagnostics^2.16.840.1.114222.4.1.238646^ISO|55454-
 
     @Test
     fun `test compareHl7Type different types`() {
-        val inputMessage = HL7Reader.parseHL7Message(originalMessage, null)
-        val outputMessage = HL7Reader.parseHL7Message(comparisonMessage, null)
+        val inputMessage = HL7Reader.parseHL7Message(originalMessage)
+        val outputMessage = HL7Reader.parseHL7Message(comparisonMessage)
         val inputType = ST(inputMessage)
         inputType.value = "blah"
         val outputType = ST(outputMessage)
@@ -264,8 +264,8 @@ OBR|1||232270000212^ProPhase Diagnostics^2.16.840.1.114222.4.1.238646^ISO|55454-
 
     @Test
     fun `expect no diff messages have blank vs empty MSH 8 (ST), OBR 49 (CWE) respectively`() {
-        val inputMessage = HL7Reader.parseHL7Message(msgMSH8OBR49Blank, null)
-        val outputMessage = HL7Reader.parseHL7Message(msgMSH8OBR49Empty, null)
+        val inputMessage = HL7Reader.parseHL7Message(msgMSH8OBR49Blank)
+        val outputMessage = HL7Reader.parseHL7Message(msgMSH8OBR49Empty)
         val differences = hl7DiffHelper.diffHl7(inputMessage, outputMessage)
         assertThat(differences.size).isEqualTo(0)
         val differences2 = hl7DiffHelper.diffHl7(outputMessage, inputMessage)
@@ -276,8 +276,8 @@ OBR|1||232270000212^ProPhase Diagnostics^2.16.840.1.114222.4.1.238646^ISO|55454-
     fun `diff output, input missing segments`() {
         val msg = originalMessage.split("\n").toMutableList()
         msg.removeAt(1)
-        val inputMessage = HL7Reader.parseHL7Message(msg.joinToString("\n"), null)
-        val outputMessage = HL7Reader.parseHL7Message(originalMessage, null)
+        val inputMessage = HL7Reader.parseHL7Message(msg.joinToString("\n"))
+        val outputMessage = HL7Reader.parseHL7Message(originalMessage)
         val differences = hl7DiffHelper.diffHl7(inputMessage, outputMessage)
         // input missing seg SFT
         assertThat(differences.size).isEqualTo(1)

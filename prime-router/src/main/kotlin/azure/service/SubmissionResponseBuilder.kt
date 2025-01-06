@@ -110,7 +110,7 @@ class SubmissionResponseBuilder(
             val isBatch = HL7Reader.isBatch(requestBody, messageCount)
 
             if (!isBatch && messageCount == 1) {
-                val message = HL7Reader.parseHL7Message(requestBody, null)
+                val message = HL7Reader.parseHL7Message(requestBody)
                 val acceptAcknowledgementType = HL7Reader.getAcceptAcknowledgmentType(message)
                 val ackResponseRequired = acceptAcknowledgmentTypeRespondValues.contains(acceptAcknowledgementType)
                 if (ackResponseRequired) {

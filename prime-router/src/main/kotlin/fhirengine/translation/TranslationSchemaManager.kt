@@ -442,8 +442,7 @@ class TranslationSchemaManager : Logging {
                             HL7Reader.parseHL7Message(
                                 Hl7InputStreamMessageStringIterator(rawValidationInput.output.byteInputStream())
                                     .asSequence()
-                                    .first(),
-                                null
+                                    .first()
                             ),
                         )
                     }

@@ -137,7 +137,7 @@ OBX|1|ST|MLI-4000.15^TEMPERATURE||97.7|deg f|||||R|||19980601184619
         val batchFile = HL7MessageHelpers.batchMessages(listOf(hl7Message, hl7Message), receiver)
         val messages = Hl7InputStreamMessageStringIterator(batchFile.byteInputStream()).asSequence()
             .map { rawItem ->
-                HL7Reader.parseHL7Message(rawItem, null)
+                HL7Reader.parseHL7Message(rawItem)
             }.toList()
         assertThat(messages).isNotEmpty()
         assertThat(messages.size).isEqualTo(2)

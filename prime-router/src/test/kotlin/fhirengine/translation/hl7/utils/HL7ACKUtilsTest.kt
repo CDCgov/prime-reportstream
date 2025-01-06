@@ -47,12 +47,12 @@ class HL7ACKUtilsTest {
             MSH|^~\&|ReportStream|CDC|Epic|Hospital|20240921000000+0000||ACK|$id|T|2.5.1|||NE|NE
             MSA|CA|4AFA57FE-D41D-4631-9500-286AAAF797E4
         """.trimIndent()
-        val parsedIncomingMessage = HL7Reader.parseHL7Message(incomingMessage, null)
+        val parsedIncomingMessage = HL7Reader.parseHL7Message(incomingMessage)
 
         val ack = f.utils.generateOutgoingACKMessage(parsedIncomingMessage)
 
-        val expected = HL7Reader.parseHL7Message(expectedMessage, null)
-        val actual = HL7Reader.parseHL7Message(ack, null)
+        val expected = HL7Reader.parseHL7Message(expectedMessage)
+        val actual = HL7Reader.parseHL7Message(ack)
 
         val diffs = f.hl7DiffHelper.diffHl7(expected, actual)
         if (diffs.isNotEmpty()) {

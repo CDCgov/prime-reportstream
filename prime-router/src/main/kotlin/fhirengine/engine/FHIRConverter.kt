@@ -50,11 +50,9 @@ import gov.cdc.prime.router.fhirengine.translation.hl7.FhirTransformer
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
-import gov.cdc.prime.router.fhirengine.utils.HL7Reader
 import gov.cdc.prime.router.fhirengine.utils.HL7Reader.Companion.parseHL7Message
 import gov.cdc.prime.router.fhirengine.utils.getObservations
 import gov.cdc.prime.router.fhirengine.utils.getRSMessageType
-import gov.cdc.prime.router.fhirengine.utils.isElr
 import gov.cdc.prime.router.logging.LogMeasuredTime
 import gov.cdc.prime.router.report.ReportService
 import gov.cdc.prime.router.validation.IItemValidator
@@ -479,7 +477,7 @@ class FHIRConverter(
                                 "format" to format.name
                             )
                         ) {
-                            getBundlesFromRawHL7(rawReport, validator, input.topic.hl7ParseConfiguration)
+                            getBundlesFromRawHL7(rawReport, validator)
                         }
                     } catch (ex: ParseFailureError) {
                         actionLogger.error(
@@ -571,7 +569,6 @@ class FHIRConverter(
     private fun getBundlesFromRawHL7(
         rawReport: String,
         validator: IItemValidator,
-        hL7MessageParseAndConvertConfiguration: HL7Reader.Companion.HL7MessageParseAndConvertConfiguration?,
     ): List<IProcessedItem<Message>> {
         val itemStream =
             Hl7InputStreamMessageStringIterator(rawReport.byteInputStream()).asSequence()
@@ -580,17 +577,16 @@ class FHIRConverter(
                 }.toList()
 
         return maybeParallelize(itemStream.size, itemStream.stream(), "Generating FHIR bundles in").map { item ->
-            parseHL7Item(item, hL7MessageParseAndConvertConfiguration)
+            parseHL7Item(item)
         }.map { item ->
-            validateAndConvertHL7Item(item, validator, hL7MessageParseAndConvertConfiguration)
+            validateAndConvertHL7Item(item, validator)
         }.collect(Collectors.toList())
     }
 
     private fun parseHL7Item(
         item: ProcessedHL7Item,
-        hL7MessageParseAndConvertConfiguration: HL7Reader.Companion.HL7MessageParseAndConvertConfiguration?,
     ) = try {
-        val message = parseHL7Message(item.rawItem, hL7MessageParseAndConvertConfiguration)
+        val message = parseHL7Message(item.rawItem)
         item.updateParsed(message)
     } catch (e: HL7Exception) {
         item.updateParsed(
@@ -605,20 +601,11 @@ class FHIRConverter(
     private fun validateAndConvertHL7Item(
         item: ProcessedHL7Item,
         validator: IItemValidator,
-        hL7MessageParseAndConvertConfiguration: HL7Reader.Companion.HL7MessageParseAndConvertConfiguration?,
     ): ProcessedHL7Item = if (item.parsedItem != null) {
         val validationResult = validator.validate(item.parsedItem)
         if (validationResult.isValid()) {
             try {
-                val bundle = when (hL7MessageParseAndConvertConfiguration) {
-                    null -> HL7toFhirTranslator.getHL7ToFhirTranslatorInstance().translate(item.parsedItem)
-                    else ->
-                        HL7toFhirTranslator
-                            .getHL7ToFhirTranslatorInstance(
-                                hL7MessageParseAndConvertConfiguration.hl7toFHIRMappingLocation
-                            )
-                            .translate(item.parsedItem)
-                }
+                val bundle = HL7toFhirTranslator.getHL7ToFhirTranslatorInstance().translate(item.parsedItem)
                 item.setBundle(bundle)
             } catch (ex: Exception) {
                 item.setConversionError(

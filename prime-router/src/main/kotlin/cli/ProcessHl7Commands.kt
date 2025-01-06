@@ -47,11 +47,11 @@ class ProcessHl7Commands : CliktCommand(
 
         val starterMessages = Hl7InputStreamMessageStringIterator(starterFile.byteInputStream()).asSequence()
             .map { rawItem ->
-                HL7Reader.parseHL7Message(rawItem, null)
+                HL7Reader.parseHL7Message(rawItem)
             }.toList()
         val comparisonMessages = Hl7InputStreamMessageStringIterator(comparisonFile.byteInputStream()).asSequence()
             .map { rawItem ->
-                HL7Reader.parseHL7Message(rawItem, null)
+                HL7Reader.parseHL7Message(rawItem)
             }.toList()
 
         starterMessages.forEachIndexed { counter, message ->
