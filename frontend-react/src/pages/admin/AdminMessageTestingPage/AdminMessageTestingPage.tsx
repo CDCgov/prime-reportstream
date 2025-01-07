@@ -116,6 +116,7 @@ const AdminMessageTestingPage = () => {
                                     resultData={testResultData}
                                     submittedMessage={selectedOption}
                                     handleGoBack={() => {
+                                        setRequestBody(null);
                                         setCurrentMessageTestStep(MessageTestingSteps.StepOne);
                                     }}
                                 />
