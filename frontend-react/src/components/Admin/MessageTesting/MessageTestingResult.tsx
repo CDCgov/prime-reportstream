@@ -1,4 +1,5 @@
-import { Accordion, Icon, Tag } from "@trussworks/react-uswds";
+import { QueryObserverResult } from "@tanstack/react-query";
+import { Accordion, Button, Icon, Tag } from "@trussworks/react-uswds";
 import type { PropsWithChildren } from "react";
 import language from "./language.json";
 import type { RSMessage, RSMessageResult } from "../../../config/endpoints/reports";
@@ -10,6 +11,7 @@ export interface MessageTestingResultProps extends PropsWithChildren {
     submittedMessage: RSMessage | null;
     resultData: RSMessageResult;
     handleGoBack: () => void;
+    refetch: () => Promise<QueryObserverResult<RSMessageResult, Error>>;
 }
 
 const errorFields: (keyof RSMessageResult)[] = [
@@ -24,7 +26,13 @@ const warningFields: (keyof RSMessageResult)[] = [
     "receiverTransformWarnings",
 ];
 
-const MessageTestingResult = ({ resultData, submittedMessage, handleGoBack, ...props }: MessageTestingResultProps) => {
+const MessageTestingResult = ({
+    resultData,
+    submittedMessage,
+    handleGoBack,
+    refetch,
+    ...props
+}: MessageTestingResultProps) => {
     const isPassed =
         !!resultData.senderTransformErrors.length &&
         !!resultData.filterErrors.length &&
@@ -50,7 +58,13 @@ const MessageTestingResult = ({ resultData, submittedMessage, handleGoBack, ...p
 
     return (
         <section {...props}>
-            <h2>Test results: {submittedMessage?.fileName}</h2>
+            <div className="display-flex flex-justify flex-align-center">
+                <h2>Test results: {submittedMessage?.fileName}</h2>
+
+                <Button type="button" onClick={() => void refetch()}>
+                    Rerun test <Icon.Autorenew className="text-top" />
+                </Button>
+            </div>
             <USLinkButton onClick={handleGoBack} className="text-no-underline text-bold" unstyled>
                 <Icon.NavigateBefore className="text-top" /> Select new message
             </USLinkButton>

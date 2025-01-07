@@ -49,7 +49,7 @@ const AdminMessageTestingPage = () => {
 
     // Sets data required for the MessageTestingForm
     const { data: messageData, isDisabled } = useTestMessages();
-    const { setRequestBody, isLoading, data: testResultData } = useTestMessageResult();
+    const { setRequestBody, isLoading, data: testResultData, refetch } = useTestMessageResult();
     const [selectedOption, setSelectedOption] = useState<RSMessage | null>(null);
     const [currentTestMessages, setCurrentTestMessages] = useState<RSMessage[]>(messageData);
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -119,6 +119,7 @@ const AdminMessageTestingPage = () => {
                                         setRequestBody(null);
                                         setCurrentMessageTestStep(MessageTestingSteps.StepOne);
                                     }}
+                                    refetch={refetch}
                                 />
                             )}
                         </>
