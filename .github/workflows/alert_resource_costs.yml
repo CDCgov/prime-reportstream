@@ -65,7 +65,7 @@ jobs:
             * **Provisioned by: \`${{ steps.last-pusher.outputs.username }}\`**
             * **Last Change Date: \`${{ steps.last-pusher.outputs.last_change_date }}\`**
           icon-emoji: ':money_with_wings:'
-          channel: prime-reportstream-engineering
+          channel: notifications
           webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
           color: failure
           slackify-markdown: true
