@@ -43,7 +43,7 @@ elements:
     hl7Spec: [ '%{MSH}-3-3' ]
 
   - name: wa-sending-facility-namespace-id
-    value: [ '"7uycso49' ]
+    value: [ '"7uycso49"' ]
     hl7Spec: [ '%{MSH}-4-1' ]
 
   - name: wa-sending-facility-universal-id
