@@ -8,7 +8,7 @@ import { USLinkButton } from "../../USLink";
 
 export interface MessageTestingResultProps extends PropsWithChildren {
     submittedMessage: RSMessage | null;
-    resultData: any; // temporary typing
+    resultData: RSMessageResult;
     handleGoBack: () => void;
 }
 
@@ -26,14 +26,14 @@ const warningFields: (keyof RSMessageResult)[] = [
 
 const MessageTestingResult = ({ resultData, submittedMessage, handleGoBack, ...props }: MessageTestingResultProps) => {
     const isPassed =
-        resultData.senderTransformPassed &&
-        resultData.filtersPassed &&
-        resultData.enrichmentSchemaPassed &&
-        resultData.receiverTransformPassed;
+        !!resultData.senderTransformErrors.length &&
+        !!resultData.filterErrors.length &&
+        !!resultData.enrichmentSchemaErrors.length &&
+        !!resultData.receiverTransformErrors.length;
     const isWarned =
         !!resultData.senderTransformWarnings.length &&
         !!resultData.enrichmentSchemaWarnings.length &&
-        !!resultData.receiverTransformWarnings;
+        !!resultData.receiverTransformWarnings.length;
 
     const alertType: AlertProps["type"] = !isPassed ? "error" : isWarned ? "warning" : "success";
     const alertHeading = language[`${alertType}AlertHeading`];

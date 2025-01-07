@@ -10,7 +10,7 @@ import Crumbs, { CrumbsProps } from "../../../components/Crumbs";
 import Spinner from "../../../components/Spinner";
 import { StaticAlert, StaticAlertType } from "../../../components/StaticAlert";
 import Title from "../../../components/Title";
-import { RSMessage } from "../../../config/endpoints/reports";
+import { RSMessage, RSMessageResult } from "../../../config/endpoints/reports";
 import useTestMessageResult from "../../../hooks/api/messages/UseTestMessageResult/UseTestMessageResult";
 import useTestMessages from "../../../hooks/api/messages/UseTestMessages/UseTestMessages";
 import { FeatureName } from "../../../utils/FeatureName";
@@ -113,7 +113,7 @@ const AdminMessageTestingPage = () => {
                             )}
                             {currentMessageTestStep === MessageTestingSteps.StepTwo && (
                                 <MessageTestingResult
-                                    resultData={testResultData}
+                                    resultData={testResultData as RSMessageResult}
                                     submittedMessage={selectedOption}
                                     handleGoBack={() => {
                                         setRequestBody(null);
