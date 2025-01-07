@@ -260,7 +260,6 @@ open class BaseHistoryFunction : Logging {
                 organizationName ?: authClaims.organization.name
             )
 
-            @Suppress("NEW_INFERENCE_NO_INFORMATION_FOR_PARAMETER")
             val reports = headers.sortedByDescending { it.createdAt }.map {
                 // removing the call for facilities for now so we can call a
                 // method directly to just get the facilities and display them then
