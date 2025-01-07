@@ -64,7 +64,7 @@ class FHIRReceiverEnrichment(
     ): List<FHIREngineRunResult> {
         when (message) {
             is FhirReceiverEnrichmentQueueMessage -> {
-                return emptyList()
+                return fhirEngineRunResults(message, actionHistory)
             }
             else -> {
                 // Handle the case where casting failed
@@ -96,6 +96,12 @@ class FHIRReceiverEnrichment(
             logger.info("Starting FHIR ReceiverEnrichment step")
             actionHistory.trackExistingInputReport(queueMessage.reportId)
 
+            if (!(settings.receivers.filter { it.fullName == queueMessage.receiverFullName }.isNotEmpty())) {
+                throw RuntimeException(
+                    "No receiver full name specified in settings therefore cannot be " +
+                        "processed by FHIRReceiverEnrichment: ${queueMessage.receiverFullName}"
+                )
+            }
             // pull fhir document and parse FHIR document
             val fhirJson = LogMeasuredTime.measureAndLogDurationWithReturnedValue(
                 "Downloaded content from queue message"
@@ -139,7 +145,7 @@ class FHIRReceiverEnrichment(
                         metadata = this.metadata,
                         topic = queueMessage.topic,
                         destination = receiver,
-                        nextAction = TaskAction.receiver_filter
+                        nextAction = TaskAction.receiver_enrichment
                     )
 
                     // create item lineage
