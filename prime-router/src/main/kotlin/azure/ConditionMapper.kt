@@ -91,48 +91,43 @@ class ConditionStamper(private val conditionMapper: IConditionMapper) {
      * @return a [ObservationStampingResult] including stamping success and any mapping failures
      */
     fun stampObservation(observation: Observation): ObservationStampingResult {
-        // Extract codes and filter out empty values
         val codeSourcesMap = observation.getCodeSourcesMap().filterValues { it.isNotEmpty() }
-        if (codeSourcesMap.values.flatten().isEmpty()) return ObservationStampingResult(false)
+        if (codeSourcesMap.values.flatten().isEmpty()) {
+            return ObservationStampingResult(false)
+        }
 
-        // Lookup conditions mapped to codes
         val conditionsToCode = conditionMapper.lookupConditions(codeSourcesMap.values.flatten())
-
-        // Map test codes to member OIDs
         val memberOidMap = conditionMapper.lookupMemberOid(codeSourcesMap.values.flatten())
 
         var mappedSomething = false
 
-        // Process condition mappings for each code
-        val failures = codeSourcesMap.mapNotNull { codes ->
-            val unmapped = codes.value.mapNotNull { code ->
-                val conditions = conditionsToCode.getOrDefault(code, emptyList())
-                if (conditions.isEmpty()) {
-                    // If no conditions are mapped, add this code to failures
-                    code
-                } else {
-                    conditions.forEach { conditionCoding ->
-                        // Create a condition-code extension
-                        val conditionCodeExtension = Extension(CONDITION_CODE_EXTENSION_URL)
-                        conditionCodeExtension.addExtension(Extension(CONDITION_CODE_EXTENSION_URL, conditionCoding))
-
-                        // Retrieve and add the member OID as a sub-extension
-                        val memberOid = memberOidMap[conditionCoding.code]
-                        if (memberOid != null) {
-                            val memberOidExtension = Extension(MEMBER_OID_EXTENSION_URL)
-                            memberOidExtension.addExtension(Extension(MEMBER_OID_EXTENSION_URL, StringType(memberOid)))
-                            conditionCodeExtension.addExtension(memberOidExtension)
-                        }
-
-                        // Attach the condition-code extension to the coding
-                        code.addExtension(conditionCodeExtension)
-                        mappedSomething = true
+        codeSourcesMap.forEach { (_, codings) ->
+            codings.forEach { originalCoding ->
+                val mappedConditions = conditionsToCode[originalCoding].orEmpty()
+                mappedConditions.forEach { conditionCoding ->
+                    val snomedCoding = Coding().apply {
+                        system = conditionCoding.system
+                        code = conditionCoding.code
+                        display = conditionCoding.display
                     }
-                    null
+                    // If we have an OID, add it as a sub-extension on this SNOMED coding
+                    memberOidMap[conditionCoding.code]?.let { memberOid ->
+                        val memberOidExtension = Extension(MEMBER_OID_EXTENSION_URL).apply {
+                            setValue(StringType(memberOid))
+                        }
+                        snomedCoding.addExtension(memberOidExtension)
+                    }
+                    // Create the top-level condition-code extension
+                    val conditionExtension = Extension(CONDITION_CODE_EXTENSION_URL, snomedCoding)
+                    observation.code.coding
+                        .firstOrNull()
+                        ?.addExtension(conditionExtension)
+
+                    mappedSomething = true
                 }
             }
-            if (unmapped.isEmpty()) null else ObservationMappingFailure(codes.key, unmapped)
         }
-        return ObservationStampingResult(mappedSomething, failures)
+
+        return ObservationStampingResult(mappedSomething)
     }
 }
