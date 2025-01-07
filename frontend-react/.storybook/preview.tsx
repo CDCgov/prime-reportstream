@@ -1,4 +1,3 @@
-import { initialize, mswLoader } from "msw-storybook-addon";
 import { CacheProvider } from "rest-hooks";
 import { HelmetProvider } from "react-helmet-async";
 import MockDate from "mockdate";
@@ -25,8 +24,6 @@ export const parameters = {
     },
 };
 
-initialize();
-
 function withRestHooksCacheProvider(Story) {
     return (
         <CacheProvider>
@@ -45,4 +42,4 @@ function withHelmet(Story) {
 
 export const decorators = [withHelmet, withRestHooksCacheProvider];
 
-export const loaders = [mswLoader];
+export const loaders = [];
