@@ -434,10 +434,12 @@ generalPractitioner:
       valueOf: datatypes/XON/Organization
       expressionType: reference
       specs: PD1.3 *
+      generateList: true
     - condition: $pd14 NOT_NULL
       valueOf: datatypes/XCN/Practitioner
       expressionType: reference
       specs: PD1.4 *
+      generateList: true
 
 extension:
   expressionType: nested
