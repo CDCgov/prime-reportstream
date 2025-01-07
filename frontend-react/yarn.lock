@@ -2459,40 +2459,40 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tanstack/query-core@npm:5.62.9":
-  version: 5.62.9
-  resolution: "@tanstack/query-core@npm:5.62.9"
-  checksum: 3dc3ca1654a3e3a3f92e569d2bf9e8c09b6bb670562090af357db7e95175ad0397a01dfd2c2eda34bdfe0666e7d6fb841d0c435223119681b1ba1f28d4fcd6b1
+"@tanstack/query-core@npm:5.62.16":
+  version: 5.62.16
+  resolution: "@tanstack/query-core@npm:5.62.16"
+  checksum: 96e712dba70b9234884108ecac2fa05ae588f7a1758377d80aa30d4e830f00cbef95309d2806828ca224d1db51e3c8364857a6f3581edb989f2f16cb98ad0f26
   languageName: node
   linkType: hard
 
-"@tanstack/query-devtools@npm:5.62.9":
-  version: 5.62.9
-  resolution: "@tanstack/query-devtools@npm:5.62.9"
-  checksum: 08415a0bc3661f088cecc44cecbd782eb54aef8e6ed05f6d7d56e92e96f2933f52a73d227e5925f141f46068ea68e6521a01f7773a96057ef96523c738b26e36
+"@tanstack/query-devtools@npm:5.62.16":
+  version: 5.62.16
+  resolution: "@tanstack/query-devtools@npm:5.62.16"
+  checksum: 1b6554334ef00818ae4ba3cea1a369c70ce2d9605e7c44de3dd802cce355a8d559108f93a68cd5df5de7e5eeee4e89259577cf83611a43f62f67f27fc9cdb61a
   languageName: node
   linkType: hard
 
-"@tanstack/react-query-devtools@npm:^5.62.11":
-  version: 5.62.11
-  resolution: "@tanstack/react-query-devtools@npm:5.62.11"
+"@tanstack/react-query-devtools@npm:^5.62.16":
+  version: 5.62.16
+  resolution: "@tanstack/react-query-devtools@npm:5.62.16"
   dependencies:
-    "@tanstack/query-devtools": 5.62.9
+    "@tanstack/query-devtools": 5.62.16
   peerDependencies:
-    "@tanstack/react-query": ^5.62.11
+    "@tanstack/react-query": ^5.62.16
     react: ^18 || ^19
-  checksum: c16732d639a91060dfaa68dd9e41c57b13baf626523034f944759196293e861c37596d2ecddf9d5de6d85981a98513b18ef4a2d5cb6d470d4260cd12039e1df1
+  checksum: 1acd07c82cd37a73731e180b4511025d33143a5820c09450143b81bde24871a7f7bccb44d6d488583dc319ae3ed22779bd38157836d37e2673a1c9efa004a3b6
   languageName: node
   linkType: hard
 
-"@tanstack/react-query@npm:^5.62.11":
-  version: 5.62.11
-  resolution: "@tanstack/react-query@npm:5.62.11"
+"@tanstack/react-query@npm:^5.62.16":
+  version: 5.62.16
+  resolution: "@tanstack/react-query@npm:5.62.16"
   dependencies:
-    "@tanstack/query-core": 5.62.9
+    "@tanstack/query-core": 5.62.16
   peerDependencies:
     react: ^18 || ^19
-  checksum: dcd0fc21eead400f385299f3afd230a98884a8eda5fe55e1803bf0b2657ddf109509afcb12f3c23ef143ec8debcbece908c99c59729c3ab911068619015c0eb7
+  checksum: dbf9cf549799d96ecefea237617e15234d9fa446460efe5286e128840b1bcfff5d7ff8a9eb9208aefe469800b50fa2ad31d93e631be3e0a58baac61a3094fb33
   languageName: node
   linkType: hard
 
@@ -2880,10 +2880,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/lodash@npm:^4.17.13":
-  version: 4.17.13
-  resolution: "@types/lodash@npm:4.17.13"
-  checksum: d0bf8fbd950be71946e0076b30fd40d492293baea75f05931b6b5b906fd62583708c6229abdb95b30205ad24ce1ed2f48bc9d419364f682320edd03405cc0c7e
+"@types/lodash@npm:^4.17.14":
+  version: 4.17.14
+  resolution: "@types/lodash@npm:4.17.14"
+  checksum: 2dbeaff92b31cb523f6bc4bb99a3d8c88fbb001d54f2367a888add85784fb213744a9b1600e1e98b6790ab191fdb6ec839eb0e3d63fcf6fb6cf1ebe4c3d21149
   languageName: node
   linkType: hard
 
@@ -9827,8 +9827,8 @@ __metadata:
     "@storybook/react-vite": ^8.4.7
     "@storybook/testing-library": ^0.2.2
     "@storybook/theming": ^8.4.7
-    "@tanstack/react-query": ^5.62.11
-    "@tanstack/react-query-devtools": ^5.62.11
+    "@tanstack/react-query": ^5.62.16
+    "@tanstack/react-query-devtools": ^5.62.16
     "@testing-library/dom": ^10.4.0
     "@testing-library/jest-dom": ^6.6.3
     "@testing-library/react": ^16.1.0
@@ -9839,7 +9839,7 @@ __metadata:
     "@types/eslint__js": ^8.42.3
     "@types/github-slugger": ^2.0.0
     "@types/html-to-text": ^9.0.4
-    "@types/lodash": ^4.17.13
+    "@types/lodash": ^4.17.14
     "@types/mdx": ^2.0.13
     "@types/node": ^20.12.5
     "@types/react": ^18.3.11
@@ -9921,7 +9921,7 @@ __metadata:
     typescript-eslint: ^8.19.0
     undici: ^6.20.1
     use-deep-compare-effect: ^1.8.1
-    uuid: ^11.0.3
+    uuid: ^11.0.4
     vite: ^6.0.6
     vite-plugin-checker: ^0.8.0
     vite-plugin-svgr: ^4.3.0
@@ -12120,12 +12120,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"uuid@npm:^11.0.3":
-  version: 11.0.3
-  resolution: "uuid@npm:11.0.3"
+"uuid@npm:^11.0.4":
+  version: 11.0.4
+  resolution: "uuid@npm:11.0.4"
   bin:
     uuid: dist/esm/bin/uuid
-  checksum: 646181c77e8b8df9bd07254faa703943e1c4d5ccde7d080312edf12f443f6c5750801fd9b27bf2e628594182165e6b1b880c0382538f7eca00b26622203741dc
+  checksum: 88860d20dafa648642581b2e7bb364588149df50d41c812100839aec095593fcc8548fde6929605efd42f556455cf5683e3bad9e9e311f4b62d7efbb68598d3e
   languageName: node
   linkType: hard
 
