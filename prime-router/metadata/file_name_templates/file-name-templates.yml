@@ -123,3 +123,7 @@
     - GOLDEN-COPY
     - "-"
     - uuid()
+
+- name: uuid
+  elements:
+    - uuid()
