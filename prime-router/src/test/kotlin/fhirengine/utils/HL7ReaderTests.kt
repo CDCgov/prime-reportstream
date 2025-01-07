@@ -247,32 +247,6 @@ OBX|1|test|94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen b
     }
 
     @Test
-    @Suppress("DEPRECATION")
-    fun `test getMessageProfile`() {
-        val justMSH = """           
-            MSH|^~\&|CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO|Avante at Ormond Beach^10D0876999^CLIA|PRIME_DOH|Prime ReportStream|20210210170737||ORU^R01^ORU_R01|371784|P|2.5.1|||NE|NE|USA||||PHLabReportNoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO                                   
-        """.trimIndent()
-        val messages = HL7Reader.getMessageProfile(justMSH)
-        assertThat(messages).isEqualTo(
-            HL7Reader.Companion.MessageProfile(
-                "ORU",
-                "NIST_ELR"
-            )
-        )
-
-        val noProfile = """           
-            MSH|^~\&|CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO|Avante at Ormond Beach^10D0876999^CLIA|PRIME_DOH|Prime ReportStream|20210210170737||ORU^R01^ORU_R01|371784|P|2.5.1|||NE|NE|USA                                   
-        """.trimIndent()
-        val messages2 = HL7Reader.getMessageProfile(noProfile)
-        assertThat(messages2).isEqualTo(
-            HL7Reader.Companion.MessageProfile(
-                "ORU",
-                ""
-            )
-        )
-    }
-
-    @Test
     fun `test getBirthTime_DateTime`() {
         val birthTimeMessage = """           
             MSH|^~\&|CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO|Avante at Ormond Beach^10D0876999^CLIA|PRIME_DOH|Prime ReportStream|20210210170737||ORM^O01^ORM_O01|371784|P|2.5.1|||NE|NE|USA||||PHLabReportNoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO

@@ -7,7 +7,6 @@ import ca.uhn.hl7v2.HL7Exception
 import ca.uhn.hl7v2.HapiContext
 import ca.uhn.hl7v2.model.Message
 import ca.uhn.hl7v2.parser.ParserConfiguration
-import ca.uhn.hl7v2.util.Hl7InputStreamMessageIterator
 import ca.uhn.hl7v2.util.Hl7InputStreamMessageStringIterator
 import ca.uhn.hl7v2.util.Terser
 import ca.uhn.hl7v2.validation.ValidationException
@@ -132,20 +131,6 @@ class HL7Reader {
             )
         }
 
-        // map of HL7 message profiles: maps profile to configuration directory path
-        @Deprecated("This field is only in use for the CLI", level = DeprecationLevel.WARNING)
-        val profileDirectoryMap: Map<MessageProfile, String> = mapOf(
-            // TODO: https://github.com/CDCgov/prime-reportstream/issues/14124
-            // Pair(MessageProfile("ORU", "NIST_ELR"), "./metadata/HL7/v251-elr"),
-        )
-
-        // map of HL7 OIDs to supported conformance profiles
-        // list of OIDs for NIST ELR retrieved from https://oidref.com/2.16.840.1.113883.9
-        private val oidProfileMap: Map<String, String> = mapOf(
-            Pair("2.16.840.1.113883.9.10", "NIST_ELR"),
-            Pair("2.16.840.1.113883.9.11", "NIST_ELR")
-        )
-
         // data class to uniquely identify a message profile
         data class MessageProfile(val typeID: String, val profileID: String)
 
@@ -173,22 +158,6 @@ class HL7Reader {
                 is v251_MSH -> structure.msh9_MessageType.msg1_MessageCode.toString()
                 else -> ""
             }
-        }
-
-        /**
-         * Get the profile of the [rawmessage]
-         * If there are multiple HL7 messages the first message's data will be returned
-         * @param rawmessage string representative of hl7 messages
-         * @return the message profile, or null if there is no message
-         */
-        @Deprecated("This function is only in use for the CLI", level = DeprecationLevel.WARNING)
-        fun getMessageProfile(rawmessage: String): MessageProfile? {
-            val iterator = Hl7InputStreamMessageIterator(rawmessage.byteInputStream())
-            if (!iterator.hasNext()) return null
-            val hl7message = iterator.next()
-            val msh9 = Terser(hl7message).get("MSH-9")
-            val profileID = oidProfileMap[Terser(hl7message).get("MSH-21-3")] ?: ""
-            return MessageProfile(msh9 ?: "", profileID)
         }
 
         /**
