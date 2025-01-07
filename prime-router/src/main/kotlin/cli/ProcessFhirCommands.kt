@@ -516,7 +516,6 @@ class ProcessFhirCommands : CliktCommand(
      * look like.
      * @return a FHIR bundle and the parsed HL7 input that represents the data in the one HL7 message
      */
-    @Suppress("DEPRECATION")
     private fun convertHl7ToFhir(hl7String: String, receiver: Receiver?): Pair<Bundle, Message> {
         val hasFiveEncodingChars = hl7MessageHasFiveEncodingChars(hl7String)
         // Some HL7 2.5.1 implementations have adopted the truncation character # that was added in 2.7
