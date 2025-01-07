@@ -194,4 +194,41 @@ class FHIRReceiverEnrichmentTests {
                 "Message was not a FhirReceiverEnrichmentQueueMessage and cannot be processed by FHIRReceiverEnrichment"
             )
     }
+
+    @Test
+    fun `fail - missing receiver full name`() {
+        // engine setup
+        val settings = FileSettings().loadOrganizations(
+            createOrganizationWithFilteredReceivers(
+                qualityFilter = FILTER_FAIL
+            )
+        )
+        val engine = spyk(makeFhirEngine(metadata, settings) as FHIRReceiverEnrichment)
+        val messages = settings.receivers.map {
+            spyk(
+                FhirReceiverEnrichmentQueueMessage(
+                    UUID.randomUUID(),
+                    BLOB_URL,
+                    "test",
+                    BLOB_SUB_FOLDER_NAME,
+                    topic = Topic.FULL_ELR,
+                    "'missing-full-name'"
+                )
+            )
+        }
+
+        // act on each message (with assert)
+        val exception = assertFailsWith<RuntimeException> {
+            messages.forEach { message ->
+                // act + assert
+                accessSpy.transact { txn ->
+                    engine.run(message, actionLogger, actionHistory, txn)
+                }
+            }
+        }
+        assertThat(exception.message.toString())
+            .contains(
+                "Receiver with name 'missing-full-name' was not found"
+            )
+    }
 }

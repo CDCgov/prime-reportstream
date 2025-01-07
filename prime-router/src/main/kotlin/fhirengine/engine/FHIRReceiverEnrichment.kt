@@ -4,14 +4,12 @@ import fhirengine.engine.CustomFhirPathFunctions
 import gov.cdc.prime.reportstream.shared.BlobUtils
 import gov.cdc.prime.reportstream.shared.QueueMessage
 import gov.cdc.prime.router.ActionLogger
-import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.SettingsProvider
-import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseAccess
@@ -31,7 +29,6 @@ import gov.cdc.prime.router.azure.observability.event.ReportStreamEventName
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventProperties
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirTransformer
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
-import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.logging.LogMeasuredTime
 import gov.cdc.prime.router.report.ReportService
@@ -48,13 +45,9 @@ class FHIRReceiverEnrichment(
     reportStreamEventService: IReportStreamEventService,
 ) : FHIREngine(metadata, settings, db, blob, azureEventService, reportService, reportStreamEventService) {
 
-    private fun findTopicReceivers(topic: Topic): List<Receiver> =
-        settings.receivers.filter { it.customerStatus != CustomerStatus.INACTIVE && it.topic == topic }
-
     /**
-     * Accepts a [FhirReceiverEnrichmentQueueMessage] [message] and, based on its parameters, sends a report to the
-     * next pipeline step containing either the first ancestor's blob or a new blob that has been translated per
-     * the receiver's settings, pending the passed topic's (found in [message]) isSendOriginal property
+     * Accepts a [FhirReceiverEnrichmentQueueMessage] [message] and sends a report to the
+     * next pipeline step containing enrichments configured per the receiver's settings.
      * [actionHistory] and [actionLogger] ensure all activities are recorded to the database and logged.
      */
     override fun <T : QueueMessage> doWork(
@@ -64,7 +57,20 @@ class FHIRReceiverEnrichment(
     ): List<FHIREngineRunResult> {
         when (message) {
             is FhirReceiverEnrichmentQueueMessage -> {
-                return fhirEngineRunResults(message, actionHistory)
+                val contextMap = mapOf(
+                    MDCUtils.MDCProperty.ACTION_NAME to actionHistory.action.actionName.name,
+                    MDCUtils.MDCProperty.REPORT_ID to message.reportId,
+                    MDCUtils.MDCProperty.TOPIC to message.topic,
+                    MDCUtils.MDCProperty.BLOB_URL to message.blobURL
+                )
+                withLoggingContext(contextMap) {
+                    logger.trace("Starting FHIR ReceiverEnrichment work")
+                    actionHistory.trackExistingInputReport(message.reportId)
+                    val receiver = settings.findReceiver(message.receiverFullName)
+                        ?: throw RuntimeException("Receiver with name ${message.receiverFullName} was not found")
+                    actionHistory.trackActionReceiverInfo(receiver.organizationName, receiver.name)
+                    return fhirEngineRunResults(message, receiver, actionHistory)
+                }
             }
             else -> {
                 // Handle the case where casting failed
@@ -83,153 +89,113 @@ class FHIRReceiverEnrichment(
      */
     private fun fhirEngineRunResults(
         queueMessage: FhirReceiverEnrichmentQueueMessage,
+        receiver: Receiver,
         actionHistory: ActionHistory,
     ): List<FHIREngineRunResult> {
-        val contextMap = mapOf(
-            MDCUtils.MDCProperty.ACTION_NAME to actionHistory.action.actionName.name,
-            MDCUtils.MDCProperty.REPORT_ID to queueMessage.reportId,
-            MDCUtils.MDCProperty.TOPIC to queueMessage.topic,
-            MDCUtils.MDCProperty.BLOB_URL to queueMessage.blobURL
-        )
-        withLoggingContext(contextMap) {
-            // track input report
-            logger.info("Starting FHIR ReceiverEnrichment step")
-            actionHistory.trackExistingInputReport(queueMessage.reportId)
-
-            if (!(settings.receivers.filter { it.fullName == queueMessage.receiverFullName }.isNotEmpty())) {
-                throw RuntimeException(
-                    "No receiver full name specified in settings therefore cannot be " +
-                        "processed by FHIRReceiverEnrichment: ${queueMessage.receiverFullName}"
+        // pull fhir document and parse FHIR document
+        val fhirJson = LogMeasuredTime.measureAndLogDurationWithReturnedValue(
+            "Downloaded content from queue message"
+        ) {
+            BlobAccess.downloadBlob(queueMessage.blobURL, queueMessage.digest)
+        }
+        val bundle = FhirTranscoder.decode(fhirJson)
+        if (receiver.enrichmentSchemaNames.isNotEmpty()) {
+            receiver.enrichmentSchemaNames.forEach { enrichmentSchemaName ->
+                logger.info("Applying enrichment schema $enrichmentSchemaName")
+                val transformer = FhirTransformer(
+                    enrichmentSchemaName,
                 )
-            }
-            // pull fhir document and parse FHIR document
-            val fhirJson = LogMeasuredTime.measureAndLogDurationWithReturnedValue(
-                "Downloaded content from queue message"
-            ) {
-                BlobAccess.downloadBlob(queueMessage.blobURL, queueMessage.digest)
-            }
-            val bundle = FhirTranscoder.decode(fhirJson)
-
-            // get the receivers that this bundle should go to
-            val receivers = findTopicReceivers(queueMessage.topic).filter { receiver ->
-                receiver.jurisdictionalFilter.all { filter ->
-                    FhirPathUtils.evaluateCondition(
-                        CustomContext(bundle, bundle, shorthandLookupTable, CustomFhirPathFunctions()),
-                        bundle,
-                        bundle,
-                        bundle,
-                        filter
-                    )
-                }
-            }
-
-            // check if there are any receivers
-            if (receivers.isNotEmpty()) {
-                logger.info("Applying enrichments to ${receivers.size} receiver(s).")
-                return receivers.flatMap { receiver ->
-                    if (receiver.enrichmentSchemaNames.isNotEmpty()) {
-                        receiver.enrichmentSchemaNames.forEach { enrichmentSchemaName ->
-                            logger.info("Applying enrichment schema $enrichmentSchemaName")
-                            val transformer = FhirTransformer(
-                                enrichmentSchemaName,
-                            )
-                            transformer.process(bundle)
-                        }
-                    }
-                    val bodyString = FhirTranscoder.encode(bundle)
-
-                    val report = Report(
-                        MimeFormat.FHIR,
-                        emptyList(),
-                        1,
-                        metadata = this.metadata,
-                        topic = queueMessage.topic,
-                        destination = receiver,
-                        nextAction = TaskAction.receiver_enrichment
-                    )
-
-                    // create item lineage
-                    report.itemLineages = listOf(
-                        ItemLineage(
-                            null,
-                            queueMessage.reportId,
-                            1,
-                            report.id,
-                            1,
-                            null,
-                            null,
-                            null,
-                            report.getItemHashForRow(1)
-                        )
-                    )
-
-                    val nextEvent = ProcessEvent(
-                        Event.EventAction.RECEIVER_FILTER,
-                        report.id,
-                        Options.None,
-                        emptyMap(),
-                        emptyList()
-                    )
-
-                    // upload new copy to blobstore
-                    val blobInfo = BlobAccess.uploadBody(
-                        MimeFormat.FHIR,
-                        bodyString.toByteArray(),
-                        report.id.toString(),
-                        queueMessage.blobSubFolderName,
-                        nextEvent.eventAction
-                    )
-                    report.bodyURL = blobInfo.blobUrl
-                    // ensure tracking is set
-                    actionHistory.trackCreatedReport(nextEvent, report, blobInfo = blobInfo)
-
-                    val bundleDigestExtractor = BundleDigestExtractor(
-                        FhirPathBundleDigestLabResultExtractorStrategy(
-                            CustomContext(
-                                bundle,
-                                bundle,
-                                mutableMapOf(),
-                                CustomFhirPathFunctions()
-                            )
-                        )
-                    )
-                    reportEventService.sendItemEvent(
-                        eventName = ReportStreamEventName.ITEM_ROUTED,
-                        childReport = report,
-                        pipelineStepName = TaskAction.receiver_enrichment
-                    ) {
-                        parentReportId(queueMessage.reportId)
-                        params(
-                            mapOf(
-                                ReportStreamEventProperties.RECEIVER_NAME to receiver.fullName,
-                                ReportStreamEventProperties.BUNDLE_DIGEST
-                                    to bundleDigestExtractor.generateDigest(bundle)
-                            )
-                        )
-                        trackingId(bundle)
-                    }
-
-                    listOf(
-                        FHIREngineRunResult(
-                            nextEvent,
-                            report,
-                            blobInfo.blobUrl,
-                            FhirReceiverFilterQueueMessage(
-                                report.id,
-                                blobInfo.blobUrl,
-                                BlobUtils.digestToString(blobInfo.digest),
-                                queueMessage.blobSubFolderName,
-                                queueMessage.topic,
-                                receiver.fullName
-                            )
-                        )
-                    )
-                }
-            } else {
-                logger.info("No receivers for this message. Terminating lineage.")
-                throw RuntimeException("No receivers were found for this message.")
+                transformer.process(bundle)
             }
         }
+        val bodyString = FhirTranscoder.encode(bundle)
+
+        val report = Report(
+            MimeFormat.FHIR,
+            emptyList(),
+            1,
+            metadata = this.metadata,
+            topic = queueMessage.topic,
+            destination = receiver,
+            nextAction = TaskAction.receiver_enrichment
+        )
+
+        // create item lineage
+        report.itemLineages = listOf(
+            ItemLineage(
+                null,
+                queueMessage.reportId,
+                1,
+                report.id,
+                1,
+                null,
+                null,
+                null,
+                report.getItemHashForRow(1)
+            )
+        )
+
+        val nextEvent = ProcessEvent(
+            Event.EventAction.RECEIVER_FILTER,
+            report.id,
+            Options.None,
+            emptyMap(),
+            emptyList()
+        )
+
+        // upload new copy to blobstore
+        val blobInfo = BlobAccess.uploadBody(
+            MimeFormat.FHIR,
+            bodyString.toByteArray(),
+            report.id.toString(),
+            queueMessage.blobSubFolderName,
+            nextEvent.eventAction
+        )
+        report.bodyURL = blobInfo.blobUrl
+        // ensure tracking is set
+        actionHistory.trackCreatedReport(nextEvent, report, blobInfo = blobInfo)
+
+        val bundleDigestExtractor = BundleDigestExtractor(
+            FhirPathBundleDigestLabResultExtractorStrategy(
+                CustomContext(
+                    bundle,
+                    bundle,
+                    mutableMapOf(),
+                    CustomFhirPathFunctions()
+                )
+            )
+        )
+        reportEventService.sendItemEvent(
+            eventName = ReportStreamEventName.ITEM_ROUTED,
+            childReport = report,
+            pipelineStepName = TaskAction.receiver_enrichment
+        ) {
+            parentReportId(queueMessage.reportId)
+            params(
+                mapOf(
+                    ReportStreamEventProperties.RECEIVER_NAME to receiver.fullName,
+                    ReportStreamEventProperties.BUNDLE_DIGEST
+                        to bundleDigestExtractor.generateDigest(bundle)
+                )
+            )
+            trackingId(bundle)
+        }
+
+        return listOf(
+            FHIREngineRunResult(
+                nextEvent,
+                report,
+                blobInfo.blobUrl,
+                FhirReceiverFilterQueueMessage(
+                    report.id,
+                    blobInfo.blobUrl,
+                    BlobUtils.digestToString(blobInfo.digest),
+                    queueMessage.blobSubFolderName,
+                    queueMessage.topic,
+                    receiver.fullName
+                )
+            )
+        )
     }
 
     // TODO Change these to correct values.
