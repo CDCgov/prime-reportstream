@@ -9898,7 +9898,7 @@ __metadata:
     react-helmet-async: ^2.0.5
     react-idle-timer: ^5.7.2
     react-loader-spinner: ^6.1.6
-    react-markdown: ^9.0.1
+    react-markdown: ^9.0.3
     react-query-kit: ^3.3.1
     react-router: ^6.28.0
     react-router-dom: ^6.28.0
@@ -9996,9 +9996,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-markdown@npm:^9.0.1":
-  version: 9.0.1
-  resolution: "react-markdown@npm:9.0.1"
+"react-markdown@npm:^9.0.3":
+  version: 9.0.3
+  resolution: "react-markdown@npm:9.0.3"
   dependencies:
     "@types/hast": ^3.0.0
     devlop: ^1.0.0
@@ -10013,7 +10013,7 @@ __metadata:
   peerDependencies:
     "@types/react": ">=18"
     react: ">=18"
-  checksum: ca1daa650d48b84a5a9771683cdb3f3d2d418247ce0faf73ede3207c65f2a21cdebb9df37afda67f6fc8f0f0a7b9ce00eb239781954a4d6c7ad88ea4df068add
+  checksum: 7ebb01b295f7c9acddcd305308a8531c58c582c24fb8d6a4897f16b21ba0bd7e9e20ddae4a9024767e910310d22db0003489b61478cdb491a3d802343cf3a931
   languageName: node
   linkType: hard
 
