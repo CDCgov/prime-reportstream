@@ -3,8 +3,8 @@ import type { PropsWithChildren } from "react";
 import language from "./language.json";
 import type { RSMessage, RSMessageResult } from "../../../config/endpoints/reports";
 import Alert, { type AlertProps } from "../../../shared/Alert/Alert";
+import { convertCase } from "../../../utils/misc";
 import { USLinkButton } from "../../USLink";
-import { camelCaseToTitle } from "../../../utils/misc";
 
 export interface MessageTestingResultProps extends PropsWithChildren {
     submittedMessage: RSMessage | null;
@@ -38,7 +38,7 @@ const MessageTestingResult = ({ resultData, submittedMessage, handleGoBack, ...p
     const alertType: AlertProps["type"] = !isPassed ? "error" : isWarned ? "warning" : "success";
     const alertHeading = language[`${alertType}AlertHeading`];
     const alertBody = language[`${alertType}AlertBody`];
-    const timeOptions = {
+    const timeOptions: Intl.DateTimeFormatOptions = {
         timeZone: "UTC",
         month: "2-digit",
         day: "2-digit",
@@ -47,17 +47,21 @@ const MessageTestingResult = ({ resultData, submittedMessage, handleGoBack, ...p
         minute: "numeric",
         hour12: true,
     };
-    const dateCreated = new Date(submittedMessage?.dateCreated);
-    console.log("resultData = ", resultData);
+
     return (
         <section {...props}>
             <h2>Test results: {submittedMessage?.fileName}</h2>
-            <USLinkButton onClick={handleGoBack} className="text-no-underline" unstyled>
-                {"<"} Select new message
+            <USLinkButton onClick={handleGoBack} className="text-no-underline text-bold" unstyled>
+                <Icon.NavigateBefore className="text-top" /> Select new message
             </USLinkButton>
 
             <div>
-                <p>Test run: {dateCreated.toLocaleString("en-US", timeOptions)} UTC</p>
+                <p>
+                    Test run:{" "}
+                    {submittedMessage?.dateCreated
+                        ? `${new Date(submittedMessage.dateCreated).toLocaleString("en-US", timeOptions)} UTC`
+                        : "N/A"}{" "}
+                </p>
             </div>
 
             <div>
@@ -72,19 +76,24 @@ const MessageTestingResult = ({ resultData, submittedMessage, handleGoBack, ...p
                 if (!arr?.length) return null;
 
                 return (
-                    <div key={`${f}-accordion-wrapper`} className="padding-top-4">
+                    <div key={`${f}-accordion-wrapper`} className="padding-top-4 ">
                         <Accordion
                             key={`${f}-accordion`}
                             items={[
                                 {
+                                    className: "bg-gray-5",
                                     title: (
                                         <>
-                                            <Icon.Error className="text-ttop margin-right-05" />
-                                            {camelCaseToTitle(f)}
-                                            <Tag className="margin-left-05 bg-secondary-vivid">{arr.length}</Tag>
+                                            <Icon.Error size={3} className="text-top margin-right-1" />
+                                            <span className="font-body-lg">{convertCase(f, "camel", "sentence")}</span>
+                                            <Tag className="margin-left-1 bg-secondary-vivid">{arr.length}</Tag>
                                         </>
                                     ),
-                                    content: arr.join("\n"),
+                                    content: (
+                                        <div className="bg-white font-sans-sm padding-top-2 padding-bottom-2 padding-left-1 padding-right-1">
+                                            {arr.join("\n")}
+                                        </div>
+                                    ),
                                     expanded: false,
                                     headingLevel: "h3",
                                     id: `${f}-list`,
@@ -106,14 +115,19 @@ const MessageTestingResult = ({ resultData, submittedMessage, handleGoBack, ...p
                             key={`${f}-accordion`}
                             items={[
                                 {
+                                    className: "bg-gray-5",
                                     title: (
                                         <>
-                                            <Icon.Warning className="text-ttop margin-right-05" />
-                                            {camelCaseToTitle(f)}
-                                            <Tag className="margin-left-05 bg-accent-warm">{arr.length}</Tag>
+                                            <Icon.Warning size={3} className="text-top margin-right-1" />
+                                            <span className="font-body-lg">{convertCase(f, "camel", "sentence")}</span>
+                                            <Tag className="margin-left-1 bg-accent-warm">{arr.length}</Tag>
                                         </>
                                     ),
-                                    content: arr.join("\n"),
+                                    content: (
+                                        <div className="bg-white font-sans-sm padding-top-2 padding-bottom-2 padding-left-1 padding-right-1">
+                                            {arr.join("\n")}
+                                        </div>
+                                    ),
                                     expanded: false,
                                     headingLevel: "h3",
                                     id: `${f}-list`,
@@ -129,8 +143,13 @@ const MessageTestingResult = ({ resultData, submittedMessage, handleGoBack, ...p
                         key={`output-submittedMessage-accordion`}
                         items={[
                             {
-                                title: "Output message",
-                                content: resultData.message,
+                                className: "bg-gray-5",
+                                title: <span className="font-body-lg">Output message</span>,
+                                content: (
+                                    <div className="bg-white font-sans-sm padding-top-2 padding-bottom-2 padding-left-1 padding-right-1">
+                                        {resultData.message}
+                                    </div>
+                                ),
                                 expanded: false,
                                 headingLevel: "h3",
                                 id: `output-submittedMessage-list`,
@@ -144,8 +163,13 @@ const MessageTestingResult = ({ resultData, submittedMessage, handleGoBack, ...p
                     key="test-submittedMessage-accordion"
                     items={[
                         {
-                            title: "Test message",
-                            content: submittedMessage?.reportBody,
+                            className: "bg-gray-5",
+                            title: <span className="font-body-lg">Test message</span>,
+                            content: (
+                                <div className="bg-white font-sans-sm padding-top-2 padding-bottom-2 padding-left-1 padding-right-1">
+                                    {submittedMessage?.reportBody}
+                                </div>
+                            ),
                             expanded: false,
                             headingLevel: "h3",
                             id: "test-submittedMessage-list",

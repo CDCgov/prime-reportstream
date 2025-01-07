@@ -166,7 +166,48 @@ export const removeHTMLFromString = (input: string, options = {}) => {
     return convert(input, options);
 };
 
-export const camelCaseToTitle = (s: string) => {
-    const result = s.replace(/([A-Z])/g, " $1");
-    return result.charAt(0).toUpperCase() + result.slice(1);
+export const convertCase = (str: string, inputCase: string, outputCase: string) => {
+    let words;
+
+    // break the original string into an array of lowercase words
+    switch (inputCase) {
+        case "camel":
+        case "pascal":
+            words = str
+                .replace(/([A-Z])/g, " $1")
+                .trim()
+                .toLowerCase()
+                .split(/\s+/);
+            break;
+        case "snake":
+            words = str.toLowerCase().split("_");
+            break;
+        case "kebab":
+            words = str.toLowerCase().split("-");
+            break;
+        case "constant":
+            words = str.toLowerCase().split("_");
+            break;
+        default:
+            throw new Error(`Unknown inputCase: "${inputCase}"`);
+    }
+
+    let result;
+    switch (outputCase) {
+        case "sentence":
+            result = words.join(" ");
+            if (result.length > 0) {
+                result = result.charAt(0).toUpperCase() + result.slice(1);
+            }
+            break;
+
+        case "title":
+            result = words.map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
+            break;
+
+        default:
+            throw new Error(`Unknown outputCase: "${outputCase}"`);
+    }
+
+    return result;
 };
