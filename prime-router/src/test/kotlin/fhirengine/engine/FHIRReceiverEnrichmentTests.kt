@@ -2,12 +2,14 @@ package gov.cdc.prime.router.fhirengine.engine
 
 import assertk.assertThat
 import assertk.assertions.contains
+import assertk.assertions.isEqualTo
+import assertk.assertions.isNotNull
 import gov.cdc.prime.router.ActionLogger
-import gov.cdc.prime.router.CodeStringConditionFilter
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.DeepOrganization
 import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.Metadata
+import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
@@ -23,6 +25,8 @@ import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.azure.observability.event.InMemoryAzureEventService
+import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
+import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.metadata.LookupTable
 import gov.cdc.prime.router.report.ReportService
 import gov.cdc.prime.router.unittest.UnitTestUtils
@@ -31,27 +35,27 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkClass
 import io.mockk.mockkObject
+import io.mockk.slot
 import io.mockk.spyk
+import org.hl7.fhir.r4.model.Reference
+import org.hl7.fhir.r4.model.StringType
 import org.jooq.tools.jdbc.MockConnection
 import org.jooq.tools.jdbc.MockDataProvider
 import org.jooq.tools.jdbc.MockResult
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.TestInstance
 import java.io.ByteArrayInputStream
+import java.io.File
 import java.util.UUID
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
 
 private const val ORGANIZATION_NAME = "co-phd"
 private const val RECEIVER_NAME = "full-elr-hl7"
-private const val VALID_FHIR_FILEPATH = "src/test/resources/fhirengine/engine/routing/valid.fhir"
 private const val BLOB_URL = "https://blob.url"
 private const val BLOB_SUB_FOLDER_NAME = "test-sender"
-private const val BODY_URL = "https://anyblob.com"
-private const val CONDITION_FILTER = "%resource.code.coding.code = '95418-0'"
-private val FILTER_PASS: ReportStreamFilter = listOf("true")
 private val FILTER_FAIL: ReportStreamFilter = listOf("false")
-private val MAPPED_CONDITION_FILTER_FAIL = CodeStringConditionFilter("foo,bar")
+private const val ORU_R01_SCHEMA = "classpath:/metadata/hl7_mapping/receivers/STLTs/CA/CA-receiver-transform.yml"
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class FHIRReceiverEnrichmentTests {
@@ -230,5 +234,94 @@ class FHIRReceiverEnrichmentTests {
             .contains(
                 "Receiver with name 'missing-full-name' was not found"
             )
+    }
+
+    @Test
+    fun `test receiver enrichment`() {
+        mockkClass(BlobAccess::class)
+        mockkObject(BlobAccess.Companion)
+        val blobInfo = BlobAccess.BlobInfo(MimeFormat.FHIR, BLOB_URL, "test".toByteArray(Charsets.UTF_8))
+        val slot = slot<ByteArray>()
+        every { BlobAccess.uploadBody(any(), capture(slot), any(), any(), any()) } returns blobInfo
+        every { BlobAccess.Companion.getBlobConnection(any()) } returns "testconnection"
+
+        // set up
+        val schemaName = ORU_R01_SCHEMA
+        val receiver = Receiver(
+            RECEIVER_NAME,
+            ORGANIZATION_NAME,
+            Topic.FULL_ELR,
+            CustomerStatus.ACTIVE,
+            schemaName,
+            translation = UnitTestUtils.createConfig(useTestProcessingMode = false, schemaName = schemaName),
+            enrichmentSchemaNames = listOf(
+                "classpath:/enrichments/testing.yml",
+                "classpath:/enrichments/testing2.yml"
+            )
+        )
+
+        val testOrg = DeepOrganization(
+            ORGANIZATION_NAME, "test", Organization.Jurisdiction.FEDERAL,
+            receivers = listOf(receiver)
+        )
+
+        val settings = FileSettings().loadOrganizations(testOrg)
+
+        val fhirData = File("src/test/resources/fhirengine/engine/valid_data_testing_sender.fhir").readText()
+        every { BlobAccess.downloadBlob(BLOB_URL, "test") } returns fhirData
+
+        val engine = makeFhirEngine(metadata, settings = settings)
+        val messages = settings.receivers.map {
+            spyk(
+                FhirReceiverEnrichmentQueueMessage(
+                    UUID.randomUUID(),
+                    BLOB_URL,
+                    "test",
+                    BLOB_SUB_FOLDER_NAME,
+                    topic = Topic.FULL_ELR,
+                    "co-phd.full-elr-hl7"
+                )
+            )
+        }
+        messages.forEach { message ->
+            // act + assert
+            accessSpy.transact { txn ->
+                engine.run(message, actionLogger, actionHistory, txn)
+            }
+        }
+        val uploadedFhir = slot.captured.decodeToString()
+        val enrichedBundle = FhirTranscoder.decode(uploadedFhir)
+        assertThat(enrichedBundle).isNotNull()
+        val software = FhirPathUtils.evaluate(
+            null,
+            enrichedBundle,
+            enrichedBundle,
+            "Bundle.entry.resource.ofType(MessageHeader).source.software"
+        )
+            .filterIsInstance<StringType>()
+            .firstOrNull()
+            ?.value
+        val version = FhirPathUtils.evaluate(
+            null,
+            enrichedBundle,
+            enrichedBundle,
+            "Bundle.entry.resource.ofType(MessageHeader).source.version"
+        )
+            .filterIsInstance<StringType>()
+            .firstOrNull()
+            ?.value
+        assertThat(software).isEqualTo("Purple PRIME ReportStream")
+        assertThat(version).isEqualTo("0.2-YELLOW")
+        val vendorOrganization = FhirPathUtils.evaluate(
+            null,
+            enrichedBundle,
+            enrichedBundle,
+            "Bundle.entry.resource.ofType(MessageHeader)" +
+                ".source.extension('https://reportstream.cdc.gov/fhir/StructureDefinition/software-vendor-org').value"
+        )
+            .filterIsInstance<Reference>()
+            .firstOrNull()
+            ?.resource as org.hl7.fhir.r4.model.Organization
+        assertThat(vendorOrganization.name.toString()).isEqualTo("Orange Software Vendor Name")
     }
 }
