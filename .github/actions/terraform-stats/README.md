@@ -1,6 +1,6 @@
 # Terraform Stats
 
-[![Test action](https://github.com/JosiahSiegel/terraform-stats/actions/workflows/test_action.yml/badge.svg)](https://github.com/JosiahSiegel/terraform-stats/actions/workflows/test_action.yml)
+[![Test action](https://github.com/CDCgov/prime-reportstream/.github/workflows/terraform-stats--test_action.yml/badge.svg)](https://github.com/CDCgov/prime-reportstream/.github/workflows/terraform-stats--test_action.yml)
 
 ## Synopsis
 
