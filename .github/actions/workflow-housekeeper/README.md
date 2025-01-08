@@ -2,7 +2,7 @@
 
 Retain a time period or quantity of workflow runs.
 
-[![Test action](https://github.com/JosiahSiegel/workflow-housekeeper/actions/workflows/test_action.yml/badge.svg)](https://github.com/JosiahSiegel/workflow-housekeeper/actions/workflows/test_action.yml)
+[![Test action](https://github.com/CDCgov/prime-reportstream/.github/workflows/workflow-housekeeper--test_action.yml/badge.svg)](https://github.com/CDCgov/prime-reportstream/.github/workflows/workflow-housekeeper--test_action.yml)
 
 ### Dependencies:
 
