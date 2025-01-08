@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.databind.json.JsonMapper
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.github.ajalt.clikt.core.CliktError
-import com.google.common.net.HttpHeaders
 import com.microsoft.azure.functions.HttpMethod
 import com.microsoft.azure.functions.HttpRequestMessage
 import com.microsoft.azure.functions.HttpResponseMessage
@@ -36,11 +35,11 @@ import gov.cdc.prime.router.azure.observability.event.IReportStreamEventService
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventName
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventProperties
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventService
+import gov.cdc.prime.router.azure.service.SubmissionResponseBuilder
 import gov.cdc.prime.router.cli.PIIRemovalCommands
 import gov.cdc.prime.router.cli.ProcessFhirCommands
 import gov.cdc.prime.router.common.AzureHttpUtils.getSenderIP
 import gov.cdc.prime.router.common.Environment
-import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.history.azure.SubmissionsFacade
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
@@ -68,13 +67,14 @@ class ReportFunction(
         workflowEngine.azureEventService,
         workflowEngine.reportService
     ),
+    private val submissionResponseBuilder: SubmissionResponseBuilder = SubmissionResponseBuilder(),
 ) : RequestFunction(workflowEngine),
     Logging {
 
-        enum class IngestionMethod {
-            SFTP,
-            REST,
-        }
+    enum class IngestionMethod {
+        SFTP,
+        REST,
+    }
 
     /**
      * POST a report to the router
@@ -192,7 +192,7 @@ class ReportFunction(
                     null
                 }
                 val bundle = if (result.bundle != null) {
-                    result.bundle.toString()
+                    FhirTranscoder.encode(result.bundle!!)
                 } else {
                     null
                 }
@@ -601,19 +601,12 @@ class ReportFunction(
             SubmissionsFacade.instance.findDetailedSubmissionHistory(txn, null, actionHistory.action)
         }
 
-        val response = request.createResponseBuilder(httpStatus)
-            .header(HttpHeaders.CONTENT_TYPE, "application/json")
-            .body(
-                JacksonMapperUtilities.allowUnknownsMapper
-                    .writeValueAsString(submission)
-            )
-            .header(
-                HttpHeaders.LOCATION,
-                request.uri.resolve(
-                    "/api/waters/report/${submission?.reportId}/history"
-                ).toString()
-            )
-            .build()
+        val response = submissionResponseBuilder.buildResponse(
+            sender,
+            httpStatus,
+            request,
+            submission
+        )
 
         // queue messages here after all task / action records are in
         actionHistory.queueMessages(workflowEngine)

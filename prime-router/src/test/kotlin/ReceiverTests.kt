@@ -3,6 +3,7 @@ package gov.cdc.prime.router
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import assertk.assertions.isFalse
+import assertk.assertions.isNotEqualTo
 import assertk.assertions.isNull
 import assertk.assertions.isTrue
 import gov.cdc.prime.router.unittest.UnitTestUtils
@@ -272,5 +273,12 @@ internal class ReceiverTests {
     fun `test receiver type with null transport`() {
         val receiver = Receiver("elr", "IGNORE", Topic.COVID_19, CustomerStatus.INACTIVE, translatorConfig)
         assertThat(receiver.transportType.type).isEqualTo("NULL")
+    }
+
+    @Test
+    fun `test MAJURO receiver timezone`() {
+        val shouldWork1 =
+            ZonedDateTime.of(2024, 12, 20, 0, 0, 0, 0, ZoneId.of(USTimeZone.MAJURO.zoneId)).toOffsetDateTime()
+        assertThat(shouldWork1).isNotEqualTo("2024-12-20T00:00+12:00")
     }
 }

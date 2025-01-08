@@ -90,6 +90,7 @@
       reverseTheQualityFilter: false
       conditionFilter:
         #Accept COVID only, "matches(abnormal_flag, A)"
+        #Verified that Covid only, "matches(abnormal_flag, A)" Abi Philip Jan 6 2025
         - "%resource.interpretation.coding.code = 'A' and (%resource.code.coding.extension('https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code').value.where(code  in ('840539006')).exists())"
       mappedConditionFilter: []
       deidentify: false

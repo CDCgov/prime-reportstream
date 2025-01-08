@@ -172,7 +172,7 @@ A `ctrl-c` will escape the running ReportStream instance.
 
 ## Debugging
 
-`./gradlew quickrun` or `./gradlew run` will open a debug port on your locally running ReportStream instance.
+`./gradlew quickRun` or `./gradlew run` will open a debug port on your locally running ReportStream instance.
 Connect your debugger remotely to port 5005.
 For profiling use the JMX port 9090.
 
