@@ -18,7 +18,7 @@ resourceType: Patient
 #    to Patient.link which includes a reference to RelatedPerson
 
 
-#  - PD1.4 Deprecated in NIST, set to NullDT in HAPI. Field not mapped
+#  - PD1.4 Backwards compatible in NIST. Needed for ETOR NBS use case. Mapped to Patient.generalPractitioner.
 
 id:
   type: STRING
