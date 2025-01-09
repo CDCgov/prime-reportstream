@@ -8,7 +8,6 @@ import MessageTestingForm from "../../../components/Admin/MessageTesting/Message
 import MessageTestingResult from "../../../components/Admin/MessageTesting/MessageTestingResult";
 import Crumbs, { CrumbsProps } from "../../../components/Crumbs";
 import Spinner from "../../../components/Spinner";
-import { StaticAlert, StaticAlertType } from "../../../components/StaticAlert";
 import Title from "../../../components/Title";
 import { RSMessage, RSMessageResult } from "../../../config/endpoints/reports";
 import useTestMessageResult from "../../../hooks/api/messages/UseTestMessageResult/UseTestMessageResult";
@@ -48,7 +47,7 @@ const AdminMessageTestingPage = () => {
     );
 
     // Sets data required for the MessageTestingForm
-    const { data: messageData, isDisabled } = useTestMessages();
+    const { data: messageData } = useTestMessages();
     const { setRequestBody, isLoading, data: testResultData, refetch } = useTestMessageResult();
     const [selectedOption, setSelectedOption] = useState<RSMessage | null>(null);
     const [currentTestMessages, setCurrentTestMessages] = useState<RSMessage[]>(messageData);
@@ -57,17 +56,6 @@ const AdminMessageTestingPage = () => {
         setRequestBody(selectedOption?.reportBody ? selectedOption.reportBody : null);
         setCurrentMessageTestStep(MessageTestingSteps.StepTwo);
     };
-
-    // If a user is _not_ a PrimeAdmin, block this feature
-    if (isDisabled) {
-        return (
-            <StaticAlert
-                type={StaticAlertType.Error}
-                heading="Access denied"
-                message="Please try again as a PrimeAdmin"
-            />
-        );
-    }
 
     return (
         <>

@@ -16,7 +16,6 @@ const { test } = reportsEndpoints;
  *
  * @returns {object} The hook returns the following:
  * - `data` (`RSMessage[] | undefined`): The fetched array of test messages.
- * - `isDisabled` (`boolean`): Indicates whether the feature is disabled for the current user.
  * - Other properties from `useSuspenseQuery` (e.g., `isLoading`, `isError`, `error`).
  */
 
@@ -41,7 +40,6 @@ const useTestMessages = () => {
     return {
         ...useSuspenseQueryResult,
         data: data ?? [],
-        isDisabled: !isAdmin,
     };
 };
 
