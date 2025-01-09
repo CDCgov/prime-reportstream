@@ -223,8 +223,8 @@ class ProcessFhirCommands : CliktCommand(
                 (isCli && outputFormat == MimeFormat.HL7.toString()) ||
                     (
                         receiver != null &&
-                        (receiver.format == MimeFormat.HL7 || receiver.format == MimeFormat.HL7_BATCH)
-                    )
+                            (receiver.format == MimeFormat.HL7 || receiver.format == MimeFormat.HL7_BATCH)
+                        )
                 ) -> {
                 val (bundle2, inputMessage) = convertHl7ToFhir(contents, receiver)
 
@@ -297,7 +297,7 @@ class ProcessFhirCommands : CliktCommand(
         }
     }
 
-        private fun evaluateReceiverFilters(receiver: Receiver?, messageOrBundle: MessageOrBundle, isCli: Boolean) {
+    private fun evaluateReceiverFilters(receiver: Receiver?, messageOrBundle: MessageOrBundle, isCli: Boolean) {
         if (receiver != null && messageOrBundle.bundle != null) {
             val reportStreamFilters = mutableListOf<Pair<String, ReportStreamFilter>>()
             reportStreamFilters.add(Pair("Jurisdictional Filter", receiver.jurisdictionalFilter))
@@ -522,10 +522,8 @@ class ProcessFhirCommands : CliktCommand(
         // However, the library used to encode the HL7 message throws an error it there are more than 4 encoding
         // characters, so this work around exists for that scenario
         val stringToEncode = hl7String.replace("MSH|^~\\&#|", "MSH|^~\\&|")
-        val hl7message = HL7Reader.parseHL7Message(
-            stringToEncode,
-            null
-        )
+        val hl7message = HL7Reader.parseHL7Message(stringToEncode)
+
         // if a hl7 parsing failure happens, throw error and show the message
         if (hl7message.toString().lowercase().contains("failed")) {
             throw CliktError("HL7 parser failure. $hl7message")
@@ -534,12 +532,8 @@ class ProcessFhirCommands : CliktCommand(
             val msh = hl7message.get("MSH") as Segment
             Terser.set(msh, 2, 0, 1, 1, "^~\\&#")
         }
-        val hl7profile = HL7Reader.getMessageProfile(hl7message.toString())
         // search hl7 profile map and create translator with config path if found
-        var fhirMessage = when (val configPath = HL7Reader.profileDirectoryMap[hl7profile]) {
-            null -> HL7toFhirTranslator(inputSchema).translate(hl7message)
-            else -> HL7toFhirTranslator(configPath).translate(hl7message)
-        }
+        var fhirMessage = HL7toFhirTranslator(inputSchema).translate(hl7message)
 
         val stamper = ConditionStamper(LookupTableConditionMapper(Metadata.getInstance()))
         fhirMessage.getObservations().forEach { observation ->
