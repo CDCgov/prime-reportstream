@@ -165,5 +165,6 @@ elements:
 
   - name: wa-observation-result-with-aoe
     resource: "Bundle.entry.resource.ofType(Observation).where(code.coding.extension('https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code').value.where(code in ('AOE')).exists().not())"
-
+    value: [ '' ]
+    hl7Spec: [ '' ]
 
