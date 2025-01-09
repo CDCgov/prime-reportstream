@@ -84,11 +84,11 @@ echo "init complete"
 # Import access polices that are shared with init and key_vault modules
 terraform -chdir=$path import -var-file=$env/env.tfvars.json \
 module.key_vault.azurerm_key_vault_access_policy.terraform_app_config_access_policy[0] \
-"/subscriptions/7d1e3999-6577-4cd5-b296-f518e5c8e677/resourceGroups/prime-data-hub-$env/providers/Microsoft.KeyVault/vaults/pdh$env-appconfigmt8/objectId/4d81288c-27a3-4df8-b776-c9da8e688bc7"
+"/subscriptions/7d1e3999-6577-4cd5-b296-f518e5c8e677/resourceGroups/prime-data-hub-$env/providers/Microsoft.KeyVault/vaults/pdh$env-appconfigmt8/objectId/{active_account}"
 
 terraform -chdir=$path import -var-file=$env/env.tfvars.json \
  module.key_vault.azurerm_key_vault_access_policy.terraform_access_policy[0] \
-"/subscriptions/7d1e3999-6577-4cd5-b296-f518e5c8e677/resourceGroups/prime-data-hub-$env/providers/Microsoft.KeyVault/vaults/pdh$env-keyvaultmt8/objectId/4d81288c-27a3-4df8-b776-c9da8e688bc7"
+"/subscriptions/7d1e3999-6577-4cd5-b296-f518e5c8e677/resourceGroups/prime-data-hub-$env/providers/Microsoft.KeyVault/vaults/pdh$env-keyvaultmt8/objectId/{active_account}"
 
 for i in {1..3}; do \
 terraform -chdir=$path apply \
