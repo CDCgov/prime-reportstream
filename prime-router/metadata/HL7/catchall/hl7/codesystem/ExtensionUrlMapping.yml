@@ -289,7 +289,7 @@
 
 # GT1 -> Coverage
 - id: "gt1-coverage"
-  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/gt1-coverage"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/gt1-account"
 
 ## Generic
 

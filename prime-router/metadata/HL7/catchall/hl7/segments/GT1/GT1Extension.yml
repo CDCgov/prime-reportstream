@@ -2,7 +2,7 @@
 
 url:
   type: SYSTEM_URL
-  value: gt1-coverage
+  value: gt1-account
 
 extension:
   expressionType: nested
