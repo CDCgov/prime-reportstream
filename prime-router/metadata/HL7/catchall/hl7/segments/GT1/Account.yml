@@ -2,6 +2,10 @@
 
 resourceType: Account
 
+# There are no official mappings for GT1 -> Account for FHIR R4. Guidance can be found from the V2-FHIR mapping confluence page at https://confluence.hl7.org/pages/viewpage.action?pageId=49644444
+# All fields are mapped to GT1Extension unless otherwise noted so that we can guarantee the input and output values match
+# GT1.13 and GT1.14 are mapped to guarantor.period.start and guarantor.period.end as this is unambiguous and unlikely to change
+
 id:
   type: STRING
   valueOf: "GeneralUtils.generateResourceId()"

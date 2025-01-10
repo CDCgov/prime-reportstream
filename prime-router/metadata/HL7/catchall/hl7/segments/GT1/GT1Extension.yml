@@ -180,3 +180,67 @@ extension:
         valueString:
           type: STRING
           valueOf: GT1.15
+    - expressionType: nested
+      vars:
+        gt116: STRING_ALL, GT1.16
+      condition: $gt116 NOT_NULL
+      specs: GT1.16 *
+      generateList: true
+      expressionsMap:
+        url:
+          type: STRING
+          value: GT1.16
+        valueHumanName:
+          expressionType: resource
+          valueOf: datatypes/XPN/HumanName
+    - expressionType: nested
+      vars:
+        gt117: STRING_ALL, GT1.17
+      condition: $gt117 NOT_NULL
+      specs: GT1.17 *
+      generateList: true
+      expressionsMap:
+        url:
+          type: STRING
+          value: GT1.17
+        valueAddress:
+          expressionType: resource
+          valueOf: datatypes/XAD/Address
+    - expressionType: nested
+      vars:
+        gt118: STRING_ALL, GT1.18
+      condition: $gt118 NOT_NULL
+      specs: GT1.18 *
+      generateList: true
+      expressionsMap:
+        url:
+          type: STRING
+          value: GT1.18
+        valueContactPoint:
+          expressionType: resource
+          valueOf: datatypes/XTN/ContactPoint
+    - expressionType: nested
+      specs: GT1.19 *
+      condition: $gt119 NOT_NULL
+      generateList: true
+      vars:
+        gt119: STRING_ALL, GT1.19
+      expressionsMap:
+        url:
+          type: STRING
+          value: GT1.19
+        valueIdentifier:
+          valueOf: datatypes/CX/Identifier
+          expressionType: resource
+    - expressionType: nested
+      specs: GT1.20
+      condition: $gt120 NOT_NULL
+      generateList: true
+      vars:
+        gt120: STRING_ALL, GT1.20
+      expressionsMap:
+        url:
+          type: STRING
+          value: GT1.20
+        valueCodeableConcept:
+          valueOf: datatypes/CWE/CodeableConcept
