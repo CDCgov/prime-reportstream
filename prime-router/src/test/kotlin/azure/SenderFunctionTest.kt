@@ -18,16 +18,12 @@ import gov.cdc.prime.router.metadata.ObservationMappingConstants
 import gov.cdc.prime.router.serializers.Hl7Serializer
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
 import gov.cdc.prime.router.unittest.UnitTestUtils
-import io.mockk.OfTypeMatcher
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkClass
-import io.mockk.mockkConstructor
 import io.mockk.mockkObject
 import io.mockk.spyk
-import kotlinx.serialization.json.Json
-import org.jooq.Meta
 import org.jooq.tools.jdbc.MockConnection
 import org.jooq.tools.jdbc.MockDataProvider
 import org.jooq.tools.jdbc.MockResult
@@ -50,18 +46,6 @@ class SenderFunctionTest {
         "97097-0,SARS-CoV-2 (COVID-19) Ag [Presence] in Upper respiratory specimen by Rapid  immunoassay,LOINC\n" +
         "80382-5,Influenza virus A Ag [Presence] in Upper respiratory specimen by Rapid immunoassay,LOINC\n" +
         "12345,Flu B,LOCAL"
-
-//    val RESP_BODY_TEST_JSON = Json.parseToJsonElement(
-//        "[{\"test code\":\"97097-0\"," +
-//        "\"test description\":\"SARS-CoV-2 (COVID-19) Ag [Presence] in Upper respiratory specimen by Rapid  " +
-//            "immunoassay\"," +
-//        "\"coding system\":\"LOINC\",\"mapped?\":\"Y\"}," +
-//        "{\"test code\":\"80382-5\"," +
-//        "\"test description\":\"Influenza virus A Ag [Presence] in Upper respiratory specimen by Rapid immunoassay\"," +
-//        "\"coding system\":\"LOINC\",\"mapped?\":\"Y\"}," +
-//        "{\"test code\":\"12345\",\"test description\":\"Flu B\"," +
-//        "\"coding system\":\"LOCAL\",\"mapped?\":\"N\"}]"
-//    )
 
     val testOrganization = DeepOrganization(
         "phd",
@@ -119,9 +103,7 @@ class SenderFunctionTest {
         every { AuthenticatedClaims.authenticate(any()) } returns mockClaims
         every { mockClaims.authorizedForSendOrReceive(any(), any()) } returns true
 
-        // TODO trying some stuff??
-        val myMetadata = Metadata(UnitTestUtils.simpleSchema)
-        myMetadata.lookupTableStore += mapOf(
+        metadata.lookupTableStore += mapOf(
             "observation-mapping" to LookupTable(
                 "observation-mapping",
                 listOf(
@@ -146,26 +128,6 @@ class SenderFunctionTest {
                 )
             )
         )
-
-        // TODO mock LookupTableConditionMapper with DB in a cleared state
-//        mockkConstructor(LookupTableConditionMapper::class)
-//        every {
-//            anyConstructed<LookupTableConditionMapper>().mappingTable.caseSensitiveDataRowsMap
-//        } returns LookupTableConditionMapper(myMetadata).mappingTable.caseSensitiveDataRowsMap
-//        val mockMetadata = mockk<Metadata>()
-//        mockk<Metadata>()
-//        every {
-//            Metadata.getInstance()
-//        } returns myMetadata
-
-//        mockkClass(LookupTableConditionMapper::class)
-//        val conditionMapper = LookupTableConditionMapper(myMetadata)
-//        mockkConstructor(LookupTableConditionMapper::class)
-//        every {
-//            constructedWith<LookupTableConditionMapper>(OfTypeMatcher<Metadata>(Metadata::class))
-//                .mappingTable.caseSensitiveDataRowsMap
-//        } returns conditionMapper.mappingTable.caseSensitiveDataRowsMap
-
 
         val codeToConditionMapping = listOf(
             mapOf(

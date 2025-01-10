@@ -8,7 +8,6 @@ import com.microsoft.azure.functions.HttpResponseMessage
 import com.microsoft.azure.functions.annotation.AuthorizationLevel
 import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.HttpTrigger
-import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.observability.event.IReportStreamEventService
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventService
@@ -69,7 +68,7 @@ class SenderFunction(
             val bodyCsv = csvReader().readAllWithHeader(bodyCsvText)
 
             // Get observation mapping table
-            val tableMapper = LookupTableConditionMapper(Metadata())
+            val tableMapper = LookupTableConditionMapper(workflowEngine.metadata)
             val observationMappingTable = tableMapper.mappingTable.caseSensitiveDataRowsMap
             val tableTestCodeMap = observationMappingTable.associateBy { it[ObservationMappingConstants.TEST_CODE_KEY] }
 
