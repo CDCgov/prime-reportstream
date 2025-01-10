@@ -7,9 +7,19 @@ id:
   valueOf: "GeneralUtils.generateResourceId()"
   expressionType: JEXL
 
-status:
-  type: STRING
-  valueOf: "active"
+guarantor:
+  vars:
+    gt1: GT1
+  condition: $gt1 NOT_NULL
+  expressionType: nested
+  generateList: true
+  expressionsMap:
+    period:
+      valueOf: datatypes/DT/Period
+      expressionType: resource
+      vars:
+        start: GT1.13
+        end: GT1.14
 
 extension:
   generateList: true

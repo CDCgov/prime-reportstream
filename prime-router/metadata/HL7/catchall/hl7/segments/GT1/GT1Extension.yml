@@ -130,7 +130,7 @@ extension:
           expressionType: resource
     - expressionType: nested
       specs: GT1.10
-      condition: $gt10 NOT_NULL
+      condition: $gt110 NOT_NULL
       generateList: true
       vars:
         gt110: STRING_ALL, GT1.10
@@ -141,3 +141,42 @@ extension:
         valueCodeableConcept:
           valueOf: datatypes/CWE/CodeableConcept
           expressionType: resource
+    - expressionType: nested
+      specs: GT1.11
+      condition: $gt111 NOT_NULL
+      generateList: true
+      vars:
+        gt111: STRING_ALL, GT1.11
+      expressionsMap:
+        url:
+          type: STRING
+          value: GT1.11
+        valueCodeableConcept:
+          valueOf: datatypes/CWE/CodeableConcept
+          expressionType: resource
+    - expressionType: nested
+      vars:
+        gt112: STRING_ALL, GT1.12
+      condition: $gt112 NOT_NULL
+      specs: GT1.12
+      generateList: true
+      expressionsMap:
+        url:
+          type: STRING
+          value: GT1.12
+        valueString:
+          type: STRING
+          valueOf: GT1.12
+          expressionType: HL7Spec
+    - expressionType: nested
+      vars:
+        gt115: GT1.15
+      condition: $gt115 NOT_NULL
+      generateList: true
+      expressionsMap:
+        url:
+          type: STRING
+          value: GT1.15
+        valueString:
+          type: STRING
+          valueOf: GT1.15
