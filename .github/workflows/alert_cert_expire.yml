@@ -61,8 +61,8 @@ jobs:
           message: |
             ${{ steps.format_out.outputs.LIST }}
           icon-emoji: ':bell:'
-          channel: pagerduty-alert-dump
-          webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
+          channel: temp-cdc-rs-notifications  # Updated channel
+          webhook-url: ${{ secrets.SLACK_NOTIFICATIONS_WEBHOOK_URL }}  # Updated webhook secret
           color: warning
 
       - name: Remove Runner IP from the KeyVault Firewalls
