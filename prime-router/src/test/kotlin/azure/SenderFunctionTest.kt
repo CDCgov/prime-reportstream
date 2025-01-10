@@ -37,10 +37,10 @@ class SenderFunctionTest {
     val accessSpy = spyk(DatabaseAccess(connection))
     val metadata = UnitTestUtils.simpleMetadata
     val settings = mockkClass(SettingsProvider::class)
-    val serializer = spyk(Hl7Serializer(metadata, settings))
     val blobMock = mockkClass(BlobAccess::class)
-    val queueMock = mockkClass(QueueAccess::class)
-    val timing1 = mockkClass(Receiver.Timing::class)
+    private val serializer = spyk(Hl7Serializer(metadata, settings))
+    private val queueMock = mockkClass(QueueAccess::class)
+    private val timing1 = mockkClass(Receiver.Timing::class)
 
     val REQ_BODY_TEST_CSV = "test code,test description,coding system\n" +
         "97097-0,SARS-CoV-2 (COVID-19) Ag [Presence] in Upper respiratory specimen by Rapid  immunoassay,LOINC\n" +
@@ -114,13 +114,7 @@ class SenderFunctionTest {
                         ObservationMappingConstants.CONDITION_NAME_KEY
                     ),
                     listOf(
-                        "80382-5",
-                        "6142004",
-                        "SNOMEDCT",
-                        "Influenza (disorder)"
-                    ),
-                    listOf(
-                        "260373001",
+                        "00001",
                         "Some Condition Code",
                         "Condition Code System",
                         "Condition Name"
@@ -131,15 +125,15 @@ class SenderFunctionTest {
 
         val codeToConditionMapping = listOf(
             mapOf(
-                "test code" to "001",
+                "test code" to "00001",
                 "test description" to "test description 1",
-                "coding system" to "LOINC",
+                "coding system" to "Condition Code System",
                 "mapped?" to "Y"
             ),
             mapOf(
-                "test code" to "002",
+                "test code" to "00002",
                 "test description" to "test description 2",
-                "coding system" to "LOINC",
+                "coding system" to "Another Condition Code System",
                 "mapped?" to "N"
             )
         )

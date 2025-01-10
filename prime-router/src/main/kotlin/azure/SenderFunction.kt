@@ -9,9 +9,6 @@ import com.microsoft.azure.functions.annotation.AuthorizationLevel
 import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.HttpTrigger
 import gov.cdc.prime.router.azure.db.enums.TaskAction
-import gov.cdc.prime.router.azure.observability.event.IReportStreamEventService
-import gov.cdc.prime.router.azure.observability.event.ReportStreamEventService
-import gov.cdc.prime.router.azure.service.SubmissionResponseBuilder
 import gov.cdc.prime.router.cli.LookupTableCompareMappingCommand
 import gov.cdc.prime.router.metadata.ObservationMappingConstants
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
@@ -22,12 +19,6 @@ import org.apache.logging.log4j.kotlin.Logging
 class SenderFunction(
     private val workflowEngine: WorkflowEngine = WorkflowEngine(),
     private val actionHistory: ActionHistory = ActionHistory(TaskAction.receive),
-    private val reportEventService: IReportStreamEventService = ReportStreamEventService(
-        workflowEngine.db,
-        workflowEngine.azureEventService,
-        workflowEngine.reportService
-    ),
-    private val submissionResponseBuilder: SubmissionResponseBuilder = SubmissionResponseBuilder(),
 ) : RequestFunction(workflowEngine),
     Logging {
 
