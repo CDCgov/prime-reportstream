@@ -107,7 +107,7 @@ resource "azurerm_key_vault_access_policy" "init_tf" {
   key_vault_id = azurerm_key_vault.init[each.value].id
   tenant_id    = data.azurerm_client_config.current.tenant_id
   // terraform-automation 5ab367bf-df15-45af-a027-47f95f2c75d8
-  object_id = "{active_account}"
+  object_id = "a58ee002-62c7-4a91-a2dc-4a837663aa00"
 
   key_permissions = [
     "Create",
