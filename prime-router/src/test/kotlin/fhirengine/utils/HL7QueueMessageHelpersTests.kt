@@ -7,8 +7,8 @@ import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotNull
 import assertk.assertions.isTrue
 import assertk.assertions.startsWith
+import ca.uhn.hl7v2.util.Hl7InputStreamMessageStringIterator
 import ca.uhn.hl7v2.util.Terser
-import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.Hl7Configuration
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Topic
@@ -135,7 +135,10 @@ OBX|1|ST|MLI-4000.15^TEMPERATURE||97.7|deg f|||||R|||19980601184619
         """.trimIndent()
 
         val batchFile = HL7MessageHelpers.batchMessages(listOf(hl7Message, hl7Message), receiver)
-        val messages = HL7Reader(ActionLogger()).getMessages(batchFile)
+        val messages = Hl7InputStreamMessageStringIterator(batchFile.byteInputStream()).asSequence()
+            .map { rawItem ->
+                HL7Reader.parseHL7Message(rawItem)
+            }.toList()
         assertThat(messages).isNotEmpty()
         assertThat(messages.size).isEqualTo(2)
         val a = Terser(messages[0])
