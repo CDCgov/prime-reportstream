@@ -82,6 +82,13 @@ resources:
     group: PATIENT.INSURANCE
     resourcePath: segments/IN1/Coverage
     repeats: false
+    isReferenced: true
+
+  - resourceName: Account
+    group: PATIENT
+    segment: .GT1
+    resourcePath: segments/GT1/Account
+    repeats: false
     isReferenced: false
 
   - resourceName: ServiceRequest

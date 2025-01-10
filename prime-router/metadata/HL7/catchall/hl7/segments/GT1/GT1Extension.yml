@@ -1,0 +1,23 @@
+# $schema: ./../../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
+
+url:
+  type: SYSTEM_URL
+  value: gt1-coverage
+
+extension:
+  expressionType: nested
+  generateList: true
+  expressions:
+    - expressionType: nested
+      specs: GT1.2 *
+      condition: $gt12 NOT_NULL
+      generateList: true
+      vars:
+        gt12: STRING_ALL, GT1.2
+      expressionsMap:
+        url:
+          type: STRING
+          value: GT1.2
+        valueIdentifier:
+          valueOf: datatypes/CX/Identifier
+          expressionType: resource
