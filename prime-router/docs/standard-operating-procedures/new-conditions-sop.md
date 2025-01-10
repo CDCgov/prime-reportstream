@@ -26,8 +26,10 @@ To ensure that data from new reportable conditions sent by new or existing sende
 2. **Confirm Minimum Data**:
     - Ensure the minimum required data is present to represent a test.
     - For FHIR messages:
-        - **Test Ordered**: Located under `DiagnosticReport.code.coding`.
-        - **Test Performed**: Located under `Observation.code.coding`.
+        - **Test Ordered**: Located under `DiagnosticReport.code.coding.code`.
+        - **Test Ordered Description**: Located under `DiagnosticReport.code.coding.display`.
+        - **Test Performed**: Located under `Observation.code.coding.code`.
+        - **Test Ordered Description**: Located under `Observation.code.coding.display`.
     - For HL7 v2.5.1 messages:
         - **Test Ordered**: Located in `OBR-4`.
         - **Test Performed**: Located in `OBX-3`.
