@@ -21,3 +21,4 @@ RelatedPerson: org.hl7.fhir.r4.model.RelatedPerson
 Provenance: org.hl7.fhir.r4.model.Provenance
 Location: org.hl7.fhir.r4.model.Location
 EpisodeOfCare: org.hl7.fhir.r4.model.EpisodeOfCare
+Account: org.hl7.fhir.r4.model.Account
