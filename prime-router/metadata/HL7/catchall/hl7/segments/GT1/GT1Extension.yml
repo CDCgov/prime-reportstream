@@ -21,3 +21,123 @@ extension:
         valueIdentifier:
           valueOf: datatypes/CX/Identifier
           expressionType: resource
+    - expressionType: nested
+      vars:
+        gt13: STRING_ALL, GT1.3
+      condition: $gt13 NOT_NULL
+      specs: GT1.3 *
+      generateList: true
+      expressionsMap:
+        url:
+          type: STRING
+          value: GT1.3
+        valueHumanName:
+          expressionType: resource
+          valueOf: datatypes/XPN/HumanName
+    - expressionType: nested
+      vars:
+        gt14: STRING_ALL, GT1.4
+      condition: $gt14 NOT_NULL
+      specs: GT1.4 *
+      generateList: true
+      expressionsMap:
+        url:
+          type: STRING
+          value: GT1.4
+        valueHumanName:
+          expressionType: resource
+          valueOf: datatypes/XPN/HumanName
+    - expressionType: nested
+      vars:
+        GT15: STRING_ALL, GT1.5
+      condition: $gt15 NOT_NULL
+      specs: GT1.5 *
+      generateList: true
+      expressionsMap:
+        url:
+          type: STRING
+          value: GT1.5
+        valueAddress:
+          expressionType: resource
+          valueOf: datatypes/XAD/Address
+    - expressionType: nested
+      vars:
+        gt16: STRING_ALL, GT1.6
+      condition: $gt16 NOT_NULL
+      specs: GT1.6 *
+      generateList: true
+      expressionsMap:
+        url:
+          type: STRING
+          value: GT1.6
+        valueContactPoint:
+          expressionType: resource
+          valueOf: datatypes/XTN/ContactPoint
+    - expressionType: nested
+      vars:
+        gt17: STRING_ALL, GT1.7
+      condition: $gt17 NOT_NULL
+      specs: GT1.7 *
+      generateList: true
+      expressionsMap:
+        url:
+          type: STRING
+          value: GT1.7
+        valueContactPoint:
+          expressionType: resource
+          valueOf: datatypes/XTN/ContactPoint
+    - expressionType: nested
+      vars:
+        gt18: GT1.8
+      condition: $gt18 NOT_NULL
+      generateList: true
+      expressionsMap:
+        url:
+          type: STRING
+          value: GT1.8
+        valueDateTime:
+          expressionType: nested
+          expressions:
+            - type: STRING
+              valueOf: "GeneralUtils.dateTimeWithZoneId(gt18,ZONEID)"
+              expressionType: JEXL
+        _valueDateTime:
+          expressionType: nested
+          expressionsMap:
+            extension:
+              generateList: true
+              expressionType: nested
+              expressionsMap:
+                url:
+                  type: SYSTEM_URL
+                  value: hl7v2-date-time
+                valueString:
+                  type: STRING
+                  valueOf: GT1.8
+                  expressionType: HL7Spec
+    - expressionType: nested
+      specs: GT1.9
+      condition: $gt19 NOT_NULL
+      generateList: true
+      vars:
+        gt19: STRING_ALL, GT1.9
+      expressionsMap:
+        url:
+          type: STRING
+          value: GT1.9
+        valueCodeableConcept:
+          valueOf: datatypes/CWE/CodeableConcept
+          expressionType: resource
+    - expressionType: nested
+      specs: GT1.10
+      condition: $gt10 NOT_NULL
+      generateList: true
+      vars:
+        gt110: STRING_ALL, GT1.10
+      expressionsMap:
+        url:
+          type: STRING
+          value: GT1.10
+        valueCodeableConcept:
+          valueOf: datatypes/CWE/CodeableConcept
+          expressionType: resource
