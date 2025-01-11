@@ -61,6 +61,7 @@ const MessageTestingForm = ({
                                     setCustomMessageNumber={setCustomMessageNumber}
                                     setCurrentTestMessages={setCurrentTestMessages}
                                     setOpenCustomMessage={setOpenCustomMessage}
+                                    setSelectedOption={setSelectedOption}
                                 />
                             )}
                         </fieldset>

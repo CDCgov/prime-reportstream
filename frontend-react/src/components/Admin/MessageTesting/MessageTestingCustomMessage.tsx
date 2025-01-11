@@ -8,12 +8,14 @@ export const MessageTestingCustomMessage = ({
     setCustomMessageNumber,
     setCurrentTestMessages,
     setOpenCustomMessage,
+    setSelectedOption,
 }: {
     customMessageNumber: number;
     currentTestMessages: { fileName: string; reportBody: string }[];
     setCustomMessageNumber: (value: number) => void;
     setCurrentTestMessages: (messages: RSMessage[]) => void;
     setOpenCustomMessage: (value: boolean) => void;
+    setSelectedOption: (message: RSMessage) => void;
 }) => {
     const [text, setText] = useState("");
     const handleTextareaChange = (event: ChangeEvent<HTMLTextAreaElement>) => {
@@ -21,16 +23,15 @@ export const MessageTestingCustomMessage = ({
     };
     const handleAddCustomMessage = () => {
         const dateCreated = new Date();
-        setCurrentTestMessages([
-            ...currentTestMessages,
-            {
-                dateCreated: dateCreated.toString(),
-                fileName: `Custom message ${customMessageNumber}`,
-                reportBody: text,
-            },
-        ]);
+        const customTestMessage = {
+            dateCreated: dateCreated.toString(),
+            fileName: `Custom message ${customMessageNumber}`,
+            reportBody: text,
+        };
+        setCurrentTestMessages([...currentTestMessages, customTestMessage]);
         setCustomMessageNumber(customMessageNumber + 1);
         setText("");
+        setSelectedOption(customTestMessage);
         setOpenCustomMessage(false);
     };
 

@@ -4,7 +4,6 @@ import type { PropsWithChildren } from "react";
 import language from "./language.json";
 import type { RSMessage, RSMessageResult } from "../../../config/endpoints/reports";
 import Alert, { type AlertProps } from "../../../shared/Alert/Alert";
-import { convertCase } from "../../../utils/misc";
 import { USLinkButton } from "../../USLink";
 
 export interface MessageTestingResultProps extends PropsWithChildren {
@@ -99,7 +98,7 @@ const MessageTestingResult = ({
                                     title: (
                                         <>
                                             <Icon.Error size={3} className="text-top margin-right-1" />
-                                            <span className="font-body-lg">{convertCase(f, "camel", "sentence")}</span>
+                                            <span className="font-body-lg">Transform warnings</span>
                                             <Tag className="margin-left-1 bg-secondary-vivid">{arr.length}</Tag>
                                         </>
                                     ),
@@ -133,7 +132,7 @@ const MessageTestingResult = ({
                                     title: (
                                         <>
                                             <Icon.Warning size={3} className="text-top margin-right-1" />
-                                            <span className="font-body-lg">{convertCase(f, "camel", "sentence")}</span>
+                                            <span className="font-body-lg">Filters triggered</span>
                                             <Tag className="margin-left-1 bg-accent-warm">{arr.length}</Tag>
                                         </>
                                     ),
@@ -151,7 +150,7 @@ const MessageTestingResult = ({
                     </div>
                 );
             })}
-            {resultData.message && (
+            {resultData.message && isPassed && (
                 <div key={`output-submittedMessage-accordion-wrapper`} className="padding-top-4">
                     <Accordion
                         key={`output-submittedMessage-accordion`}
