@@ -4230,9 +4230,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"chromatic@npm:^11.22.0":
-  version: 11.22.0
-  resolution: "chromatic@npm:11.22.0"
+"chromatic@npm:^11.22.2":
+  version: 11.22.2
+  resolution: "chromatic@npm:11.22.2"
   peerDependencies:
     "@chromatic-com/cypress": ^0.*.* || ^1.0.0
     "@chromatic-com/playwright": ^0.*.* || ^1.0.0
@@ -4245,7 +4245,7 @@ __metadata:
     chroma: dist/bin.js
     chromatic: dist/bin.js
     chromatic-cli: dist/bin.js
-  checksum: 7ec1d7000f30356f99210b086b04ad1041ab254fe06bb27294e762b57816ce998bf29666d4641a6555fdac46ecb474fde024e4fbc4af101ee666dac33fde6a87
+  checksum: fd8249f0d172fd148cdbddf66a0bd86c6c7a460c8fbbefa6a9b1698e2440360817d2d7a6d5bef8d1e17e120ffd28d479a9aafb76fb87b0cce7e6e6e20e1c297f
   languageName: node
   linkType: hard
 
@@ -9856,7 +9856,7 @@ __metadata:
     axios: ^1.7.9
     browserslist: ^4.24.3
     browserslist-useragent-regexp: ^4.1.3
-    chromatic: ^11.22.0
+    chromatic: ^11.22.2
     classnames: ^2.5.1
     cross-env: ^7.0.3
     date-fns: ^4.1.0
