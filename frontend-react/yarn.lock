@@ -5665,12 +5665,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-plugin-react-refresh@npm:^0.4.16":
-  version: 0.4.16
-  resolution: "eslint-plugin-react-refresh@npm:0.4.16"
+"eslint-plugin-react-refresh@npm:^0.4.18":
+  version: 0.4.18
+  resolution: "eslint-plugin-react-refresh@npm:0.4.18"
   peerDependencies:
     eslint: ">=8.40"
-  checksum: 1039d8412f88c99db6c642c4509f351e0c29651e520ec8313d90e38f33a31c6062bb6e736150782f8534ff8315f738a992cef49ec199fa77ac05776f5f3f8b45
+  checksum: c93283d15156cd436c05515262dcee2e9e6cbf3efdc4a311be451bec77f62fb61a31b659eee272205c8e71ac44a6a7fb11ff4b74b1f60366d10c2ede2dcb4884
   languageName: node
   linkType: hard
 
@@ -9872,7 +9872,7 @@ __metadata:
     eslint-plugin-playwright: ^2.1.0
     eslint-plugin-react: ^7.37.3
     eslint-plugin-react-hooks: ^5.1.0
-    eslint-plugin-react-refresh: ^0.4.16
+    eslint-plugin-react-refresh: ^0.4.18
     eslint-plugin-storybook: ^0.11.2
     eslint-plugin-testing-library: ^7.1.1
     eslint-plugin-vitest: ^0.5.4
