@@ -42,7 +42,7 @@
     "sanitize-html": "^2.14.0",
     "tsx": "^4.19.2",
     "use-deep-compare-effect": "^1.8.1",
-    "uuid": "^11.0.4",
+    "uuid": "^11.0.5",
     "web-vitals": "^3.4.0"
   },
   "scripts": {
