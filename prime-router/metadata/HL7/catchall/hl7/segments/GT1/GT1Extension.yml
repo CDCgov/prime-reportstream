@@ -4,6 +4,12 @@ url:
   type: SYSTEM_URL
   value: gt1-account
 
+# GT1.13 and GT1.14 are mapped in Account.yml
+# GT1.15 is mapped to datatype STRING as opposed to NM so that we pass any value given to us by the sender
+# GT1.22 is mapped to datatype STRING as opposed to ID to follow HL7 guidance "The value of such a field follows the formatting rules for an ST field except that it is drawn from a table of legal values."
+# GT1.25 is mapped to datatype STRING as opposed to ID to follow HL7 guidance "The value of such a field follows the formatting rules for an ST field except that it is drawn from a table of legal values."
+# GT1.28 is mapped to datatype STRING as opposed to NM so that we pass any value given to us by the sender
+
 extension:
   expressionType: nested
   generateList: true
@@ -244,3 +250,143 @@ extension:
           value: GT1.20
         valueCodeableConcept:
           valueOf: datatypes/CWE/CodeableConcept
+    - expressionType: nested
+      vars:
+        in121: STRING_ALL, GT1.21
+      condition: $gt121 NOT_NULL
+      specs: GT1.21 *
+      generateList: true
+      expressionsMap:
+        url:
+          type: STRING
+          value: GT1.21
+        valueReference:
+          valueOf: datatypes/XON/Organization
+          expressionType: reference
+    - expressionType: nested
+      vars:
+        gt122: STRING_ALL, GT1.22
+      condition: $gt122 NOT_NULL
+      specs: GT1.22
+      generateList: true
+      expressionsMap:
+        url:
+          type: STRING
+          value: GT1.22
+        valueString:
+          type: STRING
+          valueOf: GT1.22
+          expressionType: HL7Spec
+    - expressionType: nested
+      specs: GT1.23
+      condition: $gt123 NOT_NULL
+      generateList: true
+      vars:
+        gt123: STRING_ALL, GT1.23
+      expressionsMap:
+        url:
+          type: STRING
+          value: GT1.23
+        valueCodeableConcept:
+          valueOf: datatypes/CWE/CodeableConcept
+    - expressionType: nested
+      vars:
+        gt124: GT1.24
+      condition: $gt124 NOT_NULL
+      generateList: true
+      expressionsMap:
+        url:
+          type: STRING
+          value: GT1.24
+        valueDateTime:
+          expressionType: nested
+          expressions:
+            - type: STRING
+              valueOf: "GeneralUtils.dateTimeWithZoneId(gt124,ZONEID)"
+              expressionType: JEXL
+        _valueDateTime:
+          expressionType: nested
+          expressionsMap:
+            extension:
+              generateList: true
+              expressionType: nested
+              expressionsMap:
+                url:
+                  type: SYSTEM_URL
+                  value: hl7v2-date-time
+                valueString:
+                  type: STRING
+                  valueOf: GT1.24
+                  expressionType: HL7Spec
+    - expressionType: nested
+      vars:
+        gt125: STRING_ALL, GT1.25
+      condition: $gt125 NOT_NULL
+      specs: GT1.25
+      generateList: true
+      expressionsMap:
+        url:
+          type: STRING
+          value: GT1.25
+        valueString:
+          type: STRING
+          valueOf: GT1.25
+          expressionType: HL7Spec
+    - expressionType: nested
+      specs: GT1.26
+      condition: $gt126 NOT_NULL
+      generateList: true
+      vars:
+        gt126: STRING_ALL, GT1.26
+      expressionsMap:
+        url:
+          type: STRING
+          value: GT1.26
+        valueCodeableConcept:
+          valueOf: datatypes/CWE/CodeableConcept
+    - expressionType: resource
+      vars:
+        in127: STRING, GT1.27
+      condition: $gt127 NOT_NULL
+      valueOf: datatypes/CP/CPExtension
+      constants:
+        cpExtensionName: GT1.27
+      specs: GT1.27
+    - expressionType: nested
+      vars:
+        gt128: GT1.28
+      condition: $gt128 NOT_NULL
+      generateList: true
+      expressionsMap:
+        url:
+          type: STRING
+          value: GT1.28
+        valueString:
+          type: STRING
+          valueOf: GT1.28
+    - expressionType: nested
+      specs: GT1.29 *
+      condition: $gt129 NOT_NULL
+      generateList: true
+      vars:
+        gt129: STRING_ALL, GT1.29
+      expressionsMap:
+        url:
+          type: STRING
+          value: GT1.29
+        valueIdentifier:
+          valueOf: datatypes/CX/Identifier
+          expressionType: resource
+    - expressionType: nested
+      specs: GT1.30
+      condition: $gt130 NOT_NULL
+      generateList: true
+      vars:
+        gt130: STRING_ALL, GT1.30
+      expressionsMap:
+        url:
+          type: STRING
+          value: GT1.30
+        valueCodeableConcept:
+          valueOf: datatypes/CWE/CodeableConcept
+          expressionType: resource
