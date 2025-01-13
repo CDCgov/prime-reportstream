@@ -14,7 +14,7 @@ enum class USTimeZone(val zoneId: String) {
     MICHIGAN("US/Michigan"), // For Michigan timezone
     CHAMORRO("Pacific/Guam"), // For Guam and Chamorro timezone
     ALASKA("US/Alaska"), // For Alaska timezone
-    PUERTO_RICO("Cuba"), // For Puerto Rico timezone
+    PUERTO_RICO("America/Puerto_Rico"), // For Puerto Rico timezone
     US_VIRGIN_ISLANDS("America/St_Thomas"), // For US Virgin Islands timezone
     CHUUK("Pacific/Chuuk"), // For Chuuk, Micronesia timezone
     POHNPEI("Pacific/Pohnpei"), // For Pohnpei, Micronesia timezone

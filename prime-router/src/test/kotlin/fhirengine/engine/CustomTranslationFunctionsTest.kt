@@ -123,7 +123,7 @@ class CustomTranslationFunctionsTest {
     @org.junit.jupiter.api.Test
     fun `test ChuukTimezone for Micronesia timezone with convertDateTimeToHL7`() {
         val timezoneParameters1: MutableList<MutableList<Base>> =
-            mutableListOf(mutableListOf(StringType("Pacific/Chuuk")))
+            mutableListOf(mutableListOf(StringType("Pacific/Port_Moresby")))
         val adjustedDateTime =
             CustomFHIRFunctions.changeTimezone(
                 mutableListOf(DateTimeType("2015-04-05T12:22:11Z")),
@@ -136,7 +136,7 @@ class CustomTranslationFunctionsTest {
     @org.junit.jupiter.api.Test
     fun `test PohnpeiTimezone for Micronesia timezone with convertDateTimeToHL7`() {
         val timezoneParameters1: MutableList<MutableList<Base>> =
-            mutableListOf(mutableListOf(StringType("Pacific/Pohnpei")))
+            mutableListOf(mutableListOf(StringType("Pacific/Guadalcanal")))
         val adjustedDateTime =
             CustomFHIRFunctions.changeTimezone(
                 mutableListOf(DateTimeType("2015-04-05T12:22:11Z")),
