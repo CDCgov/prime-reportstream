@@ -103,10 +103,20 @@ enum class Environment(
 
         /**
          * Checks if the current environment is the local environment.
+         *
          * @return true if local environment, false otherwise
          */
         fun isLocal(): Boolean {
             return get() == LOCAL
+        }
+
+        /**
+         * Checks if the current environment is the production environment.
+         *
+         * @return true if production environment, false otherwise
+         */
+        fun isProd(): Boolean {
+            return get() == PROD
         }
 
         /**

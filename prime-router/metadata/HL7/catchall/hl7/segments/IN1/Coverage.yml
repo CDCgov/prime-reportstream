@@ -1,0 +1,101 @@
+# $schema: ./../../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
+
+resourceType: Coverage
+
+# IN1.2 CWE[Identifier] is a subset of the input CWE; maps identifier.name which does not exist; use IN1Extension
+# IN1.4 references IN1.5 for address but both fields are repeatable; use IN1Extension for these fields
+# IN1.10 and IN1.49 are mapped to the same FHIR extension; use IN1Extension for these fields
+# IN1.10 when CX.5 is not "SN" has a definition that conflicts with XON[Organization] with no clear hierarchy
+# IN1.11 is repeatable but maps to policyHolder on Coverage which is not, so it's all captured in IN1Extension
+# IN1.16 is repeatable but maps to subscriber on Coverage which is not, so it's all captured in IN1Extension
+
+id:
+  type: STRING
+  valueOf: "GeneralUtils.generateResourceId()"
+  expressionType: JEXL
+
+beneficiary:
+  expressionType: resource
+  valueOf: datatype/Reference
+  specs: $Patient
+
+payor:
+  expressionType: reference
+  condition: $in14 NOT_NULL || $in15 NOT_NULL
+  valueOf: datatypes/XON/Organization
+  specs: IN1.4
+  vars:
+    XADAddress: IN1.5
+    in14: STRING_ALL, IN1.4
+    in15: STRING_ALL, IN1.5
+
+period:
+  valueOf: datatypes/DT/Period
+  expressionType: resource
+  vars:
+    start: IN1.12
+    end: IN1.13
+
+policyHolder:
+  expressionType: reference
+  condition: $in111 NOT_NULL
+  valueOf: datatypes/XON/Organization
+  specs: IN1.11
+  vars:
+    in111: STRING_ALL, IN1.11
+    CXIdentifier: IN1.10
+
+relationship:
+  expressionType: resource
+  valueOf: datatypes/CWE/CodeableConcept
+  specs: IN1.17
+
+subscriber:
+  expressionType: nested
+  vars:
+    in117: STRING, IN1.17.1
+  expressions:
+    - condition: $in117 EQUALS patient || $in117 EQUALS SEL
+      valueOf: datatype/Reference
+      expressionType: resource
+      specs: $Patient
+    - condition: $in117 NOT_NULL && $in117 NOT_EQUALS patient && $in117 NOT_EQUALS SEL
+      expressionType: reference
+      valueOf: datatypes/XPN/RelatedPerson
+      specs: IN1.16
+
+type:
+  expressionType: resource
+  valueOf: datatypes/CWE/CodeableConcept
+  specs: IN1.15
+
+extension:
+  generateList: true
+  expressionType: nested
+  expressions:
+    - expressionType: nested
+      vars:
+        in1105: STRING, IN1.10.5
+      condition: $in1105 EQUALS SN
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: extension-subscriber-id
+        valueIdentifier:
+          valueOf: datatypes/CX/Identifier
+          expressionType: resource
+          specs: IN1.10
+    - expressionType: nested
+      vars:
+        in149: STRING, IN1.49
+      condition: $in149 NOT_NULL
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: extension-subscriber-id
+        valueIdentifier:
+          valueOf: datatypes/CX/Identifier
+          expressionType: resource
+          specs: IN1.49
+    - expressionType: resource
+      valueOf: segments/IN1/IN1Extension

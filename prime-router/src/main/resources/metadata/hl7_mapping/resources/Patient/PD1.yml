@@ -11,6 +11,13 @@ elements:
     constants:
       hl7XONField: '%{hl7PD1Field}-3(%{xonIndex})'
 
+  - name: patient-primary-provider
+    resource: '%resource.generalPractitioner.resolve().ofType(Practitioner)'
+    schema: classpath:/metadata/hl7_mapping/resources/Practitioner/XCN.yml
+    resourceIndex: xcnIndex
+    constants:
+      hl7XCNField: '%{hl7PD1Field}-4(%{xcnIndex})'
+
   - name: student-indicator
     condition: '%context.extension(%`rsext-studentStatus`).exists()'
     resource: '%resource.extension(%`rsext-studentStatus`).value'

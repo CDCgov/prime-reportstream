@@ -402,19 +402,6 @@ class BlobAccess() : Logging {
         }
 
         /**
-         * Copy a blob at [fromBlobUrl] to a blob in [blobConnInfo]
-         */
-        fun copyBlob(fromBlobUrl: String, blobConnInfo: BlobContainerMetadata): String {
-            val fromBytes = downloadBlobAsByteArray(fromBlobUrl)
-            logger.info("Ready to copy ${fromBytes.size} bytes from $fromBlobUrl")
-            val toFilename = BlobInfo.getBlobFilename(fromBlobUrl)
-            logger.info("New blob filename will be $toFilename")
-            val toBlobUrl = uploadBlob(toFilename, fromBytes, blobConnInfo)
-            logger.info("New blob URL is $toBlobUrl")
-            return toBlobUrl
-        }
-
-        /**
          * Accepts a [BlobItemAndPreviousVersions] and grabs the most recent previous version and updates
          * the blob to it.
          *

@@ -77,6 +77,13 @@ resources:
     additionalSegments:
       - MSH
 
+  - resourceName: Coverage
+    segment: .IN1
+    group: PATIENT.INSURANCE
+    resourcePath: segments/IN1/Coverage
+    repeats: false
+    isReferenced: false
+
   - resourceName: ServiceRequest
     segment: .ORC
     group: ORDER
