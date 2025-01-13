@@ -163,4 +163,5 @@ elements:
     value: [ 'Bundle.entry.resource.ofType(Organization).telecom.value[x].replaceMatches("[^0-9]", "")' ]
     hl7Spec: [ '%{ORC}-23-12', '%{ORC}-23-1' ]
 
-
+  - name: observation-result-with-aoe
+    resource: "Bundle.entry.resource.ofType(Observation).where(code.coding.extension('https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code').value.where(code in ('AOE')).exists().not())"
