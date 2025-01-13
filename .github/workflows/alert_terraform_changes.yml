@@ -32,7 +32,6 @@ jobs:
           tf-auth: true
 
       - name: Collect Terraform stats
-
         uses: josiahsiegel/terraform-stats@68b8cbe42c494333fbf6f8d90ac86da1fb69dcc2
         ## DevSecOps - Aquia (Replace) - uses: ./.github/actions/terraform-stats
 
@@ -66,6 +65,6 @@ jobs:
             "resource-drifts": "${{ env.resource-drifts }}"
 
           icon-emoji: ':bell:'
-          channel: pagerduty-alert-dump
-          webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
+          channel: temp-cdc-rs-notifications  # Updated channel
+          webhook-url: ${{ secrets.SLACK_NOTIFICATIONS_WEBHOOK_URL }}  # Updated webhook secret
           color: warning
