@@ -1,7 +1,5 @@
 # Remote Branch Action
 
-[![Test Action](https://github.com/CDCgov/prime-reportstream/.github/workflows/remote-branch--test-action.yml/badge.svg)](https://github.com/CDCgov/prime-reportstream/.github/workflows/remote-branch--test-action.yml)
-
 ## Synopsis
 
 1. Create a branch on a remote repository.
@@ -81,7 +79,7 @@ jobs:
 
       - name: Get create branch status
         run: echo ${{ steps.create-branch-action.outputs.create-status }}
-  
+
       - name: Get create branch status on second repo
         run: echo ${{ steps.create-branch-action-second-repo.outputs.create-status }}
 ```
