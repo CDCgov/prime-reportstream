@@ -1,7 +1,5 @@
 # Terraform Stats
 
-[![Test action](https://github.com/CDCgov/prime-reportstream/.github/workflows/terraform-stats--test_action.yml/badge.svg)](https://github.com/CDCgov/prime-reportstream/.github/workflows/terraform-stats--test_action.yml)
-
 ## Synopsis
 
 Output the following statistics for the Terraform environment:
