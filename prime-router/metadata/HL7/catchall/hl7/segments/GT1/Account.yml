@@ -12,9 +12,6 @@ id:
   expressionType: JEXL
 
 guarantor:
-  vars:
-    gt1: GT1
-  condition: $gt1 NOT_NULL
   expressionType: nested
   generateList: true
   expressionsMap:

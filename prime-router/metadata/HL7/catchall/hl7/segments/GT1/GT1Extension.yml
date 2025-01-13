@@ -55,7 +55,7 @@ extension:
           valueOf: datatypes/XPN/HumanName
     - expressionType: nested
       vars:
-        GT15: STRING_ALL, GT1.5
+        gt15: STRING_ALL, GT1.5
       condition: $gt15 NOT_NULL
       specs: GT1.5 *
       generateList: true
@@ -186,6 +186,7 @@ extension:
         valueString:
           type: STRING
           valueOf: GT1.15
+          expressionType: HL7Spec
     - expressionType: nested
       vars:
         gt116: STRING_ALL, GT1.16
@@ -250,9 +251,10 @@ extension:
           value: GT1.20
         valueCodeableConcept:
           valueOf: datatypes/CWE/CodeableConcept
+          expressionType: resource
     - expressionType: nested
       vars:
-        in121: STRING_ALL, GT1.21
+        gt121: STRING_ALL, GT1.21
       condition: $gt121 NOT_NULL
       specs: GT1.21 *
       generateList: true
@@ -289,6 +291,7 @@ extension:
           value: GT1.23
         valueCodeableConcept:
           valueOf: datatypes/CWE/CodeableConcept
+          expressionType: resource
     - expressionType: nested
       vars:
         gt124: GT1.24
@@ -344,9 +347,10 @@ extension:
           value: GT1.26
         valueCodeableConcept:
           valueOf: datatypes/CWE/CodeableConcept
+          expressionType: resource
     - expressionType: resource
       vars:
-        in127: STRING, GT1.27
+        gt127: STRING, GT1.27
       condition: $gt127 NOT_NULL
       valueOf: datatypes/CP/CPExtension
       constants:
@@ -364,6 +368,7 @@ extension:
         valueString:
           type: STRING
           valueOf: GT1.28
+          expressionType: HL7Spec
     - expressionType: nested
       specs: GT1.29 *
       condition: $gt129 NOT_NULL
@@ -390,3 +395,12 @@ extension:
         valueCodeableConcept:
           valueOf: datatypes/CWE/CodeableConcept
           expressionType: resource
+    ##- expressionType: nested
+    ##  generateList: true
+    ##  expressionsMap:
+    ##    period:
+    ##      valueOf: datatypes/DT/Period
+    ##      expressionType: resource
+    ##      vars:
+    ##        start: GT1.31
+    ##        end: GT1.32
