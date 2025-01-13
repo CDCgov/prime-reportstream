@@ -940,7 +940,7 @@ class FHIRBundleHelpersTests {
         val entry = Observation()
         val code = CodeableConcept()
         code.addCoding(Coding("system", "80382-5", "display"))
-        entry.setCode(code)
+        entry.setValue(code)
 
         val result = stamper.stampObservation(entry)
         assertThat(result.success).isTrue()

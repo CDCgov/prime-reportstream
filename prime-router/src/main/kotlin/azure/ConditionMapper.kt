@@ -91,11 +91,13 @@ class ConditionStamper(private val conditionMapper: IConditionMapper) {
      * @return a [ObservationStampingResult] including stamping success and any mapping failures
      */
     fun stampObservation(observation: Observation): ObservationStampingResult {
+        // Retrieve only the code sources that are non-empty
         val codeSourcesMap = observation.getCodeSourcesMap().filterValues { it.isNotEmpty() }
         if (codeSourcesMap.values.flatten().isEmpty()) {
             return ObservationStampingResult(false)
         }
 
+        // Look up mapped SNOMED conditions and member OIDs
         val conditionsToCode = conditionMapper.lookupConditions(codeSourcesMap.values.flatten())
         val memberOidMap = conditionMapper.lookupMemberOid(codeSourcesMap.values.flatten())
 
@@ -103,16 +105,13 @@ class ConditionStamper(private val conditionMapper: IConditionMapper) {
         val failures = mutableListOf<ObservationMappingFailure>()
 
         codeSourcesMap.forEach { (key, codings) ->
-            // keep track of codes that have no mapped conditions
             val unmappedCodings = mutableListOf<Coding>()
-
             codings.forEach { originalCoding ->
                 val mappedConditions = conditionsToCode[originalCoding].orEmpty()
                 if (mappedConditions.isEmpty()) {
-                    // No mapped conditions => unmapped
+                    // If no mapped conditions, record as unmapped
                     unmappedCodings.add(originalCoding)
                 } else {
-                    // We do have mapped conditions => build all the SNOMED codings
                     mappedConditions.forEach { conditionCoding ->
                         val snomedCoding = Coding().apply {
                             system = conditionCoding.system
@@ -120,7 +119,7 @@ class ConditionStamper(private val conditionMapper: IConditionMapper) {
                             display = conditionCoding.display
                         }
 
-                        // If we have an OID for this code, add as sub-extension
+                        // If we have an OID for this code, add it as a sub-extension
                         memberOidMap[conditionCoding.code]?.let { memberOid ->
                             val memberOidExtension = Extension(MEMBER_OID_EXTENSION_URL).apply {
                                 setValue(StringType(memberOid))
@@ -130,21 +129,18 @@ class ConditionStamper(private val conditionMapper: IConditionMapper) {
 
                         // Create the top-level condition-code extension
                         val conditionExtension = Extension(CONDITION_CODE_EXTENSION_URL, snomedCoding)
-                        observation.code
-                            .coding
-                            .firstOrNull()
-                            ?.addExtension(conditionExtension)
-
+                        originalCoding.addExtension(conditionExtension)
                         mappedSomething = true
                     }
                 }
             }
 
-            // If there's any unmapped codes for this key, record them
+            // If there's any unmapped codes, record them as failures
             if (unmappedCodings.isNotEmpty()) {
                 failures.add(ObservationMappingFailure(key, unmappedCodings))
             }
         }
+
         return ObservationStampingResult(mappedSomething, failures)
     }
 }
