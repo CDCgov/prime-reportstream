@@ -395,12 +395,345 @@ extension:
         valueCodeableConcept:
           valueOf: datatypes/CWE/CodeableConcept
           expressionType: resource
-    ##- expressionType: nested
-    ##  generateList: true
-    ##  expressionsMap:
-    ##    period:
-    ##      valueOf: datatypes/DT/Period
-    ##      expressionType: resource
-    ##      vars:
-    ##        start: GT1.31
-    ##        end: GT1.32
+    - expressionType: nested
+      generateList: true
+      expressionsMap:
+        url:
+          type: STRING
+          value: "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date"
+        period:
+          valueOf: datatypes/DT/Period
+          expressionType: resource
+          vars:
+            start: GT1.31
+            end: GT1.32
+    - expressionType: nested
+      specs: GT1.33
+      condition: $gt133 NOT_NULL
+      generateList: true
+      vars:
+        gt133: STRING_ALL, GT1.33
+      expressionsMap:
+        url:
+          type: STRING
+          value: GT1.33
+        valueCodeableConcept:
+          valueOf: datatypes/CWE/CodeableConcept
+          expressionType: resource
+    - expressionType: nested
+      specs: GT1.34 *
+      condition: $gt134 NOT_NULL
+      generateList: true
+      vars:
+        gt134: STRING_ALL, GT1.34
+      expressionsMap:
+        url:
+          type: STRING
+          value: GT1.34
+        valueCodeableConcept:
+          valueOf: datatypes/CWE/CodeableConcept
+          expressionType: resource
+    - expressionType: nested
+      specs: GT1.35 *
+      condition: $gt135 NOT_NULL
+      generateList: true
+      vars:
+        gt135: STRING_ALL, GT1.35
+      expressionsMap:
+        url:
+          type: STRING
+          value: GT1.35
+        valueCodeableConcept:
+          valueOf: datatypes/CWE/CodeableConcept
+          expressionType: resource
+    - expressionType: nested
+      specs: GT1.36
+      condition: $gt136 NOT_NULL
+      generateList: true
+      vars:
+        gt136: STRING_ALL, GT1.36
+      expressionsMap:
+        url:
+          type: STRING
+          value: GT1.36
+        valueCodeableConcept:
+          valueOf: datatypes/CWE/CodeableConcept
+          expressionType: resource
+    - expressionType: nested
+      specs: GT1.37
+      condition: $gt137 NOT_NULL
+      generateList: true
+      vars:
+        gt137: STRING_ALL, GT1.37
+      expressionsMap:
+        url:
+          type: STRING
+          value: GT1.37
+        valueCodeableConcept:
+          valueOf: datatypes/CWE/CodeableConcept
+          expressionType: resource
+    - expressionType: nested
+      specs: GT1.38
+      condition: $gt138 NOT_NULL
+      generateList: true
+      vars:
+        gt138: STRING_ALL, GT1.38
+      expressionsMap:
+        url:
+          type: STRING
+          value: GT1.38
+        valueCodeableConcept:
+          valueOf: datatypes/CWE/CodeableConcept
+          expressionType: resource
+    - expressionType: nested
+      vars:
+        gt139: STRING_ALL, GT1.39
+      condition: $gt139 NOT_NULL
+      specs: GT1.39
+      generateList: true
+      expressionsMap:
+        url:
+          type: STRING
+          value: GT1.39
+        valueString:
+          type: STRING
+          valueOf: GT1.39
+          expressionType: HL7Spec
+    - expressionType: nested
+      specs: GT1.40
+      condition: $gt140 NOT_NULL
+      generateList: true
+      vars:
+        gt140: STRING_ALL, GT1.40
+      expressionsMap:
+        url:
+          type: STRING
+          value: GT1.40
+        valueCodeableConcept:
+          valueOf: datatypes/CWE/CodeableConcept
+          expressionType: resource
+    - expressionType: nested
+      specs: GT1.41
+      condition: $gt41 NOT_NULL
+      generateList: true
+      vars:
+        gt141: STRING_ALL, GT1.41
+      expressionsMap:
+        url:
+          type: STRING
+          value: GT1.41
+        valueCodeableConcept:
+          valueOf: datatypes/CWE/CodeableConcept
+          expressionType: resource
+    - expressionType: nested
+      vars:
+        gt142: STRING_ALL, GT1.42
+      condition: $gt142 NOT_NULL
+      specs: GT1.42 *
+      generateList: true
+      expressionsMap:
+        url:
+          type: STRING
+          value: GT1.42
+        valueHumanName:
+          expressionType: resource
+          valueOf: datatypes/XPN/HumanName
+    - expressionType: nested
+      specs: GT1.43
+      condition: $gt143 NOT_NULL
+      generateList: true
+      vars:
+        gt143: STRING_ALL, GT1.43
+      expressionsMap:
+        url:
+          type: STRING
+          value: GT1.43
+        valueCodeableConcept:
+          valueOf: datatypes/CWE/CodeableConcept
+          expressionType: resource
+    - expressionType: nested
+      specs: GT1.44 *
+      condition: $gt144 NOT_NULL
+      generateList: true
+      vars:
+        gt144: STRING_ALL, GT1.44
+      expressionsMap:
+        url:
+          type: STRING
+          value: GT1.44
+        valueCodeableConcept:
+          valueOf: datatypes/CWE/CodeableConcept
+          expressionType: resource
+    - expressionType: nested
+      vars:
+        gt145: STRING_ALL, GT1.45
+      condition: $gt145 NOT_NULL
+      specs: GT1.45 *
+      generateList: true
+      expressionsMap:
+        url:
+          type: STRING
+          value: GT1.45
+        valueHumanName:
+          expressionType: resource
+          valueOf: datatypes/XPN/HumanName
+    - expressionType: nested
+      vars:
+        gt146: STRING_ALL, GT1.46
+      condition: $gt146 NOT_NULL
+      specs: GT1.46 *
+      generateList: true
+      expressionsMap:
+        url:
+          type: STRING
+          value: GT1.46
+        valueContactPoint:
+          expressionType: resource
+          valueOf: datatypes/XTN/ContactPoint
+    - expressionType: nested
+      specs: GT1.47
+      condition: $gt147 NOT_NULL
+      generateList: true
+      vars:
+        gt147: STRING_ALL, GT1.47
+      expressionsMap:
+        url:
+          type: STRING
+          value: GT1.47
+        valueCodeableConcept:
+          valueOf: datatypes/CWE/CodeableConcept
+          expressionType: resource
+    - expressionType: nested
+      specs: GT1.48
+      condition: $gt148 NOT_NULL
+      generateList: true
+      vars:
+        gt148: STRING_ALL, GT1.48
+      expressionsMap:
+        url:
+          type: STRING
+          value: GT1.48
+        valueCodeableConcept:
+          valueOf: datatypes/CWE/CodeableConcept
+          expressionType: resource
+    - expressionType: nested
+      vars:
+        gt149: STRING_ALL, GT1.49
+      condition: $gt149 NOT_NULL
+      specs: GT1.49
+      generateList: true
+      expressionsMap:
+        url:
+          type: STRING
+          value: GT1.49
+        valueString:
+          type: STRING
+          valueOf: GT1.49
+          expressionType: HL7Spec
+    #### Need to determine how we will do this
+    #- expressionType: nested
+    #  specs: GT1.50
+    #  condition: $gt150 NOT_NULL
+    #  generateList: true
+    #  vars:
+    #    gt150: STRING_ALL, GT1.50
+    #  expressionsMap:
+    #    url:
+    #      type: STRING
+    #      value: GT1.50
+    #    extension:
+    #      valueOf: datatypes/JCC/ExtensionJobCodeClass
+    #      expressionType: resource
+    - expressionType: nested
+      vars:
+        gt151: STRING_ALL, GT1.51
+      condition: $gt151 NOT_NULL
+      specs: GT1.51 *
+      generateList: true
+      expressionsMap:
+        url:
+          type: STRING
+          value: GT1.51
+        valueReference:
+          valueOf: datatypes/XON/Organization
+          expressionType: reference
+    - expressionType: nested
+      specs: GT1.52
+      condition: $gt152 NOT_NULL
+      generateList: true
+      vars:
+        gt152: STRING_ALL, GT1.52
+      expressionsMap:
+        url:
+          type: STRING
+          value: GT1.52
+        valueCodeableConcept:
+          valueOf: datatypes/CWE/CodeableConcept
+          expressionType: resource
+    - expressionType: nested
+      specs: GT1.53
+      condition: $gt153 NOT_NULL
+      generateList: true
+      vars:
+        gt153: STRING_ALL, GT1.53
+      expressionsMap:
+        url:
+          type: STRING
+          value: GT1.53
+        valueCodeableConcept:
+          valueOf: datatypes/CWE/CodeableConcept
+          expressionType: resource
+    #### Need to determine how we will do this
+    #- expressionType: nested
+    #  specs: GT1.54
+    #  condition: $gt154 NOT_NULL
+    #  generateList: true
+    #  vars:
+    #    gt154: STRING_ALL, GT1.54
+    #  expressionsMap:
+    #    url:
+    #      type: STRING
+    #      value: GT1.54
+    #    extension:
+    #      valueOf: datatypes/FE/ExtensionFinancialClss
+    #      expressionType: resource
+    - expressionType: nested
+      specs: GT1.55
+      condition: $gt155 NOT_NULL
+      generateList: true
+      vars:
+        gt155: STRING_ALL, GT1.55
+      expressionsMap:
+        url:
+          type: STRING
+          value: GT1.55
+        valueCodeableConcept:
+          valueOf: datatypes/CWE/CodeableConcept
+          expressionType: resource
+    - expressionType: nested
+      vars:
+        gt156: STRING_ALL, GT1.56
+      condition: $gt156 NOT_NULL
+      specs: GT1.56
+      generateList: true
+      expressionsMap:
+        url:
+          type: STRING
+          value: GT1.56
+        valueString:
+          type: STRING
+          valueOf: GT1.56
+          expressionType: HL7Spec
+    - expressionType: nested
+      specs: GT1.57
+      condition: $gt157 NOT_NULL
+      generateList: true
+      vars:
+        gt157: STRING_ALL, GT1.57
+      expressionsMap:
+        url:
+          type: STRING
+          value: GT1.57
+        valueCodeableConcept:
+          valueOf: datatypes/CWE/CodeableConcept
+          expressionType: resource
