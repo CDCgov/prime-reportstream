@@ -18,7 +18,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Create branch
-        uses: CDCgov/prime-reportstream/.github/actions/remote-branch@dbe7a2138eb064fbfdb980abee918091a7501fbe
+        uses: CDCgov/prime-reportstream/.github/actions/remote-branch@v1.0.0
         with:
           branch: new-branch
 ```
@@ -41,7 +41,7 @@ jobs:
           path: alt-repo
 
       - name: Create branch on alt repo
-        uses: CDCgov/prime-reportstream/.github/actions/remote-branch@dbe7a2138eb064fbfdb980abee918091a7501fbe
+        uses: CDCgov/prime-reportstream/.github/actions/remote-branch@v1.0.0
         with:
           branch: new-branch-alt-repo
           path: alt-repo
@@ -66,13 +66,13 @@ jobs:
 
       - name: Create branch
         id: create-branch-action
-        uses: CDCgov/prime-reportstream/.github/actions/remote-branch@dbe7a2138eb064fbfdb980abee918091a7501fbe
+        uses: CDCgov/prime-reportstream/.github/actions/remote-branch@v1.0.0
         with:
           branch: new-branch
 
       - name: Create branch on second repo
         id: create-branch-action-second-repo
-        uses: CDCgov/prime-reportstream/.github/actions/remote-branch@dbe7a2138eb064fbfdb980abee918091a7501fbe
+        uses: CDCgov/prime-reportstream/.github/actions/remote-branch@v1.0.0
         with:
           branch: new-branch-second-repo
           path: second-repo
