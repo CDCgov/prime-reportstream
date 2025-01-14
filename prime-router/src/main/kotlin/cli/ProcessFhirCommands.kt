@@ -129,6 +129,8 @@ class ProcessFhirCommands : CliktCommand(
     private val environmentParam by option(
         "--receiver-setting-env", help = "Environment that specifies where to get the receiver settings"
     )
+        .choice("local", "test", "staging", "prod", "demo1")
+        .default("local", "local environment")
 
     /**
      * Sender schema location
@@ -141,15 +143,39 @@ class ProcessFhirCommands : CliktCommand(
 
     private val hl7DiffHelper = HL7DiffHelper()
 
+    /**
+     * The environment specified by the command line parameters
+     */
+    val environment: Environment by lazy {
+        Environment.get(environmentParam)
+    }
+
+    /**
+     * The access token left by a previous login command as specified by the command line parameters
+     */
+    private val oktaAccessToken: String by lazy {
+
+        if (environment.oktaApp == null) {
+            "placeholder_token"
+        } else {
+            OktaCommand.fetchAccessToken(environment.oktaApp)
+                ?: abort(
+                    "Invalid access token. " +
+                        "Run ./prime login to fetch/refresh your access token for the $environmentParam environment."
+                )
+        }
+    }
+
     override fun run() {
         val messageOrBundle =
             processFhirDataRequest(
                 inputFile,
-                environmentParam,
+                environment,
                 receiverNameParam,
                 orgNameParam,
                 senderSchemaParam,
-                true
+                true,
+                oktaAccessToken
             )
         if (messageOrBundle.message != null) {
             outputResult(messageOrBundle.message!!)
@@ -162,18 +188,19 @@ class ProcessFhirCommands : CliktCommand(
 
     fun processFhirDataRequest(
         inputFile: File,
-        environment: String?,
+        environment: Environment,
         receiverName: String?,
         orgName: String?,
         senderSchema: String?,
         isCli: Boolean,
+        accessToken: String,
     ): MessageOrBundle {
         // Read the contents of the file
         val contents = inputFile.inputStream().readBytes().toString(Charsets.UTF_8)
         if (contents.isBlank()) throw CliktError("File ${inputFile.absolutePath} is empty.")
         // Check on the extension of the file for supported operations
         val inputFileType = inputFile.extension.uppercase()
-        val receiver = getReceiver(environment, receiverName, orgName, GetMultipleSettings(), isCli)
+        val receiver = getReceiver(environment, receiverName, orgName, isCli, accessToken)
 
         val messageOrBundle = MessageOrBundle()
         when {
@@ -293,7 +320,6 @@ class ProcessFhirCommands : CliktCommand(
 
                 messageOrBundle.bundle = output
             }
-            messageOrBundle.enrichmentSchemaPassed = messageOrBundle.enrichmentSchemaErrors.isEmpty()
         }
     }
 
@@ -350,33 +376,25 @@ class ProcessFhirCommands : CliktCommand(
     }
 
     abstract class MessageOrBundleParent(
-        open var senderTransformPassed: Boolean = true,
         open var senderTransformErrors: MutableList<String> = mutableListOf(),
         open var senderTransformWarnings: MutableList<String> = mutableListOf(),
-        open var enrichmentSchemaPassed: Boolean = true,
         open var enrichmentSchemaErrors: MutableList<String> = mutableListOf(),
         open var enrichmentSchemaWarnings: MutableList<String> = mutableListOf(),
-        open var receiverTransformPassed: Boolean = true,
         open var receiverTransformErrors: MutableList<String> = mutableListOf(),
         open var receiverTransformWarnings: MutableList<String> = mutableListOf(),
         open var filterErrors: MutableList<String> = mutableListOf(),
-        open var filtersPassed: Boolean = true,
     )
 
     class MessageOrBundle(
         var message: Message? = null,
         var bundle: Bundle? = null,
-        override var senderTransformPassed: Boolean = true,
         override var senderTransformErrors: MutableList<String> = mutableListOf(),
         override var senderTransformWarnings: MutableList<String> = mutableListOf(),
-        override var enrichmentSchemaPassed: Boolean = true,
         override var enrichmentSchemaErrors: MutableList<String> = mutableListOf(),
         override var enrichmentSchemaWarnings: MutableList<String> = mutableListOf(),
-        override var receiverTransformPassed: Boolean = true,
         override var receiverTransformErrors: MutableList<String> = mutableListOf(),
         override var receiverTransformWarnings: MutableList<String> = mutableListOf(),
         override var filterErrors: MutableList<String> = mutableListOf(),
-        override var filtersPassed: Boolean = true,
     ) : MessageOrBundleParent()
 
     private fun applyConditionFilter(receiver: Receiver, bundle: Bundle): Bundle {
@@ -404,27 +422,20 @@ class ProcessFhirCommands : CliktCommand(
     }
 
     fun getReceiver(
-        environment: String?,
+        environment: Environment,
         receiverName: String?,
         orgName: String?,
-        getMultipleSettings: GetMultipleSettings = GetMultipleSettings(),
         isCli: Boolean,
+        accessToken: String,
     ): Receiver? {
-        if (!environment.isNullOrBlank() && !receiverName.isNullOrBlank() && !orgName.isNullOrBlank()) {
+        if (!receiverName.isNullOrBlank() && !orgName.isNullOrBlank()) {
             if (isCli && !outputFormat.isNullOrBlank()) {
                 throw CliktError(
                     "Please specify either a receiver OR an output format. Not both."
                 )
             }
-            val foundEnvironment = Environment.get(environment)
-            val accessToken = OktaCommand.fetchAccessToken(foundEnvironment.oktaApp)
-                ?: abort(
-                    "Invalid access token. " +
-                        "Run ./prime login to fetch/refresh your access " +
-                        "token for the $foundEnvironment environment."
-                )
-            val organizations = getMultipleSettings.getAll(
-                environment = foundEnvironment,
+            val organizations = GetMultipleSettings().getAll(
+                environment = environment,
                 accessToken = accessToken,
                 specificOrg = orgName,
                 exactMatch = true
@@ -439,7 +450,7 @@ class ProcessFhirCommands : CliktCommand(
             }
         } else if (isCli && outputFormat.isNullOrBlank()) {
             throw CliktError(
-                "Output format is required if the environment, receiver, and org " +
+                "Output format is required if the receiver and org " +
                     "are not specified. "
             )
         }
@@ -491,7 +502,6 @@ class ProcessFhirCommands : CliktCommand(
                 errors = messageOrBundle.receiverTransformErrors
             ).process(messageOrBundle.bundle!!)
             messageOrBundle.message = message
-            messageOrBundle.receiverTransformPassed = messageOrBundle.receiverTransformErrors.isEmpty()
         }
     }
 
