@@ -1,5 +1,4 @@
 # Terraform Stats
-
 ## Synopsis
 
 Output the following statistics for the Terraform environment:
