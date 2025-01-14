@@ -1,0 +1,42 @@
+name: Reliable Pull Request Action
+description: Creates a pull request on a GitHub repository using existing branches
+branding:
+  icon: 'git-pull-request'
+  color: 'blue'
+inputs:
+  title:
+    description: 'Pull Request Title'
+    required: true
+  sourceBranch:
+    description: 'Source Branch Name'
+    required: true
+  targetBranch:
+    description: 'Target Branch Name'
+    required: true
+  body:
+    description: 'Pull Request Body'
+    required: false
+  labels:
+    description: 'Labels (comma-separated)'
+    required: false
+  assignees:
+    description: 'Assignees (comma-separated)'
+    required: false
+outputs:
+  PRURL:
+    description: 'The URL of the created pull request'
+    value: ${{ steps.create_pr.outputs.PR_URL }}
+runs:
+  using: 'composite'
+  steps:
+    - name: Create Pull Request
+      id: create_pr
+      shell: bash
+      run: bash ${{github.action_path}}/create-pr.sh        
+      env:
+        INPUT_TITLE: ${{ inputs.title }}
+        INPUT_SOURCEBRANCH: ${{ inputs.sourceBranch }}
+        INPUT_TARGETBRANCH: ${{ inputs.targetBranch }}
+        INPUT_BODY: ${{ inputs.body }}
+        INPUT_LABELS: ${{ inputs.labels }}
+        INPUT_ASSIGNEES: ${{ inputs.assignees }}

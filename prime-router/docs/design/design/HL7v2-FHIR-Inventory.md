@@ -146,8 +146,7 @@ implementation differs from what is in the spreadsheets.
 
 ### PD1 -> Patient
 
-- PD1.4 is deprecated in the HL7v2.7 and NIST HL7v2.5.1 specs. Further, the HAPI v2.7 model has set both fields to
-  NULLDT. Thus, this field is not being mapped.
+- PD1.4 Backwards compatible in NIST. Needed for ETOR NBS use case. Mapped to Patient.generalPractitioner.
 
 ### PV1 -> Patient
 

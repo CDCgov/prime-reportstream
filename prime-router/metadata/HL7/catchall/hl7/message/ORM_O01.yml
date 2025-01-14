@@ -8,12 +8,54 @@ resources:
     repeats: false
     isReferenced: false
 
+  - resourceName: Provenance
+    segment: MSH
+    resourcePath: segments/MSH/Provenance-Source
+
+  - resourceName: Provenance
+    segment: MSH
+    resourcePath: segments/MSH/Provenance-Transformation
+
   - resourceName: Patient
     segment: .PID
     group: PATIENT
     resourcePath: segments/PID/Patient
     isReferenced: true
     repeats: false
+    additionalSegments:
+      - .PD1
+      - .NTE
+
+  - resourceName: Provenance
+    segment: .PID
+    group: PATIENT
+    resourcePath: segments/PID/Provenance-Patient
+
+  - resourceName: Encounter
+    segment: .PV1
+    group: PATIENT.PATIENT_VISIT
+    resourcePath: segments/PV1/Encounter
+    isReferenced: true
+    additionalSegments:
+      - .PV2
+
+  - resourceName: Coverage
+    segment: .IN1
+    group: PATIENT.INSURANCE
+    resourcePath: segments/IN1/Coverage
+    repeats: false
+    isReferenced: false
+
+  - resourceName: OrderObservation
+    segment: .ORDER_DETAIL.OBSERVATION.OBX
+    group: ORDER
+    resourcePath: segments/OBX/Observation
+    repeats: true
+    isReferenced: true
+    additionalSegments:
+      - .ORC
+      - .ORDER_DETAIL.OBR
+      - .ORDER_DETAIL.OBSERVATION.NTE
 
   - resourceName: ServiceRequest
     segment: .ORC
@@ -25,28 +67,5 @@ resources:
       - .ORDER_DETAIL.OBR
       - .ORDER_DETAIL.NTE
       - PATIENT.PATIENT_VISIT.PV1
-      - MSH
       - PATIENT.PID
-
-  - resourceName: Observation
-    segment: .ORDER_DETAIL.OBSERVATION.OBX
-    group: ORDER
-    resourcePath: segments/OBX/Observation
-    repeats: true
-    isReferenced: true
-    additionalSegments:
-      - .ORC
-      - .ORDER_DETAIL.OBR
-      - .ORDER_DETAIL.OBSERVATION.NTE
-      - MSH
-
-  - resourceName: Specimen
-    segment: .OBR
-    group: ORDER.ORDER_DETAIL
-    resourcePath: segments/SPM/Specimen
-    repeats: true
-    isReferenced: true
-    additionalSegments:
-      - .OBSERVATION.OBX
-      - .OBSERVATION.NTE
-      - MSH
+      - .ORDER_DETAIL.OBSERVATION.OBX

@@ -3,6 +3,7 @@ package gov.cdc.prime.router.fhirengine.translation.hl7.utils
 import ca.uhn.fhir.model.api.TemporalPrecisionEnum
 import fhirengine.translation.hl7.utils.FhirPathFunctions
 import fhirengine.translation.hl7.utils.helpers.convertDateToAge
+import gov.cdc.prime.router.common.DateUtilities
 import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
 import org.hl7.fhir.r4.fhirpath.FHIRPathUtilityClasses.FunctionDetails
 import org.hl7.fhir.r4.model.Base
@@ -13,7 +14,9 @@ import org.hl7.fhir.r4.model.HumanName
 import org.hl7.fhir.r4.model.IntegerType
 import org.hl7.fhir.r4.model.StringType
 import java.time.DateTimeException
+import java.time.LocalDate
 import java.time.ZoneId
+import java.time.format.DateTimeParseException
 import java.util.TimeZone
 
 /**
@@ -108,9 +111,13 @@ object CustomFHIRFunctions : FhirPathFunctions {
 
             CustomFHIRFunctionNames.ChangeTimezone -> {
                 FunctionDetails(
-                    "changes the timezone of a dateTime, instant, or date resource to the timezone passed in",
+                    "changes the timezone of a dateTime, instant, or date resource to the timezone passed in. " +
+                        "optional params: " +
+                        "dateTimeFormat ('OFFSET', 'LOCAL', 'HIGH_PRECISION_OFFSET', 'DATE_ONLY')(default: 'OFFSET')," +
+                        " convertPositiveDateTimeOffsetToNegative (boolean)(default: false)," +
+                        " useHighPrecisionHeaderDateTimeFormat (boolean)(default: false)",
                     1,
-                    1
+                    4
                 )
             }
 
@@ -445,13 +452,17 @@ object CustomFHIRFunctions : FhirPathFunctions {
             throw SchemaException("Must call changeTimezone on a single element")
         }
 
-        val inputDate = focus[0] as? BaseDateTimeType ?: throw SchemaException(
-            "Must call changeTimezone on a dateTime, instant, or date; " +
-                "was attempted on a ${focus[0].fhirType()}"
-        )
-
-        if (parameters == null || parameters[0].size != 1) {
+        if (parameters == null || parameters.first().isEmpty()) {
             throw SchemaException("Must pass a timezone as the parameter")
+        }
+
+        var dateTimeFormat = DateUtilities.DateTimeFormat.OFFSET
+        if (parameters.size > 1) {
+            try {
+                dateTimeFormat = DateUtilities.DateTimeFormat.valueOf(parameters.get(1).first().primitiveValue())
+            } catch (e: IllegalArgumentException) {
+                throw SchemaException("Date time format not found.")
+            }
         }
 
         val inputTimeZone = parameters.first().first().primitiveValue()
@@ -465,14 +476,38 @@ object CustomFHIRFunctions : FhirPathFunctions {
             )
         }
 
-        return when (inputDate.precision) {
-            TemporalPrecisionEnum.YEAR, TemporalPrecisionEnum.MONTH, TemporalPrecisionEnum.DAY, null -> mutableListOf(
-                inputDate
+        return if (focus[0] is StringType) {
+            val inputDate = try {
+                DateUtilities.parseDate((focus[0].toString()))
+            } catch (e: DateTimeParseException) {
+                throw SchemaException("Error trying to change time zone: " + e.message)
+            }
+
+            if (inputDate is LocalDate) {
+                return mutableListOf(StringType(focus[0].toString()))
+            }
+
+            val formattedDate = DateUtilities.formatDateForReceiver(
+                inputDate,
+                ZoneId.of(inputTimeZone),
+                dateTimeFormat,
+                parameters.getOrNull(2)?.first()?.primitiveValue()?.toBoolean() ?: false,
+                parameters.getOrNull(3)?.first()?.primitiveValue()?.toBoolean() ?: false
+            )
+            mutableListOf(StringType(formattedDate))
+        } else {
+            val inputDate = focus[0] as? BaseDateTimeType ?: throw SchemaException(
+                "Must call changeTimezone on a dateTime, instant, or date; " +
+                    "was attempted on a ${focus[0].fhirType()}"
             )
 
-            TemporalPrecisionEnum.MINUTE, TemporalPrecisionEnum.SECOND, TemporalPrecisionEnum.MILLI -> mutableListOf(
-                DateTimeType(inputDate.value, inputDate.precision, timezonePassed)
-            )
+            when (inputDate.precision) {
+                TemporalPrecisionEnum.YEAR, TemporalPrecisionEnum.MONTH, TemporalPrecisionEnum.DAY, null ->
+                    mutableListOf(inputDate)
+
+                TemporalPrecisionEnum.MINUTE, TemporalPrecisionEnum.SECOND, TemporalPrecisionEnum.MILLI ->
+                    mutableListOf(DateTimeType(inputDate.value, inputDate.precision, timezonePassed))
+            }
         }
     }
 }

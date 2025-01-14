@@ -3,6 +3,7 @@ package gov.cdc.prime.router
 import com.fasterxml.jackson.annotation.JsonIgnore
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.common.DateUtilities
+import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Converter
 import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
 import java.time.LocalTime
@@ -249,6 +250,7 @@ open class Receiver(
      * Validate the object and return null or an error message
      */
     fun consistencyErrorMessage(metadata: Metadata): String? {
+        // TODO: The logic in this method is slated to be removed as part of #17020
         if (conditionFilter.isNotEmpty() || mappedConditionFilter.isNotEmpty()) {
             if (!topic.isUniversalPipeline) {
                 return "Condition filter(s) not allowed for receivers with topic '${topic.jsonVal}'"
@@ -258,8 +260,13 @@ open class Receiver(
         if (translation is CustomConfiguration) {
             if (this.topic.isUniversalPipeline) {
                 try {
-                    // This is already scheduled for deletion in https://github.com/CDCgov/prime-reportstream/pull/13313
-                    FhirToHl7Converter(translation.schemaName, BlobAccess.defaultBlobMetadata)
+                    FhirToHl7Converter(
+                        translation.schemaName,
+                        BlobAccess.BlobContainerMetadata.build(
+                            "metadata",
+                            Environment.get().storageEnvVar
+                        )
+                    )
                 } catch (e: SchemaException) {
                     return e.message
                 }

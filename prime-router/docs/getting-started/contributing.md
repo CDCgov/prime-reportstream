@@ -4,7 +4,7 @@
 
 ### Committing to this repository
 
-* Commits _must_ be signed or will not be mergeable into `master` or `production` without Repository Administrator intervention. You can find detailed instructions on how to set this up in the [Signing Commits](../getting-started/signing-commits.md) document.
+* Commits _must_ be signed or will not be mergeable into `main` or `production` without Repository Administrator intervention. You can find detailed instructions on how to set this up in the [Signing Commits](../getting-started/signing-commits.md) document.
 * You will also need to connect to GitHub with an SSH key. You can find instructions on generating and adding an SSH key [here](https://docs.github.com/en/authentication/connecting-to-github-with-ssh).
 * Make your changes in topic/feature branches and file a [new Pull Request](https://github.com/CDCgov/prime-reportstream/pulls) to merge your changes in to your desired target branch.
 
@@ -53,7 +53,7 @@ Code style is only enforced by pre-commit hooks for kotlin files, and even those
 
 To apply project settings, in IntelliJ, go to `Settings...`->`Editor`->`Code Style`. Make sure `Project` is selected next to `Scheme:`. Then, go to `Settings...`->`Editor`->`File Types`->`JSON` and under `File name patterns` add `*.fhir`. Optionally, go to `Settings...`->`Tools`->`Actions on Save` and select `Reformat code` to ensure that code is automatically formatted when edited.
 
-Even if you tend to use a different IDE for development, anytime you edit `.kt`, `.yml`, or `.fhir` files, you are expected to use IntelliJ to format those files before opening a PR or merging to the `master` branch.
+Even if you tend to use a different IDE for development, anytime you edit `.kt`, `.yml`, or `.fhir` files, you are expected to use IntelliJ to format those files before opening a PR or merging to the `main` branch.
 
 ### Kotlin
 

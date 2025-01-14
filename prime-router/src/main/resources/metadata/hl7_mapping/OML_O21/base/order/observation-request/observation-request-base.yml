@@ -1,0 +1,17 @@
+# $schema: ./../../../../../../../../../metadata/json_schema/fhir/fhir-to-hl7-mapping.json
+
+elements:
+
+  - name: observation-request
+    required: true
+    schema: classpath:/metadata/hl7_mapping/OML_O21/base/order/observation-request/observation-request.yml
+
+  - name: observation-request-observation
+    resource: '%resource.supportingInfo.resolve().ofType(Observation).where(subject.resolve().id = %resource.subject.resolve().id)'
+    resourceIndex: observationIndex
+    schema: classpath:/metadata/hl7_mapping/OML_O21/base/order/observation-request/observation/observation.yml
+
+  - name: observation-request-specimen
+    resource: '%resource.specimen.resolve().where(extension(%`rsext-hl7v2Segment`).value = "SPM") | %resource.specimen.resolve().where(extension(%`rsext-hl7v2Segment`).exists().not())'
+    resourceIndex: specimenIndex
+    schema: classpath:/metadata/hl7_mapping/OML_O21/base/order/observation-request/specimen/specimen.yml

@@ -13,17 +13,14 @@ import { convert } from "html-to-text";
 export const splitOn: {
     <T = string>(s: T, ...i: number[]): T[];
     <T extends any[]>(s: T, ...i: number[]): T[];
-} = <T>(slicable: string | T[], ...indices: number[]) =>
-    [0, ...indices].map((n, i, m) => slicable.slice(n, m[i + 1]));
+} = <T>(slicable: string | T[], ...indices: number[]) => [0, ...indices].map((n, i, m) => slicable.slice(n, m[i + 1]));
 
 /**
  * @param jsonTextValue
  * @return { valid: boolean; offset: number; errorMsg: string}  If valid = false, then offset is where the error is.
  *  valid=true, offset: -1, errorMsg: "" - this is to keep typechecking simple for the caller. offset is always a number
  */
-export const checkJson = (
-    jsonTextValue: string,
-): { valid: boolean; offset: number; errorMsg: string } => {
+export const checkJson = (jsonTextValue: string): { valid: boolean; offset: number; errorMsg: string } => {
     try {
         JSON.parse(jsonTextValue);
         return { valid: true, offset: -1, errorMsg: "" };
@@ -35,9 +32,7 @@ export const checkJson = (
         // parse out the position and try to select it for them.
         // NOTE: if "at position N" string not found, then assume mistake is at the end
         let offset = jsonTextValue.length;
-        const findPositionMatch = errorMsg
-            ?.matchAll(/position (\d+)/gi)
-            ?.next();
+        const findPositionMatch = errorMsg?.matchAll(/position (\d+)/gi)?.next();
         if (findPositionMatch?.value?.length === 2) {
             const possibleOffset = parseInt(findPositionMatch.value[1] || -1);
             if (!isNaN(possibleOffset) && possibleOffset !== -1) {
@@ -71,10 +66,7 @@ export enum VersionWarningType {
  * @param warningType either POPUP (for the toast notification) or FULL (for the red text on the compare modal itself)
  * @param settings the resource object from which to use information helpful to the user
  */
-export function getVersionWarning(
-    warningType: VersionWarningType,
-    settings: any = null,
-): string {
+export function getVersionWarning(warningType: VersionWarningType, settings: any = null): string {
     switch (warningType) {
         case VersionWarningType.POPUP:
             return "WARNING! A newer version of this setting now exists in the database";
@@ -133,10 +125,7 @@ export const capitalizeFirst = (uncapped: string): string => {
  * @param array
  * @param predicate
  */
-export const groupBy = <T>(
-    array: T[],
-    predicate: (value: T, index: number, array: T[]) => string,
-) =>
+export const groupBy = <T>(array: T[], predicate: (value: T, index: number, array: T[]) => string) =>
     array.reduce(
         (acc, value, index, array) => {
             (acc[predicate(value, index, array)] ||= []).push(value);
@@ -156,8 +145,7 @@ export const parseFileLocation = (
     fileName: string;
 } => {
     const fileReportsLocation = urlFileLocation.split("/").pop() ?? "";
-    const [folderLocation, sendingOrg, fileName] =
-        fileReportsLocation.split("%2F");
+    const [folderLocation, sendingOrg, fileName] = fileReportsLocation.split("%2F");
 
     if (!(folderLocation && sendingOrg && fileName)) {
         return {

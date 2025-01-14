@@ -5,11 +5,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { Suspense, useCallback, useMemo } from "react";
 import { HelmetProvider } from "react-helmet-async";
-import {
-    createBrowserRouter,
-    RouteObject,
-    RouterProvider,
-} from "react-router-dom";
+import { createBrowserRouter, RouteObject, RouterProvider } from "react-router-dom";
 import { CacheProvider, NetworkErrorBoundary } from "rest-hooks";
 
 import AuthStateGate from "./AuthStateGate";
@@ -25,7 +21,6 @@ import { RSConsole } from "../../utils/rsConsole/rsConsole";
 import { createTelemetryService } from "../../utils/TelemetryService/TelemetryService";
 import { PERMISSIONS } from "../../utils/UsefulTypes";
 
-import "react-toastify/dist/ReactToastify.css";
 import RSErrorBoundary from "../RSErrorBoundary/RSErrorBoundary";
 
 export interface AppProps {
@@ -48,10 +43,7 @@ function App({ config, routes }: AppProps) {
         () => new RSConsole({ ai: aiReactPlugin, ...config.RSCONSOLE }),
         [aiReactPlugin, config.RSCONSOLE],
     );
-    const oktaAuth = useMemo(
-        () => new OktaAuth(config.OKTA_AUTH),
-        [config.OKTA_AUTH],
-    );
+    const oktaAuth = useMemo(() => new OktaAuth(config.OKTA_AUTH), [config.OKTA_AUTH]);
     const router = useMemo(() => createBrowserRouter(routes), [routes]);
 
     const Fallback = useCallback(() => <ErrorPage type="page" />, []);
@@ -67,25 +59,13 @@ function App({ config, routes }: AppProps) {
             let url = originalUri;
             if (originalUri === "/") {
                 /* PERMISSIONS REFACTOR: Redirect URL should be determined by active membership type */
-                if (
-                    authState?.accessToken &&
-                    permissionCheck(
-                        PERMISSIONS.PRIME_ADMIN,
-                        authState.accessToken,
-                    )
-                ) {
+                if (authState?.accessToken && permissionCheck(PERMISSIONS.PRIME_ADMIN, authState.accessToken)) {
                     url = "/admin/settings";
                 }
-                if (
-                    authState?.accessToken &&
-                    permissionCheck(PERMISSIONS.SENDER, authState.accessToken)
-                ) {
+                if (authState?.accessToken && permissionCheck(PERMISSIONS.SENDER, authState.accessToken)) {
                     url = "/submissions";
                 }
-                if (
-                    authState?.accessToken &&
-                    permissionCheck(PERMISSIONS.RECEIVER, authState.accessToken)
-                ) {
+                if (authState?.accessToken && permissionCheck(PERMISSIONS.RECEIVER, authState.accessToken)) {
                     url = "/daily-data";
                 }
             }
@@ -101,36 +81,20 @@ function App({ config, routes }: AppProps) {
     return (
         <RSErrorBoundary rsConsole={rsConsole}>
             <AppInsightsContext.Provider value={aiReactPlugin}>
-                <Security
-                    restoreOriginalUri={restoreOriginalUri}
-                    oktaAuth={oktaAuth}
-                >
+                <Security restoreOriginalUri={restoreOriginalUri} oktaAuth={oktaAuth}>
                     <AuthStateGate>
                         <QueryClientProvider client={appQueryClient}>
-                            <SessionProvider
-                                config={config}
-                                rsConsole={rsConsole}
-                            >
+                            <SessionProvider config={config} rsConsole={rsConsole}>
                                 <HelmetProvider>
                                     <FeatureFlagProvider>
-                                        <NetworkErrorBoundary
-                                            fallbackComponent={Fallback}
-                                        >
+                                        <NetworkErrorBoundary fallbackComponent={Fallback}>
                                             <CacheProvider>
                                                 <ToastProvider>
-                                                    <DAPScript
-                                                        pathname={
-                                                            location.pathname
-                                                        }
-                                                    />
+                                                    <DAPScript pathname={location.pathname} />
                                                     <Suspense>
-                                                        <RouterProvider
-                                                            router={router}
-                                                        />
+                                                        <RouterProvider router={router} />
                                                     </Suspense>
-                                                    <ReactQueryDevtools
-                                                        initialIsOpen={false}
-                                                    />
+                                                    <ReactQueryDevtools initialIsOpen={false} />
                                                 </ToastProvider>
                                             </CacheProvider>
                                         </NetworkErrorBoundary>

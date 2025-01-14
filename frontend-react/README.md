@@ -5,8 +5,8 @@
 Our new React front-end is easy to get up and running on your machine. First, ensure the following dependencies
 installed:
 
--   `node` (see .nvmrc for version specification) via `nvm`
--   `yarn` package manager
+- `node` (see .nvmrc for version specification) via `nvm`
+- `yarn` package manager
 
 Use the directions here to install nvm: https://github.com/nvm-sh/nvm#install--update-script
 Then:
@@ -276,19 +276,19 @@ These overwrites will ONLY be scoped to your particular component.
 
 ### General
 
--   [Best Practices](docs/best-practices.md)
--   [Content](docs/content.md)
--   [Data fetching patterns](docs/data-fetching-patterns.md)
--   [Feature flags](docs/feature-flags.md)
--   [RS Auth Element](docs/rs-auth-element.md)
--   [RS Error Boundary and Suspense](docs/rs-error-boundary-and-suspense.md)
--   [RS IA Content System](docs/rs-ia-content-system.md)
--   [RS IA Template System](docs/rs-ia-template-system.md)
--   [RS React Testing Network Calls](docs/rs-react-testing-network-calls.md)
--   [Test Conventions](docs/test-conventions.md)
+- [Best Practices](docs/best-practices.md)
+- [Content](docs/content.md)
+- [Data fetching patterns](docs/data-fetching-patterns.md)
+- [Feature flags](docs/feature-flags.md)
+- [RS Auth Element](docs/rs-auth-element.md)
+- [RS Error Boundary and Suspense](docs/rs-error-boundary-and-suspense.md)
+- [RS IA Content System](docs/rs-ia-content-system.md)
+- [RS IA Template System](docs/rs-ia-template-system.md)
+- [RS React Testing Network Calls](docs/rs-react-testing-network-calls.md)
+- [Test Conventions](docs/test-conventions.md)
 
 ### Proposals
 
--   [Permissions Layer](docs/proposals/0001-permissions-layer-proposal.md)
--   [Domain Driven Directory Structure](docs/proposals/0002-domain-driven-directory-structure.md)
--   [USWDS React Components](docs/proposals/0003-uswds-react-components.md)
+- [Permissions Layer](docs/proposals/0001-permissions-layer-proposal.md)
+- [Domain Driven Directory Structure](docs/proposals/0002-domain-driven-directory-structure.md)
+- [USWDS React Components](docs/proposals/0003-uswds-react-components.md)
