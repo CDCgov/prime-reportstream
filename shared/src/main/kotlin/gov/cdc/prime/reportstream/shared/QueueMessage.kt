@@ -93,7 +93,7 @@ interface QueueMessage {
         /**
          * Constant for receiver enrichment queue on UP.
          */
-        const val elrReceiverEnrichmentQueueName = "elr-fhir-receiver-enrichment-queue"
+        const val elrReceiverEnrichmentQueueName = "elr-fhir-receiver-enrichment"
 
         /**
          * Constant for send queue
