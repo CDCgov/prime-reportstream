@@ -1,4 +1,5 @@
 # Remote Branch Action
+
 ## Synopsis
 
 1. Create a branch on a remote repository.
