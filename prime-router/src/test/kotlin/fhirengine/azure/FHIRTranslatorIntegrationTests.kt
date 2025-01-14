@@ -258,10 +258,7 @@ class FHIRTranslatorIntegrationTests : Logging {
                 routingFilter = listOf("true"),
                 conditionFilter = listOf("true"),
                 format = MimeFormat.HL7,
-                enrichmentSchemaNames = listOf(
-                    "classpath:/enrichments/testing.yml",
-                    "classpath:/enrichments/testing2.yml"
-                )
+                enrichmentSchemaNames = emptyList()
             )
         )
         val receivers = UniversalPipelineTestUtils.createReceivers(receiverSetupData)
@@ -277,7 +274,7 @@ class FHIRTranslatorIntegrationTests : Logging {
 
         @Suppress("ktlint:standard:max-line-length")
         val expectedOutput = "MSH|^~\\&|||||||ORU/ACK - Unsolicited transmission of an observation message|849547|P|2.5.1|||||USA\r" +
-            "SFT|Orange Software Vendor Name|0.2-YELLOW|Purple PRIME ReportStream|0.1-SNAPSHOT||20210622\r" +
+            "SFT|Centers for Disease Control and Prevention|0.1-SNAPSHOT|PRIME Data Hub|0.1-SNAPSHOT||20210622\r" +
             "PID|1||||Steuber||20150707|O||^^^^^^^^Native Hawaiian or Other Pacific Islander|^^^IG^^s4fgh||~|||||||||^^^^^^^^Non Hispanic or Latino|||||||20210614\r" +
             "ORC|||||||||||||||||||||Any facility USA|^^^IG||^^^IG\r" +
             "OBR|1|||^^^^^^^^SARS-CoV+SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay\r" +

@@ -161,11 +161,10 @@ class FHIRFunctions(
     @FunctionName("elr-fhir-receiver-enrichment")
     @StorageAccount("AzureWebJobsStorage")
     fun receiverEnrichment(
-        @QueueTrigger(name = "receiver-enrichment", queueName = QueueMessage.elrReceiverEnrichmentQueueName)
+        @QueueTrigger(name = "message", queueName = QueueMessage.elrReceiverEnrichmentQueueName)
         message: String,
         @BindingName("DequeueCount") dequeueCount: Int = 1,
     ) {
-        // TODO Change to ReceiverEnrichment object.
         process(
             message,
             dequeueCount,

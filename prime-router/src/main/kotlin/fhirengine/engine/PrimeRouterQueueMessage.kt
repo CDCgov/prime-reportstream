@@ -148,6 +148,7 @@ fun registerPrimeRouterQueueMessageSubtypes() {
     QueueMessage.ObjectMapperProvider.registerSubtypes(
         FhirConvertQueueMessage::class.java,
         FhirDestinationFilterQueueMessage::class.java,
+        FhirReceiverEnrichmentQueueMessage::class.java,
         FhirReceiverFilterQueueMessage::class.java,
         FhirTranslateQueueMessage::class.java,
         BatchEventQueueMessage::class.java,
