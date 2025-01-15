@@ -3,9 +3,7 @@ import { useCallback, useState } from "react";
 import { useParams } from "react-router";
 import { reportsEndpoints, RSMessageResult } from "../../../../config/endpoints/reports";
 import useSessionContext from "../../../../contexts/Session/useSessionContext";
-import useAdminSafeOrganizationName, {
-    Organizations,
-} from "../../../UseAdminSafeOrganizationName/UseAdminSafeOrganizationName";
+import { Organizations } from "../../../UseAdminSafeOrganizationName/UseAdminSafeOrganizationName";
 
 const { testResult } = reportsEndpoints;
 
@@ -23,10 +21,9 @@ const { testResult } = reportsEndpoints;
  */
 const useTestMessageResult = () => {
     const { activeMembership, authorizedFetch } = useSessionContext();
-    const { receivername } = useParams();
+    const { orgname, receivername } = useParams();
     const parsedName = activeMembership?.parsedName;
     const isAdmin = Boolean(parsedName) && parsedName === Organizations.PRIMEADMINS;
-    const adminSafeOrgName = useAdminSafeOrganizationName(parsedName);
 
     const [requestBody, setRequestBody] = useState<string | null>(null);
 
@@ -37,7 +34,7 @@ const useTestMessageResult = () => {
                 {
                     params: {
                         receiverName: receivername,
-                        organizationName: adminSafeOrgName,
+                        organizationName: orgname,
                     },
                     data: requestBody,
                 },
@@ -53,12 +50,12 @@ const useTestMessageResult = () => {
                 return Promise.reject(new Error(String(err)));
             }
         }
-    }, [authorizedFetch, receivername, adminSafeOrgName, requestBody]);
+    }, [authorizedFetch, orgname, receivername, requestBody]);
 
     // Use 'enabled' to conditionally run the query whenever `requestBody` changes
     // and the user is an admin. If requestBody is empty or user isn't admin, no fetch is made.
     const { data, isLoading, status, refetch } = useQuery<RSMessageResult, Error>({
-        queryKey: [testResult.queryKey, activeMembership, receivername, adminSafeOrgName, requestBody],
+        queryKey: [testResult.queryKey, activeMembership, receivername, requestBody],
         queryFn: fetchData,
         enabled: isAdmin && Boolean(requestBody),
     });
