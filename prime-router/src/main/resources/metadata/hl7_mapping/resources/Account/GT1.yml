@@ -1,0 +1,25 @@
+# $schema: ./../../../../../../../metadata/json_schema/fhir/fhir-to-hl7-mapping.json
+
+constants:
+  hl7GT1Field: '%{hl7SegmentGroup}/GT1'
+
+elements:
+  - name: gt1-set-id
+    value: [ '1' ]
+    hl7Spec: [ '%{hl7GT1Field}-1' ]
+
+  - name: gt1-guarantor-date-begin
+    resource: '%resource.period.start'
+    constants:
+      dtmFieldPath: '%{hl7GT1Field}-13'
+    schema: classpath:/metadata/hl7_mapping/datatypes/dateTime/DTMorDT.yml
+
+  - name: gt1-guarantor-date-end
+    resource: '%resource.period.end'
+    constants:
+      dtmFieldPath: '%{hl7GT1Field}-14'
+    schema: classpath:/metadata/hl7_mapping/datatypes/dateTime/DTMorDT.yml
+
+  - name: gt1-extension-values
+    resource: '%resource.extension(%`rsext-gt1-account`)'
+    schema: classpath:/metadata/hl7_mapping/resources/Account/GT1Extension.yml

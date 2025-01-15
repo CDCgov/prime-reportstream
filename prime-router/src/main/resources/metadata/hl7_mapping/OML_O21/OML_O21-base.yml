@@ -46,3 +46,10 @@ elements:
     resourceIndex: orderIndex
     required: true
     schema: classpath:/metadata/hl7_mapping/OML_O21/base/order/order-base.yml
+
+  - name: guarantor
+    resource: 'Bundle.entry.resource.ofType(Account)'
+    #.where(subject.resolve().id = %resource.entry.resource.ofType(Patient).id)
+    schema: classpath:/metadata/hl7_mapping/resources/Account/GT1.yml
+    constants:
+      hl7SegmentGroup: '/PATIENT'

@@ -1,0 +1,321 @@
+# $schema: ./../../../../../../../metadata/json_schema/fhir/fhir-to-hl7-mapping.json
+
+
+elements:
+
+  - name: GT1.2
+    resource: '%resource.extension.where(url = "GT1.2").value'
+    schema: classpath:/metadata/hl7_mapping/datatypes/identifier/CX.yml
+    resourceIndex: cxIndex
+    constants:
+      cxField: '%{hl7GT1Field}-2(%{cxIndex})'
+
+  - name: GT1.3
+    resource: '%resource.extension.where(url = "GT1.3").value'
+    schema: classpath:/metadata/hl7_mapping/datatypes/HumanName/XPN.yml
+    resourceIndex: xpnIndex
+    constants:
+      xpnField: '%{hl7GT1Field}-3(%{xpnIndex})'
+
+  - name: GT1.4
+    resource: '%resource.extension.where(url = "GT1.4").value'
+    schema: classpath:/metadata/hl7_mapping/datatypes/HumanName/XPN.yml
+    resourceIndex: xpnIndex
+    constants:
+      xpnField: '%{hl7GT1Field}-4(%{xpnIndex})'
+
+  - name: GT1.5
+    resource: '%resource.extension.where(url = "GT1.5").value'
+    schema: classpath:/metadata/hl7_mapping/datatypes/Address/XAD.yml
+    resourceIndex: xadIndex
+    constants:
+      xadField: '%{hl7GT1Field}-5(%{xadIndex})'
+
+  - name: GT1.6
+    resource: '%resource.extension.where(url = "GT1.6").value'
+    schema: classpath:/metadata/hl7_mapping/datatypes/contactPoint/XTN.yml
+    resourceIndex: telecomIndex
+    constants:
+      hl7TelecomField: '%{hl7GT1Field}-6(%{telecomIndex})'
+
+  - name: GT1.7
+    resource: '%resource.extension.where(url = "GT1.7").value'
+    schema: classpath:/metadata/hl7_mapping/datatypes/contactPoint/XTN.yml
+    resourceIndex: telecomIndex
+    constants:
+      hl7TelecomField: '%{hl7GT1Field}-7(%{telecomIndex})'
+
+  - name: GT1.8
+    resource: '%resource.extension.where(url = "GT1.8").value'
+    schema: classpath:/metadata/hl7_mapping/datatypes/dateTime/DTMorDT.yml
+    constants:
+      dtmFieldPath: '%{hl7GT1Field}-8'
+
+  - name: GT1.9
+    resource: '%resource.extension.where(url = "GT1.9").value'
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
+    constants:
+      cweField: '%{hl7GT1Field}-9'
+
+  - name: GT1.10
+    resource: '%resource.extension.where(url = "GT1.10").value'
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
+    constants:
+      cweField: '%{hl7GT1Field}-10'
+
+  - name: GT1.11
+    resource: '%resource.extension.where(url = "GT1.11").value'
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
+    constants:
+      cweField: '%{hl7GT1Field}-11'
+
+  - name: GT1.12
+    value: [ '%resource.extension.where(url = "GT1.12").value' ]
+    hl7Spec: [ '%{hl7GT1Field}-12' ]
+
+  - name: GT1.15
+    value: [ '%resource.extension.where(url = "GT1.15").value' ]
+    hl7Spec: [ '%{hl7GT1Field}-15' ]
+
+  - name: GT1.16
+    resource: '%resource.extension.where(url = "GT1.16").value'
+    schema: classpath:/metadata/hl7_mapping/datatypes/HumanName/XPN.yml
+    resourceIndex: xpnIndex
+    constants:
+      xpnField: '%{hl7GT1Field}-16(%{xpnIndex})'
+
+  - name: GT1.17
+    resource: '%resource.extension.where(url = "GT1.17").value'
+    schema: classpath:/metadata/hl7_mapping/datatypes/Address/XAD.yml
+    resourceIndex: xadIndex
+    constants:
+      xadField: '%{hl7GT1Field}-17(%{xadIndex})'
+
+  - name: GT1.18
+    resource: '%resource.extension.where(url = "GT1.18").value'
+    schema: classpath:/metadata/hl7_mapping/datatypes/contactPoint/XTN.yml
+    resourceIndex: telecomIndex
+    constants:
+      hl7TelecomField: '%{hl7GT1Field}-18(%{telecomIndex})'
+
+  - name: GT1.19
+    resource: '%resource.extension.where(url = "GT1.19").value'
+    schema: classpath:/metadata/hl7_mapping/datatypes/identifier/CX.yml
+    resourceIndex: cxIndex
+    constants:
+      cxField: '%{hl7GT1Field}-19(%{cxIndex})'
+
+  - name: GT1.20
+    resource: '%resource.extension.where(url = "GT1.20").value'
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
+    constants:
+      cweField: '%{hl7GT1Field}-20'
+
+  - name: GT1.21
+    resource: '%resource.extension.where(url = "IN1.21").value.resolve()'
+    schema: classpath:/metadata/hl7_mapping/resources/Organization/XON.yml
+    resourceIndex: xonIndex
+    constants:
+      hl7XONField: '%{hl7IN1Field}-21(%{xonIndex})'
+
+  - name: GT1.22
+    value: [ '%resource.extension.where(url = "GT1.22").value' ]
+    hl7Spec: [ '%{hl7GT1Field}-22' ]
+
+  - name: GT1.23
+    resource: '%resource.extension.where(url = "GT1.23").value'
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
+    constants:
+      cweField: '%{hl7GT1Field}-23'
+
+  ####have to check this one
+  - name: GT1.24
+    resource: '%resource.extension(GT1.24).where(extension(%`rsext-hl7v2Field`).value = "GT1.24")'
+    schema: classpath:/metadata/hl7_mapping/datatypes/dateTime/DTMorDT.yml
+    constants:
+      dtmFieldPath: '%{hl7GT1Field}-24'
+
+  - name: GT1.25
+    value: [ '%resource.extension.where(url = "GT1.25").value' ]
+    hl7Spec: [ '%{hl7GT1Field}-25' ]
+
+  - name: GT1.26
+    resource: '%resource.extension.where(url = "GT1.26").value'
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
+    constants:
+      cweField: '%{hl7GT1Field}-26'
+
+  - name: GT1.27
+    resource: '%resource.extension(%`rsext-composite-price`).where(extension(%`rsext-hl7v2Field`).value = "GT1.27")'
+    schema: classpath:/metadata/hl7_mapping/datatypes/extensionCP/CP.yml
+    constants:
+      cpField: '%{hl7GT1Field}-27'
+
+  - name: GT1.28
+    value: [ '%resource.extension.where(url = "GT1.28").value' ]
+    hl7Spec: [ '%{hl7GT1Field}-28' ]
+
+  - name: GT1.29
+    resource: '%resource.extension.where(url = "GT1.29").value'
+    schema: classpath:/metadata/hl7_mapping/datatypes/identifier/CX.yml
+    resourceIndex: cxIndex
+    constants:
+      cxField: '%{hl7GT1Field}-29(%{cxIndex})'
+
+  - name: GT1.30
+    resource: '%resource.extension.where(url = "GT1.30").value'
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
+    constants:
+      cweField: '%{hl7GT1Field}-30'
+
+  - name: GT1.31
+    resource: '%resource.extension.where(url = "GT1.31").value'
+    schema: classpath:/metadata/hl7_mapping/datatypes/dateTime/DTMorDT.yml
+    constants:
+      dtmFieldPath: '%{hl7GT1Field}-31'
+
+  - name: GT1.32
+    resource: '%resource.extension.where(url = "GT1.32").value'
+    schema: classpath:/metadata/hl7_mapping/datatypes/dateTime/DTMorDT.yml
+    constants:
+      dtmFieldPath: '%{hl7GT1Field}-32'
+
+  - name: GT1.33
+    resource: '%resource.extension.where(url = "GT1.33").value'
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
+    constants:
+      cweField: '%{hl7GT1Field}-33'
+
+  - name: GT1.34
+    resource: '%resource.extension.where(url = "GT1.34").value'
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
+    resourceIndex: cweIndex
+    constants:
+      cweField: '%{hl7GT1Field}-34(%{cweIndex})'
+
+  - name: GT1.35
+    resource: '%resource.extension.where(url = "GT1.35").value'
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
+    resourceIndex: cweIndex
+    constants:
+      cweField: '%{hl7GT1Field}-35(%{cweIndex})'
+
+  - name: GT1.36
+    resource: '%resource.extension.where(url = "GT1.36").value'
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
+    constants:
+      cweField: '%{hl7GT1Field}-36'
+
+  - name: GT1.37
+    resource: '%resource.extension.where(url = "GT1.37").value'
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
+    constants:
+      cweField: '%{hl7GT1Field}-37'
+
+  - name: GT1.38
+    resource: '%resource.extension.where(url = "GT1.38").value'
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
+    constants:
+      cweField: '%{hl7GT1Field}-38'
+
+  - name: GT1.39
+    value: [ '%resource.extension.where(url = "GT1.39").value' ]
+    hl7Spec: [ '%{hl7GT1Field}-39' ]
+
+  - name: GT1.40
+    resource: '%resource.extension.where(url = "GT1.40").value'
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
+    constants:
+      cweField: '%{hl7GT1Field}-40'
+
+  - name: GT1.41
+    resource: '%resource.extension.where(url = "GT1.41").value'
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
+    constants:
+      cweField: '%{hl7GT1Field}-41'
+
+  - name: GT1.42
+    resource: '%resource.extension.where(url = "GT1.42").value'
+    schema: classpath:/metadata/hl7_mapping/datatypes/HumanName/XPN.yml
+    resourceIndex: xpnIndex
+    constants:
+      xpnField: '%{hl7GT1Field}-42(%{xpnIndex})'
+
+  - name: GT1.43
+    resource: '%resource.extension.where(url = "GT1.43").value'
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
+    constants:
+      cweField: '%{hl7GT1Field}-43'
+
+  - name: GT1.44
+    resource: '%resource.extension.where(url = "GT1.44").value'
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
+    resourceIndex: cweIndex
+    constants:
+      cweField: '%{hl7GT1Field}-44(%{cweIndex})'
+
+  - name: GT1.45
+    resource: '%resource.extension.where(url = "GT1.45").value'
+    schema: classpath:/metadata/hl7_mapping/datatypes/HumanName/XPN.yml
+    resourceIndex: xpnIndex
+    constants:
+      xpnField: '%{hl7GT1Field}-45(%{xpnIndex})'
+
+  - name: GT1.46
+    resource: '%resource.extension.where(url = "GT1.46").value'
+    schema: classpath:/metadata/hl7_mapping/datatypes/contactPoint/XTN.yml
+    resourceIndex: telecomIndex
+    constants:
+      hl7TelecomField: '%{hl7GT1Field}-46(%{telecomIndex})'
+
+  - name: GT1.47
+    resource: '%resource.extension.where(url = "GT1.47").value'
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
+    constants:
+      cweField: '%{hl7GT1Field}-47'
+
+  - name: GT1.48
+    resource: '%resource.extension.where(url = "GT1.48").value'
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
+    constants:
+      cweField: '%{hl7GT1Field}-48'
+
+  - name: GT1.49
+    value: [ '%resource.extension.where(url = "GT1.49").value' ]
+    hl7Spec: [ '%{hl7GT1Field}-49' ]
+
+  - name: GT1.51
+    resource: '%resource.extension.where(url = "IN1.51").value.resolve()'
+    schema: classpath:/metadata/hl7_mapping/resources/Organization/XON.yml
+    resourceIndex: xonIndex
+    constants:
+      hl7XONField: '%{hl7IN1Field}-51(%{xonIndex})'
+
+  - name: GT1.52
+    resource: '%resource.extension.where(url = "GT1.52").value'
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
+    constants:
+      cweField: '%{hl7GT1Field}-52'
+
+  - name: GT1.53
+    resource: '%resource.extension.where(url = "GT1.53").value'
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
+    constants:
+      cweField: '%{hl7GT1Field}-53'
+
+  - name: GT1.55
+    resource: '%resource.extension.where(url = "GT1.55").value'
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
+    resourceIndex: cweIndex
+    constants:
+      cweField: '%{hl7GT1Field}-55(%{cweIndex})'
+
+  - name: GT1.56
+    value: [ '%resource.extension.where(url = "GT1.56").value' ]
+    hl7Spec: [ '%{hl7GT1Field}-56' ]
+
+  - name: GT1.57
+    resource: '%resource.extension.where(url = "GT1.57").value'
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
+    constants:
+      cweField: '%{hl7GT1Field}-57'
