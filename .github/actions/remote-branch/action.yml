@@ -1,0 +1,61 @@
+# action.yml
+name: Remote Branch Action
+description: Create and manage a remote branch
+branding:
+  icon: 'git-branch'
+  color: 'blue'
+inputs:
+  branch:
+    description: Branch name
+    required: true
+  path:
+    description: Relative path under $GITHUB_WORKSPACE to place the repository
+    required: false
+    default: '.'
+outputs:
+  create-status:
+    description: Branch creation status
+    value: ${{ steps.create-branch.outputs.create_status }}
+
+runs:
+  using: "composite"
+  steps:
+
+    - name: Create branch
+      id: create-branch
+      working-directory: ${{ inputs.path }}
+      shell: bash
+      run: |
+        # Assign the arguments to variables
+        branch_name=${{ inputs.branch }}
+
+        # Create a new branch locally
+        git checkout -b $branch_name
+
+        # Check if the branch exists on the remote
+        check_status=$(git ls-remote --heads origin $branch_name | wc -l)
+
+        # Check if the branch does not exist on the remote
+        if [ $check_status -eq 0 ]; then
+          # Push the new branch to the remote repository using the token
+          git push -u origin $branch_name
+
+          # Store the status of the push command
+          status=$?
+
+          # Check if the push was successful
+          if [ $status -eq 0 ]; then
+            # Print a success message
+            echo "Branch $branch_name created and pushed"
+          else
+            # Print an error message
+            echo "Branch creation failed with status $status"
+            status="Branch creation failed with status $status"
+          fi
+        else
+          # Print a message that the branch already exists on the remote
+          echo "Branch $branch_name already exists"
+          status="Branch $branch_name already exists"
+        fi
+
+        echo "create_status=$status" >> $GITHUB_OUTPUT
