@@ -1432,11 +1432,11 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@okta/okta-signin-widget@npm:^7.27.1":
-  version: 7.27.1
-  resolution: "@okta/okta-signin-widget@npm:7.27.1"
+"@okta/okta-signin-widget@npm:^7.27.2":
+  version: 7.27.2
+  resolution: "@okta/okta-signin-widget@npm:7.27.2"
   dependencies:
-    "@okta/okta-auth-js": ^7.9.0
+    "@okta/okta-auth-js": ^7.10.0
     "@sindresorhus/to-milliseconds": ^1.0.0
     "@types/backbone": ^1.4.15
     "@types/eslint-scope": ^3.7.3
@@ -1458,7 +1458,7 @@ __metadata:
   dependenciesMeta:
     fsevents:
       optional: true
-  checksum: 704c599fcab1009ea29a8fdab59c3b37b26942e4b19436d09a544cee00289c00ca425b00440f29c01e7ccfd6d522b7e7dbeb7697b063fab3b0afb5b1eff92bab
+  checksum: ca41430cc088fe703864d7e57bf29e1a9073fe0211ea9676632bbde8b3009254f520eb661215e1a7e32342ba760693206c02a3891130734ee9076cd5f8d416fa
   languageName: node
   linkType: hard
 
@@ -2484,10 +2484,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tanstack/query-core@npm:5.62.16":
-  version: 5.62.16
-  resolution: "@tanstack/query-core@npm:5.62.16"
-  checksum: 96e712dba70b9234884108ecac2fa05ae588f7a1758377d80aa30d4e830f00cbef95309d2806828ca224d1db51e3c8364857a6f3581edb989f2f16cb98ad0f26
+"@tanstack/query-core@npm:5.64.0":
+  version: 5.64.0
+  resolution: "@tanstack/query-core@npm:5.64.0"
+  checksum: a489552af41419f9561baaff15073d63a4cf8634b5a9f4a484364a70734b6e37f7460560acccf61ef4b631ac4b6008000c4f13996b905f219b8099bd8343451c
   languageName: node
   linkType: hard
 
@@ -2498,26 +2498,26 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tanstack/react-query-devtools@npm:^5.62.16":
-  version: 5.62.16
-  resolution: "@tanstack/react-query-devtools@npm:5.62.16"
+"@tanstack/react-query-devtools@npm:^5.64.0":
+  version: 5.64.0
+  resolution: "@tanstack/react-query-devtools@npm:5.64.0"
   dependencies:
     "@tanstack/query-devtools": 5.62.16
   peerDependencies:
-    "@tanstack/react-query": ^5.62.16
+    "@tanstack/react-query": ^5.64.0
     react: ^18 || ^19
-  checksum: 1acd07c82cd37a73731e180b4511025d33143a5820c09450143b81bde24871a7f7bccb44d6d488583dc319ae3ed22779bd38157836d37e2673a1c9efa004a3b6
+  checksum: 24e2aed653ed79ab132a8da451e8323daaea9acf4c677e7dad1cdc4fd8c5d7419906801d350a6596f7ff35b80dae97ba3c432d8e84d748d8ea53bc75b41348f6
   languageName: node
   linkType: hard
 
-"@tanstack/react-query@npm:^5.62.16":
-  version: 5.62.16
-  resolution: "@tanstack/react-query@npm:5.62.16"
+"@tanstack/react-query@npm:^5.64.0":
+  version: 5.64.0
+  resolution: "@tanstack/react-query@npm:5.64.0"
   dependencies:
-    "@tanstack/query-core": 5.62.16
+    "@tanstack/query-core": 5.64.0
   peerDependencies:
     react: ^18 || ^19
-  checksum: dbf9cf549799d96ecefea237617e15234d9fa446460efe5286e128840b1bcfff5d7ff8a9eb9208aefe469800b50fa2ad31d93e631be3e0a58baac61a3094fb33
+  checksum: d6676fd1481753af1c348c8084057f9c879a8ac69c5cd5ae3f90ae29a6734a32511de90b2b02f9ac31da1ca475ecd72d2fb5e06d01dfa78c78d59919d32364d5
   languageName: node
   linkType: hard
 
@@ -9836,7 +9836,7 @@ __metadata:
     "@microsoft/applicationinsights-react-js": ^17.3.4
     "@microsoft/applicationinsights-web": ^3.3.4
     "@okta/okta-react": ^6.9.0
-    "@okta/okta-signin-widget": ^7.27.1
+    "@okta/okta-signin-widget": ^7.27.2
     "@playwright/test": ^1.49.1
     "@rest-hooks/rest": ^3.0.3
     "@rest-hooks/test": ^7.3.1
@@ -9853,8 +9853,8 @@ __metadata:
     "@storybook/react-vite": ^8.4.7
     "@storybook/testing-library": ^0.2.2
     "@storybook/theming": ^8.4.7
-    "@tanstack/react-query": ^5.62.16
-    "@tanstack/react-query-devtools": ^5.62.16
+    "@tanstack/react-query": ^5.64.0
+    "@tanstack/react-query-devtools": ^5.64.0
     "@testing-library/dom": ^10.4.0
     "@testing-library/jest-dom": ^6.6.3
     "@testing-library/react": ^16.1.0
