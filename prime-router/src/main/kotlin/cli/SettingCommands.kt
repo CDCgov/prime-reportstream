@@ -1051,7 +1051,7 @@ class GetMultipleSettings : SettingCommand(
 
     fun getAll(
         environment: Environment,
-        accessToken: String = oktaAccessToken,
+        accessToken: String,
         specificOrg: String? = filter,
         exactMatch: Boolean = false,
     ): List<DeepOrganization> {
