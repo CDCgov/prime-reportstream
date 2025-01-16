@@ -117,3 +117,13 @@
     - IDOH_CDCSR_
     - createdDate(MMddyyyyHHmmss)
 
+- name: golden-copy
+  upperCase: true
+  elements:
+    - GOLDEN-COPY
+    - "-"
+    - uuid()
+
+- name: uuid
+  elements:
+    - uuid()
