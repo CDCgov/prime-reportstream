@@ -48,7 +48,7 @@ class DatabaseDeliveryAccess(
         var filter = if (org?.featureFlags?.contains("ELIMS_DATA") == true) {
                 REPORT_FILE.NEXT_ACTION.isNull
                     .and(REPORT_FILE.TRANSPORT_PARAMS.isNotNull)
-                    .and(REPORT_FILE.TRANSPORT_PARAMS.like("%downloadedBy%"))
+                    .and(REPORT_FILE.TRANSPORT_RESULT.notLike("%downloadedBy%"))
                     .and(REPORT_FILE.SCHEMA_TOPIC.eq(Topic.ELR_ELIMS))
                     .and(REPORT_FILE.RECEIVING_ORG.eq(organization))
         } else {
