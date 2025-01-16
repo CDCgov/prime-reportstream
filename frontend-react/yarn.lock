@@ -10030,7 +10030,7 @@ __metadata:
     typescript-eslint: ^8.19.0
     undici: ^6.20.1
     use-deep-compare-effect: ^1.8.1
-    uuid: ^11.0.4
+    uuid: ^11.0.5
     vite: ^6.0.7
     vite-plugin-checker: ^0.8.0
     vite-plugin-svgr: ^4.3.0
@@ -12229,12 +12229,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"uuid@npm:^11.0.4":
-  version: 11.0.4
-  resolution: "uuid@npm:11.0.4"
+"uuid@npm:^11.0.5":
+  version: 11.0.5
+  resolution: "uuid@npm:11.0.5"
   bin:
     uuid: dist/esm/bin/uuid
-  checksum: 88860d20dafa648642581b2e7bb364588149df50d41c812100839aec095593fcc8548fde6929605efd42f556455cf5683e3bad9e9e311f4b62d7efbb68598d3e
+  checksum: 8a8ed824c77ccc9387eed3049e75268a862379f0d41222716020743c438f31e9acfbe6495bd4cb1a7727c91fcf5ae20be40b306826a62c96f9ff42db48e8ed93
   languageName: node
   linkType: hard
 
