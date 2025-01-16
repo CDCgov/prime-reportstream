@@ -6,13 +6,11 @@ export const MessageTestingAccordion = ({
     priority,
     resultData,
     fieldsToRender,
-    expandAccordions,
 }: {
     accordionTitle: string;
     priority: "error" | "warning";
     resultData: RSMessageResult;
     fieldsToRender: (keyof RSMessageResult)[];
-    expandAccordions: boolean;
 }) => {
     const fieldID = accordionTitle.toLowerCase().split(" ").join("-");
     const existingFields = fieldsToRender.filter((field) => Object.keys(resultData).includes(field));
@@ -24,7 +22,7 @@ export const MessageTestingAccordion = ({
     return (
         <div key={`${fieldID}-accordion-wrapper`} className="padding-top-4 ">
             <Accordion
-                key={`${fieldID}-accordion-${expandAccordions}`}
+                key={`${fieldID}-accordion`}
                 items={[
                     {
                         className: "bg-gray-5",
@@ -57,7 +55,7 @@ export const MessageTestingAccordion = ({
                                 ))}
                             </div>
                         ),
-                        expanded: expandAccordions,
+                        expanded: false,
                         headingLevel: "h3",
                         id: `${fieldID}-list`,
                     },

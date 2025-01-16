@@ -1,6 +1,6 @@
 import { QueryObserverResult } from "@tanstack/react-query";
 import { Accordion, Button, Icon } from "@trussworks/react-uswds";
-import { type PropsWithChildren, useState } from "react";
+import { type PropsWithChildren } from "react";
 import language from "./language.json";
 import { MessageTestingAccordion } from "./MessageTestingAccordion";
 import type { RSMessage, RSMessageResult } from "../../../config/endpoints/reports";
@@ -57,16 +57,11 @@ const MessageTestingResult = ({
         minute: "numeric",
         hour12: true,
     };
-    const [expandAccordions, setExpandAccordions] = useState(false);
 
     return (
         <section {...props}>
             <div className="display-flex flex-justify flex-align-center">
                 <h2>Test results: {submittedMessage?.fileName}</h2>
-
-                <Button type="button" outline onClick={() => setExpandAccordions(true)}>
-                    Expand All <Icon.ArrowDropDown className="text-top" />
-                </Button>
 
                 <Button type="button" onClick={() => void refetch()}>
                     Rerun test <Icon.Autorenew className="text-top" />
@@ -96,7 +91,6 @@ const MessageTestingResult = ({
                 priority="error"
                 resultData={resultData}
                 fieldsToRender={filterFields}
-                expandAccordions={expandAccordions}
             />
 
             <MessageTestingAccordion
@@ -104,7 +98,6 @@ const MessageTestingResult = ({
                 priority="error"
                 resultData={resultData}
                 fieldsToRender={transformFields}
-                expandAccordions={expandAccordions}
             />
 
             <MessageTestingAccordion
@@ -112,13 +105,12 @@ const MessageTestingResult = ({
                 priority="warning"
                 resultData={resultData}
                 fieldsToRender={warningFields}
-                expandAccordions={expandAccordions}
             />
 
             {resultData.message && isPassed && (
                 <div key={`output-submittedMessage-accordion-wrapper`} className="padding-top-4">
                     <Accordion
-                        key={`output-submittedMessage-accordion-${expandAccordions}`}
+                        key={`output-submittedMessage-accordion`}
                         items={[
                             {
                                 className: "bg-gray-5",
@@ -128,7 +120,7 @@ const MessageTestingResult = ({
                                         {resultData.message}
                                     </div>
                                 ),
-                                expanded: expandAccordions,
+                                expanded: false,
                                 headingLevel: "h3",
                                 id: `output-submittedMessage-list`,
                             },
@@ -138,7 +130,7 @@ const MessageTestingResult = ({
             )}
             <div key={`test-submittedMessage-accordion-wrapper`} className="padding-top-4">
                 <Accordion
-                    key={`test-submittedMessage-accordion-${expandAccordions}`}
+                    key={`test-submittedMessage-accordion-`}
                     items={[
                         {
                             className: "bg-gray-5",
@@ -148,7 +140,7 @@ const MessageTestingResult = ({
                                     {submittedMessage?.reportBody}
                                 </div>
                             ),
-                            expanded: expandAccordions,
+                            expanded: false,
                             headingLevel: "h3",
                             id: "test-submittedMessage-list",
                         },
