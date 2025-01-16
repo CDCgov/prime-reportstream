@@ -1,7 +1,8 @@
 import { QueryObserverResult } from "@tanstack/react-query";
-import { Accordion, Button, Icon, Tag } from "@trussworks/react-uswds";
-import type { PropsWithChildren } from "react";
+import { Accordion, Button, Icon } from "@trussworks/react-uswds";
+import { type PropsWithChildren, useState } from "react";
 import language from "./language.json";
+import { MessageTestingAccordion } from "./MessageTestingAccordion";
 import type { RSMessage, RSMessageResult } from "../../../config/endpoints/reports";
 import Alert, { type AlertProps } from "../../../shared/Alert/Alert";
 import { USLinkButton } from "../../USLink";
@@ -13,12 +14,14 @@ export interface MessageTestingResultProps extends PropsWithChildren {
     refetch: () => Promise<QueryObserverResult<RSMessageResult, Error>>;
 }
 
-const errorFields: (keyof RSMessageResult)[] = [
+const filterFields: (keyof RSMessageResult)[] = ["filterErrors"];
+
+const transformFields: (keyof RSMessageResult)[] = [
     "senderTransformErrors",
     "enrichmentSchemaErrors",
     "receiverTransformErrors",
-    "filterErrors",
 ];
+
 const warningFields: (keyof RSMessageResult)[] = [
     "senderTransformWarnings",
     "enrichmentSchemaWarnings",
@@ -33,14 +36,14 @@ const MessageTestingResult = ({
     ...props
 }: MessageTestingResultProps) => {
     const isPassed =
-        !!resultData.senderTransformErrors.length &&
-        !!resultData.filterErrors.length &&
-        !!resultData.enrichmentSchemaErrors.length &&
-        !!resultData.receiverTransformErrors.length;
+        resultData.senderTransformErrors.length === 0 &&
+        resultData.filterErrors.length === 0 &&
+        resultData.enrichmentSchemaErrors.length === 0 &&
+        resultData.receiverTransformErrors.length === 0;
     const isWarned =
-        !!resultData.senderTransformWarnings.length &&
-        !!resultData.enrichmentSchemaWarnings.length &&
-        !!resultData.receiverTransformWarnings.length;
+        resultData.senderTransformWarnings.length > 0 &&
+        resultData.enrichmentSchemaWarnings.length > 0 &&
+        resultData.receiverTransformWarnings.length > 0;
 
     const alertType: AlertProps["type"] = !isPassed ? "error" : isWarned ? "warning" : "success";
     const alertHeading = language[`${alertType}AlertHeading`];
@@ -54,11 +57,16 @@ const MessageTestingResult = ({
         minute: "numeric",
         hour12: true,
     };
+    const [expandAccordions, setExpandAccordions] = useState(false);
 
     return (
         <section {...props}>
             <div className="display-flex flex-justify flex-align-center">
                 <h2>Test results: {submittedMessage?.fileName}</h2>
+
+                <Button type="button" outline onClick={() => setExpandAccordions(true)}>
+                    Expand All <Icon.ArrowDropDown className="text-top" />
+                </Button>
 
                 <Button type="button" onClick={() => void refetch()}>
                     Rerun test <Icon.Autorenew className="text-top" />
@@ -83,77 +91,34 @@ const MessageTestingResult = ({
                 </Alert>
             </div>
 
-            {errorFields.map((f) => {
-                const arr = resultData[f];
-                if (arr != null && !Array.isArray(arr)) throw new Error("Invalid resultData");
-                if (!arr?.length) return null;
+            <MessageTestingAccordion
+                accordionTitle="Filters triggered"
+                priority="error"
+                resultData={resultData}
+                fieldsToRender={filterFields}
+                expandAccordions={expandAccordions}
+            />
 
-                return (
-                    <div key={`${f}-accordion-wrapper`} className="padding-top-4 ">
-                        <Accordion
-                            key={`${f}-accordion`}
-                            items={[
-                                {
-                                    className: "bg-gray-5",
-                                    title: (
-                                        <>
-                                            <Icon.Error size={3} className="text-top margin-right-1" />
-                                            <span className="font-body-lg">Transform warnings</span>
-                                            <Tag className="margin-left-1 bg-secondary-vivid">{arr.length}</Tag>
-                                        </>
-                                    ),
-                                    content: (
-                                        <div className="bg-white font-sans-sm padding-top-2 padding-bottom-2 padding-left-1 padding-right-1">
-                                            {arr.join("\n")}
-                                        </div>
-                                    ),
-                                    expanded: false,
-                                    headingLevel: "h3",
-                                    id: `${f}-list`,
-                                },
-                            ]}
-                        />
-                    </div>
-                );
-            })}
+            <MessageTestingAccordion
+                accordionTitle="Transform errors"
+                priority="error"
+                resultData={resultData}
+                fieldsToRender={transformFields}
+                expandAccordions={expandAccordions}
+            />
 
-            {warningFields.map((f) => {
-                const arr = resultData[f];
-                if (arr != null && !Array.isArray(arr)) throw new Error("Invalid resultData");
-                if (!arr?.length) return null;
+            <MessageTestingAccordion
+                accordionTitle="Transform warnings"
+                priority="warning"
+                resultData={resultData}
+                fieldsToRender={warningFields}
+                expandAccordions={expandAccordions}
+            />
 
-                return (
-                    <div key={`${f}-accordion-wrapper`} className="padding-top-4">
-                        <Accordion
-                            key={`${f}-accordion`}
-                            items={[
-                                {
-                                    className: "bg-gray-5",
-                                    title: (
-                                        <>
-                                            <Icon.Warning size={3} className="text-top margin-right-1" />
-                                            <span className="font-body-lg">Filters triggered</span>
-                                            <Tag className="margin-left-1 bg-accent-warm">{arr.length}</Tag>
-                                        </>
-                                    ),
-                                    content: (
-                                        <div className="bg-white font-sans-sm padding-top-2 padding-bottom-2 padding-left-1 padding-right-1">
-                                            {arr.join("\n")}
-                                        </div>
-                                    ),
-                                    expanded: false,
-                                    headingLevel: "h3",
-                                    id: `${f}-list`,
-                                },
-                            ]}
-                        />
-                    </div>
-                );
-            })}
             {resultData.message && isPassed && (
                 <div key={`output-submittedMessage-accordion-wrapper`} className="padding-top-4">
                     <Accordion
-                        key={`output-submittedMessage-accordion`}
+                        key={`output-submittedMessage-accordion-${expandAccordions}`}
                         items={[
                             {
                                 className: "bg-gray-5",
@@ -163,7 +128,7 @@ const MessageTestingResult = ({
                                         {resultData.message}
                                     </div>
                                 ),
-                                expanded: false,
+                                expanded: expandAccordions,
                                 headingLevel: "h3",
                                 id: `output-submittedMessage-list`,
                             },
@@ -173,7 +138,7 @@ const MessageTestingResult = ({
             )}
             <div key={`test-submittedMessage-accordion-wrapper`} className="padding-top-4">
                 <Accordion
-                    key="test-submittedMessage-accordion"
+                    key={`test-submittedMessage-accordion-${expandAccordions}`}
                     items={[
                         {
                             className: "bg-gray-5",
@@ -183,7 +148,7 @@ const MessageTestingResult = ({
                                     {submittedMessage?.reportBody}
                                 </div>
                             ),
-                            expanded: false,
+                            expanded: expandAccordions,
                             headingLevel: "h3",
                             id: "test-submittedMessage-list",
                         },
