@@ -12,6 +12,7 @@ export interface MessageTestingResultProps extends PropsWithChildren {
     resultData: RSMessageResult;
     handleGoBack: () => void;
     refetch: () => Promise<QueryObserverResult<RSMessageResult, Error>>;
+    handleSaveToPDF: () => void;
 }
 
 const filterFields: (keyof RSMessageResult)[] = ["filterErrors"];
@@ -33,6 +34,7 @@ const MessageTestingResult = ({
     submittedMessage,
     handleGoBack,
     refetch,
+    handleSaveToPDF,
     ...props
 }: MessageTestingResultProps) => {
     const isPassed =
@@ -58,13 +60,22 @@ const MessageTestingResult = ({
         hour12: true,
     };
     const [expandAccordions, setExpandAccordions] = useState(false);
-
+    console.log("resultData = ", resultData);
     return (
         <section {...props}>
             <div className="display-flex flex-justify flex-align-center">
                 <h2>Test results: {submittedMessage?.fileName}</h2>
 
-                <Button type="button" outline onClick={() => setExpandAccordions(true)}>
+                <Button
+                    type="button"
+                    outline
+                    onClick={() => {
+                        setExpandAccordions(true);
+                        requestAnimationFrame(() => {
+                            handleSaveToPDF();
+                        });
+                    }}
+                >
                     Expand All <Icon.ArrowDropDown className="text-top" />
                 </Button>
 

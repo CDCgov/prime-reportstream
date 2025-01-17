@@ -1,7 +1,9 @@
 import { GridContainer } from "@trussworks/react-uswds";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { useParams } from "react-router";
+import html2canvas from "html2canvas";
+import jsPDF from "jspdf";
 import { AdminFormWrapper } from "../../../components/Admin/AdminFormWrapper";
 import { EditReceiverSettingsParams } from "../../../components/Admin/EditReceiverSettings";
 import MessageTestingForm from "../../../components/Admin/MessageTesting/MessageTestingForm";
@@ -51,14 +53,52 @@ const AdminMessageTestingPage = () => {
     const { setRequestBody, isLoading, data: testResultData, refetch } = useTestMessageResult();
     const [selectedOption, setSelectedOption] = useState<RSMessage | null>(null);
     const [currentTestMessages, setCurrentTestMessages] = useState<RSMessage[]>(messageData);
+    const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setRequestBody(selectedOption?.reportBody ? selectedOption.reportBody : null);
         setCurrentMessageTestStep(MessageTestingSteps.StepTwo);
     };
+    const pdfRef = useRef<HTMLDivElement>(null);
+    const handleSaveToPDF = async () => {
+        if (!pdfRef.current) return;
+
+        try {
+            setIsGeneratingPDF(true);
+            // Use html2canvas on the referenced DOM node
+            const canvas = await html2canvas(pdfRef.current, {
+                // Optional: increase scale for better quality
+                scale: 2,
+            });
+
+            const imgData = canvas.toDataURL("image/png");
+
+            const pdf = new jsPDF("p", "pt", "letter");
+            // A4-ish or Letter size in points (72 pt = 1 inch)
+            const pageWidth = 612; // ~8.5" x 72
+            const pageHeight = 792; // ~11" x 72
+
+            // We want some margin around the image
+            const marginX = 20;
+            const marginY = 20;
+
+            let imgWidth = pageWidth - marginX * 2;
+            let imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+            // If the resulting height is still larger than the page height, scale again
+            if (imgHeight > pageHeight - marginY * 2) {
+                imgHeight = pageHeight - marginY * 2;
+                imgWidth = (canvas.width * imgHeight) / canvas.height;
+            }
+            pdf.addImage(imgData, "PNG", marginX, marginY, imgWidth, imgHeight);
+            pdf.save(`${orgname}-${receivername}-results.pdf`);
+        } finally {
+            setIsGeneratingPDF(false);
+        }
+    };
 
     return (
-        <>
+        <div ref={pdfRef}>
             <Helmet>
                 <title>Message testing - ReportStream</title>
             </Helmet>
@@ -86,7 +126,7 @@ const AdminMessageTestingPage = () => {
                         results and output messages in separate tabs.
                     </p>
                     <hr />
-                    {isLoading ? (
+                    {isLoading || isGeneratingPDF ? (
                         <Spinner />
                     ) : (
                         <>
@@ -108,13 +148,14 @@ const AdminMessageTestingPage = () => {
                                         setCurrentMessageTestStep(MessageTestingSteps.StepOne);
                                     }}
                                     refetch={refetch}
+                                    handleSaveToPDF={handleSaveToPDF}
                                 />
                             )}
                         </>
                     )}
                 </GridContainer>
             </AdminFormWrapper>
-        </>
+        </div>
     );
 };
 
