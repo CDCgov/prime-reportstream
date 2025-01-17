@@ -1,7 +1,8 @@
 import { Button, Icon, Radio } from "@trussworks/react-uswds";
 import { ChangeEvent } from "react";
+import openAsBlob from "../../../utils/OpenAsBlob/OpenAsBlob";
 
-export const RadioField = ({
+export const MessageTestingRadioField = ({
     title,
     body,
     index,
@@ -14,26 +15,6 @@ export const RadioField = ({
     handleSelect: (event: ChangeEvent<HTMLInputElement>) => void;
     selectedOption: string | null;
 }) => {
-    const openTextInNewTab = () => {
-        let formattedContent = body;
-
-        // Check if the content is JSON and format it
-        try {
-            formattedContent = JSON.stringify(JSON.parse(body), null, 2);
-        } catch {
-            formattedContent = body;
-        }
-
-        const blob = new Blob([formattedContent], { type: "text/plain" });
-
-        const url = URL.createObjectURL(blob);
-
-        window.open(url, "_blank");
-
-        // Revoke the URL to free up memory
-        URL.revokeObjectURL(url);
-    };
-
     return (
         <Radio
             id={`message-${index}`}
@@ -46,7 +27,7 @@ export const RadioField = ({
                 <>
                     {" "}
                     {title}{" "}
-                    <Button type="button" unstyled onClick={openTextInNewTab}>
+                    <Button type="button" unstyled onClick={() => openAsBlob(body)}>
                         View message
                         <Icon.Visibility className="text-tbottom margin-left-05" aria-label="View message" />
                     </Button>

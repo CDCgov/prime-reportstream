@@ -22,6 +22,7 @@ import {
 } from "../../utils/TemporarySettingsAPITypes";
 import { ModalConfirmDialog, ModalConfirmRef } from "../ModalConfirmDialog";
 import { EnumTooltip, ObjectTooltip } from "../tooltips/ObjectTooltip";
+import { USLinkButton } from "../USLink";
 
 const { RS_API_URL } = config;
 
@@ -338,7 +339,17 @@ export function EditReceiverSettingsPage() {
     const { orgname, receivername, action } = useParams<EditReceiverSettingsParams>();
 
     return (
-        <AdminFormWrapper header={<Title preTitle={`Org name: ${orgname}`} title={`Receiver name: ${receivername}`} />}>
+        <AdminFormWrapper
+            header={
+                <div className="display-flex flex-justify flex-align-center">
+                    <Title preTitle={`Org name: ${orgname}`} title={`Receiver name: ${receivername}`} />
+
+                    <USLinkButton href="message-testing" outline>
+                        Test a sample message
+                    </USLinkButton>
+                </div>
+            }
+        >
             <EditReceiverSettingsForm
                 orgname={orgname ?? ""}
                 receivername={receivername ?? ""}
