@@ -27,16 +27,16 @@ Breakdown of `elims` actions
 
 #### How to set up in Okta
 
-1. Create a scope\
+1. Create a scope
 <img src="img/okta-scope.png" width="600"/>
 <br><br>
-2. Create an Access Policy\
+2. Create an Access Policy
 <img src="img/access-policy.png" width="600"/>
 <br><br>
-3. Add a Rule to the Policy. Ensure you have limited the scope to the group membership.\
+3. Add a Rule to the Policy. Ensure you have limited the scope to the group membership.
 <img src="img/access-policy-rule.png" width="600"/>
 <br><br>
-4. Add an additional rule to deny Access to users not in the group. Ensure the default scopes rule is first in priority.\
+4. Add an additional rule to deny Access to users not in the group. Ensure the default scopes rule is first in priority.
 <img src="img/default-access-policy-rule.png" width="600"/>
 <br><br>
 
@@ -60,13 +60,13 @@ examples:
 "ca-phd": Allow submitting from any sender under ca-phd
 ```
 
-1. Update the default user to add an additional profile attribute\
+1. Update the default user to add an additional profile attribute
 <img src="submit-attr.png" width="600"/>
 <br><br>
-2. Add specific values to the user's profile that you want in the access token\
+2. Add specific values to the user's profile that you want in the access token
 <img src="img/user-profile.png" width="600"/>
 <br><br>
-3. Add a claim referencing the user profile attribute\
+3. Add a claim referencing the user profile attribute
 <img src="img/user-submit.png" width="600"/>
 <br><br>
 
