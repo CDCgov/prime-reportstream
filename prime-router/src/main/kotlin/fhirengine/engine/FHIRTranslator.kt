@@ -94,7 +94,7 @@ class FHIRTranslator(
                     }
                 }
             }
-            else -> {
+                else -> {
                 // Handle the case where casting failed
                 throw RuntimeException(
                     "Message was not a FhirTranslateQueueMessage and cannot be " +
@@ -218,15 +218,6 @@ class FHIRTranslator(
         receiver: Receiver,
         bundle: Bundle,
     ): ByteArray {
-        if (receiver.enrichmentSchemaNames.isNotEmpty()) {
-            receiver.enrichmentSchemaNames.forEach { enrichmentSchemaName ->
-                logger.info("Applying enrichment schema $enrichmentSchemaName")
-                val transformer = FhirTransformer(
-                    enrichmentSchemaName,
-                )
-                transformer.process(bundle)
-            }
-        }
         when (receiver.format) {
             MimeFormat.FHIR -> {
                 if (receiver.schemaName.isNotEmpty()) {

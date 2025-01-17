@@ -5,7 +5,6 @@ import assertk.assertThat
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isTrue
-import ca.uhn.hl7v2.util.Hl7InputStreamMessageIterator
 import ca.uhn.hl7v2.util.Terser
 import gov.cdc.prime.router.ActionLogDetail
 import gov.cdc.prime.router.ActionLogger
@@ -511,55 +510,6 @@ class FhirTranslatorTests {
 
         // assert
         assertThat(terser.get(MSH_11_1)).isEqualTo("T")
-    }
-
-    /**
-     * When the receiver is in production mode and sender is in testing mode, output HL7 should be 'T'
-     */
-    @Test
-    fun `test receiver enrichment`() {
-        mockkClass(BlobAccess::class)
-        mockkObject(BlobAccess.Companion)
-        every { BlobAccess.Companion.getBlobConnection(any()) } returns "testconnection"
-
-        // set up
-        val schemaName = ORU_R01_SCHEMA
-        val receiver = Receiver(
-            RECEIVER_NAME,
-            ORGANIZATION_NAME,
-            Topic.FULL_ELR,
-            CustomerStatus.ACTIVE,
-            schemaName,
-            translation = UnitTestUtils.createConfig(useTestProcessingMode = false, schemaName = schemaName),
-            enrichmentSchemaNames = listOf(
-                "classpath:/enrichments/testing.yml",
-                "classpath:/enrichments/testing2.yml"
-            )
-        )
-
-        val testOrg = DeepOrganization(
-            ORGANIZATION_NAME, "test", Organization.Jurisdiction.FEDERAL,
-            receivers = listOf(receiver)
-        )
-
-        val settings = FileSettings().loadOrganizations(testOrg)
-
-        val fhirData = File("src/test/resources/fhirengine/engine/valid_data_testing_sender.fhir").readText()
-        val bundle = FhirTranscoder.decode(fhirData)
-
-        val engine = makeFhirEngine(settings = settings)
-
-        // act
-        val byteArray = engine.getByteArrayFromBundle(receiver, bundle)
-        val messageIterator = Hl7InputStreamMessageIterator(byteArray.inputStream())
-        val message = messageIterator.next()
-        val terser = Terser(message)
-
-        // assert
-        assertThat(terser.get("SFT-1-1")).isEqualTo("Orange Software Vendor Name")
-        assertThat(terser.get("SFT-2")).isEqualTo("0.2-YELLOW")
-        // because while it will initially get set, it will then be overridden by the transform
-        assertThat(terser.get("SFT-3")).isEqualTo("PRIME ReportStream")
     }
 
     @Test
