@@ -63,7 +63,16 @@ jobs:
           terraform-directory: operations/app/terraform/vars/${{ needs.pre_job.outputs.env_name }}
           terraform-version: 1.7.4
           add-args: "-refresh=false"
-
+        -name:  Run Terraform Plan
+          run: |
+            terraform init -input=false
+            terraform validate
+            terraform fmt -recursive
+            terraform plan -out=tf.plan
+        - name: Run Terraform Apply
+          run: |
+            terraform apply -input=false -no-color -lock-timeout=600s -auto-approve tf.plan
+  
   approve_deploy:
     name: Approve Deploy - ${{ needs.pre_job.outputs.env_name }}
     concurrency:
