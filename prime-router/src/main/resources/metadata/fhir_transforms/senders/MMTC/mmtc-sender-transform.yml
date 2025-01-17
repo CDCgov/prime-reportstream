@@ -1,6 +1,11 @@
 extends: classpath:/metadata/fhir_transforms/senders/original-pipeline-transforms.yml
 
 elements:
+  - name: sender-identifier
+    resource: 'Bundle.entry.resource.ofType(MessageHeader)'
+    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/sender-id").value[x]'
+    value: [ '"mmtc"' ]
+
   - name: patient-state-from-zip-code
     resource: "Bundle.entry.resource.ofType(Patient).address"
     bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/state-from-zip-code").value[x]'
