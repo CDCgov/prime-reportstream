@@ -5,12 +5,12 @@ import com.google.common.net.HttpHeaders
 import com.microsoft.azure.functions.HttpRequestMessage
 import com.microsoft.azure.functions.HttpResponseMessage
 import com.microsoft.azure.functions.HttpStatus
-import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.azure.HttpUtilities
 import gov.cdc.prime.router.azure.HttpUtilities.Companion.isSuccessful
 import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.HL7ACKUtils
+import gov.cdc.prime.router.fhirengine.utils.HL7MessageHelpers
 import gov.cdc.prime.router.fhirengine.utils.HL7Reader
 import gov.cdc.prime.router.history.DetailedSubmissionHistory
 import org.apache.logging.log4j.kotlin.Logging
@@ -106,12 +106,11 @@ class SubmissionResponseBuilder(
             contentType == HttpUtilities.hl7V2MediaType &&
             requestBody != null
         ) {
-            val hl7Reader = HL7Reader(ActionLogger())
-            val messages = hl7Reader.getMessages(requestBody)
-            val isBatch = hl7Reader.isBatch(requestBody, messages.size)
+            val messageCount = HL7MessageHelpers.messageCount(requestBody)
+            val isBatch = HL7Reader.isBatch(requestBody, messageCount)
 
-            if (!isBatch && messages.size == 1) {
-                val message = messages.first()
+            if (!isBatch && messageCount == 1) {
+                val message = HL7Reader.parseHL7Message(requestBody)
                 val acceptAcknowledgementType = HL7Reader.getAcceptAcknowledgmentType(message)
                 val ackResponseRequired = acceptAcknowledgmentTypeRespondValues.contains(acceptAcknowledgementType)
                 if (ackResponseRequired) {

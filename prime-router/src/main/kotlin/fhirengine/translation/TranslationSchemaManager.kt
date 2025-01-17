@@ -1,9 +1,9 @@
 package gov.cdc.prime.router.fhirengine.translation
 
+import ca.uhn.hl7v2.util.Hl7InputStreamMessageStringIterator
 import com.azure.storage.blob.models.BlobItem
 import fhirengine.engine.CustomFhirPathFunctions
 import fhirengine.engine.CustomTranslationFunctions
-import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.Hl7Configuration
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.fhirengine.config.HL7TranslationConfig
@@ -41,7 +41,6 @@ class TranslationSchemaManager : Logging {
             Regex("/$previousValidBlobName-$timestampRegex")
         private val previousPreviousValidBlobNameRegex =
             Regex("/$previousPreviousValidBlobName-$timestampRegex")
-        private val hL7Reader = HL7Reader(ActionLogger())
 
         /**
          * Container class that holds the current state for a schema type in a particular azure store.
@@ -440,7 +439,11 @@ class TranslationSchemaManager : Logging {
                             )
                         ).validate(
                             inputBundle,
-                            hL7Reader.getMessages(rawValidationInput.output)[0]
+                            HL7Reader.parseHL7Message(
+                                Hl7InputStreamMessageStringIterator(rawValidationInput.output.byteInputStream())
+                                    .asSequence()
+                                    .first()
+                            ),
                         )
                     }
                 }

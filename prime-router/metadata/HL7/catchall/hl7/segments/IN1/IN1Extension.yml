@@ -1,0 +1,688 @@
+# $schema: ./../../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
+
+url:
+  type: SYSTEM_URL
+  value: in1-coverage
+
+extension:
+  expressionType: nested
+  generateList: true
+  expressions:
+    - expressionType: nested
+      specs: IN1.2
+      condition: $in12 NOT_NULL
+      generateList: true
+      vars:
+        in12: STRING_ALL, IN1.2
+      expressionsMap:
+        url:
+          type: STRING
+          value: IN1.2
+        valueCodeableConcept:
+          valueOf: datatypes/CWE/CodeableConcept
+          expressionType: resource
+    - expressionType: nested
+      specs: IN1.3 *
+      condition: $in13 NOT_NULL
+      generateList: true
+      vars:
+        in13: STRING_ALL, IN1.3
+      expressionsMap:
+        url:
+          type: STRING
+          value: IN1.3
+        valueIdentifier:
+          valueOf: datatypes/CX/Identifier
+          expressionType: resource
+    - expressionType: nested
+      vars:
+        in14: STRING_ALL, IN1.4
+      condition: $in14 NOT_NULL
+      specs: IN1.4 *
+      generateList: true
+      expressionsMap:
+        url:
+          type: STRING
+          value: IN1.4
+        valueReference:
+          valueOf: datatypes/XON/Organization
+          expressionType: reference
+    - expressionType: nested
+      vars:
+        in15: STRING_ALL, IN1.5
+      condition: $in15 NOT_NULL
+      specs: IN1.5 *
+      generateList: true
+      expressionsMap:
+        url:
+          type: STRING
+          value: IN1.5
+        valueAddress:
+          expressionType: resource
+          valueOf: datatypes/XAD/Address
+    - expressionType: nested
+      vars:
+        in16: STRING_ALL, IN1.6
+      condition: $in16 NOT_NULL
+      specs: IN1.6 *
+      generateList: true
+      expressionsMap:
+        url:
+          type: STRING
+          value: IN1.6
+        valueHumanName:
+          expressionType: resource
+          valueOf: datatypes/XPN/HumanName
+    - expressionType: nested
+      vars:
+        in17: STRING_ALL, IN1.7
+      condition: $in17 NOT_NULL
+      specs: IN1.7 *
+      generateList: true
+      expressionsMap:
+        url:
+          type: STRING
+          value: IN1.7
+        valueContactPoint:
+          expressionType: resource
+          valueOf: datatypes/XTN/ContactPoint
+    - expressionType: nested
+      vars:
+        in18: STRING_ALL, IN1.8
+      condition: $in18 NOT_NULL
+      specs: IN1.8
+      generateList: true
+      expressionsMap:
+        url:
+          type: STRING
+          value: IN1.8
+        valueString:
+          type: STRING
+          valueOf: IN1.8
+          expressionType: HL7Spec
+    - expressionType: nested
+      vars:
+        in19: STRING_ALL, IN1.9
+      condition: $in19 NOT_NULL
+      specs: IN1.9 *
+      generateList: true
+      expressionsMap:
+        url:
+          type: STRING
+          value: IN1.9
+        valueReference:
+          expressionType: reference
+          valueOf: datatypes/XON/Organization
+    - expressionType: nested
+      specs: IN1.10 *
+      condition: $in110 NOT_NULL
+      generateList: true
+      vars:
+        in110: STRING_ALL, IN1.10
+      expressionsMap:
+        url:
+          type: STRING
+          value: IN1.10
+        valueIdentifier:
+          valueOf: datatypes/CX/Identifier
+          expressionType: resource
+    - expressionType: nested
+      vars:
+        in111: STRING_ALL, IN1.11
+      condition: $in111 NOT_NULL
+      specs: IN1.11 *
+      generateList: true
+      expressionsMap:
+        url:
+          type: STRING
+          value: IN1.11
+        valueReference:
+          valueOf: datatypes/XON/Organization
+          expressionType: reference
+    - expressionType: resource
+      valueOf: datatypes/AUI/AUIExtension
+      vars:
+        in114: STRING_ALL, IN1.14
+      condition: $in114 NOT_NULL
+      specs: IN1.14
+      constants:
+        auiExtensionName: IN1.14
+    - expressionType: nested
+      specs: IN1.16 *
+      condition: $in116 NOT_NULL
+      generateList: true
+      vars:
+        in116: STRING_ALL, IN1.16
+      expressionsMap:
+        url:
+          type: STRING
+          value: IN1.16
+        valueHumanName:
+          valueOf: datatypes/XPN/HumanName
+          expressionType: resource
+    - expressionType: nested
+      specs: IN1.17
+      condition: $in117 NOT_NULL
+      generateList: true
+      vars:
+        in117: STRING_ALL, IN1.17
+      expressionsMap:
+        url:
+          type: STRING
+          value: IN1.17
+        valueCodeableConcept:
+          valueOf: datatypes/CWE/CodeableConcept
+          expressionType: resource
+    - expressionType: nested
+      vars:
+        in118: IN1.18
+      condition: $in118 NOT_NULL
+      generateList: true
+      expressionsMap:
+        url:
+          type: STRING
+          value: IN1.18
+        valueDateTime:
+          expressionType: nested
+          expressions:
+            - type: STRING
+              valueOf: "GeneralUtils.dateTimeWithZoneId(in118,ZONEID)"
+              expressionType: JEXL
+        _valueDateTime:
+          expressionType: nested
+          expressionsMap:
+            extension:
+              generateList: true
+              expressionType: nested
+              expressionsMap:
+                url:
+                  type: SYSTEM_URL
+                  value: hl7v2-date-time
+                valueString:
+                  type: STRING
+                  valueOf: IN1.18
+                  expressionType: HL7Spec
+    - expressionType: nested
+      vars:
+        in119: STRING_ALL, IN1.19
+      condition: $in119 NOT_NULL
+      specs: IN1.19 *
+      generateList: true
+      expressionsMap:
+        url:
+          type: STRING
+          value: IN1.19
+        valueAddress:
+          expressionType: resource
+          valueOf: datatypes/XAD/Address
+    - expressionType: nested
+      specs: IN1.20
+      condition: $in120 NOT_NULL
+      generateList: true
+      vars:
+        in120: STRING_ALL, IN1.20
+      expressionsMap:
+        url:
+          type: STRING
+          value: IN1.20
+        valueCodeableConcept:
+          valueOf: datatypes/CWE/CodeableConcept
+          expressionType: resource
+    - expressionType: nested
+      specs: IN1.21
+      condition: $in121 NOT_NULL
+      generateList: true
+      vars:
+        in121: STRING_ALL, IN1.21
+      expressionsMap:
+        url:
+          type: STRING
+          value: IN1.21
+        valueCodeableConcept:
+          valueOf: datatypes/CWE/CodeableConcept
+          expressionType: resource
+    - expressionType: nested
+      vars:
+        in122: STRING_ALL, IN1.22
+      condition: $in122 NOT_NULL
+      specs: IN1.22
+      generateList: true
+      expressionsMap:
+        url:
+          type: STRING
+          value: IN1.22
+        valueString:
+          type: STRING
+          valueOf: IN1.22
+          expressionType: HL7Spec
+    - expressionType: nested
+      vars:
+        in123: STRING_ALL, IN1.23
+      condition: $in123 NOT_NULL
+      specs: IN1.23
+      generateList: true
+      expressionsMap:
+        url:
+          type: STRING
+          value: IN1.23
+        valueString:
+          type: STRING
+          valueOf: IN1.23
+          expressionType: HL7Spec
+    - expressionType: nested
+      vars:
+        in124: IN1.24
+      condition: $in124 NOT_NULL
+      generateList: true
+      expressionsMap:
+        url:
+          type: STRING
+          value: IN1.24
+        valueString:
+          type: STRING
+          valueOf: IN1.24
+          expressionType: HL7Spec
+    - expressionType: nested
+      vars:
+        in125: STRING_ALL, IN1.25
+      condition: $in125 NOT_NULL
+      specs: IN1.25
+      generateList: true
+      expressionsMap:
+        url:
+          type: STRING
+          value: IN1.25
+        valueString:
+          type: STRING
+          valueOf: IN1.25
+          expressionType: HL7Spec
+    - expressionType: nested
+      vars:
+        in126: IN1.26
+      condition: $in126 NOT_NULL
+      generateList: true
+      expressionsMap:
+        url:
+          type: STRING
+          value: IN1.26
+        valueString:
+          type: STRING
+          valueOf: IN1.26
+          expressionType: HL7Spec
+    - expressionType: nested
+      specs: IN1.27
+      condition: $in127 NOT_NULL
+      generateList: true
+      vars:
+        in127: STRING_ALL, IN1.27
+      expressionsMap:
+        url:
+          type: STRING
+          value: IN1.27
+        valueCodeableConcept:
+          valueOf: datatypes/CWE/CodeableConcept
+          expressionType: resource
+    - expressionType: nested
+      vars:
+        in128: STRING_ALL, IN1.28
+      condition: $in128 NOT_NULL
+      specs: IN1.28
+      generateList: true
+      expressionsMap:
+        url:
+          type: STRING
+          value: IN1.28
+        valueString:
+          type: STRING
+          valueOf: IN1.28
+          expressionType: HL7Spec
+    - expressionType: nested
+      vars:
+        in129: IN1.29
+      condition: $in129 NOT_NULL
+      generateList: true
+      expressionsMap:
+        url:
+          type: STRING
+          value: IN1.29
+        valueDateTime:
+          expressionType: nested
+          expressions:
+            - type: STRING
+              valueOf: "GeneralUtils.dateTimeWithZoneId(in129,ZONEID)"
+              expressionType: JEXL
+        _valueDateTime:
+          expressionType: nested
+          expressionsMap:
+            extension:
+              generateList: true
+              expressionType: nested
+              expressionsMap:
+                url:
+                  type: SYSTEM_URL
+                  value: hl7v2-date-time
+                valueString:
+                  type: STRING
+                  valueOf: IN1.29
+                  expressionType: HL7Spec
+    - expressionType: nested
+      vars:
+        in130: STRING_ALL, IN1.30
+      condition: $in130 NOT_NULL
+      specs: IN1.30 *
+      generateList: true
+      expressionsMap:
+        url:
+          type: STRING
+          value: IN1.30
+        valueReference:
+          expressionType: reference
+          valueOf: datatypes/XCN/Practitioner
+    - expressionType: nested
+      specs: IN1.31
+      condition: $in131 NOT_NULL
+      generateList: true
+      vars:
+        in131: STRING_ALL, IN1.31
+      expressionsMap:
+        url:
+          type: STRING
+          value: IN1.31
+        valueCodeableConcept:
+          valueOf: datatypes/CWE/CodeableConcept
+          expressionType: resource
+    - expressionType: nested
+      specs: IN1.32
+      condition: $in132 NOT_NULL
+      generateList: true
+      vars:
+        in132: STRING_ALL, IN1.32
+      expressionsMap:
+        url:
+          type: STRING
+          value: IN1.32
+        valueCodeableConcept:
+          valueOf: datatypes/CWE/CodeableConcept
+          expressionType: resource
+    - expressionType: nested
+      vars:
+        in133: IN1.33
+      condition: $in133 NOT_NULL
+      generateList: true
+      expressionsMap:
+        url:
+          type: STRING
+          value: IN1.33
+        valueString:
+          type: STRING
+          valueOf: IN1.33
+          expressionType: HL7Spec
+    - expressionType: nested
+      vars:
+        in134: IN1.34
+      condition: $in134 NOT_NULL
+      generateList: true
+      expressionsMap:
+        url:
+          type: STRING
+          value: IN1.34
+        valueString:
+          type: STRING
+          valueOf: IN1.34
+          expressionType: HL7Spec
+    - expressionType: nested
+      specs: IN1.35
+      condition: $in135 NOT_NULL
+      generateList: true
+      vars:
+        in135: STRING_ALL, IN1.35
+      expressionsMap:
+        url:
+          type: STRING
+          value: IN1.35
+        valueCodeableConcept:
+          valueOf: datatypes/CWE/CodeableConcept
+          expressionType: resource
+    - expressionType: nested
+      vars:
+        in136: IN1.36
+      condition: $in136 NOT_NULL
+      generateList: true
+      expressionsMap:
+        url:
+          type: STRING
+          value: IN1.36
+        valueString:
+          type: STRING
+          valueOf: IN1.36
+          expressionType: HL7Spec
+    - expressionType: resource
+      vars:
+        in137: STRING, IN1.37
+      condition: $in137 NOT_NULL
+      valueOf: datatypes/CP/CPExtension
+      constants:
+        cpExtensionName: IN1.37
+      specs: IN1.37
+    - expressionType: resource
+      vars:
+        in138: STRING, IN1.38
+      condition: $in138 NOT_NULL
+      valueOf: datatypes/CP/CPExtension
+      constants:
+        cpExtensionName: IN1.38
+      specs: IN1.38
+    - expressionType: nested
+      vars:
+        in139: IN1.39
+      condition: $in139 NOT_NULL
+      generateList: true
+      expressionsMap:
+        url:
+          type: STRING
+          value: IN1.39
+        valueString:
+          type: STRING
+          valueOf: IN1.39
+          expressionType: HL7Spec
+    - expressionType: resource
+      vars:
+        in140: STRING, IN1.40
+      condition: $in140 NOT_NULL
+      valueOf: datatypes/CP/CPExtension
+      constants:
+        cpExtensionName: IN1.40
+      specs: IN1.40
+    - expressionType: resource
+      vars:
+        in141: STRING, IN1.41
+      condition: $in141 NOT_NULL
+      valueOf: datatypes/CP/CPExtension
+      constants:
+        cpExtensionName: IN1.41
+      specs: IN1.41
+    - expressionType: nested
+      specs: IN1.42
+      condition: $in142 NOT_NULL
+      generateList: true
+      vars:
+        in142: STRING_ALL, IN1.42
+      expressionsMap:
+        url:
+          type: STRING
+          value: IN1.42
+        valueCodeableConcept:
+          valueOf: datatypes/CWE/CodeableConcept
+          expressionType: resource
+    - expressionType: nested
+      specs: IN1.43
+      condition: $in143 NOT_NULL
+      generateList: true
+      vars:
+        in143: STRING_ALL, IN1.43
+      expressionsMap:
+        url:
+          type: STRING
+          value: IN1.43
+        valueCodeableConcept:
+          valueOf: datatypes/CWE/CodeableConcept
+          expressionType: resource
+    - expressionType: nested
+      vars:
+        in144: STRING_ALL, IN1.44
+      condition: $in144 NOT_NULL
+      specs: IN1.44 *
+      generateList: true
+      expressionsMap:
+        url:
+          type: STRING
+          value: IN1.44
+        valueAddress:
+          expressionType: resource
+          valueOf: datatypes/XAD/Address
+    - expressionType: nested
+      vars:
+        in145: IN1.45
+      condition: $in145 NOT_NULL
+      generateList: true
+      expressionsMap:
+        url:
+          type: STRING
+          value: IN1.45
+        valueString:
+          type: STRING
+          valueOf: IN1.45
+          expressionType: HL7Spec
+    - expressionType: nested
+      specs: IN1.46
+      condition: $in146 NOT_NULL
+      generateList: true
+      vars:
+        in146: STRING_ALL, IN1.46
+      expressionsMap:
+        url:
+          type: STRING
+          value: IN1.46
+        valueCodeableConcept:
+          valueOf: datatypes/CWE/CodeableConcept
+          expressionType: resource
+    - expressionType: nested
+      specs: IN1.47
+      condition: $in147 NOT_NULL
+      generateList: true
+      vars:
+        in147: STRING_ALL, IN1.47
+      expressionsMap:
+        url:
+          type: STRING
+          value: IN1.47
+        valueCodeableConcept:
+          valueOf: datatypes/CWE/CodeableConcept
+          expressionType: resource
+    - expressionType: nested
+      specs: IN1.48
+      condition: $in148 NOT_NULL
+      generateList: true
+      vars:
+        in148: STRING_ALL, IN1.48
+      expressionsMap:
+        url:
+          type: STRING
+          value: IN1.48
+        valueCodeableConcept:
+          valueOf: datatypes/CWE/CodeableConcept
+          expressionType: resource
+    - expressionType: nested
+      specs: IN1.49 *
+      condition: $in149 NOT_NULL
+      generateList: true
+      vars:
+        in149: STRING_ALL, IN1.49
+      expressionsMap:
+        url:
+          type: STRING
+          value: IN1.49
+        valueIdentifier:
+          valueOf: datatypes/CX/Identifier
+          expressionType: resource
+    - expressionType: nested
+      specs: IN1.50
+      condition: $in150 NOT_NULL
+      generateList: true
+      vars:
+        in150: STRING_ALL, IN1.50
+      expressionsMap:
+        url:
+          type: STRING
+          value: IN1.50
+        valueCodeableConcept:
+          valueOf: datatypes/CWE/CodeableConcept
+          expressionType: resource
+    - expressionType: nested
+      vars:
+        in151: STRING_ALL, IN1.51
+      condition: $in151 NOT_NULL
+      specs: IN1.51
+      generateList: true
+      expressionsMap:
+        url:
+          type: STRING
+          value: IN1.51
+        valueString:
+          type: STRING
+          valueOf: IN1.51
+          expressionType: HL7Spec
+    - expressionType: nested
+      vars:
+        in152: STRING_ALL, IN1.52
+      condition: $in152 NOT_NULL
+      specs: IN1.52
+      generateList: true
+      expressionsMap:
+        url:
+          type: STRING
+          value: IN1.52
+        valueString:
+          type: STRING
+          valueOf: IN1.52
+          expressionType: HL7Spec
+    - expressionType: nested
+      specs: IN1.53
+      condition: $in153 NOT_NULL
+      generateList: true
+      vars:
+        in153: STRING_ALL, IN1.53
+      expressionsMap:
+        url:
+          type: STRING
+          value: IN1.53
+        valueCodeableConcept:
+          valueOf: datatypes/CWE/CodeableConcept
+          expressionType: resource
+    - expressionType: nested
+      specs: IN1.54 *
+      condition: $in154 NOT_NULL
+      generateList: true
+      vars:
+        in154: STRING_ALL, IN1.54
+      expressionsMap:
+        url:
+          type: STRING
+          value: IN1.54
+        valueIdentifier:
+          valueOf: datatypes/CX/Identifier
+          expressionType: resource
+    - expressionType: nested
+      vars:
+        in155: STRING_ALL, IN1.55
+      condition: $in155 NOT_NULL
+      specs: IN1.55
+      generateList: true
+      expressionsMap:
+        url:
+          type: STRING
+          value: IN1.55
+        valueString:
+          type: STRING
+          valueOf: IN1.55
+          expressionType: HL7Spec

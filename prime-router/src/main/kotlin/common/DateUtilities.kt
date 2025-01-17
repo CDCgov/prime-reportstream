@@ -42,6 +42,7 @@ object DateUtilities {
 
     /** wraps around all the possible variations of a date for finding something that matches */
     const val variableDateTimePattern = "[yyyyMMdd]" +
+        "[yyyyMMddHHmmss.SSSSxx]" +
         "[yyyyMMdd[HHmm][ss][.S][Z]]" +
         "[yyyy-MM-dd HH:mm:ss.ZZZ]" +
         // nano seconds

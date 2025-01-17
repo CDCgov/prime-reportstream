@@ -441,7 +441,7 @@ object UniversalPipelineTestUtils {
         fileName: String = "mr_fhir_face.fhir",
     ): Report {
         val blobUrl = BlobAccess.uploadBlob(
-            "${previousAction.literal}/$fileName",
+            "${TaskAction.receive.literal}/$fileName",
             reportContents.toByteArray(),
             getBlobContainerMetadata(azuriteContainer)
         )

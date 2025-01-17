@@ -42,9 +42,9 @@ import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventService
-import gov.cdc.prime.router.cli.GetMultipleSettings
 import gov.cdc.prime.router.cli.PIIRemovalCommands
 import gov.cdc.prime.router.cli.ProcessFhirCommands
+import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.history.DetailedSubmissionHistory
 import gov.cdc.prime.router.history.azure.SubmissionsFacade
 import gov.cdc.prime.router.serializers.Hl7Serializer
@@ -1103,31 +1103,49 @@ class ReportFunctionTests {
         assertThrows<CliktError> {
             ProcessFhirCommands().processFhirDataRequest(
                 file,
-                "local",
+                Environment.get("staging"),
                 "full-elr",
                 "me-phd",
                 "classpath:/metadata/fhir_transforms/senders/SimpleReport/simple-report-sender-transform.yml",
-                false
+                false,
+                ""
             )
         }
         file.delete()
     }
 
     @Test
-    fun `processFhirDataRequest no environment, receiver name, or org name and output format blank`() {
+    fun `processFhirDataRequest receiver name, or org name and output format blank`() {
         val file = File("filename.txt")
         file.createNewFile()
         assertThrows<CliktError> {
             ProcessFhirCommands().processFhirDataRequest(
                 file,
-                "",
+                Environment.get("local"),
                 "",
                 "",
                 "classpath:/metadata/fhir_transforms/senders/SimpleReport/simple-report-sender-transform.yml",
-                false
+                false,
+                ""
             )
         }
         file.delete()
+    }
+
+    @Test
+    fun `processFhirDataRequest nonCLI request in staging without access token should fail`() {
+        val file = File("src/testIntegration/resources/datatests/FHIR_to_HL7/sample_ME_20240806-0001.fhir")
+        assertThrows<CliktError> {
+            ProcessFhirCommands().processFhirDataRequest(
+                file,
+                Environment.get("staging"),
+                "full-elr",
+                "me-phd",
+                "classpath:/metadata/fhir_transforms/senders/SimpleReport/simple-report-sender-transform.yml",
+                false,
+                ""
+            )
+        }
     }
 
     @Suppress("ktlint:standard:max-line-length")
@@ -1189,23 +1207,6 @@ class ReportFunctionTests {
         jurisdictionalFilter,
         qualityFilter
     )
-
-    @Test
-    fun getReceiver() {
-        val file = File("filename.txt")
-        file.createNewFile()
-        val getMultipleSettings = mockkClass(GetMultipleSettings::class)
-        every { getMultipleSettings.getAll(any(), any(), "me-phd", true) } returns
-            listOf(DeepOrganization(organization, listOf(sender), listOf(receiver)))
-        val receiverReturned = ProcessFhirCommands().getReceiver(
-            "local",
-            "full-elr",
-            "me-phd",
-            getMultipleSettings,
-            false
-        )
-        assert(receiverReturned!!.name == receiver.name)
-    }
 
     @Test
     fun `return ack if requested and enabled`() {

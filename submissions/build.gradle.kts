@@ -1,10 +1,10 @@
 apply(from = rootProject.file("buildSrc/shared.gradle.kts"))
 
 plugins {
-    id("org.springframework.boot") version "3.4.0"
-    id("io.spring.dependency-management") version "1.1.6"
+    id("org.springframework.boot") version "3.4.1"
+    id("io.spring.dependency-management") version "1.1.7"
     id("reportstream.project-conventions")
-    kotlin("plugin.spring") version "2.0.21"
+    kotlin("plugin.spring") version "2.1.0"
 }
 
 group = "gov.cdc.prime"
@@ -15,7 +15,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
-    implementation("org.springframework.security:spring-security-oauth2-jose:6.3.4")
+    implementation("org.springframework.security:spring-security-oauth2-jose:6.4.2")
 
     implementation("com.azure.spring:spring-cloud-azure-starter-storage")
     implementation("com.microsoft.azure:applicationinsights-runtime-attach:3.6.2")
@@ -40,7 +40,7 @@ configurations.all {
 
 dependencyManagement {
     imports {
-        mavenBom("com.azure.spring:spring-cloud-azure-dependencies:5.18.0")
+        mavenBom("com.azure.spring:spring-cloud-azure-dependencies:5.19.0")
     }
 }
 

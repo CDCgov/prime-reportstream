@@ -1,10 +1,10 @@
 apply(from = rootProject.file("buildSrc/shared.gradle.kts"))
 
 plugins {
-    id("org.springframework.boot") version "3.4.0"
-    id("io.spring.dependency-management") version "1.1.6"
+    id("org.springframework.boot") version "3.4.1"
+    id("io.spring.dependency-management") version "1.1.7"
     id("reportstream.project-conventions")
-    kotlin("plugin.spring") version "2.0.21"
+    kotlin("plugin.spring") version "2.1.0"
 }
 
 group = "gov.cdc.prime"
@@ -31,7 +31,7 @@ dependencies {
     runtimeOnly("com.okta.sdk:okta-sdk-impl:20.0.0")
 
     // Swagger
-    implementation("org.springdoc:springdoc-openapi-starter-webflux-ui:2.6.0")
+    implementation("org.springdoc:springdoc-openapi-starter-webflux-ui:2.7.0")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.security:spring-security-test")
@@ -48,7 +48,7 @@ configurations.all {
 
 dependencyManagement {
     imports {
-        mavenBom("com.azure.spring:spring-cloud-azure-dependencies:5.18.0")
+        mavenBom("com.azure.spring:spring-cloud-azure-dependencies:5.19.0")
         mavenBom("org.springframework.cloud:spring-cloud-dependencies:2024.0.0")
     }
 }
