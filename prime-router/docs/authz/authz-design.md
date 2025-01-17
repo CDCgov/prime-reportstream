@@ -16,9 +16,9 @@ only be returned given you have the correct group membership.
 | Scope       | Actions                                                       | Okta Group              |
 |-------------|---------------------------------------------------------------|-------------------------|
 | super_admin | Anything! (org membership does not matter)                    | ReportStream-SuperAdmin |
-| admin       | Able to update organizations                                  | ReportStream-OrgAdmin   |
+| org:write   | Able to update organizations                                  | ReportStream-OrgAdmin   |
+| org:read    | Able to access read-only information related to organizations | ReportStream-User       |
 | submit      | Able to submit reports                                        | ReportStream-Submit     |
-| read        | Able to access read-only information related to organizations | ReportStream-User       |
 | elims       | Special `elims` specific actions (see below)                  | ReportStream-Elims      |
 
 Breakdown of `elims` actions
@@ -79,7 +79,7 @@ Given the following token claims scenario:
   "scp": [
     "openid",
     "email",
-    "read",
+    "org:read",
     "submit"
   ],
   "org": [
@@ -143,7 +143,7 @@ predicate fails then the framework will throw an `AuthorizationDeniedException` 
 ReportStream specific 403 response can be returned.
 
 ```kotlin
-@PreAuthorize("hasAuthority('SCOPE_read') and #oauth2.claim('org').contains(#org)")
+@PreAuthorize("hasAuthority('SCOPE_org:read') and #oauth2.claim('org').contains(#org)")
 @GetMapping("/api/v1/hello")
 fun hello(org: String): String {
     return "Hello $org!"
@@ -165,7 +165,7 @@ fun hello(
     ) request: HttpRequestMessage<String?>,
     @BindingName("org") org: String,
 ): String {
-    if (!authorize(request, "read", org)) {
+    if (!authorize(request, "org:read", org)) {
         return "403"    
     }
     
