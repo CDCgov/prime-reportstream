@@ -61,7 +61,7 @@ examples:
 ```
 
 1. Update the default user to add an additional profile attribute
-<img src="submit-attr.png" width="600"/>
+<img src="img/submit-attr.png" width="600"/>
 <br><br>
 2. Add specific values to the user's profile that you want in the access token
 <img src="img/user-profile.png" width="600"/>
