@@ -54,24 +54,24 @@ jobs:
           sp-creds: ${{ env.AZURE_CREDENTIALS }}
           tf-auth: true
       - name: Collect Terraform stats
-
         uses: josiahsiegel/terraform-stats@68b8cbe42c494333fbf6f8d90ac86da1fb69dcc2
-        ## DevSecOps - Aquia (Replace) - uses: ./.github/actions/terraform-stats
-
         id: stats1
         with:
           terraform-directory: operations/app/terraform/vars/${{ needs.pre_job.outputs.env_name }}
           terraform-version: 1.7.4
           add-args: "-refresh=false"
-        -name:  Run Terraform Plan
-          run: |
-            terraform init -input=false
-            terraform validate
-            terraform fmt -recursive
-            terraform plan -out=tf.plan
-        - name: Run Terraform Apply
-          run: |
-            terraform apply -input=false -no-color -lock-timeout=600s -auto-approve tf.plan
+        
+  - name: Run Terraform Plan
+    run: |
+      terraform init -input=false
+      terraform validate
+      terraform fmt -recursive
+      terraform plan -out=tf.plan
+
+  - name: Run Terraform Apply
+    if: success()  # This ensures apply only runs if plan was successful
+    run: |
+      terraform apply -input=false -no-color -lock-timeout=600s -auto-approve tf.plan
   
   approve_deploy:
     name: Approve Deploy - ${{ needs.pre_job.outputs.env_name }}
