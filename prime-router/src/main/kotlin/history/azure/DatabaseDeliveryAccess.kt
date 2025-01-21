@@ -49,7 +49,7 @@ class DatabaseDeliveryAccess(
                 REPORT_FILE.NEXT_ACTION.isNull
                     .and(REPORT_FILE.TRANSPORT_PARAMS.isNotNull)
                     .and(REPORT_FILE.TRANSPORT_RESULT.notLike("%downloadedBy%"))
-                    .and(REPORT_FILE.SCHEMA_TOPIC.eq(Topic.ELR_ELIMS))
+                    .and(REPORT_FILE.SCHEMA_TOPIC.equalIgnoreCase(Topic.ELR_ELIMS.jsonVal))
                     .and(REPORT_FILE.RECEIVING_ORG.eq(organization))
         } else {
             REPORT_FILE.NEXT_ACTION.eq(TaskAction.send)
