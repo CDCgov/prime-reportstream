@@ -65,6 +65,7 @@ jobs:
             "resource-drifts": "${{ env.resource-drifts }}"
 
           icon-emoji: ':bell:'
-          channel: temp-cdc-rs-notifications  # Updated channel
+          channel: cdc-reportstream-bot-notifications
+  # Updated Slack channel
           webhook-url: ${{ secrets.SLACK_NOTIFICATIONS_WEBHOOK_URL }}  # Updated webhook secret
           color: warning
