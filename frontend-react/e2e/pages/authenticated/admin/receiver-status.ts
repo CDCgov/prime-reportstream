@@ -4,6 +4,9 @@ import type { RSOrganizationSettings } from "../../../../src/config/endpoints/se
 import { RSReceiverStatus } from "../../../../src/hooks/api/UseReceiversConnectionStatus/UseReceiversConnectionStatus";
 import {
     createStatusTimePeriodData,
+    isConnectionResultMatch,
+    MATCHING_FILTER_CLASSNAME_MAP,
+    MatchingFilter,
     SUCCESS_RATE_CLASSNAME_MAP,
     SuccessRate,
 } from "../../../../src/pages/admin/receiver-dashboard/utils";
@@ -403,9 +406,13 @@ export class AdminReceiverStatusPage extends BasePage {
     }
 
     async testReceiverStatusDisplay(isSmoke = false) {
+        const selectedSuccessRate = this.filterFormInputs.successType.value as SuccessRate;
         const [startDate, endDate] = this.filterFormInputs.dateRange.value;
         const statusRows = this.receiverStatusRowsLocator;
-        await expect(statusRows).toHaveCount(new Set(this.receiverStatus?.map((r) => r.receiverId)).size);
+        const timePeriodData = this.timePeriodData.filter(
+            (d) => selectedSuccessRate === SuccessRate.UNDEFINED || d.successRateType === selectedSuccessRate,
+        );
+        await expect(statusRows).toHaveCount(timePeriodData.length);
 
         const expectedDaysText = [
             dateShortFormat(startDate),
@@ -415,7 +422,7 @@ export class AdminReceiverStatusPage extends BasePage {
         for (const [
             i,
             { days, successRate, organizationName, receiverName, successRateType },
-        ] of this.timePeriodData.entries()) {
+        ] of timePeriodData.entries()) {
             const { title, display, days: daysLoc } = statusRows.nthCustom(i);
 
             const expectedTitleText = this.getExpectedReceiverStatusRowTitle(
@@ -438,9 +445,31 @@ export class AdminReceiverStatusPage extends BasePage {
                 const daySlices = daysLoc.nthCustom(i).timePeriods;
                 await expect(daySlices).toHaveCount(timePeriods.length);
 
-                for (const [i, { successRateType }] of timePeriods.entries()) {
+                for (const [i, { successRateType, entries }] of timePeriods.entries()) {
                     const sliceEle = daySlices.nth(i);
-                    const expectedClass = new RegExp(SUCCESS_RATE_CLASSNAME_MAP[successRateType]);
+                    // filtering status isn't recalculated automatically, so do it here
+                    const isResultFilterMatch =
+                        this.filterFormInputs.resultMessage.value === ""
+                            ? undefined
+                            : entries.some((e) =>
+                                  isConnectionResultMatch(
+                                      e.connectionCheckResult,
+                                      this.filterFormInputs.resultMessage.value,
+                                  ),
+                              );
+                    const classStr = [
+                        SUCCESS_RATE_CLASSNAME_MAP[successRateType],
+                        MATCHING_FILTER_CLASSNAME_MAP[
+                            isResultFilterMatch == null
+                                ? MatchingFilter.NO_FILTER
+                                : isResultFilterMatch
+                                  ? MatchingFilter.FILTER_IS_MATCHED
+                                  : MatchingFilter.FILTER_NOT_MATCHED
+                        ],
+                    ]
+                        .filter(Boolean)
+                        .join(" ");
+                    const expectedClass = new RegExp(classStr);
 
                     await expect(sliceEle).toBeVisible();
                     await expect(sliceEle).toHaveClass(expectedClass);
@@ -456,17 +485,15 @@ export class AdminReceiverStatusPage extends BasePage {
     }
 
     async testReceiverName() {
-        const { organizationName, receiverName, successRate } =
-            this.timePeriodData[1];
+        const { organizationName, receiverName, successRate } = this.timePeriodData[1];
 
         const receiversStatusRows = this.receiverStatusRowsLocator;
         const expectedReceiverStatusRow = receiversStatusRows.nthCustom(0);
-        const expectedReceiverStatusRowTitle =
-            this.getExpectedReceiverStatusRowTitle(
-                organizationName,
-                receiverName,
-                successRate,
-            );
+        const expectedReceiverStatusRowTitle = this.getExpectedReceiverStatusRowTitle(
+            organizationName,
+            receiverName,
+            successRate,
+        );
 
         await expect(receiversStatusRows).toHaveCount(this.timePeriodData.length);
 
@@ -491,8 +518,8 @@ export class AdminReceiverStatusPage extends BasePage {
         const dayI = 0;
         const timePeriodI = 2;
         const entryI = 0;
-        const {days} = this.timePeriodData[receiverI];
-        const {connectionCheckResult} = days[dayI].timePeriods[timePeriodI].entries[entryI];
+        const { days } = this.timePeriodData[receiverI];
+        const { connectionCheckResult } = days[dayI].timePeriods[timePeriodI].entries[entryI];
 
         const receiversStatusRows = this.receiverStatusRowsLocator;
 
@@ -500,11 +527,11 @@ export class AdminReceiverStatusPage extends BasePage {
             resultMessage: connectionCheckResult,
         });
 
-        for (const [i, {days}] of this.timePeriodData.entries()) {
+        for (const [i, { days }] of this.timePeriodData.entries()) {
             const isRowExpected = i === receiverI;
             const row = receiversStatusRows.nthCustom(i);
 
-            for (const [i, {timePeriods}] of days.entries()) {
+            for (const [i, { timePeriods }] of days.entries()) {
                 const isDayExpected = isRowExpected && i === dayI;
                 const rowDay = row.days.nthCustom(i);
 
@@ -537,20 +564,18 @@ export class AdminReceiverStatusPage extends BasePage {
             const link = row.title.getByRole("link", { name: organizationName, exact: true }).first();
             const expectedUrl = this.getExpectedStatusOrganizationUrl(i);
             await expect(link).toBeVisible();
-            const p = this.page.route(
-                `/api/settings/organizations/${organizationName}`,
-                (route) =>
-                    route.fulfill({
-                        json: {
-                            description: "fake",
-                            filters: [],
-                            name: organizationName,
-                            jurisdiction: "fake",
-                            version: 0,
-                            createdAt: "",
-                            createdBy: "",
-                        } satisfies RSOrganizationSettings,
-                    }),
+            const p = this.page.route(`/api/settings/organizations/${organizationName}`, (route) =>
+                route.fulfill({
+                    json: {
+                        description: "fake",
+                        filters: [],
+                        name: organizationName,
+                        jurisdiction: "fake",
+                        version: 0,
+                        createdAt: "",
+                        createdBy: "",
+                    } satisfies RSOrganizationSettings,
+                }),
             );
             await link.click();
             await expect(this.page).toHaveURL(expectedUrl);
@@ -624,9 +649,7 @@ export class AdminReceiverStatusPage extends BasePage {
             });
             await expect(link).toBeVisible();
             await link.click();
-            await expect(this.page).toHaveURL(
-                this.getExpectedStatusReceiverUrl(i),
-            );
+            await expect(this.page).toHaveURL(this.getExpectedStatusReceiverUrl(i));
             await this.page.goBack();
 
             if (isSmoke && i === 0) {

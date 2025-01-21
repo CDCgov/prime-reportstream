@@ -584,25 +584,10 @@
                              Text="ISO"/>
                </Assertion>
             </Constraint>
-            <Constraint ID="MSH-5.2" Strength="SHALL">
-               <Description> MSH-5.2 (Universal ID) shall contain one of the values in the list: ['2.16.840.1.114222.4.3.15.2','2.16.840.1.114222.4.3.15.1']. </Description>
-               <Assertion>
-                  <StringList CSV="2.16.840.1.114222.4.3.15.2,2.16.840.1.114222.4.3.15.1" IgnoreCase="false"
-                              NotPresentBehavior="PASS"
-                              Path="5[1].2[1]"/>
-               </Assertion>
-            </Constraint>
             <Constraint ID="MSH-6.3" Strength="SHALL">
                <Description> MSH-6.3 (Universal ID Type) shall contain the value 'ISO'. </Description>
                <Assertion>
                   <PlainText IgnoreCase="false" NotPresentBehavior="PASS" Path="6[1].3[1]" Text="ISO"/>
-               </Assertion>
-            </Constraint>
-            <Constraint ID="MSH-6.2" Strength="SHALL">
-               <Description> MSH-6.2 (Universal ID) shall contain the value '2.16.840.1.114222.4.1.217446'. </Description>
-               <Assertion>
-                  <PlainText IgnoreCase="false" NotPresentBehavior="PASS" Path="6[1].2[1]"
-                             Text="2.16.840.1.114222.4.1.217446"/>
                </Assertion>
             </Constraint>
             <Constraint ID="MSH-7" Strength="SHALL">
@@ -610,13 +595,6 @@
                <Assertion>
                   <Format NotPresentBehavior="PASS" Path="7[1].1[1]"
                           Regex="^(\d{14}\.\d{1,4}|\d{14})((\x2D|\x2B)\d{4})$"/>
-               </Assertion>
-            </Constraint>
-            <Constraint ID="MSH-6.1" Strength="SHALL">
-               <Description> MSH-6.1 (Namespace ID) shall contain the value 'AIMS.PLATFORM'. </Description>
-               <Assertion>
-                  <PlainText IgnoreCase="false" NotPresentBehavior="PASS" Path="6[1].1[1]"
-                             Text="AIMS.PLATFORM"/>
                </Assertion>
             </Constraint>
             <Constraint ID="MSH-1" Strength="SHALL">
@@ -677,14 +655,6 @@
                <Description> MSH-15 (Accept Acknowledgment Type) shall contain the value 'NE'. </Description>
                <Assertion>
                   <PlainText IgnoreCase="false" NotPresentBehavior="PASS" Path="15[1]" Text="NE"/>
-               </Assertion>
-            </Constraint>
-            <Constraint ID="MSH-5.1" Strength="SHALL">
-               <Description> MSH-5.1 (Namespace ID) shall contain one of the values in the list: ['AIMS.INTEGRATION.STG','AIMS.INTEGRATION.PRD']. </Description>
-               <Assertion>
-                  <StringList CSV="AIMS.INTEGRATION.STG,AIMS.INTEGRATION.PRD" IgnoreCase="false"
-                              NotPresentBehavior="PASS"
-                              Path="5[1].1[1]"/>
                </Assertion>
             </Constraint>
          </ByID>

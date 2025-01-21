@@ -129,6 +129,8 @@ class ProcessFhirCommands : CliktCommand(
     private val environmentParam by option(
         "--receiver-setting-env", help = "Environment that specifies where to get the receiver settings"
     )
+        .choice("local", "test", "staging", "prod", "demo1")
+        .default("local", "local environment")
 
     /**
      * Sender schema location
@@ -141,15 +143,39 @@ class ProcessFhirCommands : CliktCommand(
 
     private val hl7DiffHelper = HL7DiffHelper()
 
+    /**
+     * The environment specified by the command line parameters
+     */
+    val environment: Environment by lazy {
+        Environment.get(environmentParam)
+    }
+
+    /**
+     * The access token left by a previous login command as specified by the command line parameters
+     */
+    private val oktaAccessToken: String by lazy {
+
+        if (environment.oktaApp == null) {
+            "placeholder_token"
+        } else {
+            OktaCommand.fetchAccessToken(environment.oktaApp)
+                ?: abort(
+                    "Invalid access token. " +
+                        "Run ./prime login to fetch/refresh your access token for the $environmentParam environment."
+                )
+        }
+    }
+
     override fun run() {
         val messageOrBundle =
             processFhirDataRequest(
                 inputFile,
-                environmentParam,
+                environment,
                 receiverNameParam,
                 orgNameParam,
                 senderSchemaParam,
-                true
+                true,
+                oktaAccessToken
             )
         if (messageOrBundle.message != null) {
             outputResult(messageOrBundle.message!!)
@@ -162,18 +188,19 @@ class ProcessFhirCommands : CliktCommand(
 
     fun processFhirDataRequest(
         inputFile: File,
-        environment: String?,
+        environment: Environment,
         receiverName: String?,
         orgName: String?,
         senderSchema: String?,
         isCli: Boolean,
+        accessToken: String,
     ): MessageOrBundle {
         // Read the contents of the file
         val contents = inputFile.inputStream().readBytes().toString(Charsets.UTF_8)
         if (contents.isBlank()) throw CliktError("File ${inputFile.absolutePath} is empty.")
         // Check on the extension of the file for supported operations
         val inputFileType = inputFile.extension.uppercase()
-        val receiver = getReceiver(environment, receiverName, orgName, GetMultipleSettings(), isCli)
+        val receiver = getReceiver(environment, receiverName, orgName, isCli, accessToken)
 
         val messageOrBundle = MessageOrBundle()
         when {
@@ -223,8 +250,8 @@ class ProcessFhirCommands : CliktCommand(
                 (isCli && outputFormat == MimeFormat.HL7.toString()) ||
                     (
                         receiver != null &&
-                        (receiver.format == MimeFormat.HL7 || receiver.format == MimeFormat.HL7_BATCH)
-                    )
+                            (receiver.format == MimeFormat.HL7 || receiver.format == MimeFormat.HL7_BATCH)
+                        )
                 ) -> {
                 val (bundle2, inputMessage) = convertHl7ToFhir(contents, receiver)
 
@@ -260,7 +287,7 @@ class ProcessFhirCommands : CliktCommand(
 
         val senderSchemaName = when {
             senderSchema != null -> senderSchema
-            senderSchemaParam != null -> senderSchemaParam
+            isCli && senderSchemaParam != null -> senderSchemaParam
             else -> null
         }
 
@@ -272,7 +299,7 @@ class ProcessFhirCommands : CliktCommand(
             receiver != null && receiver.enrichmentSchemaNames.isNotEmpty() -> {
                 receiver.enrichmentSchemaNames.joinToString(",")
             }
-            enrichmentSchemaNames != null -> enrichmentSchemaNames
+            isCli && enrichmentSchemaNames != null -> enrichmentSchemaNames
             else -> null
         }
 
@@ -293,11 +320,10 @@ class ProcessFhirCommands : CliktCommand(
 
                 messageOrBundle.bundle = output
             }
-            messageOrBundle.enrichmentSchemaPassed = messageOrBundle.enrichmentSchemaErrors.isEmpty()
         }
     }
 
-        private fun evaluateReceiverFilters(receiver: Receiver?, messageOrBundle: MessageOrBundle, isCli: Boolean) {
+    private fun evaluateReceiverFilters(receiver: Receiver?, messageOrBundle: MessageOrBundle, isCli: Boolean) {
         if (receiver != null && messageOrBundle.bundle != null) {
             val reportStreamFilters = mutableListOf<Pair<String, ReportStreamFilter>>()
             reportStreamFilters.add(Pair("Jurisdictional Filter", receiver.jurisdictionalFilter))
@@ -350,33 +376,25 @@ class ProcessFhirCommands : CliktCommand(
     }
 
     abstract class MessageOrBundleParent(
-        open var senderTransformPassed: Boolean = true,
         open var senderTransformErrors: MutableList<String> = mutableListOf(),
         open var senderTransformWarnings: MutableList<String> = mutableListOf(),
-        open var enrichmentSchemaPassed: Boolean = true,
         open var enrichmentSchemaErrors: MutableList<String> = mutableListOf(),
         open var enrichmentSchemaWarnings: MutableList<String> = mutableListOf(),
-        open var receiverTransformPassed: Boolean = true,
         open var receiverTransformErrors: MutableList<String> = mutableListOf(),
         open var receiverTransformWarnings: MutableList<String> = mutableListOf(),
         open var filterErrors: MutableList<String> = mutableListOf(),
-        open var filtersPassed: Boolean = true,
     )
 
     class MessageOrBundle(
         var message: Message? = null,
         var bundle: Bundle? = null,
-        override var senderTransformPassed: Boolean = true,
         override var senderTransformErrors: MutableList<String> = mutableListOf(),
         override var senderTransformWarnings: MutableList<String> = mutableListOf(),
-        override var enrichmentSchemaPassed: Boolean = true,
         override var enrichmentSchemaErrors: MutableList<String> = mutableListOf(),
         override var enrichmentSchemaWarnings: MutableList<String> = mutableListOf(),
-        override var receiverTransformPassed: Boolean = true,
         override var receiverTransformErrors: MutableList<String> = mutableListOf(),
         override var receiverTransformWarnings: MutableList<String> = mutableListOf(),
         override var filterErrors: MutableList<String> = mutableListOf(),
-        override var filtersPassed: Boolean = true,
     ) : MessageOrBundleParent()
 
     private fun applyConditionFilter(receiver: Receiver, bundle: Bundle): Bundle {
@@ -404,27 +422,20 @@ class ProcessFhirCommands : CliktCommand(
     }
 
     fun getReceiver(
-        environment: String?,
+        environment: Environment,
         receiverName: String?,
         orgName: String?,
-        getMultipleSettings: GetMultipleSettings = GetMultipleSettings(),
         isCli: Boolean,
+        accessToken: String,
     ): Receiver? {
-        if (!environment.isNullOrBlank() && !receiverName.isNullOrBlank() && !orgName.isNullOrBlank()) {
+        if (!receiverName.isNullOrBlank() && !orgName.isNullOrBlank()) {
             if (isCli && !outputFormat.isNullOrBlank()) {
                 throw CliktError(
                     "Please specify either a receiver OR an output format. Not both."
                 )
             }
-            val foundEnvironment = Environment.get(environment)
-            val accessToken = OktaCommand.fetchAccessToken(foundEnvironment.oktaApp)
-                ?: abort(
-                    "Invalid access token. " +
-                        "Run ./prime login to fetch/refresh your access " +
-                        "token for the $foundEnvironment environment."
-                )
-            val organizations = getMultipleSettings.getAll(
-                environment = foundEnvironment,
+            val organizations = GetMultipleSettings().getAll(
+                environment = environment,
                 accessToken = accessToken,
                 specificOrg = orgName,
                 exactMatch = true
@@ -439,7 +450,7 @@ class ProcessFhirCommands : CliktCommand(
             }
         } else if (isCli && outputFormat.isNullOrBlank()) {
             throw CliktError(
-                "Output format is required if the environment, receiver, and org " +
+                "Output format is required if the receiver and org " +
                     "are not specified. "
             )
         }
@@ -470,19 +481,19 @@ class ProcessFhirCommands : CliktCommand(
         }
 
         val receiverTransformSchemaName = when {
-            receiver != null && receiver.schemaName.isNotEmpty() -> receiver.enrichmentSchemaNames.joinToString(",")
-            receiverSchema != null -> receiverSchema
+            receiver != null && receiver.schemaName.isNotEmpty() -> receiver.schemaName
+            isCli && receiverSchema != null -> receiverSchema
             else -> null
         }
 
         if (receiverTransformSchemaName != null) {
             val message = FhirToHl7Converter(
-                receiverSchema!!,
+                receiverTransformSchemaName,
                 BlobAccess.BlobContainerMetadata.build("metadata", Environment.get().storageEnvVar),
                 context = FhirToHl7Context(
                     CustomFhirPathFunctions(),
                     config = HL7TranslationConfig(
-                        hl7Configuration,
+                        hl7Configuration = hl7Configuration,
                         receiver
                     ),
                     translationFunctions = CustomTranslationFunctions(),
@@ -491,7 +502,6 @@ class ProcessFhirCommands : CliktCommand(
                 errors = messageOrBundle.receiverTransformErrors
             ).process(messageOrBundle.bundle!!)
             messageOrBundle.message = message
-            messageOrBundle.receiverTransformPassed = messageOrBundle.receiverTransformErrors.isEmpty()
         }
     }
 
@@ -522,10 +532,8 @@ class ProcessFhirCommands : CliktCommand(
         // However, the library used to encode the HL7 message throws an error it there are more than 4 encoding
         // characters, so this work around exists for that scenario
         val stringToEncode = hl7String.replace("MSH|^~\\&#|", "MSH|^~\\&|")
-        val hl7message = HL7Reader.parseHL7Message(
-            stringToEncode,
-            null
-        )
+        val hl7message = HL7Reader.parseHL7Message(stringToEncode)
+
         // if a hl7 parsing failure happens, throw error and show the message
         if (hl7message.toString().lowercase().contains("failed")) {
             throw CliktError("HL7 parser failure. $hl7message")
@@ -534,12 +542,8 @@ class ProcessFhirCommands : CliktCommand(
             val msh = hl7message.get("MSH") as Segment
             Terser.set(msh, 2, 0, 1, 1, "^~\\&#")
         }
-        val hl7profile = HL7Reader.getMessageProfile(hl7message.toString())
         // search hl7 profile map and create translator with config path if found
-        var fhirMessage = when (val configPath = HL7Reader.profileDirectoryMap[hl7profile]) {
-            null -> HL7toFhirTranslator(inputSchema).translate(hl7message)
-            else -> HL7toFhirTranslator(configPath).translate(hl7message)
-        }
+        var fhirMessage = HL7toFhirTranslator(inputSchema).translate(hl7message)
 
         val stamper = ConditionStamper(LookupTableConditionMapper(Metadata.getInstance()))
         fhirMessage.getObservations().forEach { observation ->

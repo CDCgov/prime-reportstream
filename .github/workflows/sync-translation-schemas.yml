@@ -11,6 +11,9 @@ on:
           - HL7
         required: true
 
+env:
+  AZURE_CREDENTIALS: '{"clientId":"${{ secrets.AZURE_CLIENT_ID }}","clientSecret":"${{ secrets.AZURE_CLIENT_SECRET }}","subscriptionId":"${{ secrets.AZURE_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.AZURE_TENANT_ID }}"}'
+
 jobs:
   sync-schemas:
     runs-on: ubuntu-latest
@@ -21,7 +24,7 @@ jobs:
       - name: Login into Azure
         uses: ./.github/actions/vpn-azure
         with:
-          sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
+          sp-creds: ${{ env.AZURE_CREDENTIALS }}
 
       - name: Build backend
         uses: ./.github/actions/build-backend

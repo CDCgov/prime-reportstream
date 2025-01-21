@@ -1,0 +1,35 @@
+# $schema: ./../../../../../../../../../metadata/json_schema/fhir/fhir-to-hl7-mapping.json
+
+constants:
+  hl7SegmentGroup: '/PATIENT'
+
+elements:
+
+  - name: patient-identification
+    condition: '%resource.count() = 1'
+    required: true
+    schema: classpath:/metadata/hl7_mapping/resources/Patient/PID.yml
+
+  - name: patient-identification-extensions
+    resource: '%resource.extension(%`rsext-pid-patient`)'
+    schema: classpath:/metadata/hl7_mapping/resources/Patient/PIDExtension.yml
+
+  - name: additional-demographics
+    condition: '%resource.count() = 1'
+    schema: classpath:/metadata/hl7_mapping/resources/Patient/PD1.yml
+
+  - name: additional-demographics-extensions
+    resource: '%resource.extension(%`rsext-pd1-patient-additional-demographic`)'
+    schema: classpath:/metadata/hl7_mapping/resources/Patient/PD1Extension.yml
+
+  - name: patient-note
+    resource: '%resource.extension(%`rsext-patient-notes`).value'
+    resourceIndex: noteIndex
+    schema: classpath:/metadata/hl7_mapping/datatypes/annotation/NTE.yml
+    constants:
+      hl7NotePath: '%{hl7SegmentGroup}'
+
+  - name: related-person-nk1
+    resource: 'Bundle.entry.resource.ofType(RelatedPerson).where(extension(%`rsext-hl7v2Segment`).value = "NK1" and patient.resolve().id = %resource.id)'
+    resourceIndex: relatedPersonIndex
+    schema: classpath:/metadata/hl7_mapping/resources/RelatedPerson/NK1.yml
