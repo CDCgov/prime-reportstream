@@ -28,7 +28,7 @@ import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.ConditionStamper
-import gov.cdc.prime.router.azure.ConditionStamper.Companion.conditionCodeExtensionURL
+import gov.cdc.prime.router.azure.ConditionStamper.Companion.CONDITION_CODE_EXTENSION_URL
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.LookupTableConditionMapper
 import gov.cdc.prime.router.fhirengine.engine.RSMessageType
@@ -583,7 +583,7 @@ class FHIRBundleHelpersTests {
         val fhirRecord = File(VALID_ROUTING_DATA_URL).readText()
         val bundle = FhirContext.forR4().newJsonParser().parseResource(Bundle::class.java, fhirRecord)
         bundle.getObservations()[0].code.coding[0].addExtension(
-            conditionCodeExtensionURL, Coding("SOMESYSTEM", "840539006", "SOMECONDITION")
+            CONDITION_CODE_EXTENSION_URL, Coding("SOMESYSTEM", "840539006", "SOMECONDITION")
         )
 
         val filteredBundle = bundle.filterMappedObservations(
@@ -881,7 +881,7 @@ class FHIRBundleHelpersTests {
         assertThat(failure.failures.first().code).isEqualTo("some-unmapped-code")
 
         val extension = code.coding.first().extension.first()
-        assertThat(extension.url).isEqualTo(conditionCodeExtensionURL)
+        assertThat(extension.url).isEqualTo(CONDITION_CODE_EXTENSION_URL)
         assertThat((extension.value as? Coding)?.code).isEqualTo("6142004")
     }
 
@@ -934,7 +934,7 @@ class FHIRBundleHelpersTests {
         val extensions = entry.getMappedConditionExtensions()
         assertThat(extensions)
             .extracting { it.url }
-            .each { it.isEqualTo(conditionCodeExtensionURL) }
+            .each { it.isEqualTo(CONDITION_CODE_EXTENSION_URL) }
     }
 
     @Test
@@ -980,7 +980,7 @@ class FHIRBundleHelpersTests {
         assertThat(result.failures).isEmpty()
 
         val extension = code.coding.first().extension.first()
-        assertThat(extension.url).isEqualTo(conditionCodeExtensionURL)
+        assertThat(extension.url).isEqualTo(CONDITION_CODE_EXTENSION_URL)
         assertThat(extension.value)
             .isInstanceOf<Coding>()
             .transform { it.code }
@@ -1028,7 +1028,7 @@ class FHIRBundleHelpersTests {
         assertThat(result.failures).isEmpty()
 
         val extension = code.coding.first().extension.first()
-        assertThat(extension.url).isEqualTo(conditionCodeExtensionURL)
+        assertThat(extension.url).isEqualTo(CONDITION_CODE_EXTENSION_URL)
         assertThat(extension.value)
             .isInstanceOf<Coding>()
             .transform { it.code }
