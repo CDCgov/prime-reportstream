@@ -22,7 +22,7 @@ interface BundleDigest {
 data class BundleDigestLabResult(
     val observationSummaries: List<ObservationSummary>,
     val patientState: List<String>,
-    val performerState: List<PerformerSummary>,
-    val orderingFacilityState: List<OrderingFacilitySummary>,
+    val performerSummaries: List<PerformerSummary>,
+    val orderingFacilitySummaries: List<OrderingFacilitySummary>,
     override val eventType: String,
 ) : BundleDigest
