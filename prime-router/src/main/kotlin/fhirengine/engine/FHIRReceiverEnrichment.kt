@@ -175,7 +175,8 @@ class FHIRReceiverEnrichment(
                 mapOf(
                     ReportStreamEventProperties.RECEIVER_NAME to receiver.fullName,
                     ReportStreamEventProperties.BUNDLE_DIGEST
-                        to bundleDigestExtractor.generateDigest(bundle)
+                        to bundleDigestExtractor.generateDigest(bundle),
+                    ReportStreamEventProperties.ENRICHMENTS to receiver.enrichmentSchemaNames
                 )
             )
             trackingId(bundle)
