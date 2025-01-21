@@ -17,4 +17,7 @@ enum class USTimeZone(val zoneId: String) {
 
     // not technically a US time zone but we need it
     UTC("UTC"),
+
+    // Marshall Island timezone (UTC+12)
+    MAJURO("Pacific/Majuro"),
 }
