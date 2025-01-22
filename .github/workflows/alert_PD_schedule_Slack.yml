@@ -10,7 +10,7 @@ env:
 jobs:
   pre_job:
     name: Pre Job
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     outputs:
       IsMonday: ${{ steps.IsMonday.outputs.IsMonday }}
       WeekDay: ${{ steps.WeekDay.outputs.IsWeekDay }}
@@ -34,7 +34,7 @@ jobs:
     name: PD Alert for Monday
     needs: pre_job
     if: ${{ needs.pre_job.outputs.IsMonday == 'true' }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
     - name: Check Out Changes
       uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938
@@ -89,7 +89,7 @@ jobs:
     name: PD Alert for WeekDays
     needs: pre_job
     if: ${{ needs.pre_job.outputs.WeekDay == 'true' }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
     - name: Check Out Changes
       uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938

@@ -17,7 +17,7 @@ jobs:
     concurrency:
       group: ${{ github.workflow }}-${{ needs.pre_job.outputs.env_name }}
       cancel-in-progress: true
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     outputs:
       env_name: ${{ steps.build_vars.outputs.env_name }}
       tf_change: ${{ steps.build_vars.outputs.has_terraform_change }}
@@ -37,7 +37,7 @@ jobs:
     needs:
       - pre_job
     environment: ${{ needs.pre_job.outputs.env_name }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     outputs:
       change_count: ${{ steps.stats1.outputs.change-count }}
     steps:
@@ -54,30 +54,48 @@ jobs:
           sp-creds: ${{ env.AZURE_CREDENTIALS }}
           tf-auth: true
       - name: Collect Terraform stats
-
-        uses: josiahsiegel/terraform-stats@68b8cbe42c494333fbf6f8d90ac86da1fb69dcc2
-        ## DevSecOps - Aquia (Replace) - uses: ./.github/actions/terraform-stats
-
+        uses: ./.github/actions/terraform-stats
         id: stats1
         with:
           terraform-directory: operations/app/terraform/vars/${{ needs.pre_job.outputs.env_name }}
           terraform-version: 1.7.4
           add-args: "-refresh=false"
 
-  approve_deploy:
-    name: Approve Deploy - ${{ needs.pre_job.outputs.env_name }}
-    concurrency:
-      group: ${{ github.workflow }}-${{ needs.pre_job.outputs.env_name }}
-      cancel-in-progress: true
-    needs:
-      - pre_job
-      - confirm_changes
-    if: needs.confirm_changes.outputs.change_count > '0'
-    runs-on: ubuntu-latest
-    environment: ${{ needs.pre_job.outputs.env_name }}_terraform
-    steps:
-      - name: Echo change count
-        run: echo ${{ needs.confirm_changes.outputs.change_count }}
+      - name: Terraform Format 
+        # fails on formatting issues, fix locally with `tf fmt -recursive` and push again if this step fails
+        run: terraform fmt -check -recursive
+
+      - name: "Terraform init"
+        run: terraform init -input=false
+
+      - name: "Terraform validate"
+        run: terraform validate
+
+      - name: Terraform Plan
+        run: |
+          terraform plan -out=tf.plan -input=false -no-color -lock-timeout=600s
+      
+      - name: Comment Plan on PR
+        uses: blinqas/tf-plan-pr-comment@v1
+        with:
+          output_file: ${{ github.workspace }}/plan_output.txt
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      
+      approve_deploy:
+        name: Approve Deploy - ${{ needs.pre_job.outputs.env_name }}
+        concurrency:
+          group: ${{ github.workflow }}-${{ needs.pre_job.outputs.env_name }}
+          cancel-in-progress: true
+        needs:
+          - pre_job
+          - confirm_changes
+        if: needs.confirm_changes.outputs.change_count > '0'
+        runs-on: ubuntu-24.04
+        environment: ${{ needs.pre_job.outputs.env_name }}_terraform
+        steps:
+          - name: Echo change count
+            run: echo ${{ needs.confirm_changes.outputs.change_count }}
 
   run_deploy:
     name: Run Deploy - ${{ needs.pre_job.outputs.env_name }}
@@ -88,7 +106,7 @@ jobs:
       - pre_job
       - approve_deploy
     if: needs.confirm_changes.outputs.change_count > '0'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     environment: ${{ needs.pre_job.outputs.env_name }}
     defaults:
       run:
@@ -118,3 +136,4 @@ jobs:
           terraform fmt -recursive
           terraform plan -out ${{ needs.pre_job.outputs.env_name }}-tf.plan
           terraform apply -input=false -no-color -lock-timeout=600s -auto-approve ${{ needs.pre_job.outputs.env_name }}-tf.plan
+        #THIS IS JUST A COMMENT FOR THE COMMIT TO TAKE ACTION

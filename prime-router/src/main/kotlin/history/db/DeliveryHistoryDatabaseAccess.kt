@@ -226,8 +226,8 @@ class DeliveryHistoryDatabaseAccess(
             )
 
         val deliveriesExpression = DSL.select(
-                Tables.ACTION.ACTION_ID.`as`(DeliveryHistoryTable.DELIVERY_HISTORY.DELIVERY_ID),
-                Tables.ACTION.CREATED_AT,
+                Tables.REPORT_FILE.ACTION_ID.`as`(DeliveryHistoryTable.DELIVERY_HISTORY.DELIVERY_ID),
+                Tables.REPORT_FILE.CREATED_AT,
                 // Currently an open issue for doing this via the DSL
                 // https://github.com/jOOQ/jOOQ/issues/6723
                 DSL.field(
@@ -247,11 +247,7 @@ class DeliveryHistoryDatabaseAccess(
                 Tables.REPORT_FILE.BODY_FORMAT.`as`(DeliveryHistoryTable.DELIVERY_HISTORY.FILE_TYPE)
             )
             .from(
-                Tables.ACTION.join(Tables.REPORT_FILE).on(
-                    Tables.REPORT_FILE.ACTION_ID.eq(Tables.ACTION.ACTION_ID)
-                )
-                    .and(Tables.ACTION.RECEIVING_ORG.eq(Tables.REPORT_FILE.RECEIVING_ORG))
-                    .and(Tables.ACTION.RECEIVING_ORG_SVC.eq(Tables.REPORT_FILE.RECEIVING_ORG_SVC))
+                Tables.REPORT_FILE
                     .join(Tables.SETTING)
                     .on(
                         Tables.REPORT_FILE.RECEIVING_ORG
