@@ -1,0 +1,23 @@
+constants:
+  rsext: '"https://reportstream.cdc.gov/fhir/StructureDefinition/"'
+
+elements:
+  #########################
+  # ReportStream specific #
+  #########################
+
+  - name: software-vendor-name
+    condition: true
+    resource: 'Bundle.entry.resource.ofType(Provenance).where(entity.exists()).entity.what.resolve().where(extension(%`rsext-software-vendor-org`).exists())'
+    bundleProperty: '%resource.extension(%`rsext-software-vendor-org`).value.resolve().name'
+    value: [ '"Orange Software Vendor Name"' ]
+
+  - name: software-name
+    resource: 'Bundle.entry.resource.ofType(MessageHeader)'
+    bundleProperty: '%resource.source.software'
+    value: [ '"Purple PRIME ReportStream"' ]
+
+  - name: software-version
+    resource: 'Bundle.entry.resource.ofType(MessageHeader)'
+    bundleProperty: '%resource.source.version'
+    value: [ '"0.2-YELLOW"' ]
