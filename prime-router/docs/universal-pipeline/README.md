@@ -19,9 +19,9 @@ In order to handle different data **formats** and **types** in a scalable and ma
 flowchart LR;
     Receive-->Convert;
     Convert-->id4[Destination Filter];
-    id5[Destination Filter]-->id6[Receiver Enrichment];
-    id7[Receiver Enrichment]-->id8[Receiver Filter];
-    id9[Receiver Filter]-->Translate;
+    id4-->id5[Receiver Enrichment];
+    id5-->id6[Receiver Filter];
+    id6-->Translate;
     Translate-->Batch;
     Batch-->Send;
 ```
