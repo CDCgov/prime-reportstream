@@ -99,7 +99,7 @@ reports only as `md-phd.full-elr` or for any sender under `ca-phd`. Note that th
 
 ## Setting up a new user
 
-In this system, setting up a new user would be quite easy. Create the user in Okta and then add it the required 
+In this system, setting up a new user would be quite easy. Create the user in Okta and then add it to the required 
 groups. If this particular user must also manually submit reports you will need to directly modify their profile to add 
 the specific senders. For users this can be done in the Okta UI.
 
