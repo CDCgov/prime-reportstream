@@ -29,7 +29,7 @@ jobs:
   analyze:
     name: Analyze
     if: github.actor != 'dependabot[bot]'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       actions: read
       contents: read
