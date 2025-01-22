@@ -1,0 +1,85 @@
+name: Cleanup ACR images
+
+on:
+  schedule:
+    - cron:  "0 0 * * *" # Runs daily at midnight UTC
+
+
+env:
+  AZURE_CREDENTIALS: '{"clientId":"${{ secrets.AZURE_CLIENT_ID }}","clientSecret":"${{ secrets.AZURE_CLIENT_SECRET }}","subscriptionId":"${{ secrets.AZURE_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.AZURE_TENANT_ID }}"}'
+
+jobs:
+  cleanup_images:
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 1
+      matrix:
+        env: [staging, prod]
+    steps:
+      - name: "Check out changes"
+        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938
+
+      - name: Connect to VPN & Login into Azure
+        uses: ./.github/actions/vpn-azure
+        with:
+          tls-key: ${{ secrets.TLS_KEY }}
+          ca-cert: ${{ secrets.CA_CRT}}
+          user-crt: ${{ secrets.USER_CRT }}
+          user-key: ${{ secrets.USER_KEY }}
+          sp-creds: ${{ env.AZURE_CREDENTIALS }}
+
+      - name: List ${{ matrix.env }} repository images
+        run: |
+          az acr login --name pdh${{ matrix.env }}containerregistry
+          images=$(az acr repository show-tags --name pdh${{ matrix.env }}containerregistry --repository pdh${{ matrix.env }} --orderby time_asc --output table)
+          echo "Reserving latest 2 from:"
+          echo "$images"
+          echo "$images" | head -n -2 > ${{ matrix.env }}-images.txt
+          sed -i '1,2d' ${{ matrix.env }}-images.txt
+
+      - name: Delete old images in ${{ matrix.env }} env
+        env:
+          IMAGE_FILE: ${{ matrix.env }}-images.txt
+        run: |
+          if [ -e "$IMAGE_FILE" ]; then
+            while IFS= read -r image_id; do
+                az acr repository delete --name pdh${{ matrix.env }}containerregistry --image pdh${{ matrix.env }}:$image_id --yes
+                if [ $? -eq 0 ]; then
+                    echo "Deleted image: pdh${{ matrix.env }}containerregistry:$image_id"
+                else
+                    echo "Failed to delete image: pdh${{ matrix.env }}containerregistry:$image_id"
+                fi
+            done < "$IMAGE_FILE"
+              else
+                echo "File not found: $IMAGE_FILE"
+          fi
+
+        # Pushing a modified image using an existing tag untags the previously pushed image,
+        # resulting in an orphaned (or "dangling") image.
+        # The previously pushed image's manifest--and its layer data--remains in the registry.
+        # They still need to be removed
+
+      - name: List image manifests in ${{ matrix.env }} env
+        run: |
+          az acr login --name pdh${{ matrix.env }}containerregistry
+          manifest=$(az acr manifest list-metadata -r pdh${{ matrix.env }}containerregistry -n pdh${{ matrix.env }} --orderby time_asc --output tsv --query "[*].{Digest:digest}")
+          echo "Reserving latest 4 from:"
+          echo "$manifest"
+          echo "$manifest" | head -n -4 > ${{ matrix.env }}-untaged-images.txt
+
+      - name: Delete image manifest in ${{ matrix.env }} env
+        env:
+          UNTAGED_FILE: ${{ matrix.env }}-untaged-images.txt
+        run: |
+          if [ -e "$UNTAGED_FILE" ]; then
+            while IFS= read -r manifest_id; do
+                az acr repository delete --name pdh${{ matrix.env }}containerregistry --image pdh${{ matrix.env }}@$manifest_id --yes
+                if [ $? -eq 0 ]; then
+                    echo "Deleted image: pdh${{ matrix.env }}:$manifest_id"
+                else
+                    echo "Failed to delete image: pdh${{ matrix.env }}:$manifest_id"
+                fi
+            done < "$UNTAGED_FILE"
+              else
+                echo "File not found: $UNTAGED_FILE"
+          fi
