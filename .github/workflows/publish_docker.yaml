@@ -15,7 +15,7 @@ env:
 jobs:
   pre_job:
     name: Pre Job
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     outputs:
       has_tfcli_change: ${{ steps.skip_check.outputs.tfcli && github.event_name != 'schedule'}}
       has_dnsmasq_change: ${{ steps.skip_check.outputs.dnsmasq || github.event_name == 'schedule'}}
@@ -75,7 +75,7 @@ jobs:
     name: Publish dnsmasq
     needs: pre_job
     if: ${{ needs.pre_job.outputs.has_dnsmasq_change == 'true' }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     defaults:
       run:
         working-directory: operations/dnsmasq
@@ -110,7 +110,7 @@ jobs:
     name: Publish SFTP
     needs: pre_job
     if: ${{ needs.pre_job.outputs.run_publish_sftp == 'true' }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       contents: read
       packages: write
@@ -138,7 +138,7 @@ jobs:
     name: Publish SFTP Alpine
     needs: pre_job
     if: ${{ needs.pre_job.outputs.run_publish_sftp_alpine == 'true' }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       contents: read
       packages: write
