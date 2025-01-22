@@ -136,3 +136,4 @@ jobs:
           terraform fmt -recursive
           terraform plan -out ${{ needs.pre_job.outputs.env_name }}-tf.plan
           terraform apply -input=false -no-color -lock-timeout=600s -auto-approve ${{ needs.pre_job.outputs.env_name }}-tf.plan
+        #THIS IS JUST A COMMENT FOR THE COMMIT TO TAKE ACTION
