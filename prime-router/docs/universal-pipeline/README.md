@@ -18,10 +18,10 @@ In order to handle different data **formats** and **types** in a scalable and ma
 ```mermaid
 flowchart LR;
     Receive-->Convert;
-    Convert-->Destination&nbsp;Filter;
-    Destination&nbsp;Filter-->Receiver&nbsp;Enrichment;
-    Receiver&nbsp;Enrichment-->Receiver&nbsp;Filter;
-    Receiver&nbsp;Filter-->Translate;
+    Convert-->id4[Destination Filter];
+    id5[Destination Filter]-->id6[Receiver Enrichment];
+    id7[Receiver Enrichment]-->id8[Receiver Filter];
+    id9[Receiver Filter]-->Translate;
     Translate-->Batch;
     Batch-->Send;
 ```
