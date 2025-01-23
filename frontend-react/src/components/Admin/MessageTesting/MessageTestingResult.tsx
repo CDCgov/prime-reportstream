@@ -109,7 +109,7 @@ const MessageTestingResult = ({
                 fieldsToRender={warningFields}
             />
 
-            {resultData.message && (
+            {resultData.message && isPassed && (
                 <div key={`output-submittedMessage-accordion-wrapper`} className="padding-top-4">
                     <Accordion
                         key={`output-submittedMessage-accordion`}
