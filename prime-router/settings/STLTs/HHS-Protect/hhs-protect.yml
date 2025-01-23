@@ -24,7 +24,7 @@
         - "true"
       qualityFilter: [ ]
       routingFilter:
-        - "Bundle.entry.resource.ofType(MessageHeader).extension('https://reportstream.cdc.gov/fhir/StructureDefinition/sender-id').where(value = 'SimpleReport' or 'c2sense' or 'mmtc').exists()"
+        - "Bundle.entry.resource.ofType(MessageHeader).extension('https://reportstream.cdc.gov/fhir/StructureDefinition/sender-id').where(value = 'c2sense' or 'mmtc').exists()"
       processingModeFilter: [ ]
       reverseTheQualityFilter: false
       conditionFilter: [ ]
