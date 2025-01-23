@@ -23,7 +23,7 @@ env:
 jobs:
   pre-job:
     name: Pre Job
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     outputs:
       # Should not run for deployment PRs
       is_permitted: ${{ github.event_name == 'pull_request' && steps.build_vars.outputs.has_frontend_change == 'true' && steps.build_vars.outputs.is_deployment_pr == 'false' }}
@@ -38,7 +38,7 @@ jobs:
     name: Lint
     needs: pre-job
     if: needs.pre-job.outputs.is_permitted == 'true'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     steps:
       - name: Check out changes
@@ -160,7 +160,7 @@ jobs:
   unit_tests:
     name: Unit tests
     needs: lint
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     steps:
       - name: Check out changes
@@ -180,7 +180,7 @@ jobs:
   e2e_tests:
     name: E2E tests
     needs: lint
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     # Keep shards under 10 minutes
     timeout-minutes: 10
     strategy:
@@ -227,7 +227,7 @@ jobs:
   # this step will always run and provide a status
   e2e_tests_result:
       if: ${{ always() }}
-      runs-on: ubuntu-latest
+      runs-on: ubuntu-24.04
       name: E2E Tests Result
       needs: [e2e_tests]
       steps:
@@ -245,7 +245,7 @@ jobs:
     name: Merge E2E Data
     needs: [pre-job, e2e_tests]
     if: ${{ !cancelled() && needs.pre-job.outputs.is_permitted == 'true' && needs.e2e_tests.result == 'success' }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     env:
       COMMENT:
       WARNING_LOG_FILE: e2e-data/frontend-warnings.json
@@ -328,7 +328,7 @@ jobs:
     # remove this if statement whenever dependabot has access to secrets
     if: github.event.sender.login != 'dependabot[bot]'
     needs: lint
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     steps:
       - name: Checkout - On Pull Request
@@ -395,7 +395,7 @@ jobs:
   #   name: CodeQL Analysis
   #   needs: lint
   #   if: github.actor != 'dependabot[bot]'
-  #   runs-on: ubuntu-latest
+  #   runs-on: ubuntu-24.04
   #   permissions:
   #     actions: read
   #     contents: read
@@ -419,7 +419,7 @@ jobs:
   #   name: SonarCloud Analysis
   #   needs: lint
   #   if: github.actor != 'dependabot[bot]'
-  #   runs-on: ubuntu-latest
+  #   runs-on: ubuntu-24.04
 
   #   steps:
   #     - name: Check out changes
@@ -454,7 +454,7 @@ jobs:
   # snyk:
   #   name: Snyk Analysis
   #   needs: lint
-  #   runs-on: ubuntu-latest
+  #   runs-on: ubuntu-24.04
   #   steps:
   #     - name: Check out changes
   #       uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938

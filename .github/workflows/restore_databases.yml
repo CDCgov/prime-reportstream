@@ -49,7 +49,7 @@ env:
 jobs:
   pre_job:
     name: "Set Build Environment"
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     outputs:
       env_name: ${{ env.ENV_NAME }}
       sink_env_name: ${{ env.SINK_ENV_NAME }}
