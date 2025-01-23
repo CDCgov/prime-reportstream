@@ -211,3 +211,15 @@ export const convertCase = (str: string, inputCase: string, outputCase: string) 
 
     return result;
 };
+
+export const prettifyJSON = (str: string) => {
+    let prettyStr = str;
+
+    try {
+        const parsed = JSON.parse(str);
+        prettyStr = JSON.stringify(parsed, null, 2);
+    } catch (e) {
+        console.warn("Invalid JSON:", e);
+    }
+    return prettyStr;
+};
