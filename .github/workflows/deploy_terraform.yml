@@ -17,7 +17,7 @@ jobs:
     concurrency:
       group: ${{ github.workflow }}-${{ needs.pre_job.outputs.env_name }}
       cancel-in-progress: true
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     outputs:
       env_name: ${{ steps.build_vars.outputs.env_name }}
       tf_change: ${{ steps.build_vars.outputs.has_terraform_change }}
@@ -37,7 +37,7 @@ jobs:
     needs:
       - pre_job
     environment: ${{ needs.pre_job.outputs.env_name }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     outputs:
       change_count: ${{ steps.stats1.outputs.change-count }}
     steps:
@@ -91,7 +91,7 @@ jobs:
           - pre_job
           - confirm_changes
         if: needs.confirm_changes.outputs.change_count > '0'
-        runs-on: ubuntu-latest
+        runs-on: ubuntu-24.04
         environment: ${{ needs.pre_job.outputs.env_name }}_terraform
         steps:
           - name: Echo change count
@@ -106,7 +106,7 @@ jobs:
       - pre_job
       - approve_deploy
     if: needs.confirm_changes.outputs.change_count > '0'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     environment: ${{ needs.pre_job.outputs.env_name }}
     defaults:
       run:
@@ -136,3 +136,4 @@ jobs:
           terraform fmt -recursive
           terraform plan -out ${{ needs.pre_job.outputs.env_name }}-tf.plan
           terraform apply -input=false -no-color -lock-timeout=600s -auto-approve ${{ needs.pre_job.outputs.env_name }}-tf.plan
+        #THIS IS JUST A COMMENT FOR THE COMMIT TO TAKE ACTION
