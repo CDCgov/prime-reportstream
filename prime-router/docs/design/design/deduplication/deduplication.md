@@ -1,6 +1,11 @@
 
 # ReportStream Deduplication (Universal Pipeline)
 
+TODO:
+- Database processing stuff
+  - Indexes
+  - Saving sender info to item_lineage
+
 ## Introduction
 
 #### Technical Overview
@@ -14,7 +19,7 @@
 - Differences between deduplication in Covid Pipeline and Universal Pipeline:
   - Deduplication will now happen during the Convert Step instead of the Receive Step
   - Deduplication will only consider a hash of key fields instead of the entire submitted item.
-  - Deduplication will only consider hashes from the same sender..
+  - Deduplication will only consider hashes from the same sender.
 
 ## Design
 
@@ -72,52 +77,51 @@
         - Note: This may be moved to the Receiver Enrichment Step in the future.
     - Sender schema transformations application happen in this step. ([FHIRConverter.kt#L326](https://github.com/CDCgov/prime-reportstream/blob/fbede22be1805e34a7aaf28ba5ab259663dea38e/prime-router/src/main/kotlin/fhirengine/engine/FHIRConverter.kt#L326))
 
-    
-#### Receiver Step Requirements
-- Code to be removed: There is commented out code in the Receiver step referring to the theorized area where UP deduplication would be invoked.
-#### Convert Step Requirements
-- The Convert step is the entry point for the UP’s deduplication workflow.
-- As much of the processing in the convert step as possible should occur before the deduplication workflow happens.
+#### Receiver Step Updates
+- Code to be removed: There is commented out code in the SumissionReceiver referring to the once theorized area where UP deduplication would be invoked. ([SubmissionReceiver.kt#L284-L292](https://github.com/CDCgov/prime-reportstream/blob/0c5e0b058e35e09786942f2c8b41c1d67a5b1d16/prime-router/src/main/kotlin/SubmissionReceiver.kt#L284-L292))
 
-#### Database Requirements
-- DatabaseAccess.kt will need a new query helper to check for duplicate hashes according to the new requirements (item hashes are unique to sender). (See existing db helper query for reference: [DatabaseAccess.kt#L171-L183](https://github.com/CDCgov/prime-reportstream/blob/3f0b47d3b1526659b76049792a0412a3f01ed74e/prime-router/src/main/kotlin/azure/DatabaseAccess.kt#L171-L183))
-- SQL query currently operates against the item_lineage table which will need to be joined with a table that contains sender information.
-	- Note: It may be more efficient to save item sender directly to the item_lineage table.
-- No database tables or fields will need to be updated.
+#### Convert Step Updates
+- The Convert step is where the core of the UP’s deduplication workflow will live. ([FHIRConverter.kt](https://github.com/CDCgov/prime-reportstream/blob/main/prime-router/src/main/kotlin/fhirengine/engine/FHIRConverter.kt))
+- During this step the pipeline will need to generate a hash. (See [Hash Generation Requirements](#hash-generation-requirements))
+  - The Covid Pipeline uses [Java’s MessageDigest](https://docs.oracle.com/javase/8/docs/api/java/security/MessageDigest.html) for hashing. This class satisfies the requirements for UP Deduplication.
+  - Before converting to a string to be hashed, the [populated key fields](#key-fhir-elements) should be extracted from the bundle and put in a static order (alphabetical etc.). 
+- During this step the pipeline will compare the generated hash against others. (See [Hash Comparison Requirements](#hash-comparison-requirements))
+  - Sender settings should be checked at this point to see if deduplication is turned on.
+  - This will include comparison against other potential items that were submitted in the same batch. 
+    - The convert step contains some parallelized code but [the original batch objects will still be in scope](https://github.com/CDCgov/prime-reportstream/blob/0c5e0b058e35e09786942f2c8b41c1d67a5b1d16/prime-router/src/main/kotlin/fhirengine/engine/FHIRConverter.kt#L262) of the deduplication workflow.
+  - There is an [existing SQL Query](https://github.com/CDCgov/prime-reportstream/blob/9ec0a59c73d7dad9a319cd321baf9efd71ceab46/prime-router/src/main/kotlin/azure/DatabaseAccess.kt#L166-L183) which performs the hash comparison through SQL Select. 
+    - Because this solution uses SQL to do filtering and matching, we’re able to pawn off some questions of efficiency onto SQL’s performance, instead of loading everything into memory and creating our own algorithms. 
+    - Still some research TODOs for determining best implementation efficiency.
+    - Another research TODO: Is it faster to include sender in the hashing, or to join with the table for sender information.
+    - This query could be reused with minimal updating. 
+- [Report.ParentItemLineageData()](https://github.com/CDCgov/prime-reportstream/blob/cadc9fae10ff5f83e9cbf0b0c0fbda384889901d/prime-router/src/main/kotlin/Report.kt#L373) will need to be enhanced so that it can accept the generated hash string. The contents will then take the place of [the random UUID which is currently stored](https://github.com/CDCgov/prime-reportstream/blob/cadc9fae10ff5f83e9cbf0b0c0fbda384889901d/prime-router/src/main/kotlin/Report.kt#L412) in the column for UP items.
+- Duplicate logging:
+  - Duplicates will be logged using the existing action logger pattern ([Ex 1](https://github.com/CDCgov/prime-reportstream/blob/0c5e0b058e35e09786942f2c8b41c1d67a5b1d16/prime-router/src/main/kotlin/fhirengine/engine/FHIRConverter.kt#L526-L533), [Ex 2](https://github.com/CDCgov/prime-reportstream/blob/cadc9fae10ff5f83e9cbf0b0c0fbda384889901d/prime-router/src/main/kotlin/fhirengine/engine/FHIRReceiverFilter.kt#L307-L315). These will be visible in the Submission History API.  
+  - If individual item duplicates are found this will be logged as a warning.
+    - TODO: Propose new warning structure
+  - If the entire report is found to be duplicate, this will be logged as an error.
+    - "Duplicate report was detected and removed." +  metadata (the date and report ID)
+    - TODO
+  - TODO: Azure logs? 
+  - TODO: Application Logs. Yes should have them, how to do?
+
+#### Database Updates
+- No updates will be made to the schema of the database itself. 
+
 #### Hash Generation Requirements
 - Must work regardless of key field ordering in bundle.
+  - Ordering of fields must remain static. (Order of FHIR elements is not guaranteed).
 - Hash created with key fields must be deterministic.
-- Only key fields which are present should be considered. If an item does not contain all key fields, then only those available fields should be hashed.
-	- Thus, if a sender submits an identical item but with a new key field, this will not be marked as duplicate.
-- Ordering of fields must remain static. When creating the string to be hashed from key fields, ordering of the elements must be enforced as FHIR element order is not guaranteed.
-- Covid Pipeline uses [Java’s MessageDigest](https://docs.oracle.com/javase/8/docs/api/java/security/MessageDigest.html) for hashing.
+- Only key fields which are present should be considered.  
+- The sender name should be added to the hash so they are unique per sender. (TODO: Sender name collision?)
 
 #### Hash Comparison Requirements
-- Only compare to individual items from same sender within past year.
-- Must account for operations happening in parallel
-	- Scenario: Duplicate item submitted while original is still in pipeline.
-	- Scenario: Report sent with items which are duplicate of each other.
-- Existing SQL Query: [DatabaseAccess.kt#L166-L183](https://github.com/CDCgov/prime-reportstream/blob/9ec0a59c73d7dad9a319cd321baf9efd71ceab46/prime-router/src/main/kotlin/azure/DatabaseAccess.kt#L166-L183)
-	- Because this solution uses SQL to do filtering and matching, we’re able to pawn off questions of efficiency onto SQL’s performance, instead of loading everything into memory and creating our own algorithms. Unlikely that a faster solution could be found.
-
-#### Logging Requirements
-- Action logs generated when reports are marked as duplicated.
-	- Note: These logs are sucked up into the Submission History API. These logs should not be displayed as warnings in this API response.
-- Nice to have: If entire Message is a duplicate then this is logged with a different message.
-	- Outstanding Q: Should this scenario be an error? 
-	- Outstanding Q: Should all duplication logs be in new info section, or warning?
+- If sender has deduplication enabled, only compare to a) individual items from b) the same sender c) within the past year. 
 
 #### Sender Setting Requirements
-- Should have a binary setting for the sender. This will default to deduplication workflow is active
-	- TRUE – Deduplication workflow happens
-	- FALSE – Deduplication workflow does not happen
-
-#### Database / Azure Requirements
-- Should require no updates to database. The existing item hash column is capable of storing the hash and all other requirements will be satisfied through Convert Step and related code
-
-#### History Endpoint Requirements
-- Note: The requirements to update the Submission History API response are not part of the MPV for Deduplication.
-- When items are marked as duplicates, these should not be listed as warnings (TODO: Verify with Jessica). If an entire report is marked as duplicate, then this would ideally appear as an error.
+- Should have a binary setting for the sender. **By default, the deduplication workflow is enabled.**
+  - TRUE – Deduplication detection is active.
+  - FALSE – Deduplication detection is not active. Item hashes will still be stored in the item_lineage table.
 
 ## Key FHIR Elements
 
