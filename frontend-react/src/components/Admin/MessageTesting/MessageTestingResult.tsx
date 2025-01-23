@@ -5,14 +5,14 @@ import language from "./language.json";
 import { MessageTestingAccordion } from "./MessageTestingAccordion";
 import type { RSMessage, RSMessageResult } from "../../../config/endpoints/reports";
 import Alert, { type AlertProps } from "../../../shared/Alert/Alert";
-import { USLinkButton } from "../../USLink";
+import { USLink, USLinkButton } from "../../USLink";
+import ReactPDF, { Page, Text, View, Document, StyleSheet, pdf, PDFDownloadLink, usePDF } from "@react-pdf/renderer";
 
 export interface MessageTestingResultProps extends PropsWithChildren {
     submittedMessage: RSMessage | null;
     resultData: RSMessageResult;
     handleGoBack: () => void;
     refetch: () => Promise<QueryObserverResult<RSMessageResult, Error>>;
-    handleSaveToPDF: () => void;
 }
 
 const filterFields: (keyof RSMessageResult)[] = ["filterErrors"];
@@ -34,7 +34,6 @@ const MessageTestingResult = ({
     submittedMessage,
     handleGoBack,
     refetch,
-    handleSaveToPDF,
     ...props
 }: MessageTestingResultProps) => {
     const isPassed =
@@ -59,25 +58,40 @@ const MessageTestingResult = ({
         minute: "numeric",
         hour12: true,
     };
-    const [expandAccordions, setExpandAccordions] = useState(false);
-    console.log("resultData = ", resultData);
+
+    const styles = StyleSheet.create({
+        page: {
+            flexDirection: "row",
+            backgroundColor: "#E4E4E4",
+        },
+        section: {
+            margin: 10,
+            padding: 10,
+            flexGrow: 1,
+        },
+    });
+
+    const MyDocument = (
+        <Document>
+            <Page size="A4" style={styles.page}>
+                <View style={styles.section}>
+                    <Text>Section #1</Text>
+                </View>
+                <View style={styles.section}>
+                    <Text>{resultData.message}</Text>
+                </View>
+            </Page>
+        </Document>
+    );
+    const [instance, updateInstance] = usePDF({ document: MyDocument });
     return (
         <section {...props}>
             <div className="display-flex flex-justify flex-align-center">
                 <h2>Test results: {submittedMessage?.fileName}</h2>
 
-                <Button
-                    type="button"
-                    outline
-                    onClick={() => {
-                        setExpandAccordions(true);
-                        requestAnimationFrame(() => {
-                            handleSaveToPDF();
-                        });
-                    }}
-                >
-                    Expand All <Icon.ArrowDropDown className="text-top" />
-                </Button>
+                <USLinkButton href={instance.url} download="test.pdf" type="button" outline>
+                    {instance.loading ? "Loading..." : "Download PDF"} <Icon.ArrowDropDown className="text-top" />
+                </USLinkButton>
 
                 <Button type="button" onClick={() => void refetch()}>
                     Rerun test <Icon.Autorenew className="text-top" />
@@ -107,7 +121,6 @@ const MessageTestingResult = ({
                 priority="error"
                 resultData={resultData}
                 fieldsToRender={filterFields}
-                expandAccordions={expandAccordions}
             />
 
             <MessageTestingAccordion
@@ -115,7 +128,6 @@ const MessageTestingResult = ({
                 priority="error"
                 resultData={resultData}
                 fieldsToRender={transformFields}
-                expandAccordions={expandAccordions}
             />
 
             <MessageTestingAccordion
@@ -123,13 +135,12 @@ const MessageTestingResult = ({
                 priority="warning"
                 resultData={resultData}
                 fieldsToRender={warningFields}
-                expandAccordions={expandAccordions}
             />
 
             {resultData.message && isPassed && (
                 <div key={`output-submittedMessage-accordion-wrapper`} className="padding-top-4">
                     <Accordion
-                        key={`output-submittedMessage-accordion-${expandAccordions}`}
+                        key={`output-submittedMessage-accordion`}
                         items={[
                             {
                                 className: "bg-gray-5",
@@ -139,7 +150,7 @@ const MessageTestingResult = ({
                                         {resultData.message}
                                     </div>
                                 ),
-                                expanded: expandAccordions,
+                                expanded: false,
                                 headingLevel: "h3",
                                 id: `output-submittedMessage-list`,
                             },
@@ -149,7 +160,7 @@ const MessageTestingResult = ({
             )}
             <div key={`test-submittedMessage-accordion-wrapper`} className="padding-top-4">
                 <Accordion
-                    key={`test-submittedMessage-accordion-${expandAccordions}`}
+                    key={`test-submittedMessage-accordion`}
                     items={[
                         {
                             className: "bg-gray-5",
@@ -159,7 +170,7 @@ const MessageTestingResult = ({
                                     {submittedMessage?.reportBody}
                                 </div>
                             ),
-                            expanded: expandAccordions,
+                            expanded: false,
                             headingLevel: "h3",
                             id: "test-submittedMessage-list",
                         },
