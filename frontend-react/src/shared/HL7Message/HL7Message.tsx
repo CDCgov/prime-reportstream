@@ -20,7 +20,7 @@ const HL7Message = ({ message }: HL7MessageProps) => {
 
                 return (
                     <div key={index}>
-                        <span className="text-bold text-indigo-40">{segmentCode}</span>
+                        <span className="text-bold text-blue-60v">{segmentCode}</span>
                         {message}
                     </div>
                 );
