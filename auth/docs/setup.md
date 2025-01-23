@@ -5,10 +5,25 @@
 A few secrets are required to run the Auth which are not committed to source. These values are
 configured in Okta.
 
-| Environment variable | Value                           |
-|----------------------|---------------------------------|
-| OKTA_ADMIN_CLIENT_API_ENCODED_PRIVATE_KEY | Base 64 encoded private key pem |
-| SPRING_SECURITY_OAUTH2_RESOURCESERVER_OPAQUETOKEN_CLIENT_SECRET | Base 64 encoded secret |
+| Environment variable                                            | Value                           |
+|-----------------------------------------------------------------|---------------------------------|
+| OKTA_ADMIN_CLIENT_API_ENCODED_PRIVATE_KEY                       | Base 64 encoded private key pem |
+| SPRING_SECURITY_OAUTH2_RESOURCESERVER_OPAQUETOKEN_CLIENT_SECRET | Shared secret                   |
+
+Setup for `OKTA_ADMIN_CLIENT_API_ENCODED_PRIVATE_KEY`:
+1. Create a new application user
+2. Copy client ID and private key in PEM format somewhere
+3. Grant the application the `okta.apps.read` scope
+4. Grant the application the `Read-only Administrator role`
+5. Set client id at `okta.adminClient.clientId` in application.yml
+6. Base 64 encode the private key PEM and set it in the environment variable `OKTA_ADMIN_CLIENT_API_ENCODED_PRIVATE_KEY`
+
+Setup for `SPRING_SECURITY_OAUTH2_RESOURCESERVER_OPAQUETOKEN_CLIENT_SECRET`:
+1. Create a new application
+2. Copy client ID and client secret string somewhere
+3. Grant the application the `okta.apiTokens.read` scope
+4. Set client id at `spring.security.oauth2.resourceserver.opaquetoken.client-id` in application.yml
+5. Set secret in the environment variable `SPRING_SECURITY_OAUTH2_RESOURCESERVER_OPAQUETOKEN_CLIENT_SECRET`
 
 ## How to run application locally
 
