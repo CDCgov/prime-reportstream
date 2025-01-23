@@ -79,8 +79,7 @@
               - "Bundle.entry.resource.ofType(Patient).where(address.city.empty()).count() = 0"
               - "Bundle.entry.resource.ofType(Patient).where(address.state.empty()).count() = 0"
               # "isValidCLIA(testing_lab_clia,reporting_facility_clia)"
-              - "(Bundle.entry.resource.ofType(ServiceRequest).performer.resolve().identifier.where(type.coding.code = 'CLIA').value.getIdType() = 'CLIA') or (Bundle.entry.resource.ofType(Organization).identifier[1].where(type.coding.code = 'CLIA').value.getIdType() = 'CLIA')"
-              - "(Bundle.entry.resource.ofType(ServiceRequest).requester.resolve().organization.resolve().identifier.where(type.coding.code = 'CLIA').value.getIdType() = 'CLIA') or (Bundle.entry.resource.ofType(Organization).identifier[1].where(type.coding.code = 'CLIA').value.getIdType() = 'CLIA')"
+              - "Bundle.entry.resource.ofType(Organization).identifier.where(type.coding.code = 'CLIA' or system = 'CLIA').where(value.getIdType() != 'CLIA').count() = 0"
       routingFilter:
       #        # "matches(test_result_status, F, S, P, C, X, I)"
               - "Bundle.entry.resource.ofType(DiagnosticReport).where(status in 'final'|'preliminary'|'amended'|'corrected').exists()"
