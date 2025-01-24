@@ -1,0 +1,10 @@
+- name: Run Trivy vulnerability scanner
+  uses: aquasecurity/trivy-action@master
+  with:
+    scan-type: image
+    image-ref: ${{ github.repository }}/${{ steps.parse_tag.outputs.image }}:test
+    format: table
+    exit-code: 1
+    ignore-unfixed: true
+    vuln-type: os,library
+    severity: LOW,MEDIUM,HIGH,CRITICAL
