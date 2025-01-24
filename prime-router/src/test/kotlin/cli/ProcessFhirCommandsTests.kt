@@ -21,7 +21,7 @@ import org.junit.jupiter.api.assertThrows
 import java.io.File
 import kotlin.test.Test
 
- class ProcessFhirCommandsTest {
+ class ProcessFhirCommandsTests {
 
      private val jurisdictionalFilter: ReportStreamFilter = listOf(
          "(Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state " +
