@@ -48,12 +48,96 @@ Hash comparison will be skipped if deduplication is disabled on that sender's se
   - Item should be handled so that FHIRConverter treats it as “empty” and not route the item.
   - Save a null result for the item hash on the ItemLineage object when the [Report object is created](https://github.com/CDCgov/prime-reportstream/blob/4a2231af2031bc3b2d5d7949d2b21d33c525c44d/prime-router/src/main/kotlin/fhirengine/engine/FHIRConverter.kt#L285).
   - Create action log warning
-    - Duplicates will be logged using the existing action logger pattern ([Ex 1](https://github.com/CDCgov/prime-reportstream/blob/0c5e0b058e35e09786942f2c8b41c1d67a5b1d16/prime-router/src/main/kotlin/fhirengine/engine/FHIRConverter.kt#L526-L533), [Ex 2](https://github.com/CDCgov/prime-reportstream/blob/cadc9fae10ff5f83e9cbf0b0c0fbda384889901d/prime-router/src/main/kotlin/fhirengine/engine/FHIRReceiverFilter.kt#L307-L315)). These will be visible in the Submission History API.
-    - TODO: How to format/label item duplication in History Endpoint API?
-      - Feedback Notes:  "Think of the data that would be helpful to see: item's message ID, index in the submitted report, the date and report ID of the report that contains the duplicate item and its index in that report?" 
+    - Duplicates will be logged using the existing action logger pattern ([Ex 1](https://github.com/CDCgov/prime-reportstream/blob/0c5e0b058e35e09786942f2c8b41c1d67a5b1d16/prime-router/src/main/kotlin/fhirengine/engine/FHIRConverter.kt#L526-L533), [Ex 2](https://github.com/CDCgov/prime-reportstream/blob/cadc9fae10ff5f83e9cbf0b0c0fbda384889901d/prime-router/src/main/kotlin/fhirengine/engine/FHIRReceiverFilter.kt#L307-L315)). These will be visible in the Submission History API. See [example warning](#example-submission-history-api-some-items-in-batched-report-are-duplicates-) below.
   - Set flag or enter a workflow to check if entire report is duplicate.
-    - If the entire report is found to be duplicate, this will be logged as an error.
-    - TODO: "Duplicate report was detected and removed." +  metadata (the date and report ID)
+      - If the entire report is found to be duplicate, this will be logged as an error. See [example error](#example-submission-history-api-entire-report-is-duplicate) below.
+
+##### Example: Submission History API, Some Item(s) in Batched Report are Duplicates 
+
+```json
+{
+    "id": "849b3151-25f7-41f3-b19b-fd8ad47bae18",
+    "submissionId": 63,
+    "overallStatus": "Delivered",
+    "timestamp": "2025-01-22T00:42:10.404Z",
+    "sender": "development.dev-elims",
+    "reportItemCount": 2,
+    "errorCount": 0,
+    "warningCount": 1,
+    "httpStatus": 201,
+    "destinations": [
+        {
+            "organization": "FOR DEVELOPMENT PURPOSES ONLY",
+            "organization_id": "development",
+            "service": "DEV_ENRICHMENT_FHIR",
+            "itemCount": 1,
+            "itemCountBeforeQualityFiltering": 0,
+            "sending_at": "2025-01-22T00:43:00.000Z",
+            "filteredReportRows": [],
+            "filteredReportItems": [],
+            "sentReports": [
+                {
+                    "reportId": "dbc9ac68-77a0-4e3e-8d8b-2d665b8fd92c",
+                    "externalName": "none-c7c7e0fe-1951-4031-9d17-2895fc03c974-20250121164303.fhir",
+                    "createdAt": "2025-01-22T00:43:04.252Z",
+                    "itemCount": 1
+                }
+            ],
+            "downloadedReports": []
+        }
+    ],
+    "reportId": "849b3151-25f7-41f3-b19b-fd8ad47bae18",
+    "topic": "full-elr",
+    "errors": [],
+    "warnings": [
+        {
+            "scope": "item",
+            "indices": [
+                1
+            ],
+            "trackingIds": [
+                "849b3151-25f7-41f3-b19b-fd8ad47bae18"
+            ],
+            "message": "Report could not processed. Reason: Duplicate item was detected and removed.",
+            "errorCode": "DUPLICATE_ITEM"
+        }
+    ],
+    "destinationCount": 1,
+}
+```
+
+##### Example: Submission History API, Entire Report is Duplicate
+
+```json
+{
+    "id": "849b3151-25f7-41f3-b19b-fd8ad47bae18",
+    "overallStatus": "Not Delivered",
+    "timestamp": "2025-01-22T00:42:10.404Z",
+    "sender": "development.dev-elims",
+    "reportItemCount": 1,
+    "errorCount": 1,
+    "warningCount": 0,
+    "httpStatus": 201,
+    "destinations": [],
+    "reportId": "849b3151-25f7-41f3-b19b-fd8ad47bae18",
+    "topic": "full-elr",
+    "errors": [
+        {
+            "scope": "item",
+            "indices": [
+                1
+            ],
+            "trackingIds": [
+                "849b3151-25f7-41f3-b19b-fd8ad47bae18"
+            ],
+            "message": "Report could not processed. Reason: Duplicate report was detected and removed.",
+            "errorCode": "DUPLICATE_REPORT"
+        }
+    ],
+    "warnings": [],
+    "destinationCount": 0,
+}
+```
 
 ### Deduplication Workflow Placement
 - The deduplication workflow will happen at the very end of the convert step processing ([FHIRConverter.kt#L541](https://github.com/CDCgov/prime-reportstream/blob/c942a9a6f6be347d82196939e1cf677512af4a06/prime-router/src/main/kotlin/fhirengine/engine/FHIRConverter.kt#L541)).
