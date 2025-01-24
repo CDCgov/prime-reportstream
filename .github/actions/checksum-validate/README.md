@@ -14,7 +14,7 @@
 jobs:
   generate-checksums:
     name: Generate checksum
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4.1.1
 
@@ -34,7 +34,7 @@ jobs:
     name: Validate checksum
     needs:
       - generate-checksums
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4.1.1
 

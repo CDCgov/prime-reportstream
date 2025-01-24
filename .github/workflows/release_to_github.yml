@@ -11,7 +11,7 @@ concurrency: ${{ github.ref }}-gh-release
 jobs:
   wf_vars:
     name: Set workflow variables
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     outputs:
       env_name: ${{ steps.build_vars.outputs.env_name }}
       version: ${{ steps.build_vars.outputs.version }}
@@ -30,7 +30,7 @@ jobs:
     name: Build router
     needs:
       - wf_vars
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     defaults:
       run:
         working-directory: prime-router
@@ -47,7 +47,7 @@ jobs:
     name: Build frontend
     needs:
       - wf_vars
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     defaults:
       run:
         working-directory: frontend-react
@@ -75,7 +75,7 @@ jobs:
       - wf_vars
       - build_router
       - build_frontend
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Check out changes
         uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938
