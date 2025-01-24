@@ -30,6 +30,7 @@ The sections listed below will aim to describe each step of the pipeline in tech
 - [Receive](./receive.md)
 - [Convert](./convert.md)
 - [Destination Filter](./destination-filter.md)
+- [Receiver Enrichment](./receiver-enrichment.md)
 - [Receiver Filter](./receiver-filter.md)
 - [Translate](./translate.md)
 - [Batch](./batch.md)

@@ -1,3 +1,4 @@
+# This configuration is used to instantiate a FHIRTransformer object.
 constants:
   rsext: '"https://reportstream.cdc.gov/fhir/StructureDefinition/"'
 
