@@ -54,19 +54,19 @@ const useTestMessageResult = () => {
 
     // Use 'enabled' to conditionally run the query whenever `requestBody` changes
     // and the user is an admin. If requestBody is empty or user isn't admin, no fetch is made.
-    const { data, isLoading, status, refetch } = useQuery<RSMessageResult, Error>({
+    const useQueryResult = useQuery<RSMessageResult, Error>({
         queryKey: [testResult.queryKey, activeMembership, receivername, requestBody],
         queryFn: fetchData,
         enabled: isAdmin && Boolean(requestBody),
     });
 
+    const { data } = useQueryResult;
+
     return {
+        ...useQueryResult,
         data: data ?? [],
         setRequestBody,
-        isLoading,
-        status,
         isDisabled: !isAdmin,
-        refetch,
     };
 };
 

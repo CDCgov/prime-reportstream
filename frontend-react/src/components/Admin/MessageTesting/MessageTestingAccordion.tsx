@@ -50,7 +50,7 @@ export const MessageTestingAccordion = ({
                                 {combinedFieldData.map((item, index) => (
                                     <div key={index}>
                                         <div>{item}</div>
-                                        {index < combinedFieldData.length - 1 && <hr />}
+                                        {index < combinedFieldData.length - 1 && <hr className="rs-hr--half-margin" />}
                                     </div>
                                 ))}
                             </div>

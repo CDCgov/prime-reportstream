@@ -1,12 +1,14 @@
+import { Document, Page, StyleSheet, Text, usePDF, View } from "@react-pdf/renderer";
 import { QueryObserverResult } from "@tanstack/react-query";
 import { Accordion, Button, Icon } from "@trussworks/react-uswds";
-import { type PropsWithChildren, useState } from "react";
+import { type PropsWithChildren } from "react";
 import language from "./language.json";
 import { MessageTestingAccordion } from "./MessageTestingAccordion";
 import type { RSMessage, RSMessageResult } from "../../../config/endpoints/reports";
 import Alert, { type AlertProps } from "../../../shared/Alert/Alert";
-import { USLink, USLinkButton } from "../../USLink";
-import ReactPDF, { Page, Text, View, Document, StyleSheet, pdf, PDFDownloadLink, usePDF } from "@react-pdf/renderer";
+import HL7Message from "../../../shared/HL7Message/HL7Message";
+import { prettifyJSON } from "../../../utils/misc";
+import { USLinkButton } from "../../USLink";
 
 export interface MessageTestingResultProps extends PropsWithChildren {
     submittedMessage: RSMessage | null;
@@ -147,7 +149,7 @@ const MessageTestingResult = ({
                                 title: <span className="font-body-lg">Output message</span>,
                                 content: (
                                     <div className="bg-white font-sans-sm padding-top-2 padding-bottom-2 padding-left-1 padding-right-1">
-                                        {resultData.message}
+                                        <HL7Message message={resultData.message} />
                                     </div>
                                 ),
                                 expanded: false,
@@ -167,7 +169,7 @@ const MessageTestingResult = ({
                             title: <span className="font-body-lg">Test message</span>,
                             content: (
                                 <div className="bg-white font-sans-sm padding-top-2 padding-bottom-2 padding-left-1 padding-right-1">
-                                    {submittedMessage?.reportBody}
+                                    <pre>{prettifyJSON(submittedMessage?.reportBody ?? "")}</pre>
                                 </div>
                             ),
                             expanded: false,
