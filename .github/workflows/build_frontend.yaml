@@ -21,7 +21,7 @@ concurrency:
 jobs:
   pre_job:
     name: Pre Job
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     outputs:
       # Should not run for PRs (except deployment)
       is_permitted: ${{ steps.build_vars.outputs.has_frontend_change == 'true' && (github.event_name != 'pull_request' || steps.build_vars.outputs.is_deployment_pr == 'true') }}
@@ -38,7 +38,7 @@ jobs:
     name: Build Frontend React
     needs: pre_job
     if: needs.pre_job.outputs.is_permitted == 'true'
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
 
     defaults:
       run:
