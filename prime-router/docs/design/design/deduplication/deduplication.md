@@ -140,6 +140,9 @@ Hash comparison will be skipped if deduplication is disabled on that sender's se
 ```
 
 ### Deduplication Workflow Placement
+
+<BR><img alt="Dedupe_Design.jpg" height="310" src="Dedupe_Design.jpg" width="450"/>
+
 - The deduplication workflow will happen at the very end of the convert step processing ([FHIRConverter.kt#L541](https://github.com/CDCgov/prime-reportstream/blob/c942a9a6f6be347d82196939e1cf677512af4a06/prime-router/src/main/kotlin/fhirengine/engine/FHIRConverter.kt#L541)).
   - Before the Deduplication Workflow, the Convert Step will:
     - Convert to FHIR, if necessary
@@ -155,13 +158,11 @@ Hash comparison will be skipped if deduplication is disabled on that sender's se
   - After the Deduplication Workflow occurs, the Convert Step will perform necessary pipeline functions:
     - Apply sender schema transform
     - Make a report object with item lineage
-      - **This will now include the newly generated hash**
+      - **This will now include the newly generated (or null) hash**
     - Create a route event
     - Upload to blobstore
     - Update the database
     - Add the report to the route destination filter step queue
-
-<BR><img alt="Dedupe_Design.jpg" height="310" src="Dedupe_Design.jpg" width="450"/>
 
 ### Other Updates
 - Sender Settings: Should have a binary setting for the sender. **By default, the deduplication workflow is enabled.**
