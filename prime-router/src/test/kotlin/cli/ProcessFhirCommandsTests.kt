@@ -8,6 +8,7 @@ import assertk.assertions.isNotNull
 import com.github.ajalt.clikt.core.CliktError
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.Hl7Configuration
+import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.ReportStreamFilter
 import gov.cdc.prime.router.ReportStreamFilterType
@@ -16,6 +17,9 @@ import gov.cdc.prime.router.cli.NoopReportStreamEventService
 import gov.cdc.prime.router.cli.ProcessFhirCommands
 import gov.cdc.prime.router.fhirengine.engine.FHIRReceiverFilter
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
+import gov.cdc.prime.router.unittest.UnitTestUtils
+import io.mockk.every
+import io.mockk.mockkObject
 import org.hl7.fhir.r4.model.Patient
 import org.junit.jupiter.api.assertThrows
 import java.io.File
@@ -57,6 +61,8 @@ import kotlin.test.Test
 
      @Test
      fun handleReceiverFilters() {
+         mockkObject(Metadata)
+         every { Metadata.getInstance() } returns UnitTestUtils.simpleMetadata
          val bundle = FhirTranscoder.decode(fhirString)
          val messageOrBundle = ProcessFhirCommands.MessageOrBundle()
          messageOrBundle.bundle = bundle
@@ -82,6 +88,8 @@ import kotlin.test.Test
 
      @Test
      fun evaluateReceiverFilters() {
+         mockkObject(Metadata)
+         every { Metadata.getInstance() } returns UnitTestUtils.simpleMetadata
          val bundle = FhirTranscoder.decode(fhirString)
          val messageOrBundle = ProcessFhirCommands.MessageOrBundle()
          messageOrBundle.bundle = bundle
@@ -94,6 +102,8 @@ import kotlin.test.Test
 
      @Test
      fun `evaluateReceiverFilters - with filter errors`() {
+         mockkObject(Metadata)
+         every { Metadata.getInstance() } returns UnitTestUtils.simpleMetadata
          val bundle = FhirTranscoder.decode(fhirString)
 
          // remove birthdate to make quality filter fail
@@ -167,6 +177,8 @@ import kotlin.test.Test
 
      @Test
      fun applyConditionFilters() {
+         mockkObject(Metadata)
+         every { Metadata.getInstance() } returns UnitTestUtils.simpleMetadata
          val bundle = FhirTranscoder.decode(fhirString)
          val messageOrBundle = ProcessFhirCommands.MessageOrBundle()
          messageOrBundle.bundle = bundle
@@ -194,6 +206,8 @@ import kotlin.test.Test
 
      @Test
      fun `applyConditionFilters - with filter errors`() {
+         mockkObject(Metadata)
+         every { Metadata.getInstance() } returns UnitTestUtils.simpleMetadata
          val bundle = FhirTranscoder.decode(fhirString)
          val messageOrBundle = ProcessFhirCommands.MessageOrBundle()
          messageOrBundle.bundle = bundle
