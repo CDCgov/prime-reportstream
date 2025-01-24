@@ -15,7 +15,7 @@ jobs:
       fail-fast: false
       matrix:
         rg: [prime-data-hub-demo1, prime-data-hub-demo2, prime-data-hub-demo3]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     steps:
       - name: Check out changes
@@ -65,7 +65,8 @@ jobs:
             * **Provisioned by: \`${{ steps.last-pusher.outputs.username }}\`**
             * **Last Change Date: \`${{ steps.last-pusher.outputs.last_change_date }}\`**
           icon-emoji: ':money_with_wings:'
-          channel: prime-reportstream-engineering
-          webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
+          channel: cdc-reportstream-bot-notifications
+  # Updated channel
+          webhook-url: ${{ secrets.SLACK_NOTIFICATIONS_WEBHOOK_URL }}  # Updated webhook secret
           color: failure
           slackify-markdown: true
