@@ -1,6 +1,8 @@
-import { Document, Page, StyleSheet, Text, usePDF, View } from "@react-pdf/renderer";
+import { Document, Font, Page, StyleSheet, Text, usePDF, View } from "@react-pdf/renderer";
 import { QueryObserverResult } from "@tanstack/react-query";
 import { Accordion, Button, Icon } from "@trussworks/react-uswds";
+import PublicSansRegular from "@uswds/uswds/fonts/public-sans/PublicSans-Regular.ttf";
+import PublicSansBold from "@uswds/uswds/fonts/public-sans/PublicSans-Bold.ttf";
 import { type PropsWithChildren } from "react";
 import language from "./language.json";
 import { MessageTestingAccordion } from "./MessageTestingAccordion";
@@ -61,30 +63,147 @@ const MessageTestingResult = ({
         hour12: true,
     };
 
+    const exampleData = {
+        orgName: "Example Organization",
+        receiverName: "John Doe",
+        testStatus: "failed", // can be 'failed' or 'warning'
+        filtersTriggered: ["OBR|1|...", "OBX|1|...", "OBX|2|..."],
+        outputMessage: `MSH|^~\\&|SOMEHL7MESSAGE
+    PID|1|...
+    OBR|1|...`,
+        testMessage: `{
+        "resourceType": "Patient",
+        "id": "12345",
+        "name": [
+          {
+            "use": "official",
+            "family": "Doe",
+            "given": ["John", "A."]
+          }
+        ]
+      }`,
+    };
+
+    Font.register({
+        family: "Public Sans Web",
+        fonts: [{ src: PublicSansRegular }, { src: PublicSansBold, fontWeight: "bold" }],
+    });
+
     const styles = StyleSheet.create({
         page: {
-            flexDirection: "row",
-            backgroundColor: "#E4E4E4",
+            padding: 30,
+            fontSize: 12,
+            fontFamily: "Public Sans Web",
         },
         section: {
-            margin: 10,
+            marginBottom: 20,
+        },
+        sectionTitle: {
+            fontSize: 14,
+            marginBottom: 6,
+            fontWeight: "bold",
+        },
+        text: {
+            marginBottom: 4,
+        },
+        bannerContainer: {
             padding: 10,
-            flexGrow: 1,
+            marginBottom: 20,
+        },
+        bannerText: {
+            color: "black",
+            fontWeight: "bold",
+        },
+        bannerWarning: {
+            backgroundColor: "#faf3d1",
+            borderLeft: "4px solid #ffbe2e",
+        },
+        bannerError: {
+            backgroundColor: "#f4e3db",
+            borderLeft: "4px solid #d54309",
+        },
+        codeBlock: {
+            backgroundColor: "#f5f5f5",
+            padding: 10,
+            fontFamily: "Courier", // or 'Roboto Mono' if you registered it
+            marginBottom: 10,
+        },
+        hr: {
+            borderBottomWidth: 1,
+            borderBottomColor: "#000",
+            marginVertical: 5,
         },
     });
 
-    const MyDocument = (
-        <Document>
-            <Page size="A4" style={styles.page}>
-                <View style={styles.section}>
-                    <Text>Section #1</Text>
-                </View>
-                <View style={styles.section}>
-                    <Text>{resultData.message}</Text>
-                </View>
-            </Page>
-        </Document>
-    );
+    const PDFDocument = ({
+        orgName,
+        receiverName,
+        testStatus, // 'failed' or 'warning'
+        filtersTriggered, // array of strings
+        outputMessage, // HL7 text
+        testMessage, // JSON text
+    }) => {
+        const bannerText = testStatus === "failed" ? "Test failed" : "Warnings";
+        const lines = prettifyJSON(testMessage)
+            .split("\n")
+            .map((line) => {
+                return line.replace(/ /g, "\u00A0");
+            });
+        return (
+            <Document>
+                <Page style={styles.page}>
+                    {/* Section 1 */}
+                    <View style={styles.section}>
+                        <Text style={styles.sectionTitle}>Message testing result</Text>
+                        <Text style={styles.text}>Org name: {orgName}</Text>
+                        <Text style={styles.text}>Receiver name: {receiverName}</Text>
+                    </View>
+
+                    {/* Section 2 - Banner */}
+                    <View
+                        style={[
+                            styles.bannerContainer,
+                            { ...(testStatus === "failed" ? styles.bannerError : styles.bannerWarning) },
+                        ]}
+                    >
+                        <Text style={styles.bannerText}>{bannerText}</Text>
+                    </View>
+
+                    {/* Section 3 - Filters triggered */}
+                    <View style={styles.section}>
+                        <Text style={styles.sectionTitle}>Filters triggered</Text>
+                        {filtersTriggered?.map((line, index) => (
+                            <View key={`filter-line-${index}`}>
+                                <View style={styles.codeBlock}>
+                                    <Text>{line}</Text>
+                                </View>
+                            </View>
+                        ))}
+                    </View>
+
+                    {/* Section 4 - Output message (HL7) */}
+                    <View style={styles.section}>
+                        <Text style={styles.sectionTitle}>Output message</Text>
+                        <View style={styles.codeBlock}>
+                            <Text>{outputMessage}</Text>
+                        </View>
+                    </View>
+
+                    {/* Section 5 - Test message (JSON) */}
+                    <View style={styles.section}>
+                        <Text style={styles.sectionTitle}>Test message</Text>
+                        <View style={styles.codeBlock}>
+                            {lines.map((line, idx) => (
+                                <Text key={idx}>{line}</Text>
+                            ))}
+                        </View>
+                    </View>
+                </Page>
+            </Document>
+        );
+    };
+
+    const MyDocument = <PDFDocument {...exampleData} />;
     const [instance, updateInstance] = usePDF({ document: MyDocument });
     return (
         <section {...props}>
