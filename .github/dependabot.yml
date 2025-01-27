@@ -19,6 +19,11 @@ updates:
     directory: "/.environment/docker/docker-compose"
     schedule:
       interval: "weekly"
+  - package-ecosystem: "docker"
+    directory: "/frontend-react"
+    schedule:
+      interval: "weekly"
+    versioning-strategy: digest
 
   # slack-boltjs-app (chatops)
   - package-ecosystem: "gitsubmodule"
