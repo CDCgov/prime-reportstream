@@ -14,7 +14,7 @@ on:
 jobs:
   pre_job:
     name: Pre Job
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     outputs:
       has_router_change: ${{ steps.build_vars.outputs.has_router_change }}
     steps:
@@ -26,7 +26,7 @@ jobs:
 
   snyk:
     name: Snyk tests
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: pre_job
     strategy:
         fail-fast: false
