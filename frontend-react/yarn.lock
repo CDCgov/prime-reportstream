@@ -1349,31 +1349,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@mjackson/form-data-parser@npm:^0.4.0":
-  version: 0.4.0
-  resolution: "@mjackson/form-data-parser@npm:0.4.0"
-  dependencies:
-    "@mjackson/multipart-parser": ^0.6.1
-  checksum: 4079b2c2431ac87e38c561725ab28521fb0976e665de758ac2ef6c62118a751aff1720f1892efe8b47790e3c40dd160f25c96a43e8cc1936a4d77359bffaf2ad
-  languageName: node
-  linkType: hard
-
-"@mjackson/headers@npm:^0.5.0":
-  version: 0.5.1
-  resolution: "@mjackson/headers@npm:0.5.1"
-  checksum: de2cc127ee01ca779969b336c8222da24916edaff68cf75892716160013019aaf7b59d3aa8208dbee02842e69fdbe8c3c798bcf3061e9f9fce118f12b8d420e7
-  languageName: node
-  linkType: hard
-
-"@mjackson/multipart-parser@npm:^0.6.1":
-  version: 0.6.3
-  resolution: "@mjackson/multipart-parser@npm:0.6.3"
-  dependencies:
-    "@mjackson/headers": ^0.5.0
-  checksum: 4c897fb3ee376c811f9053eb3c1ccf7cd9783f1028416a8192b6a0b6752c7e17ebc4ec329325eb3750395d7a26d03cc7102d6da1fd265027166c22d873ab8f0d
-  languageName: node
-  linkType: hard
-
 "@mswjs/interceptors@npm:^0.37.0":
   version: 0.37.3
   resolution: "@mswjs/interceptors@npm:0.37.3"
@@ -2408,7 +2383,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@storybook/theming@npm:8.4.7, @storybook/theming@npm:^8.0.0, @storybook/theming@npm:^8.4.7":
+"@storybook/theming@npm:8.4.7, @storybook/theming@npm:^8.4.7":
   version: 8.4.7
   resolution: "@storybook/theming@npm:8.4.7"
   peerDependencies:
@@ -3574,16 +3549,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"agent-base@npm:^7.1.0":
-  version: 7.1.0
-  resolution: "agent-base@npm:7.1.0"
-  dependencies:
-    debug: ^4.3.4
-  checksum: f7828f991470a0cc22cb579c86a18cbae83d8a3cbed39992ab34fc7217c4d126017f1c74d0ab66be87f71455318a8ea3e757d6a37881b8d0f2a2c6aa55e5418f
-  languageName: node
-  linkType: hard
-
-"agent-base@npm:^7.1.2":
+"agent-base@npm:^7.1.0, agent-base@npm:^7.1.2":
   version: 7.1.3
   resolution: "agent-base@npm:7.1.3"
   checksum: 87bb7ee54f5ecf0ccbfcba0b07473885c43ecd76cb29a8db17d6137a19d9f9cd443a2a7c5fd8a3f24d58ad8145f9eb49116344a66b107e1aeab82cf2383f4753
@@ -4084,21 +4050,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"browserslist@npm:^4.23.3, browserslist@npm:^4.24.0":
-  version: 4.24.3
-  resolution: "browserslist@npm:4.24.3"
-  dependencies:
-    caniuse-lite: ^1.0.30001688
-    electron-to-chromium: ^1.5.73
-    node-releases: ^2.0.19
-    update-browserslist-db: ^1.1.1
-  bin:
-    browserslist: cli.js
-  checksum: 016efc9953350e3a7212edcfdd72210cb33b339c1a974a77c0715eb67d23d7e5cd0a073ce1c801ab09235d8c213425ca51b92d41bbb829b833872b45f885fe7c
-  languageName: node
-  linkType: hard
-
-"browserslist@npm:^4.24.4":
+"browserslist@npm:^4.23.3, browserslist@npm:^4.24.0, browserslist@npm:^4.24.4":
   version: 4.24.4
   resolution: "browserslist@npm:4.24.4"
   dependencies:
@@ -4541,13 +4493,6 @@ __metadata:
   version: 4.1.3
   resolution: "compare-versions@npm:4.1.3"
   checksum: 54460756ab2d62f8a9d672db249b248fec7ca41c3e8ed242925e2f2257793ad3e83cecb2cdfd60b46a3aabc962a3a4cbf37a4b928c8f30517822d2bde937a3d1
-  languageName: node
-  linkType: hard
-
-"compare-versions@npm:^6.0.0":
-  version: 6.0.0
-  resolution: "compare-versions@npm:6.0.0"
-  checksum: bf2fa355b2139cbdb0576f2f0328c112dd3c2eb808eff8b70b808b3ed05f8a40b8317c323ff4797a6a5a7ab32d508876749584c626ee5840dc0119361afffc4d
   languageName: node
   linkType: hard
 
@@ -6322,18 +6267,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"form-data@npm:^4.0.0":
-  version: 4.0.0
-  resolution: "form-data@npm:4.0.0"
-  dependencies:
-    asynckit: ^0.4.0
-    combined-stream: ^1.0.8
-    mime-types: ^2.1.12
-  checksum: 01135bf8675f9d5c61ff18e2e2932f719ca4de964e3be90ef4c36aacfc7b9cb2fceb5eca0b7e0190e3383fe51c5b37f4cb80b62ca06a99aaabfcfd6ac7c9328c
-  languageName: node
-  linkType: hard
-
-"form-data@npm:^4.0.1":
+"form-data@npm:^4.0.0, form-data@npm:^4.0.1":
   version: 4.0.1
   resolution: "form-data@npm:4.0.1"
   dependencies:
@@ -9478,16 +9412,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"parse5@npm:^7.0.0":
-  version: 7.1.2
-  resolution: "parse5@npm:7.1.2"
-  dependencies:
-    entities: ^4.4.0
-  checksum: 59465dd05eb4c5ec87b76173d1c596e152a10e290b7abcda1aecf0f33be49646ea74840c69af975d7887543ea45564801736356c568d6b5e71792fd0f4055713
-  languageName: node
-  linkType: hard
-
-"parse5@npm:^7.2.1":
+"parse5@npm:^7.0.0, parse5@npm:^7.2.1":
   version: 7.2.1
   resolution: "parse5@npm:7.2.1"
   dependencies:
@@ -10048,7 +9973,6 @@ __metadata:
     sanitize-html: ^2.14.0
     sass: ^1.83.1
     storybook: ^8.4.7
-    storybook-addon-remix-react-router: ^4.0.1
     ts-node: ^10.9.2
     tslib: ^2.8.1
     tsx: ^4.19.2
@@ -10085,15 +10009,6 @@ __metadata:
     react: ">=16"
     react-dom: ">=16"
   checksum: 6faf3cfa87c9d65ae7a87078a2d82db5b821936a45565a98d69e7341e4b4acd5610b1f26cf1a6809b5551e4c30357f2ab5ce729c4c33751f66cb9ce6072dfb02
-  languageName: node
-  linkType: hard
-
-"react-inspector@npm:6.0.2":
-  version: 6.0.2
-  resolution: "react-inspector@npm:6.0.2"
-  peerDependencies:
-    react: ^16.8.4 || ^17.0.0 || ^18.0.0
-  checksum: dab7a7daf570c283fdc5d4e07ee8941ee8670af698ab5a27a704602b248e29ab911b117310d64c30a4af93931b2d6ee2a729369e3f5ab7f02df4651692e195a5
   languageName: node
   linkType: hard
 
@@ -11165,34 +11080,6 @@ __metadata:
   dependencies:
     internal-slot: ^1.0.4
   checksum: d04173690b2efa40e24ab70e5e51a3ff31d56d699550cfad084104ab3381390daccb36652b25755e420245f3b0737de66c1879eaa2a8d4fc0a78f9bf892fcb42
-  languageName: node
-  linkType: hard
-
-"storybook-addon-remix-react-router@npm:^4.0.1":
-  version: 4.0.1
-  resolution: "storybook-addon-remix-react-router@npm:4.0.1"
-  dependencies:
-    "@mjackson/form-data-parser": ^0.4.0
-    "@storybook/theming": ^8.0.0
-    compare-versions: ^6.0.0
-    react-inspector: 6.0.2
-  peerDependencies:
-    "@storybook/blocks": ^8.0.0
-    "@storybook/channels": ^8.0.0
-    "@storybook/components": ^8.0.0
-    "@storybook/core-events": ^8.0.0
-    "@storybook/manager-api": ^8.0.0
-    "@storybook/preview-api": ^8.0.0
-    "@storybook/theming": ^8.0.0
-    react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
-    react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
-    react-router: ^7.0.2
-  peerDependenciesMeta:
-    react:
-      optional: true
-    react-dom:
-      optional: true
-  checksum: 59f0be5e6d80fac1972c5365add9721fb162f0b63ef4429cde93548808f478aaa4f6ec09a0a7083776e902daa7b513e0b2fb012969662e3c3a464fab26775865
   languageName: node
   linkType: hard
 
@@ -12726,17 +12613,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"whatwg-url@npm:^14.0.0":
-  version: 14.0.0
-  resolution: "whatwg-url@npm:14.0.0"
-  dependencies:
-    tr46: ^5.0.0
-    webidl-conversions: ^7.0.0
-  checksum: 4b5887e50f786583bead70916413e67a381d2126899b9eb5c67ce664bba1e7ec07cdff791404581ce73c6190d83c359c9ca1d50711631217905db3877dec075c
-  languageName: node
-  linkType: hard
-
-"whatwg-url@npm:^14.1.0":
+"whatwg-url@npm:^14.0.0, whatwg-url@npm:^14.1.0":
   version: 14.1.0
   resolution: "whatwg-url@npm:14.1.0"
   dependencies:
