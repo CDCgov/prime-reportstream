@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+echo "Location,Name,Resource Group" \
+| cat - <( az resource list --query "[].{\"Location\":location, \"Name\":name, \"Resource Group\":resourceGroup}" --output tsv | sed 's/\t/,/g' ) \
+> azure-resources.csv ;
+
+cat ./azure-resource.csv ;
