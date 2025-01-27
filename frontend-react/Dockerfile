@@ -26,7 +26,9 @@ RUN export NODE_VERSION=$(cat /tmp/.nvmrc | tr -d '[:space:]') && \
     tar -xzf /tmp/node.tar.gz -C /usr/local --strip-components=1 && \
     rm /tmp/node.tar.gz /tmp/.nvmrc && \
     echo -n "Node.js installed version: " && node -v && \
-    echo -n "npm installed version: " && npm -v
+    echo -n "npm installed version: " && npm -v && \
+    apk del glibc # Remove glibc package to resolve CVE CVE-2025-0395
+
 
 # Install yarn and resolve vulnerability in cross-spawn, by upgrading it to a version with resolved CVE
 # Newly found CVEs can be resolved in similar manner - by upgrading to the closest fixed version
