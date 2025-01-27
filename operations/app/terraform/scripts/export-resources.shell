@@ -1,7 +1,13 @@
 #!/usr/bin/env bash
 
-echo "Location,Name,Resource Group" \
-| cat - <( az resource list --query "[].{\"Location\":location, \"Name\":name, \"Resource Group\":resourceGroup}" --output tsv | sed 's/\t/,/g' ) \
-> azure-resources.csv ;
+if [[ ${#1} -gt 0 ]]; then
+        OutputFile="${1}" ;
+  else  OutputFile="azure-resources--shell.csv" ;
+fi ;
 
-cat ./azure-resource.csv ;
+echo "Location,Name,Resource Group" \
+| cat - <( az resource list --query "[].{\"Location\":location, \"Name\":name, \"Resource Group\":resourceGroup}" --output tsv \
+| sed 's/\t/,/g' ) \
+> ${OutputFile} ;
+
+cat ${OutputFile} ;
