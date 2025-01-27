@@ -20,6 +20,32 @@ import site from "../site.json"
 You may also be interested in:
 * [Release notes in GitHub](https://github.com/CDCgov/prime-reportstream/releases)
 
+<ReleaseNote 
+    header="December 2024" 
+    sections={[
+        { 
+            title: "MagicLink capability for logging in to ReportStream website",
+            tag: "improvement", 
+            body: "When logging in to the ReportStream website using email verification, you can now click the MagicLink in the email instead of copying and pasting the verification code."
+        },{
+            title: "Fixed slow load times on some Daily Data pages",
+            tag: "bug", 
+            body: (<p>Some users were experiencing slower than usual load times on their <a href="/daily-data">Daily Data page</a>, and those load times have now been fixed to return faster.</p>)
+        },{
+            title: "Fixed Daily Data filter bug",
+            tag: "bug", 
+            body: (<p>The <a href="/daily-data">Daily Data</a> filters were not working properly when proceeding past the first page of results. The filters now work on all pages of results as expected.</p>)
+        },{
+            title: "Monthly email updates for active users",
+            tag: "feature", 
+            body: (<p>Active users have now started receiving Your ReportStream Connection, a monthly email that provides status of their connection to ReportStream. This email includes the conditions they are currently sending or receiving, the monthly ReportStream test volume, and updates to the ReportStream network. If you have not received the email, please <a href="mailto:reportstream@cdc.gov">let us know</a> so we can update your contact information.</p>)
+        },{
+            title: "Maine, Carbon Health, and MakeMyTestCount.org are now connected to ReportStream",
+            tag: "announcement", 
+            body: "We’re excited to announce that ReportStream can now send public health data to Maine. Additionally, Carbon Health and MakeMyTestCount.org are now connected to ReportStream and their test results are now available for ReportStream receivers."
+        }
+]} />
+
 <ReleaseNote
     header="June 2024"
     sections={[
