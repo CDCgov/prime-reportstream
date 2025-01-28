@@ -66,6 +66,5 @@ jobs:
 
           icon-emoji: ':bell:'
           channel: cdc-reportstream-bot-notifications
-  # Updated Slack channel
-          webhook-url: ${{ secrets.SLACK_NOTIFICATIONS_WEBHOOK_URL }}  # Updated webhook secret
+          webhook-url: ${{ secrets.SLACK_NOTIFICATIONS_WEBHOOK_URL }}
           color: warning

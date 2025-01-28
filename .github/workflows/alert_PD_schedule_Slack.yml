@@ -6,7 +6,6 @@ on:
 
 env:
   channel: cdc-reportstream-bot-notifications
-  # Updated Slack Channel
 jobs:
   pre_job:
     name: Pre Job
@@ -135,3 +134,4 @@ jobs:
         channel:  ${{ env.channel }}
         webhook-url: ${{ secrets.SLACK_NOTIFICATIONS_WEBHOOK_URL }}
         color: good
+
