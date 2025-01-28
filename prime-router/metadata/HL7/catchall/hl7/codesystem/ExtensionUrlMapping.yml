@@ -52,6 +52,8 @@
   url: "http://hl7.org/fhir/StructureDefinition/patient-animal"
 - id: "relationship"
   url: "https://hl7.org/fhir/StructureDefinition/relationship"
+- id: "extension-subscriber-id"
+  url: "http://hl7.org/fhir/R5/StructureDefinition/extension-subscriberId"
 
 ## Datatypes
 
@@ -64,6 +66,10 @@
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/organization-name-type"
 - id: "xon-organization"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xon-organization"
+
+# CP -> Extension
+- id: "composite-price"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/composite-price"
 
 # CX -> Identifier
 - id: "assigning-facility"
@@ -277,6 +283,10 @@
 - id: "nte-annotation"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/nte-annotation"
 
+# IN1 -> Coverage
+- id: "in1-coverage"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/in1-coverage"
+
 ## Generic
 
 # internal indicator of sender, usable for filtering
@@ -293,9 +303,11 @@
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Component"
 
 # Date time as hl7v2 string
-# This extension exists because HL7 dates have very little restrictions (i.e. YYYY-MM, YYYY-MM-DD HH, YYYY-MM-DD HH:MM)
-# are all valid, but the FHIR specs has much stricter rules.  In order to reliably generate the same HL7 message, this extension
-# is used to capture what was in the original HL7 message and then exclusively used when mapping FHIR->HL7
+# These extensions exist because HL7 dates have very little restrictions (i.e. YYYY-MM, YYYY-MM-DD HH, YYYY-MM-DD HH:MM)
+# are all valid, but the FHIR specs has much stricter rules.  In order to reliably generate the same HL7 message, these
+# extensions are used to capture what was in the original HL7 message and then exclusively used when mapping FHIR->HL7
+- id: "hl7v2-date"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date"
 - id: "hl7v2-date-time"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time"
 

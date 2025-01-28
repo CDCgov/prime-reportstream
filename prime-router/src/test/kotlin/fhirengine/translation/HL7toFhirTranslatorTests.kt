@@ -6,8 +6,8 @@ import assertk.assertions.isEqualTo
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
-import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.fhirengine.translation.HL7toFhirTranslator
+import gov.cdc.prime.router.fhirengine.utils.HL7MessageHelpers
 import gov.cdc.prime.router.fhirengine.utils.HL7Reader
 import io.github.linuxforhealth.hl7.data.Hl7RelatedGeneralUtils
 import org.hl7.fhir.r4.model.Bundle
@@ -48,16 +48,20 @@ OBX|1|CWE|94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by
 
     @Test
     fun `test get message template`() {
-        val message = HL7Reader(ActionLogger()).getMessages(supportedHL7)
-        assertThat(message.size).isEqualTo(1)
-        assertThat(translator.getMessageTemplateType(message[0])).isEqualTo("ORU_R01")
+        val message = HL7Reader.parseHL7Message(supportedHL7)
+        assertThat(
+            HL7MessageHelpers.messageCount(supportedHL7)
+        ).isEqualTo(1)
+        assertThat(translator.getMessageTemplateType(message)).isEqualTo("ORU_R01")
     }
 
     @Test
     fun `test get message model`() {
-        var message = HL7Reader(ActionLogger()).getMessages(supportedHL7)
-        assertThat(message.size).isEqualTo(1)
-        val model = translator.getHL7MessageModel(message[0])
+        val supportedMessage = HL7Reader.parseHL7Message(supportedHL7)
+        assertThat(
+            HL7MessageHelpers.messageCount(supportedHL7)
+        ).isEqualTo(1)
+        val model = translator.getHL7MessageModel(supportedMessage)
         assertThat(model).isNotNull()
         assertThat(model.messageName).isEqualTo("ORU_R01")
 
@@ -70,17 +74,21 @@ ORC|NW|ORD448811^NIST EHR|||||||20120628070100|||5742200012^Radon^Nicholas^^^^^^
 OBR|1|ORD448811^NIST EHR||1000^Hepatitis A  B  C Panel^99USL|||20120628070100|||||||||5742200012^Radon^Nicholas^^^^^^NPI^L^^^NPI
 DG1|1||F11.129^Opioid abuse with intoxication,unspecified^I10C|||W|||||||||1
         """.trimIndent()
-        message = HL7Reader(ActionLogger()).getMessages(unsupportedHL7)
-        assertThat(message.size).isEqualTo(1)
-        assertFailure { translator.getHL7MessageModel(message[0]) }
+        val unsupportedMessage = HL7Reader.parseHL7Message(unsupportedHL7)
+        assertThat(
+            HL7MessageHelpers.messageCount(unsupportedHL7)
+        ).isEqualTo(1)
+        assertFailure { translator.getHL7MessageModel(unsupportedMessage) }
     }
 
     @Test
     fun `test a quick translation to FHIR`() {
         // Note that FHIR content will be tested as an integration test
-        val message = HL7Reader(ActionLogger()).getMessages(supportedHL7)
-        assertThat(message.size).isEqualTo(1)
-        val bundle = translator.translate(message[0])
+        val message = HL7Reader.parseHL7Message(supportedHL7)
+        assertThat(
+            HL7MessageHelpers.messageCount(supportedHL7)
+        ).isEqualTo(1)
+        val bundle = translator.translate(message)
         assertThat(bundle).isNotNull()
         assertThat(bundle.type).isEqualTo(Bundle.BundleType.MESSAGE)
         assertThat(bundle.id).isNotEmpty()
@@ -88,9 +96,11 @@ DG1|1||F11.129^Opioid abuse with intoxication,unspecified^I10C|||W|||||||||1
 
     @Test
     fun `test birth date extension addition`() {
-        val message = HL7Reader(ActionLogger()).getMessages(supportedHL7ORMWithBirthDateTime)
-        assertThat(message.size).isEqualTo(1)
-        val bundle = translator.translate(message[0])
+        val message = HL7Reader.parseHL7Message(supportedHL7ORMWithBirthDateTime)
+        assertThat(
+            HL7MessageHelpers.messageCount(supportedHL7ORMWithBirthDateTime)
+        ).isEqualTo(1)
+        val bundle = translator.translate(message)
         assertThat(bundle).isNotNull()
         assertThat(bundle.type).isEqualTo(Bundle.BundleType.MESSAGE)
         assertThat(bundle.id).isNotEmpty()
@@ -111,9 +121,11 @@ DG1|1||F11.129^Opioid abuse with intoxication,unspecified^I10C|||W|||||||||1
 
     @Test
     fun `test birth date extension is missing when birthdate is only date`() {
-        val message = HL7Reader(ActionLogger()).getMessages(supportedHL7ORMWithBirthDate)
-        assertThat(message.size).isEqualTo(1)
-        val bundle = translator.translate(message[0])
+        val message = HL7Reader.parseHL7Message(supportedHL7ORMWithBirthDate)
+        assertThat(
+            HL7MessageHelpers.messageCount(supportedHL7ORMWithBirthDateTime)
+        ).isEqualTo(1)
+        val bundle = translator.translate(message)
         assertThat(bundle).isNotNull()
         assertThat(bundle.type).isEqualTo(Bundle.BundleType.MESSAGE)
         assertThat(bundle.id).isNotEmpty()

@@ -75,7 +75,7 @@ val javaVersion = when (appJvmTarget) {
 }
 val ktorVersion = "2.3.12"
 val kotlinVersion by System.getProperties()
-val jacksonVersion = "2.18.1"
+val jacksonVersion = "2.18.2"
 jacoco.toolVersion = "0.8.12"
 
 // Local database information, first one wins:
@@ -882,7 +882,7 @@ dependencies {
     implementation("org.apache.logging.log4j:log4j-slf4j2-impl:2.24.0")
     implementation("org.apache.logging.log4j:log4j-layout-template-json:2.24.0")
     implementation("org.apache.logging.log4j:log4j-api-kotlin:1.5.0")
-    implementation("io.github.oshai:kotlin-logging-jvm:7.0.0")
+    implementation("io.github.oshai:kotlin-logging-jvm:7.0.3")
     implementation("com.github.doyaaaaaken:kotlin-csv-jvm:1.10.0")
     implementation("tech.tablesaw:tablesaw-core:0.43.1")
     implementation("com.github.ajalt.clikt:clikt-jvm:4.4.0")
@@ -914,16 +914,16 @@ dependencies {
     implementation("com.okta.jwt:okta-jwt-verifier:0.5.7")
     implementation("org.json:json:20240303")
     // DO NOT INCREMENT SSHJ to a newer version without first thoroughly testing it locally.
-    implementation("com.hierynomus:sshj:0.38.0")
+    implementation("com.hierynomus:sshj:0.39.0")
     implementation("com.jcraft:jsch:0.1.55")
     implementation("org.apache.poi:poi:5.3.0")
     implementation("org.apache.commons:commons-csv:1.12.0")
     implementation("org.apache.commons:commons-lang3:3.15.0")
     implementation("org.apache.commons:commons-text:1.12.0")
     implementation("commons-codec:commons-codec:1.17.1")
-    implementation("commons-io:commons-io:2.17.0")
+    implementation("commons-io:commons-io:2.18.0")
     implementation("org.postgresql:postgresql:42.7.4")
-    implementation("com.zaxxer:HikariCP:6.2.0")
+    implementation("com.zaxxer:HikariCP:6.2.1")
     implementation("org.flywaydb:flyway-core:10.21.0")
     implementation("org.flywaydb:flyway-database-postgresql:10.21.0")
     implementation("org.commonmark:commonmark:0.24.0")
@@ -937,7 +937,7 @@ dependencies {
     implementation("com.cronutils:cron-utils:9.2.1")
     implementation("io.jsonwebtoken:jjwt-api:0.11.5")
     implementation("de.m3y.kformat:kformat:0.11")
-    implementation("io.github.java-diff-utils:java-diff-utils:4.11")
+    implementation("io.github.java-diff-utils:java-diff-utils:4.15")
     implementation("io.ktor:ktor-client-core:$ktorVersion")
     implementation("io.ktor:ktor-client-cio:$ktorVersion")
     implementation("io.ktor:ktor-client-apache:$ktorVersion")
@@ -951,7 +951,7 @@ dependencies {
     implementation("org.apache.poi:poi:5.3.0")
     implementation("org.apache.poi:poi-ooxml:5.3.0")
     implementation("org.apache.commons:commons-compress:1.27.1")
-    implementation("commons-io:commons-io:2.17.0")
+    implementation("commons-io:commons-io:2.18.0")
     implementation("com.anyascii:anyascii:0.3.2")
     // force jsoup since skrapeit-html-parser@1.2.1+ has not updated
     implementation("org.jsoup:jsoup:1.18.1")
@@ -979,7 +979,7 @@ dependencies {
     implementation("xalan:xalan:2.7.3")
 
     // validations
-    implementation("com.networknt:json-schema-validator:1.5.2")
+    implementation("com.networknt:json-schema-validator:1.5.4")
     implementation("io.konform:konform-jvm:0.4.0")
 
     runtimeOnly("com.okta.jwt:okta-jwt-verifier-impl:0.5.7")
