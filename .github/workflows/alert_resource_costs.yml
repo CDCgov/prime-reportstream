@@ -15,7 +15,7 @@ jobs:
       fail-fast: false
       matrix:
         rg: [prime-data-hub-demo1, prime-data-hub-demo2, prime-data-hub-demo3]
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
 
     steps:
       - name: Check out changes
