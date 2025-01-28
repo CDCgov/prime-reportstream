@@ -16,7 +16,7 @@ jobs:
       matrix:
         env: [staging, prod]
     environment: ${{ matrix.env }}
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     steps:
       - name: Check Out Changes
         uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938
@@ -66,6 +66,5 @@ jobs:
 
           icon-emoji: ':bell:'
           channel: cdc-reportstream-bot-notifications
-  # Updated Slack channel
-          webhook-url: ${{ secrets.SLACK_NOTIFICATIONS_WEBHOOK_URL }}  # Updated webhook secret
+          webhook-url: ${{ secrets.SLACK_NOTIFICATIONS_WEBHOOK_URL }}
           color: warning

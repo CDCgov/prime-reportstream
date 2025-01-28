@@ -19,7 +19,7 @@ env:
 jobs:
   run_smoke:
     name: Frontend Smoke Tests
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
 
     steps:
       - name: "Check out changes"
