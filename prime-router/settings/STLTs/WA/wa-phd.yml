@@ -83,8 +83,7 @@
       routingFilter:
       #        # "matches(test_result_status, F, S, P, C, X, I)"
               - "Bundle.entry.resource.ofType(DiagnosticReport).where(status in 'final'|'preliminary'|'amended'|'corrected').exists()"
-              - "Bundle.entry.resource.ofType(MessageHeader).extension('https://reportstream.cdc.gov/fhir/StructureDefinition/sender-id').where(value\
-              - \ = 'SimpleReport' or 'carbon-health').exists()"
+              - "Bundle.entry.resource.ofType(MessageHeader).extension('https://reportstream.cdc.gov/fhir/StructureDefinition/sender-id').where(value = 'SimpleReport' or 'carbon-health').exists()"
       processingModeFilter:
       # "doesNotMatch(processing_mode_code,T,D)"
               - "Bundle.entry.resource.ofType(MessageHeader).meta.tag.where(system = 'http://terminology.hl7.org/CodeSystem/v2-0103').code.exists() and Bundle.entry.resource.ofType(MessageHeader).meta.tag.where(system = 'http://terminology.hl7.org/CodeSystem/v2-0103').code != 'T' and Bundle.entry.resource.ofType(MessageHeader).meta.tag.where(system = 'http://terminology.hl7.org/CodeSystem/v2-0103').code != 'D'"
@@ -114,6 +113,7 @@
         filePath: ./upload
         credentialName: DEFAULT-SFTP
       externalName: null
-      enrichmentSchemaNames: []
+      enrichmentSchemaNames:
+        - "classpath:/metadata/fhir_transforms/common/datetime-to-local/datetime-to-local-pacific.yml"
       timeZone: "PACIFIC"
       dateTimeFormat: "LOCAL"
