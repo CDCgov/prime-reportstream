@@ -7,7 +7,7 @@ import gov.cdc.prime.router.ReportStreamConditionFilter
 import gov.cdc.prime.router.ReportStreamFilter
 import gov.cdc.prime.router.azure.ConditionStamper.Companion.BUNDLE_CODE_IDENTIFIER
 import gov.cdc.prime.router.azure.ConditionStamper.Companion.BUNDLE_VALUE_IDENTIFIER
-import gov.cdc.prime.router.azure.ConditionStamper.Companion.conditionCodeExtensionURL
+import gov.cdc.prime.router.azure.ConditionStamper.Companion.CONDITION_CODE_EXTENSION_URL
 import gov.cdc.prime.router.codes
 import gov.cdc.prime.router.fhirengine.engine.RSMessageType
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
@@ -65,7 +65,7 @@ fun Observation.getMappedConditionExtensions(): List<Extension> {
     return this.getCodeSourcesMap()
         .flatMap { it.value }
         .flatMap { it.extension }
-        .filter { it.url == conditionCodeExtensionURL }
+        .filter { it.url == CONDITION_CODE_EXTENSION_URL }
 }
 
 /**

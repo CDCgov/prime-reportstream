@@ -5,9 +5,7 @@ on:
     - cron: "7 13 * * Mon"  #UTC-5
 
 env:
-  channel: temp-cdc-rs-notifications
-  # prime-reportstream-engineering
-
+  channel: cdc-reportstream-bot-notifications
 jobs:
   pre_job:
     name: Pre Job
@@ -136,3 +134,4 @@ jobs:
         channel:  ${{ env.channel }}
         webhook-url: ${{ secrets.SLACK_NOTIFICATIONS_WEBHOOK_URL }}
         color: good
+

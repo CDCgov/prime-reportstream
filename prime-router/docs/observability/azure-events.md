@@ -45,6 +45,77 @@ class MyService(
 }
 ```
 
+## Event properties
+The following properties contain the metadata that can be queried for observability purposes.
++ submittedReportIds
++ parentReportId
++ childReportId
++ pipelineStepName
++ error
++ submittedReportIds
++ parentReportId
++ childReportId
++ topic
++ blobUrl
++ pipelineStepName
++ timestamp
++ submittedItemIndex
++ parentItemIndex
++ childItemIndex
++ sender
++ trackingId
++ queueMessage
+
+Additional Parameters
++ params.itemFormat
++ params.fileLength
++ params.requestParameters
++ params.senderIp
++ params.senderName
++ params.fileName
++ params.receiverName
++ params.transportType
++ params.processingError
++ params.validationProfile
++ params.enrichments[]
++ params.originalFormat
++ params.targetFormat
++ params.failingFilters
++ params.filterType
+
+`BundleDigestLabResult` (for test results)
++ orderingFacilityState
++ patientState []
++ performerState []
++ observationSummaries
+
+`BundleDigestTestOrder` (for test orders [ETOR use case])
++ LabTestOrderedSummary
+
+
+## Current custom events
+| **Pipeline location** | **Event name** |
+|---|---|
+| Receive | REPORT_RECEIVED |
+| Convert | REPORT_NOT_RECEIVABLE |
+| Convert | REPORT_NOT_PROCESSABLE |
+| Convert | ITEM_FAILED_VALIDATION |
+| Convert | ITEM_ACCEPTED |
+| Destination Filter | ITEM_NOT_ROUTED |
+| Destination Filter | ITEM_ROUTED |
+| Receiver Enrichment | ITEM_TRANSFORMED |
+| Receiver Filter | ITEM_FILTER_FAILED |
+| Translate | ITEM_TRANSFORMED |
+| Batch | - |
+| Send | ITEM_SENT |
+| Send | REPORT_SENT |
+| Send | REPORT_LAST_MILE_FAILURE |
+
+The PIPELINE_EXCEPTION event can be logged if any step within the pipeline fails or encounters a processing error.
+
+This information is also captured in [LucidChart]([url](https://lucidgov.app/lucidchart/89edc4c3-695b-4324-be8e-6556dd9fec95/edit?viewport_loc=-780%2C-396%2C2323%2C1267%2CxjIqI_OT3aNK&invitationId=inv_a44a9145-fc99-49ca-9053-a873937c7b23)) (requires login), which also denotes what properties are being logged for each custom event.
+To see where in the pipeline these events sequentially occur, please refer to another [LucidChart diagram]([url](https://lucidgov.app/lucidchart/3820834e-a916-43d5-9575-0482c8e3f299/edit?viewport_loc=-608%2C-997%2C2973%2C1621%2CKYWo9OtDiKnx&invitationId=inv_db7796a6-a5ef-476b-b199-329581794844)).
+
 ## How to query for events
 
 Events that are pushed to Azure can be found in the `customEvents` table in the log explorer. The properties defined in
@@ -164,7 +235,7 @@ customEvents
     | mv-expand submittedReportIds
     | project childReportId=tostring(submittedReportIds)) on $left.reportId == $right.childReportId
 ```
-### Items not routed to States that we are connected to in the UP
+### Items not routed to States that we are connected to in the UP (but we think they should be)
 ```kql
 let States = dynamic(["DC","CT", "NE","VA","MI","KY","WV","NC","GA","PA", "NJ","DE","OH","MS","NH","VT", "WA","IN","NM","PR","MH","TN","UT","WY","WI"]);
 customEvents
@@ -176,3 +247,31 @@ customEvents
 | where not(Ordering_Facility_State in (States) or Performer_State in (States) or Patient_State in (States))
 | project timestamp, Sender = customDimensions.sender, Ordering_Facility_State, Patient_State, Performer_State, Topic = customDimensions.topic, TrackingID = customDimensions.trackingId, customDimensions
 ```
+### Items that were routed by filtered out
+```kql
+customEvents
+| where name == "ITEM_FILTER_FAILED"
+| extend Receiver_Name = tostring(parse_json(tostring(customDimensions.params)).receiverName)
+| extend Filter_Type = tostring(parse_json(tostring(customDimensions.params)).filterType)
+| project timestamp, Receiver_Name, Filter_Type, customDimensions
+```
+### Errors that did not trigger an exception
+```kql
+customEvents
+| where name == "REPORT_NOT_RECEIVABLE" or name == "REPORT_NOT_PROCESSABLE" or name == "REPORT_NOT_PROCESSABLE" or name == "ITEM_FAILED_VALIDATION" or name == "REPORT_LAST_MILE_FAILURE"
+```
+### Routed but not Sent, and did not trigger a Filter event (under construction, but functional)
+```kql
+customEvents
+| where name == "ITEM_ROUTED"
+| extend trackingId_ = tostring(customDimensions.trackingId)
+| join kind=leftanti (
+  customEvents 
+  | where name == "ITEM_SENT" or name == "ITEM_FILTER_FAILED"
+  | extend trackingId_ = tostring(customDimensions.trackingId)
+  )
+  on trackingId_
+| extend Receiver_Name = tostring(parse_json(tostring(customDimensions.params)).receiverName)
+| project timestamp, Receiver_Name, customDimensions
+```
+The four queries above were made into modules within the [UP Message Monitoring dashboard](https://portal.azure.com/#@cdc.onmicrosoft.com/dashboard/arm/subscriptions/7d1e3999-6577-4cd5-b296-f518e5c8e677/resourcegroups/prime-data-hub-test/providers/microsoft.portal/dashboards/9a35cfea-cebd-4c9e-9a63-32c5d510d528) in Azure (requires CDC login, see DevOps for additional permissions).
