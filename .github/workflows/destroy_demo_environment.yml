@@ -22,7 +22,7 @@ jobs:
     if: github.event_name == 'workflow_dispatch'
     environment: ${{ github.event.inputs.env_name }}
     concurrency: ${{ github.event.inputs.env_name }}
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: operations/app/terraform/vars/demo
