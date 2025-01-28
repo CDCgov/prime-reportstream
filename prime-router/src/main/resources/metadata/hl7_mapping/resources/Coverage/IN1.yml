@@ -4,9 +4,58 @@ constants:
   hl7IN1Field: '%{hl7SegmentGroup}/IN1'
 
 elements:
+  - name: in1-set-id
+    value: [ '%insuranceIndex + 1' ]
+    hl7Spec: [ '%{hl7IN1Field}-1' ]
 
-  - name: aui-extension
-    resource: '%resource.extension.where(url = "IN1.14")'
-    schema: classpath:/metadata/hl7_mapping/datatypes/extensionAUI/AUI.yml
+  - name: in1-insurance-company-name
+    resource: '%resource.payor.resolve().ofType(Organization)'
+    schema: classpath:/metadata/hl7_mapping/resources/Organization/XON.yml
     constants:
-      auiField: '%{hl7IN1Field}-14'
+      hl7XONField: '%{hl7IN1Field}-4'
+
+  - name: in1-insurance-company-address
+    resource: '%resource.payor.resolve().ofType(Organization).address'
+    schema: classpath:/metadata/hl7_mapping/datatypes/Address/XAD.yml
+    constants:
+      xadField: '%{hl7IN1Field}-5'
+
+  - name: in1-insured-group-emp_name
+    resource: '%resource.policyHolder.resolve()'
+    schema: classpath:/metadata/hl7_mapping/resources/Organization/XON.yml
+    constants:
+      hl7XONField: '%{hl7IN1Field}-11'
+
+  - name: in1-plan-effective-date
+    resource: '%resource.period.start'
+    constants:
+      dtmFieldPath: '%{hl7IN1Field}-12'
+    schema: classpath:/metadata/hl7_mapping/datatypes/dateTime/DTMorDT.yml
+
+  - name: in1-plan-expiration-date
+    resource: '%resource.period.end'
+    constants:
+      dtmFieldPath: '%{hl7IN1Field}-13'
+    schema: classpath:/metadata/hl7_mapping/datatypes/dateTime/DTMorDT.yml
+
+  - name: in1-plan-type
+    resource: '%resource.type'
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
+    constants:
+      cweField: '%{hl7IN1Field}-15'
+
+  - name: in1-name-of-insured
+    resource: '%resource.subscriber.resolve().name'
+    constants:
+      xpnField: '%{hl7IN1Field}-16'
+    schema: classpath:/metadata/hl7_mapping/datatypes/HumanName/XPN.yml
+
+  - name: in1-insured-relationship-to-patient
+    resource: '%resource.relationship'
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
+    constants:
+      cweField: '%{hl7IN1Field}-17'
+
+  - name: in1-extension-values
+    resource: '%resource.extension(%`rsext-in1-coverage`)'
+    schema: classpath:/metadata/hl7_mapping/resources/Coverage/IN1Extension.yml

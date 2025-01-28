@@ -20,7 +20,7 @@ env:
 jobs:
   pre_job:
     name: Set Build Environment
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     outputs:
       env_name: ${{ env.VALIDATE_ENV }}
     steps:
@@ -47,7 +47,7 @@ jobs:
       - pre_job
     environment: ${{ needs.pre_job.outputs.env_name }}
     concurrency: ${{ needs.pre_job.outputs.env_name }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Check Out Changes
         uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938
@@ -98,7 +98,7 @@ jobs:
   optimize_demo_dbs:
     name: Optimize demo databases
     if: github.event_name == 'schedule'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     strategy:
       matrix:
         env_name: [ demo1, demo2, demo3 ]
@@ -127,7 +127,7 @@ jobs:
   vpn_validation:
     name: VPN Validation
     if: github.event_name == 'schedule'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     continue-on-error: true
     strategy:
       max-parallel: 2

@@ -1,6 +1,6 @@
 # $schema: ./../../../../../../metadata/json_schema/fhir/fhir-to-hl7-mapping.json
 
-hl7Class: ca.uhn.hl7v2.model.v27.message.OML_O21
+hl7Class: fhirengine.translation.hl7.structures.fhirinventory.message.OML_O21
 
 constants:
   # Prefix for RS custom extension URLs
@@ -35,11 +35,9 @@ elements:
     schema: classpath:/metadata/hl7_mapping/OML_O21/base/patient/patient-base.yml
 
   - name: insurance
-    resource: 'Bundle.entry.resource.ofType(Coverage)'
-    #    todo: update logic when Coverage.subscriber is mapped (IN1-16/IN1-17)
-    #          https://github.com/CDCgov/prime-reportstream/issues/15500
-    #    resource: 'Bundle.entry.resource.ofType(Coverage).where(subscriber.resolve().id = %resource.entry.resource.ofType(Patient).id)'
+    resource: 'Bundle.entry.resource.ofType(Coverage).where(beneficiary.resolve().id = %resource.entry.resource.ofType(Patient).id)'
     schema: classpath:/metadata/hl7_mapping/resources/Coverage/IN1.yml
+    resourceIndex: insuranceIndex
     constants:
       hl7SegmentGroup: '/PATIENT/INSURANCE'
 
