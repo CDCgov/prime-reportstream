@@ -23,7 +23,6 @@ updates:
     directory: "/frontend-react"
     schedule:
       interval: "weekly"
-    versioning-strategy: "increase-if-necessary"
 
   # slack-boltjs-app (chatops)
   - package-ecosystem: "gitsubmodule"
