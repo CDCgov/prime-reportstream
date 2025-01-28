@@ -163,7 +163,7 @@ class FHIRReceiverEnrichmentTests {
     }
 
     @Test
-    fun `fail - invalid message type`() {
+    fun `fail - invalid message queue type`() {
         // engine setup
         val settings = FileSettings().loadOrganizations(
             createOrganizationWithFilteredReceivers(

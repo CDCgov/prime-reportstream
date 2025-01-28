@@ -114,9 +114,10 @@ messagesToSend.add(
 )
 ```
 
-The four queues specific to the Universal Pipeline are:
+The five queues specific to the Universal Pipeline are:
 - elr-fhir-convert
 - elr-fhir-destination-filter
+- elf-fhir-receiver-enrichment
 - elr-fhir-receiver-filter
 - elr-fhir-translate
 

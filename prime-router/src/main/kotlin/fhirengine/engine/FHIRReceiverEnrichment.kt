@@ -199,7 +199,6 @@ class FHIRReceiverEnrichment(
         )
     }
 
-    // TODO Change these to correct values.
     override val finishedField: Field<OffsetDateTime> = Tables.TASK.RECEIVER_ENRICHED_AT
     override val engineType: String = "ReceiverEnrichment"
     override val taskAction: TaskAction = TaskAction.receiver_enrichment
