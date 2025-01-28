@@ -1,10 +1,10 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useCallback } from "react";
-import { reportsEndpoints, RSMessage } from "../../../config/endpoints/settings";
-import useSessionContext from "../../../contexts/Session/useSessionContext";
-import { Organizations } from "../../UseAdminSafeOrganizationName/UseAdminSafeOrganizationName";
+import { reportsEndpoints, RSMessage } from "../../../../config/endpoints/reports";
+import useSessionContext from "../../../../contexts/Session/useSessionContext";
+import { Organizations } from "../../../UseAdminSafeOrganizationName/UseAdminSafeOrganizationName";
 
-const { testing } = reportsEndpoints;
+const { test } = reportsEndpoints;
 
 /**
  * Custom hook to fetch and manage "Test Messages" data for the current session.
@@ -15,8 +15,7 @@ const { testing } = reportsEndpoints;
  * This discrepancy exists between the backend naming convention ("Reports") and the frontend display ("Messages").
  *
  * @returns {object} The hook returns the following:
- * - `testMessages` (`RSMessage[] | undefined`): The fetched array of test messages.
- * - `isDisabled` (`boolean`): Indicates whether the feature is disabled for the current user.
+ * - `data` (`RSMessage[] | undefined`): The fetched array of test messages.
  * - Other properties from `useSuspenseQuery` (e.g., `isLoading`, `isError`, `error`).
  */
 
@@ -27,12 +26,12 @@ const useTestMessages = () => {
 
     const memoizedDataFetch = useCallback(() => {
         if (isAdmin) {
-            return authorizedFetch<RSMessage[]>({}, testing);
+            return authorizedFetch<RSMessage[]>({}, test);
         }
         return null;
     }, [isAdmin, authorizedFetch]);
     const useSuspenseQueryResult = useSuspenseQuery({
-        queryKey: [testing.queryKey, activeMembership],
+        queryKey: [test.queryKey, activeMembership],
         queryFn: memoizedDataFetch,
     });
 
@@ -40,8 +39,7 @@ const useTestMessages = () => {
 
     return {
         ...useSuspenseQueryResult,
-        testMessages: data,
-        isDisabled: !isAdmin,
+        data: data ?? [],
     };
 };
 
