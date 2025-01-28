@@ -8,3 +8,4 @@
     ignore-unfixed: true
     vuln-type: os,library
     severity: LOW,MEDIUM,HIGH,CRITICAL
+#MOVED LOCATION 
