@@ -12,7 +12,7 @@
 jobs:
   create-branch-action:
     name: Create branch
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -27,7 +27,7 @@ jobs:
 jobs:
   create-branch-action:
     name: Create branch
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -51,7 +51,7 @@ jobs:
 jobs:
   create-branch-action:
     name: Create branch
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
