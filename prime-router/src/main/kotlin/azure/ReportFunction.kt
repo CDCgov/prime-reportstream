@@ -233,7 +233,7 @@ class ReportFunction(
         override var enrichmentSchemaWarnings: MutableList<String> = mutableListOf(),
         override var receiverTransformErrors: MutableList<String> = mutableListOf(),
         override var receiverTransformWarnings: MutableList<String> = mutableListOf(),
-        override var filterErrors: MutableList<String> = mutableListOf(),
+        override var filterErrors: MutableList<ProcessFhirCommands.FilterError> = mutableListOf(),
     ) : ProcessFhirCommands.MessageOrBundleParent()
 
     /**
