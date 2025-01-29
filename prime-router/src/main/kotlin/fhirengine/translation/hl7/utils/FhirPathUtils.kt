@@ -145,7 +145,7 @@ object FhirPathUtils : Logging {
             }
         } catch (e: Exception) {
             val msg = when (e) {
-                is FHIRLexer.FHIRLexerException -> "Syntax error in FHIR Path expression $expression"
+                is FHIRLexer.FHIRLexerException -> "Syntax error: ${e.message} in FHIR Path expression $expression"
                 is SchemaException -> e.message.toString()
                 else ->
                     "Unknown error while evaluating FHIR Path expression $expression for condition. " +
