@@ -46,7 +46,7 @@ class FHIRReceiverEnrichment(
 ) : FHIREngine(metadata, settings, db, blob, azureEventService, reportService, reportStreamEventService) {
 
     /**
-     * Accepts a [FhirReceiverEnrichmentQueueMessage] [message] and sends a report to the
+     * Accepts a [FhirReceiverEnrichmentQueueMessage] and sends a report to the
      * next pipeline step containing enrichments configured per the receiver's settings.
      * [actionHistory] and [actionLogger] ensure all activities are recorded to the database and logged.
      */
@@ -101,7 +101,10 @@ class FHIRReceiverEnrichment(
         val bundle = FhirTranscoder.decode(fhirJson)
         if (receiver.enrichmentSchemaNames.isNotEmpty()) {
             receiver.enrichmentSchemaNames.forEach { enrichmentSchemaName ->
-                logger.info("Applying enrichment schema $enrichmentSchemaName")
+                logger.info(
+                    "Applying enrichment schema '$enrichmentSchemaName' " +
+                    "to reportId '${queueMessage.reportId}'"
+                )
                 val transformer = FhirTransformer(
                     enrichmentSchemaName,
                 )
@@ -166,7 +169,7 @@ class FHIRReceiverEnrichment(
             )
         )
         reportEventService.sendItemEvent(
-            eventName = ReportStreamEventName.ITEM_ROUTED,
+            eventName = ReportStreamEventName.ITEM_TRANSFORMED,
             childReport = report,
             pipelineStepName = TaskAction.receiver_enrichment
         ) {

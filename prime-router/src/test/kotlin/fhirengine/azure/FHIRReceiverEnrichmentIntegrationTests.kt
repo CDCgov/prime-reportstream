@@ -179,13 +179,13 @@ class FHIRReceiverEnrichmentIntegrationTests : Logging {
         }
 
         // check events
-        assertThat(azureEventService.reportStreamEvents[ReportStreamEventName.ITEM_ROUTED]!!).hasSize(1)
+        assertThat(azureEventService.reportStreamEvents[ReportStreamEventName.ITEM_TRANSFORMED]!!).hasSize(1)
         assertThat(
             azureEventService
-                .reportStreamEvents[ReportStreamEventName.ITEM_ROUTED]!!.first()
+                .reportStreamEvents[ReportStreamEventName.ITEM_TRANSFORMED]!!.first()
         ).isInstanceOf<ReportStreamItemEvent>()
         val event = azureEventService
-            .reportStreamEvents[ReportStreamEventName.ITEM_ROUTED]!!.first() as ReportStreamItemEvent
+            .reportStreamEvents[ReportStreamEventName.ITEM_TRANSFORMED]!!.first() as ReportStreamItemEvent
         assertThat(event.params[ReportStreamEventProperties.RECEIVER_NAME]).isEqualTo("phd.x")
         val enrichments = event.params[ReportStreamEventProperties.ENRICHMENTS] as List<*>
         assertThat(enrichments).hasSize(2)

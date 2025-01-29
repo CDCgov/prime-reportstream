@@ -1,5 +1,5 @@
 # Universal Pipeline Receiver Enrichment Step
-After the [destination filter](./destination-filter.md) step has completed, each configured receiver will receive the converted FHIR bundle for potential further enrichment.  If the specific receiver in question has been configured with one or more enrichment schema names, each enrichment schema will be applied in turn and update the FHIR bundle.  These enrichments are small customizations that don't warrant the creation of an entirely new translation schema.
+After the [destination filter](./destination-filter.md) step has completed, each configured receiver will receive the converted FHIR bundle for potential further enrichment.  If the specific receiver in question has been configured with one or more enrichment schema names, each enrichment schema will be applied in turn and update the FHIR bundle.
 
 ## Configuration
 
