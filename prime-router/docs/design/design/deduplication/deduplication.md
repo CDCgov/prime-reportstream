@@ -9,7 +9,7 @@ Refer to the [UP Deduplication epic](https://app.zenhub.com/workspaces/platform-
 Deduplication shall be performed at the item level (a FHIR Bundle) after conversion to FHIR happens. Each bundle will have key elements (see [Key FHIR Elements table](#key-fhir-elements)) converted to a string which is then hashed deterministically and stored in the database (item_lineage.item_hash). That hash will only be compared against other hashes from the same sender that were created within the last year.
 
 #### Scope for Initial Implementation
-Deduplication will only be implemented for ORU_R01 messages from FULL_ELR topic senders. Covid Pipeline deduplication functionality should remain unchanged.
+Deduplication will only be implemented for ORU_R01 messages from FULL_ELR topic senders. Covid Pipeline deduplication functionality shall remain unchanged.
 
 #### Deduplication Differences between Covid and Universal Pipeline
  There are three key differences between the deduplication designs. In the Universal Pipeline,
@@ -28,7 +28,7 @@ The first part of the Deduplication Workflow will take in the item’s Bundle an
 Technical Considerations:
 - This should be flexible enough that different senders, message types, and topics can implement different key fields.
 - The ordering of fields within a FHIR Bundle are **not** guaranteed. Before converting to a string to be hashed, the [populated key fields](#key-fhir-elements) should be extracted from the bundle and put in a static order (alphabetical etc.).
-- Sender id/name needs to be incorporated into pre-hashed string. (Dependent upon sql efficiency investigation noted below).
+- Sender id/name shall be incorporated into the pre-hashed string. (Dependent upon sql efficiency investigation noted below).
 - Investigation TODO (_To be removed and appropriate sections updated before merge_): Investigate the time efficiency of the following options:
   - Adding a sender id column to item_lineage table (and using this to narrow the SQL query).
   - Adding the sender id (or name) into the string to be hashed and allowing the column index to be the main SQL query parameter.
@@ -98,8 +98,8 @@ Hash comparison will be skipped if deduplication is disabled on that sender's se
             "trackingIds": [
                 "849b3151-25f7-41f3-b19b-fd8ad47bae18"
             ],
-            "message": "Report could not processed. Reason: Duplicate item was detected and removed.",
-            "errorCode": "DUPLICATE_ITEM"
+            "message": "Duplicate message was detected and removed.",
+            "errorCode": "DUPLICATION_DETECTION"
         }
     ],
     "destinationCount": 1,
@@ -130,8 +130,8 @@ Hash comparison will be skipped if deduplication is disabled on that sender's se
             "trackingIds": [
                 "849b3151-25f7-41f3-b19b-fd8ad47bae18"
             ],
-            "message": "Report could not processed. Reason: Duplicate report was detected and removed.",
-            "errorCode": "DUPLICATE_REPORT"
+            "message": "Duplicate report was detected and removed.",
+            "errorCode": "DUPLICATION_DETECTION"
         }
     ],
     "warnings": [],
@@ -143,12 +143,12 @@ Hash comparison will be skipped if deduplication is disabled on that sender's se
 
 <BR><img alt="Dedupe_Design.jpg" height="310" src="Dedupe_Design.jpg" width="450"/>
 
-- The deduplication workflow will happen at the very end of the convert step processing ([FHIRConverter.kt#L541](https://github.com/CDCgov/prime-reportstream/blob/c942a9a6f6be347d82196939e1cf677512af4a06/prime-router/src/main/kotlin/fhirengine/engine/FHIRConverter.kt#L541)).
+- The deduplication workflow will happen in the middle of the Convert Step. After conversion related processing, but before any of the queue related processing. ([FHIRConverter.kt#L541](https://github.com/CDCgov/prime-reportstream/blob/c942a9a6f6be347d82196939e1cf677512af4a06/prime-router/src/main/kotlin/fhirengine/engine/FHIRConverter.kt#L541)).
   - Before the Deduplication Workflow, the Convert Step will:
-    - Convert to FHIR, if necessary
-    - De-batched items from the report
-    - Parse these items into bundles
     - Validate the items
+    - Convert to FHIR, if necessary
+    - De-batch items from the report
+    - Convert these items into FHIR bundles
     - Stamp Observations with condition codes
   - During the Deduplication Workflow, the Convert Step will:
     - Generate a hash for the item
