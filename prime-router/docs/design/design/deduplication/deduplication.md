@@ -174,6 +174,19 @@ Hash comparison will be skipped if deduplication is disabled on that sender's se
 - FHIRDestinationFilter and FHIRReceiverFilter both currently use Report.getItemHashForRow. They are incorrectly adding non-null data to item_lineage.item_hash. These steps should be only adding null (or `"0"`, Ex: [Report.generateReportAndUploadBlob](https://github.com/CDCgov/prime-reportstream/blob/4a2231af2031bc3b2d5d7949d2b21d33c525c44d/prime-router/src/main/kotlin/Report.kt#L1654)) values for item_hash. 
   - TODO: Investigate other potential incorrect use of this column. Other possible entry points may create ItemLineage objects directly or use other functions which call it such as [Report.createItemLineageForRow](https://github.com/CDCgov/prime-reportstream/blob/4a2231af2031bc3b2d5d7949d2b21d33c525c44d/prime-router/src/main/kotlin/Report.kt#L1404).
 
+### Proposed Universal Pipeline SRD Additions
+Under `Convert Step Business Logic Requirements`:
+```
+10. The Convert step shall apply the following enrichments ... [No change]
+11. The Convert step shall generate a one-way deterministic hash from key fields from the FHIR bundle. (Link to Key Fields section of deduplication.md)
+    11.1. For all senders with deduplication enabled, the Convert step shall check for duplicates by first matching hashes against items in the same report, and then in the database against items from same sender in past year.
+        11.1.1. If an item is found to be a duplicate, the Convert step shall generate an ActionLog warning. 
+        11.1.2. If all item(s) in a report are found to be duplicates, the Convert step shall generate an ActionLog error. 
+        11.1.3. For all items identified this way as duplicates, the Convert step shall properly update the lineage to indicate the next_action is None and will not process the report any further.
+        11.1.4. For all items that are not duplicates, the Convert step shall save the generated hash to item_lineage.item_hash.
+12. If a conversion or schema application error occurs on ANY item ... [No change]
+```
+
 ## Key FHIR Elements
 
 These fields represent the criteria for an item (ORU-0R1 message) to be considered a duplicate.
