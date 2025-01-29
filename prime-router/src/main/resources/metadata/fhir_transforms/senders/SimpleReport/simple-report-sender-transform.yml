@@ -684,7 +684,7 @@ elements:
     resource: 'Bundle.entry.resource.ofType(Observation)'
     condition: '%resource.value is dateTime'
     bundleProperty: '%resource.value.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time").value[x]'
-    value: [ '%resource.value' ]
+    value: [ '%resource.value.toString()' ]
 
   - name: sr-observation-value-coding-system
     resource: 'Bundle.entry.resource.ofType(Observation)'
