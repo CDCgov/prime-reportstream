@@ -1,11 +1,10 @@
-import { Document, Font, Page, StyleSheet, Text, usePDF, View } from "@react-pdf/renderer";
+import { usePDF } from "@react-pdf/renderer";
 import { QueryObserverResult } from "@tanstack/react-query";
 import { Accordion, Button, Icon } from "@trussworks/react-uswds";
-import PublicSansRegular from "@uswds/uswds/fonts/public-sans/PublicSans-Regular.ttf";
-import PublicSansBold from "@uswds/uswds/fonts/public-sans/PublicSans-Bold.ttf";
 import { type PropsWithChildren } from "react";
 import language from "./language.json";
 import { MessageTestingAccordion } from "./MessageTestingAccordion";
+import MessageTestingPDF from "./MessageTestingPDF";
 import type { RSMessage, RSMessageResult } from "../../../config/endpoints/reports";
 import Alert, { type AlertProps } from "../../../shared/Alert/Alert";
 import HL7Message from "../../../shared/HL7Message/HL7Message";
@@ -17,6 +16,8 @@ export interface MessageTestingResultProps extends PropsWithChildren {
     resultData: RSMessageResult;
     handleGoBack: () => void;
     refetch: () => Promise<QueryObserverResult<RSMessageResult, Error>>;
+    orgname: string;
+    receivername: string;
 }
 
 const filterFields: (keyof RSMessageResult)[] = ["filterErrors"];
@@ -38,6 +39,8 @@ const MessageTestingResult = ({
     submittedMessage,
     handleGoBack,
     refetch,
+    orgname,
+    receivername,
     ...props
 }: MessageTestingResultProps) => {
     const isPassed =
@@ -46,8 +49,8 @@ const MessageTestingResult = ({
         resultData.enrichmentSchemaErrors.length === 0 &&
         resultData.receiverTransformErrors.length === 0;
     const isWarned =
-        resultData.senderTransformWarnings.length > 0 &&
-        resultData.enrichmentSchemaWarnings.length > 0 &&
+        resultData.senderTransformWarnings.length > 0 ||
+        resultData.enrichmentSchemaWarnings.length > 0 ||
         resultData.receiverTransformWarnings.length > 0;
 
     const alertType: AlertProps["type"] = !isPassed ? "error" : isWarned ? "warning" : "success";
@@ -63,160 +66,34 @@ const MessageTestingResult = ({
         hour12: true,
     };
 
-    const exampleData = {
-        orgName: "Example Organization",
-        receiverName: "John Doe",
-        testStatus: "failed", // can be 'failed' or 'warning'
-        filtersTriggered: ["OBR|1|...", "OBX|1|...", "OBX|2|..."],
-        outputMessage: `MSH|^~\\&|SOMEHL7MESSAGE
-    PID|1|...
-    OBR|1|...`,
-        testMessage: `{
-        "resourceType": "Patient",
-        "id": "12345",
-        "name": [
-          {
-            "use": "official",
-            "family": "Doe",
-            "given": ["John", "A."]
-          }
-        ]
-      }`,
-    };
-
-    Font.register({
-        family: "Public Sans Web",
-        fonts: [{ src: PublicSansRegular }, { src: PublicSansBold, fontWeight: "bold" }],
-    });
-
-    const styles = StyleSheet.create({
-        page: {
-            padding: 30,
-            fontSize: 12,
-            fontFamily: "Public Sans Web",
-        },
-        section: {
-            marginBottom: 20,
-        },
-        sectionTitle: {
-            fontSize: 14,
-            marginBottom: 6,
-            fontWeight: "bold",
-        },
-        text: {
-            marginBottom: 4,
-        },
-        bannerContainer: {
-            padding: 10,
-            marginBottom: 20,
-        },
-        bannerText: {
-            color: "black",
-            fontWeight: "bold",
-        },
-        bannerWarning: {
-            backgroundColor: "#faf3d1",
-            borderLeft: "4px solid #ffbe2e",
-        },
-        bannerError: {
-            backgroundColor: "#f4e3db",
-            borderLeft: "4px solid #d54309",
-        },
-        codeBlock: {
-            backgroundColor: "#f5f5f5",
-            padding: 10,
-            fontFamily: "Courier", // or 'Roboto Mono' if you registered it
-            marginBottom: 10,
-        },
-        hr: {
-            borderBottomWidth: 1,
-            borderBottomColor: "#000",
-            marginVertical: 5,
-        },
-    });
-
-    const PDFDocument = ({
-        orgName,
-        receiverName,
-        testStatus, // 'failed' or 'warning'
-        filtersTriggered, // array of strings
-        outputMessage, // HL7 text
-        testMessage, // JSON text
-    }) => {
-        const bannerText = testStatus === "failed" ? "Test failed" : "Warnings";
-        const lines = prettifyJSON(testMessage)
-            .split("\n")
-            .map((line) => {
-                return line.replace(/ /g, "\u00A0");
-            });
-        return (
-            <Document>
-                <Page style={styles.page}>
-                    {/* Section 1 */}
-                    <View style={styles.section}>
-                        <Text style={styles.sectionTitle}>Message testing result</Text>
-                        <Text style={styles.text}>Org name: {orgName}</Text>
-                        <Text style={styles.text}>Receiver name: {receiverName}</Text>
-                    </View>
-
-                    {/* Section 2 - Banner */}
-                    <View
-                        style={[
-                            styles.bannerContainer,
-                            { ...(testStatus === "failed" ? styles.bannerError : styles.bannerWarning) },
-                        ]}
-                    >
-                        <Text style={styles.bannerText}>{bannerText}</Text>
-                    </View>
-
-                    {/* Section 3 - Filters triggered */}
-                    <View style={styles.section}>
-                        <Text style={styles.sectionTitle}>Filters triggered</Text>
-                        {filtersTriggered?.map((line, index) => (
-                            <View key={`filter-line-${index}`}>
-                                <View style={styles.codeBlock}>
-                                    <Text>{line}</Text>
-                                </View>
-                            </View>
-                        ))}
-                    </View>
-
-                    {/* Section 4 - Output message (HL7) */}
-                    <View style={styles.section}>
-                        <Text style={styles.sectionTitle}>Output message</Text>
-                        <View style={styles.codeBlock}>
-                            <Text>{outputMessage}</Text>
-                        </View>
-                    </View>
-
-                    {/* Section 5 - Test message (JSON) */}
-                    <View style={styles.section}>
-                        <Text style={styles.sectionTitle}>Test message</Text>
-                        <View style={styles.codeBlock}>
-                            {lines.map((line, idx) => (
-                                <Text key={idx}>{line}</Text>
-                            ))}
-                        </View>
-                    </View>
-                </Page>
-            </Document>
-        );
-    };
-
-    const MyDocument = <PDFDocument {...exampleData} />;
-    const [instance, updateInstance] = usePDF({ document: MyDocument });
+    const MessageTestingPDFRef = (
+        <MessageTestingPDF
+            orgName={orgname}
+            receiverName={receivername}
+            testStatus={alertType}
+            filtersTriggered={resultData.filterErrors}
+            testMessage={submittedMessage?.reportBody ?? ""}
+        />
+    );
+    const [instance] = usePDF({ document: MessageTestingPDFRef });
     return (
         <section {...props}>
             <div className="display-flex flex-justify flex-align-center">
                 <h2>Test results: {submittedMessage?.fileName}</h2>
+                <div>
+                    <USLinkButton
+                        href={instance.url ?? ""}
+                        download={`message-testing-result_${Date.now()}.pdf`}
+                        type="button"
+                        outline
+                    >
+                        {instance.loading ? "Loading..." : "Download PDF"} <Icon.ArrowDropDown className="text-top" />
+                    </USLinkButton>
 
-                <USLinkButton href={instance.url} download="test.pdf" type="button" outline>
-                    {instance.loading ? "Loading..." : "Download PDF"} <Icon.ArrowDropDown className="text-top" />
-                </USLinkButton>
-
-                <Button type="button" onClick={() => void refetch()}>
-                    Rerun test <Icon.Autorenew className="text-top" />
-                </Button>
+                    <Button className="margin-left-1" type="button" onClick={() => void refetch()}>
+                        Rerun test <Icon.Autorenew className="text-top" />
+                    </Button>
+                </div>
             </div>
             <USLinkButton onClick={handleGoBack} className="text-no-underline text-bold" unstyled>
                 <Icon.NavigateBefore className="text-top" /> Select new message
