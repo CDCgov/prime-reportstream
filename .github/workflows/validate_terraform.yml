@@ -13,7 +13,7 @@ on:
 jobs:
   pre_job:
     name: Pre Job
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     outputs:
       has_operations_change: ${{ steps.build_vars.outputs.has_terraform_change }}
     steps:
@@ -28,7 +28,7 @@ jobs:
     needs: pre_job
     if: ${{ needs.pre_job.outputs.has_operations_change == 'true' }}
     environment: staging
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     steps:
       - name: Check Out Changes
         uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938
@@ -42,7 +42,7 @@ jobs:
   checkov-job:
     name: Run Checkov On Terraform Code
     needs: validate_terraform_yaml
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
         uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938
