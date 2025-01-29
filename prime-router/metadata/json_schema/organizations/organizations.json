@@ -213,6 +213,9 @@
             "HL7_BATCH"
           ]
         },
+        "hl7AcknowledgementEnabled": {
+          "type": "boolean"
+        },
         "name": {
           "type": "string"
         },
@@ -554,6 +557,7 @@
         "HAWAII",
         "EAST_INDIANA",
         "INDIANA_STARKE",
+        "MAJURO",
         "MICHIGAN",
         "CHAMORRO",
         "UTC",

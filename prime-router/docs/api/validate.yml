@@ -62,6 +62,6 @@ paths:
           content:
             application/json:
               schema:
-                $ref: 'https://raw.githubusercontent.com/CDCgov/prime-reportstream/master/prime-router/docs/api/reports.yml#/components/schemas/Report'
+                $ref: 'https://raw.githubusercontent.com/CDCgov/prime-reportstream/main/prime-router/docs/api/reports.yml#/components/schemas/Report'
         '400':
           description: Bad Request

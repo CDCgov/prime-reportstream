@@ -7,6 +7,7 @@ import { SenderType } from "./utils/DataDashboardUtils";
 import { lazyRouteMarkdown } from "./utils/LazyRouteMarkdown";
 import { PERMISSIONS } from "./utils/UsefulTypes";
 
+const AdminMessageTestingPage = lazy(() => import("./pages/admin/AdminMessageTestingPage/AdminMessageTestingPage"));
 /* Content Pages */
 const Home = lazy(lazyRouteMarkdown(() => import("./content/home/index.mdx")));
 const About = lazy(lazyRouteMarkdown(() => import("./content/about/index.mdx")));
@@ -436,6 +437,10 @@ export const appRoutes: RouteObject[] = [
                     {
                         path: "orgreceiversettings/org/:orgname/receiver/:receivername/action/:action",
                         element: <EditReceiverSettingsPage />,
+                    },
+                    {
+                        path: "orgreceiversettings/org/:orgname/receiver/:receivername/action/:action/message-testing",
+                        element: <AdminMessageTestingPage />,
                     },
                     {
                         path: "orgsendersettings/org/:orgname/sender/:sendername/action/:action",

@@ -8,6 +8,7 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import gov.cdc.prime.reportstream.shared.BlobUtils
 import gov.cdc.prime.reportstream.shared.QueueMessage
 import gov.cdc.prime.reportstream.shared.Submission
+import gov.cdc.prime.reportstream.shared.auth.AuthZService
 import gov.cdc.prime.reportstream.submissions.SubmissionDetails
 import gov.cdc.prime.reportstream.submissions.SubmissionReceivedEvent
 import gov.cdc.prime.reportstream.submissions.TelemetryService
@@ -16,6 +17,7 @@ import jakarta.servlet.http.HttpServletRequest
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.authorization.AuthorizationDeniedException
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken
 import org.springframework.web.bind.MissingRequestHeaderException
@@ -46,6 +48,7 @@ class SubmissionController(
     private val tableClient: TableClient,
     private val telemetryService: TelemetryService,
     private val allowedParametersConfig: AllowedParametersConfig,
+    private val authZService: AuthZService,
 ) {
     /**
      * Submits a report.
@@ -62,6 +65,7 @@ class SubmissionController(
      * @return a ResponseEntity containing the reportID, status, and timestamp
      */
     @PostMapping("/api/v1/reports", consumes = ["application/hl7-v2", "application/fhir+ndjson"])
+    @PreAuthorize("hasAuthority('SCOPE_sender')")
     fun submitReport(
         @RequestHeader headers: Map<String, String>,
         @RequestHeader("Content-Type") contentType: String,
@@ -72,6 +76,12 @@ class SubmissionController(
         @RequestBody data: String,
         request: HttpServletRequest,
     ): ResponseEntity<*> {
+        val authorized = authZService.isSenderAuthorized(clientId, request::getHeader)
+        if (!authorized) {
+            logger.warn("Sender is not authorized to submit reports as $clientId")
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null)
+        }
+
         val reportId = UUID.randomUUID()
         val reportReceivedTime = Instant.now()
         val contentTypeMime = contentType.substringBefore(';')

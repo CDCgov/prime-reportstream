@@ -9,8 +9,8 @@ import gov.cdc.prime.router.azure.ReportWriter
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.fhirengine.engine.FhirConvertQueueMessage
-import gov.cdc.prime.router.fhirengine.engine.MessageType
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
+import gov.cdc.prime.router.fhirengine.utils.HL7MessageHelpers
 import gov.cdc.prime.router.fhirengine.utils.HL7Reader
 
 /**
@@ -268,14 +268,14 @@ class UniversalPipelineReceiver : SubmissionReceiver {
 
         when (sender.format) {
             MimeFormat.HL7 -> {
-                val messages = HL7Reader(actionLogs).getMessages(content)
-                val isBatch = HL7Reader(actionLogs).isBatch(content, messages.size)
-                // create a Report for this incoming HL7 message to use for tracking in the database
+                val messageCount = HL7MessageHelpers.messageCount(content)
+                val isBatch = HL7Reader.isBatch(content, messageCount)
 
+                // create a Report for this incoming HL7 message to use for tracking in the database
                 report = Report(
                     if (isBatch) MimeFormat.HL7_BATCH else MimeFormat.HL7,
                     sources,
-                    messages.size,
+                    messageCount,
                     metadata = metadata,
                     nextAction = TaskAction.convert,
                     topic = sender.topic,
@@ -290,11 +290,8 @@ class UniversalPipelineReceiver : SubmissionReceiver {
 //                        actionLogs
 //                    )
 //                }
-
-                // check for valid message type
-                messages.forEachIndexed {
-                    idx, element ->
-                    MessageType.validateMessageType(element, actionLogs, idx + 1)
+                if (messageCount == 0 && !actionLogs.hasErrors()) {
+                    actionLogs.error(InvalidReportMessage("Unable to find HL7 messages in provided data."))
                 }
             }
 

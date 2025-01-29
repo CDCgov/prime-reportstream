@@ -45,6 +45,6 @@ A major advantage of SAST is that it can be applied to source code, including in
 **CodeQL – SAST code analysis**
 CodeQL is the code analysis engine developed by GitHub to automate security checks. You can analyze your code using CodeQL and display the results as code scanning alerts.
 &nbsp;  
-Prime report stream has been configured to run CodeQL code scans on pushes to master, production branches and on pull request from any branch to master branch.
+Prime report stream has been configured to run CodeQL code scans on pushes to main, production branches and on pull request from any branch to main branch.
 
 

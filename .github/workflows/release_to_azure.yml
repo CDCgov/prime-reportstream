@@ -4,7 +4,7 @@ name: Release to Azure
 on:
   push:
     branches:
-      - master
+      - main
       - production
       - test
       - demo1
@@ -14,6 +14,9 @@ on:
 defaults:
   run:
     working-directory: prime-router
+
+env:
+  AZURE_CREDENTIALS: '{"clientId":"${{ secrets.AZURE_CLIENT_ID }}","clientSecret":"${{ secrets.AZURE_CLIENT_SECRET }}","subscriptionId":"${{ secrets.AZURE_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.AZURE_TENANT_ID }}"}'
 
 jobs:
   pre_job:
@@ -33,7 +36,7 @@ jobs:
         id: build_vars
         uses: ./.github/actions/build-vars
         with:
-          sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
+          sp-creds: ${{ env.AZURE_CREDENTIALS }}
 
   build_router_release:
     name: "Release: Build Router"
@@ -102,7 +105,7 @@ jobs:
         uses: ./.github/actions/vpn-azure
         with:
           env-name: ${{ needs.pre_job.outputs.env_name }}
-          sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
+          sp-creds: ${{ env.AZURE_CREDENTIALS }}
           tf-auth: true
 
       - name: Provision demo environment
@@ -138,16 +141,13 @@ jobs:
         uses: ./.github/actions/vpn-azure
         with:
           env-name: ${{ needs.pre_job.outputs.env_name }}
-          sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
+          sp-creds: ${{ env.AZURE_CREDENTIALS }}
 
       - name: Get function app checksum
         env:
           checksum_validation: ${{ vars.CHECKSUM_VALIDATION }}
         if: needs.pre_job.outputs.has_router_change == 'true' && env.checksum_validation == 'true'
-
-        uses: JosiahSiegel/checksum-validate-action@ebdf8c12c00912d18de93c483b935d51582f9236
-        ## DevSecOps - Aquia (Replace) - uses: ./.github/actions/checksum-validate-action
-
+        uses: ./.github/actions/checksum-validate
         with:
           key: backend
           input: $(az functionapp config appsettings list -g prime-data-hub-${{ needs.pre_job.outputs.env_name }} -n pdh${{ needs.pre_job.outputs.env_name }}-functionapp -o tsv | sort)
@@ -194,7 +194,7 @@ jobs:
           ca-cert: ${{ secrets.CA_CRT}}
           user-crt: ${{ secrets.USER_CRT }}
           user-key: ${{ secrets.USER_KEY }}
-          sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
+          sp-creds: ${{ env.AZURE_CREDENTIALS }}
           dns-ip: ${{ needs.pre_job.outputs.dns_ip }}
 
       - name: Deploy backend
@@ -233,7 +233,7 @@ jobs:
           ca-cert: ${{ secrets.CA_CRT}}
           user-crt: ${{ secrets.USER_CRT }}
           user-key: ${{ secrets.USER_KEY }}
-          sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
+          sp-creds: ${{ env.AZURE_CREDENTIALS }}
           dns-ip: ${{ needs.pre_job.outputs.dns_ip }}
 
       - name: Deploy frontend

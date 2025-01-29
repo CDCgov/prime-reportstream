@@ -36,11 +36,11 @@ import gov.cdc.prime.router.azure.observability.event.IReportStreamEventService
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventName
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventProperties
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventService
+import gov.cdc.prime.router.azure.service.SubmissionResponseBuilder
 import gov.cdc.prime.router.cli.PIIRemovalCommands
 import gov.cdc.prime.router.cli.ProcessFhirCommands
 import gov.cdc.prime.router.common.AzureHttpUtils.getSenderIP
 import gov.cdc.prime.router.common.Environment
-import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.history.azure.SubmissionsFacade
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
@@ -68,13 +68,14 @@ class ReportFunction(
         workflowEngine.azureEventService,
         workflowEngine.reportService
     ),
+    private val submissionResponseBuilder: SubmissionResponseBuilder = SubmissionResponseBuilder(),
 ) : RequestFunction(workflowEngine),
     Logging {
 
-        enum class IngestionMethod {
-            SFTP,
-            REST,
-        }
+    enum class IngestionMethod {
+        SFTP,
+        REST,
+    }
 
     /**
      * POST a report to the router
@@ -148,6 +149,8 @@ class ReportFunction(
         ) request: HttpRequestMessage<String?>,
     ): HttpResponseMessage {
         val claims = AuthenticatedClaims.authenticate(request)
+        val caseInsensitiveHeaders = request.headers.mapKeys { it.key.lowercase() }
+        val accessToken = caseInsensitiveHeaders[HttpHeaders.AUTHORIZATION.lowercase()]
         if (claims != null && claims.authorized(setOf(Scope.primeAdminScope))) {
             val receiverName = request.queryParameters["receiverName"]
             val organizationName = request.queryParameters["organizationName"]
@@ -179,11 +182,12 @@ class ReportFunction(
             try {
                 val result = ProcessFhirCommands().processFhirDataRequest(
                     file,
-                    Environment.get().envName,
+                    Environment.get(),
                     receiverName,
                     organizationName,
                     senderSchema,
-                    false
+                    false,
+                    accessToken!!
                 )
                 file.delete()
                 val message = if (result.message != null) {
@@ -192,7 +196,7 @@ class ReportFunction(
                     null
                 }
                 val bundle = if (result.bundle != null) {
-                    result.bundle.toString()
+                    FhirTranscoder.encode(result.bundle!!)
                 } else {
                     null
                 }
@@ -202,17 +206,13 @@ class ReportFunction(
                         MessageOrBundleStringified(
                             message,
                             bundle,
-                            result.senderTransformPassed,
                             result.senderTransformErrors,
                             result.senderTransformWarnings,
-                            result.enrichmentSchemaPassed,
                             result.enrichmentSchemaErrors,
                             result.senderTransformWarnings,
-                            result.receiverTransformPassed,
                             result.receiverTransformErrors,
                             result.receiverTransformWarnings,
                             result.filterErrors,
-                            result.filtersPassed
                         )
                     )
                 )
@@ -227,17 +227,13 @@ class ReportFunction(
     class MessageOrBundleStringified(
         var message: String? = null,
         var bundle: String? = null,
-        override var senderTransformPassed: Boolean = true,
         override var senderTransformErrors: MutableList<String> = mutableListOf(),
         override var senderTransformWarnings: MutableList<String> = mutableListOf(),
-        override var enrichmentSchemaPassed: Boolean = true,
         override var enrichmentSchemaErrors: MutableList<String> = mutableListOf(),
         override var enrichmentSchemaWarnings: MutableList<String> = mutableListOf(),
-        override var receiverTransformPassed: Boolean = true,
         override var receiverTransformErrors: MutableList<String> = mutableListOf(),
         override var receiverTransformWarnings: MutableList<String> = mutableListOf(),
-        override var filterErrors: MutableList<String> = mutableListOf(),
-        override var filtersPassed: Boolean = true,
+        override var filterErrors: MutableList<ProcessFhirCommands.FilterError> = mutableListOf(),
     ) : ProcessFhirCommands.MessageOrBundleParent()
 
     /**
@@ -601,19 +597,12 @@ class ReportFunction(
             SubmissionsFacade.instance.findDetailedSubmissionHistory(txn, null, actionHistory.action)
         }
 
-        val response = request.createResponseBuilder(httpStatus)
-            .header(HttpHeaders.CONTENT_TYPE, "application/json")
-            .body(
-                JacksonMapperUtilities.allowUnknownsMapper
-                    .writeValueAsString(submission)
-            )
-            .header(
-                HttpHeaders.LOCATION,
-                request.uri.resolve(
-                    "/api/waters/report/${submission?.reportId}/history"
-                ).toString()
-            )
-            .build()
+        val response = submissionResponseBuilder.buildResponse(
+            sender,
+            httpStatus,
+            request,
+            submission
+        )
 
         // queue messages here after all task / action records are in
         actionHistory.queueMessages(workflowEngine)

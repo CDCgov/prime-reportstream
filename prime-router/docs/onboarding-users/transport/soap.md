@@ -88,7 +88,7 @@ Because of the wide variance in message structure between SOAP implementations y
 
 #### Step One - Create Receiver Settings
 
-Create receiver settings in the same manner as you would for any other transport type. See [receiver.md](https://github.com/CDCgov/prime-reportstream/blob/master/prime-router/docs/onboarding-users/receivers.md) document for more info.
+Create receiver settings in the same manner as you would for any other transport type. See [receiver.md](https://github.com/CDCgov/prime-reportstream/blob/main/prime-router/docs/onboarding-users/receivers.md) document for more info.
 
 SOAP Transport settings have the following unique parameters:
 
@@ -107,7 +107,7 @@ SOAP Transport settings have the following unique parameters:
 
 #### Step Two: Determine needed header elements and create new ones if necessary
 
-The required soap header elements will be documented in the receiver implementation guide or the receiver WSDL. SOAP header elements are hardcoded into the [Soap Serializer](https://github.com/CDCgov/prime-reportstream/blob/master/prime-router/src/main/kotlin/serializers/SoapSerializer.kt). If "SOAP12" is used as the soapVersion in the receiver transport settings the following headers will be used:
+The required soap header elements will be documented in the receiver implementation guide or the receiver WSDL. SOAP header elements are hardcoded into the [Soap Serializer](https://github.com/CDCgov/prime-reportstream/blob/main/prime-router/src/main/kotlin/serializers/SoapSerializer.kt). If "SOAP12" is used as the soapVersion in the receiver transport settings the following headers will be used:
 
 ```xml
 <soapenv:Header>
@@ -125,12 +125,12 @@ If the soapVersion is left null than there will be no elements in the header (th
 <soapenv:Header/>
 ```
 
-If new header elements are needed the serialize function within the [Soap Serializer](https://github.com/CDCgov/prime-reportstream/blob/master/prime-router/src/main/kotlin/serializers/SoapSerializer.kt) will need to be modified.
+If new header elements are needed the serialize function within the [Soap Serializer](https://github.com/CDCgov/prime-reportstream/blob/main/prime-router/src/main/kotlin/serializers/SoapSerializer.kt) will need to be modified.
 
 
 #### Step Three: Create body elements
 
-SOAP Body elements and structure need to be hardcoded into their own data class. See examples for [PA](https://github.com/CDCgov/prime-reportstream/blob/master/prime-router/src/main/kotlin/serializers/soapimpl/PAELRImpl.kt) and [AR](https://github.com/CDCgov/prime-reportstream/blob/master/prime-router/src/main/kotlin/serializers/soapimpl/Soap12Message.kt). The created data classes are then serialized into XML objects by function getXMLObjectForAction based on the soapAction parameter.
+SOAP Body elements and structure need to be hardcoded into their own data class. See examples for [PA](https://github.com/CDCgov/prime-reportstream/blob/main/prime-router/src/main/kotlin/serializers/soapimpl/PAELRImpl.kt) and [AR](https://github.com/CDCgov/prime-reportstream/blob/main/prime-router/src/main/kotlin/serializers/soapimpl/Soap12Message.kt). The created data classes are then serialized into XML objects by function getXMLObjectForAction based on the soapAction parameter.
 
 #### Step Four: Create new parameters for HTTP POST (optional)
 

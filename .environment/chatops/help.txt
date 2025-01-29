@@ -3,7 +3,7 @@ ACTION
 USAGE
     [<@bot>] gh-deploy [<branch>] to [<branch>] [OPTIONAL: for <owner/repo>]
 EXAMPLES
-    @DevBot gh-deploy master to trialfrontend1
+    @DevBot gh-deploy main to trialfrontend1
 ==========================================================================
 ACTION
     Lock branch to prevent deployments
@@ -26,4 +26,4 @@ USAGE
     [<@bot>] gh-run [<workflow file>] [OPTIONAL: <owner/repo> <branch>] [OPTIONAL: --inputs <a:b,c:d>] 
 EXAMPLES
     @DevBot gh-run destroy_demo_environment.yml --inputs env_name:demo1
-    @DevBot gh-run destroy_demo_environment.yml CDCgov/prime-reportstream master --inputs env_name:demo1
+    @DevBot gh-run destroy_demo_environment.yml CDCgov/prime-reportstream main --inputs env_name:demo1

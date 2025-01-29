@@ -2,7 +2,7 @@
 
 To date, the PRIME Data Hub has used the following flow for code undergoing development, testing, and production:
 
-> `feature_branch(es)` --> `master` --> `production`
+> `feature_branch(es)` --> `main` --> `production`
 
 While this flow has served its purpose for the testing and validation of software changes before deployment to production, a simpler workflow that allows for the versioning of the platform is a necessary next step in its maturation.
 
@@ -33,12 +33,12 @@ The proposed versioning scheme is based off of `Calendar Versioning`<sup>1</sup>
 
 To simplify the flow of code from development to the test and production environments, the proposed flow will be:
 
-> `feature_branch(es)` --> `master`
+> `feature_branch(es)` --> `main`
 
-The `master` branch will remain protected in that:
+The `main` branch will remain protected in that:
   - It cannot be pushed to directly
   - A pull request must be submitted from the feature branch
-  - The pull request must be approved by ≥ 1 reviewer prior to being merged into the `master` branch
+  - The pull request must be approved by ≥ 1 reviewer prior to being merged into the `main` branch
 
 Upon the creation of a pull request, the `staging_build` workflow will be triggered to build and test the changes that would result from the pull request being merged.
 

@@ -11,7 +11,7 @@
          e.g: "/subscriptions/${subscription_id}/resourceGroups/${resource_group_name}/providers/microsoft.insights/components/${appinsights_name}"
       d- Remove "properties {" at the begining of your file and the corresponding "}" at the end.
       e- Remove the extra code at the end of the file after the metadata portion
-4- Commit your changes and create a PR to master branch
+4- Commit your changes and create a PR to main branch
 5- Once the PR is approved and merged, the changes will be applied during the production deployment.
 
 
