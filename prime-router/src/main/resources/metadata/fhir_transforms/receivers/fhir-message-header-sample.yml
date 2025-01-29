@@ -1,4 +1,4 @@
-# 
+# $schema: ../../../../../../metadata/json_schema/fhir/fhir-to-fhir-transform.json
 constants:
   rsext: '"https://reportstream.cdc.gov/fhir/StructureDefinition/"'
 
@@ -6,9 +6,8 @@ elements:
   #########################
   # ReportStream specific #
   #########################
-
   - name: software-vendor-name
-    condition: true
+    condition: 'true'
     resource: 'Bundle.entry.resource.ofType(Provenance).where(entity.exists()).entity.what.resolve().where(extension(%`rsext-software-vendor-org`).exists())'
     bundleProperty: '%resource.extension(%`rsext-software-vendor-org`).value.resolve().name'
     value: [ '"Orange Software Vendor Name"' ]
