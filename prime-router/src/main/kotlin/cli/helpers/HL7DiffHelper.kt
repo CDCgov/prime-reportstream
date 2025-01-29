@@ -315,7 +315,7 @@ class HL7DiffHelper {
             val outputText = if (output.isEmpty()) {
                 ""
             } else {
-                ", $output."
+                ", $output"
             }
 
             val tertiaryFieldNumberText = if (tertiaryFieldNumber == null) {
@@ -332,9 +332,9 @@ class HL7DiffHelper {
 
             val fieldNumberText = fieldNum?.toString() ?: ""
 
-            return "Difference between messages at $segmentIndex." +
+            return "$segmentIndex." +
                 "$fieldNumberText$secondaryFieldNumberText$tertiaryFieldNumberText" +
-                " Differences: $input$outputText"
+                " , $input$outputText"
         }
     }
 
