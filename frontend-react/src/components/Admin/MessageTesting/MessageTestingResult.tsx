@@ -81,14 +81,17 @@ const MessageTestingResult = ({
             <div className="display-flex flex-justify flex-align-center">
                 <h2>Test results: {submittedMessage?.fileName}</h2>
                 <div>
-                    <USLinkButton
-                        href={instance.url ?? ""}
-                        download={`message-testing-result_${Date.now()}.pdf`}
-                        type="button"
-                        outline
-                    >
-                        {instance.loading ? "Loading..." : "Download PDF"} <Icon.ArrowDropDown className="text-top" />
-                    </USLinkButton>
+                    {alertType !== "success" && (
+                        <USLinkButton
+                            href={instance.url ?? ""}
+                            download={`message-testing-result_${Date.now()}.pdf`}
+                            type="button"
+                            outline
+                        >
+                            {instance.loading ? "Loading..." : "Download PDF"}{" "}
+                            <Icon.ArrowDropDown className="text-top" />
+                        </USLinkButton>
+                    )}
 
                     <Button className="margin-left-1" type="button" onClick={() => void refetch()}>
                         Rerun test <Icon.Autorenew className="text-top" />
