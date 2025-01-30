@@ -21,7 +21,6 @@ export interface MessageTestingResultProps extends PropsWithChildren {
 }
 
 const filterFields: (keyof RSMessageResult)[] = ["filterErrors"];
-
 const transformFields: (keyof RSMessageResult)[] = [
     "senderTransformErrors",
     "enrichmentSchemaErrors",
@@ -52,6 +51,9 @@ const MessageTestingResult = ({
         resultData.senderTransformWarnings.length > 0 ||
         resultData.enrichmentSchemaWarnings.length > 0 ||
         resultData.receiverTransformWarnings.length > 0;
+    const filterFieldData = filterFields.flatMap((key) => resultData[key]);
+    const transformFieldData = transformFields.flatMap((key) => resultData[key]);
+    const warningFieldData = warningFields.flatMap((key) => resultData[key]);
 
     const alertType: AlertProps["type"] = !isPassed ? "error" : isWarned ? "warning" : "success";
     const alertHeading = language[`${alertType}AlertHeading`];
@@ -71,8 +73,12 @@ const MessageTestingResult = ({
             orgName={orgname}
             receiverName={receivername}
             testStatus={alertType}
-            filtersTriggered={resultData.filterErrors}
+            filterFieldData={filterFieldData}
+            transformFieldData={transformFieldData}
+            warningFieldData={warningFieldData}
             testMessage={submittedMessage?.reportBody ?? ""}
+            outputMessage={resultData?.message ?? ""}
+            isPassed={isPassed}
         />
     );
     const [instance] = usePDF({ document: MessageTestingPDFRef });
@@ -81,17 +87,14 @@ const MessageTestingResult = ({
             <div className="display-flex flex-justify flex-align-center">
                 <h2>Test results: {submittedMessage?.fileName}</h2>
                 <div>
-                    {alertType !== "success" && (
-                        <USLinkButton
-                            href={instance.url ?? ""}
-                            download={`message-testing-result_${Date.now()}.pdf`}
-                            type="button"
-                            outline
-                        >
-                            {instance.loading ? "Loading..." : "Download PDF"}{" "}
-                            <Icon.ArrowDropDown className="text-top" />
-                        </USLinkButton>
-                    )}
+                    <USLinkButton
+                        href={instance.url ?? ""}
+                        download={`message-testing-result_${Date.now()}.pdf`}
+                        type="button"
+                        outline
+                    >
+                        {instance.loading ? "Loading..." : "Download PDF"} <Icon.ArrowDropDown className="text-top" />
+                    </USLinkButton>
 
                     <Button className="margin-left-1" type="button" onClick={() => void refetch()}>
                         Rerun test <Icon.Autorenew className="text-top" />
@@ -117,25 +120,18 @@ const MessageTestingResult = ({
                 </Alert>
             </div>
 
-            <MessageTestingAccordion
-                accordionTitle="Filters triggered"
-                priority="error"
-                resultData={resultData}
-                fieldsToRender={filterFields}
-            />
+            <MessageTestingAccordion accordionTitle="Filters triggered" priority="error" fieldData={filterFieldData} />
 
             <MessageTestingAccordion
                 accordionTitle="Transform errors"
                 priority="error"
-                resultData={resultData}
-                fieldsToRender={transformFields}
+                fieldData={transformFieldData}
             />
 
             <MessageTestingAccordion
                 accordionTitle="Transform warnings"
                 priority="warning"
-                resultData={resultData}
-                fieldsToRender={warningFields}
+                fieldData={warningFieldData}
             />
 
             {resultData.message && isPassed && (
