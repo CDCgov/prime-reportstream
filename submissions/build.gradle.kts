@@ -7,10 +7,6 @@ plugins {
     kotlin("plugin.spring") version "2.1.0"
 }
 
-ktlint {
-    version = "1.5.0"
-}
-
 group = "gov.cdc.prime"
 version = "0.0.1-SNAPSHOT"
 
