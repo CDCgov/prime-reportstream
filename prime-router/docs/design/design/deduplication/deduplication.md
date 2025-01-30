@@ -176,6 +176,12 @@ Hash comparison will be skipped if `sender.allowDuplicates` is set to true. Othe
   - TODO: Investigate other potential incorrect use of this column. Other possible entry points may create ItemLineage objects directly or use other functions which call it such as [Report.createItemLineageForRow](https://github.com/CDCgov/prime-reportstream/blob/4a2231af2031bc3b2d5d7949d2b21d33c525c44d/prime-router/src/main/kotlin/Report.kt#L1404).
 
 ### Proposed Universal Pipeline SRD Additions
+Under `Submission Step Business Logic Requirements`
+```
+6.4. [No Change] The submission step shall NOT accept the other custom HTTP Headers currently defined in RequestFunction.kt: 
+    6.4.4. [UPDATED] AllowDuplicate – Not to be used for UP De-duplication
+```
+
 Under `Convert Step Business Logic Requirements`:
 ```
 10. [No change] The Convert step shall apply the following enrichments ... 
