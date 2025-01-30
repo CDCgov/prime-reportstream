@@ -21,7 +21,7 @@ env:
 jobs:
   pre_job:
     name: "Set Build Environment"
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     outputs:
       env_name: ${{ steps.build_vars.outputs.env_name }}
       version: ${{ steps.build_vars.outputs.version }}
@@ -43,7 +43,7 @@ jobs:
     needs:
       - pre_job
     if: needs.pre_job.outputs.has_router_change == 'true'
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     steps:
       - name: Check out changes
         uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938
@@ -58,7 +58,7 @@ jobs:
     needs:
       - pre_job
     if: needs.pre_job.outputs.has_frontend_change == 'true'
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: frontend-react
@@ -90,7 +90,7 @@ jobs:
       needs.pre_job.outputs.env_name == 'demo3'
     environment: ${{ needs.pre_job.outputs.env_name }}
     concurrency: demo
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     steps:
       - name: Check out changes
         uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938
@@ -129,7 +129,7 @@ jobs:
       needs.pre_job.outputs.has_router_change == 'true'
     environment: ${{ needs.pre_job.outputs.env_name }}-router
     concurrency: ${{ needs.pre_job.outputs.env_name }}-router
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     steps:
       - name: Check out changes
         uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938
@@ -164,7 +164,7 @@ jobs:
       needs.pre_job.outputs.has_frontend_change == 'true'
     environment: ${{ needs.pre_job.outputs.env_name }}-frontend
     concurrency: ${{ needs.pre_job.outputs.env_name }}-frontend
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     steps:
       - name: Check out changes
         uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938
@@ -181,7 +181,7 @@ jobs:
       needs.pre_job.outputs.has_router_change == 'true'
     environment: ${{ needs.pre_job.outputs.env_name }}
     concurrency: ${{ needs.pre_job.outputs.env_name }}
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     steps:
       - name: Check out changes
         uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938
@@ -220,7 +220,7 @@ jobs:
       needs.pre_job.outputs.has_frontend_change == 'true'
     environment: ${{ needs.pre_job.outputs.env_name }}
     concurrency: ${{ needs.pre_job.outputs.env_name }}
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     steps:
       - name: Check out changes
         uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938
