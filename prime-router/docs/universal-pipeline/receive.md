@@ -27,9 +27,7 @@ the [authentication design note](../design/features/0002-authentication.md) for 
 
 Currently, very basic validation of the received report occurs in the `receive` step, such as:
 
-- ensuring that the report is in a format the pipeline can process
-- checking for duplicates within a batched report and, if they are not allowed via the `allowDuplicate` param, rejecting
-  the report
+- ensuring that the report is in a format the pipeline can process`
 - verifying the sender is valid and enabled
 
 ### Processing

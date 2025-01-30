@@ -6,7 +6,7 @@
 Refer to the [UP Deduplication epic](https://app.zenhub.com/workspaces/platform-6182b02547c1130010f459db/issues/gh/cdcgov/prime-reportstream/14103) for full background information.
 
 #### Technical Overview
-Deduplication shall be performed at the item level (a FHIR Bundle) after conversion to FHIR happens. Each bundle will have key elements (see [Key FHIR Elements table](#key-fhir-elements)) converted to a string which is then hashed deterministically and stored in the database (item_lineage.item_hash). That hash will only be compared against other hashes from the same sender that were created within the last year.
+Deduplication shall be performed at the item level (a FHIR Bundle) after conversion to FHIR happens. Each bundle will have key elements (see [Key FHIR Elements table](#key-fhir-elements)) converted to a string which is then hashed deterministically and stored in the database (item_lineage.item_hash). If the sender has deduplication enabled, that hash will only be compared against other hashes from the same sender that were created within the last year.
 
 #### Scope for Initial Implementation
 Deduplication will only be implemented for ORU_R01 messages from FULL_ELR topic senders. Covid Pipeline deduplication functionality shall remain unchanged.
@@ -39,7 +39,7 @@ Technical Considerations:
     - (Comment from Michael: "For this to be performative you would need to be sure that this index can fit in memory of postgresql instead of having to go into disk.")
 
 ##### Item Hash Comparison
-Hash comparison will be skipped if deduplication is disabled on that sender's settings. The generated item hash shall first be compared with items in the same report. (Note: At this part of the Convert Step, parallelization is not a blocker as the original items are [still within scope](https://github.com/CDCgov/prime-reportstream/blob/15648395efc2b60322d931bf88e0c2c5b6cc0371/prime-router/src/main/kotlin/fhirengine/engine/FHIRConverter.kt#L510)). The item hash will then be compared to existing hashes from the item_lineage table. There is an [existing SQL Query](https://github.com/CDCgov/prime-reportstream/blob/9ec0a59c73d7dad9a319cd321baf9efd71ceab46/prime-router/src/main/kotlin/azure/DatabaseAccess.kt#L166-L183) which performs the hash comparison through a database query. This will need to be enhanced or recreated as the original query only searches within the last 7 days and does not take sender into account. (_This last part will be unnecessary if the sender is incorporated into the hash._) 
+Hash comparison will be skipped if `sender.allowDuplicates` is set to true. Otherwise, the generated item hash shall first be compared with items in the same report. (Note: At this part of the Convert Step, parallelization is not a blocker as the original items are [still within scope](https://github.com/CDCgov/prime-reportstream/blob/15648395efc2b60322d931bf88e0c2c5b6cc0371/prime-router/src/main/kotlin/fhirengine/engine/FHIRConverter.kt#L510)). The item hash will then be compared to existing hashes from the item_lineage table. There is an [existing SQL Query](https://github.com/CDCgov/prime-reportstream/blob/9ec0a59c73d7dad9a319cd321baf9efd71ceab46/prime-router/src/main/kotlin/azure/DatabaseAccess.kt#L166-L183) which performs the hash comparison through a database query. This will need to be enhanced or recreated as the original query only searches within the last 7 days and does not take sender into account. (_This last part will be unnecessary if the sender is incorporated into the hash._) 
 - If item is not a duplicate OR sender has deduplication disabled,
     - Save the item hash to the ItemLineage object [when the Report object is created](https://github.com/CDCgov/prime-reportstream/blob/4a2231af2031bc3b2d5d7949d2b21d33c525c44d/prime-router/src/main/kotlin/fhirengine/engine/FHIRConverter.kt#L329).
         - [Report.ParentItemLineageData()](https://github.com/CDCgov/prime-reportstream/blob/cadc9fae10ff5f83e9cbf0b0c0fbda384889901d/prime-router/src/main/kotlin/Report.kt#L373) will need to be enhanced so that it can accept the generated hash string. The contents will then take the place of [the random UUID which is currently stored](https://github.com/CDCgov/prime-reportstream/blob/cadc9fae10ff5f83e9cbf0b0c0fbda384889901d/prime-router/src/main/kotlin/Report.kt#L412) in the column for UP items.
@@ -165,9 +165,10 @@ Hash comparison will be skipped if deduplication is disabled on that sender's se
     - Add the report to the route destination filter step queue
 
 ### Other Updates
-- Sender Settings: Should have a binary setting for the sender. **By default, the deduplication workflow is enabled.**
-  - TRUE – Deduplication detection is active.
-  - FALSE – Deduplication detection is not active. (Item hashes will still be stored in the item_lineage table.)
+- Sender Settings: The Universal Pipeline will use the `allowDuplicates` sender setting. 
+  - By default, the deduplication workflow is enabled for UP senders. (`allowDuplicates` = false)
+  - The abstract Sender class [should not initialize](https://github.com/CDCgov/prime-reportstream/blob/f48d719b876859169deb0360487f63965d8be5a0/prime-router/src/main/kotlin/Sender.kt#L60) `allowDuplicates`.
+  - The UniversalPipelineSender class [should default to false](https://github.com/CDCgov/prime-reportstream/blob/f48d719b876859169deb0360487f63965d8be5a0/prime-router/src/main/kotlin/Sender.kt#L196).
 - Receiver Step: There is stubbed code to be removed here: The SumissionReceiver refers to the once theorized area where UP deduplication would be invoked. ([SubmissionReceiver.kt#L284-L292](https://github.com/CDCgov/prime-reportstream/blob/0c5e0b058e35e09786942f2c8b41c1d67a5b1d16/prime-router/src/main/kotlin/SubmissionReceiver.kt#L284-L292))
 - Database: No updates will be made to the schema of the database itself.
 - Database: Investigation will need to happen on how to best purge out of date records on the item_lineage table. item_lineage.created_at will be used for this. This is outside the scope for this design/implementation.
