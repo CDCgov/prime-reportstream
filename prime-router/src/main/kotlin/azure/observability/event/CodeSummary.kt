@@ -14,10 +14,10 @@ data class CodeSummary(
         /**
          * Create an instance of [CodeSummary] from a [Coding]
          */
-        fun fromCoding(coding: Coding) = CodeSummary(
-            coding.system ?: UNKNOWN,
-            coding.code ?: UNKNOWN,
-            coding.display ?: UNKNOWN,
+        fun fromCoding(coding: Coding?) = CodeSummary(
+            coding?.system ?: UNKNOWN,
+            coding?.code ?: UNKNOWN,
+            coding?.display ?: UNKNOWN,
         )
     }
 }
