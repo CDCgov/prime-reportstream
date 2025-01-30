@@ -178,14 +178,19 @@ Hash comparison will be skipped if `sender.allowDuplicates` is set to true. Othe
 ### Proposed Universal Pipeline SRD Additions
 Under `Convert Step Business Logic Requirements`:
 ```
-10. The Convert step shall apply the following enrichments ... [No change]
-11. The Convert step shall generate a one-way deterministic hash from key fields from the FHIR bundle. (Link to Key Fields section of deduplication.md)
+10. [No change] The Convert step shall apply the following enrichments ... 
+11. [NEW] The Convert step shall generate a one-way deterministic hash from key fields from the FHIR bundle. (Link to Key Fields section of deduplication.md)
     11.1. For all senders with deduplication enabled, the Convert step shall check for duplicates by first matching hashes against items in the same report, and then in the database against items from same sender in past year.
         11.1.1. If an item is found to be a duplicate, the Convert step shall generate an ActionLog warning. 
         11.1.2. If all item(s) in a report are found to be duplicates, the Convert step shall generate an ActionLog error. 
-        11.1.3. For all items identified this way as duplicates, the Convert step shall properly update the lineage to indicate the next_action is None and will not process the report any further.
-        11.1.4. For all items that are not duplicates, the Convert step shall save the generated hash to item_lineage.item_hash.
-12. If a conversion or schema application error occurs on ANY item ... [No change]
+        11.1.3. For all items identified as duplicates, the Convert step shall properly update the lineage to indicate the next_action is None and will not process the report any further.
+    11.2. For all items that are not duplicates, and all items for senders that allow duplicates, the Convert step shall save the generated hash to item_lineage.item_hash.
+12. [No change] If a conversion or schema application error occurs on ANY item ... 
+13. [No change] If a processing error occurs on the overall report ... 
+14. [No change] For each item that is successfully processed by the convert step ... 
+15. [No change] If at least one item of a report made it through the convert step ...  
+16. [No change] If zero items of a report made it through the convert step ...  
+XX. [REMOVED] The Convert step shall not perform any de-duplication checking (i.e. verifying an exact report or item was not processed previously) 
 ```
 
 ## Key FHIR Elements
