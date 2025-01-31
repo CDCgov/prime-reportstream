@@ -405,6 +405,7 @@ class DateUtilitiesTests {
             "12/1/1900" to "19001201000000",
             "2/3/02" to "20020203000000",
             "2/3/02 8:00" to "20020203080000",
+            "20241220194528.4230+0000" to "20241220194528"
         ).forEach { (input, expected) ->
             val parsed = DateUtilities.parseDate(input)
             assertThat(
@@ -412,6 +413,24 @@ class DateUtilitiesTests {
                     parsed,
                     DateUtilities.utcZone,
                     DateUtilities.DateTimeFormat.LOCAL,
+                    false,
+                    false
+                )
+            ).isEqualTo(expected)
+        }
+
+        // test high precision offset
+        mapOf(
+            "1975-08-01T11:39:00Z" to "19750801113900.0000+0000",
+            "2022-04-29T15:43:02.307Z" to "20220429154302.3070+0000",
+            "20241220194528.4230+0000" to "20241220194528.4230+0000"
+        ).forEach { (input, expected) ->
+            val parsed = DateUtilities.parseDate(input)
+            assertThat(
+                DateUtilities.formatDateForReceiver(
+                    parsed,
+                    DateUtilities.utcZone,
+                    DateUtilities.DateTimeFormat.HIGH_PRECISION_OFFSET,
                     false,
                     false
                 )
