@@ -1,4 +1,9 @@
 import { expect } from "@playwright/test";
+import {
+    errorMessageResult,
+    passMessageResult,
+} from "../../../../../src/components/Admin/MessageTesting/MessageTestingResult.fixtures";
+import type { RSMessageResult } from "../../../../../src/config/endpoints/reports";
 import { pageNotFound } from "../../../../../src/content/error/ErrorMessages";
 import { OrganizationReceiverMessageTestPage } from "../../../../pages/authenticated/admin/organization-receiver-message-test";
 import { test as baseTest } from "../../../../test";
@@ -38,28 +43,22 @@ const test = baseTest.extend<OrganizationReceiverMessageTestPageFixtures>({
 
 test.describe("Admin Organization Receiver Message Test Page", () => {
     test.describe("not authenticated", () => {
-        test("redirects to login", async ({
-            organizationReceiverMessageTestPage: OrganizationReceiverMessageTestPage,
-        }) => {
-            await expect(OrganizationReceiverMessageTestPage.page).toHaveURL("/login");
+        test("redirects to login", async ({ organizationReceiverMessageTestPage }) => {
+            await expect(organizationReceiverMessageTestPage.page).toHaveURL("/login");
         });
     });
 
     test.describe("receiver user", () => {
         test.use({ storageState: "e2e/.auth/receiver.json" });
-        test("returns Page Not Found", async ({
-            organizationReceiverMessageTestPage: OrganizationReceiverMessageTestPage,
-        }) => {
-            await expect(OrganizationReceiverMessageTestPage.page).toHaveTitle(new RegExp(pageNotFound));
+        test("returns Page Not Found", async ({ organizationReceiverMessageTestPage }) => {
+            await expect(organizationReceiverMessageTestPage.page).toHaveTitle(new RegExp(pageNotFound));
         });
     });
 
     test.describe("sender user", () => {
         test.use({ storageState: "e2e/.auth/sender.json" });
-        test("returns Page Not Found", async ({
-            organizationReceiverMessageTestPage: OrganizationReceiverMessageTestPage,
-        }) => {
-            await expect(OrganizationReceiverMessageTestPage.page).toHaveTitle(new RegExp(pageNotFound));
+        test("returns Page Not Found", async ({ organizationReceiverMessageTestPage }) => {
+            await expect(organizationReceiverMessageTestPage.page).toHaveTitle(new RegExp(pageNotFound));
         });
     });
 
@@ -67,106 +66,226 @@ test.describe("Admin Organization Receiver Message Test Page", () => {
         test.use({ storageState: "e2e/.auth/admin.json" });
 
         test.describe("header", () => {
-            test("has correct title + heading", async ({
-                organizationReceiverMessageTestPage: OrganizationReceiverMessageTestPage,
-            }) => {
-                await OrganizationReceiverMessageTestPage.testHeader();
+            test("has correct title + heading", async ({ organizationReceiverMessageTestPage }) => {
+                await organizationReceiverMessageTestPage.testHeader();
             });
         });
 
         test("if there is an error, the error is shown on the page", async ({
-            organizationReceiverMessageTestPage: OrganizationReceiverMessageTestPage,
+            organizationReceiverMessageTestPage,
         }) => {
-            OrganizationReceiverMessageTestPage.mockError = true;
-            await OrganizationReceiverMessageTestPage.reload();
-            await expect(OrganizationReceiverMessageTestPage.page.getByText("there was an error")).toBeVisible();
+            organizationReceiverMessageTestPage.mockError = true;
+            await organizationReceiverMessageTestPage.reload();
+            await expect(organizationReceiverMessageTestPage.page.getByText("there was an error")).toBeVisible();
         });
 
         test.describe("when there is no error", () => {
-            test("has correct title", async ({
-                organizationReceiverMessageTestPage: OrganizationReceiverMessageTestPage,
-            }) => {
-                await expect(OrganizationReceiverMessageTestPage.page).toHaveURL(
-                    OrganizationReceiverMessageTestPage.url,
+            test("has correct title", async ({ organizationReceiverMessageTestPage }) => {
+                await expect(organizationReceiverMessageTestPage.page).toHaveURL(
+                    organizationReceiverMessageTestPage.url,
                 );
-                await expect(OrganizationReceiverMessageTestPage.page).toHaveTitle(
-                    OrganizationReceiverMessageTestPage.title,
+                await expect(organizationReceiverMessageTestPage.page).toHaveTitle(
+                    organizationReceiverMessageTestPage.title,
                 );
             });
 
-            test("displays test messages", async ({
-                organizationReceiverMessageTestPage: OrganizationReceiverMessageTestPage,
-            }) => {
-                await expect(OrganizationReceiverMessageTestPage.form).toBeVisible();
+            test("displays test messages", async ({ organizationReceiverMessageTestPage }) => {
+                await expect(organizationReceiverMessageTestPage.form).toBeVisible();
                 let i = 0;
-                for (const message of OrganizationReceiverMessageTestPage.testMessages) {
+                for (const message of organizationReceiverMessageTestPage.testMessages) {
                     i++;
-                    const option = OrganizationReceiverMessageTestPage.form.getByLabel(message.fileName);
+                    const option = organizationReceiverMessageTestPage.form.getByLabel(message.fileName);
                     await expect(option).toBeVisible();
                     await expect(option).toHaveValue(message.reportBody);
                 }
-                expect(OrganizationReceiverMessageTestPage.testMessages.length).toEqual(i);
+                expect(organizationReceiverMessageTestPage.testMessages.length).toEqual(i);
             });
 
-            test("can add custom message", async ({
-                organizationReceiverMessageTestPage: OrganizationReceiverMessageTestPage,
-            }) => {
-                let customOption = OrganizationReceiverMessageTestPage.form.getByLabel("Custom message 1");
+            test("can add custom message", async ({ organizationReceiverMessageTestPage }) => {
+                const message1 = '{"foo":"bar"}';
+                const message2 = '{"bar":"foo"}';
 
-                await expect(OrganizationReceiverMessageTestPage.form).toBeVisible();
-                await expect(OrganizationReceiverMessageTestPage.addCustomMessageButton).toBeVisible();
-                await expect(OrganizationReceiverMessageTestPage.submitButton).toBeVisible();
+                await expect(organizationReceiverMessageTestPage.form).toBeVisible();
+                await expect(organizationReceiverMessageTestPage.addCustomMessageButton).toBeVisible();
+                await expect(organizationReceiverMessageTestPage.submitButton).toBeVisible();
 
-                await OrganizationReceiverMessageTestPage.addCustomMessageButton.click();
-                await expect(OrganizationReceiverMessageTestPage.customMessageTextArea).toBeVisible();
-                await expect(OrganizationReceiverMessageTestPage.submitCustomMessageButton).toBeVisible();
-                await expect(OrganizationReceiverMessageTestPage.cancelCustomMessageButton).toBeVisible();
+                for (const [i, message] of [message1, message2].entries()) {
+                    const filename = `Custom message ${i + 1}`;
+                    const customOption = organizationReceiverMessageTestPage.form.getByLabel(filename);
+                    const customOptionViewButton = organizationReceiverMessageTestPage.form
+                        .getByText(filename)
+                        .getByRole("button");
 
-                await OrganizationReceiverMessageTestPage.customMessageTextArea.fill("test 1");
-                await expect(OrganizationReceiverMessageTestPage.customMessageTextArea).toHaveValue("test 1");
-                await OrganizationReceiverMessageTestPage.submitCustomMessageButton.click();
-                await expect(OrganizationReceiverMessageTestPage.customMessageTextArea).toBeHidden();
-                await expect(OrganizationReceiverMessageTestPage.submitCustomMessageButton).toBeHidden();
-                await expect(OrganizationReceiverMessageTestPage.cancelCustomMessageButton).toBeHidden();
-                await expect(customOption).toBeVisible();
-                await expect(customOption).toBeChecked();
-                // verify view message button
+                    await organizationReceiverMessageTestPage.addCustomMessageButton.click();
+                    await expect(organizationReceiverMessageTestPage.customMessageTextArea).toBeVisible();
+                    await expect(organizationReceiverMessageTestPage.submitCustomMessageButton).toBeVisible();
+                    await expect(organizationReceiverMessageTestPage.cancelCustomMessageButton).toBeVisible();
 
-                customOption = OrganizationReceiverMessageTestPage.form.getByLabel("Custom message 2");
-                await OrganizationReceiverMessageTestPage.addCustomMessageButton.click();
-                await OrganizationReceiverMessageTestPage.customMessageTextArea.fill("test 2");
-                await expect(OrganizationReceiverMessageTestPage.customMessageTextArea).toHaveValue("test 2");
-                await OrganizationReceiverMessageTestPage.submitCustomMessageButton.click();
-                await expect(OrganizationReceiverMessageTestPage.customMessageTextArea).toBeHidden();
-                await expect(OrganizationReceiverMessageTestPage.submitCustomMessageButton).toBeHidden();
-                await expect(OrganizationReceiverMessageTestPage.cancelCustomMessageButton).toBeHidden();
-                await expect(customOption).toBeVisible();
-                await expect(customOption).toBeChecked();
-                // verify view message button
+                    await organizationReceiverMessageTestPage.customMessageTextArea.fill(message);
+                    await expect(organizationReceiverMessageTestPage.customMessageTextArea).toHaveValue(message);
+                    await organizationReceiverMessageTestPage.submitCustomMessageButton.click();
+                    await expect(organizationReceiverMessageTestPage.customMessageTextArea).toBeHidden();
+                    await expect(organizationReceiverMessageTestPage.submitCustomMessageButton).toBeHidden();
+                    await expect(organizationReceiverMessageTestPage.cancelCustomMessageButton).toBeHidden();
+
+                    await expect(customOption).toBeVisible();
+                    await expect(customOption).toBeChecked();
+                    await expect(customOptionViewButton).toBeVisible();
+                    const popupP = organizationReceiverMessageTestPage.page.waitForEvent("popup");
+                    await customOptionViewButton.click();
+                    const popup = await popupP;
+                    await expect(popup.getByText(JSON.stringify(JSON.parse(message), undefined, 2))).toBeVisible();
+                }
             });
 
-            test.describe("form submits", () => {
-                test("stored message", async ({
-                    organizationReceiverMessageTestPage: OrganizationReceiverMessageTestPage,
-                }) => {
-                    await expect(OrganizationReceiverMessageTestPage.form).toBeVisible();
+            test.describe("form submission", () => {
+                test.describe("success", () => {
+                    test("stored message", async ({ organizationReceiverMessageTestPage }) => {
+                        const message = organizationReceiverMessageTestPage.testMessages[0];
+                        await expect(organizationReceiverMessageTestPage.form).toBeVisible();
 
-                    const firstOption = OrganizationReceiverMessageTestPage.form.getByLabel(
-                        OrganizationReceiverMessageTestPage.testMessages[0].fileName,
-                    );
-                    const firstOptionLabel = OrganizationReceiverMessageTestPage.form.getByText(
-                        OrganizationReceiverMessageTestPage.testMessages[0].fileName,
-                    );
-                    await expect(firstOption).toBeVisible();
-                    await firstOptionLabel.click();
-                    await expect(firstOption).toBeChecked();
+                        const option = organizationReceiverMessageTestPage.form.getByLabel(message.fileName);
+                        const optionLabel = organizationReceiverMessageTestPage.form.getByText(message.fileName);
+                        const optionValue = await option.inputValue();
+                        await expect(option).toBeVisible();
+                        await optionLabel.click();
+                        await expect(option).toBeChecked();
 
-                    // create interceptor
-                    // click submit button
-                    // check intercepted payload
+                        organizationReceiverMessageTestPage.addMockTestSubmissionHandler();
+                        const req = await organizationReceiverMessageTestPage.submit();
+                        const res = await req.response();
+                        const resJson = (await res?.json()) as RSMessageResult;
+                        expect(req.postData()).toEqual(optionValue);
+                        expect(resJson).toEqual(passMessageResult);
+
+                        await expect(organizationReceiverMessageTestPage.submitStatus).toBeVisible();
+                        await expect(organizationReceiverMessageTestPage.submitStatus).toHaveText(/^Test passed/);
+                        await expect(organizationReceiverMessageTestPage.submissionOutputMessageButton).toBeVisible();
+                        await organizationReceiverMessageTestPage.submissionOutputMessageButton.click();
+                        await expect(organizationReceiverMessageTestPage.submissionOutputMessage).toBeVisible();
+                        await expect(organizationReceiverMessageTestPage.submissionOutputMessage).toHaveText(
+                            resJson.message ?? "",
+                        );
+                        await expect(organizationReceiverMessageTestPage.submissionTestMessageButton).toBeVisible();
+                        await organizationReceiverMessageTestPage.submissionTestMessageButton.click();
+                        await expect(organizationReceiverMessageTestPage.submissionTestMessage).toBeVisible();
+                        await expect(organizationReceiverMessageTestPage.submissionTestMessage).toHaveText(
+                            JSON.stringify(JSON.parse(optionValue), undefined, 2),
+                        );
+                    });
+
+                    test("custom message", async ({ organizationReceiverMessageTestPage }) => {
+                        const message = '{"foo":"bar"}';
+                        const [option, optionLabel] =
+                            await organizationReceiverMessageTestPage.addCustomMessage(message);
+                        await expect(organizationReceiverMessageTestPage.form).toBeVisible();
+
+                        const optionValue = await option.inputValue();
+                        await expect(option).toBeVisible();
+                        await optionLabel.click();
+                        await expect(option).toBeChecked();
+
+                        organizationReceiverMessageTestPage.addMockTestSubmissionHandler();
+                        const req = await organizationReceiverMessageTestPage.submit();
+                        const res = await req.response();
+                        const resJson = (await res?.json()) as RSMessageResult;
+                        expect(req.postData()).toEqual(optionValue);
+                        expect(resJson).toEqual(passMessageResult);
+
+                        await expect(organizationReceiverMessageTestPage.submitStatus).toBeVisible();
+                        await expect(organizationReceiverMessageTestPage.submitStatus).toHaveText(/^Test passed/);
+                        await expect(organizationReceiverMessageTestPage.submissionOutputMessageButton).toBeVisible();
+                        await organizationReceiverMessageTestPage.submissionOutputMessageButton.click();
+                        await expect(organizationReceiverMessageTestPage.submissionOutputMessage).toBeVisible();
+                        await expect(organizationReceiverMessageTestPage.submissionOutputMessage).toHaveText(
+                            resJson.message ?? "",
+                        );
+                        await expect(organizationReceiverMessageTestPage.submissionTestMessageButton).toBeVisible();
+                        await organizationReceiverMessageTestPage.submissionTestMessageButton.click();
+                        await expect(organizationReceiverMessageTestPage.submissionTestMessage).toBeVisible();
+                        await expect(organizationReceiverMessageTestPage.submissionTestMessage).toHaveText(
+                            JSON.stringify(JSON.parse(message), undefined, 2),
+                        );
+                    });
+                });
+                test.describe("failure", () => {
+                    test("stored message", async ({ organizationReceiverMessageTestPage }) => {
+                        const message = '{"foo":"bar"}';
+                        const [option, optionLabel] =
+                            await organizationReceiverMessageTestPage.addCustomMessage(message);
+                        await expect(organizationReceiverMessageTestPage.form).toBeVisible();
+
+                        const optionValue = await option.inputValue();
+                        await expect(option).toBeVisible();
+                        await optionLabel.click();
+                        await expect(option).toBeChecked();
+
+                        organizationReceiverMessageTestPage.addMockTestSubmissionHandler(true);
+                        const req = await organizationReceiverMessageTestPage.submit();
+                        const res = await req.response();
+                        const resJson = (await res?.json()) as RSMessageResult;
+                        expect(req.postData()).toEqual(optionValue);
+                        expect(resJson).toEqual(errorMessageResult);
+
+                        await expect(organizationReceiverMessageTestPage.submitAlert).toBeVisible();
+                        await expect(organizationReceiverMessageTestPage.submitAlert).toHaveText(/^Test failed/);
+                        await expect(organizationReceiverMessageTestPage.submissionTransformErrorsButton).toBeVisible();
+                        await organizationReceiverMessageTestPage.submissionTransformErrorsButton.click();
+                        await expect(organizationReceiverMessageTestPage.submissionTransformErrors).toBeVisible();
+                        await expect(organizationReceiverMessageTestPage.submissionTransformErrors).toHaveText(
+                            [
+                                ...resJson.senderTransformErrors,
+                                ...resJson.enrichmentSchemaErrors,
+                                ...resJson.receiverTransformErrors,
+                            ].join(""),
+                        );
+                        await expect(organizationReceiverMessageTestPage.submissionTestMessageButton).toBeVisible();
+                        await organizationReceiverMessageTestPage.submissionTestMessageButton.click();
+                        await expect(organizationReceiverMessageTestPage.submissionTestMessage).toBeVisible();
+                        await expect(organizationReceiverMessageTestPage.submissionTestMessage).toHaveText(
+                            JSON.stringify(JSON.parse(message), undefined, 2),
+                        );
+                    });
+
+                    test("custom message", async ({ organizationReceiverMessageTestPage }) => {
+                        const message = '{"foo":"bar"}';
+                        const [option, optionLabel] =
+                            await organizationReceiverMessageTestPage.addCustomMessage(message);
+                        await expect(organizationReceiverMessageTestPage.form).toBeVisible();
+
+                        const optionValue = await option.inputValue();
+                        await expect(option).toBeVisible();
+                        await optionLabel.click();
+                        await expect(option).toBeChecked();
+
+                        organizationReceiverMessageTestPage.addMockTestSubmissionHandler(true);
+                        const req = await organizationReceiverMessageTestPage.submit();
+                        const res = await req.response();
+                        const resJson = (await res?.json()) as RSMessageResult;
+                        expect(req.postData()).toEqual(optionValue);
+                        expect(resJson).toEqual(errorMessageResult);
+
+                        await expect(organizationReceiverMessageTestPage.submitAlert).toBeVisible();
+                        await expect(organizationReceiverMessageTestPage.submitAlert).toHaveText(/^Test failed/);
+                        await expect(organizationReceiverMessageTestPage.submissionTransformErrorsButton).toBeVisible();
+                        await organizationReceiverMessageTestPage.submissionTransformErrorsButton.click();
+                        await expect(organizationReceiverMessageTestPage.submissionTransformErrors).toBeVisible();
+                        await expect(organizationReceiverMessageTestPage.submissionTransformErrors).toHaveText(
+                            [
+                                ...resJson.senderTransformErrors,
+                                ...resJson.enrichmentSchemaErrors,
+                                ...resJson.receiverTransformErrors,
+                            ].join(""),
+                        );
+                        await expect(organizationReceiverMessageTestPage.submissionTestMessageButton).toBeVisible();
+                        await organizationReceiverMessageTestPage.submissionTestMessageButton.click();
+                        await expect(organizationReceiverMessageTestPage.submissionTestMessage).toBeVisible();
+                        await expect(organizationReceiverMessageTestPage.submissionTestMessage).toHaveText(
+                            JSON.stringify(JSON.parse(message), undefined, 2),
+                        );
+                    });
                 });
             });
-            // custom message
         });
     });
 

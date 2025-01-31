@@ -1,4 +1,8 @@
 import type { Locator } from "@playwright/test";
+import {
+    errorMessageResult,
+    passMessageResult,
+} from "../../../../src/components/Admin/MessageTesting/MessageTestingResult.fixtures";
 import { RSMessage } from "../../../../src/config/endpoints/reports";
 import { MOCK_GET_TEST_MESSAGES } from "../../../mocks/message-test";
 import { BasePage, BasePageTestArgs, type RouteHandlerFulfillEntry } from "../../BasePage";
@@ -8,13 +12,27 @@ import { BasePage, BasePageTestArgs, type RouteHandlerFulfillEntry } from "../..
  */
 export class OrganizationReceiverMessageTestPage extends BasePage {
     static readonly API_REPORTS_TESTING = "/api/reports/testing";
+    static readonly API_REPORTS_TEST = "/api/reports/testing/test?*";
+    protected customI: number;
     testMessages: RSMessage[];
+
+    readonly expectedStatusSuccess = /^Test passed/;
+    readonly expectedStatusFailure = /^Test failed/;
+
     readonly form: Locator;
     readonly addCustomMessageButton: Locator;
     readonly submitCustomMessageButton: Locator;
     readonly cancelCustomMessageButton: Locator;
     readonly customMessageTextArea: Locator;
     readonly submitButton: Locator;
+    readonly submitStatus: Locator;
+    readonly submitAlert: Locator;
+    readonly submissionOutputMessageButton: Locator;
+    readonly submissionOutputMessage: Locator;
+    readonly submissionTestMessageButton: Locator;
+    readonly submissionTestMessage: Locator;
+    readonly submissionTransformErrorsButton: Locator;
+    readonly submissionTransformErrors: Locator;
 
     constructor(testArgs: BasePageTestArgs) {
         super(
@@ -29,12 +47,21 @@ export class OrganizationReceiverMessageTestPage extends BasePage {
         );
 
         this.testMessages = [];
+        this.customI = 0;
         this.form = this.page.getByRole("form");
         this.addCustomMessageButton = this.form.getByRole("button", { name: "Test custom message" });
         this.submitCustomMessageButton = this.form.getByRole("button", { name: "Add" });
         this.cancelCustomMessageButton = this.form.getByRole("button", { name: "Cancel" });
         this.customMessageTextArea = this.form.getByRole("textbox", { name: "Custom message text" });
         this.submitButton = this.form.getByRole("button", { name: "Run test" });
+        this.submitStatus = this.page.getByRole("status");
+        this.submitAlert = this.page.getByRole("alert");
+        this.submissionOutputMessageButton = this.page.getByRole("button", { name: "Output message" });
+        this.submissionOutputMessage = this.page.getByLabel("Output message");
+        this.submissionTestMessageButton = this.page.getByRole("button", { name: "Test message" });
+        this.submissionTestMessage = this.page.getByLabel("Test message");
+        this.submissionTransformErrorsButton = this.page.getByRole("button", { name: "Transform errors" });
+        this.submissionTransformErrors = this.page.getByLabel("Transform errors");
         this.addMockRouteHandlers([this.createMockTestMessagesHandler()]);
         this.addResponseHandlers([
             [
@@ -57,5 +84,38 @@ export class OrganizationReceiverMessageTestPage extends BasePage {
                 };
             },
         ];
+    }
+
+    createMockTestSubmissionHandler(isFailed = false): RouteHandlerFulfillEntry {
+        const result = isFailed ? errorMessageResult : passMessageResult;
+        return [
+            OrganizationReceiverMessageTestPage.API_REPORTS_TEST,
+            () => {
+                return {
+                    json: result,
+                };
+            },
+        ];
+    }
+
+    addMockTestSubmissionHandler(isFailed = false) {
+        return this.addMockRouteHandlers([this.createMockTestSubmissionHandler(isFailed)]);
+    }
+
+    async submit() {
+        const p = this.route();
+        const reqP = this.page.waitForRequest(OrganizationReceiverMessageTestPage.API_REPORTS_TEST);
+        await this.submitButton.click();
+        await p;
+        return reqP;
+    }
+
+    async addCustomMessage(message: string) {
+        await this.addCustomMessageButton.click();
+        await this.customMessageTextArea.fill(message);
+        await this.submitCustomMessageButton.click();
+        this.customI++;
+        const fileName = `Custom message ${this.customI}`;
+        return [this.form.getByLabel(fileName), this.form.getByText(fileName)];
     }
 }
