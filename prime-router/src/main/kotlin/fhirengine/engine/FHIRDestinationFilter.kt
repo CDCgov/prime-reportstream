@@ -138,7 +138,7 @@ class FHIRDestinationFilter(
                         metadata = this.metadata,
                         topic = queueMessage.topic,
                         destination = receiver,
-                        nextAction = TaskAction.receiver_filter
+                        nextAction = TaskAction.receiver_enrichment
                     )
 
                     // create item lineage
@@ -157,7 +157,7 @@ class FHIRDestinationFilter(
                     )
 
                     val nextEvent = ProcessEvent(
-                        Event.EventAction.RECEIVER_FILTER,
+                        Event.EventAction.RECEIVER_ENRICHMENT,
                         report.id,
                         Options.None,
                         emptyMap(),
@@ -207,7 +207,7 @@ class FHIRDestinationFilter(
                             nextEvent,
                             report,
                             blobInfo.blobUrl,
-                            FhirReceiverFilterQueueMessage(
+                            FhirReceiverEnrichmentQueueMessage(
                                 report.id,
                                 blobInfo.blobUrl,
                                 BlobUtils.digestToString(blobInfo.digest),
