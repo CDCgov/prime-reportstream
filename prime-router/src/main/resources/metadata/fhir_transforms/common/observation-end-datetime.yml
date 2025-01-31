@@ -11,9 +11,12 @@ elements:
     value: [ '%resource.effective.extension(%`rsext-hl7v2-date-time`).value' ]
 
   - name: observation-start-datetime2
-    resource: 'Bundle.entry.resource.ofType(DiagnosticReport)'
-    bundleProperty: '%resource.effectivePeriod.start.extension(%`rsext-hl7v2-date-time`).value'
-    value: [ '%resource.effective.start' ]
+    resource: 'Bundle.entry.resource.ofType(DiagnosticReport).effective'
+    bundleProperty: '%resource.start.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time").value[x]'
+    value: [ '%resource.start' ]
+
+
+
 
 #  - name: observation-end-datetime
 #    resource: 'Bundle.entry.resource.ofType(DiagnosticReport)'
