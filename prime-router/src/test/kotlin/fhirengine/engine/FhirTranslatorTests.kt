@@ -91,11 +91,9 @@ class FhirTranslatorTests {
             )
         ),
         settings: SettingsProvider = FileSettings().loadOrganizations(oneOrganization),
-    ): FHIRTranslator {
-        return FHIREngine.Builder().metadata(metadata).settingsProvider(settings).databaseAccess(accessSpy)
+    ): FHIRTranslator = FHIREngine.Builder().metadata(metadata).settingsProvider(settings).databaseAccess(accessSpy)
             .blobAccess(blobMock).reportService(reportServiceMock).reportEventService(reportStreamEventService)
             .build(TaskAction.translate) as FHIRTranslator
-    }
 
     @BeforeEach
     fun reset() {

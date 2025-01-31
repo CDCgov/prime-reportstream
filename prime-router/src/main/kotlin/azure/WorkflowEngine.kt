@@ -171,9 +171,7 @@ class WorkflowEngine(
     /**
      * Returns true if the [itemHash] passed in is already present in the database
      */
-    fun isDuplicateItem(itemHash: String): Boolean {
-        return db.isDuplicateItem(itemHash)
-    }
+    fun isDuplicateItem(itemHash: String): Boolean = db.isDuplicateItem(itemHash)
 
     /**
      * Record a received [report] from a [sender] into the action history and save the original [rawBody]
@@ -752,8 +750,7 @@ class WorkflowEngine(
     /**
      * Create a report object from a header including loading the blob data associated with it
      */
-    fun createReport(header: Header): Report {
-        return when (header.task.bodyFormat) {
+    fun createReport(header: Header): Report = when (header.task.bodyFormat) {
             // TODO after the CSV internal format is flushed from the system, this code will be safe to remove
             "CSV", "CSV_SINGLE" -> {
                 val result = csvSerializer.readExternal(
@@ -780,14 +777,11 @@ class WorkflowEngine(
 
             else -> error("Unsupported read format")
         }
-    }
 
     /**
      * Create a report object from a header including loading the blob data associated with it
      */
-    fun readBody(header: Header): ByteArray {
-        return BlobAccess.downloadBlobAsByteArray(header.task.bodyUrl)
-    }
+    fun readBody(header: Header): ByteArray = BlobAccess.downloadBlobAsByteArray(header.task.bodyUrl)
 
     fun recordAction(actionHistory: ActionHistory, txn: Configuration? = null) {
         if (txn != null) {
@@ -800,8 +794,7 @@ class WorkflowEngine(
     private fun findOrganizationAndReceiver(
         fullName: String,
         txn: DataAccessTransaction? = null,
-    ): Pair<Organization, Receiver> {
-        return if (settings is SettingsFacade) {
+    ): Pair<Organization, Receiver> = if (settings is SettingsFacade) {
             val (organization, receiver) = (settings).findOrganizationAndReceiver(fullName, txn)
                 ?: error("Receiver not found in database: $fullName")
             Pair(organization, receiver)
@@ -810,14 +803,11 @@ class WorkflowEngine(
                 ?: error("Invalid receiver name: $fullName")
             Pair(organization, receiver)
         }
-    }
 
     fun fetchDownloadableReportFiles(
         since: OffsetDateTime?,
         organizationName: String,
-    ): List<ReportFile> {
-        return db.fetchDownloadableReportFiles(since, organizationName)
-    }
+    ): List<ReportFile> = db.fetchDownloadableReportFiles(since, organizationName)
 
     /**
      * The header class provides the information needed to process a task.
@@ -887,8 +877,7 @@ class WorkflowEngine(
         retryToken: String? = null,
         txn: DataAccessTransaction,
     ) {
-        fun finishedField(currentEventAction: Event.EventAction): Field<OffsetDateTime> {
-            return when (currentEventAction) {
+        fun finishedField(currentEventAction: Event.EventAction): Field<OffsetDateTime> = when (currentEventAction) {
                 Event.EventAction.RECEIVE -> Tables.TASK.TRANSLATED_AT
                 Event.EventAction.PROCESS -> Tables.TASK.PROCESSED_AT
                 // we don't really use these  *_AT columns for anything at this point, and 'convert' is another name
@@ -914,7 +903,6 @@ class WorkflowEngine(
                 Event.EventAction.NONE -> error("Internal Error: NONE currentAction")
                 Event.EventAction.OTHER -> error("Internal Error: OTHER currentAction")
             }
-        }
         db.updateTask(
             reportId,
             nextEventAction.toTaskAction(),
@@ -939,8 +927,7 @@ class WorkflowEngine(
         sender: LegacyPipelineSender,
         content: String,
         defaults: Map<String, String>,
-    ): ReadResult {
-        return when (sender.format) {
+    ): ReadResult = when (sender.format) {
             MimeFormat.CSV -> {
                 try {
                     this.csvSerializer.readExternal(
@@ -986,5 +973,4 @@ class WorkflowEngine(
 
             else -> throw IllegalStateException("Sender format ${sender.format} is not supported")
         }
-    }
 }

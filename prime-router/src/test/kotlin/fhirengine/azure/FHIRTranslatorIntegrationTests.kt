@@ -124,8 +124,7 @@ class FHIRTranslatorIntegrationTests : Logging {
         blobContents: String,
         sender: Sender,
         receiverName: String,
-    ): String {
-        return """
+    ): String = """
             {
                 "type": "${TaskAction.translate.literal}",
                 "reportId": "${report.id}",
@@ -136,7 +135,6 @@ class FHIRTranslatorIntegrationTests : Logging {
                 "receiverFullName": "$receiverName" 
             }
         """.trimIndent()
-    }
 
     @Test
     fun `successfully translate for HL7 receiver when isSendOriginal is false`() {
@@ -163,7 +161,8 @@ class FHIRTranslatorIntegrationTests : Logging {
         )
 
         @Suppress("ktlint:standard:max-line-length")
-        val expectedOutput = "MSH|^~\\&|||||||ORU/ACK - Unsolicited transmission of an observation message|849547|P|2.5.1|||||USA\r" +
+        val expectedOutput =
+            "MSH|^~\\&|||||||ORU/ACK - Unsolicited transmission of an observation message|849547|P|2.5.1|||||USA\r" +
             "SFT|Centers for Disease Control and Prevention|0.1-SNAPSHOT|PRIME Data Hub|0.1-SNAPSHOT||20210622\r" +
             "PID|1||||Steuber||20150707|O||^^^^^^^^Native Hawaiian or Other Pacific Islander|^^^IG^^s4fgh||~|||||||||^^^^^^^^Non Hispanic or Latino|||||||20210614\r" +
             "ORC|||||||||||||||||||||Any facility USA|^^^IG||^^^IG\r" +
@@ -276,7 +275,8 @@ class FHIRTranslatorIntegrationTests : Logging {
         )
 
         @Suppress("ktlint:standard:max-line-length")
-        val expectedOutput = "MSH|^~\\&|||||||ORU/ACK - Unsolicited transmission of an observation message|849547|P|2.5.1|||||USA\r" +
+        val expectedOutput =
+            "MSH|^~\\&|||||||ORU/ACK - Unsolicited transmission of an observation message|849547|P|2.5.1|||||USA\r" +
             "SFT|Orange Software Vendor Name|0.2-YELLOW|Purple PRIME ReportStream|0.1-SNAPSHOT||20210622\r" +
             "PID|1||||Steuber||20150707|O||^^^^^^^^Native Hawaiian or Other Pacific Islander|^^^IG^^s4fgh||~|||||||||^^^^^^^^Non Hispanic or Latino|||||||20210614\r" +
             "ORC|||||||||||||||||||||Any facility USA|^^^IG||^^^IG\r" +

@@ -220,9 +220,7 @@ open class Receiver(
         }
 
         @JsonIgnore
-        fun isValid(): Boolean {
-            return numberPerDay in 1..(24 * 60)
-        }
+        fun isValid(): Boolean = numberPerDay in 1..(24 * 60)
     }
 
     enum class BatchOperation {
@@ -233,10 +231,7 @@ open class Receiver(
     /**
      * Options when a receiver's batch is scheduled to run but there are no records for the receiver
      */
-    data class WhenEmpty(
-        val action: EmptyOperation = EmptyOperation.NONE,
-        val onlyOncePerDay: Boolean = false,
-    )
+    data class WhenEmpty(val action: EmptyOperation = EmptyOperation.NONE, val onlyOncePerDay: Boolean = false)
 
     /**
      * When it is batch time and there are no records should the receiver get a file or not
@@ -286,9 +281,10 @@ open class Receiver(
         /** Global function to create receiver fullNames using
          * the [organizationName] and the [receiverName].
          */
-        fun createFullName(organizationName: String, receiverName: String): String {
-            return "$organizationName$fullNameSeparator$receiverName"
-        }
+        fun createFullName(
+            organizationName: String,
+            receiverName: String,
+        ): String = "$organizationName$fullNameSeparator$receiverName"
 
         fun parseFullName(fullName: String): Pair<String, String> {
             val splits = fullName.split(Sender.fullNameSeparator)

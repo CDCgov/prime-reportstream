@@ -20,7 +20,8 @@ import org.hl7.fhir.r4.model.Patient.ContactComponent
 import org.hl7.fhir.r4.model.Practitioner
 import org.hl7.fhir.r4.model.StringType
 
-class PIIRemovalCommands : CliktCommand(
+class PIIRemovalCommands :
+    CliktCommand(
     name = "piiRemoval",
     help = "Remove PII"
 ) {
@@ -201,18 +202,17 @@ class PIIRemovalCommands : CliktCommand(
     /**
      * Gets a fake value for a given type
      */
-    private fun getFakeValueForElementCall(dataType: String): String {
-        return CustomFhirPathFunctions().getFakeValueForElement(
+    private fun getFakeValueForElementCall(dataType: String): String = CustomFhirPathFunctions().getFakeValueForElement(
             mutableListOf(mutableListOf(StringType(dataType)))
         )[0].primitiveValue()
-    }
 
     /**
      * Gets a fake value for a given type that requires geo data
      */
-    private fun getFakeValueForElementCallUsingGeoData(dataType: String, state: String): String {
-        return CustomFhirPathFunctions().getFakeValueForElement(
+    private fun getFakeValueForElementCallUsingGeoData(
+        dataType: String,
+        state: String,
+    ): String = CustomFhirPathFunctions().getFakeValueForElement(
             mutableListOf(mutableListOf(StringType(dataType)), mutableListOf(StringType(state)))
         )[0].primitiveValue()
-    }
 }

@@ -42,9 +42,7 @@ data class OAuthError(
     @JsonIgnore val errorUriLocation: String,
 ) {
     @JsonProperty("error_uri")
-    fun getErrorUri(): String {
-        return "$OAUTH_ERROR_BASE_LOCATION#$errorUriLocation"
-    }
+    fun getErrorUri(): String = "$OAUTH_ERROR_BASE_LOCATION#$errorUriLocation"
 }
 
 /**

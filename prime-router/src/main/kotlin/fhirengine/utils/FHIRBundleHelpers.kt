@@ -61,12 +61,10 @@ fun Observation.getCodeSourcesMap(): Map<String, List<Coding>> {
 /**
  * Gets mapped condition extensions present on an [Observation]
  */
-fun Observation.getMappedConditionExtensions(): List<Extension> {
-    return this.getCodeSourcesMap()
+fun Observation.getMappedConditionExtensions(): List<Extension> = this.getCodeSourcesMap()
         .flatMap { it.value }
         .flatMap { it.extension }
         .filter { it.url == CONDITION_CODE_EXTENSION_URL }
-}
 
 /**
  * Gets mapped conditions present on an [Observation]
@@ -77,9 +75,7 @@ fun Observation.getMappedConditions(): List<Coding> =
 /**
  * Gets mapped condition codes present on an [Observation]
  */
-fun Observation.getMappedConditionCodes(): List<String> {
-    return this.getMappedConditions().map { it.code }
-}
+fun Observation.getMappedConditionCodes(): List<String> = this.getMappedConditions().map { it.code }
 
 fun Bundle.getObservations() = this.entry.map { it.resource }.filterIsInstance<Observation>()
 
@@ -141,12 +137,10 @@ fun Bundle.isElr(): Boolean {
  *
  * @return RSMessageType of this Bundle.
  */
-fun Bundle.getRSMessageType(): RSMessageType {
-    return when {
+fun Bundle.getRSMessageType(): RSMessageType = when {
         isElr() -> RSMessageType.LAB_RESULT
         else -> RSMessageType.UNKNOWN
     }
-}
 
 /**
  * Gets all properties for a [Base] resource recursively and filters only its references
@@ -154,32 +148,29 @@ fun Bundle.getRSMessageType(): RSMessageType {
  * @return a list of reference identifiers for a [Base] resource
  *
  */
-fun Base.getResourceReferences(): List<String> {
-    return FHIRBundleHelpers.filterReferenceProperties(this.getResourceProperties())
-}
+fun Base.getResourceReferences(): List<String> =
+    FHIRBundleHelpers.filterReferenceProperties(this.getResourceProperties())
 
 /**
  * Gets all properties for a [Base] resource recursively
  *
  * @return a list of all [Property] for a [Base] resource
  */
-fun Base.getResourceProperties(): List<Property> {
-    return this.children().stream().flatMap { getChildProperties(it) }.collect(Collectors.toList())
-}
+fun Base.getResourceProperties(): List<Property> = this.children().stream().flatMap {
+    getChildProperties(it)
+}.collect(Collectors.toList())
 
 /**
  * Gets all diagnostic report that have no observations from a [bundle]
  *
  * @return a list of [Base] diagnostic reports that have no observations
  */
-fun Bundle.getDiagnosticReportNoObservations(): List<Base> {
-    return FhirPathUtils.evaluate(
+fun Bundle.getDiagnosticReportNoObservations(): List<Base> = FhirPathUtils.evaluate(
         null,
         this,
         this,
         "Bundle.entry.resource.ofType(DiagnosticReport).where(result.empty())"
     )
-}
 
 /**
  * Deletes a [resource] from a bundle, removes all references to the [resource] and any orphaned children.
@@ -490,24 +481,20 @@ class FHIRBundleHelpers {
          *
          * @return a list containing only the references in [properties]
          */
-        fun filterReferenceProperties(properties: List<Property>): List<String> {
-            return properties
+        fun filterReferenceProperties(properties: List<Property>): List<String> = properties
                 .filter { it.hasValues() }
                 .flatMap { it.values }
                 .filterIsInstance<Reference>()
                 .map { it.reference }
-        }
 
         /**
          * Gets all child properties for a resource [property] recursively
          *
          * @return a flatmap stream of all child properties on a [property]
          */
-        fun getChildProperties(property: Property): Stream<Property> {
-            return Stream.concat(
+        fun getChildProperties(property: Property): Stream<Property> = Stream.concat(
                 Stream.of(property),
                 property.values.flatMap { it.children() }.stream().flatMap { getChildProperties(it) }
             )
-        }
     }
 }
