@@ -13,17 +13,14 @@ Scopes refer to actions that can be done on certain endpoints. Scopes are reques
 will set up rules in Okta that allow scopes to be requested based on organization membership. A requested scope will 
 only be returned given you have the correct group membership.
 
-| Scope       | Actions                                                       | Okta Group              |
-|-------------|---------------------------------------------------------------|-------------------------|
-| super_admin | Anything! (org membership does not matter)                    | ReportStream-SuperAdmin |
-| org:write   | Able to update organizations                                  | ReportStream-OrgAdmin   |
-| org:read    | Able to access read-only information related to organizations | ReportStream-User       |
-| submit      | Able to submit reports                                        | ReportStream-Submit     |
-| elims       | Special `elims` specific actions (see below)                  | ReportStream-Elims      |
-
-Breakdown of `elims` actions
-- View submissions page on the ReportStream website
-- View daily data page of all the receivers I am sending to so that I can see what they received
+| Scope       | Actions                                                               | Okta Group               |
+|-------------|-----------------------------------------------------------------------|--------------------------|
+| super_admin | Anything! (org membership does not matter)                            | ReportStream-SuperAdmin  |
+| org:write   | Able to update organizations                                          | ReportStream-OrgAdmin    |
+| org:read    | Able to access read-only information related to organizations         | ReportStream-User        |
+| submit      | Able to submit reports                                                | ReportStream-Submit      |
+| submissions | Able to access submissions page                                       | ReportStream-submissions |
+| daily-data  | View daily data page of all the receivers configured to allow viewing | ReportStream-DailyData   |
 
 #### How to set up in Okta
 
@@ -97,6 +94,48 @@ This particular user would be able to read information about `md-phd` and `ca-ph
 reports only as `md-phd.full-elr` or for any sender under `ca-phd`. Note that the current implementation uses an 
 `organization` claim. This will continue to be present during the transition but will eventually be phased out.
 
+### Daily Data page special considerations
+
+For specific users within specific organizations, the daily data page will be populated with receiver data from other 
+organizations. Since these are organizational level settings which are tightly coupled to Report Stream, we 
+would store these settings within the RS Postgres DB.
+
+Example: User within the `elims` organization wants to see the daily data page containing data from receivers within
+the `md-phd` and `ca-phd` organizations to check that reports have been properly routed.
+
+Organizational settings:
+```yml
+md-phd:
+  allow-daily-data-access: [elims] # references another organization name
+
+ca-phd:
+  allow-daily-data-access: [elims]
+```
+
+
+User token:
+```json
+{
+  "scp": [
+    "openid",
+    "email",
+    "org:write",
+    "daily-data"  
+  ],
+  "org": [
+    "elims"
+  ]
+}
+```
+
+At a code level:
+- ensure the user contains the `daily-data` scope
+- gather all receivers who have had reports routed from the organizations contained in the `org` claim in the token
+- filter out all receivers who do not contain an organization in the `org` claim as a part of their `allow-daily-data-access` setting
+
+This will allow organizations to have control over whether their data is shown within the daily data page as an opt-in 
+feature rather than exposing their data without their knowledge.
+
 ## Setting up a new user
 
 In this system, setting up a new user would be quite easy. Create the user in Okta and then add it to the required 
@@ -126,9 +165,22 @@ fun setApplicationProfile(
 }
 ```
 
-We will also need to keep these profiles up to date, therefore, we would need some sort of daily job to check that groups
-are correctly synced. It also wouldn't hurt to be able to be able to kick off this job manually during times of
-rapid group changes.
+We could go even further and write various APIs (and potentially CLI calls) that will set up an application user from 
+scratch. This would dramatically simplify the process of setting up a sender since we would not need to handle going
+back and forth between API and Okta Admin UI and could provide the necessary values needed for a new sender.
+We could also reuse our existing authentication and authorization within the project to ensure only specific people are able to 
+hit these endpoints.
+
+Sample endpoints:
+
+| Method | Path                              | Description                     |
+|--------|-----------------------------------|---------------------------------|
+| POST   | /api/v1/sender                    | Create a new sender             |
+| PUT    | /api/v1/sender/${clientId}        | Update a sender                 |
+| DELETE | /api/v1/sender/${clientId}        | Delete (or deactivate) a sender |
+| PUT    | /api/v1/sender/${clientId}/groups | Update sender group affiliation |
+
+Okta application API documentation can be found [here](https://developer.okta.com/docs/api/openapi/okta-management/management/tag/Application/#tag/Application/operation/createApplication).
 
 ## Authorization check
 
