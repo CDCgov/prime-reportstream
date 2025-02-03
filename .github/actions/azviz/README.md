@@ -67,7 +67,7 @@ inputs:
 ```yml
 jobs:
   generate-viz:
-      runs-on: ubuntu-24.04
+      runs-on: ubuntu-latest
       steps:
         - name: Login to Azure
           uses: azure/login@v1

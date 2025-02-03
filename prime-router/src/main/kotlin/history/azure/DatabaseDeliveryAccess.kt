@@ -46,11 +46,15 @@ class DatabaseDeliveryAccess(
         val org = BaseEngine.settingsProviderSingleton.findOrganization(organization)
 
         var filter = if (org?.featureFlags?.contains("ELIMS_DATA") == true) {
-                REPORT_FILE.NEXT_ACTION.isNull
-                    .and(REPORT_FILE.TRANSPORT_PARAMS.isNotNull)
-                    .and(REPORT_FILE.TRANSPORT_RESULT.notLike("%downloadedBy%"))
-                    .and(REPORT_FILE.SCHEMA_TOPIC.equalIgnoreCase(Topic.ELR_ELIMS.jsonVal))
-                    .and(REPORT_FILE.RECEIVING_ORG.eq(organization))
+            REPORT_FILE.NEXT_ACTION.eq(TaskAction.send)
+                .and(REPORT_FILE.SCHEMA_TOPIC.notEqualIgnoreCase(Topic.ELR_ELIMS.jsonVal))
+                .or(
+                    REPORT_FILE.NEXT_ACTION.isNull
+                        .and(REPORT_FILE.TRANSPORT_PARAMS.isNotNull)
+                        .and(REPORT_FILE.TRANSPORT_RESULT.notLike("%downloadedBy%"))
+                        .and(REPORT_FILE.SCHEMA_TOPIC.equalIgnoreCase(Topic.ELR_ELIMS.jsonVal))
+            )
+            .and(REPORT_FILE.RECEIVING_ORG.eq(organization))
         } else {
             REPORT_FILE.NEXT_ACTION.eq(TaskAction.send)
                 .and(REPORT_FILE.RECEIVING_ORG.eq(organization))
