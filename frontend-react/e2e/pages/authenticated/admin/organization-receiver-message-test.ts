@@ -2,6 +2,7 @@ import type { Locator } from "@playwright/test";
 import {
     errorMessageResult,
     passMessageResult,
+    warningMessageResult,
 } from "../../../../src/components/Admin/MessageTesting/MessageTestingResult.fixtures";
 import { RSMessage } from "../../../../src/config/endpoints/reports";
 import { MOCK_GET_TEST_MESSAGES } from "../../../mocks/message-test";
@@ -18,6 +19,7 @@ export class OrganizationReceiverMessageTestPage extends BasePage {
 
     readonly expectedStatusSuccess = /^Test passed/;
     readonly expectedStatusFailure = /^Test failed/;
+    readonly expectedStatusWarning = /^Test passed with warnings/;
 
     readonly form: Locator;
     readonly addCustomMessageButton: Locator;
@@ -26,13 +28,14 @@ export class OrganizationReceiverMessageTestPage extends BasePage {
     readonly customMessageTextArea: Locator;
     readonly submitButton: Locator;
     readonly submitStatus: Locator;
-    readonly submitAlert: Locator;
     readonly submissionOutputMessageButton: Locator;
     readonly submissionOutputMessage: Locator;
     readonly submissionTestMessageButton: Locator;
     readonly submissionTestMessage: Locator;
     readonly submissionTransformErrorsButton: Locator;
     readonly submissionTransformErrors: Locator;
+    readonly submissionTransformWarningsButton: Locator;
+    readonly submissionTransformWarnings: Locator;
 
     constructor(testArgs: BasePageTestArgs) {
         super(
@@ -54,14 +57,19 @@ export class OrganizationReceiverMessageTestPage extends BasePage {
         this.cancelCustomMessageButton = this.form.getByRole("button", { name: "Cancel" });
         this.customMessageTextArea = this.form.getByRole("textbox", { name: "Custom message text" });
         this.submitButton = this.form.getByRole("button", { name: "Run test" });
-        this.submitStatus = this.page.getByRole("status");
-        this.submitAlert = this.page.getByRole("alert");
+        this.submitStatus = this.page
+            .getByRole("status")
+            .or(this.page.getByRole("alert"))
+            .or(this.page.getByRole("region", { name: "Information" }))
+            .first();
         this.submissionOutputMessageButton = this.page.getByRole("button", { name: "Output message" });
         this.submissionOutputMessage = this.page.getByLabel("Output message");
         this.submissionTestMessageButton = this.page.getByRole("button", { name: "Test message" });
         this.submissionTestMessage = this.page.getByLabel("Test message");
         this.submissionTransformErrorsButton = this.page.getByRole("button", { name: "Transform errors" });
         this.submissionTransformErrors = this.page.getByLabel("Transform errors");
+        this.submissionTransformWarningsButton = this.page.getByRole("button", { name: "Transform warnings" });
+        this.submissionTransformWarnings = this.page.getByLabel("Transform warnings");
         this.addMockRouteHandlers([this.createMockTestMessagesHandler()]);
         this.addResponseHandlers([
             [
@@ -86,8 +94,13 @@ export class OrganizationReceiverMessageTestPage extends BasePage {
         ];
     }
 
-    createMockTestSubmissionHandler(isFailed = false): RouteHandlerFulfillEntry {
-        const result = isFailed ? errorMessageResult : passMessageResult;
+    createMockTestSubmissionHandler(resultType: "pass" | "fail" | "warn" = "pass"): RouteHandlerFulfillEntry {
+        const result =
+            resultType === "fail"
+                ? errorMessageResult
+                : resultType === "warn"
+                  ? warningMessageResult
+                  : passMessageResult;
         return [
             OrganizationReceiverMessageTestPage.API_REPORTS_TEST,
             () => {
@@ -98,8 +111,8 @@ export class OrganizationReceiverMessageTestPage extends BasePage {
         ];
     }
 
-    addMockTestSubmissionHandler(isFailed = false) {
-        return this.addMockRouteHandlers([this.createMockTestSubmissionHandler(isFailed)]);
+    addMockTestSubmissionHandler(resultType: "pass" | "fail" | "warn" = "pass") {
+        return this.addMockRouteHandlers([this.createMockTestSubmissionHandler(resultType)]);
     }
 
     async submit() {
