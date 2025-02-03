@@ -74,8 +74,7 @@ class HL7Reader {
          */
         private fun getHL7ParsingContext(
             hl7MessageType: HL7MessageType?,
-        ): HapiContext {
-            return when (hl7MessageType?.msh93) {
+        ): HapiContext = when (hl7MessageType?.msh93) {
                 "ORU_R01" -> {
                     DefaultHapiContext(
                         ParserConfiguration(),
@@ -101,7 +100,6 @@ class HL7Reader {
                     DefaultHapiContext(ValidationContextFactory.noValidation())
                 }
             }
-        }
 
         /**
          * Parses just the first line of an HL7 string to determine
@@ -138,111 +136,93 @@ class HL7Reader {
          * Get the [message] timestamp from MSH-7.
          * @return the timestamp or null if not specified
          */
-        fun getMessageTimestamp(message: Message): Date? {
-            return when (val structure = message[MSH_SEGMENT_NAME]) {
+        fun getMessageTimestamp(message: Message): Date? = when (val structure = message[MSH_SEGMENT_NAME]) {
                 is NIST_MSH -> structure.msh7_DateTimeOfMessage.ts1_Time.valueAsDate
                 is v27_MSH -> structure.msh7_DateTimeOfMessage.valueAsDate
                 is v251_MSH -> structure.msh7_DateTimeOfMessage.ts1_Time.valueAsDate
                 else -> null
             }
-        }
 
         /**
          * Get the type of the [message]
          * @return the type of message ex. ORU
          */
-        fun getMessageType(message: Message): String {
-            return when (val structure = message[MSH_SEGMENT_NAME]) {
+        fun getMessageType(message: Message): String = when (val structure = message[MSH_SEGMENT_NAME]) {
                 is NIST_MSH -> structure.msh9_MessageType.msg1_MessageCode.toString()
                 is v27_MSH -> structure.msh9_MessageType.msg1_MessageCode.toString()
                 is v251_MSH -> structure.msh9_MessageType.msg1_MessageCode.toString()
                 else -> ""
             }
-        }
 
         /**
          * Get the birthTime from the [message]
          * @return the birthTime, if available or blank if not
          */
-        fun getBirthTime(message: Message): String {
-            return try {
+        fun getBirthTime(message: Message): String = try {
                 Terser(message).get("${getPatientPath(message)}/PID-7")
             } catch (e: HL7Exception) {
                 ""
             } catch (e: NullPointerException) {
                 ""
             }
-        }
 
         /**
          * Get the path that is needed to retrieve the patient info, based on the type of the [hl7Message]
          * @return the path for retrieving patient info
          */
-        fun getPatientPath(hl7Message: Message): String? {
-            return when (getMessageType(hl7Message)) {
+        fun getPatientPath(hl7Message: Message): String? = when (getMessageType(hl7Message)) {
                 "ORM" -> "PATIENT"
                 "OML" -> "PATIENT"
                 "ORU" -> "PATIENT_RESULT/PATIENT"
                 else -> null
             }
-        }
 
         /**
          * Reads MSH.3 which is the Sending Application field
          */
-        fun getSendingApplication(message: Message): String? {
-            return when (val structure = message[MSH_SEGMENT_NAME]) {
+        fun getSendingApplication(message: Message): String? = when (val structure = message[MSH_SEGMENT_NAME]) {
                 is NIST_MSH -> structure.msh3_SendingApplication.encode()
                 is v27_MSH -> structure.msh3_SendingApplication.encode()
                 is v251_MSH -> structure.msh3_SendingApplication.encode()
                 else -> null
             }
-        }
 
         /**
          * Reads MSH.4 which is the Sending Facility field
          */
-        fun getSendingFacility(message: Message): String? {
-            return when (val structure = message[MSH_SEGMENT_NAME]) {
+        fun getSendingFacility(message: Message): String? = when (val structure = message[MSH_SEGMENT_NAME]) {
                 is NIST_MSH -> structure.msh4_SendingFacility.encode()
                 is v27_MSH -> structure.msh4_SendingFacility.encode()
                 is v251_MSH -> structure.msh4_SendingFacility.encode()
                 else -> null
             }
-        }
 
         /**
          * Reads MSH.10 which is the Message Control ID field
          */
-        fun getMessageControlId(message: Message): String? {
-            return when (val structure = message[MSH_SEGMENT_NAME]) {
+        fun getMessageControlId(message: Message): String? = when (val structure = message[MSH_SEGMENT_NAME]) {
                 is NIST_MSH -> structure.msh10_MessageControlID.encode()
                 is v27_MSH -> structure.msh10_MessageControlID.encode()
                 is v251_MSH -> structure.msh10_MessageControlID.encode()
                 else -> null
             }
-        }
 
         /**
          * Reads MSH.15 which is the Accept Acknowledgment Type field
          */
-        fun getAcceptAcknowledgmentType(message: Message): String? {
-            return when (val structure = message[MSH_SEGMENT_NAME]) {
+        fun getAcceptAcknowledgmentType(message: Message): String? = when (val structure = message[MSH_SEGMENT_NAME]) {
                 is NIST_MSH -> structure.msh15_AcceptAcknowledgmentType.encode()
                 is v27_MSH -> structure.msh15_AcceptAcknowledgmentType.encode()
                 is v251_MSH -> structure.msh15_AcceptAcknowledgmentType.encode()
                 else -> null
             }
-        }
 
         /**
          * Takes a [rawMessage] and the number of messages [numMessages] in the rawMessage and determines if it is a batch
          * or singular HL7 message. It will qualify as a batch message if it follows the HL7 standards and have the Hl7
          * batch headers which start with "FHS" or if they left off the batch headers and just sent multiple messages
          */
-        fun isBatch(rawMessage: String, numMessages: Int): Boolean {
-            return rawMessage.startsWith("FHS") || numMessages > 1
-        }
+        fun isBatch(rawMessage: String, numMessages: Int): Boolean = rawMessage.startsWith("FHS") || numMessages > 1
 
         /**
          * Takes an [exception] thrown by the HL7 HAPI library, gets the root cause and logs the error into [actionLogger].

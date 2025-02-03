@@ -12,9 +12,7 @@ import org.jooq.impl.DSL
 import java.time.OffsetDateTime
 import java.util.UUID
 
-abstract class HistoryDatabaseAccess(
-    internal val db: DatabaseAccess = BaseEngine.databaseAccessSingleton,
-) {
+abstract class HistoryDatabaseAccess(internal val db: DatabaseAccess = BaseEngine.databaseAccessSingleton) {
     /**
      * Values that results can be sorted by.
      */

@@ -16,9 +16,7 @@ import java.util.UUID
 /**
  * Class to access lookup tables stored in the database.
  */
-class DatabaseDeliveryAccess(
-    db: DatabaseAccess = BaseEngine.databaseAccessSingleton,
-) : HistoryDatabaseAccess(db) {
+class DatabaseDeliveryAccess(db: DatabaseAccess = BaseEngine.databaseAccessSingleton) : HistoryDatabaseAccess(db) {
 
     /**
      * Values that facilities can be sorted by
@@ -79,8 +77,7 @@ class DatabaseDeliveryAccess(
         actionId: Long,
         orgName: String?,
         klass: Class<T>,
-    ): T? {
-        return db.transactReturning { txn ->
+    ): T? = db.transactReturning { txn ->
             DSL.using(txn)
                 .select(
                     ACTION.ACTION_ID,
@@ -106,7 +103,6 @@ class DatabaseDeliveryAccess(
                     ACTION.ACTION_ID.eq(actionId)
                 ).fetchOne()?.into(klass)
         }
-    }
 
     override fun <T> fetchRelatedActions(reportId: UUID, klass: Class<T>): List<T> {
         TODO("Not yet implemented")
