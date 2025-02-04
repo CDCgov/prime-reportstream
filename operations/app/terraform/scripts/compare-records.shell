@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+
+## Usage: Validate generated records across reports
+##        > verify-records.shell ./python.csv ./powershell.csv
+
+oIFS="${IFS}" ;
+IFS=$'\n' ;
+
+source="${1}" ;
+target="${2}" ;
+
+declare -a lines=( $( cat "${source}" ) ) ;
+# echo -e "${lines[3]}" ;
+
+count=1 ;
+for line in "${lines[@]}"; do
+    echo -en "Line[${count}]: " ;
+    ## Escape double quotes inside the variable
+    record=$( echo $line | sed 's/^\(.*\)$"/'\2'/g' ) ;
+    echo -en $record ;
+    ## Use grep with escaped quotes
+    found=$( grep -Fxc "${record}" "${target}" ) ;
+    if [[ $found -gt 0 ]]; then echo " -> match" ;
+      else echo " -> missing" ;
+    fi ;
+    (( count++ )) ;
+done ;
+
+IFS="${oIFS}" ;
