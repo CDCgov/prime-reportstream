@@ -1,0 +1,26 @@
+# suppressNonNPI: true
+# suppressNonNPI: true
+elements:
+- name: suppress-service-obr-17-xtn-12
+  resource: 'Bundle.entry.resource.ofType(ServiceRequest).extension("https://reportstream.cdc.gov/fhir/StructureDefinition/obr-observation-request").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/callback-number").value.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/xtn-contact-point").extension("XTN.12")'
+  condition: '%resource.exists()'
+  value: [ '""' ]
+  bundleProperty: '%resource.value[x]'
+
+- name: suppress-patient-pid-13-xtn-12
+  resource: 'Bundle.entry.resource.ofType(Patient).telecom.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/xtn-contact-point").extension("XTN.12")'
+  condition: '%resource.exists()'
+  value: [ '""' ]
+  bundleProperty: '%resource.value[x]'
+
+- name: suppress-organization-roc-14-xtn-12
+  resource: 'Bundle.entry.resource.ofType(Organization).telecom.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/xtn-contact-point").extension("XTN.12")'
+  condition: '%resource.exists()'
+  value: [ '""' ]
+  bundleProperty: '%resource.value[x]'
+
+- name: suppress-servicerequest-roc-23-xtn-12
+  resource: 'Bundle.entry.resource.ofType(ServiceRequest).requester.extension.value.extension.extension("XTN.12")'
+  condition: '%resource.exists()'
+  value: [ '""' ]
+  bundleProperty: '%resource.value[x]'
