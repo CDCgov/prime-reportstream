@@ -131,11 +131,17 @@ jobs:
           user-key: ${{ secrets.USER_KEY }}
           sp-creds: ${{ env.AZURE_CREDENTIALS }}
           tf-auth: true
+      - name: Use specific version of Terraform
+        uses: hashicorp/setup-terraform@v1
+        with:
+          terraform_version: 1.7.4  # Specify the version here
+      - name: Terraform Init
+        run: terraform init -input=false
       - name: Run Terraform Sanity Checks
         run: |
-          terraform workspace select -or-create ${{ needs.pre_job.outputs.env_name }}
           terraform fmt -check -recursive
           terraform validate
+          terraform workspace select -or-create ${{ needs.pre_job.outputs.env_name }}
       - name: Run Terraform Plan
         run: |
           terraform plan -out ${{ needs.pre_job.outputs.env_name }}-tf.plan
