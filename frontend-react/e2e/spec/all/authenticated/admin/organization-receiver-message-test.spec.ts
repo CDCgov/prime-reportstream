@@ -101,41 +101,50 @@ test.describe("Admin Organization Receiver Message Test Page", () => {
                 expect(organizationReceiverMessageTestPage.testMessages.length).toEqual(i);
             });
 
-            test("can add custom message", async ({ organizationReceiverMessageTestPage }) => {
-                const message1 = '{"foo":"bar"}';
-                const message2 = '{"bar":"foo"}';
-
-                await expect(organizationReceiverMessageTestPage.form).toBeVisible();
-                await expect(organizationReceiverMessageTestPage.addCustomMessageButton).toBeVisible();
-                await expect(organizationReceiverMessageTestPage.submitButton).toBeVisible();
-
-                for (const [i, message] of [message1, message2].entries()) {
-                    const filename = `Custom message ${i + 1}`;
-                    const customOption = organizationReceiverMessageTestPage.form.getByLabel(filename);
-                    const customOptionViewButton = organizationReceiverMessageTestPage.form
-                        .getByText(filename)
-                        .getByRole("button");
+            test.describe("custom message", () => {
+                test("cannot add empty custom message", async ({ organizationReceiverMessageTestPage }) => {
+                    await expect(organizationReceiverMessageTestPage.form).toBeVisible();
 
                     await organizationReceiverMessageTestPage.addCustomMessageButton.click();
-                    await expect(organizationReceiverMessageTestPage.customMessageTextArea).toBeVisible();
-                    await expect(organizationReceiverMessageTestPage.submitCustomMessageButton).toBeVisible();
-                    await expect(organizationReceiverMessageTestPage.cancelCustomMessageButton).toBeVisible();
+                    await expect(organizationReceiverMessageTestPage.submitCustomMessageButton).toBeDisabled();
+                });
 
-                    await organizationReceiverMessageTestPage.customMessageTextArea.fill(message);
-                    await expect(organizationReceiverMessageTestPage.customMessageTextArea).toHaveValue(message);
-                    await organizationReceiverMessageTestPage.submitCustomMessageButton.click();
-                    await expect(organizationReceiverMessageTestPage.customMessageTextArea).toBeHidden();
-                    await expect(organizationReceiverMessageTestPage.submitCustomMessageButton).toBeHidden();
-                    await expect(organizationReceiverMessageTestPage.cancelCustomMessageButton).toBeHidden();
+                test("can add custom message", async ({ organizationReceiverMessageTestPage }) => {
+                    const message1 = '{"foo":"bar"}';
+                    const message2 = '{"bar":"foo"}';
 
-                    await expect(customOption).toBeVisible();
-                    await expect(customOption).toBeChecked();
-                    await expect(customOptionViewButton).toBeVisible();
-                    const popupP = organizationReceiverMessageTestPage.page.waitForEvent("popup");
-                    await customOptionViewButton.click();
-                    const popup = await popupP;
-                    await expect(popup.getByText(JSON.stringify(JSON.parse(message), undefined, 2))).toBeVisible();
-                }
+                    await expect(organizationReceiverMessageTestPage.form).toBeVisible();
+                    await expect(organizationReceiverMessageTestPage.addCustomMessageButton).toBeVisible();
+                    await expect(organizationReceiverMessageTestPage.submitButton).toBeVisible();
+
+                    for (const [i, message] of [message1, message2].entries()) {
+                        const filename = `Custom message ${i + 1}`;
+                        const customOption = organizationReceiverMessageTestPage.form.getByLabel(filename);
+                        const customOptionViewButton = organizationReceiverMessageTestPage.form
+                            .getByText(filename)
+                            .getByRole("button");
+
+                        await organizationReceiverMessageTestPage.addCustomMessageButton.click();
+                        await expect(organizationReceiverMessageTestPage.customMessageTextArea).toBeVisible();
+                        await expect(organizationReceiverMessageTestPage.submitCustomMessageButton).toBeVisible();
+                        await expect(organizationReceiverMessageTestPage.cancelCustomMessageButton).toBeVisible();
+
+                        await organizationReceiverMessageTestPage.customMessageTextArea.fill(message);
+                        await expect(organizationReceiverMessageTestPage.customMessageTextArea).toHaveValue(message);
+                        await organizationReceiverMessageTestPage.submitCustomMessageButton.click();
+                        await expect(organizationReceiverMessageTestPage.customMessageTextArea).toBeHidden();
+                        await expect(organizationReceiverMessageTestPage.submitCustomMessageButton).toBeHidden();
+                        await expect(organizationReceiverMessageTestPage.cancelCustomMessageButton).toBeHidden();
+
+                        await expect(customOption).toBeVisible();
+                        await expect(customOption).toBeChecked();
+                        await expect(customOptionViewButton).toBeVisible();
+                        const popupP = organizationReceiverMessageTestPage.page.waitForEvent("popup");
+                        await customOptionViewButton.click();
+                        const popup = await popupP;
+                        await expect(popup.getByText(JSON.stringify(JSON.parse(message), undefined, 2))).toBeVisible();
+                    }
+                });
             });
 
             test.describe("form submission", () => {

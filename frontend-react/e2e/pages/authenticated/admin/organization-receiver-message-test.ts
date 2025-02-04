@@ -1,4 +1,5 @@
 import type { Locator } from "@playwright/test";
+import language from "../../../../src/components/Admin/MessageTesting/language.json" assert { type: "json" };
 import {
     errorMessageResult,
     passMessageResult,
@@ -16,8 +17,8 @@ export class OrganizationReceiverMessageTestPage extends BasePage {
     protected customI: number;
     testMessages: RSMessage[];
 
-    readonly expectedStatusSuccess = /^Test passed/;
-    readonly expectedStatusFailure = /^Test failed/;
+    readonly expectedStatusSuccess = new RegExp(`^${language.successAlertHeading}`);
+    readonly expectedStatusFailure = new RegExp(`^${language.errorAlertHeading}`);
 
     readonly form: Locator;
     readonly addCustomMessageButton: Locator;
