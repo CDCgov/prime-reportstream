@@ -11,7 +11,7 @@ on:
 jobs:
   prepare_branch:
     name: "Prepare the deployment branch and file a PR"
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     steps:
       - name: "Check out changes"
         uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938
@@ -28,8 +28,7 @@ jobs:
 
       - name: "Create branch '${{ env.BRANCH_NAME }}' to contain the changes for the deployment on ${{ env.DEPLOYMENT_DATE }}"
 
-        uses: JosiahSiegel/remote-branch-action@dbe7a2138eb064fbfdb980abee918091a7501fbe
-        ## DevSecOps - Aquia (Replace) - uses: ./.github/actions/remote-branch-action
+        uses: ./.github/actions/remote-branch
 
         with:
           branch: "${{ env.BRANCH_NAME }}"
@@ -37,8 +36,7 @@ jobs:
       - name: "Prepare a Pull Request from ${{ env.BRANCH_NAME }} into production branch"
         id: pr
 
-        uses: JosiahSiegel/reliable-pull-request-action@ae8d0c88126329ee363a35392793d0bc94cb82e7
-        ## DevSecOps - Aquia (Replace) - uses: ./.github/actions/reliable-pull-request-action
+        uses: ./.github/actions/reliable-pull-request
 
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -61,22 +61,21 @@ object FhirPathUtils : Logging {
      * @return the validated FHIR path
      * @throws FHIRLexerException if the path is invalid
      */
-    fun parsePath(fhirPath: String?): ExpressionNode? {
-        return if (fhirPath.isNullOrBlank()) {
+    fun parsePath(fhirPath: String?): ExpressionNode? = if (fhirPath.isNullOrBlank()) {
             null
         } else {
             pathEngine.parse(fhirPath)
         }
-    }
 
     /**
      * Is the provided path a valid FHIR path given the evaluation context?
      */
-    fun validatePath(path: String, evaluationContext: FHIRPathEngine.IEvaluationContext): Boolean {
-        return withEvaluationContext(evaluationContext) {
+    fun validatePath(
+        path: String,
+        evaluationContext: FHIRPathEngine.IEvaluationContext,
+    ): Boolean = withEvaluationContext(evaluationContext) {
             runCatching { parsePath(path) }.isSuccess
         }
-    }
 
     /**
      * Gets a FHIR base resource from the given [expression] using [bundle] and starting from a specific [focusResource].

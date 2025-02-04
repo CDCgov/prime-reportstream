@@ -132,9 +132,7 @@ class SettingFacadeTests {
         }.returns(null)
     }
 
-    private fun testMetadata(): Metadata {
-        return UnitTestUtils.simpleMetadata
-    }
+    private fun testMetadata(): Metadata = UnitTestUtils.simpleMetadata
 
     @BeforeEach
     fun reset() {

@@ -48,9 +48,8 @@ class CsvSerializer(val metadata: Metadata) : Logging {
         val warnings: List<ActionLogDetail>,
     )
 
-    fun readExternal(schemaName: String, input: InputStream, source: Source, sender: Sender? = null): ReadResult {
-        return readExternal(schemaName, input, listOf(source), sender = sender)
-    }
+    fun readExternal(schemaName: String, input: InputStream, source: Source, sender: Sender? = null): ReadResult =
+        readExternal(schemaName, input, listOf(source), sender = sender)
 
     fun readExternal(
         schemaName: String,
@@ -181,8 +180,7 @@ class CsvSerializer(val metadata: Metadata) : Logging {
 
         fun buildHeader(): List<String> = schema.csvFields.distinctBy { it.name }.map { it.name }
 
-        fun buildRows(): List<List<String>> {
-            return report.itemIndices.map { row ->
+        fun buildRows(): List<List<String>> = report.itemIndices.map { row ->
                 schema
                     .elements.filterNot { it.csvFields.isNullOrEmpty() }
                     .groupBy {
@@ -231,7 +229,6 @@ class CsvSerializer(val metadata: Metadata) : Logging {
                         }
                     }
             }
-        }
 
         val allRows = listOf(buildHeader()).plus(buildRows())
         csvWriter {
@@ -245,9 +242,7 @@ class CsvSerializer(val metadata: Metadata) : Logging {
 
         fun buildHeader(): List<String> = schema.elements.map { it.name }
 
-        fun buildRows(): List<List<String>> {
-            return report.itemIndices.map { row -> report.getRow(row) }
-        }
+        fun buildRows(): List<List<String>> = report.itemIndices.map { row -> report.getRow(row) }
 
         val allRows = listOf(buildHeader()).plus(buildRows())
         csvWriter {
@@ -262,9 +257,7 @@ class CsvSerializer(val metadata: Metadata) : Logging {
         row: Map<String, String>,
         actionLogs: ActionLogger,
     ): CsvMapping {
-        fun rowContainsAll(fields: List<Element.CsvField>): Boolean {
-            return fields.find { !row.containsKey(it.name) } == null
-        }
+        fun rowContainsAll(fields: List<Element.CsvField>): Boolean = fields.find { !row.containsKey(it.name) } == null
 
         val useCsv = schema
             .elements
@@ -280,7 +273,8 @@ class CsvSerializer(val metadata: Metadata) : Logging {
         val optionalHeaders = schema
             .filterCsvFields {
                 (it.cardinality == null || it.cardinality == Element.Cardinality.ZERO_OR_ONE) &&
-                    it.default == null && it.mapper == null
+                    it.default == null &&
+                    it.mapper == null
             }
             .map { it.name }
             .toSet()

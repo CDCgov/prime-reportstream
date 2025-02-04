@@ -54,9 +54,8 @@ class FileSettings : SettingsProvider {
         return loadOrganizationList(list)
     }
 
-    fun loadOrganizations(vararg organizations: DeepOrganization): FileSettings {
-        return loadOrganizationList(organizations.toList())
-    }
+    fun loadOrganizations(vararg organizations: DeepOrganization): FileSettings =
+        loadOrganizationList(organizations.toList())
 
     fun loadOrganizationList(organizations: List<DeepOrganization>): FileSettings {
         organizations.forEach { org ->
@@ -94,17 +93,11 @@ class FileSettings : SettingsProvider {
     override val senders get() = this.senderStore.values
     override val receivers get() = this.receiverStore.values
 
-    override fun findOrganization(name: String): Organization? {
-        return organizationStore[name]
-    }
+    override fun findOrganization(name: String): Organization? = organizationStore[name]
 
-    override fun findReceiver(fullName: String): Receiver? {
-        return receiverStore[fullName]
-    }
+    override fun findReceiver(fullName: String): Receiver? = receiverStore[fullName]
 
-    override fun findSender(fullName: String): Sender? {
-        return senderStore[Sender.canonicalizeFullName(fullName)]
-    }
+    override fun findSender(fullName: String): Sender? = senderStore[Sender.canonicalizeFullName(fullName)]
 
     override fun findOrganizationAndReceiver(fullName: String): Pair<Organization, Receiver>? {
         val (organizationName, _) = Receiver.parseFullName(fullName)
