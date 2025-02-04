@@ -59,9 +59,3 @@ elements:
     condition: '%resource.code.exists()'
     value: [ '%resource.system.getCodingSystemMapping()' ]
     hl7Spec: [ '/PATIENT_RESULT/PATIENT/PID-10-3' ]
-
-  - name: observation-start-datetime
-    resource: 'Bundle.entry.resource.ofType(DiagnosticReport)'
-    condition: '%resource.effective.is(dateTime)'
-    value: [ '%resource.effective.extension(%`rsext-hl7v2-date-time`).value' ]
-    hl7Spec: [ '/PATIENT_RESULT/ORDER_OBSERVATION/OBR-8' ]
