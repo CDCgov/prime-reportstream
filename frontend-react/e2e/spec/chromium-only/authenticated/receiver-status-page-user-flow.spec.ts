@@ -193,6 +193,8 @@ test.describe(
                 });
 
                 test("result message", async ({ adminReceiverStatusPage }) => {
+                    await adminReceiverStatusPage.statusContainer.waitFor({ state: "visible" });
+
                     // get first entry's result from all-fail receiver's first day -> third time period
                     const receiverI = 0;
                     const dayI = 0;
