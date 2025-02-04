@@ -14,9 +14,7 @@ import io.github.linuxforhealth.hl7.message.HL7Segment
  * @see io.github.linuxforhealth.hl7.message.HL7FHIRResourceTemplateAttributes
  * @see io.github.linuxforhealth.hl7.message.HL7Segment
  */
-data class HL7ToFHIRMappingMessageTemplate(
-    val resources: List<MappingTemplateResource>,
-)
+data class HL7ToFHIRMappingMessageTemplate(val resources: List<MappingTemplateResource>)
 
 data class MappingTemplateResource(
     val resourceName: String,

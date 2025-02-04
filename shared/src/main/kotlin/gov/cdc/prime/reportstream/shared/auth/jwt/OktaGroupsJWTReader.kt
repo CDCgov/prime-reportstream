@@ -11,9 +11,7 @@ import gov.cdc.prime.reportstream.shared.StringUtilities.base64Decode
 /**
  * Common Okta Groups JWT reader and validator
  */
-class OktaGroupsJWTReader(
-    publicKey: JWK,
-) {
+class OktaGroupsJWTReader(publicKey: JWK) {
 
     constructor(encodedJWK: String) : this(JWK.parse(encodedJWK.base64Decode()))
 

@@ -51,15 +51,11 @@ enum class Environment(
     /**
      * Available feature flags for enabling different features
      */
-    enum class FeatureFlags(
-        val enabledByDefault: Boolean = false,
-    ) {
+    enum class FeatureFlags(val enabledByDefault: Boolean = false) {
         FHIR_ENGINE_TEST_PIPELINE(),
         ;
 
-        fun enabled(): Boolean {
-            return enabledByDefault || System.getenv(this.toString()) == "enabled"
-        }
+        fun enabled(): Boolean = enabledByDefault || System.getenv(this.toString()) == "enabled"
     }
 
     companion object {
@@ -68,9 +64,7 @@ enum class Environment(
          * @return an environment
          * @throws IllegalArgumentException if the environment cannot be found
          */
-        fun get(environment: String): Environment {
-            return valueOf(environment.uppercase())
-        }
+        fun get(environment: String): Environment = valueOf(environment.uppercase())
 
         /**
          * Get the environment from the system environment.
@@ -88,8 +82,7 @@ enum class Environment(
         /**
          * Get the baseUrl for a URL that contains only the host and port.
          */
-        internal fun getBaseUrl(inputUrl: URL): String {
-            return if (inputUrl.port > 0 &&
+        internal fun getBaseUrl(inputUrl: URL): String = if (inputUrl.port > 0 &&
                 (
                     (inputUrl.protocol == "http" && inputUrl.port != 80) ||
                         (inputUrl.protocol == "https" && inputUrl.port != 443)
@@ -99,25 +92,20 @@ enum class Environment(
             } else {
                 inputUrl.host
             }
-        }
 
         /**
          * Checks if the current environment is the local environment.
          *
          * @return true if local environment, false otherwise
          */
-        fun isLocal(): Boolean {
-            return get() == LOCAL
-        }
+        fun isLocal(): Boolean = get() == LOCAL
 
         /**
          * Checks if the current environment is the production environment.
          *
          * @return true if production environment, false otherwise
          */
-        fun isProd(): Boolean {
-            return get() == PROD
-        }
+        fun isProd(): Boolean = get() == PROD
 
         /**
          * Time zone to use for ReportStream. Note that Azure runs on UTC, so this forces our local runs to also be UTC.

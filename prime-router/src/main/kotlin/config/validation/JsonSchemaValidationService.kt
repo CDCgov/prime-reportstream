@@ -38,16 +38,12 @@ class JsonSchemaValidationServiceImpl : JsonSchemaValidationService {
     override fun <T> validateYAMLStructure(
         configType: ConfigurationType<T>,
         file: File,
-    ): ConfigurationValidationResult<T> {
-        return validateYAMLStructure(configType, file.inputStream())
-    }
+    ): ConfigurationValidationResult<T> = validateYAMLStructure(configType, file.inputStream())
 
     override fun <T> validateYAMLStructure(
         configType: ConfigurationType<T>,
         yamlString: String,
-    ): ConfigurationValidationResult<T> {
-        return validateYAMLStructure(configType, yamlString.byteInputStream())
-    }
+    ): ConfigurationValidationResult<T> = validateYAMLStructure(configType, yamlString.byteInputStream())
 
     override fun <T> validateYAMLStructure(
         configType: ConfigurationType<T>,

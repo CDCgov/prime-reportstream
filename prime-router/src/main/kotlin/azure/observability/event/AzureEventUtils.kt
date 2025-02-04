@@ -20,13 +20,13 @@ object AzureEventUtils {
      * Retrieves all observations from a list of observations and maps them to a list of [ObservationSummary] each
      * containing a list of [TestSummary]
      */
-    fun getObservationSummaries(observations: List<Observation>): List<ObservationSummary> {
-        return observations.map { observation ->
+    fun getObservationSummaries(
+        observations: List<Observation>,
+    ): List<ObservationSummary> = observations.map { observation ->
             ObservationSummary(
                 observation.code.coding.map(TestSummary::fromCoding),
             )
         }
-    }
 
     /**
      * For tracking the Message ID, we need the bundle.identifier value and system.
@@ -37,7 +37,5 @@ object AzureEventUtils {
     /**
      * Returns the bundle identifier elements that relate to HL7v2 Message Header information for tracking
      */
-    fun getIdentifier(bundle: Bundle): MessageID {
-        return MessageID(bundle.identifier?.value, bundle.identifier?.system)
-    }
+    fun getIdentifier(bundle: Bundle): MessageID = MessageID(bundle.identifier?.value, bundle.identifier?.system)
 }

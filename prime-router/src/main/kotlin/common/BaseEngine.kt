@@ -18,9 +18,7 @@ import org.apache.logging.log4j.kotlin.Logging
  * TODO: This class will need to be further refactored / fleshed out. Only minimal changes required for #4824 are
  *  included in this file at this time to limit scope
  */
-abstract class BaseEngine(
-    val queue: QueueAccess = QueueAccess,
-) : Logging {
+abstract class BaseEngine(val queue: QueueAccess = QueueAccess) : Logging {
     companion object {
         val sequentialLimit = 500
 

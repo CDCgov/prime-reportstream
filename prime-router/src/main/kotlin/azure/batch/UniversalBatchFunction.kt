@@ -24,9 +24,7 @@ import java.time.OffsetDateTime
  *
  * A [workflowEngine] can be passed in for mocking/testing purposes.
  */
-class UniversalBatchFunction(
-    private val workflowEngine: WorkflowEngine = WorkflowEngine(),
-) : Logging {
+class UniversalBatchFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()) : Logging {
     @FunctionName(BatchConstants.Function.UNIVERSAL_BATCH_FUNCTION)
     @StorageAccount("AzureWebJobsStorage")
     fun run(
@@ -128,7 +126,8 @@ class UniversalBatchFunction(
         receiver: Receiver,
         txn: Configuration?,
     ) {
-        if (!receiver.useBatching || receiver.timing == null ||
+        if (!receiver.useBatching ||
+            receiver.timing == null ||
             receiver.timing.operation != Receiver.BatchOperation.MERGE
         ) {
             // Send each report separately

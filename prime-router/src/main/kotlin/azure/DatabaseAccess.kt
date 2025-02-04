@@ -103,24 +103,22 @@ class DatabaseAccess(val create: DSLContext) : Logging {
     }
 
     /** Make the other calls in the context of a SQL transaction, returning a result */
-    fun <T> transactReturning(block: (txn: DataAccessTransaction) -> T): T {
-        return create.transactionResult { txn: Configuration -> block(txn) }
-    }
+    fun <T> transactReturning(
+        block: (txn: DataAccessTransaction) -> T,
+    ): T = create.transactionResult { txn: Configuration -> block(txn) }
 
     /*
      * Task queries
      */
 
     /** Fetch a task record and lock it so other connections can grab it */
-    fun fetchAndLockTask(reportId: ReportId, txn: DataAccessTransaction): Task {
-        return DSL.using(txn)
+    fun fetchAndLockTask(reportId: ReportId, txn: DataAccessTransaction): Task = DSL.using(txn)
             .selectFrom(TASK)
             .where(TASK.REPORT_ID.eq(reportId))
             .forUpdate()
             .fetchOne()
             ?.into(Task::class.java)
             ?: error("Could not find $reportId that matches a task")
-    }
 
     /**
      * Fetch multiple task records and lock them so other connections cannot grab them.
@@ -248,13 +246,11 @@ class DatabaseAccess(val create: DSLContext) : Logging {
         return actionId
     }
 
-    fun fetchTask(reportId: ReportId): Task {
-        return create.selectFrom(TASK)
+    fun fetchTask(reportId: ReportId): Task = create.selectFrom(TASK)
             .where(TASK.REPORT_ID.eq(reportId))
             .fetchOne()
             ?.into(Task::class.java)
             ?: error("Could not find $reportId that matches a task")
-    }
 
     /** Take a report and put into the database after already serializing the body of the report */
     fun insertTask(
@@ -664,14 +660,12 @@ class DatabaseAccess(val create: DSLContext) : Logging {
      * @param childReportId the id of the child to fetch the parent
      * @return the parent report
      */
-    fun fetchParentReport(childReportId: UUID): ReportFile? {
-        return create
+    fun fetchParentReport(childReportId: UUID): ReportFile? = create
             .select(REPORT_FILE.asterisk()).from(REPORT_FILE)
             .join(REPORT_LINEAGE)
             .on(REPORT_LINEAGE.PARENT_REPORT_ID.eq(REPORT_FILE.REPORT_ID))
             .where(REPORT_LINEAGE.CHILD_REPORT_ID.eq(childReportId))
             .fetchOneInto(ReportFile::class.java)
-    }
 
     fun fetchChildReports(
         parentReportId: UUID,
@@ -692,8 +686,7 @@ class DatabaseAccess(val create: DSLContext) : Logging {
         name: String,
         parentId: Int?,
         txn: DataAccessTransaction,
-    ): Setting? {
-        return DSL.using(txn)
+    ): Setting? = DSL.using(txn)
             .selectFrom(SETTING)
             .where(
                 SETTING.IS_ACTIVE.isTrue,
@@ -707,7 +700,6 @@ class DatabaseAccess(val create: DSLContext) : Logging {
             )
             .fetchOne()
             ?.into(Setting::class.java)
-    }
 
     fun fetchSetting(
         type: SettingType,
@@ -793,21 +785,18 @@ class DatabaseAccess(val create: DSLContext) : Logging {
         return Pair(orgSetting, itemSetting)
     }
 
-    fun fetchSettings(type: SettingType, txn: DataAccessTransaction): List<Setting> {
-        return DSL.using(txn)
+    fun fetchSettings(type: SettingType, txn: DataAccessTransaction): List<Setting> = DSL.using(txn)
             .selectFrom(SETTING)
             .where(SETTING.IS_ACTIVE.isTrue, SETTING.TYPE.eq(type))
             .orderBy(SETTING.SETTING_ID)
             .fetch()
             .into(Setting::class.java)
-    }
 
     fun fetchSettings(
         type: SettingType,
         organizationId: Int,
         txn: DataAccessTransaction,
-    ): List<Setting> {
-        return DSL.using(txn)
+    ): List<Setting> = DSL.using(txn)
             .select()
             .from(SETTING)
             .where(
@@ -818,7 +807,6 @@ class DatabaseAccess(val create: DSLContext) : Logging {
             .orderBy(SETTING.SETTING_ID)
             .fetch()
             .into(Setting::class.java)
-    }
 
     /**
      * data returned by fetchSettingRevisionHistory. Only used to shape json response.
@@ -909,8 +897,7 @@ class DatabaseAccess(val create: DSLContext) : Logging {
         }
     }
 
-    fun insertSetting(setting: Setting, txn: DataAccessTransaction): Int {
-        return DSL.using(txn)
+    fun insertSetting(setting: Setting, txn: DataAccessTransaction): Int = DSL.using(txn)
             .insertInto(SETTING)
             .set(SETTING.SETTING_ID, DSL.defaultValue(SETTING.SETTING_ID))
             .set(SETTING.TYPE, setting.type)
@@ -926,7 +913,6 @@ class DatabaseAccess(val create: DSLContext) : Logging {
             .fetchOne()
             ?.value1()
             ?: error("Fetch error")
-    }
 
     fun updateOrganizationId(
         currentOrganizationId: Int,
@@ -1011,8 +997,7 @@ class DatabaseAccess(val create: DSLContext) : Logging {
         name: String,
         organizationId: Int?,
         txn: DataAccessTransaction,
-    ): Int {
-        return DSL.using(txn)
+    ): Int = DSL.using(txn)
             .select(DSL.max(SETTING.VERSION))
             .from(SETTING)
             .where(
@@ -1027,7 +1012,6 @@ class DatabaseAccess(val create: DSLContext) : Logging {
             .fetchOne()
             ?.getValue(DSL.max(SETTING.VERSION))
             ?: -1
-    }
 
     fun insertJti(jti: String, expiresAt: OffsetDateTime? = null, txn: DataAccessTransaction) {
         val jtiCache = JtiCache()
@@ -1043,13 +1027,11 @@ class DatabaseAccess(val create: DSLContext) : Logging {
             .execute()
     }
 
-    fun fetchJti(jti: String, txn: DataAccessTransaction): JtiCache? {
-        return DSL.using(txn)
+    fun fetchJti(jti: String, txn: DataAccessTransaction): JtiCache? = DSL.using(txn)
             .selectFrom(JTI_CACHE)
             .where(JTI_CACHE.JTI.eq(jti))
             .fetchOne()
             ?.into(JtiCache::class.java)
-    }
 
     /** EmailSchedule queries */
     fun fetchEmailSchedules(txn: DataAccessTransaction? = null): List<String> {
@@ -1482,8 +1464,7 @@ class DatabaseAccess(val create: DSLContext) : Logging {
             bodyFormat: String,
             bodyUrl: String,
             nextAction: Event,
-        ): TaskRecord {
-            return TaskRecord(
+        ): TaskRecord = TaskRecord(
                 report.id,
                 nextAction.eventAction.toTaskAction(),
                 nextAction.at,
@@ -1505,15 +1486,13 @@ class DatabaseAccess(val create: DSLContext) : Logging {
                 null,
                 null
             )
-        }
 
         fun createTask(
             report: Report,
             bodyFormat: String,
             bodyUrl: String,
             nextAction: Event,
-        ): Task {
-            return Task(
+        ): Task = Task(
                 report.id,
                 nextAction.eventAction.toTaskAction(),
                 nextAction.at,
@@ -1535,7 +1514,6 @@ class DatabaseAccess(val create: DSLContext) : Logging {
                 null,
                 null
             )
-        }
 
         /**
          * Saves metadata to database. Since jooq/postgres does not truncate data that is too long, any
