@@ -22,9 +22,12 @@
 
 .NOTES
     Requires:
-      - PowerShell 7+
+      - PowerShell 5.1+ or PowerShell Core
       - Azure CLI (`az` command)
       - Logged-in Azure account (`az login`)
+    Credits:
+      - PRIME ReportStream DevSecOps
+
 #>
 
 param (
@@ -35,7 +38,7 @@ param (
 
 ## Display help message if -Help or -? is used
 if ( $Help ) {
-    Get-Help $PSCommandPath -Full ;
+    Get-Help $PSCommandPath -Detailed ;
     exit ;
 } ;
 
