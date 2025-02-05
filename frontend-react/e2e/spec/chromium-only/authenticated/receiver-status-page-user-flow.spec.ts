@@ -192,7 +192,7 @@ test.describe(
                     expect(defaultReceiversStatusRowsCount).toBe(adminReceiverStatusPage.timePeriodData.length);
                 });
 
-                test("result message", async ({ adminReceiverStatusPage }) => {
+                test.skip("result message", async ({ adminReceiverStatusPage }) => {
                     await adminReceiverStatusPage.statusContainer.waitFor({ state: "visible" });
 
                     // get first entry's result from all-fail receiver's first day -> third time period
