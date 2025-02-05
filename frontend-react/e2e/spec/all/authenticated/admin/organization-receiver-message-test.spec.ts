@@ -210,6 +210,7 @@ test.describe("Admin Organization Receiver Message Test Page", () => {
                         );
                         await expect(organizationReceiverMessageTestPage.submissionOutputMessageButton).toBeVisible();
                         await organizationReceiverMessageTestPage.submissionOutputMessageButton.click();
+
                         await expect(organizationReceiverMessageTestPage.submissionOutputMessage).toBeVisible();
                         await expect(organizationReceiverMessageTestPage.submissionOutputMessage).toHaveText(
                             resJson.message ?? "",
