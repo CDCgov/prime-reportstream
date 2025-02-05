@@ -84,6 +84,7 @@
 - name: ignore
   description: FOR TESTING ONLY
   jurisdiction: FEDERAL
+  featureFlags: ["ELIMS_DATA"]
   filters:
     - topic: covid-19
       jurisdictionalFilter: [ "matches(ordering_facility_state, IG)" ]
