@@ -1,8 +1,10 @@
+import { usePDF } from "@react-pdf/renderer";
 import { QueryObserverResult } from "@tanstack/react-query";
 import { Accordion, Button, Icon } from "@trussworks/react-uswds";
 import { type PropsWithChildren } from "react";
 import language from "./language.json";
 import { MessageTestingAccordion } from "./MessageTestingAccordion";
+import MessageTestingPDF from "./MessageTestingPDF";
 import type { RSMessage, RSMessageResult } from "../../../config/endpoints/reports";
 import Alert, { type AlertProps } from "../../../shared/Alert/Alert";
 import HL7Message from "../../../shared/HL7Message/HL7Message";
@@ -14,10 +16,11 @@ export interface MessageTestingResultProps extends PropsWithChildren {
     resultData: RSMessageResult;
     handleGoBack: () => void;
     refetch: () => Promise<QueryObserverResult<RSMessageResult, Error>>;
+    orgname: string;
+    receivername: string;
 }
 
 const filterFields: (keyof RSMessageResult)[] = ["filterErrors"];
-
 const transformFields: (keyof RSMessageResult)[] = [
     "senderTransformErrors",
     "enrichmentSchemaErrors",
@@ -35,6 +38,8 @@ const MessageTestingResult = ({
     submittedMessage,
     handleGoBack,
     refetch,
+    orgname,
+    receivername,
     ...props
 }: MessageTestingResultProps) => {
     const isPassed =
@@ -43,9 +48,12 @@ const MessageTestingResult = ({
         resultData.enrichmentSchemaErrors.length === 0 &&
         resultData.receiverTransformErrors.length === 0;
     const isWarned =
-        resultData.senderTransformWarnings.length > 0 &&
-        resultData.enrichmentSchemaWarnings.length > 0 &&
+        resultData.senderTransformWarnings.length > 0 ||
+        resultData.enrichmentSchemaWarnings.length > 0 ||
         resultData.receiverTransformWarnings.length > 0;
+    const filterFieldData = filterFields.flatMap((key) => resultData[key]);
+    const transformFieldData = transformFields.flatMap((key) => resultData[key]);
+    const warningFieldData = warningFields.flatMap((key) => resultData[key]);
 
     const alertType: AlertProps["type"] = !isPassed ? "error" : isWarned ? "warning" : "success";
     const alertHeading = language[`${alertType}AlertHeading`];
@@ -60,14 +68,38 @@ const MessageTestingResult = ({
         hour12: true,
     };
 
+    const MessageTestingPDFRef = (
+        <MessageTestingPDF
+            orgName={orgname}
+            receiverName={receivername}
+            testStatus={alertType}
+            filterFieldData={filterFieldData}
+            transformFieldData={transformFieldData}
+            warningFieldData={warningFieldData}
+            testMessage={submittedMessage?.reportBody ?? ""}
+            outputMessage={resultData?.message ?? ""}
+            isPassed={isPassed}
+        />
+    );
+    const [instance] = usePDF({ document: MessageTestingPDFRef });
     return (
         <section {...props}>
             <div className="display-flex flex-justify flex-align-center">
                 <h2>Test results: {submittedMessage?.fileName}</h2>
+                <div>
+                    <USLinkButton
+                        href={instance.url ?? ""}
+                        download={`message-testing-result_${Date.now()}.pdf`}
+                        type="button"
+                        outline
+                    >
+                        {instance.loading ? "Loading..." : "Download PDF"} <Icon.ArrowDropDown className="text-top" />
+                    </USLinkButton>
 
-                <Button type="button" onClick={() => void refetch()}>
-                    Rerun test <Icon.Autorenew className="text-top" />
-                </Button>
+                    <Button className="margin-left-1" type="button" onClick={() => void refetch()}>
+                        Rerun test <Icon.Autorenew className="text-top" />
+                    </Button>
+                </div>
             </div>
             <USLinkButton onClick={handleGoBack} className="text-no-underline text-bold" unstyled>
                 <Icon.NavigateBefore className="text-top" /> Select new message
@@ -88,25 +120,18 @@ const MessageTestingResult = ({
                 </Alert>
             </div>
 
-            <MessageTestingAccordion
-                accordionTitle="Filters triggered"
-                priority="error"
-                resultData={resultData}
-                fieldsToRender={filterFields}
-            />
+            <MessageTestingAccordion accordionTitle="Filters triggered" priority="error" fieldData={filterFieldData} />
 
             <MessageTestingAccordion
                 accordionTitle="Transform errors"
                 priority="error"
-                resultData={resultData}
-                fieldsToRender={transformFields}
+                fieldData={transformFieldData}
             />
 
             <MessageTestingAccordion
                 accordionTitle="Transform warnings"
                 priority="warning"
-                resultData={resultData}
-                fieldsToRender={warningFields}
+                fieldData={warningFieldData}
             />
 
             {resultData.message && isPassed && (
@@ -135,7 +160,7 @@ const MessageTestingResult = ({
             )}
             <div key={`test-submittedMessage-accordion-wrapper`} className="padding-top-4">
                 <Accordion
-                    key={`test-submittedMessage-accordion-`}
+                    key={`test-submittedMessage-accordion`}
                     items={[
                         {
                             className: "bg-gray-5",

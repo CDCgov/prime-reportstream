@@ -19,9 +19,7 @@ import org.apache.logging.log4j.kotlin.Logging
  * Builder class to create either JSON or HL7 response types based on the contents of the
  * submitted reports
  */
-class SubmissionResponseBuilder(
-    private val hL7ACKUtils: HL7ACKUtils = HL7ACKUtils(),
-) : Logging {
+class SubmissionResponseBuilder(private val hL7ACKUtils: HL7ACKUtils = HL7ACKUtils()) : Logging {
 
     /**
      * Builds a response to send to the client after submitting a report

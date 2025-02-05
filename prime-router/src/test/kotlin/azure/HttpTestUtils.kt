@@ -12,22 +12,18 @@ import gov.cdc.prime.router.SettingsProvider
 import java.net.URI
 import kotlin.collections.Map
 
-class MockHttpResponseMessage : HttpResponseMessage.Builder, HttpResponseMessage {
+class MockHttpResponseMessage :
+    HttpResponseMessage.Builder,
+    HttpResponseMessage {
     var httpStatus: HttpStatusType = HttpStatus.OK
     var content: Any? = null
     var headers: MutableMap<String, String> = mutableMapOf()
 
-    override fun getStatus(): HttpStatusType {
-        return this.httpStatus
-    }
+    override fun getStatus(): HttpStatusType = this.httpStatus
 
-    override fun getHeader(var1: String): String {
-        return headers.getOrDefault(var1, "world")
-    }
+    override fun getHeader(var1: String): String = headers.getOrDefault(var1, "world")
 
-    override fun getBody(): Any? {
-        return this.content
-    }
+    override fun getBody(): Any? = this.content
 
     override fun status(status: HttpStatusType): HttpResponseMessage.Builder {
         this.httpStatus = status
@@ -44,45 +40,29 @@ class MockHttpResponseMessage : HttpResponseMessage.Builder, HttpResponseMessage
         return this
     }
 
-    override fun build(): HttpResponseMessage {
-        return this
-    }
+    override fun build(): HttpResponseMessage = this
 }
 
-class MockHttpRequestMessage(
-    val content: String? = null,
-    val method: HttpMethod = HttpMethod.GET,
-) : HttpRequestMessage<String?> {
+class MockHttpRequestMessage(val content: String? = null, val method: HttpMethod = HttpMethod.GET) :
+    HttpRequestMessage<String?> {
     val httpHeaders = mutableMapOf<String, String>()
     val parameters = mutableMapOf<String, String>()
 
-    override fun getUri(): URI {
-        return URI.create("http://localhost/")
-    }
+    override fun getUri(): URI = URI.create("http://localhost/")
 
-    override fun getHttpMethod(): HttpMethod {
-        return method
-    }
+    override fun getHttpMethod(): HttpMethod = method
 
-    override fun getHeaders(): Map<String, String> {
-        return this.httpHeaders
-    }
+    override fun getHeaders(): Map<String, String> = this.httpHeaders
 
-    override fun getQueryParameters(): MutableMap<String, String> {
-        return this.parameters
-    }
+    override fun getQueryParameters(): MutableMap<String, String> = this.parameters
 
-    override fun getBody(): String? {
-        return content
-    }
+    override fun getBody(): String? = content
 
-    override fun createResponseBuilder(var1: HttpStatus): HttpResponseMessage.Builder {
-        return MockHttpResponseMessage().status(var1)
-    }
+    override fun createResponseBuilder(var1: HttpStatus): HttpResponseMessage.Builder =
+        MockHttpResponseMessage().status(var1)
 
-    override fun createResponseBuilder(var1: HttpStatusType): HttpResponseMessage.Builder {
-        return MockHttpResponseMessage().status(var1)
-    }
+    override fun createResponseBuilder(var1: HttpStatusType): HttpResponseMessage.Builder =
+        MockHttpResponseMessage().status(var1)
 }
 
 class MockSettings : SettingsProvider {
@@ -94,17 +74,11 @@ class MockSettings : SettingsProvider {
     override val senders get() = this.senderStore.values
     override val receivers get() = this.receiverStore.values
 
-    override fun findOrganization(name: String): Organization? {
-        return organizationStore[name]
-    }
+    override fun findOrganization(name: String): Organization? = organizationStore[name]
 
-    override fun findReceiver(fullName: String): Receiver? {
-        return receiverStore[fullName]
-    }
+    override fun findReceiver(fullName: String): Receiver? = receiverStore[fullName]
 
-    override fun findSender(fullName: String): Sender? {
-        return senderStore[Sender.canonicalizeFullName(fullName)]
-    }
+    override fun findSender(fullName: String): Sender? = senderStore[Sender.canonicalizeFullName(fullName)]
 
     override fun findOrganizationAndReceiver(fullName: String): Pair<Organization, Receiver>? {
         val (organizationName, _) = Receiver.parseFullName(fullName)
