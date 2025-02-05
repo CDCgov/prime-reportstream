@@ -18,7 +18,7 @@ Deduplication will only be implemented for ORU_R01 messages from FULL_ELR topic 
 - Deduplication will only consider hashes from the same sender in the last year.
 
 ## Deduplication Workflow Design
-The Convert Step is where the UP’s deduplication workflow will live. See [Deduplication Workflow Placement](#deduplication-workflow-placement) for it's context within the Convert Step.
+The Convert Step is where the UP’s deduplication workflow will live. See [Deduplication Workflow Placement](#deduplication-workflow-placement) for its context within the Convert Step.
 
 ### Convert Step
 
@@ -26,20 +26,18 @@ The Convert Step is where the UP’s deduplication workflow will live. See [Dedu
 The first part of the Deduplication Workflow will take in the item’s Bundle and use the specified fields ([Key FHIR Elements table](#key-fhir-elements)) to generate a string which is then hashed. The current hashing implementation ([Report.getItemHashForRow()](https://github.com/CDCgov/prime-reportstream/blob/15648395efc2b60322d931bf88e0c2c5b6cc0371/prime-router/src/main/kotlin/Report.kt#L1287-L1289)) uses Java’s [MessageDigest](https://docs.oracle.com/javase/8/docs/api/java/security/MessageDigest.html) to create a secure one-way hash of the string with SHA-256. This class also satisfies the requirements for UP Deduplication.
 
 Technical Considerations:
-- This should be flexible enough that different senders, message types, and topics can implement different key fields.
+- This should be flexible enough that different senders, message types, or even topics can implement different key fields.
+  - This will be achieved through a new base class which shall own the logic for concatenating strings values in a map. Each set of new key fields would implement its own class which owns the logic knowing how to retrieve the necessary FHIR values. [See: Example Key Fields Class](#example-key-fields-file-structure) 
+  - If deemed necessary, sender specific key field classes could be created and then referenced in the sender settings.  
 - The ordering of fields within a FHIR Bundle are **not** guaranteed. Before converting to a string to be hashed, the [populated key fields](#key-fhir-elements) should be extracted from the bundle and put in a static order (alphabetical etc.).
 - Sender id/name shall be incorporated into the pre-hashed string. (Dependent upon sql efficiency investigation noted below).
 - Investigation TODO (_To be removed and appropriate sections updated before merge_): Investigate the time efficiency of the following options:
   - Adding a sender id column to item_lineage table (and using this to narrow the SQL query).
   - Adding the sender id (or name) into the string to be hashed and allowing the column index to be the main SQL query parameter.
-  - Performing a SQL join to a table with the sender id to narrow the query. 
-  - Notes:
-    - (Date range would also be applied to the SQL query in all scenarios.) 
-    - (Comment from Arnej: "Evaluate the performance, quality, and security trade-off of including the sender name in the hash vs querying it.")
-    - (Comment from Michael: "For this to be performative you would need to be sure that this index can fit in memory of postgresql instead of having to go into disk.")
 
 ##### Item Hash Comparison
-Hash comparison will be skipped if `sender.allowDuplicates` is set to true. Otherwise, the generated item hash shall first be compared with items in the same report. (Note: At this part of the Convert Step, parallelization is not a blocker as the original items are [still within scope](https://github.com/CDCgov/prime-reportstream/blob/15648395efc2b60322d931bf88e0c2c5b6cc0371/prime-router/src/main/kotlin/fhirengine/engine/FHIRConverter.kt#L510)). The item hash will then be compared to existing hashes from the item_lineage table. There is an [existing SQL Query](https://github.com/CDCgov/prime-reportstream/blob/9ec0a59c73d7dad9a319cd321baf9efd71ceab46/prime-router/src/main/kotlin/azure/DatabaseAccess.kt#L166-L183) which performs the hash comparison through a database query. This will need to be enhanced or recreated as the original query only searches within the last 7 days and does not take sender into account. (_This last part will be unnecessary if the sender is incorporated into the hash._) 
+Hash comparison will be skipped if `sender.allowDuplicates` is set to true. Otherwise, the generated item hash shall first be compared with items in the same report. (Note: At this part of the Convert Step, parallelization is not a blocker as the original items are [still within scope](https://github.com/CDCgov/prime-reportstream/blob/15648395efc2b60322d931bf88e0c2c5b6cc0371/prime-router/src/main/kotlin/fhirengine/engine/FHIRConverter.kt#L510)). The item hash will then be compared to existing hashes from the item_lineage table. There is an [existing SQL Query](https://github.com/CDCgov/prime-reportstream/blob/9ec0a59c73d7dad9a319cd321baf9efd71ceab46/prime-router/src/main/kotlin/azure/DatabaseAccess.kt#L166-L183) which performs the hash comparison through a database query. This will need to be enhanced or recreated as the original query only searches within the last 7 days and does not take sender into account. (_This last part will be unnecessary if the sender is incorporated into the hash._)
+**NOTE**: The hash comparison functionality will be enabled some time after all other functionality is in production. This will build up a data set to investigate potential false positives.
 - If item is not a duplicate OR sender has deduplication disabled,
     - Save the item hash to the ItemLineage object [when the Report object is created](https://github.com/CDCgov/prime-reportstream/blob/4a2231af2031bc3b2d5d7949d2b21d33c525c44d/prime-router/src/main/kotlin/fhirengine/engine/FHIRConverter.kt#L329).
         - [Report.ParentItemLineageData()](https://github.com/CDCgov/prime-reportstream/blob/cadc9fae10ff5f83e9cbf0b0c0fbda384889901d/prime-router/src/main/kotlin/Report.kt#L373) will need to be enhanced so that it can accept the generated hash string. The contents will then take the place of [the random UUID which is currently stored](https://github.com/CDCgov/prime-reportstream/blob/cadc9fae10ff5f83e9cbf0b0c0fbda384889901d/prime-router/src/main/kotlin/Report.kt#L412) in the column for UP items.
@@ -102,7 +100,7 @@ Hash comparison will be skipped if `sender.allowDuplicates` is set to true. Othe
             "errorCode": "DUPLICATION_DETECTION"
         }
     ],
-    "destinationCount": 1,
+    "destinationCount": 1
 }
 ```
 
@@ -135,7 +133,28 @@ Hash comparison will be skipped if `sender.allowDuplicates` is set to true. Othe
         }
     ],
     "warnings": [],
-    "destinationCount": 0,
+    "destinationCount": 0
+}
+```
+
+##### Example: Key Fields File Structure
+``` kotlin
+abstract class DeduplicationKeyFields(val bundle: Bundle) {
+    fun createStringFromKeyFields(): String {
+        // logic for concatenating keyFields values
+    }
+}
+
+class ORUR01KeyFields(bundle: Bundle) : DeduplicationKeyFields(bundle) {
+    val keyFields = mapOf(
+        // hl7Value: SPM.2
+        // fhirValue: Specimen.Identifier
+        "Specimen_ID" to bundle.entry.map { it.resource }.filterIsInstance<Specimen>().map { it.identifier }.flatten().map { it.value }.toString(),
+
+        // hl7Value: SPM.30
+        // fhirValue: Specimen.accessionIdentifier
+        "Accession_number" to bundle.entry.map { it.resource }.filterIsInstance<Specimen>().map { it.accessionIdentifier }.map{ it.value }.toString(),
+    )
 }
 ```
 
@@ -165,15 +184,22 @@ Hash comparison will be skipped if `sender.allowDuplicates` is set to true. Othe
     - Add the report to the route destination filter step queue
 
 ### Other Updates
-- Sender Settings: The Universal Pipeline will use the `allowDuplicates` sender setting. 
+- Sender Settings: The Universal Pipeline will use the existing `allowDuplicates` sender setting. 
   - By default, the deduplication workflow is enabled for UP senders. (`allowDuplicates` = false)
   - The abstract Sender class [should not initialize](https://github.com/CDCgov/prime-reportstream/blob/f48d719b876859169deb0360487f63965d8be5a0/prime-router/src/main/kotlin/Sender.kt#L60) `allowDuplicates`.
   - The UniversalPipelineSender class [should default to false](https://github.com/CDCgov/prime-reportstream/blob/f48d719b876859169deb0360487f63965d8be5a0/prime-router/src/main/kotlin/Sender.kt#L196).
+  - Individual receivers will set `allowDuplicates` to `true` to opt out.
 - Receiver Step: There is stubbed code to be removed here: The SumissionReceiver refers to the once theorized area where UP deduplication would be invoked. ([SubmissionReceiver.kt#L284-L292](https://github.com/CDCgov/prime-reportstream/blob/0c5e0b058e35e09786942f2c8b41c1d67a5b1d16/prime-router/src/main/kotlin/SubmissionReceiver.kt#L284-L292))
-- Database: No updates will be made to the schema of the database itself.
+- Database Changes: Several changes will need to take place to improve efficiency. **Over 90% of the values stored in item_lineage.item_hash are not relevant to either CP or UP deduplication.**
+  - Immediate change: Modify item_lineage.item_hash to accept NULL values.
+    - Reasoning: 90%+ of item_lineage table rows have no need to store the item_hash. Allowing null values will reduce updates to the index and indexing times for the table. 
+  - Long term change: Modify the index on item_lineage to a partial index, on only those values which are not null.
+    - Caveat: Barring a significant database wipe of out of date information, this would likely result in a significant _decrease_ in database efficiency.
+    - A hybrid plan would be to begin storing NULL values. After older values have been culled, and/or enough NULL values have accumulated in the table, then change the index to a partial index. 
 - Database: Investigation will need to happen on how to best purge out of date records on the item_lineage table. item_lineage.created_at will be used for this. This is outside the scope for this design/implementation.
 - FHIRDestinationFilter and FHIRReceiverFilter both currently use Report.getItemHashForRow. They are incorrectly adding non-null data to item_lineage.item_hash. These steps should be only adding null (or `"0"`, Ex: [Report.generateReportAndUploadBlob](https://github.com/CDCgov/prime-reportstream/blob/4a2231af2031bc3b2d5d7949d2b21d33c525c44d/prime-router/src/main/kotlin/Report.kt#L1654)) values for item_hash. 
-  - TODO: Investigate other potential incorrect use of this column. Other possible entry points may create ItemLineage objects directly or use other functions which call it such as [Report.createItemLineageForRow](https://github.com/CDCgov/prime-reportstream/blob/4a2231af2031bc3b2d5d7949d2b21d33c525c44d/prime-router/src/main/kotlin/Report.kt#L1404).
+  - ~~TODO: Investigate other potential incorrect use of this column. Other possible entry points may create ItemLineage objects directly or use other functions which call it such as [Report.createItemLineageForRow](https://github.com/CDCgov/prime-reportstream/blob/4a2231af2031bc3b2d5d7949d2b21d33c525c44d/prime-router/src/main/kotlin/Report.kt#L1404).~~
+  - Investigation results: Based on UP usage, roughly 95% of rows in item_lineage are not generated during the convert step and thus are entirely irrelevant to deduplication.
 
 ### Proposed Universal Pipeline SRD Additions
 Under `Submission Step Business Logic Requirements`
