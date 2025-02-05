@@ -85,11 +85,9 @@ class ProcessHl7Commands : CliktCommand(
 
         val outputLineCount = reorderedFile.split("\r").count()
 
-        if (outputLineCount != originalLineCount) {
-            throw CliktError("Something went wrong when ordering")
+        if (outputLineCount == originalLineCount) {
+            comparisonFile = reorderedFile
         }
-
-        comparisonFile = reorderedFile
 
         val starterMessages = Hl7InputStreamMessageStringIterator(starterFile.byteInputStream()).asSequence()
             .map { rawItem ->
