@@ -82,17 +82,12 @@ class SubmissionFunctionTests : Logging {
     private val oktaClaimsOrganizationName = "DHSender_$organizationName"
     private val otherOrganizationName = "test-lab-2"
 
-    private fun buildClaimsMap(organizationName: String): Map<String, Any> {
-        return mapOf(
+    private fun buildClaimsMap(organizationName: String): Map<String, Any> = mapOf(
             "sub" to "test",
             "organization" to listOf(organizationName)
         )
-    }
 
-    data class ExpectedAPIResponse(
-        val status: HttpStatus,
-        val body: List<ExpectedSubmissionList>? = null,
-    )
+    data class ExpectedAPIResponse(val status: HttpStatus, val body: List<ExpectedSubmissionList>? = null)
 
     data class SubmissionUnitTestCase(
         val headers: Map<String, String>,

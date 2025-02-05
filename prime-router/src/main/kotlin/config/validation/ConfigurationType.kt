@@ -47,9 +47,8 @@ sealed class ConfigurationType<T> {
 
         override val konformValidation: KonformValidation<List<DeepOrganization>> = OrganizationValidation
 
-        override fun convert(node: JsonNode): List<DeepOrganization> {
-            return mapper.convertValue(node, Array<DeepOrganization>::class.java).toList()
-        }
+        override fun convert(node: JsonNode): List<DeepOrganization> =
+        mapper.convertValue(node, Array<DeepOrganization>::class.java).toList()
     }
 
     /**
@@ -62,9 +61,8 @@ sealed class ConfigurationType<T> {
 
         override val konformValidation: KonformValidation<FhirTransformSchema> = FhirToFhirTransformValidation
 
-        override fun convert(node: JsonNode): FhirTransformSchema {
-            return mapper.convertValue(node, FhirTransformSchema::class.java)
-        }
+        override fun convert(node: JsonNode): FhirTransformSchema =
+            mapper.convertValue(node, FhirTransformSchema::class.java)
     }
 
     data object FhirToHL7Mapping : ConfigurationType<HL7ConverterSchema>() {
@@ -74,9 +72,8 @@ sealed class ConfigurationType<T> {
 
         override val konformValidation: KonformValidation<HL7ConverterSchema> = FhirToHL7MappingValidation
 
-        override fun convert(node: JsonNode): HL7ConverterSchema {
-            return mapper.convertValue(node, HL7ConverterSchema::class.java)
-        }
+        override fun convert(node: JsonNode): HL7ConverterSchema =
+            mapper.convertValue(node, HL7ConverterSchema::class.java)
     }
 
     data object HL7ToFhirMappingMessageTemplate : ConfigurationType<HL7ToFHIRMappingMessageTemplate>() {
@@ -87,9 +84,8 @@ sealed class ConfigurationType<T> {
         override val konformValidation: KonformValidation<HL7ToFHIRMappingMessageTemplate> =
             HL7ToFHIRMappingMessageTemplateValidation
 
-        override fun convert(node: JsonNode): HL7ToFHIRMappingMessageTemplate {
-            return mapper.convertValue(node, HL7ToFHIRMappingMessageTemplate::class.java)
-        }
+        override fun convert(node: JsonNode): HL7ToFHIRMappingMessageTemplate =
+            mapper.convertValue(node, HL7ToFHIRMappingMessageTemplate::class.java)
     }
 
     data object HL7ToFhirMappingResourceTemplate : ConfigurationType<HL7ToFHIRMappingResourceTemplate>() {

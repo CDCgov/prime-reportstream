@@ -37,9 +37,7 @@ abstract class KonformValidation<T> {
     /**
      * Is the FHIR path valid?
      */
-    protected fun validFhirPath(path: String): Boolean {
-        return FhirPathUtils.validatePath(path, customResolver)
-    }
+    protected fun validFhirPath(path: String): Boolean = FhirPathUtils.validatePath(path, customResolver)
 }
 
 /**
@@ -166,8 +164,7 @@ object HL7ToFHIRMappingResourceTemplateValidation : KonformValidation<HL7ToFHIRM
     /**
      * Ensure all variables in conditions are formatted correctly.
      */
-    private fun validateConditionFormatting(condition: Condition): Boolean {
-        return when (condition) {
+    private fun validateConditionFormatting(condition: Condition): Boolean = when (condition) {
             is CheckNotNull -> isFormatted(condition.var1)
             is CheckNull -> isFormatted(condition.var1)
             is SimpleBiCondition -> isFormatted(condition.var1)
@@ -179,18 +176,13 @@ object HL7ToFHIRMappingResourceTemplateValidation : KonformValidation<HL7ToFHIRM
             // Condition is not sealed
             else -> throw IllegalArgumentException("Condition is of unrecognized type: ${condition.javaClass.name}")
         }
-    }
 
-    private fun isFormatted(str: String): Boolean {
-        return str.startsWith("$")
-    }
+    private fun isFormatted(str: String): Boolean = str.startsWith("$")
 
     /**
      * recurses back over validateConditionFormatting for individual conditions
      */
-    private fun checkCompoundCondition(conditions: List<Condition>): Boolean {
-        return conditions.fold(true) { acc, cur ->
+    private fun checkCompoundCondition(conditions: List<Condition>): Boolean = conditions.fold(true) { acc, cur ->
             acc && validateConditionFormatting(cur)
         }
-    }
 }

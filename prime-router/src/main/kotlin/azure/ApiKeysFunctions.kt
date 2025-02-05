@@ -300,9 +300,7 @@ class ApiKeysFunctions(private val settingsFacade: SettingsFacade = SettingsFaca
         )
         @PathParam(PARAM_NAME_ORGNAME)
         @BindingName(PARAM_NAME_ORGNAME) orgName: String,
-    ): HttpResponseMessage {
-        return getApiKeysForOrg(request, orgName)
-    }
+    ): HttpResponseMessage = getApiKeysForOrg(request, orgName)
 
     @FunctionName("getApiKeysV1")
     @Operation(
@@ -371,9 +369,7 @@ class ApiKeysFunctions(private val settingsFacade: SettingsFacade = SettingsFaca
         )
         @PathParam(PARAM_NAME_ORGNAME)
         @BindingName(PARAM_NAME_ORGNAME) orgName: String,
-    ): HttpResponseMessage {
-        return getApiKeysForOrg(request, orgName, true)
-    }
+    ): HttpResponseMessage = getApiKeysForOrg(request, orgName, true)
 
     @FunctionName("postApiKey")
     @POST
