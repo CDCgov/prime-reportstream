@@ -25,7 +25,6 @@ requested_scope = "sender" # update requested scope to desired one
 dpop_private_key = """""" # Set DPoP private key in PEM format
 dpop_public_key_json = {} # set DPoP public key in JWK json format
 
-# "jti": "AT.MbfIc2QBgzpRCb_C3ClbH-E888fnSbdKJE1NNFUrwVg",
 encoded_jwt = jwt.encode(
     {
         "ver": 1,

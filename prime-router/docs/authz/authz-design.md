@@ -19,8 +19,6 @@ only be returned given you have the correct group membership.
 | org:write   | Able to update organizations                                          | ReportStream-OrgAdmin    |
 | org:read    | Able to access read-only information related to organizations         | ReportStream-User        |
 | submit      | Able to submit reports                                                | ReportStream-Submit      |
-| submissions | Able to access submissions page                                       | ReportStream-submissions |
-| daily-data  | View daily data page of all the receivers configured to allow viewing | ReportStream-DailyData   |
 
 #### How to set up in Okta
 
@@ -96,22 +94,18 @@ reports only as `md-phd.full-elr` or for any sender under `ca-phd`. Note that th
 
 ### Daily Data page special considerations
 
-For specific users within specific organizations, the daily data page will be populated with receiver data from other 
-organizations. Since these are organizational level settings which are tightly coupled to Report Stream, we 
-would store these settings within the RS Postgres DB.
+For specific users within specific organizations, we want to allow them to access another organization's daily data 
+page. Since these are organizational level settings that are tightly coupled to Report Stream, we would store these 
+settings within the RS Postgres DB.
 
-Example: User within the `elims` organization wants to see the daily data page containing data from receivers within
-the `md-phd` and `ca-phd` organizations to check that reports have been properly routed.
+Example: User within the `elims` organization wants to see the `md-phd` daily data page to check that reports have 
+been properly routed.
 
 Organizational settings:
 ```yml
 md-phd:
   allow-daily-data-access: [elims] # references another organization name
-
-ca-phd:
-  allow-daily-data-access: [elims]
 ```
-
 
 User token:
 ```json
@@ -119,19 +113,16 @@ User token:
   "scp": [
     "openid",
     "email",
-    "org:write",
-    "daily-data"  
+    "org:write"
   ],
   "org": [
     "elims"
   ]
 }
 ```
-
-At a code level:
-- ensure the user contains the `daily-data` scope
-- gather all receivers who have had reports routed from the organizations contained in the `org` claim in the token
-- filter out all receivers who do not contain an organization in the `org` claim as a part of their `allow-daily-data-access` setting
+When a user tries to access an organization's daily data page, we would need to compare that user's `org` claim against 
+the values configured for that organization. In the example above, the user would have access to the `md-phd` daily data 
+page because it was configured to allow it for `elims` users.
 
 This will allow organizations to have control over whether their data is shown within the daily data page as an opt-in 
 feature rather than exposing their data without their knowledge.
@@ -239,4 +230,50 @@ fun authorize(
     return containsRequiredScope && containsRequiredOrg
 }
 
+/**
+ * Report submission function check
+ * 
+ * Check that a user contains the submit claim
+ * Check that the client header is contained within the appSubmit/userSubmit claim or starts with it (wildcard scenario)
+ *
+ * examples:
+ * submit: [md-phd]
+ * client: md-phd.default
+ * outcome: true
+ * 
+ * submit: [md-phd.default]
+ * client: md-phd.default
+ * outcome: true
+ * 
+ * submit: [md-phd.default]
+ * client: md-phd
+ * outcome: false
+ */
+fun authorizeSubmit(
+    request: HttpRequestMessage,
+): Boolean {
+    val claims = getClaims(request) // pseudocode to grab the claims
+    val containsSubmitScope = claims["scp"].contains("submit")
+    val submitClaim = claims["appSubmit"] ?: claims["userSubmit"] ?: emptyList<String>()
+    val clientHeader = request.headers["client"]
+    
+    val canSubmit = submitClaim.any { sender ->
+        clientHeader.startsWith(sender) || clientHeader == sender
+    }
+    
+    return containsSubmitScope && canSubmit
+}
+
 ```
+
+## Deprecated approach to passing groups downstream
+
+At the time of writing this section (2/5/25), code still exists which is doing the following:
+
+- Call out to Okta via the Okta Admin SDK to grab an application user's group memberships
+- Create a JWT with that information and set it in the `Okta-Groups` header
+- Pass it along downstream as a part of the request
+- Downstream endpoint reads the JWT found in the header, validates it, and checks the group membership against the `client` header
+
+This entire flow will be deprecated by this design document as groups should be a part of the token at all times. 
+You should be able to delete code related to it.
