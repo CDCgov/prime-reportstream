@@ -439,11 +439,7 @@ class ProcessFhirCommands :
         }
     }
 
-    data class FilterError(
-        val filter: String,
-        val message: String,
-        val filterType: String,
-    )
+    data class FilterError(val filter: String, val message: String, val filterType: String)
 
     abstract class MessageOrBundleParent(
         open var senderTransformErrors: MutableList<String> = mutableListOf(),
