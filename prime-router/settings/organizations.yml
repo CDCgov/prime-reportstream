@@ -1308,3 +1308,30 @@
         port: 22
         filePath: ./upload
         credentialName: DEFAULT-SFTP
+    - name: DEV_ENRICHMENT
+      externalName: Enrichment Development
+      organizationName: development
+      topic: full-elr
+      customerStatus: active
+      jurisdictionalFilter: [ "true" ]
+      qualityFilter:
+        - "true"
+      processingModeFilter: [ "true" ]
+      timing:
+        operation: MERGE
+        numberPerDay: 1440 # Every minute
+        initialTime: 00:00
+      translation:
+        schemaName: "classpath:/metadata/hl7_mapping/ORU_R01/ORU_R01-base.yml"
+        useTestProcessingMode: false
+        useBatchHeaders: false
+        type: "HL7"
+        receivingApplicationName: ""
+        receivingFacilityName: ""
+      transport:
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+        credentialName: DEFAULT-SFTP
+      enrichmentSchemaNames: ["classpath:/metadata/fhir_transforms/receivers/fhir-message-header-sample.yml"]

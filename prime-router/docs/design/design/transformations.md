@@ -33,7 +33,7 @@ TBD: Content to be added in a future story
 
 ## FHIR-to-FHIR Transformations
 
-FHIR bundles are transformed (enriched) to FHIR during the [Convert](../../universal-pipeline/convert.md) and [Translate](../../universal-pipeline/translate.md) steps in the Universal Pipeline. The class `FhirTransformer` is used to perform these FHIR to FHIR transforms.
+FHIR bundles are transformed to FHIR during the [Convert](../../universal-pipeline/convert.md) and then enriched during the [Receiver Enrichment](../../universal-pipeline/receiver-enrichment.md) step in the Universal Pipeline. The class `FhirTransformer` is used to perform these FHIR to FHIR transforms.
 
 ## Transform Schemas
 
