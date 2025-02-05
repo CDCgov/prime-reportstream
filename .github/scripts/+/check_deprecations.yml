@@ -37,7 +37,7 @@ jobs:
       - name: Check Out Changes
         uses: actions/checkout@v4
       - name: Run Deprecation Check
-        run: ./scripts/check_deprecations.sh
+        run: python .github/scripts/tf-deprecations/check_tf_deprecations.py plan.json
 
   confirm_changes:
     name: Check Terraform Stats - ${{ needs.pre_job.outputs.env_name }}
