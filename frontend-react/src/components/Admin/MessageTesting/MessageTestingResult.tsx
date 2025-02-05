@@ -143,7 +143,10 @@ const MessageTestingResult = ({
                                 className: "bg-gray-5",
                                 title: <span className="font-body-lg">Output message</span>,
                                 content: (
-                                    <div className="bg-white font-sans-sm padding-top-2 padding-bottom-2 padding-left-1 padding-right-1">
+                                    <div
+                                        aria-label="Output message"
+                                        className="bg-white font-sans-sm padding-top-2 padding-bottom-2 padding-left-1 padding-right-1"
+                                    >
                                         <HL7Message message={resultData.message} />
                                     </div>
                                 ),
@@ -163,7 +166,10 @@ const MessageTestingResult = ({
                             className: "bg-gray-5",
                             title: <span className="font-body-lg">Test message</span>,
                             content: (
-                                <div className="bg-white font-sans-sm padding-top-2 padding-bottom-2 padding-left-1 padding-right-1">
+                                <div
+                                    aria-label="Test message"
+                                    className="bg-white font-sans-sm padding-top-2 padding-bottom-2 padding-left-1 padding-right-1"
+                                >
                                     <pre>{prettifyJSON(submittedMessage?.reportBody ?? "")}</pre>
                                 </div>
                             ),
