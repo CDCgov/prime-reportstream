@@ -14,29 +14,24 @@ import java.util.UUID
  * Submissions / history API
  * Contains all business logic regarding submissions and JSON serialization.
  */
-abstract class ReportFileFacade(
-    private val dbAccess: DatabaseAccess = BaseEngine.databaseAccessSingleton,
-) : Logging {
+abstract class ReportFileFacade(private val dbAccess: DatabaseAccess = BaseEngine.databaseAccessSingleton) : Logging {
     /**
      * @return a single Action associated with this [reportId]
      */
-    fun fetchActionForReportId(reportId: UUID): Action? {
-        return dbAccess.fetchActionForReportId(reportId)
-    }
+    fun fetchActionForReportId(reportId: UUID): Action? = dbAccess.fetchActionForReportId(reportId)
 
     /**
      * @return a single Report associated with this [actionId]
      */
-    fun fetchReportForActionId(actionId: Long, txn: DataAccessTransaction? = null): ReportFile? {
-        return dbAccess.fetchReportForActionId(actionId, txn)
-    }
+    fun fetchReportForActionId(
+        actionId: Long,
+        txn: DataAccessTransaction? = null,
+    ): ReportFile? = dbAccess.fetchReportForActionId(actionId, txn)
 
     /**
      * @return a single Action, given its key [actionId]
      */
-    fun fetchAction(actionId: Long): Action? {
-        return dbAccess.fetchAction(actionId)
-    }
+    fun fetchAction(actionId: Long): Action? = dbAccess.fetchAction(actionId)
 
     /**
      * Check whether these [claims] allow access to this [orgName].
@@ -52,9 +47,7 @@ abstract class ReportFileFacade(
         orgName: String? = null,
         senderOrReceiver: String? = null,
         request: HttpRequestMessage<String?>,
-    ): Boolean {
-        return claims.authorizedForSendOrReceive(orgName, senderOrReceiver, request)
-    }
+    ): Boolean = claims.authorizedForSendOrReceive(orgName, senderOrReceiver, request)
 
     /**
      * Check whether these [claims] from this [request]

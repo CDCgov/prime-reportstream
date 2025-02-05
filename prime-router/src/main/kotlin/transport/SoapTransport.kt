@@ -316,8 +316,7 @@ class SoapTransport(private val httpClient: HttpClient? = null) : ITransport {
         private const val TIMEOUT = 50_000
 
         /** Our default Http Client, with an optional SSL context */
-        private fun createDefaultHttpClient(jks: UserJksCredential?): HttpClient {
-            return HttpClient(Apache) {
+        private fun createDefaultHttpClient(jks: UserJksCredential?): HttpClient = HttpClient(Apache) {
                 // installs logging into the call to post to the server
                 install(Logging) {
                     logger = io.ktor.client.plugins.logging.Logger.Companion.SIMPLE
@@ -334,7 +333,6 @@ class SoapTransport(private val httpClient: HttpClient? = null) : ITransport {
                     }
                 }
             }
-        }
 
         /***
          * Create an SSL context with the provided cert

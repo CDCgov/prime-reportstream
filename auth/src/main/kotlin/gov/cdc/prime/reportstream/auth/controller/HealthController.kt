@@ -8,9 +8,7 @@ import org.springframework.web.bind.annotation.RestController
 import kotlin.time.TimeSource
 
 @RestController
-class HealthController(
-    timeSource: TimeSource,
-) {
+class HealthController(timeSource: TimeSource) {
 
     private val applicationStart = timeSource.markNow()
 

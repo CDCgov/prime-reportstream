@@ -162,8 +162,7 @@ class FHIRConverterIntegrationTests {
         report: Report,
         blobContents: String,
         sender: Sender,
-    ): String {
-        return """
+    ): String = """
         {
             "type": "convert",
             "reportId": "${report.id}",
@@ -174,7 +173,6 @@ class FHIRConverterIntegrationTests {
             "schemaName": "${sender.schemaName}"
         }
     """.trimIndent()
-    }
 
     private fun generateFHIRConvertSubmissionQueueMessage(
         report: Report,
@@ -241,8 +239,7 @@ class FHIRConverterIntegrationTests {
         sender: Sender,
         receiveReportBlobUrl: String,
         itemCount: Int,
-    ): Report {
-        return ReportStreamTestDatabaseContainer.testDatabaseAccess.transactReturning { txn ->
+    ): Report = ReportStreamTestDatabaseContainer.testDatabaseAccess.transactReturning { txn ->
             val report = Report(
                 format,
                 emptyList(),
@@ -284,7 +281,6 @@ class FHIRConverterIntegrationTests {
 
             report
         }
-    }
 
     @Test
     fun `should add a message to the poison queue if the sender is not found and not do any work`() {
@@ -778,10 +774,12 @@ class FHIRConverterIntegrationTests {
             assertThat(actionLogs).hasSize(4)
             @Suppress("ktlint:standard:max-line-length")
             val expectedDetailedActions = listOf(
-                2 to "Item 2 in the report was not parseable. Reason: exception while parsing FHIR: HAPI-1838: Invalid JSON content detected, missing required element: 'resourceType'",
+                2 to
+                    "Item 2 in the report was not parseable. Reason: exception while parsing FHIR: HAPI-1838: Invalid JSON content detected, missing required element: 'resourceType'",
                 3 to "Missing mapping for code(s): 41458-1",
                 3 to "Missing mapping for code(s): 260373001",
-                4 to "Item 4 in the report was not parseable. Reason: exception while parsing FHIR: HAPI-1861: Failed to parse JSON encoded FHIR content: Unexpected end-of-input: was expecting closing quote for a string value\n" +
+                4 to
+                    "Item 4 in the report was not parseable. Reason: exception while parsing FHIR: HAPI-1861: Failed to parse JSON encoded FHIR content: Unexpected end-of-input: was expecting closing quote for a string value\n" +
                     " at [line: 1, column: 23]"
             )
 
@@ -968,7 +966,8 @@ class FHIRConverterIntegrationTests {
                     ReportStreamEventProperties.VALIDATION_PROFILE to Topic.MARS_OTC_ELR.validator.validatorProfileName,
                     @Suppress("ktlint:standard:max-line-length")
                     ReportStreamEventProperties.PROCESSING_ERROR
-                        to "Item 2 in the report was not valid. Reason: HL7 was not valid at MSH[1]-21[1].3 for validator: RADx MARS"
+                        to
+                            "Item 2 in the report was not valid. Reason: HL7 was not valid at MSH[1]-21[1].3 for validator: RADx MARS"
                 )
             )
         }

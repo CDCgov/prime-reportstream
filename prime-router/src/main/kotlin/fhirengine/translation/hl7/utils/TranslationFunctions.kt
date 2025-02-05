@@ -101,7 +101,5 @@ open class Hl7TranslationFunctions : TranslationFunctions {
         hl7FieldPath: String,
         terser: Terser,
         appContext: CustomContext?,
-    ): String {
-        return value
-    }
+    ): String = value
 }

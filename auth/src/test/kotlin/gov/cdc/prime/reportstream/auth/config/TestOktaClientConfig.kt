@@ -15,12 +15,8 @@ import org.springframework.context.annotation.Profile
 class TestOktaClientConfig {
 
     @Bean
-    fun apiClient(): ApiClient {
-        return mockk()
-    }
+    fun apiClient(): ApiClient = mockk()
 
     @Bean
-    fun applicationGroupsApi(): ApplicationGroupsApi {
-        return mockk()
-    }
+    fun applicationGroupsApi(): ApplicationGroupsApi = mockk()
 }

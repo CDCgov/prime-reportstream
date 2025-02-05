@@ -53,7 +53,4 @@ class AzureEventServiceTest {
     }
 }
 
-data class TestEvent(
-    val property1: String,
-    val property2: Int,
-) : AzureCustomEvent
+data class TestEvent(val property1: String, val property2: Int) : AzureCustomEvent

@@ -9,7 +9,7 @@ the data that may meet those interests (other steps could still filter out the d
 The function follows the [Convert](convert.md) function. At this point all data will be in FHIR format. These messages
 are passed to the FHIR Destination Filter which first decodes a FHIR Bundle. It then evaluates jurisdiction filters for
 all active receivers with a matching topic to find receivers that could accept the bundle. The message is then passed to
-the [Receiver Filter](receiver-filter.md) function to evaluate remaining receiver-specific filters.
+the [Receiver Enrichment](receiver-enrichment.md) function to optionally add minor customizations.
 
 ### Topic
 

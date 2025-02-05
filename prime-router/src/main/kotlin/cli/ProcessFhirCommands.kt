@@ -67,7 +67,8 @@ import java.util.UUID
 /**
  * Process data into/from FHIR.
  */
-class ProcessFhirCommands : CliktCommand(
+class ProcessFhirCommands :
+    CliktCommand(
     name = "fhirdata",
     help = "Process data into/from FHIR"
 ) {
@@ -206,7 +207,8 @@ class ProcessFhirCommands : CliktCommand(
         val messageOrBundle = MessageOrBundle()
         when {
             // HL7 to FHIR conversion
-            inputFileType == "HL7" && (
+            inputFileType == "HL7" &&
+                (
                 (outputFormat == MimeFormat.FHIR.toString()) ||
                     (receiver != null && receiver.format == MimeFormat.FHIR)
                 ) -> {
@@ -218,7 +220,8 @@ class ProcessFhirCommands : CliktCommand(
             }
 
             // FHIR to HL7 conversion
-            (inputFileType == "FHIR" || inputFileType == "JSON") && (
+            (inputFileType == "FHIR" || inputFileType == "JSON") &&
+                (
                 (isCli && outputFormat == MimeFormat.HL7.toString()) ||
                     (receiver != null && (receiver.format == MimeFormat.HL7 || receiver.format == MimeFormat.HL7_BATCH))
                 ) -> {
@@ -236,7 +239,8 @@ class ProcessFhirCommands : CliktCommand(
             }
 
             // FHIR to FHIR conversion
-            (inputFileType == "FHIR" || inputFileType == "JSON") && (
+            (inputFileType == "FHIR" || inputFileType == "JSON") &&
+                (
                 (isCli && outputFormat == MimeFormat.FHIR.toString()) ||
                     (receiver != null && receiver.format == MimeFormat.FHIR)
                 ) -> {
@@ -247,7 +251,8 @@ class ProcessFhirCommands : CliktCommand(
             }
 
             // HL7 to FHIR to HL7 conversion
-            inputFileType == "HL7" && (
+            inputFileType == "HL7" &&
+                (
                 (isCli && outputFormat == MimeFormat.HL7.toString()) ||
                     (
                         receiver != null &&
@@ -434,11 +439,7 @@ class ProcessFhirCommands : CliktCommand(
         }
     }
 
-    data class FilterError(
-        val filter: String,
-        val message: String,
-        val filterType: String,
-    )
+    data class FilterError(val filter: String, val message: String, val filterType: String)
 
     abstract class MessageOrBundleParent(
         open var senderTransformErrors: MutableList<String> = mutableListOf(),
@@ -665,7 +666,8 @@ class ProcessFhirCommands : CliktCommand(
  * Process a FHIR path using a FHIR bundle as input. This command is useful to parse sample FHIR data to make
  * sure your FHIR path is correct in your schemas.
  */
-class FhirPathCommand : CliktCommand(
+class FhirPathCommand :
+    CliktCommand(
     name = "fhirpath",
     help = "Input FHIR paths to be resolved using the input FHIR bundle"
 ) {
@@ -830,8 +832,7 @@ class FhirPathCommand : CliktCommand(
      * Convert a [value] that is a FHIR base to a string.
      * @return a string representing the contents of the FHIR base
      */
-    private fun fhirBaseAsString(value: Base): String {
-        return when {
+    private fun fhirBaseAsString(value: Base): String = when {
             value.isPrimitive -> "Primitive: $value"
 
             // References
@@ -847,7 +848,6 @@ class FhirPathCommand : CliktCommand(
             else ->
                 fhirPropertiesAsString(value)
         }
-    }
 
     /**
      * Generate a string representation of all the properties in a resource
@@ -907,9 +907,7 @@ class FhirPathCommand : CliktCommand(
 // made static
 // TODO: https://github.com/CDCgov/prime-reportstream/issues/16407
 class NoopReportStreamEventService : IReportStreamEventService {
-    override fun sendQueuedEvents() {
-        throw NotImplementedError()
-    }
+    override fun sendQueuedEvents(): Unit = throw NotImplementedError()
 
     override fun sendReportEvent(
         eventName: ReportStreamEventName,
@@ -917,9 +915,7 @@ class NoopReportStreamEventService : IReportStreamEventService {
         pipelineStepName: TaskAction,
         shouldQueue: Boolean,
         initializer: ReportStreamReportEventBuilder.() -> Unit,
-    ) {
-        throw NotImplementedError()
-    }
+    ): Unit = throw NotImplementedError()
 
     override fun sendReportEvent(
         eventName: ReportStreamEventName,
@@ -927,9 +923,7 @@ class NoopReportStreamEventService : IReportStreamEventService {
         pipelineStepName: TaskAction,
         shouldQueue: Boolean,
         initializer: ReportStreamReportEventBuilder.() -> Unit,
-    ) {
-        throw NotImplementedError()
-    }
+    ): Unit = throw NotImplementedError()
 
     override fun sendReportProcessingError(
         eventName: ReportStreamEventName,
@@ -938,9 +932,7 @@ class NoopReportStreamEventService : IReportStreamEventService {
         error: String,
         shouldQueue: Boolean,
         initializer: ReportStreamReportProcessingErrorEventBuilder.() -> Unit,
-    ) {
-        throw NotImplementedError()
-    }
+    ): Unit = throw NotImplementedError()
 
     override fun sendReportProcessingError(
         eventName: ReportStreamEventName,
@@ -949,9 +941,7 @@ class NoopReportStreamEventService : IReportStreamEventService {
         error: String,
         shouldQueue: Boolean,
         initializer: ReportStreamReportProcessingErrorEventBuilder.() -> Unit,
-    ) {
-        throw NotImplementedError()
-    }
+    ): Unit = throw NotImplementedError()
 
     override fun sendItemEvent(
         eventName: ReportStreamEventName,
@@ -959,9 +949,7 @@ class NoopReportStreamEventService : IReportStreamEventService {
         pipelineStepName: TaskAction,
         shouldQueue: Boolean,
         initializer: ReportStreamItemEventBuilder.() -> Unit,
-    ) {
-        throw NotImplementedError()
-    }
+    ): Unit = throw NotImplementedError()
 
     override fun sendItemEvent(
         eventName: ReportStreamEventName,
@@ -969,9 +957,7 @@ class NoopReportStreamEventService : IReportStreamEventService {
         pipelineStepName: TaskAction,
         shouldQueue: Boolean,
         initializer: ReportStreamItemEventBuilder.() -> Unit,
-    ) {
-        throw NotImplementedError()
-    }
+    ): Unit = throw NotImplementedError()
 
     override fun sendItemProcessingError(
         eventName: ReportStreamEventName,
@@ -980,9 +966,7 @@ class NoopReportStreamEventService : IReportStreamEventService {
         error: String,
         shouldQueue: Boolean,
         initializer: ReportStreamItemProcessingErrorEventBuilder.() -> Unit,
-    ) {
-        throw NotImplementedError()
-    }
+    ): Unit = throw NotImplementedError()
 
     override fun sendItemProcessingError(
         eventName: ReportStreamEventName,
@@ -991,9 +975,7 @@ class NoopReportStreamEventService : IReportStreamEventService {
         error: String,
         shouldQueue: Boolean,
         initializer: ReportStreamItemProcessingErrorEventBuilder.() -> Unit,
-    ) {
-        throw NotImplementedError()
-    }
+    ): Unit = throw NotImplementedError()
 
     override fun getReportEventData(
         childReportId: UUID,
@@ -1001,16 +983,12 @@ class NoopReportStreamEventService : IReportStreamEventService {
         parentReportId: UUID?,
         pipelineStepName: TaskAction,
         topic: Topic?,
-    ): ReportEventData {
-        throw NotImplementedError()
-    }
+    ): ReportEventData = throw NotImplementedError()
 
     override fun getItemEventData(
         childItemIndex: Int,
         parentReportId: UUID,
         parentItemIndex: Int,
         trackingId: String?,
-    ): ItemEventData {
-        throw NotImplementedError()
-    }
+    ): ItemEventData = throw NotImplementedError()
 }
