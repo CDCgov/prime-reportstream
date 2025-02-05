@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 
-## Usage: Validate generated records across reports
-##        > verify-records.shell ./python.csv ./powershell.csv
+## Author: PRIME Reportstream DevSecOps team
+## Usage:  Validate generated records across reports
+##         > verify-records.shell ./python.csv ./powershell.csv
 
 oIFS="${IFS}" ;
 IFS=$'\n' ;
