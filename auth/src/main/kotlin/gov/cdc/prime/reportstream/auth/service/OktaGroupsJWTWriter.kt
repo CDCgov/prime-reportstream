@@ -17,10 +17,7 @@ import java.util.Date
 import java.util.UUID
 
 @Service
-class OktaGroupsJWTWriter(
-    private val jwtConfig: OktaGroupsJWTConfig,
-    private val clock: Clock,
-) {
+class OktaGroupsJWTWriter(private val jwtConfig: OktaGroupsJWTConfig, private val clock: Clock) {
 
     /**
      * generate and sign our custom JWT containing Okta group information for a particular application

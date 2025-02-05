@@ -160,9 +160,9 @@ class ConsolidatedActionLog(log: DetailedActionLog) {
      * Tests if a detail action log [other] can be consolidated into this existing consolidated log.
      * @return true if the log can be consolidated, false otherwise
      */
-    fun canBeConsolidatedWith(other: DetailedActionLog): Boolean {
-        return this.message == other.detail.message && this.scope == other.scope && this.type == other.type
-    }
+    fun canBeConsolidatedWith(
+        other: DetailedActionLog,
+    ): Boolean = this.message == other.detail.message && this.scope == other.scope && this.type == other.type
 }
 
 /**

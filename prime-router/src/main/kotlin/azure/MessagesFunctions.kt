@@ -28,9 +28,7 @@ const val MESSAGE_ID_PARAMETER = "messageId"
  * Search and retrieve messages. In this case, "messages" means data related to
  * specific records in the `covid_result_metadata` table
  */
-class MessagesFunctions(
-    private val dbAccess: DatabaseAccess = DatabaseAccess(),
-) : Logging {
+class MessagesFunctions(private val dbAccess: DatabaseAccess = DatabaseAccess()) : Logging {
     /**
      * entry point for the /messages endpoint,
      * which searches for a given message_id in the covid_result_metadata table

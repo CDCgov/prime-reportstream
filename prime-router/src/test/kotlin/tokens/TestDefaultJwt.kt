@@ -5,31 +5,18 @@ import java.time.Instant
 import java.util.Collections
 import kotlin.collections.LinkedHashMap
 
-class TestDefaultJwt(
-    tokenValue: String,
-    issuedAt: Instant,
-    expiresAt: Instant,
-    claims: Map<String, Any>,
-) : Jwt {
+class TestDefaultJwt(tokenValue: String, issuedAt: Instant, expiresAt: Instant, claims: Map<String, Any>) : Jwt {
     private val tokenValue: String
     private val claims: Map<String, Any>
     private val issuedAt: Instant
     private val expiresAt: Instant
-    override fun getTokenValue(): String {
-        return tokenValue
-    }
+    override fun getTokenValue(): String = tokenValue
 
-    override fun getIssuedAt(): Instant {
-        return issuedAt
-    }
+    override fun getIssuedAt(): Instant = issuedAt
 
-    override fun getExpiresAt(): Instant {
-        return expiresAt
-    }
+    override fun getExpiresAt(): Instant = expiresAt
 
-    override fun getClaims(): Map<String, Any> {
-        return claims
-    }
+    override fun getClaims(): Map<String, Any> = claims
 
     init {
         this.tokenValue = tokenValue

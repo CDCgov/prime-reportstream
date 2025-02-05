@@ -50,10 +50,7 @@ private const val organizationsFile = "settings/organizations.yml"
  * It has a composable set of methods for listing, getting, diffing, putting and deleting settings.
  * The idea is to make concrete commands clear and concise by building primitives in this class.
  */
-abstract class SettingCommand(
-    name: String,
-    help: String,
-) : CliktCommand(name = name, help = help) {
+abstract class SettingCommand(name: String, help: String) : CliktCommand(name = name, help = help) {
     internal val env by option(
         "-e", "--env",
         metavar = "<name>",
@@ -300,9 +297,7 @@ abstract class SettingCommand(
     /**
      * Difference the YAML [inputFile]. Returns a list of all settings with differences.
      */
-    protected fun diffAll(inputFile: File): List<SettingsDiff> {
-        return diffAll(readYaml(inputFile))
-    }
+    protected fun diffAll(inputFile: File): List<SettingsDiff> = diffAll(readYaml(inputFile))
 
     /**
      * Difference a list of organization settings [deepOrganizations] against a specified environment, or [environment]
@@ -361,9 +356,7 @@ abstract class SettingCommand(
     /**
      * Call [put] on all the settings in the [inputFile]. Return the list of results.
      */
-    protected fun putAll(inputFile: File): List<String> {
-        return putAll(readYaml(inputFile))
-    }
+    protected fun putAll(inputFile: File): List<String> = putAll(readYaml(inputFile))
 
     /**
      * Call [put] on a list of organization settings, [deepOrganizations] in a specified environment [env], which
@@ -427,16 +420,14 @@ abstract class SettingCommand(
         )
     }
 
-    fun fromJson(input: String, settingType: SettingType): Pair<String, String> {
-        return readStructure(input, settingType, jsonMapper)
-    }
+    fun fromJson(input: String, settingType: SettingType): Pair<String, String> =
+        readStructure(input, settingType, jsonMapper)
 
-    fun fromYaml(input: String, settingType: SettingType): Pair<String, String> {
-        return readStructure(input, settingType, yamlMapper)
-    }
+    fun fromYaml(input: String, settingType: SettingType): Pair<String, String> =
+        readStructure(input, settingType, yamlMapper)
 
-    private fun readStructure(input: String, settingType: SettingType, mapper: ObjectMapper): Pair<String, String> {
-        return when (settingType) {
+    private fun readStructure(input: String, settingType: SettingType, mapper: ObjectMapper): Pair<String, String> =
+        when (settingType) {
             SettingType.ORGANIZATION -> {
                 val organization = mapper.readValue(input, OrganizationAPI::class.java)
                 Pair(organization.name, jsonMapper.writeValueAsString(organization))
@@ -452,7 +443,6 @@ abstract class SettingCommand(
                 Pair(receiver.fullName, jsonMapper.writeValueAsString(receiver))
             }
         }
-    }
 
     fun toYaml(output: String, settingType: SettingType): String {
         // DevNote: could be handled by inherited methods, but decided that keeping all these together was maintainable
@@ -540,12 +530,10 @@ abstract class SettingCommand(
             operation: Operation,
             settingType: SettingType,
             settingName: String,
-        ): String {
-            return environment.formUrl("$apiPath${settingPath(operation, settingType, settingName)}").toString()
-        }
+        ): String = environment.formUrl("$apiPath${settingPath(operation, settingType, settingName)}").toString()
 
-        private fun settingPath(operation: Operation, settingType: SettingType, settingName: String): String {
-            return if (operation == Operation.LIST) {
+        private fun settingPath(operation: Operation, settingType: SettingType, settingName: String): String =
+            if (operation == Operation.LIST) {
                 when (settingType) {
                     SettingType.ORGANIZATION -> "/organizations"
                     SettingType.SENDER -> "/organizations/$settingName/senders"
@@ -565,18 +553,14 @@ abstract class SettingCommand(
                     }
                 }
             }
-        }
     }
 }
 
 /**
  * List a single object entity
  */
-abstract class ListSettingCommand(
-    name: String,
-    help: String,
-    val settingType: SettingType,
-) : SettingCommand(name, help) {
+abstract class ListSettingCommand(name: String, help: String, val settingType: SettingType) :
+    SettingCommand(name, help) {
     private val settingName: String by nameOption
 
     override fun run() {
@@ -592,11 +576,8 @@ abstract class ListSettingCommand(
 /**
  * Get a single object entity
  */
-abstract class GetSettingCommand(
-    name: String,
-    help: String,
-    val settingType: SettingType,
-) : SettingCommand(name, help) {
+abstract class GetSettingCommand(name: String, help: String, val settingType: SettingType) :
+    SettingCommand(name, help) {
     private val settingName: String by nameOption
     private val useJson: Boolean by jsonOption
 
@@ -610,11 +591,8 @@ abstract class GetSettingCommand(
 /**
  * Remove a single entity
  */
-abstract class DeleteSettingCommand(
-    name: String,
-    help: String,
-    val settingType: SettingType,
-) : SettingCommand(name, help) {
+abstract class DeleteSettingCommand(name: String, help: String, val settingType: SettingType) :
+    SettingCommand(name, help) {
     private val settingName: String by nameOption
 
     override fun run() {
@@ -627,11 +605,8 @@ abstract class DeleteSettingCommand(
 /**
  * Put an entity command with an input file
  */
-abstract class PutSettingCommand(
-    name: String,
-    help: String,
-    val settingType: SettingType,
-) : SettingCommand(name, help) {
+abstract class PutSettingCommand(name: String, help: String, val settingType: SettingType) :
+    SettingCommand(name, help) {
 
     private val inputFile by inputOption
     private val useJson: Boolean by jsonOption
@@ -688,11 +663,8 @@ abstract class PutSettingCommand(
 /**
  * Diff an entity command with an input file
  */
-abstract class DiffSettingCommand(
-    name: String,
-    help: String,
-    val settingType: SettingType,
-) : SettingCommand(name, help) {
+abstract class DiffSettingCommand(name: String, help: String, val settingType: SettingType) :
+    SettingCommand(name, help) {
     private val inputFile by inputOption
     private val useJson: Boolean by jsonOption
 
@@ -715,7 +687,8 @@ abstract class DiffSettingCommand(
 /**
  * Organization setting commands
  */
-class OrganizationSettings : CliktCommand(
+class OrganizationSettings :
+    CliktCommand(
     name = "organization",
     help = "Fetch and update settings for an organization"
 ) {
@@ -737,7 +710,8 @@ class OrganizationSettings : CliktCommand(
     }
 }
 
-class ListOrganizationSetting : SettingCommand(
+class ListOrganizationSetting :
+    SettingCommand(
     name = "list",
     help = "List the setting names of all organizations"
 ) {
@@ -747,25 +721,29 @@ class ListOrganizationSetting : SettingCommand(
     }
 }
 
-class GetOrganizationSetting : GetSettingCommand(
+class GetOrganizationSetting :
+    GetSettingCommand(
     name = "get",
     help = "Fetch an organization's settings",
     settingType = SettingType.ORGANIZATION,
 )
 
-class PutOrganizationSetting : PutSettingCommand(
+class PutOrganizationSetting :
+    PutSettingCommand(
     name = "set",
     help = "Update an organization's settings",
     settingType = SettingType.ORGANIZATION
 )
 
-class DeleteOrganizationSetting : DeleteSettingCommand(
+class DeleteOrganizationSetting :
+    DeleteSettingCommand(
     name = "remove",
     help = "Remove an organization",
     settingType = SettingType.ORGANIZATION,
 )
 
-class DiffOrganizationSetting : DiffSettingCommand(
+class DiffOrganizationSetting :
+    DiffSettingCommand(
     name = "diff",
     help = "Compare an organization's setting from an environment to those in an file",
     settingType = SettingType.ORGANIZATION
@@ -774,7 +752,8 @@ class DiffOrganizationSetting : DiffSettingCommand(
 /**
  * Sender setting commands
  */
-class SenderSettings : CliktCommand(
+class SenderSettings :
+    CliktCommand(
     name = "sender",
     help = "Fetch and update settings for a sender"
 ) {
@@ -793,31 +772,36 @@ class SenderSettings : CliktCommand(
     }
 }
 
-class ListSenderSetting : ListSettingCommand(
+class ListSenderSetting :
+    ListSettingCommand(
     name = "list",
     help = "List all sender names for an organization",
     settingType = SettingType.SENDER,
 )
 
-class GetSenderSetting : GetSettingCommand(
+class GetSenderSetting :
+    GetSettingCommand(
     name = "get",
     help = "Fetch a sender's settings",
     settingType = SettingType.SENDER,
 )
 
-class PutSenderSetting : PutSettingCommand(
+class PutSenderSetting :
+    PutSettingCommand(
     name = "set",
     help = "Update a sender's settings",
     settingType = SettingType.SENDER,
 )
 
-class DeleteSenderSetting : DeleteSettingCommand(
+class DeleteSenderSetting :
+    DeleteSettingCommand(
     name = "remove",
     help = "Remove a sender",
     settingType = SettingType.SENDER,
 )
 
-class DiffSenderSetting : DiffSettingCommand(
+class DiffSenderSetting :
+    DiffSettingCommand(
     name = "diff",
     help = "Compare sender's settings from an environment to those in a file",
     settingType = SettingType.SENDER,
@@ -826,7 +810,8 @@ class DiffSenderSetting : DiffSettingCommand(
 /**
  * Receiver setting commands
  */
-class ReceiverSettings : CliktCommand(
+class ReceiverSettings :
+    CliktCommand(
     name = "receiver",
     help = "Fetch and update settings for a receiver"
 ) {
@@ -845,31 +830,36 @@ class ReceiverSettings : CliktCommand(
     }
 }
 
-class ListReceiverSetting : ListSettingCommand(
+class ListReceiverSetting :
+    ListSettingCommand(
     name = "list",
     help = "Fetch the receiver names for an organization",
     settingType = SettingType.RECEIVER,
 )
 
-class GetReceiverSetting : GetSettingCommand(
+class GetReceiverSetting :
+    GetSettingCommand(
     name = "get",
     help = "Fetch a receiver's settings",
     settingType = SettingType.RECEIVER,
 )
 
-class PutReceiverSetting : PutSettingCommand(
+class PutReceiverSetting :
+    PutSettingCommand(
     name = "set",
     help = "Update a receiver's settings",
     settingType = SettingType.RECEIVER,
 )
 
-class DeleteReceiverSetting : DeleteSettingCommand(
+class DeleteReceiverSetting :
+    DeleteSettingCommand(
     name = "remove",
     help = "Remove a receiver",
     settingType = SettingType.RECEIVER,
 )
 
-class DiffReceiverSetting : DiffSettingCommand(
+class DiffReceiverSetting :
+    DiffSettingCommand(
     name = "diff",
     help = "Compare a receiver's settings from an environment to those in a file",
     settingType = SettingType.RECEIVER,
@@ -878,7 +868,8 @@ class DiffReceiverSetting : DiffSettingCommand(
 /**
  * Update multiple settings
  */
-class MultipleSettings : CliktCommand(
+class MultipleSettings :
+    CliktCommand(
     name = "multiple-settings",
     help = "Fetch and update multiple settings"
 ) {
@@ -891,7 +882,8 @@ class MultipleSettings : CliktCommand(
     }
 }
 
-class PutMultipleSettings : SettingCommand(
+class PutMultipleSettings :
+    SettingCommand(
     name = "set",
     help = "Set all settings from a 'organizations.yml' file"
 ) {
@@ -976,7 +968,8 @@ class PutMultipleSettings : SettingCommand(
     }
 }
 
-class DiffMultipleSettings : SettingCommand(
+class DiffMultipleSettings :
+    SettingCommand(
     name = "diff",
     help = "Compare all the settings from an environment to those in a file"
 ) {
@@ -994,7 +987,8 @@ class DiffMultipleSettings : SettingCommand(
     }
 }
 
-class GetMultipleSettings : SettingCommand(
+class GetMultipleSettings :
+    SettingCommand(
     name = "get",
     help = "Get all settings from an environment in yaml format"
 ) {

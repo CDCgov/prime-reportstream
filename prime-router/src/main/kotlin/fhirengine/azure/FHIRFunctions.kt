@@ -23,6 +23,7 @@ import gov.cdc.prime.router.common.BaseEngine
 import gov.cdc.prime.router.fhirengine.engine.FHIRConverter
 import gov.cdc.prime.router.fhirengine.engine.FHIRDestinationFilter
 import gov.cdc.prime.router.fhirengine.engine.FHIREngine
+import gov.cdc.prime.router.fhirengine.engine.FHIRReceiverEnrichment
 import gov.cdc.prime.router.fhirengine.engine.FHIRReceiverFilter
 import gov.cdc.prime.router.fhirengine.engine.FHIRTranslator
 import gov.cdc.prime.router.fhirengine.engine.FhirConvertSubmissionQueueMessage
@@ -151,6 +152,24 @@ class FHIRFunctions(
             dequeueCount,
             FHIRTranslator(reportStreamEventService = reportStreamEventService),
             ActionHistory(TaskAction.translate)
+        )
+    }
+
+    /**
+     * An Azure function for enriching ELR FHIR receiver data.
+     */
+    @FunctionName("elr-fhir-receiver-enrichment")
+    @StorageAccount("AzureWebJobsStorage")
+    fun receiverEnrichment(
+        @QueueTrigger(name = "message", queueName = QueueMessage.elrReceiverEnrichmentQueueName)
+        message: String,
+        @BindingName("DequeueCount") dequeueCount: Int = 1,
+    ) {
+        process(
+            message,
+            dequeueCount,
+            FHIRReceiverEnrichment(reportStreamEventService = reportStreamEventService),
+            ActionHistory(TaskAction.receiver_enrichment)
         )
     }
 

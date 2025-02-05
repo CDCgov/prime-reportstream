@@ -73,26 +73,18 @@ data class Schema(
 
     private val elementIndex: Map<String, Int> = elements.mapIndexed { index, element -> element.name to index }.toMap()
 
-    fun findElement(name: String): Element? {
-        return elementIndex[name]?.let { elements[it] }
-    }
+    fun findElement(name: String): Element? = elementIndex[name]?.let { elements[it] }
 
-    fun findElementColumn(name: String): Int? {
-        return elementIndex[name]
-    }
+    fun findElementColumn(name: String): Int? = elementIndex[name]
 
-    fun findElementByCsvName(name: String): Element? {
-        return elements.firstOrNull { e ->
+    fun findElementByCsvName(name: String): Element? = elements.firstOrNull { e ->
             e.csvFields?.map { c -> c.name.lowercase() }?.contains(name.lowercase()) ?: false
         }
-    }
 
-    fun containsElement(name: String): Boolean {
-        return elementIndex[name] != null
-    }
+    fun containsElement(name: String): Boolean = elementIndex[name] != null
 
-    fun filterCsvFields(block: (Element) -> Boolean): List<Element.CsvField> {
-        return elements.filter(block).flatMap { it.csvFields ?: emptyList() }
+    fun filterCsvFields(block: (Element) -> Boolean): List<Element.CsvField> = elements.filter(block).flatMap {
+        it.csvFields ?: emptyList()
     }
 
     /**
