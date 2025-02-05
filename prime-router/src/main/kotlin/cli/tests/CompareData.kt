@@ -119,7 +119,8 @@ class DataCompareTest : CoolTest() {
                 val outputList = config.value
                 val sender = settings.findSender(input.sender)
                     ?: error("Unable to find sender ${input.sender}")
-                val receivers = outputList.map { testOutput -> // TODO do we need receivers
+                val receivers = outputList.map { testOutput ->
+                    // TODO do we need receivers
                     // We expect only one receiver back
                     val rec = settings.receivers.filter { receiver ->
                         receiver.organizationName == testOutput.orgName && receiver.name == testOutput.receiverName
@@ -165,8 +166,9 @@ class DataCompareTest : CoolTest() {
 
                             val processResults = pollForStepResult(internalReportId, TaskAction.process)
                             // verify each result is valid
-                            for (result in processResults.values)
+                            for (result in processResults.values) {
                                 passed = passed && examineProcessResponse(result)
+                            }
                             if (!passed) {
                                 bad("***$name FAILED***: Process result invalid")
                             }
@@ -314,12 +316,10 @@ class CompareData {
             warnings.addAll(anotherResult.warnings)
         }
 
-        override fun toString(): String {
-            return """passed: $passed
+        override fun toString(): String = """passed: $passed
 errors: ${errors.joinToString()}
 warnings: ${warnings.joinToString()}
             """
-        }
     }
 
     /**
@@ -703,9 +703,11 @@ class CompareCsvData {
                         null
                     }
 
-                    schemaMsgIdIndex != null && expectedMsgId == actualMsgId ||
+                    schemaMsgIdIndex != null &&
+                        expectedMsgId == actualMsgId ||
                         (
-                            schemaPatLastNameIndex != null && schemaPatStateIndex != null &&
+                            schemaPatLastNameIndex != null &&
+                                schemaPatStateIndex != null &&
                                 expectedLastName == actualLastName &&
                                 expectedPatState == actualPatState
                             )
@@ -891,9 +893,7 @@ class CompareCsvData {
  * Compare the raw contents of a file.
  * @property result the result of the comparison
  */
-class CompareFile(
-    val result: CompareData.Result = CompareData.Result(),
-) {
+class CompareFile(val result: CompareData.Result = CompareData.Result()) {
     /**
      * Compare the contents of a file [actual] vs [expected] and provide the [result].
      */

@@ -48,16 +48,12 @@ data class HL7ValidationResult(val rawReport: Report) : IItemValidationResult {
 }
 
 data class FHIRValidationResult(val rawValidationResult: ValidationResult) : IItemValidationResult {
-    override fun isValid(): Boolean {
-        return rawValidationResult.isSuccessful
-    }
+    override fun isValid(): Boolean = rawValidationResult.isSuccessful
 
-    override fun getErrorsMessage(validator: IItemValidator): String {
-        return rawValidationResult
+    override fun getErrorsMessage(validator: IItemValidator): String = rawValidationResult
             .messages
             .filter { it.severity == ResultSeverityEnum.ERROR || it.severity == ResultSeverityEnum.FATAL }
             .joinToString { it.message }
-    }
 }
 
 abstract class AbstractItemValidator : IItemValidator {
@@ -67,8 +63,7 @@ abstract class AbstractItemValidator : IItemValidator {
         private val hl7Validators = mutableMapOf<String, SyncHL7Validator>()
 
         private val classLoader = this::class.java.classLoader
-        fun getHL7Validator(profileLocation: String): SyncHL7Validator {
-            return hl7Validators.getOrElse(profileLocation) {
+        fun getHL7Validator(profileLocation: String): SyncHL7Validator = hl7Validators.getOrElse(profileLocation) {
                 (
                     classLoader.getResourceAsStream("$profileLocation/profile.xml")
                         ?: throw RuntimeException("profile.xml does not exist")
@@ -107,7 +102,6 @@ abstract class AbstractItemValidator : IItemValidator {
                         validator
                     }
             }
-        }
     }
 
     open val hl7ConformanceProfileLocation: String? = null

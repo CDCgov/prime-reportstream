@@ -119,8 +119,7 @@ class FHIRReceiverEnrichmentIntegrationTests : Logging {
         blobContents: String,
         sender: Sender,
         receiverName: String,
-    ): String {
-        return """
+    ): String = """
             {
                 "type": "${TaskAction.receiver_enrichment.literal}",
                 "reportId": "${report.id}",
@@ -131,7 +130,6 @@ class FHIRReceiverEnrichmentIntegrationTests : Logging {
                 "receiverFullName": "$receiverName" 
             }
         """.trimIndent()
-    }
 
     @Test
     fun `successfully add enrichments`() {

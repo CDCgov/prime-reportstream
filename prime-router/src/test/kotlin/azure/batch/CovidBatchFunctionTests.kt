@@ -30,6 +30,7 @@ import io.mockk.mockkObject
 import io.mockk.runs
 import io.mockk.spyk
 import io.mockk.verify
+import org.jooq.Configuration
 import org.jooq.tools.jdbc.MockConnection
 import org.jooq.tools.jdbc.MockDataProvider
 import org.jooq.tools.jdbc.MockResult
@@ -59,12 +60,14 @@ class CovidBatchFunctionTests {
         ),
     )
 
-    private fun makeEngine(metadata: Metadata, settings: SettingsProvider): WorkflowEngine {
-        return spyk(
-            WorkflowEngine.Builder().metadata(metadata).settingsProvider(settings).databaseAccess(accessSpy)
+    private fun makeEngine(
+        metadata: Metadata,
+        settings: SettingsProvider,
+        dbAccess: DatabaseAccess = accessSpy,
+    ): WorkflowEngine = spyk(
+            WorkflowEngine.Builder().metadata(metadata).settingsProvider(settings).databaseAccess(dbAccess)
                 .blobAccess(blobMock).queueAccess(queueMock).build()
         )
-    }
 
     @BeforeEach
     fun reset() {
@@ -102,41 +105,62 @@ class CovidBatchFunctionTests {
         every { timing1.isValid() } returns true
         every { timing1.maxReportCount } returns 500
         every { timing1.numberPerDay } returns 1440
-        every { timing1.operation } returns Receiver.BatchOperation.NONE
+
         mockkObject(BlobAccess.Companion)
         mockkObject(ActionHistory)
-        every { BlobAccess.Companion.downloadBlobAsByteArray(any()) } returns ByteArray(4)
+
+        // IMPORTANT: Mock the same signature (3-arg) that your real code calls
+        every { BlobAccess.Companion.downloadBlobAsByteArray(ofType<String>(), any(), any()) } returns ByteArray(4)
         every { BlobAccess.Companion.deleteBlob(any()) } just runs
         every { BlobAccess.Companion.exists(any()) } returns true
+
         every { ActionHistory.sanityCheckReports(any(), any(), any()) } just runs
+
         val settings = FileSettings().loadOrganizations(oneOrganization)
-        val engine = makeEngine(UnitTestUtils.simpleMetadata, settings)
+        val mockDb = mockk<DatabaseAccess>()
+        every { mockDb.transact(any()) } answers {
+            val txn = mockk<Configuration>()
+            firstArg<(Configuration?) -> Unit>().invoke(txn)
+        }
+        val engine = makeEngine(UnitTestUtils.simpleMetadata, settings, mockDb)
+
         val mockReportFile = mockk<ReportFile>()
         val randomUUID = UUID.randomUUID()
         val bodyURL = "someurl"
         val bodyFormat = "CSV"
         val schemaName = "one"
+
         val mockBlobInfo = mockk<BlobAccess.BlobInfo>()
         every { mockBlobInfo.blobUrl } returns bodyURL
         every { mockBlobInfo.format } returns MimeFormat.CSV
         every { mockBlobInfo.digest } returns ByteArray(4)
+
+        // If your code calls uploadReport, keep mocking it
         every { blobMock.uploadReport(any(), any(), any(), any()) } returns mockBlobInfo
+
         every { mockReportFile.reportId } returns randomUUID
         every { mockReportFile.bodyUrl } returns bodyURL
         every { mockReportFile.schemaName } returns schemaName
         every { mockReportFile.bodyFormat } returns bodyFormat
+
         val mockTask = mockk<Task>()
         every { mockTask.reportId } returns randomUUID
         every { mockTask.bodyUrl } returns bodyURL
         every { mockTask.schemaName } returns schemaName
         every { mockTask.bodyFormat } returns bodyFormat
-        every { engine.generateEmptyReport(any(), any()) } returns Unit
-        every { engine.db.fetchAndLockBatchTasksForOneReceiver(any(), any(), any(), any(), any()) } returns listOf(
-            mockTask
-        )
-        every { engine.db.fetchReportFile(any(), any(), any()) } returns mockReportFile
 
-        // the message that will be passed to batchFunction
+        // Prevent empty reports from short-circuiting the normal batch logic
+        every { engine.generateEmptyReport(any(), any()) } returns Unit
+
+        // Return your one task from the DB
+        every {
+            mockDb.fetchAndLockBatchTasksForOneReceiver(any(), any(), any(), any(), any())
+        } returns listOf(mockTask)
+
+        // Return your mockReportFile from the DB
+        every { mockDb.fetchReportFile(any(), any(), any()) } returns mockReportFile
+
+        // The message we pass to the batch function
         val message = BatchEvent(Event.EventAction.BATCH, "phd.elr", false)
 
         // invoke batch function run for legacy pipeline
