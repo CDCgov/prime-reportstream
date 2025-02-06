@@ -32,6 +32,13 @@ class FileSettingsTests {
                     type: CUSTOM
                     schemaName: one
                     format: CSV
+                  routingFilters:
+                    - filterType: "My fine filter type 1."
+                      filterExpression: "true"
+                      filterDescription: "Doing fine things for great people."
+                    - filterType: "My fine filter type 2."
+                      filterExpression: "true"
+                      filterDescription: "Preventing the spread of bad information."
                  
     """.trimIndent()
 
@@ -72,6 +79,10 @@ class FileSettingsTests {
         val settings = FileSettings().also { it.loadOrganizations(ByteArrayInputStream(receiversYaml.toByteArray())) }
         val result = settings.findReceiver("phd1.elr")
         assertThat(result?.jurisdictionalFilter).isNotNull().hasSize(1)
+        assertThat(result?.routingFilters).isNotNull().hasSize(2)
+        assertThat(result?.routingFilters!!.first().filterType).isEqualTo("My fine filter type 1.")
+        assertThat(result.routingFilters.first().filterExpression).isEqualTo("true")
+        assertThat(result.routingFilters.first().filterDescription).isEqualTo("Doing fine things for great people.")
     }
 
     @Test
