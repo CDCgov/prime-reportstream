@@ -28,8 +28,7 @@ class LookupTableCommandsTest {
         url: String,
         status: HttpStatusCode,
         body: String,
-    ): LookupTableEndpointUtilities {
-        return LookupTableEndpointUtilities(
+    ): LookupTableEndpointUtilities = LookupTableEndpointUtilities(
             Environment.LOCAL,
             useThisToken = null,
             ApiMockEngine(
@@ -38,7 +37,6 @@ class LookupTableCommandsTest {
                 body
             ).client()
         )
-    }
 
     @Test
     fun `test lookuptable list invalid response body`() {

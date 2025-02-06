@@ -81,15 +81,13 @@ abstract class AbstractReportStreamEventBuilder<T : AzureCustomEvent>(
 
     abstract fun buildEvent(): T
 
-    fun getReportEventData(): ReportEventData {
-        return reportEventService.getReportEventData(
+    fun getReportEventData(): ReportEventData = reportEventService.getReportEventData(
             childReportId,
             childBodyUrl,
             theParentReportId,
             pipelineStepName,
             theTopic
         )
-    }
 
     fun send() {
             val event = buildEvent()
@@ -131,12 +129,10 @@ open class ReportStreamReportEventBuilder(
     pipelineStepName
 ) {
 
-    override fun buildEvent(): ReportStreamReportEvent {
-        return ReportStreamReportEvent(
+    override fun buildEvent(): ReportStreamReportEvent = ReportStreamReportEvent(
             getReportEventData(),
             theParams
         )
-    }
 }
 
 /**
@@ -192,13 +188,11 @@ open class ReportStreamItemEventBuilder(
         )
     }
 
-    override fun buildEvent(): ReportStreamItemEvent {
-        return ReportStreamItemEvent(
+    override fun buildEvent(): ReportStreamItemEvent = ReportStreamItemEvent(
             getReportEventData(),
             getItemEventData(),
             theParams
         )
-    }
 }
 
 /**
@@ -222,12 +216,10 @@ class ReportStreamReportProcessingErrorEventBuilder(
     theTopic,
     pipelineStepName
 ) {
-    override fun buildEvent(): ReportStreamReportEvent {
-        return ReportStreamReportEvent(
+    override fun buildEvent(): ReportStreamReportEvent = ReportStreamReportEvent(
             getReportEventData(),
             theParams + mapOf(ReportStreamEventProperties.PROCESSING_ERROR to error)
         )
-    }
 }
 
 /**
@@ -251,11 +243,9 @@ class ReportStreamItemProcessingErrorEventBuilder(
     theTopic,
     pipelineStepName
 ) {
-    override fun buildEvent(): ReportStreamItemEvent {
-        return ReportStreamItemEvent(
+    override fun buildEvent(): ReportStreamItemEvent = ReportStreamItemEvent(
             getReportEventData(),
             getItemEventData(),
             theParams + mapOf(ReportStreamEventProperties.PROCESSING_ERROR to error)
         )
-    }
 }

@@ -15,18 +15,15 @@ import java.util.SortedMap
  *
  * [valueColumn]: name of the lookup table column containing the value pair values
  */
-data class LookupTableValueSetConfig(
-    val tableName: String,
-    val keyColumn: String,
-    val valueColumn: String,
-)
+data class LookupTableValueSetConfig(val tableName: String, val keyColumn: String, val valueColumn: String)
 
 /**
  * Implementation of [ValueSetCollection] to allow valueSet to be retrieved from a lookup table.
  * Provide [LookupTableValueSetConfig] to configure the lookup table source.
  */
 class LookupTableValueSet
-    (@JsonProperty("lookupTable") private val configData: LookupTableValueSetConfig) : ValueSetCollection {
+    (@JsonProperty("lookupTable") private val configData: LookupTableValueSetConfig) :
+    ValueSetCollection {
     private val mapVal: SortedMap<String, String> by lazy {
         val metadata = Metadata.getInstance()
         val lookupTable = metadata.findLookupTable(name = configData.tableName)
@@ -49,16 +46,12 @@ class LookupTableValueSet
         return@lazy result.toSortedMap()
     }
 
-    override fun toSortedMap(): SortedMap<String, String> {
-        return mapVal
-    }
+    override fun toSortedMap(): SortedMap<String, String> = mapVal
 
     override fun getMappedValue(keyValue: String): String? {
         val lowerSet = toSortedMap().mapKeys { it.key.lowercase() }
         return lowerSet[keyValue.lowercase()]
     }
 
-    override fun isNotEmpty(): Boolean {
-        return toSortedMap().isNotEmpty()
-    }
+    override fun isNotEmpty(): Boolean = toSortedMap().isNotEmpty()
 }

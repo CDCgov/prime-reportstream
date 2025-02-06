@@ -156,13 +156,11 @@ class HL7ConverterSchemaTests {
 
     @Test
     fun `test merge of element`() {
-        fun newParent(): ConverterSchemaElement {
-            return ConverterSchemaElement(
+        fun newParent(): ConverterSchemaElement = ConverterSchemaElement(
                 "name", condition = "condition1", required = true,
                 schema = "schema1", schemaRef = HL7ConverterSchema(), resource = "resource1", resourceIndex = "index1",
                 value = listOf("value1"), hl7Spec = listOf("hl7spec1"), constants = sortedMapOf("k1" to "v1")
             )
-        }
 
         val originalElement = newParent()
         val elementA = ConverterSchemaElement("name")

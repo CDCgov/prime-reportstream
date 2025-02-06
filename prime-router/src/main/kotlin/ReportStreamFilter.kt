@@ -22,9 +22,7 @@ fun ReportStreamConditionFilter.codes(): List<String> = this.flatMap { it.codes(
 abstract class ConditionFilter(val value: String) {
     abstract fun codes(): List<String>
 
-    override fun toString(): String {
-        return value
-    }
+    override fun toString(): String = value
 }
 
 class CodeStringConditionFilter(value: String) : ConditionFilter(value) {
