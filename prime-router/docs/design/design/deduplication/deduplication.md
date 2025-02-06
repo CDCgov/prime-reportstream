@@ -49,6 +49,7 @@ Hash comparison will be skipped if `sender.allowDuplicates` is set to true. Othe
     - Duplicates will be logged using the existing action logger pattern ([Ex 1](https://github.com/CDCgov/prime-reportstream/blob/0c5e0b058e35e09786942f2c8b41c1d67a5b1d16/prime-router/src/main/kotlin/fhirengine/engine/FHIRConverter.kt#L526-L533), [Ex 2](https://github.com/CDCgov/prime-reportstream/blob/cadc9fae10ff5f83e9cbf0b0c0fbda384889901d/prime-router/src/main/kotlin/fhirengine/engine/FHIRReceiverFilter.kt#L307-L315)). These will be visible in the Submission History API. See [example warning](#example-submission-history-api-some-items-in-batched-report-are-duplicates-) below.
   - Set flag or enter a workflow to check if entire report is duplicate.
       - If the entire report is found to be duplicate, this will be logged as an error. See [example error](#example-submission-history-api-entire-report-is-duplicate) below.
+  - Create an Azure Event containing the parent_report_id, child_report_id, and sender organization/name. 
 
 ##### Example: Submission History API, Some Item(s) in Batched Report are Duplicates 
 
@@ -173,7 +174,7 @@ class ORUR01KeyFields(bundle: Bundle) : DeduplicationKeyFields(bundle) {
     - Generate a hash for the item
     - Compare this hash against those batched in the same submitted report
     - Compare this hash with others stored in the database
-    - Create appropriate action logs if any duplicates were detected
+    - Create appropriate action logs and Azure Events if any duplicates were detected
   - After the Deduplication Workflow occurs, the Convert Step will perform necessary pipeline functions:
     - Apply sender schema transform
     - Make a report object with item lineage
