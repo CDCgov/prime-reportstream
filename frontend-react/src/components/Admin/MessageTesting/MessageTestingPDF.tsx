@@ -126,7 +126,9 @@ const MessageTestingPDF = ({
                         {filterFieldData.map((data, index) => (
                             <View key={`filter-line-${index}`}>
                                 <View style={styles.codeBlock}>
-                                    <Text>{data.message}</Text>
+                                    <Text>
+                                        {data.filter}: {data.message}
+                                    </Text>
                                 </View>
                             </View>
                         ))}

@@ -57,7 +57,9 @@ export const MessageTestingAccordion = ({
                                 {dataHaveSubsections
                                     ? fieldData.map((item, index) => (
                                           <div key={index}>
-                                              <div>{item.message}</div>
+                                              <div>
+                                                  {item.filter}: {item.message}
+                                              </div>
                                               {index < fieldData.length - 1 && <hr className="rs-hr--half-margin" />}
                                           </div>
                                       ))
