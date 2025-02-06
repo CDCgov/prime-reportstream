@@ -282,7 +282,7 @@ class FHIRReceiverFilter(
      *
      * [actionLogger], [trackingId], and [filterType] facilitate logging
      */
-    private fun evaluateFhirExpressionFilters(
+    fun evaluateFhirExpressionFilters(
         receiver: Receiver,
         bundle: Bundle,
         actionLogger: ActionLogger,

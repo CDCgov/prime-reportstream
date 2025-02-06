@@ -41,7 +41,10 @@ export const MessageTestingAccordion = ({
                             </>
                         ),
                         content: (
-                            <div className="bg-white font-sans-sm padding-top-2 padding-bottom-2 padding-left-1 padding-right-1">
+                            <div
+                                aria-label={accordionTitle}
+                                className="bg-white font-sans-sm padding-top-2 padding-bottom-2 padding-left-1 padding-right-1"
+                            >
                                 {fieldData.map((item, index) => (
                                     <div key={index}>
                                         <div>{item}</div>
