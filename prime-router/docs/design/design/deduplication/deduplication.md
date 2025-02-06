@@ -28,7 +28,7 @@ The first part of the Deduplication Workflow will take in the item’s Bundle an
 Technical Considerations:
 - This should be flexible enough that different senders, message types, or even topics can implement different key fields.
   - This will be achieved through a new base class which shall own the logic for concatenating strings values in a map. Each set of new key fields would implement its own class which owns the logic knowing how to retrieve the necessary FHIR values. [See: Example Key Fields Class](#example-key-fields-file-structure) 
-  - If deemed necessary, sender specific key field classes could be created and then referenced in the sender settings.  
+  - If deemed necessary, sender specific key field classes could be created and then referenced in the sender settings with a new sender field.
 - The ordering of fields within a FHIR Bundle are **not** guaranteed. Before converting to a string to be hashed, the [populated key fields](#key-fhir-elements) should be extracted from the bundle and put in a static order (alphabetical etc.).
 - Sender id/name shall be incorporated into the pre-hashed string. (Dependent upon sql efficiency investigation noted below).
 - Investigation TODO (_To be removed and appropriate sections updated before merge_): Investigate the time efficiency of the following options:
@@ -36,7 +36,7 @@ Technical Considerations:
   - Adding the sender id (or name) into the string to be hashed and allowing the column index to be the main SQL query parameter.
 
 ##### Item Hash Comparison
-Hash comparison will be skipped if `sender.allowDuplicates` is set to true. Otherwise, the generated item hash shall first be compared with items in the same report. (Note: At this part of the Convert Step, parallelization is not a blocker as the original items are [still within scope](https://github.com/CDCgov/prime-reportstream/blob/15648395efc2b60322d931bf88e0c2c5b6cc0371/prime-router/src/main/kotlin/fhirengine/engine/FHIRConverter.kt#L510)). The item hash will then be compared to existing hashes from the item_lineage table. There is an [existing SQL Query](https://github.com/CDCgov/prime-reportstream/blob/9ec0a59c73d7dad9a319cd321baf9efd71ceab46/prime-router/src/main/kotlin/azure/DatabaseAccess.kt#L166-L183) which performs the hash comparison through a database query. This will need to be enhanced or recreated as the original query only searches within the last 7 days and does not take sender into account. (_This last part will be unnecessary if the sender is incorporated into the hash._)
+Hash comparison will be skipped if `sender.allowDuplicates` is set to true. Otherwise, the generated item hash shall first be compared with items in the same report. (Note: At this part of the Convert Step, parallelization is not a blocker as the original items are [still within scope](https://github.com/CDCgov/prime-reportstream/blob/15648395efc2b60322d931bf88e0c2c5b6cc0371/prime-router/src/main/kotlin/fhirengine/engine/FHIRConverter.kt#L510)). The item hash will then be compared to existing hashes from the item_lineage table. There is an [existing SQL Query](https://github.com/CDCgov/prime-reportstream/blob/9ec0a59c73d7dad9a319cd321baf9efd71ceab46/prime-router/src/main/kotlin/azure/DatabaseAccess.kt#L166-L183) which performs the hash comparison. This will need to be enhanced or recreated as the original query only searches within the last 7 days and does not take sender into account. (_This last part will be unnecessary if the sender is incorporated into the hash._)
 **NOTE**: The hash comparison functionality will be enabled some time after all other functionality is in production. This will build up a data set to investigate potential false positives.
 - If item is not a duplicate OR sender has deduplication disabled,
     - Save the item hash to the ItemLineage object [when the Report object is created](https://github.com/CDCgov/prime-reportstream/blob/4a2231af2031bc3b2d5d7949d2b21d33c525c44d/prime-router/src/main/kotlin/fhirengine/engine/FHIRConverter.kt#L329).
@@ -141,7 +141,7 @@ Hash comparison will be skipped if `sender.allowDuplicates` is set to true. Othe
 ``` kotlin
 abstract class DeduplicationKeyFields(val bundle: Bundle) {
     fun createStringFromKeyFields(): String {
-        // logic for concatenating keyFields values
+        // logic for concatenating keyFields values to a single string
     }
 }
 
@@ -185,10 +185,9 @@ class ORUR01KeyFields(bundle: Bundle) : DeduplicationKeyFields(bundle) {
 
 ### Other Updates
 - Sender Settings: The Universal Pipeline will use the existing `allowDuplicates` sender setting. 
-  - By default, the deduplication workflow is enabled for UP senders. (`allowDuplicates` = false)
+  - By default, the deduplication workflow is enabled for UP senders (`allowDuplicates` = false). Individual receivers will set `allowDuplicates` to `true` to opt out.
   - The abstract Sender class [should not initialize](https://github.com/CDCgov/prime-reportstream/blob/f48d719b876859169deb0360487f63965d8be5a0/prime-router/src/main/kotlin/Sender.kt#L60) `allowDuplicates`.
   - The UniversalPipelineSender class [should default to false](https://github.com/CDCgov/prime-reportstream/blob/f48d719b876859169deb0360487f63965d8be5a0/prime-router/src/main/kotlin/Sender.kt#L196).
-  - Individual receivers will set `allowDuplicates` to `true` to opt out.
 - Receiver Step: There is stubbed code to be removed here: The SumissionReceiver refers to the once theorized area where UP deduplication would be invoked. ([SubmissionReceiver.kt#L284-L292](https://github.com/CDCgov/prime-reportstream/blob/0c5e0b058e35e09786942f2c8b41c1d67a5b1d16/prime-router/src/main/kotlin/SubmissionReceiver.kt#L284-L292))
 - Database Changes: Several changes will need to take place to improve efficiency. **Over 90% of the values stored in item_lineage.item_hash are not relevant to either CP or UP deduplication.**
   - Immediate change: Modify item_lineage.item_hash to accept NULL values.
