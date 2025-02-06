@@ -7,7 +7,6 @@ import { SenderType } from "./utils/DataDashboardUtils";
 import { lazyRouteMarkdown } from "./utils/LazyRouteMarkdown";
 import { PERMISSIONS } from "./utils/UsefulTypes";
 
-const AdminMessageTestingPage = lazy(() => import("./pages/admin/AdminMessageTestingPage/AdminMessageTestingPage"));
 /* Content Pages */
 const Home = lazy(lazyRouteMarkdown(() => import("./content/home/index.mdx")));
 const About = lazy(lazyRouteMarkdown(() => import("./content/about/index.mdx")));
@@ -63,6 +62,7 @@ const Login = lazy(() => import("./pages/Login"));
 const ErrorNoPage = lazy(() => import("./pages/error/legacy-content/ErrorNoPage"));
 
 /* Auth Pages */
+const AdminMessageTestingPage = lazy(() => import("./pages/admin/AdminMessageTestingPage/AdminMessageTestingPage"));
 const FeatureFlagsPage = lazy(() => import("./pages/misc/FeatureFlags"));
 const SubmissionDetailsPage = lazy(() => import("./pages/submissions/SubmissionDetails"));
 const SubmissionsPage = lazy(() => import("./pages/submissions/Submissions"));
