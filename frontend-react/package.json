@@ -194,7 +194,7 @@
     "vite": "^6.0.7",
     "vite-plugin-checker": "^0.8.0",
     "vite-plugin-svgr": "^4.3.0",
-    "vitest": "^2.1.8"
+    "vitest": "^2.1.9"
   },
   "resolutions": {
     "@types/react": "^18.3.11",
