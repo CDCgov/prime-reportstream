@@ -17,7 +17,7 @@ Usage:
   python export_azure_resources.py --suppress-output
   python export_azure_resources.py --help
 
-Author: Your Name
+Author: PRIME Reportstream DevSecOps team
 """
 
 import subprocess
