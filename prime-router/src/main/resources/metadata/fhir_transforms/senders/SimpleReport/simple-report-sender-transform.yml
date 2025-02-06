@@ -178,6 +178,11 @@ elements:
     bundleProperty: 'Bundle.entry.resource.ofType(Patient).address.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/xad-address").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/sad-address-line").extension("SAD.1").value[x]'
     value: [ 'Bundle.entry.resource.ofType(Patient).address.line[0]' ]
 
+  - name: sr-patient-address-street-2
+    condition: 'Bundle.entry.resource.ofType(Patient).address.line[1].value.exists()'
+    bundleProperty: 'Bundle.entry.resource.ofType(Patient).address.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/xad-address").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/sad-address-line").extension("SAD.2").value[x]'
+    value: [ 'Bundle.entry.resource.ofType(Patient).address.line[1]' ]
+
   ## Code
   - name: sr-patient-ethnic-group-code-extension
     resource: 'Bundle.entry.resource.ofType(Patient).extension("https://reportstream.cdc.gov/fhir/StructureDefinition/ethnic-group").value'
@@ -568,6 +573,11 @@ elements:
     bundleProperty: 'Bundle.entry.resource.ofType(ServiceRequest).requester.resolve().practitioner.resolve().address.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/xad-address").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/sad-address-line").extension("SAD.1").value[x]'
     value: [ 'Bundle.entry.resource.ofType(ServiceRequest).requester.resolve().practitioner.resolve().address.line[0]' ]
 
+  - name: sr-service-request-requester-address-street-2
+    condition: 'Bundle.entry.resource.ofType(ServiceRequest).requester.resolve().practitioner.resolve().address.line[1].value.exists()'
+    bundleProperty: 'Bundle.entry.resource.ofType(ServiceRequest).requester.resolve().practitioner.resolve().address.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/xad-address").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/sad-address-line").extension("SAD.2").value[x]'
+    value: [ 'Bundle.entry.resource.ofType(ServiceRequest).requester.resolve().practitioner.resolve().address.line[1]' ]
+
   # order-effective-date
   - name: sr-service-request-orc-order-effective-date
     bundleProperty: 'Bundle.entry.resource.ofType(ServiceRequest).extension("https://reportstream.cdc.gov/fhir/StructureDefinition/orc-common-order").extension("ORC.15").value[x]'
@@ -579,6 +589,13 @@ elements:
     bundleProperty: '%resource.address.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/xad-address").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/sad-address-line").extension("SAD.1").value[x]'
     value: [ '%resource.address.line[0]' ]
 
+  - name: sr-organization-address-street
+    resource: 'Bundle.entry.resource.ofType(Organization)'
+    condition: '%resource.address.line[1].value.exists()'
+    bundleProperty: '%resource.address.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/xad-address").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/sad-address-line").extension("SAD.2").value[x]'
+    value: [ '%resource.address.line[1]' ]
+
+  # Might be able to remove XAD.2 in the future if using SAD.2 from above instead
   - name: sr-organization-address-street-dwelling
     resource: 'Bundle.entry.resource.ofType(Organization)'
     bundleProperty: '%resource.address.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/xad-address").extension("XAD.2").value[x]'
