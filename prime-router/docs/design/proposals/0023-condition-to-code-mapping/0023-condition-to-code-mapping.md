@@ -19,7 +19,7 @@ The below items are not covered in this proposal.
 
 Overview Diagram
 
-![Code to Condition Overview Diagram](C:\Users\James.Gilmore\Documents\GitHub\PRIME\prime-reportstream\prime-router\docs\design\proposals\0023-condition-to-code-mapping\code-to-condtion-overview.png)
+![Code to Condition Overview Diagram](https://github.com/CDCgov/prime-reportstream/blob/main/prime-router/docs/design/proposals/0023-condition-to-code-mapping/code-to-condtion-overview.png)
 
 ### Creating Observation Mapping Table
 

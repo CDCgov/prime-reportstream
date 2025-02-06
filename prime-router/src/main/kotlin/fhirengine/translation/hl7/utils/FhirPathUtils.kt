@@ -61,22 +61,21 @@ object FhirPathUtils : Logging {
      * @return the validated FHIR path
      * @throws FHIRLexerException if the path is invalid
      */
-    fun parsePath(fhirPath: String?): ExpressionNode? {
-        return if (fhirPath.isNullOrBlank()) {
+    fun parsePath(fhirPath: String?): ExpressionNode? = if (fhirPath.isNullOrBlank()) {
             null
         } else {
             pathEngine.parse(fhirPath)
         }
-    }
 
     /**
      * Is the provided path a valid FHIR path given the evaluation context?
      */
-    fun validatePath(path: String, evaluationContext: FHIRPathEngine.IEvaluationContext): Boolean {
-        return withEvaluationContext(evaluationContext) {
+    fun validatePath(
+        path: String,
+        evaluationContext: FHIRPathEngine.IEvaluationContext,
+    ): Boolean = withEvaluationContext(evaluationContext) {
             runCatching { parsePath(path) }.isSuccess
         }
-    }
 
     /**
      * Gets a FHIR base resource from the given [expression] using [bundle] and starting from a specific [focusResource].
@@ -145,7 +144,7 @@ object FhirPathUtils : Logging {
             }
         } catch (e: Exception) {
             val msg = when (e) {
-                is FHIRLexer.FHIRLexerException -> "Syntax error in FHIR Path expression $expression"
+                is FHIRLexer.FHIRLexerException -> "Syntax error: ${e.message} in FHIR Path expression $expression"
                 is SchemaException -> e.message.toString()
                 else ->
                     "Unknown error while evaluating FHIR Path expression $expression for condition. " +

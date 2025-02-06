@@ -89,21 +89,17 @@ class DeliveryFunction(
              * @param query Incoming query params
              * @return encoded param
              */
-            fun extractFileName(query: Map<String, String>): String? {
-                return if (query["fileName"] != null) {
+            fun extractFileName(query: Map<String, String>): String? = if (query["fileName"] != null) {
                     URLEncoder.encode(query["fileName"], Charset.defaultCharset())
                 } else {
                     null
                 }
-            }
 
-            fun extractReceivingOrgSvcStatus(query: Map<String, String>): List<CustomerStatus>? {
-                return try {
+            fun extractReceivingOrgSvcStatus(query: Map<String, String>): List<CustomerStatus>? = try {
                     query["receivingOrgSvcStatus"]?.split(",")?.map { CustomerStatus.valueOf(it) }
                 } catch (e: IllegalArgumentException) {
                     throw InvalidParameterException("Invalid value for receivingOrgSvcStatus.")
                 }
-            }
         }
     }
 
@@ -113,13 +109,13 @@ class DeliveryFunction(
      * @param organization Name of organization and optionally a receiver channel in the format {orgName}.{receiver}
      * @return Name for the organization
      */
-    override fun validateOrgSvcName(organization: String): String? {
-        return if (organization.contains(Sender.fullNameSeparator)) {
+    override fun validateOrgSvcName(
+        organization: String,
+    ): String? = if (organization.contains(Sender.fullNameSeparator)) {
             workflowEngine.settings.findReceiver(organization).also { receivingOrgSvc = it?.name }?.organizationName
         } else {
             workflowEngine.settings.findOrganization(organization)?.name
         }
-    }
 
     /**
      * Verify that the action being checked has the correct data/parameters
@@ -128,9 +124,9 @@ class DeliveryFunction(
      * @param action DB Action that we are reviewing
      * @return true if action is valid, else false
      */
-    override fun actionIsValid(action: Action): Boolean {
-        return action.actionName == TaskAction.batch || action.actionName == TaskAction.send
-    }
+    override fun actionIsValid(
+        action: Action,
+    ): Boolean = action.actionName == TaskAction.batch || action.actionName == TaskAction.send
 
     /**
      * Get a list of delivery history
@@ -166,9 +162,11 @@ class DeliveryFunction(
      * @param action Action from which the data for the delivery is loaded
      * @return
      */
-    override fun singleDetailedHistory(id: String, txn: DataAccessTransaction, action: Action): DeliveryHistory? {
-        return deliveryFacade.findDetailedDeliveryHistory(id, action.actionId)
-    }
+    override fun singleDetailedHistory(
+        id: String,
+        txn: DataAccessTransaction,
+        action: Action,
+    ): DeliveryHistory? = deliveryFacade.findDetailedDeliveryHistory(id, action.actionId)
 
     @FunctionName("getDeliveriesV1")
     fun getDeliveriesV1(
@@ -186,7 +184,8 @@ class DeliveryFunction(
                 request,
                 "No such receiver $receiverName"
             )
-        if (claims == null || !claims.authorizedForSendOrReceive(
+        if (claims == null ||
+            !claims.authorizedForSendOrReceive(
                 requiredOrganization = receiver.organizationName,
                 request = request
             )
@@ -275,9 +274,7 @@ class DeliveryFunction(
             route = "waters/org/{organization}/deliveries"
         ) request: HttpRequestMessage<String?>,
         @BindingName("organization") organization: String,
-    ): HttpResponseMessage {
-        return this.getListByOrg(request, organization)
-    }
+    ): HttpResponseMessage = this.getListByOrg(request, organization)
 
     /**
      * Get expanded details for a single report
@@ -295,9 +292,7 @@ class DeliveryFunction(
             route = "waters/report/{id}/delivery"
         ) request: HttpRequestMessage<String?>,
         @BindingName("id") id: String,
-    ): HttpResponseMessage {
-        return this.getDetailedView(request, id)
-    }
+    ): HttpResponseMessage = this.getDetailedView(request, id)
 
     /**
      * Endpoint for intermediary receivers to verify status of messages. It passes
@@ -316,9 +311,7 @@ class DeliveryFunction(
         ) request: HttpRequestMessage<String?>,
         @BindingName("reportId") reportId: UUID,
         context: ExecutionContext,
-    ): HttpResponseMessage {
-        return this.retrieveETORIntermediaryMetadata(request, reportId, context, null)
-    }
+    ): HttpResponseMessage = this.retrieveETORIntermediaryMetadata(request, reportId, context, null)
 
     /**
      * Function for finding the associated report ID that the intermediary knows about given the report ID that the receiver is
@@ -428,9 +421,7 @@ class DeliveryFunction(
      *
      * @property sortColumn sort the table by specific column; default created_at.
      */
-    data class FacilityListApiParameters(
-        val sortColumn: DatabaseDeliveryAccess.FacilitySortColumn,
-    ) {
+    data class FacilityListApiParameters(val sortColumn: DatabaseDeliveryAccess.FacilitySortColumn) {
         constructor(query: Map<String, String>) : this(
             sortColumn = extractSortCol(query)
         )
@@ -471,7 +462,8 @@ class DeliveryFunction(
                 request,
                 "No such receiver $receiverName"
             )
-        if (claims == null || !claims.authorizedForSendOrReceive(
+        if (claims == null ||
+            !claims.authorizedForSendOrReceive(
                 requiredOrganization = receiver.organizationName,
                 request = request
             )

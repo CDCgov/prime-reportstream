@@ -54,7 +54,4 @@ data class TestSerializable(
     val nested: Nested,
 ) : AzureCustomDimensionsSerializable
 
-data class Nested(
-    val key1: String,
-    val key2: Int,
-)
+data class Nested(val key1: String, val key2: Int)

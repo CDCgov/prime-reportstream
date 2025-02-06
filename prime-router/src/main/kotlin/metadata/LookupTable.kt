@@ -169,9 +169,7 @@ open class LookupTable : Logging {
      * Test if a [column] name exists in the table.  The search is case-insensitive.
      * @return true if the column exists, false otherwise
      */
-    fun hasColumn(column: String): Boolean {
-        return table.containsColumn(column)
-    }
+    fun hasColumn(column: String): Boolean = table.containsColumn(column)
 
     /**
      * Filter builder used to find values or filter the lookup table.
@@ -192,18 +190,14 @@ open class LookupTable : Logging {
          * Predicate to do starts with search while ignoring case.
          */
         inner class StartsWithIgnoreCasePredicate : BiPredicate<String, String> {
-            override fun test(t: String, u: String): Boolean {
-                return t.startsWith(u, true)
-            }
+            override fun test(t: String, u: String): Boolean = t.startsWith(u, true)
         }
 
         /**
          * Predicate to do not equals search while ignoring case.
          */
         inner class NotEqualsIgnoreCasePredicate : BiPredicate<String, String> {
-            override fun test(t: String, u: String): Boolean {
-                return !t.equals(u, true)
-            }
+            override fun test(t: String, u: String): Boolean = !t.equals(u, true)
         }
 
         /**
@@ -218,15 +212,13 @@ open class LookupTable : Logging {
          * Get the reference to a column using [colName].
          * @return the reference to the column or null if the column was not found
          */
-        private fun getColumn(colName: String): StringColumn? {
-            return try {
+        private fun getColumn(colName: String): StringColumn? = try {
                 table.stringColumn(colName)
             } catch (e: IllegalStateException) {
                 logger.error("Invalid column name $colName specified for lookup table $name.", e)
                 hasError = true
                 null
             }
-        }
 
         /**
          * Lookup in column name [colName] for case-sensitive values that start with [value].
@@ -278,8 +270,7 @@ open class LookupTable : Logging {
          * @return a list of unique values or an empty list if no values found or an error occurred
          */
         @Suppress("UNCHECKED_CAST") // All columns are string columns
-        fun findAllUnique(lookupColumn: String): List<String> {
-            return try {
+        fun findAllUnique(lookupColumn: String): List<String> = try {
                 when {
                     hasError -> emptyList()
                     selector == null -> table.column(lookupColumn).unique().asList() as List<String>
@@ -289,7 +280,6 @@ open class LookupTable : Logging {
                 logger.error("Invalid column name $lookupColumn specified for lookup table $name.", e)
                 emptyList()
             }
-        }
 
         /**
          * Return a single value if the filter matched one and only one unique value.
@@ -305,21 +295,17 @@ open class LookupTable : Logging {
          * this function will return a copy of the same lookup table.
          * @return the filtered table or an empty table if an error occurred
          */
-        fun filter(): LookupTable {
-            return when {
+        fun filter(): LookupTable = when {
                 hasError -> LookupTable(name)
                 selector == null -> LookupTable(name, table)
                 else -> LookupTable(name, table.where(selector))
             }
-        }
 
         /**
          * Make a copy of the filter.
          * @return a copy of the filter.
          */
-        fun copy(): FilterBuilder {
-            return filter().FilterBuilder()
-        }
+        fun copy(): FilterBuilder = filter().FilterBuilder()
     }
 
     /**
@@ -346,13 +332,11 @@ open class LookupTable : Logging {
         filterColumn: String? = null,
         filterValue: String? = null,
     ): String? {
-        fun filterRows(): Table {
-            return if (filterColumn != null && filterValue != null) {
+        fun filterRows(): Table = if (filterColumn != null && filterValue != null) {
                 FilterBuilder().equalsIgnoreCase(filterColumn, filterValue).filter().table
             } else {
                 table
             }
-        }
 
         // Split into words
         fun wordsFromRaw(input: String): List<String> {
