@@ -47,7 +47,8 @@ def main():
             print(f"Message: {dep['message']}\n")
     else:
         print("No deprecation warnings found in the plan.")
-
+.+
+-
 if __name__ == '__main__':
     main()
 Collapse
