@@ -44,12 +44,20 @@ for users via the UI. I will delve into how to set it up for senders later in th
 
 ### Submit claim
 
-There will also be an optional `userSubmit` or `appSubmit` claim containing specific organizations AND optional sender. These values will 
-be dot seperated. If a sender is not included it will be assumed to be a wildcard and allow all senders under that 
-organization. Unfortunately the claim names have to seperated as to access the user profile and application user profile 
+There will also be an optional `userSubmit` or `appSubmit` claim containing specific organizations AND optional sender. 
+These values will be dot seperated. If a sender is not included, it will be assumed to be a wildcard and allow all 
+senders under that organization. Unfortunately, we cannot define duplicate claims nor can we have multiple expressions 
+within a single claim. This is why there are multiple claims as defined below:
+
+| Claim      | Okta expression    |
+|------------|--------------------|
+| userSubmit | user.submit        |
+| appSubmit  | app.profile.submit |
+
+Unfortunately the claim names have to seperated as to access the user profile and application user profile 
 require different expressions.
 
-examples:
+Claim value examples:
 ```
 "md-phd.full-elr": Only allow to send from md-phd as full-elr
 "ca-phd": Allow submitting from any sender under ca-phd
@@ -127,6 +135,10 @@ page because it was configured to allow it for `elims` users.
 This will allow organizations to have control over whether their data is shown within the daily data page as an opt-in 
 feature rather than exposing their data without their knowledge.
 
+In the future, we may be able to store this data within the organization group in Okta. Each organization has a profile
+(much like users) that can be queried. This would require exposing that information in endpoints in the auth service 
+but may be a cleaner way to keep all that data in the same place.
+
 ## Setting up a new user
 
 In this system, setting up a new user would be quite easy. Create the user in Okta and then add it to the required 
@@ -167,9 +179,13 @@ Sample endpoints:
 | Method | Path                              | Description                     |
 |--------|-----------------------------------|---------------------------------|
 | POST   | /api/v1/sender                    | Create a new sender             |
+| GET    | /api/v1/sender/${clientId}        | Get a sender by id              |
 | PUT    | /api/v1/sender/${clientId}        | Update a sender                 |
 | DELETE | /api/v1/sender/${clientId}        | Delete (or deactivate) a sender |
 | PUT    | /api/v1/sender/${clientId}/groups | Update sender group affiliation |
+
+An admin UI could be designed that is powered by the endpoints above as well. This could simplify the workflow even 
+further by being able to visualize the changes needed to be made.
 
 Okta application API documentation can be found [here](https://developer.okta.com/docs/api/openapi/okta-management/management/tag/Application/#tag/Application/operation/createApplication).
 
@@ -277,3 +293,17 @@ At the time of writing this section (2/5/25), code still exists which is doing t
 
 This entire flow will be deprecated by this design document as groups should be a part of the token at all times. 
 You should be able to delete code related to it.
+
+Code to look at:
+
+| Location                                                                                                                                             | Notes                                                               |
+|------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------|
+| [AppendOktaGroupsGatewayFilterFactory](../../../auth/src/main/kotlin/gov/cdc/prime/reportstream/auth/filter/AppendOktaGroupsGatewayFilterFactory.kt) | Defines how Okta group headers are created and added to the request |
+| [OktaGroupsClient](../../../auth/src/main/kotlin/gov/cdc/prime/reportstream/auth/client/OktaGroupsClient.kt)                                         | Client to grab Okta groups                                          |
+| [OktaGroupsJWTWriter](../../../auth/src/main/kotlin/gov/cdc/prime/reportstream/auth/service/OktaGroupsJWTWriter.kt)                                  | Writes the Okta groups JWT and signs it                             |
+| [OktaGroupsService](../../../auth/src/main/kotlin/gov/cdc/prime/reportstream/auth/service/OktaGroupsService.kt)                                      | Ties together client and JWT writing                                |
+| [application.yml](../../../auth/src/main/resources/application.yml)                                                                                  | look at okta.jwt.* configurations and appending header filter       |
+| [OktaGroupsJWT](../../../shared/src/main/kotlin/gov/cdc/prime/reportstream/shared/auth/jwt/OktaGroupsJWT.kt)                                         | Model for Okta groups JWT to parse into                             |
+| [OktaGroupsJWTConstants](../../../shared/src/main/kotlin/gov/cdc/prime/reportstream/shared/auth/jwt/OktaGroupsJWTConstants.kt)                       | Collection of constants                                             |
+| [OktaGroupsJWTReader](../../../shared/src/main/kotlin/gov/cdc/prime/reportstream/shared/auth/jwt/OktaGroupsJWTReader.kt)                             | Reads and validates Okta Groups JWT                                 |
+| [AuthZService](../../../shared/src/main/kotlin/gov/cdc/prime/reportstream/shared/auth/AuthZService.kt)                                               | Uses JWT to check group memebership and authorization               |
