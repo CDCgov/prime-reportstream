@@ -589,7 +589,7 @@ elements:
     bundleProperty: '%resource.address.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/xad-address").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/sad-address-line").extension("SAD.1").value[x]'
     value: [ '%resource.address.line[0]' ]
 
-  - name: sr-organization-address-street
+  - name: sr-organization-address-street-2
     resource: 'Bundle.entry.resource.ofType(Organization)'
     condition: '%resource.address.line[1].value.exists()'
     bundleProperty: '%resource.address.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/xad-address").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/sad-address-line").extension("SAD.2").value[x]'
