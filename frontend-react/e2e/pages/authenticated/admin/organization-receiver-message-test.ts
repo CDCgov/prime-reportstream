@@ -96,12 +96,18 @@ export class OrganizationReceiverMessageTestPage extends BasePage {
     }
 
     createMockTestSubmissionHandler(resultType: "pass" | "fail" | "warn" = "pass"): RouteHandlerFulfillEntry {
-        const result =
-            resultType === "fail"
-                ? errorMessageResult
-                : resultType === "warn"
-                  ? warningMessageResult
-                  : passMessageResult;
+        let result;
+        switch (resultType) {
+            case "fail":
+                result = errorMessageResult;
+                break;
+            case "warn":
+                result = warningMessageResult;
+                break;
+            default:
+                result = passMessageResult;
+                break;
+        }
         return [
             OrganizationReceiverMessageTestPage.API_REPORTS_TEST,
             () => {
