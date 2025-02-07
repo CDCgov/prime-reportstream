@@ -18,7 +18,7 @@ See this documentation to understand how to setup an authorization server:
 https://developer.okta.com/docs/guides/customize-authz-server/main/#create-scopes
 """
 authorization_server_id = "" # set your authorization server id here
-client_id = "" # set you application user's client it
+client_id = "" # set your application user's client id
 okta_private_key = """""" # set your application user's private key in PEM format
 okta_kid = "" # set your application user's Key ID string
 requested_scope = "sender" # update requested scope to desired one
