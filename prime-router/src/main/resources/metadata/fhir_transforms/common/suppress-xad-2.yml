@@ -1,0 +1,9 @@
+
+# enrichment schema for suppressing XAD.2 for transforms which may already have SAD.2
+# See also: simple-report-sender-transform.yml
+# sr-organization-address-street-dwelling for XAD.2
+elements:
+- name: suppress-sr-organization-address-street-dwelling
+  resource: 'Bundle.entry.resource.ofType(Organization)'
+  value: [ '""' ]
+  bundleProperty: '%resource.address.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/xad-address").extension("XAD.2").value[x]'
