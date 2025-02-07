@@ -95,7 +95,7 @@ reports only as `md-phd.full-elr` or for any sender under `ca-phd`. Note that th
 ### Daily Data page special considerations
 
 For specific users within specific organizations, we want to allow them to access another organization's daily data 
-page. Since these are organizational level settings that are tightly coupled to Report Stream, we would store these 
+page. Since these are organizational level settings that are tightly coupled to ReportStream, we would store these 
 settings within the RS Postgres DB.
 
 Example: User within the `elims` organization wants to see the `md-phd` daily data page to check that reports have 
