@@ -13,6 +13,7 @@ elements:
 
   - name: order-note
     resource: '%resource.basedOn.resolve().note'
+    condition: '%resource.text.exists()'
     schema: classpath:/metadata/hl7_mapping/datatypes/annotation/NTE.yml
     resourceIndex: noteIndex
     constants:

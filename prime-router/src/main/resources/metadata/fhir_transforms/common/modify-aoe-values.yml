@@ -1,0 +1,74 @@
+elements:
+
+  #OBX-3(1).9 Observation Identifier (CWE) > Original Text (ST)
+  - name: suppress-observation-identifier-text
+    resource: 'Bundle.entry.resource.ofType(ServiceRequest).supportingInfo.resolve()'
+    condition: '%resource.exists()'
+    value: ['""']
+    bundleProperty: '%resource.code.text'
+
+  #OBX-15(1).2 Producer's ID [CWE] > Text (ST)
+  - name: suppress-producers-id-text
+    resource: 'Bundle.entry.resource.ofType(ServiceRequest).supportingInfo.resolve().performer.resolve().ofType(Organization).where(extension("https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field").value.join(",").contains("OBX.15")).extension("https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-organization").value.coding.where(extension("https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding").value = "coding")'
+    condition: '%resource.exists()'
+    value: [ '""' ]
+    bundleProperty: '%resource.display'
+
+  #OBX-15(1).3 Producer's ID [CWE] > Name of Coding System (ID)
+  - name: suppress-producers-id-coding-system
+    resource: 'Bundle.entry.resource.ofType(ServiceRequest).supportingInfo.resolve().performer.resolve().ofType(Organization).where(extension("https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field").value.join(",").contains("OBX.15")).extension("https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-organization").value.coding.where(extension("https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding").value = "coding").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system")'
+    condition: '%resource.value.exists()'
+    value: [ '""' ]
+    bundleProperty: '%resource.value[x]'
+
+  #OBX-19(1).1.1 Date/Time of the Analysis [DTM] > Date/Time (DTM)
+  - name: aoe-analysis-date
+    resource: 'Bundle.entry.resource.ofType(ServiceRequest).supportingInfo.resolve()'
+    condition: '%resource.exists()'
+    value: [ 'Bundle.entry.resource.ofType(Observation).first().issued' ]
+    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/analysis-date-time").value[x]'
+
+  - name: aoe-analysis-date-hl7extension
+    resource: 'Bundle.entry.resource.ofType(ServiceRequest).supportingInfo.resolve()'
+    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/analysis-date-time").value.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time").value[x]'
+    value: [ 'Bundle.entry.resource.ofType(Observation).first().issued' ]
+
+  #OBX-23(1).2 Performing Organization Name [XON~] > Organization Name Type Code (IS)
+  - name: suppress-performing-organization-name-type-code
+    resource: 'Bundle.entry.resource.ofType(ServiceRequest).supportingInfo.resolve().performer.resolve().ofType(Organization).extension("https://reportstream.cdc.gov/fhir/StructureDefinition/organization-name-type")[0].value.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding")'
+    condition: '%resource.value.coding.code.exists()'
+    value: [ '""' ]
+    bundleProperty: '%resource.value.coding.code'
+
+  #OBX-23(1).6 Performing Organization Name [XON~] > Assigning Authority (HD)
+  - name: suppress-performing-organization-assigning-authority-universal-id
+    resource: 'Bundle.entry.resource.ofType(ServiceRequest).supportingInfo.resolve().performer.resolve().ofType(Organization).identifier.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority")'
+    condition: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id").exists()'
+    value: [ '""' ]
+    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id").value[x]'
+
+  - name: suppress-performing-organization-assigning-authority-id-type
+    resource: 'Bundle.entry.resource.ofType(ServiceRequest).supportingInfo.resolve().performer.resolve().ofType(Organization).identifier.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority")'
+    condition: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type").exists()'
+    value: [ '""' ]
+    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type").value[x]'
+
+  - name: suppress-performing-organization-assigning-authority-namespace-id
+    resource: 'Bundle.entry.resource.ofType(ServiceRequest).supportingInfo.resolve().performer.resolve().ofType(Organization).identifier.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority")'
+    condition: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id").exists()'
+    value: [ '""' ]
+    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id").value[x]'
+
+  #OBX-24(1).6 Performing Organization Address [XAD~] > Country (ID)
+  - name: suppress-performing-organization-address-country
+    resource: 'Bundle.entry.resource.ofType(ServiceRequest).supportingInfo.resolve().performer.resolve().ofType(Organization)'
+    condition: '%resource.address.country.exists()'
+    value: [ '""' ]
+    bundleProperty: '%resource.address.country'
+
+  #OBX-29
+  - name: suppress-obx-29-for-aoe
+    resource: 'Bundle.entry.resource.ofType(ServiceRequest).supportingInfo.resolve()'
+    condition: '%resource.exists()'
+    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/obx-observation").extension("OBX.29").value[x]'
+    value: [ '""' ]
