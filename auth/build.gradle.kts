@@ -24,7 +24,7 @@ dependencies {
     implementation("org.springframework.cloud:spring-cloud-starter-gateway")
     implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
 
-    runtimeOnly("com.nimbusds:oauth2-oidc-sdk:11.20.1")
+    runtimeOnly("com.nimbusds:oauth2-oidc-sdk:11.22.1")
 
     // okta
     implementation("com.okta.sdk:okta-sdk-api:20.0.0")
