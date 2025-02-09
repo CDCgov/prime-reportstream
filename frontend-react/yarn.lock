@@ -9219,7 +9219,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"nanoid@npm:^3.3.6, nanoid@npm:^3.3.7":
+"nanoid@npm:^3.3.6, nanoid@npm:^3.3.7, nanoid@npm:^3.3.8":
   version: 3.3.8
   resolution: "nanoid@npm:3.3.8"
   bin:
@@ -10021,6 +10021,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"postcss@npm:^8.5.1":
+  version: 8.5.1
+  resolution: "postcss@npm:8.5.1"
+  dependencies:
+    nanoid: ^3.3.8
+    picocolors: ^1.1.1
+    source-map-js: ^1.2.1
+  checksum: cfdcfcd019fca78160341080ba8986cf80cd6e9ca327ba61b86c03e95043e9bce56ad2e018851858039fd7264781797360bfba718dd216b17b3cd803a5134f2f
+  languageName: node
+  linkType: hard
+
 "prelude-ls@npm:^1.2.1":
   version: 1.2.1
   resolution: "prelude-ls@npm:1.2.1"
@@ -10310,7 +10321,7 @@ __metadata:
     otpauth: ^9.3.6
     p-limit: ^6.2.0
     patch-package: ^8.0.0
-    postcss: ^8.4.49
+    postcss: ^8.5.1
     prettier: ^3.4.2
     react: ^18.3.1
     react-dom: ^18.3.1
@@ -10331,7 +10342,7 @@ __metadata:
     remark-mdx-toc: ^0.3.1
     rest-hooks: ^6.1.7
     sanitize-html: ^2.14.0
-    sass: ^1.83.1
+    sass: ^1.84.0
     storybook: ^8.4.7
     ts-node: ^10.9.2
     tslib: ^2.8.1
@@ -11033,9 +11044,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"sass@npm:^1.83.1":
-  version: 1.83.1
-  resolution: "sass@npm:1.83.1"
+"sass@npm:^1.84.0":
+  version: 1.84.0
+  resolution: "sass@npm:1.84.0"
   dependencies:
     "@parcel/watcher": ^2.4.1
     chokidar: ^4.0.0
@@ -11046,7 +11057,7 @@ __metadata:
       optional: true
   bin:
     sass: sass.js
-  checksum: 367a9f270c74a9ad2851955e1cf5b2a05e57d27aec4bf054be1da48eb49858076467b65ec180d8c4392b5c55c0f4d4ba644855f985652ffca15d68a20641d5e0
+  checksum: fdaad6ac0c9fabedf944941086dd6e872a8a7ccc561199b4584adf70394bc41442180c719e756dea0935845b6719e43d196e4a489649506ddf0b6049cc24d4c2
   languageName: node
   linkType: hard
 
