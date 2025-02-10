@@ -75,12 +75,10 @@ class ValidateFunctionTests {
         "Reicherts,NormanB,19931,97D0667471,Any lab USA,DE,19931,122554006,esyuj9,vhd3cfvvt,DE,NO,bgq0b2e," +
         "840533007,NO,NO,h8jev96rc,YES,YES,YES,257628001,60001007"
 
-    private fun makeEngine(metadata: Metadata, settings: SettingsProvider): WorkflowEngine {
-        return spyk(
+    private fun makeEngine(metadata: Metadata, settings: SettingsProvider): WorkflowEngine = spyk(
             WorkflowEngine.Builder().metadata(metadata).settingsProvider(settings).databaseAccess(accessSpy)
                 .blobAccess(blobMock).queueAccess(queueMock).build()
         )
-    }
 
     @BeforeEach
     fun reset() {

@@ -19,7 +19,8 @@ import java.time.format.DateTimeFormatter
 import kotlin.io.path.Path
 import kotlin.io.path.name
 
-class SenderFilesCommand : CliktCommand(
+class SenderFilesCommand :
+    CliktCommand(
     name = "sender-files",
     help = "For a specified report, trace each item's ancestry and retrieve the source files submitted by senders."
 ) {
@@ -232,7 +233,5 @@ class SenderFilesCommand : CliktCommand(
     /**
      * Abort the program with the message
      */
-    private fun abort(message: String): Nothing {
-        throw PrintMessage(message, printError = true)
-    }
+    private fun abort(message: String): Nothing = throw PrintMessage(message, printError = true)
 }

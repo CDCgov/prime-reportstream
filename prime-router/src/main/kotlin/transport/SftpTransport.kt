@@ -38,7 +38,9 @@ import org.apache.logging.log4j.kotlin.Logging
 import java.io.InputStream
 import java.io.StringReader
 
-class SftpTransport : ITransport, Logging {
+class SftpTransport :
+    ITransport,
+    Logging {
 
     override fun send(
         transportType: TransportType,
@@ -222,9 +224,7 @@ class SftpTransport : ITransport, Logging {
             }
         }
 
-        fun ls(sshClient: SSHClient, path: String): List<String> {
-            return ls(sshClient, path, null)
-        }
+        fun ls(sshClient: SSHClient, path: String): List<String> = ls(sshClient, path, null)
 
         fun ls(sshClient: SSHClient, path: String, resourceFilter: RemoteResourceFilter?): List<String> {
             val lsResults = mutableListOf<String>()
@@ -292,33 +292,20 @@ class SftpTransport : ITransport, Logging {
             return pwd
         }
 
-        private fun makeSourceFile(contents: ByteArray, fileName: String): LocalSourceFile {
-            return object : InMemorySourceFile() {
-                override fun getName(): String {
-                    return fileName
-                }
+        private fun makeSourceFile(contents: ByteArray, fileName: String): LocalSourceFile =
+            object : InMemorySourceFile() {
+                override fun getName(): String = fileName
 
-                override fun getLength(): Long {
-                    return contents.size.toLong()
-                }
+                override fun getLength(): Long = contents.size.toLong()
 
-                override fun getInputStream(): InputStream {
-                    return contents.inputStream()
-                }
+                override fun getInputStream(): InputStream = contents.inputStream()
 
-                override fun isDirectory(): Boolean {
-                    return false
-                }
+                override fun isDirectory(): Boolean = false
 
-                override fun isFile(): Boolean {
-                    return true
-                }
+                override fun isFile(): Boolean = true
 
-                override fun getPermissions(): Int {
-                    return 777
-                }
+                override fun getPermissions(): Int = 777
             }
-        }
 
         // allow us to mock SSHClient because there is no dependency injection in this class
         fun createDefaultSSHClient(): SSHClient {
