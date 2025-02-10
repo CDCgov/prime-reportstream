@@ -4,6 +4,19 @@
 The Postgres database powers [ReportStream's Data Model] (../design/design/data-model.md) and is currently managed in 
 Microsoft Azure. 
 
+## Creating and Deploying Database Migrations
+
+Database migrations are defined by the .sql files located in `prime-router/src/main/resources/db/migration` and are applied by Flyway. `Flyway migrate` runs as part of the gradle build and is also invoked in the process of the application creating a database connection (see `DatabaseAccess.getDataSource`). 
+
+When deploying long-running migrations (usually index creations) to staging or production, the migrations should be performed manually by running the SQL queries directly on the database in question. Once the migrations have been manually applied, the migration file can be merged to the main branch for the purposes of documentation and future reproducibility. This means queries should be written in such a way as to prevent them from running again by using the `IF NOT EXISTS` keywords, like so:
+
+```
+CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_item_lineage_created_at
+ON item_lineage
+USING btree (created_at)
+;
+```
+
 ## DB Flyaway Repair
 If the Flyway migrations need a repair, the following commands will resolve in each environment.
 
