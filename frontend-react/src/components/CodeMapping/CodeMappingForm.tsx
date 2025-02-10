@@ -4,6 +4,7 @@ import CodeMappingResults from "./CodeMappingResults";
 import site from "../../content/site.json";
 import useCodeMappingFormSubmit from "../../hooks/api/UseCodeMappingFormSubmit/UseCodeMappingFormSubmit";
 import Spinner from "../Spinner";
+import { USLink } from "../USLink";
 
 export type CodeMappingFormProps = PropsWithChildren;
 
@@ -71,7 +72,8 @@ const CodeMappingForm = (props: CodeMappingFormProps) => {
             )}
             {props.children}
             <p className="margin-top-9">
-                Questions or feedback? Please email <a href="mailto:reportstream@cdc.gov">reportstream@cdc.gov</a>
+                Questions or feedback? Please email{" "}
+                <USLink href="mailto:reportstream@cdc.gov">reportstream@cdc.gov</USLink>
             </p>
         </>
     );
