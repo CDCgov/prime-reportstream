@@ -13,13 +13,37 @@ elements:
   value: [ '""' ]
   bundleProperty: '%resource.value[x]'
 
-- name: suppress-organization-roc-14-xtn-12
+- name: suppress-patient-pid-22-9
+  resource: 'Bundle.entry.resource.ofType(Patient).extension("https://reportstream.cdc.gov/fhir/StructureDefinition/ethnic-group").value'
+  condition: '%resource.text.exists()'
+  value: [ '""' ]
+  bundleProperty: '%resource.text'
+
+- name: modify-patient-pid-13-xtn-1
+  resource: 'Bundle.entry.resource.ofType(Patient).telecom.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/xtn-contact-point").extension("XTN.1")'
+  condition: '%resource.exists()'
+  value: [ '%resource.value.replace(" ", "").substring(0,8)+"-"+%resource.value.replace(" ", "").substring(8)' ]
+  bundleProperty: '%resource.value[x]'
+
+- name: modify-patient-pid-13-xtn-2
+  resource: 'Bundle.entry.resource.ofType(Patient).telecom.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/xtn-contact-point").extension("XTN.2")'
+  condition: '%resource.exists()'
+  value: [ '"PRN"' ]
+  bundleProperty: '%resource.value[x]'
+
+- name: modify-patient-pid-13-xtn-3
+  resource: 'Bundle.entry.resource.ofType(Patient).telecom.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/xtn-contact-point").extension("XTN.3")'
+  condition: '%resource.exists()'
+  value: [ '"PH"' ]
+  bundleProperty: '%resource.value[x]'
+
+- name: suppress-organization-orc-14-xtn-12
   resource: 'Bundle.entry.resource.ofType(Organization).telecom.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/xtn-contact-point").extension("XTN.12")'
   condition: '%resource.exists()'
   value: [ '""' ]
   bundleProperty: '%resource.value[x]'
 
-- name: suppress-servicerequest-roc-23-xtn-12
+- name: suppress-servicerequest-orc-23-xtn-12
   resource: 'Bundle.entry.resource.ofType(ServiceRequest).requester.extension.value.extension.extension("XTN.12")'
   condition: '%resource.exists()'
   value: [ '""' ]
