@@ -9,6 +9,9 @@ export type CodeMappingFormProps = PropsWithChildren;
 
 const CodeMappingForm = (props: CodeMappingFormProps) => {
     const { data, isPending, mutate } = useCodeMappingFormSubmit();
+    /**
+     * TODO: Implement submit handler
+     */
     const onSubmitHandler = useCallback<FormEventHandler<HTMLFormElement>>(
         (ev) => {
             ev.preventDefault();
@@ -19,6 +22,10 @@ const CodeMappingForm = (props: CodeMappingFormProps) => {
     );
     const onBackHandler = useCallback<MouseEventHandler>((_ev) => {
         window.history.back();
+    }, []);
+    const onCancelHandler = useCallback<MouseEventHandler>((_ev) => {
+        // Don't have a proper mechanism to cancel in-flight requests so refresh page
+        window.location.reload();
     }, []);
 
     return (
@@ -40,6 +47,9 @@ const CodeMappingForm = (props: CodeMappingFormProps) => {
                         Checking your file for any unmapped codes that will <br /> prevent data from being reported
                         successfully.
                     </p>
+                    <Button type={"button"} outline onClick={onCancelHandler}>
+                        Cancel
+                    </Button>
                 </>
             )}
             {!data && !isPending && (
