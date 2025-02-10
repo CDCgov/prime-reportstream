@@ -36,8 +36,8 @@ const CodeMappingForm = (props: CodeMappingFormProps) => {
             {isPending && (
                 <>
                     <Spinner />
-                    <p>
-                        Checking your file for any unmapped codes that will prevent data from being reported
+                    <p className="text-center">
+                        Checking your file for any unmapped codes that will <br /> prevent data from being reported
                         successfully.
                     </p>
                 </>
