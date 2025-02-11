@@ -265,6 +265,8 @@ test.describe("Admin Organization Receiver Message Test Page", () => {
                         await expect(organizationReceiverMessageTestPage.submissionTestMessage).toHaveText(
                             JSON.stringify(JSON.parse(message.reportBody), undefined, 2),
                         );
+                        const fileStats = await organizationReceiverMessageTestPage.downloadPDF();
+                        expect(fileStats.size).toBeGreaterThan(0);
                     });
 
                     test("custom message", async ({ organizationReceiverMessageTestPage }) => {
@@ -307,6 +309,8 @@ test.describe("Admin Organization Receiver Message Test Page", () => {
                         await expect(organizationReceiverMessageTestPage.submissionTestMessage).toHaveText(
                             JSON.stringify(JSON.parse(message), undefined, 2),
                         );
+                        const fileStats = await organizationReceiverMessageTestPage.downloadPDF();
+                        expect(fileStats.size).toBeGreaterThan(0);
                     });
                 });
 
@@ -349,6 +353,8 @@ test.describe("Admin Organization Receiver Message Test Page", () => {
                         await expect(organizationReceiverMessageTestPage.submissionTestMessage).toHaveText(
                             JSON.stringify(JSON.parse(message.reportBody), undefined, 2),
                         );
+                        const fileStats = await organizationReceiverMessageTestPage.downloadPDF();
+                        expect(fileStats.size).toBeGreaterThan(0);
                     });
 
                     test("custom message", async ({ organizationReceiverMessageTestPage }) => {
@@ -389,6 +395,8 @@ test.describe("Admin Organization Receiver Message Test Page", () => {
                         await expect(organizationReceiverMessageTestPage.submissionTestMessage).toHaveText(
                             JSON.stringify(JSON.parse(message), undefined, 2),
                         );
+                        const fileStats = await organizationReceiverMessageTestPage.downloadPDF();
+                        expect(fileStats.size).toBeGreaterThan(0);
                     });
                 });
             });
