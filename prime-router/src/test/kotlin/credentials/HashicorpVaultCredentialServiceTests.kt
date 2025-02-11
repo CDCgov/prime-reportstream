@@ -19,14 +19,12 @@ internal class HashicorpVaultCredentialServiceTests {
         status: HttpStatusCode,
         body: String,
         f: ((request: HttpRequestData) -> Unit)? = null,
-    ): HttpClient {
-        return ApiMockEngine(
+    ): HttpClient = ApiMockEngine(
             url,
             status,
             body,
             f = f
         ).client()
-    }
 
     @Test
     fun `uses Vault api to fetch a credential`() {

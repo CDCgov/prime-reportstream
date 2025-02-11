@@ -71,8 +71,7 @@ class FHIRDestinationFilter(
         message: T,
         actionLogger: ActionLogger,
         actionHistory: ActionHistory,
-    ): List<FHIREngineRunResult> {
-        return when (message) {
+    ): List<FHIREngineRunResult> = when (message) {
             is FhirDestinationFilterQueueMessage -> {
                 check(message.topic.isUniversalPipeline) {
                     "Unexpected topic $message.topic in the Universal Pipeline routing step."
@@ -86,7 +85,6 @@ class FHIRDestinationFilter(
                 )
             }
         }
-    }
 
     /**
      * Process a [queueMessage] off of the raw-elr azure queue, convert it into FHIR, and store for next step.
@@ -140,7 +138,7 @@ class FHIRDestinationFilter(
                         metadata = this.metadata,
                         topic = queueMessage.topic,
                         destination = receiver,
-                        nextAction = TaskAction.receiver_filter
+                        nextAction = TaskAction.receiver_enrichment
                     )
 
                     // create item lineage
@@ -159,7 +157,7 @@ class FHIRDestinationFilter(
                     )
 
                     val nextEvent = ProcessEvent(
-                        Event.EventAction.RECEIVER_FILTER,
+                        Event.EventAction.RECEIVER_ENRICHMENT,
                         report.id,
                         Options.None,
                         emptyMap(),
@@ -209,7 +207,7 @@ class FHIRDestinationFilter(
                             nextEvent,
                             report,
                             blobInfo.blobUrl,
-                            FhirReceiverFilterQueueMessage(
+                            FhirReceiverEnrichmentQueueMessage(
                                 report.id,
                                 blobInfo.blobUrl,
                                 BlobUtils.digestToString(blobInfo.digest),

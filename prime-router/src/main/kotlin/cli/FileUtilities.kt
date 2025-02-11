@@ -46,8 +46,7 @@ object FileUtilities {
         targetStates: String? = null,
         targetCounties: String? = null,
         locale: Locale? = null,
-    ): Report {
-        return FakeReport(metadata, locale).build(
+    ): Report = FakeReport(metadata, locale).build(
             metadata.findSchema(schemaName)
                 ?: error("Unable to find schema $schemaName"),
             count,
@@ -55,7 +54,6 @@ object FileUtilities {
             targetStates,
             targetCounties,
         )
-    }
 
     fun writeReportsToFile(
         reports: List<Pair<Report, MimeFormat>>,
@@ -140,10 +138,8 @@ object FileUtilities {
     /**
      * Does the file name of [file] match the internal file name pattern
      */
-    fun isInternalFile(file: File): Boolean {
-        return file.extension.equals("INTERNAL", ignoreCase = true) ||
+    fun isInternalFile(file: File): Boolean = file.extension.equals("INTERNAL", ignoreCase = true) ||
             file.nameWithoutExtension.endsWith("INTERNAL", ignoreCase = true)
-    }
 
     /**
      * Save the passed in table as a CSV to the provided output file

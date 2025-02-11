@@ -18,7 +18,7 @@ import java.util.UUID
 class ReportFileDatabaseAccessTest {
 
     @Nested
-    inner class ReportFileDatabaseTests() {
+    inner class ReportFileDatabaseTests {
 
         @Test
         fun `Test can find a single report`() {
@@ -51,7 +51,7 @@ class ReportFileDatabaseAccessTest {
     }
 
     @Nested
-    inner class ReportFileApiSearchTest() {
+    inner class ReportFileApiSearchTest {
 
         @Test
         fun `Test generates filters correctly, multiple filters`() {

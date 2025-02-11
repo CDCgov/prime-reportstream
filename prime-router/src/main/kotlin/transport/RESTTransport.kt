@@ -293,15 +293,16 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
      * @param [restTransportInfo] holds receiver-specific Rest parameters
      * @param [reportId] report id to be added as header
      */
-    fun getHeaders(restTransportInfo: RESTTransportType, reportId: String): MutableMap<String, String> {
-        return restTransportInfo.headers.mapValues {
+    fun getHeaders(
+        restTransportInfo: RESTTransportType,
+        reportId: String,
+    ): MutableMap<String, String> = restTransportInfo.headers.mapValues {
             if (it.value == "header.reportFile.reportId") {
                 reportId
             } else {
                 it.value
             }
         }.toMutableMap()
-    }
 
     /**
      * Get the Accesstoken based on authType given in Restransport header
@@ -634,17 +635,16 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
         private const val TIMEOUT = 120_000
 
         /** Get Authentication header.  It is hear to ease Unit Test */
-        fun getAuthorizationHeader(restTransportInfo: RESTTransportType?): String {
-            return restTransportInfo?.headers?.get("BearerToken") ?: "Bearer"
-        }
+        fun getAuthorizationHeader(
+            restTransportInfo: RESTTransportType?,
+        ): String = restTransportInfo?.headers?.get("BearerToken") ?: "Bearer"
 
         /** Our default Http Client, with an optional SSL context, and optional auth token */
         fun createDefaultHttpClient(
             jks: UserJksCredential?,
             accessToken: String?,
             restTransportInfo: RESTTransportType?,
-        ): HttpClient {
-            return HttpClient(Apache) {
+        ): HttpClient = HttpClient(Apache) {
                 // installs logging into the call to post to the server
                 install(Logging) {
                     logger = io.ktor.client.plugins.logging.Logger.Companion.SIMPLE
@@ -680,7 +680,6 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
                     }
                 }
             }
-        }
 
         /***
          * Create an SSL context with the provided cert

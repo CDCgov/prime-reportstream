@@ -71,29 +71,19 @@ class SubmissionControllerTest {
     @TestConfiguration
     class Config {
         @Bean
-        fun blobContainerClient(): BlobContainerClient {
-            return mock()
-        }
+        fun blobContainerClient(): BlobContainerClient = mock()
 
         @Bean
-        fun queueClient(): QueueClient {
-            return mock()
-        }
+        fun queueClient(): QueueClient = mock()
 
         @Bean
-        fun tableClient(): TableClient {
-            return mock()
-        }
+        fun tableClient(): TableClient = mock()
 
         @Bean
-        fun telemetryService(): TelemetryService {
-            return mock()
-        }
+        fun telemetryService(): TelemetryService = mock()
 
         @Bean
-        fun authZService(): AuthZService {
-            return mock()
-        }
+        fun authZService(): AuthZService = mock()
     }
 
     private lateinit var objectMapper: ObjectMapper
@@ -328,8 +318,7 @@ class SubmissionControllerTest {
     @Test
     fun `submitReport should log SUBMISSION_RECEIVED with correct details`() {
         // Helper function to safely cast the captured map to Map<String, String>
-        fun mapToStringString(input: Map<*, *>): Map<String, String> {
-            return input.mapNotNull { (key, value) ->
+        fun mapToStringString(input: Map<*, *>): Map<String, String> = input.mapNotNull { (key, value) ->
                 val stringKey = key as? String
                 val stringValue = value as? String
                 if (stringKey != null && stringValue != null) {
@@ -338,7 +327,6 @@ class SubmissionControllerTest {
                     null
                 }
             }.toMap()
-        }
 
         val data = mapOf("key" to "value")
         val requestBody = objectMapper.writeValueAsString(data)

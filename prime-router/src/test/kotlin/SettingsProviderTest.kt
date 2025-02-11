@@ -56,20 +56,13 @@ class SettingsProviderTest {
         override val receivers: Collection<Receiver>,
     ) : SettingsProvider {
 
-        override fun findOrganization(name: String): Organization? {
-            return organizations.find { org -> org.name == name }
-        }
+        override fun findOrganization(name: String): Organization? = organizations.find { org -> org.name == name }
 
-        override fun findReceiver(fullName: String): Receiver? {
+        override fun findReceiver(fullName: String): Receiver? = throw NotImplementedError()
+
+        override fun findSender(fullName: String): Sender? = senders.find { sender -> sender.fullName == fullName }
+
+        override fun findOrganizationAndReceiver(fullName: String): Pair<Organization, Receiver>? =
             throw NotImplementedError()
-        }
-
-        override fun findSender(fullName: String): Sender? {
-            return senders.find { sender -> sender.fullName == fullName }
-        }
-
-        override fun findOrganizationAndReceiver(fullName: String): Pair<Organization, Receiver>? {
-            throw NotImplementedError()
-        }
     }
 }
