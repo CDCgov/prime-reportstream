@@ -230,7 +230,7 @@ class FhirReceiverFilterTests {
                 .isInstanceOf<ReportStreamItemEvent>()
                 .matchesPredicate {
                     it.params[ReportStreamEventProperties.FAILING_FILTERS] == FILTER_FAIL &&
-                        it.params[ReportStreamEventProperties.FILTER_TYPE] == ReportStreamFilterType.QUALITY_FILTER
+                        it.params[ReportStreamEventProperties.FILTER_TYPE] == ReportStreamFilterType.QUALITY_FILTER.name
                 }
         }
         assertThat(actionLogger.logs).hasSize(2)
@@ -289,7 +289,7 @@ class FhirReceiverFilterTests {
                 .isInstanceOf<ReportStreamItemEvent>()
                 .matchesPredicate {
                     it.params[ReportStreamEventProperties.FAILING_FILTERS] == FILTER_FAIL &&
-                        it.params[ReportStreamEventProperties.FILTER_TYPE] == ReportStreamFilterType.ROUTING_FILTER
+                        it.params[ReportStreamEventProperties.FILTER_TYPE] == ReportStreamFilterType.ROUTING_FILTER.name
                 }
         }
 
@@ -352,7 +352,7 @@ class FhirReceiverFilterTests {
                 .matchesPredicate {
                     it.params[ReportStreamEventProperties.FAILING_FILTERS] == FILTER_FAIL &&
                         it.params[ReportStreamEventProperties.FILTER_TYPE] ==
-                        ReportStreamFilterType.PROCESSING_MODE_FILTER
+                        ReportStreamFilterType.PROCESSING_MODE_FILTER.name
                 }
         }
         assertThat(actionLogger.logs).hasSize(2)
@@ -413,7 +413,8 @@ class FhirReceiverFilterTests {
                 .isInstanceOf<ReportStreamItemEvent>()
                 .matchesPredicate {
                     it.params[ReportStreamEventProperties.FAILING_FILTERS] == FILTER_FAIL &&
-                        it.params[ReportStreamEventProperties.FILTER_TYPE] == ReportStreamFilterType.CONDITION_FILTER
+                        it.params[ReportStreamEventProperties.FILTER_TYPE] ==
+                        ReportStreamFilterType.CONDITION_FILTER.name
                 }
         }
         assertThat(actionLogger.logs).hasSize(2)
@@ -470,7 +471,7 @@ class FhirReceiverFilterTests {
                         it.params[ReportStreamEventProperties.FAILING_FILTERS] ==
                             listOf(MAPPED_CONDITION_FILTER_FAIL.value) &&
                             it.params[ReportStreamEventProperties.FILTER_TYPE] ==
-                            ReportStreamFilterType.MAPPED_CONDITION_FILTER
+                            ReportStreamFilterType.MAPPED_CONDITION_FILTER.name
                     }
             }
 
@@ -803,7 +804,8 @@ class FhirReceiverFilterTests {
                     .isInstanceOf<ReportStreamItemEvent>()
                     .matchesPredicate {
                         it.params[ReportStreamEventProperties.FAILING_FILTERS] == FILTER_FAIL &&
-                            it.params[ReportStreamEventProperties.FILTER_TYPE] == ReportStreamFilterType.QUALITY_FILTER
+                            it.params[ReportStreamEventProperties.FILTER_TYPE] ==
+                            ReportStreamFilterType.QUALITY_FILTER.name
                     }
             }
         }
@@ -877,7 +879,7 @@ class FhirReceiverFilterTests {
                 .matchesPredicate {
                     it.params[ReportStreamEventProperties.FAILING_FILTERS] == listOf(mappedConditionFilter.value) &&
                         it.params[ReportStreamEventProperties.FILTER_TYPE] ==
-                        ReportStreamFilterType.MAPPED_CONDITION_FILTER
+                        ReportStreamFilterType.MAPPED_CONDITION_FILTER.name
                 }
         }
         assertThat(actionLogger.logs).hasSize(1)

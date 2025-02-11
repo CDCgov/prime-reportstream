@@ -414,7 +414,7 @@ class FHIRReceiverFilterIntegrationTests : Logging {
             assertThat(event.params).isEqualTo(
                 mapOf(
                 ReportStreamEventProperties.FAILING_FILTERS to listOf("%resource.code.coding.code='1234'"),
-                ReportStreamEventProperties.FILTER_TYPE to ReportStreamFilterType.CONDITION_FILTER,
+                ReportStreamEventProperties.FILTER_TYPE to ReportStreamFilterType.CONDITION_FILTER.name,
                 ReportStreamEventProperties.BUNDLE_DIGEST to BundleDigestLabResult(
                     observationSummaries = AzureEventUtils.getObservationSummaries(bundle),
                     eventType = "ORU/ACK - Unsolicited transmission of an observation message",
@@ -591,7 +591,7 @@ class FHIRReceiverFilterIntegrationTests : Logging {
             assertThat(event.params).isEqualTo(
                 mapOf(
                     ReportStreamEventProperties.FAILING_FILTERS to listOf("%resource.code.coding.code='1234'"),
-                    ReportStreamEventProperties.FILTER_TYPE to ReportStreamFilterType.CONDITION_FILTER,
+                    ReportStreamEventProperties.FILTER_TYPE to ReportStreamFilterType.CONDITION_FILTER.name,
                     ReportStreamEventProperties.BUNDLE_DIGEST to BundleDigestLabResult(
                         observationSummaries = AzureEventUtils.getObservationSummaries(bundle),
                         eventType = "ORU/ACK - Unsolicited transmission of an observation message",
@@ -781,7 +781,7 @@ class FHIRReceiverFilterIntegrationTests : Logging {
             assertThat(event.params).isEqualTo(
                 mapOf(
                 ReportStreamEventProperties.FAILING_FILTERS to listOf("foobar"),
-                ReportStreamEventProperties.FILTER_TYPE to ReportStreamFilterType.MAPPED_CONDITION_FILTER,
+                ReportStreamEventProperties.FILTER_TYPE to ReportStreamFilterType.MAPPED_CONDITION_FILTER.name,
                 ReportStreamEventProperties.BUNDLE_DIGEST to BundleDigestLabResult(
                     observationSummaries = AzureEventUtils.getObservationSummaries(bundle),
                     eventType = "ORU/ACK - Unsolicited transmission of an observation message",
@@ -915,7 +915,7 @@ class FHIRReceiverFilterIntegrationTests : Logging {
             assertThat(event.params).isEqualTo(
                 mapOf(
                 ReportStreamEventProperties.FAILING_FILTERS to fullElrQualityFilterSample,
-                ReportStreamEventProperties.FILTER_TYPE to ReportStreamFilterType.QUALITY_FILTER,
+                ReportStreamEventProperties.FILTER_TYPE to ReportStreamFilterType.QUALITY_FILTER.name,
                 ReportStreamEventProperties.BUNDLE_DIGEST to BundleDigestLabResult(
                     observationSummaries = AzureEventUtils.getObservationSummaries(bundle),
                     eventType = "ORU^R01^ORU_R01",
@@ -1201,7 +1201,7 @@ class FHIRReceiverFilterIntegrationTests : Logging {
             assertThat(event.params).isEqualTo(
                 mapOf(
                 ReportStreamEventProperties.FAILING_FILTERS to processingModeFilterDebugging,
-                ReportStreamEventProperties.FILTER_TYPE to ReportStreamFilterType.PROCESSING_MODE_FILTER,
+                ReportStreamEventProperties.FILTER_TYPE to ReportStreamFilterType.PROCESSING_MODE_FILTER.name,
                 ReportStreamEventProperties.BUNDLE_DIGEST to BundleDigestLabResult(
                     observationSummaries = AzureEventUtils.getObservationSummaries(bundle),
                     eventType = "ORU/ACK - Unsolicited transmission of an observation message",

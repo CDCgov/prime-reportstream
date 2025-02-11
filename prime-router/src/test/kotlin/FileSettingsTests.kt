@@ -33,12 +33,12 @@ class FileSettingsTests {
                     schemaName: one
                     format: CSV
                   routingFilters:
-                    - filterType: "My fine filter type 1."
-                      filterExpression: "true"
+                    - filterName: "My fine filter type 1."
                       filterDescription: "Doing fine things for great people."
-                    - filterType: "My fine filter type 2."
-                      filterExpression: "true"
+                      filterExpressions: ["true"]
+                    - filterName: "My fine filter type 2."
                       filterDescription: "Preventing the spread of bad information."
+                      filterExpressions: ["false"]
                  
     """.trimIndent()
 
@@ -79,10 +79,14 @@ class FileSettingsTests {
         val settings = FileSettings().also { it.loadOrganizations(ByteArrayInputStream(receiversYaml.toByteArray())) }
         val result = settings.findReceiver("phd1.elr")
         assertThat(result?.jurisdictionalFilter).isNotNull().hasSize(1)
-        assertThat(result?.routingFilters).isNotNull().hasSize(2)
-        assertThat(result?.routingFilters!!.first().filterType).isEqualTo("My fine filter type 1.")
-        assertThat(result.routingFilters.first().filterExpression).isEqualTo("true")
+        assertThat(result?.routingFilters).isNotNull()
+        assertThat(result?.routingFilters!!.size).isEqualTo(2)
+        assertThat(result.routingFilters.first().filterName).isEqualTo("My fine filter type 1.")
+        assertThat(result.routingFilters.first().filterExpressions.first()).isEqualTo("true")
         assertThat(result.routingFilters.first().filterDescription).isEqualTo("Doing fine things for great people.")
+        assertThat(result.routingFilters[1].filterName).isEqualTo("My fine filter type 2.")
+        assertThat(result.routingFilters[1].filterExpressions.first()).isEqualTo("false")
+        assertThat(result.routingFilters[1].filterDescription).isEqualTo("Preventing the spread of bad information.")
     }
 
     @Test

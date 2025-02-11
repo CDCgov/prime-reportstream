@@ -8,6 +8,7 @@ import gov.cdc.prime.router.ActionLogDetail
 import gov.cdc.prime.router.ActionLogScope
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.ErrorCode
+import gov.cdc.prime.router.FHIRExpressionFilter
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.Options
@@ -117,16 +118,38 @@ class FHIRReceiverFilter(
         override val errorCode: ErrorCode = ErrorCode.UNKNOWN
     }
 
-    data class FilterDetails(val filters: List<String>, val filterType: ReportStreamFilterType)
+    interface FilterDetailsInterface {
+        fun theFilterType(): String
+        fun theFilters(): List<String>
+        fun theEnumFilterType(): ReportStreamFilterType
+    }
+
+    data class FilterDetails(val filters: List<String>, val filterType: ReportStreamFilterType) :
+        FilterDetailsInterface {
+        override fun theFilterType() = filterType.name
+
+        override fun theFilters() = filters
+
+        override fun theEnumFilterType() = filterType
+    }
+
+    data class ReceiverFilterDetails(val filters: List<String>, val filterName: String, val FilterDescription: String) :
+        FilterDetailsInterface {
+        override fun theFilterType() = filterName
+
+        override fun theFilters() = filters
+
+        override fun theEnumFilterType() = ReportStreamFilterType.ROUTING_FILTER
+    }
 
     sealed class ReceiverFilterEvaluationResult {
         data class Success(val bundle: Bundle) : ReceiverFilterEvaluationResult()
-        data class Failure(val failingFilter: FilterDetails) : ReceiverFilterEvaluationResult()
+        data class Failure(val failingFilter: FilterDetailsInterface) : ReceiverFilterEvaluationResult()
     }
 
     sealed class FhirExpressionEvaluationResult {
         data object Success : FhirExpressionEvaluationResult()
-        data class Failure(val failingFilter: FilterDetails) : FhirExpressionEvaluationResult()
+        data class Failure(val failingFilter: FilterDetailsInterface) : FhirExpressionEvaluationResult()
     }
 
     /**
@@ -164,7 +187,63 @@ class FHIRReceiverFilter(
             }
         }
 
+        receiver.routingFilters.forEach {
+            val result = evaluateFhirRoutingFilters(
+                receiver,
+                bundle,
+                actionLogger,
+                trackingId,
+                it
+            )
+            if (result is FhirExpressionEvaluationResult.Failure) {
+                return ReceiverFilterEvaluationResult.Failure(result.failingFilter)
+            }
+        }
+
         return evaluateObservationConditionFilters(receiver, bundle, actionLogger, trackingId)
+    }
+
+    private fun evaluateFhirRoutingFilters(
+        receiver: Receiver,
+        bundle: Bundle,
+        actionLogger: ActionLogger,
+        trackingId: String,
+        fhirExpressionFilter: FHIRExpressionFilter,
+        ): FhirExpressionEvaluationResult {
+        val filtersEvaluated = fhirExpressionFilter.filterExpressions.map { filter ->
+            Pair(
+                FhirPathUtils.evaluateCondition(
+                    CustomContext(bundle, bundle, shorthandLookupTable, CustomFhirPathFunctions()),
+                    bundle,
+                    bundle,
+                    bundle,
+                    filter
+                ),
+                filter
+            )
+        }
+        if (!filtersEvaluated.all { (passes, _) -> passes }) {
+            val failingFilters = filtersEvaluated.filter { (passes, _) -> !passes }.map { (_, filter) ->
+                actionLogger.getItemLogger(1, trackingId).warn(
+                    ReceiverItemFilteredActionLogDetail(
+                        filter,
+                        ReportStreamFilterType.ROUTING_FILTER,
+                        receiver.organizationName,
+                        receiver.name,
+                        1
+                    )
+                )
+                filter
+            }
+            return FhirExpressionEvaluationResult.Failure(
+                ReceiverFilterDetails(
+                    failingFilters,
+                    fhirExpressionFilter.filterName,
+                    fhirExpressionFilter.filterDescription
+                )
+            )
+        }
+        return FhirExpressionEvaluationResult.Success
     }
 
     class MisconfiguredReceiverConditionFilters(val receiver: Receiver) : RuntimeException() {
@@ -447,10 +526,10 @@ class FHIRReceiverFilter(
                         ReportStreamFilterResult(
                             receiver.fullName,
                             db.fetchReportFile(queueMessage.reportId).itemCount,
-                            filterResult.failingFilter.filters.joinToString("\n"),
+                            filterResult.failingFilter.theFilters().joinToString("\n"),
                             emptyList(),
                             AzureEventUtils.getIdentifier(bundle).value ?: "",
-                            filterResult.failingFilter.filterType,
+                            filterResult.failingFilter.theEnumFilterType(),
                             scope = ActionLogScope.report
                         )
                     )
@@ -477,8 +556,8 @@ class FHIRReceiverFilter(
                         trackingId(bundle)
                         params(
                             mapOf(
-                                ReportStreamEventProperties.FAILING_FILTERS to filterResult.failingFilter.filters,
-                                ReportStreamEventProperties.FILTER_TYPE to filterResult.failingFilter.filterType,
+                                ReportStreamEventProperties.FAILING_FILTERS to filterResult.failingFilter.theFilters(),
+                                ReportStreamEventProperties.FILTER_TYPE to filterResult.failingFilter.theFilterType(),
                                 ReportStreamEventProperties.RECEIVER_NAME to receiver.fullName,
                                 ReportStreamEventProperties.BUNDLE_DIGEST
                                     to bundleDigestExtractor.generateDigest(bundle)

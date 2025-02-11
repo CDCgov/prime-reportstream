@@ -382,7 +382,7 @@ class ProcessFhirCommands :
                 if (result is FhirExpressionEvaluationResult.Failure) {
                     messageOrBundle.filterErrors.add(
                         FilterError(
-                            result.failingFilter.filters.joinToString("\n"),
+                            result.failingFilter.theFilters().joinToString("\n"),
                             "Filter failed",
                             filterType.toString()
                         )
@@ -422,9 +422,9 @@ class ProcessFhirCommands :
                 result as ReceiverFilterEvaluationResult.Failure
                 messageOrBundle.filterErrors.add(
                     FilterError(
-                        result.failingFilter.filters.joinToString("\n"),
+                        result.failingFilter.theFilters().joinToString("\n"),
                         "Filter failed",
-                        result.failingFilter.filterType.toString()
+                        result.failingFilter.theFilterType()
                     )
                 )
             }
