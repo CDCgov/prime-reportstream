@@ -46,7 +46,7 @@ const CodeMappingForm = (props: CodeMappingFormProps) => {
                     <Spinner />
                     <p className="text-center">
                         Checking your file for any unmapped codes that will <br /> prevent data from being reported
-                        successfully.
+                        successfully
                     </p>
                     <Button type={"button"} outline onClick={onCancelHandler}>
                         Cancel
