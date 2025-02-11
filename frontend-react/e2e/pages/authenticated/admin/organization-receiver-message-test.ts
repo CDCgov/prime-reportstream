@@ -1,4 +1,5 @@
 import type { Locator } from "@playwright/test";
+import * as fs from "fs";
 import language from "../../../../src/components/Admin/MessageTesting/language.json" assert { type: "json" };
 import {
     errorMessageResult,
@@ -120,6 +121,19 @@ export class OrganizationReceiverMessageTestPage extends BasePage {
 
     addMockTestSubmissionHandler(resultType: "pass" | "fail" | "warn" = "pass") {
         return this.addMockRouteHandlers([this.createMockTestSubmissionHandler(resultType)]);
+    }
+
+    async downloadPDF() {
+        // Listen for the 'download' event before firing
+        const [download] = await Promise.all([
+            this.page.waitForEvent("download"),
+            this.page.click('text="Download PDF"'),
+        ]);
+
+        const filePath = await download.path();
+        const stats = fs.statSync(filePath);
+
+        return stats;
     }
 
     async submit() {
