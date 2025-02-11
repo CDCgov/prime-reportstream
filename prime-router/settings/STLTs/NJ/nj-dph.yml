@@ -86,7 +86,7 @@
     - "Bundle.identifier.value.empty().not()"
     routingFilter:
     - "Bundle.entry.resource.ofType(MessageHeader).extension('https://reportstream.cdc.gov/fhir/StructureDefinition/sender-id').where(value\
-      \ = 'carbon-health').exists()"
+      \ = 'SimpleReport' or 'carbon-health').exists()"
     processingModeFilter:
     - "Bundle.entry.resource.ofType(MessageHeader).meta.tag.where(system = 'http://terminology.hl7.org/CodeSystem/v2-0103').code\
       \ = 'P'"
