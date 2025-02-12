@@ -27,13 +27,13 @@ elements:
 
 - name: modify-patient-pid-13-xtn-2
   resource: 'Bundle.entry.resource.ofType(Patient).telecom.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/xtn-contact-point").extension("XTN.2")'
-  condition: '%resource.exists()'
+  condition: '%resource.exists() and %resource.value = "PRS"'
   value: [ '"PRN"' ]
   bundleProperty: '%resource.value[x]'
 
 - name: modify-patient-pid-13-xtn-3
   resource: 'Bundle.entry.resource.ofType(Patient).telecom.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/xtn-contact-point").extension("XTN.3")'
-  condition: '%resource.exists()'
+  condition: '%resource.exists() and %resource.value = "CP"'
   value: [ '"PH"' ]
   bundleProperty: '%resource.value[x]'
 
