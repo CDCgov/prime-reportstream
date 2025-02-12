@@ -42,18 +42,14 @@ class Scope {
                  * Convert a string representation of a DetailedScope to a DetailedScope obj.
                  * @return the matching DetailedScope, or null if no such DetailedScope exists.
                  */
-                fun toDetailedScope(strRep: String): DetailedScope? {
-                    return values().find { it.strRep == strRep }
-                }
+                fun toDetailedScope(strRep: String): DetailedScope? = values().find { it.strRep == strRep }
             }
         }
 
         /**
          * Return true if scope is the PrimeAdmin scope
          */
-        fun isPrimeAdmin(scope: String?): Boolean {
-            return scope == primeAdminScope
-        }
+        fun isPrimeAdmin(scope: String?): Boolean = scope == primeAdminScope
 
         /**
          * @return true if this [scope] syntax is correct.  Otherwise false.
@@ -126,9 +122,12 @@ class Scope {
          *
          * @return the (possibly empty) intersection of the two sets.  Empty Set == not authorized for anything.
          */
-        internal fun authorizedScopes(userScopes: Set<String>, requiredScopes: Set<String>): Set<String> {
-            return userScopes.filter { it.isNotBlank() }.intersect(requiredScopes.filter { it.isNotBlank() }.toSet())
-        }
+        internal fun authorizedScopes(
+            userScopes: Set<String>,
+            requiredScopes: Set<String>,
+        ): Set<String> = userScopes.filter {
+            it.isNotBlank()
+        }.intersect(requiredScopes.filter { it.isNotBlank() }.toSet())
 
         /**
          * @return true if there is at least one match between the set of scopes the user claims ([userScopeList])

@@ -231,8 +231,7 @@ class FHIRReceiverFilterIntegrationTests : Logging {
         blobContents: String,
         sender: Sender,
         receiverName: String,
-    ): String {
-        return """
+    ): String = """
             {
                 "type": "${TaskAction.receiver_filter.literal}",
                 "reportId": "${report.id}",
@@ -243,7 +242,6 @@ class FHIRReceiverFilterIntegrationTests : Logging {
                 "receiverFullName": "$receiverName" 
             }
         """.trimIndent()
-    }
 
     @Test
     fun `should send valid FHIR report filtered by condition filter`() {

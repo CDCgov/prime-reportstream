@@ -27,7 +27,7 @@ import gov.cdc.prime.router.TestSource
 import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
-import gov.cdc.prime.router.azure.ConditionStamper.Companion.conditionCodeExtensionURL
+import gov.cdc.prime.router.azure.ConditionStamper.Companion.CONDITION_CODE_EXTENSION_URL
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
@@ -508,7 +508,7 @@ class FhirReceiverFilterTests {
             val coding = it.code.coding.first()
             if (coding.extension.isEmpty()) {
                 coding.addExtension(
-                    conditionCodeExtensionURL,
+                    CONDITION_CODE_EXTENSION_URL,
                     Coding(
                         "system", "AOE", "name"
                     )
@@ -569,11 +569,11 @@ class FhirReceiverFilterTests {
         bundle.entry.filter { it.resource is Observation }.forEach {
             val observation = (it.resource as Observation)
             observation.code.coding[0].addExtension(
-                conditionCodeExtensionURL,
+                CONDITION_CODE_EXTENSION_URL,
                 Coding("SNOMEDCT", "6142004", "Influenza (disorder)")
             )
             observation.valueCodeableConcept.coding[0].addExtension(
-                conditionCodeExtensionURL,
+                CONDITION_CODE_EXTENSION_URL,
                 Coding("Condition Code System", "foobar", "Condition Name")
             )
         }
@@ -681,11 +681,11 @@ class FhirReceiverFilterTests {
         val bundle = FhirContext.forR4().newJsonParser().parseResource(Bundle::class.java, fhirRecord)
         bundle.getObservations().forEach { observation ->
             observation.code.coding[0].addExtension(
-                conditionCodeExtensionURL,
+                CONDITION_CODE_EXTENSION_URL,
                 Coding("SNOMEDCT", "6142004", "Influenza (disorder)")
             )
             observation.valueCodeableConcept.coding[0].addExtension(
-                conditionCodeExtensionURL,
+                CONDITION_CODE_EXTENSION_URL,
                 Coding("Condition Code System", "Some Condition Code", "Condition Name")
             )
         }

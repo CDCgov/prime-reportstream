@@ -5,9 +5,8 @@ import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import org.hl7.fhir.r4.model.Bundle
 
-class FhirPathBundleDigestLabResultExtractorStrategy(
-    private val context: CustomContext? = null,
-) : FhirPathBundleDigestExtractorStrategy(context) {
+class FhirPathBundleDigestLabResultExtractorStrategy(private val context: CustomContext? = null) :
+    FhirPathBundleDigestExtractorStrategy(context) {
 
     private val eventCodePath = "Bundle.entry.resource.ofType(MessageHeader).event.display"
     private val patientStatePath = "Bundle.entry.resource.ofType(Patient).address.state"
