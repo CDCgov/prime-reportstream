@@ -118,6 +118,24 @@ class FHIRReceiverFilter(
         override val errorCode: ErrorCode = ErrorCode.UNKNOWN
     }
 
+    class AlternativeReceiverItemFilteredActionLogDetail(
+        val filter: String,
+        @JsonProperty
+        val filterType: String,
+        @JsonProperty
+        val receiverOrg: String,
+        @JsonProperty
+        val receiverName: String,
+        val index: Int = 1,
+    ) : ActionLogDetail {
+        override val scope: ActionLogScope = ActionLogScope.item
+
+        override val message: String = "Item was not routed to $receiverOrg.$receiverName because it did not pass the" +
+            " $filterType. Item failed on: $filter"
+
+        override val errorCode: ErrorCode = ErrorCode.UNKNOWN
+    }
+
     interface FilterDetailsInterface {
         fun theFilterType(): String
         fun theFilters(): List<String>
@@ -133,7 +151,7 @@ class FHIRReceiverFilter(
         override fun theEnumFilterType() = filterType
     }
 
-    data class ReceiverFilterDetails(val filters: List<String>, val filterName: String, val FilterDescription: String) :
+    data class ReceiverFilterDetails(val filters: List<String>, val filterName: String, val filterDescription: String) :
         FilterDetailsInterface {
         override fun theFilterType() = filterName
 
@@ -225,9 +243,9 @@ class FHIRReceiverFilter(
         if (!filtersEvaluated.all { (passes, _) -> passes }) {
             val failingFilters = filtersEvaluated.filter { (passes, _) -> !passes }.map { (_, filter) ->
                 actionLogger.getItemLogger(1, trackingId).warn(
-                    ReceiverItemFilteredActionLogDetail(
+                    AlternativeReceiverItemFilteredActionLogDetail(
                         filter,
-                        ReportStreamFilterType.ROUTING_FILTER,
+                        fhirExpressionFilter.filterName,
                         receiver.organizationName,
                         receiver.name,
                         1

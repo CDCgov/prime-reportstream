@@ -11,6 +11,7 @@ import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.CodeStringConditionFilter
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.DeepOrganization
+import gov.cdc.prime.router.FHIRExpressionFilter
 import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.MimeFormat
@@ -21,6 +22,7 @@ import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.ReportStreamConditionFilter
 import gov.cdc.prime.router.ReportStreamFilter
 import gov.cdc.prime.router.ReportStreamFilterType
+import gov.cdc.prime.router.ReportStreamReceiverRoutingFilter
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.TestSource
@@ -132,6 +134,7 @@ class FhirReceiverFilterTests {
         processingModeFilter: List<String> = emptyList(),
         conditionFilter: List<String> = emptyList(),
         mappedConditionFilter: ReportStreamConditionFilter = emptyList(),
+        routingFilters: ReportStreamReceiverRoutingFilter = emptyList(),
     ) = DeepOrganization(
         ORGANIZATION_NAME,
         "test",
@@ -148,7 +151,8 @@ class FhirReceiverFilterTests {
                 routingFilter = routingFilter,
                 processingModeFilter = processingModeFilter,
                 conditionFilter = conditionFilter,
-                mappedConditionFilter = mappedConditionFilter
+                mappedConditionFilter = mappedConditionFilter,
+                routingFilters = routingFilters
             ),
             Receiver(
                 "full-elr-hl7-2",
@@ -161,7 +165,8 @@ class FhirReceiverFilterTests {
                 routingFilter = routingFilter,
                 processingModeFilter = processingModeFilter,
                 conditionFilter = conditionFilter,
-                mappedConditionFilter = mappedConditionFilter
+                mappedConditionFilter = mappedConditionFilter,
+                routingFilters = routingFilters
             )
         )
     )
@@ -238,6 +243,71 @@ class FhirReceiverFilterTests {
             assertThat(it.detail)
                 .isInstanceOf<FHIRReceiverFilter.ReceiverItemFilteredActionLogDetail>()
                 .matchesPredicate { it.filterType == ReportStreamFilterType.QUALITY_FILTER }
+        }
+    }
+
+    @Test
+    fun `fail - receiver fhir routing filter fails`() {
+        // engine setup
+        val filter = FHIRExpressionFilter("name", "description", listOf("false"))
+        val filters = listOf(filter)
+        val settings = FileSettings().loadOrganizations(
+            createOrganizationWithFilteredReceivers(
+                routingFilters = filters
+            )
+        )
+        val engine = spyk(makeFhirEngine(metadata, settings) as FHIRReceiverFilter)
+        val messages = settings.receivers.map {
+            spyk(
+                FhirReceiverFilterQueueMessage(
+                    UUID.randomUUID(),
+                    BLOB_URL,
+                    "test",
+                    BLOB_SUB_FOLDER_NAME,
+                    topic = Topic.FULL_ELR,
+                    it.fullName
+                )
+            )
+        }
+
+        // data + mock setup
+        val fhirData = File(VALID_FHIR_FILEPATH).readText()
+        mockkObject(BlobAccess)
+        every { BlobAccess.uploadBlob(any(), any()) } returns "test"
+        every { accessSpy.insertTask(any(), MimeFormat.FHIR.toString(), BODY_URL, any()) }.returns(Unit)
+        every { accessSpy.fetchReportFile(any<ReportId>()) } answers {
+            val reportId = firstArg<ReportId>()
+            if (reportId in messages.map { it.reportId }) {
+                ReportFile().setReportId(reportId).setItemCount(1)
+            } else {
+                callOriginal()
+            }
+        }
+
+        // act on each message (with assert)
+        messages.forEach { message ->
+            every { BlobAccess.downloadBlob(any(), any()) }.returns(fhirData)
+            // act + assert
+            accessSpy.transact { txn ->
+                val results = engine.run(message, actionLogger, actionHistory, txn)
+                assertThat(results).isEmpty()
+            }
+        }
+
+        // assert
+        azureEventService.events.forEach { event ->
+            assertThat(event)
+                .isInstanceOf<ReportStreamItemEvent>()
+                .matchesPredicate {
+                    it.params[ReportStreamEventProperties.FAILING_FILTERS] == FILTER_FAIL &&
+                        it.params[ReportStreamEventProperties.FILTER_TYPE] == "name"
+                }
+        }
+        assertThat(actionLogger.logs).hasSize(2)
+        actionLogger.logs.forEach {
+            assertThat(it.detail)
+                .isInstanceOf<FHIRReceiverFilter.AlternativeReceiverItemFilteredActionLogDetail>()
+                .matchesPredicate { it.filterType == "name" }
         }
     }
 
@@ -545,9 +615,11 @@ class FhirReceiverFilterTests {
     @Test
     fun `success - jurisfilter, qualfilter, routing filter, proc mode passes, and condition filter passes`() {
         // engine setup
+        val filter = FHIRExpressionFilter("name", "description", listOf("true"))
+        val filters = listOf(filter)
         val settings = FileSettings().loadOrganizations(
             createOrganizationWithFilteredReceivers(
-                FILTER_PASS, FILTER_PASS, FILTER_PASS, FILTER_PASS, FILTER_PASS
+                FILTER_PASS, FILTER_PASS, FILTER_PASS, FILTER_PASS, FILTER_PASS, emptyList(), filters
             )
         )
         val engine = spyk(makeFhirEngine(metadata, settings) as FHIRReceiverFilter)
