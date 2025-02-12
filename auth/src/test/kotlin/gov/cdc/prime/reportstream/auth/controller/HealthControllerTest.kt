@@ -16,9 +16,7 @@ import kotlin.test.Test
 @SpringBootTest
 @AutoConfigureWebTestClient
 @Import(TestOktaClientConfig::class)
-class HealthControllerTest @Autowired constructor(
-    private val webTestClient: WebTestClient,
-) {
+class HealthControllerTest @Autowired constructor(private val webTestClient: WebTestClient) {
 
     @Test
     fun `successful healthcheck`() {

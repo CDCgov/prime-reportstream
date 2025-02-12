@@ -54,15 +54,27 @@ jobs:
           sp-creds: ${{ env.AZURE_CREDENTIALS }}
           tf-auth: true
       - name: Collect Terraform stats
-
-        uses: josiahsiegel/terraform-stats@68b8cbe42c494333fbf6f8d90ac86da1fb69dcc2
-        ## DevSecOps - Aquia (Replace) - uses: ./.github/actions/terraform-stats
-
+        uses: ./.github/actions/terraform-stats
         id: stats1
         with:
           terraform-directory: operations/app/terraform/vars/${{ needs.pre_job.outputs.env_name }}
           terraform-version: 1.7.4
           add-args: "-refresh=false"
+      - name: Terraform Format
+        # fails on formatting issues, fix locally with `tf fmt -recursive` and push again if this step fails
+        run: terraform fmt -check -recursive
+      - name: Terraform Init
+        run: terraform init -input=false
+      - name: Terraform Validate
+        run: terraform validate
+      - name: Terraform Plan
+        run: terraform plan -out=tf.plan -input=false -no-color -lock-timeout=600s
+      - name: Comment Plan on PR
+        uses: blinqas/tf-plan-pr-comment@v1
+        with:
+          output_file: ${{ github.workspace }}/plan_output.txt
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   approve_deploy:
     name: Approve Deploy - ${{ needs.pre_job.outputs.env_name }}

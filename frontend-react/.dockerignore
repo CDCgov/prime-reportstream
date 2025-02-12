@@ -1,5 +1,5 @@
 .dockerignore
-*.sh
 build
 Dockerfile*
 node_modules
+**/.DS_Store
