@@ -1,8 +1,24 @@
 # Postgres Database
 
 ## Introduction
-The Postgres database powers [ReportStream's Data Model] (../design/design/data-model.md) and is currently managed in 
-Microsoft Azure. 
+The Postgres database powers [ReportStream's Data Model](../design/design/data-model.md) and is currently managed in 
+Microsoft Azure.
+
+## Table of Contents
+- [Table of contents](#table-of-contents)
+- [DB Flyaway Repair](#db-flyaway-repair)
+- [How to Log and Debug Database Queries](#how-to-log-and-debug-database-queries)
+  - [Log all queries using log4j](#log-all-queries-using-log4j)
+  - [Logging individual queries on the backend](#logging-individual-queries-on-the-backend)
+  - [Logging all queries to a file](#logging-all-queries-to-a-file)
+- [Logging In](#logging-in)
+  - [Staging](#staging)
+    - [Login to Azure CLI](#login-to-azure-cli)
+    - [Login to PostgreSQL](#login-to-postgresql)
+  - [Local Setup/Troubleshooting](#local-setuptroubleshooting)
+  - [Postgres Gradle Actions](#postgres-gradle-actions)
+  - [Managing Postgres with Flyway](#managing-postgres-with-flyway)
+- [Efficiency](#efficiency)
 
 ## DB Flyaway Repair
 If the Flyway migrations need a repair, the following commands will resolve in each environment.
@@ -182,7 +198,6 @@ other database setup issues take these 5 steps:
 5. ./gradlew reloadSettings
 AND IT NEEDS TO BE IN THAT ORDER due to prerequisites
 
-
 ### Postgres Gradle Actions
 There are three gradle actions that we use to interact with the database:
 - `./gradlew clearDB` - Truncate/empty all tables in the database that hold report and related data, and leave settings
@@ -194,3 +209,34 @@ To see all gradle action definitions, go to `build.gradle.kts`
 Flyway is an open-source database-migration tool that runs files in 
 `prime-router/src/main/resources/db/migration` directory. If you need to make changes to the database, a PR needs to be 
 submitted with an incremented file version added to the migration directory. 
+
+## Efficiency
+
+### Index Utilization Query
+
+This query is a good starting point for determining which indexes are frequently used, and which may be inefficient. 
+This query can be run on [metabase](https://prime.cdc.gov/metabase). It should be noted that post1gres automatically 
+creates indexes for columns with a uniqueness constraint. Postgres itself uses these indexes to enforce the constraint, 
+and this usage apparently does not update the index scan count.
+
+References: This query was modified from a post on [optimizing database indexes](https://www.timescale.com/learn/postgresql-performance-tuning-optimizing-database-indexes).
+For more info on pg_stat_all_indexes, see the [postgres documentation](https://www.postgresql.org/docs/current/monitoring-stats.html).
+
+```sql
+SELECT
+    PG_SIZE_PRETTY(PG_INDEXES_SIZE(relid)) AS "Size All Indexes",
+    PG_SIZE_PRETTY(PG_RELATION_SIZE(relid)) AS "Table Size",
+    PG_SIZE_PRETTY(PG_TOTAL_RELATION_SIZE(relid)) AS "Total Size",
+    i.relname "Table", indexrelname "Index Name",
+    i.idx_scan "Index Scan Count",
+    PG_SIZE_PRETTY(PG_RELATION_SIZE(indexrelid)) "Index Size",
+    reltuples::BIGINT "Row Count", -- Number of live rows in the table. This is only an estimate used by the planner.
+    c.relpages "Index Page Count", -- Size of the on-disk representation of this table in pages (of size BLCKSZ). This is only an estimate used by the planner.
+    i.idx_tup_read, -- Number of index entries returned by scans on this index
+    i.idx_tup_fetch -- Number of live table rows fetched by simple index scans using this index
+FROM pg_stat_all_indexes i JOIN pg_class c ON i.relid = c.oid
+JOIN pg_indexes ii ON i.indexrelname = ii.indexname
+WHERE i.schemaname NOT LIKE 'pg_%'  -- exclude system tables
+ORDER BY PG_INDEXES_SIZE(relid) DESC, PG_RELATION_SIZE(indexrelid) desc
+```
+

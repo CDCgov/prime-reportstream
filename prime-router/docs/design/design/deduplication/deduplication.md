@@ -15,7 +15,7 @@ Deduplication will only be implemented for ORU_R01 messages from FULL_ELR topic 
  There are three key differences between the deduplication designs. In the Universal Pipeline,
 - Deduplication will now happen during the Convert Step instead of the Receive Step.
 - Deduplication will only consider a hash of key fields instead of the entire submitted item.
-- Deduplication will only consider hashes from the same sender in the last year.
+- Deduplication will only consider hashes from the same sender within the last year.
 
 ## Deduplication Workflow Design
 The Convert Step is where the UP’s deduplication workflow will live. See [Deduplication Workflow Placement](#deduplication-workflow-placement) for its context within the Convert Step.
@@ -27,13 +27,13 @@ The first part of the Deduplication Workflow will take in the item’s Bundle an
 
 Technical Considerations:
 - This should be flexible enough that different senders, message types, or even topics can implement different key fields.
-  - This will be achieved through a new base class which shall own the logic for concatenating strings values in a map. Each set of new key fields would implement its own class which owns the logic knowing how to retrieve the necessary FHIR values. [See: Example Key Fields Class](#example-key-fields-file-structure) 
+  - This will be achieved through a new base class which shall own the logic for concatenating strings values in a map (LinkedHashMap or some other structure which preserves ordering should be used). Each set of new key fields would implement its own class which owns the logic knowing how to retrieve the necessary FHIR values. [See: Example Key Fields Class](#example-key-fields-file-structure) 
   - If deemed necessary, sender specific key field classes could be created and then referenced in the sender settings with a new sender field.
 - The ordering of fields within a FHIR Bundle are **not** guaranteed. Before converting to a string to be hashed, the [populated key fields](#key-fhir-elements) should be extracted from the bundle and put in a static order (alphabetical etc.).
-- Sender id/name shall be incorporated into the pre-hashed string. (Dependent upon sql efficiency investigation noted below).
-- Investigation TODO (_To be removed and appropriate sections updated before merge_): Investigate the time efficiency of the following options:
-  - Adding a sender id column to item_lineage table (and using this to narrow the SQL query).
-  - Adding the sender id (or name) into the string to be hashed and allowing the column index to be the main SQL query parameter.
+- Sender id/name shall be incorporated into the pre-hashed string. ~~(Dependent upon sql efficiency investigation noted below).~~
+- Investigation Results: 
+  - The index size for item_hash is in line with other very commonly used indexes such as `item_lineage_child_idx`. There will be no significant impact on performance to add the sender id into the hash vs other options.
+  - Note: The currently implemented deduplication workflow is rarely used and possibly takes an exceptional amount of time to execute because it depends on item_lineage.created_at in addition to item_lineage.item_hash. During this investigation metabase queries on item_lineage for any date range would not complete due to time-outs. An index has been added on item_lineage.created_at and this should ensure the deduplication workflow is sufficiently performant.  (See our [Postgres guide](../../../getting-started/postgres-database.md#efficiency) for a query to reproduce these details)
 
 ##### Item Hash Comparison
 Hash comparison will be skipped if `sender.allowDuplicates` is set to true. Otherwise, the generated item hash shall first be compared with items in the same report. (Note: At this part of the Convert Step, parallelization is not a blocker as the original items are [still within scope](https://github.com/CDCgov/prime-reportstream/blob/15648395efc2b60322d931bf88e0c2c5b6cc0371/prime-router/src/main/kotlin/fhirengine/engine/FHIRConverter.kt#L510)). The item hash will then be compared to existing hashes from the item_lineage table. There is an [existing SQL Query](https://github.com/CDCgov/prime-reportstream/blob/9ec0a59c73d7dad9a319cd321baf9efd71ceab46/prime-router/src/main/kotlin/azure/DatabaseAccess.kt#L166-L183) which performs the hash comparison. This will need to be enhanced or recreated as the original query only searches within the last 7 days and does not take sender into account. (_This last part will be unnecessary if the sender is incorporated into the hash._)
@@ -49,7 +49,7 @@ Hash comparison will be skipped if `sender.allowDuplicates` is set to true. Othe
     - Duplicates will be logged using the existing action logger pattern ([Ex 1](https://github.com/CDCgov/prime-reportstream/blob/0c5e0b058e35e09786942f2c8b41c1d67a5b1d16/prime-router/src/main/kotlin/fhirengine/engine/FHIRConverter.kt#L526-L533), [Ex 2](https://github.com/CDCgov/prime-reportstream/blob/cadc9fae10ff5f83e9cbf0b0c0fbda384889901d/prime-router/src/main/kotlin/fhirengine/engine/FHIRReceiverFilter.kt#L307-L315)). These will be visible in the Submission History API. See [example warning](#example-submission-history-api-some-items-in-batched-report-are-duplicates-) below.
   - Set flag or enter a workflow to check if entire report is duplicate.
       - If the entire report is found to be duplicate, this will be logged as an error. See [example error](#example-submission-history-api-entire-report-is-duplicate) below.
-  - Create an Azure Event containing the parent_report_id, child_report_id, and sender organization/name. 
+  - Create an Azure Event containing the parent_report_id, child_report_id, and sender organization/name. This will be a new [ReportStreamEventName](https://github.com/CDCgov/prime-reportstream/blob/fdf1aea660a886b908bce68bfa268bb0ee63b0a6/prime-router/src/main/kotlin/azure/observability/event/ReportStreamEventData.kt#L83C12-L83C33) value of `DUPLICATE_ITEM`, or `DUPLICATE_REPORT`.  
 
 ##### Example: Submission History API, Some Item(s) in Batched Report are Duplicates 
 
@@ -173,15 +173,15 @@ class ORUR01KeyFields(bundle: Bundle) : DeduplicationKeyFields(bundle) {
   - During the Deduplication Workflow, the Convert Step will:
     - Generate a hash for the item
     - Compare this hash against those batched in the same submitted report
-    - Compare this hash with others stored in the database
-    - Create appropriate action logs and Azure Events if any duplicates were detected
+    - Compare this hash with other hashes stored in the database from the same sender within the last year
+    - Create appropriate action logs and Azure Events if any duplicates were detected (see "If item is a duplicate" under [Hash Comparison](#item-hash-comparison))
   - After the Deduplication Workflow occurs, the Convert Step will perform necessary pipeline functions:
     - Apply sender schema transform
     - Make a report object with item lineage
       - **This will now include the newly generated (or null) hash**
-    - Create a route event
     - Upload to blobstore
     - Update the database
+    - Create an `ITEM_ACCEPTED` Azure event
     - Add the report to the route destination filter step queue
 
 ### Other Updates
@@ -195,8 +195,7 @@ class ORUR01KeyFields(bundle: Bundle) : DeduplicationKeyFields(bundle) {
     - Reasoning: 90%+ of item_lineage table rows have no need to store the item_hash. Allowing null values will reduce updates to the index and indexing times for the table. 
   - Long term change: Modify the index on item_lineage to a partial index, on only those values which are not null.
     - Caveat: Barring a significant database wipe of out of date information, this would likely result in a significant _decrease_ in database efficiency.
-    - A hybrid plan would be to begin storing NULL values. After older values have been culled, and/or enough NULL values have accumulated in the table, then change the index to a partial index. 
-- Database: Investigation will need to happen on how to best purge out of date records on the item_lineage table. item_lineage.created_at will be used for this. This is outside the scope for this design/implementation.
+    - A hybrid plan would be to begin storing NULL values. After older values have been culled, and/or enough NULL values have accumulated in the table, then change the index to a partial index.  
 - FHIRDestinationFilter and FHIRReceiverFilter both currently use Report.getItemHashForRow. They are incorrectly adding non-null data to item_lineage.item_hash. These steps should be only adding null (or `"0"`, Ex: [Report.generateReportAndUploadBlob](https://github.com/CDCgov/prime-reportstream/blob/4a2231af2031bc3b2d5d7949d2b21d33c525c44d/prime-router/src/main/kotlin/Report.kt#L1654)) values for item_hash. 
   - ~~TODO: Investigate other potential incorrect use of this column. Other possible entry points may create ItemLineage objects directly or use other functions which call it such as [Report.createItemLineageForRow](https://github.com/CDCgov/prime-reportstream/blob/4a2231af2031bc3b2d5d7949d2b21d33c525c44d/prime-router/src/main/kotlin/Report.kt#L1404).~~
   - Investigation results: Based on UP usage, roughly 95% of rows in item_lineage are not generated during the convert step and thus are entirely irrelevant to deduplication.
