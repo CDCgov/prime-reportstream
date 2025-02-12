@@ -48,3 +48,15 @@ elements:
   condition: '%resource.exists()'
   value: [ '""' ]
   bundleProperty: '%resource.value[x]'
+
+- name: suppress-organization-orc-21-6-extensions
+  resource: 'Bundle.entry.resource.ofType(Organization).identifier.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority").extension'
+  condition: '%resource.exists()'
+  value: [ '""' ]
+  bundleProperty: '%resource.value[x]'
+
+- name: suppress-organization-orc-21-xtn-7
+  resource: 'Bundle.entry.resource.ofType(Organization).identifier.type.coding'
+  condition: '%resource.code.exists()'
+  value: [ '""' ]
+  bundleProperty: '%resource.code'
