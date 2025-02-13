@@ -1,7 +1,7 @@
 # Postgres Database
 
 ## Introduction
-The Postgres database powers [ReportStream's Data Model] (../design/design/data-model.md) and is currently managed in 
+The Postgres database powers [ReportStream's Data Model](../design/design/data-model.md) and is currently managed in 
 Microsoft Azure. 
 
 ## Creating and Deploying Database Migrations
