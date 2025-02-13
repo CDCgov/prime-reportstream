@@ -23,7 +23,8 @@
       jurisdictionalFilter:
         - "true"
       qualityFilter: [ ]
-      routingFilter: [ ]
+      routingFilter:
+        - "Bundle.entry.resource.ofType(MessageHeader).extension('https://reportstream.cdc.gov/fhir/StructureDefinition/sender-id').where(value = 'c2sense' or 'mmtc').exists()"
       processingModeFilter: [ ]
       reverseTheQualityFilter: false
       conditionFilter: [ ]
