@@ -49,7 +49,8 @@ Hash comparison will be skipped if `sender.allowDuplicates` is set to true. Othe
     - Duplicates will be logged using the existing action logger pattern ([Ex 1](https://github.com/CDCgov/prime-reportstream/blob/0c5e0b058e35e09786942f2c8b41c1d67a5b1d16/prime-router/src/main/kotlin/fhirengine/engine/FHIRConverter.kt#L526-L533), [Ex 2](https://github.com/CDCgov/prime-reportstream/blob/cadc9fae10ff5f83e9cbf0b0c0fbda384889901d/prime-router/src/main/kotlin/fhirengine/engine/FHIRReceiverFilter.kt#L307-L315)). These will be visible in the Submission History API. See [example warning](#example-submission-history-api-some-items-in-batched-report-are-duplicates-) below.
   - Set flag or enter a workflow to check if entire report is duplicate.
       - If the entire report is found to be duplicate, this will be logged as an error. See [example error](#example-submission-history-api-entire-report-is-duplicate) below.
-  - Create an Azure Event containing the parent_report_id, child_report_id, and sender organization/name. This will be a new [ReportStreamEventName](https://github.com/CDCgov/prime-reportstream/blob/fdf1aea660a886b908bce68bfa268bb0ee63b0a6/prime-router/src/main/kotlin/azure/observability/event/ReportStreamEventData.kt#L83C12-L83C33) value of `DUPLICATE_ITEM`, or `DUPLICATE_REPORT`.  
+  - Note: Both duplication scenarios will now return information about the matching item_lineage record (the original tracking id and the original report id). This will require the duplicate search using a command which returns the record itself instead of [the currently used](https://github.com/CDCgov/prime-reportstream/blob/14e67d65b82e31fd48a3320dee44aaa993f85aba/prime-router/src/main/kotlin/azure/DatabaseAccess.kt#L176) `fetchExists` which only returns a boolean value. 
+  - Create an Azure Event containing the current [trackingId](https://github.com/CDCgov/prime-reportstream/blob/14e67d65b82e31fd48a3320dee44aaa993f85aba/prime-router/src/main/kotlin/fhirengine/engine/ProcessedItem.kt#L49), the parent_report_id, child_report_id, and sender organization/name. The tracking id of the matching item_hash should be logged as well. This will be a new [ReportStreamEventName](https://github.com/CDCgov/prime-reportstream/blob/fdf1aea660a886b908bce68bfa268bb0ee63b0a6/prime-router/src/main/kotlin/azure/observability/event/ReportStreamEventData.kt#L83C12-L83C33) value of `DUPLICATE_ITEM`, or `DUPLICATE_REPORT`.
 
 ##### Example: Submission History API, Some Item(s) in Batched Report are Duplicates 
 
@@ -95,9 +96,9 @@ Hash comparison will be skipped if `sender.allowDuplicates` is set to true. Othe
                 1
             ],
             "trackingIds": [
-                "849b3151-25f7-41f3-b19b-fd8ad47bae18"
+                "1122d1d1-95fe-462c-8ac6-46728dba581c"
             ],
-            "message": "Duplicate message was detected and removed.",
+            "message": "Duplicate message was detected and removed. The initial instance's Message ID is: [] and the Report ID is: []",
             "errorCode": "DUPLICATION_DETECTION"
         }
     ],
@@ -127,9 +128,10 @@ Hash comparison will be skipped if `sender.allowDuplicates` is set to true. Othe
                 1
             ],
             "trackingIds": [
-                "849b3151-25f7-41f3-b19b-fd8ad47bae18"
+                "1122d1d1-95fe-462c-8ac6-46728dba581c",
+                "1122d1d1-95fe-462c-8ac6-46728dba581d"
             ],
-            "message": "Duplicate report was detected and removed.",
+            "message": "Duplicate report was detected and removed. The initial instance's Message ID is: [] and the Report ID is: []",
             "errorCode": "DUPLICATION_DETECTION"
         }
     ],
@@ -191,6 +193,7 @@ class ORUR01KeyFields(bundle: Bundle) : DeduplicationKeyFields(bundle) {
   - The UniversalPipelineSender class [should default to false](https://github.com/CDCgov/prime-reportstream/blob/f48d719b876859169deb0360487f63965d8be5a0/prime-router/src/main/kotlin/Sender.kt#L196).
 - Receiver Step: There is stubbed code to be removed here: The SumissionReceiver refers to the once theorized area where UP deduplication would be invoked. ([SubmissionReceiver.kt#L284-L292](https://github.com/CDCgov/prime-reportstream/blob/0c5e0b058e35e09786942f2c8b41c1d67a5b1d16/prime-router/src/main/kotlin/SubmissionReceiver.kt#L284-L292))
 - Database Changes: Several changes will need to take place to improve efficiency. **Over 90% of the values stored in item_lineage.item_hash are not relevant to either CP or UP deduplication.**
+  - When item_lineage is updated in FHIRConverter, the item's tracking id (MSH-10 or bundle.identifier.value) will be stored in item_lineage.tracking_id. This column is not currently used in the Universal Pipeline. 
   - Immediate change: Modify item_lineage.item_hash to accept NULL values.
     - Reasoning: 90%+ of item_lineage table rows have no need to store the item_hash. Allowing null values will reduce updates to the index and indexing times for the table. 
   - Long term change: Modify the index on item_lineage to a partial index, on only those values which are not null.
