@@ -92,6 +92,7 @@ const FacilityProviderSubmitterDetailsPage = lazy(
     () => import("./components/DataDashboard/FacilityProviderSubmitterDetails/FacilityProviderSubmitterDetails"),
 );
 const NewSettingPage = lazy(() => import("./components/Admin/NewSetting"));
+const CodeMappingPage = lazy(() => import("./pages/onboarding/CodeMappingPage"));
 
 const MainLayout = lazy(() => import("./layouts/Main/MainLayout"));
 
@@ -493,6 +494,20 @@ export const appRoutes: RouteObject[] = [
                         <MessageDetailsPage />
                     </RequireGate>
                 ),
+            },
+            {
+                path: "onboarding",
+                element: (
+                    <RequireGate auth>
+                        <Outlet />
+                    </RequireGate>
+                ),
+                children: [
+                    {
+                        path: "code-mapping",
+                        element: <CodeMappingPage />,
+                    },
+                ],
             },
             /* Handles any undefined route */
             {
