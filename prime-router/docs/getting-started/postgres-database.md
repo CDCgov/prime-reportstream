@@ -1,8 +1,26 @@
 # Postgres Database
 
 ## Introduction
-The Postgres database powers [ReportStream's Data Model] (../design/design/data-model.md) and is currently managed in 
+The Postgres database powers [ReportStream's Data Model](../design/design/data-model.md) and is currently managed in 
 Microsoft Azure. 
+
+## Creating and Deploying Database Migrations
+
+Database migrations are defined by the .sql files located in `prime-router/src/main/resources/db/migration` and are applied by Flyway. `Flyway migrate` runs as part of the gradle build and is also invoked in the process of the application creating a database connection (see `DatabaseAccess.getDataSource`). This process is able to automatically handle short-running migrations fairly well, but starts to cause problems when the migrations take a long time to complete. Special handling of long-running migrations is required to reduce potential application stability and availability issues.
+
+> **Additional Reading:** Reference the following [incident report](https://cdc.sharepoint.com/:w:/r/teams/ReportStream/Shared%20Documents/Product/Incident%20Reports/2025_02_06%20-%20Application%20Outage%20Incident%20Report.docx?d=w5032ba7b86044669bdf29dcbf1399370&csf=1&web=1&e=qHeG1U) to understand why long-running database migrations require the special process outlined in the following section
+
+### Special Handling of Long-Running Migrations
+When deploying long-running migrations (usually index creations) to staging or production, the migrations should be performed manually by running the SQL statements directly on the database in question during the ReportStream maintenance window (Sunday morning) to minimize disruptions. Once the migrations have been manually applied, the migration file can be merged to the main branch for the purposes of documentation and future reproducibility. This means statements should be written in such a way as to prevent them from running again by using the `IF NOT EXISTS` keywords, like so:
+
+```
+CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_item_lineage_created_at
+ON item_lineage
+USING btree (created_at)
+;
+```
+
+When creating an index, special care should be taken to use the "CONCURRENTLY" parameter so Postgres will build the index without taking any locks that prevent concurrent inserts, updates, or deletes on the table in question.
 
 ## DB Flyaway Repair
 If the Flyway migrations need a repair, the following commands will resolve in each environment.
