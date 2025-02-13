@@ -11,7 +11,7 @@
 /*
  * Adds index to the item_lineage table on created_at.
  */
-CREATE INDEX IF NOT EXISTS idx_item_lineage_created_at
+CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_item_lineage_created_at
     ON item_lineage
     USING btree (created_at)
 ;
