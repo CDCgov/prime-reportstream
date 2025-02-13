@@ -2,6 +2,7 @@ import { expect } from "@playwright/test";
 import {
     errorMessageResult,
     passMessageResult,
+    warningMessageResult,
 } from "../../../../../src/components/Admin/MessageTesting/MessageTestingResult.fixtures";
 import type { RSMessageResult } from "../../../../../src/config/endpoints/reports";
 import { pageNotFound } from "../../../../../src/content/error/ErrorMessages";
@@ -168,7 +169,9 @@ test.describe("Admin Organization Receiver Message Test Page", () => {
                         expect(resJson).toEqual(passMessageResult);
 
                         await expect(organizationReceiverMessageTestPage.submitStatus).toBeVisible();
-                        await expect(organizationReceiverMessageTestPage.submitStatus).toHaveText(/^Test passed/);
+                        await expect(organizationReceiverMessageTestPage.submitStatus).toHaveText(
+                            organizationReceiverMessageTestPage.expectedStatusSuccess,
+                        );
                         await expect(organizationReceiverMessageTestPage.submissionOutputMessageButton).toBeVisible();
                         await organizationReceiverMessageTestPage.submissionOutputMessageButton.click();
                         await expect(organizationReceiverMessageTestPage.submissionOutputMessage).toBeVisible();
@@ -202,9 +205,12 @@ test.describe("Admin Organization Receiver Message Test Page", () => {
                         expect(resJson).toEqual(passMessageResult);
 
                         await expect(organizationReceiverMessageTestPage.submitStatus).toBeVisible();
-                        await expect(organizationReceiverMessageTestPage.submitStatus).toHaveText(/^Test passed/);
+                        await expect(organizationReceiverMessageTestPage.submitStatus).toHaveText(
+                            organizationReceiverMessageTestPage.expectedStatusSuccess,
+                        );
                         await expect(organizationReceiverMessageTestPage.submissionOutputMessageButton).toBeVisible();
                         await organizationReceiverMessageTestPage.submissionOutputMessageButton.click();
+
                         await expect(organizationReceiverMessageTestPage.submissionOutputMessage).toBeVisible();
                         await expect(organizationReceiverMessageTestPage.submissionOutputMessage).toHaveText(
                             resJson.message ?? "",
@@ -217,43 +223,50 @@ test.describe("Admin Organization Receiver Message Test Page", () => {
                         );
                     });
                 });
-                test.describe("failure", () => {
+
+                test.describe("warning", () => {
                     test("stored message", async ({ organizationReceiverMessageTestPage }) => {
-                        const message = '{"foo":"bar"}';
-                        const [option, optionLabel] =
-                            await organizationReceiverMessageTestPage.addCustomMessage(message);
+                        const message = organizationReceiverMessageTestPage.testMessages[0];
                         await expect(organizationReceiverMessageTestPage.form).toBeVisible();
 
+                        const option = organizationReceiverMessageTestPage.form.getByLabel(message.fileName);
+                        const optionLabel = organizationReceiverMessageTestPage.form.getByText(message.fileName);
                         const optionValue = await option.inputValue();
                         await expect(option).toBeVisible();
                         await optionLabel.click();
                         await expect(option).toBeChecked();
 
-                        organizationReceiverMessageTestPage.addMockTestSubmissionHandler(true);
+                        organizationReceiverMessageTestPage.addMockTestSubmissionHandler("warn");
                         const req = await organizationReceiverMessageTestPage.submit();
                         const res = await req.response();
                         const resJson = (await res?.json()) as RSMessageResult;
                         expect(req.postData()).toEqual(optionValue);
-                        expect(resJson).toEqual(errorMessageResult);
+                        expect(resJson).toEqual(warningMessageResult);
 
-                        await expect(organizationReceiverMessageTestPage.submitAlert).toBeVisible();
-                        await expect(organizationReceiverMessageTestPage.submitAlert).toHaveText(/^Test failed/);
-                        await expect(organizationReceiverMessageTestPage.submissionTransformErrorsButton).toBeVisible();
-                        await organizationReceiverMessageTestPage.submissionTransformErrorsButton.click();
-                        await expect(organizationReceiverMessageTestPage.submissionTransformErrors).toBeVisible();
-                        await expect(organizationReceiverMessageTestPage.submissionTransformErrors).toHaveText(
+                        await expect(organizationReceiverMessageTestPage.submitStatus).toBeVisible();
+                        await expect(organizationReceiverMessageTestPage.submitStatus).toHaveText(
+                            organizationReceiverMessageTestPage.expectedStatusWarning,
+                        );
+                        await expect(
+                            organizationReceiverMessageTestPage.submissionTransformWarningsButton,
+                        ).toBeVisible();
+                        await organizationReceiverMessageTestPage.submissionTransformWarningsButton.click();
+                        await expect(organizationReceiverMessageTestPage.submissionTransformWarnings).toBeVisible();
+                        await expect(organizationReceiverMessageTestPage.submissionTransformWarnings).toHaveText(
                             [
-                                ...resJson.senderTransformErrors,
-                                ...resJson.enrichmentSchemaErrors,
-                                ...resJson.receiverTransformErrors,
+                                ...resJson.senderTransformWarnings,
+                                ...resJson.enrichmentSchemaWarnings,
+                                ...resJson.receiverTransformWarnings,
                             ].join(""),
                         );
                         await expect(organizationReceiverMessageTestPage.submissionTestMessageButton).toBeVisible();
                         await organizationReceiverMessageTestPage.submissionTestMessageButton.click();
                         await expect(organizationReceiverMessageTestPage.submissionTestMessage).toBeVisible();
                         await expect(organizationReceiverMessageTestPage.submissionTestMessage).toHaveText(
-                            JSON.stringify(JSON.parse(message), undefined, 2),
+                            JSON.stringify(JSON.parse(message.reportBody), undefined, 2),
                         );
+                        const fileStats = await organizationReceiverMessageTestPage.downloadPDF();
+                        expect(fileStats.size).toBeGreaterThan(0);
                     });
 
                     test("custom message", async ({ organizationReceiverMessageTestPage }) => {
@@ -267,15 +280,105 @@ test.describe("Admin Organization Receiver Message Test Page", () => {
                         await optionLabel.click();
                         await expect(option).toBeChecked();
 
-                        organizationReceiverMessageTestPage.addMockTestSubmissionHandler(true);
+                        organizationReceiverMessageTestPage.addMockTestSubmissionHandler("warn");
+                        const req = await organizationReceiverMessageTestPage.submit();
+                        const res = await req.response();
+                        const resJson = (await res?.json()) as RSMessageResult;
+                        expect(req.postData()).toEqual(optionValue);
+                        expect(resJson).toEqual(warningMessageResult);
+
+                        await expect(organizationReceiverMessageTestPage.submitStatus).toBeVisible();
+                        await expect(organizationReceiverMessageTestPage.submitStatus).toHaveText(
+                            organizationReceiverMessageTestPage.expectedStatusWarning,
+                        );
+                        await expect(
+                            organizationReceiverMessageTestPage.submissionTransformWarningsButton,
+                        ).toBeVisible();
+                        await organizationReceiverMessageTestPage.submissionTransformWarningsButton.click();
+                        await expect(organizationReceiverMessageTestPage.submissionTransformWarnings).toBeVisible();
+                        await expect(organizationReceiverMessageTestPage.submissionTransformWarnings).toHaveText(
+                            [
+                                ...resJson.senderTransformWarnings,
+                                ...resJson.enrichmentSchemaWarnings,
+                                ...resJson.receiverTransformWarnings,
+                            ].join(""),
+                        );
+                        await expect(organizationReceiverMessageTestPage.submissionTestMessageButton).toBeVisible();
+                        await organizationReceiverMessageTestPage.submissionTestMessageButton.click();
+                        await expect(organizationReceiverMessageTestPage.submissionTestMessage).toBeVisible();
+                        await expect(organizationReceiverMessageTestPage.submissionTestMessage).toHaveText(
+                            JSON.stringify(JSON.parse(message), undefined, 2),
+                        );
+                        const fileStats = await organizationReceiverMessageTestPage.downloadPDF();
+                        expect(fileStats.size).toBeGreaterThan(0);
+                    });
+                });
+
+                test.describe("failure", () => {
+                    test("stored message", async ({ organizationReceiverMessageTestPage }) => {
+                        const message = organizationReceiverMessageTestPage.testMessages[0];
+                        await expect(organizationReceiverMessageTestPage.form).toBeVisible();
+
+                        const option = organizationReceiverMessageTestPage.form.getByLabel(message.fileName);
+                        const optionLabel = organizationReceiverMessageTestPage.form.getByText(message.fileName);
+                        const optionValue = await option.inputValue();
+                        await expect(option).toBeVisible();
+                        await optionLabel.click();
+                        await expect(option).toBeChecked();
+
+                        organizationReceiverMessageTestPage.addMockTestSubmissionHandler("fail");
                         const req = await organizationReceiverMessageTestPage.submit();
                         const res = await req.response();
                         const resJson = (await res?.json()) as RSMessageResult;
                         expect(req.postData()).toEqual(optionValue);
                         expect(resJson).toEqual(errorMessageResult);
 
-                        await expect(organizationReceiverMessageTestPage.submitAlert).toBeVisible();
-                        await expect(organizationReceiverMessageTestPage.submitAlert).toHaveText(/^Test failed/);
+                        await expect(organizationReceiverMessageTestPage.submitStatus).toBeVisible();
+                        await expect(organizationReceiverMessageTestPage.submitStatus).toHaveText(
+                            organizationReceiverMessageTestPage.expectedStatusFailure,
+                        );
+                        await expect(organizationReceiverMessageTestPage.submissionTransformErrorsButton).toBeVisible();
+                        await organizationReceiverMessageTestPage.submissionTransformErrorsButton.click();
+                        await expect(organizationReceiverMessageTestPage.submissionTransformErrors).toBeVisible();
+                        await expect(organizationReceiverMessageTestPage.submissionTransformErrors).toHaveText(
+                            [
+                                ...resJson.senderTransformErrors,
+                                ...resJson.enrichmentSchemaErrors,
+                                ...resJson.receiverTransformErrors,
+                            ].join(""),
+                        );
+                        await expect(organizationReceiverMessageTestPage.submissionTestMessageButton).toBeVisible();
+                        await organizationReceiverMessageTestPage.submissionTestMessageButton.click();
+                        await expect(organizationReceiverMessageTestPage.submissionTestMessage).toBeVisible();
+                        await expect(organizationReceiverMessageTestPage.submissionTestMessage).toHaveText(
+                            JSON.stringify(JSON.parse(message.reportBody), undefined, 2),
+                        );
+                        const fileStats = await organizationReceiverMessageTestPage.downloadPDF();
+                        expect(fileStats.size).toBeGreaterThan(0);
+                    });
+
+                    test("custom message", async ({ organizationReceiverMessageTestPage }) => {
+                        const message = '{"foo":"bar"}';
+                        const [option, optionLabel] =
+                            await organizationReceiverMessageTestPage.addCustomMessage(message);
+                        await expect(organizationReceiverMessageTestPage.form).toBeVisible();
+
+                        const optionValue = await option.inputValue();
+                        await expect(option).toBeVisible();
+                        await optionLabel.click();
+                        await expect(option).toBeChecked();
+
+                        organizationReceiverMessageTestPage.addMockTestSubmissionHandler("fail");
+                        const req = await organizationReceiverMessageTestPage.submit();
+                        const res = await req.response();
+                        const resJson = (await res?.json()) as RSMessageResult;
+                        expect(req.postData()).toEqual(optionValue);
+                        expect(resJson).toEqual(errorMessageResult);
+
+                        await expect(organizationReceiverMessageTestPage.submitStatus).toBeVisible();
+                        await expect(organizationReceiverMessageTestPage.submitStatus).toHaveText(
+                            organizationReceiverMessageTestPage.expectedStatusFailure,
+                        );
                         await expect(organizationReceiverMessageTestPage.submissionTransformErrorsButton).toBeVisible();
                         await organizationReceiverMessageTestPage.submissionTransformErrorsButton.click();
                         await expect(organizationReceiverMessageTestPage.submissionTransformErrors).toBeVisible();
@@ -292,6 +395,8 @@ test.describe("Admin Organization Receiver Message Test Page", () => {
                         await expect(organizationReceiverMessageTestPage.submissionTestMessage).toHaveText(
                             JSON.stringify(JSON.parse(message), undefined, 2),
                         );
+                        const fileStats = await organizationReceiverMessageTestPage.downloadPDF();
+                        expect(fileStats.size).toBeGreaterThan(0);
                     });
                 });
             });

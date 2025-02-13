@@ -1,14 +1,26 @@
 import { Accordion, Icon, Tag } from "@trussworks/react-uswds";
+import { RSFilterError } from "../../../config/endpoints/reports";
+
+type MessageTestingAccordionProps =
+    | {
+          dataHaveSubsections: true;
+          accordionTitle: string;
+          priority: "error" | "warning";
+          fieldData: RSFilterError[];
+      }
+    | {
+          dataHaveSubsections?: false | undefined; // false or missing
+          accordionTitle: string;
+          priority: "error" | "warning";
+          fieldData: string[];
+      };
 
 export const MessageTestingAccordion = ({
     accordionTitle,
     priority,
     fieldData,
-}: {
-    accordionTitle: string;
-    priority: "error" | "warning";
-    fieldData: (string | boolean | undefined)[];
-}) => {
+    dataHaveSubsections,
+}: MessageTestingAccordionProps) => {
     const fieldID = accordionTitle.toLowerCase().split(" ").join("-");
 
     // Immediately return if there's no warning/error data to display
@@ -45,12 +57,21 @@ export const MessageTestingAccordion = ({
                                 aria-label={accordionTitle}
                                 className="bg-white font-sans-sm padding-top-2 padding-bottom-2 padding-left-1 padding-right-1"
                             >
-                                {fieldData.map((item, index) => (
-                                    <div key={index}>
-                                        <div>{item}</div>
-                                        {index < fieldData.length - 1 && <hr className="rs-hr--half-margin" />}
-                                    </div>
-                                ))}
+                                {dataHaveSubsections
+                                    ? fieldData.map((item, index) => (
+                                          <div key={index}>
+                                              <div>
+                                                  {item.filter}: {item.message}
+                                              </div>
+                                              {index < fieldData.length - 1 && <hr className="rs-hr--half-margin" />}
+                                          </div>
+                                      ))
+                                    : fieldData.map((item, index) => (
+                                          <div key={index}>
+                                              <div>{item}</div>
+                                              {index < fieldData.length - 1 && <hr className="rs-hr--half-margin" />}
+                                          </div>
+                                      ))}
                             </div>
                         ),
                         expanded: false,
