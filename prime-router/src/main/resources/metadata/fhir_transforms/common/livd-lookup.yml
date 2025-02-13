@@ -1,7 +1,7 @@
 # $schema: ../../../../../../metadata/json_schema/fhir/fhir-to-fhir-transform.json
 elements:
   - name: loinc-device-version
-    resource: 'Bundle.entry.resource.ofType(Observation)'
+    resource: "Bundle.entry.resource.ofType(Observation).where(code.coding.extension('https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code').value.where(code in ('AOE')).exists().not())"
     resourceIndex: observationIndex
     schema: classpath:/metadata/fhir_transforms/common/livd-lookup-observation.yml
 
