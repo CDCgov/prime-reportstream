@@ -13,6 +13,18 @@ elements:
   value: [ '""' ]
   bundleProperty: '%resource.value[x]'
 
+- name: suppress-patient-additional-email
+  resource: 'Bundle.entry.resource.ofType(Patient).telecom.where(system = "email")[1]'
+  condition: '%resource.exists()'
+  value: [ '""' ]
+  bundleProperty: '%resource.use'
+
+- name: suppress-patient-additional-phone
+  resource: 'Bundle.entry.resource.ofType(Patient).telecom.where(system = "phone")[1]'
+  condition: '%resource.exists()'
+  value: [ '""' ]
+  bundleProperty: '%resource.use'
+
 - name: suppress-patient-pid-22-9
   resource: 'Bundle.entry.resource.ofType(Patient).extension("https://reportstream.cdc.gov/fhir/StructureDefinition/ethnic-group").value'
   condition: '%resource.text.exists()'
