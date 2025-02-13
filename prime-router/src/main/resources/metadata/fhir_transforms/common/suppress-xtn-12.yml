@@ -60,3 +60,10 @@ elements:
   condition: '%resource.code.exists()'
   value: [ '""' ]
   bundleProperty: '%resource.code'
+
+  # Suppress the XON.10 value in Organization
+- name: suppress-organization-orc-21-10
+  resource: 'Bundle.entry.resource.ofType(ServiceRequest).requester.resolve().organization.resolve().extension("https://reportstream.cdc.gov/fhir/StructureDefinition/xon-organization").extension("XON.10")'
+  condition: '%resource.value.exists()'
+  value: ['""']
+  bundleProperty: '%resource.value[x]'
