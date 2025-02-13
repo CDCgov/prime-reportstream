@@ -1,0 +1,7 @@
+# $schema: ../../../../../../../metadata/json_schema/fhir/fhir-to-fhir-transform.json
+extends: classpath:/metadata/fhir_transforms/senders/original-pipeline-transforms.yml
+elements:
+  - name: sender-identifier
+    resource: 'Bundle.entry.resource.ofType(MessageHeader)'
+    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/sender-id").value[x]'
+    value: [ '"c2sense"' ]
