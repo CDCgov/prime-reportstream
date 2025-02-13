@@ -222,6 +222,31 @@ elements:
     bundleProperty: 'Bundle.entry.resource.ofType(Patient).identifier[0].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility").value[x]'
     value: [ 'Bundle.entry.resource.ofType(Patient).managingOrganization' ]
 
+
+  - name: sr-patient-tribal-affiliation-ext
+    resource: 'Bundle.entry.resource.ofType(Patient)'
+    condition: '%resource.extension("http://hl7.org/fhir/us/core/StructureDefinition/us-core-tribal-affiliation").exists() and %resource.extension("http://hl7.org/fhir/us/core/StructureDefinition/us-core-tribal-affiliation").extension("tribalAffiliation").exists()'
+    bundleProperty: '%resource.extension("http://hl7.org/fhir/StructureDefinition/patient-citizenship").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/code").value[x]'
+    value: ['%resource.extension("http://hl7.org/fhir/us/core/StructureDefinition/us-core-tribal-affiliation").extension("tribalAffiliation").value']
+
+  - name: sr-patient-tribal-affiliation-hl7ext
+    resource: 'Bundle.entry.resource.ofType(Patient)'
+    condition: '%resource.extension("http://hl7.org/fhir/us/core/StructureDefinition/us-core-tribal-affiliation").exists() and %resource.extension("http://hl7.org/fhir/us/core/StructureDefinition/us-core-tribal-affiliation").extension("tribalAffiliation").exists()'
+    bundleProperty: '%resource.extension("http://hl7.org/fhir/StructureDefinition/patient-citizenship").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/code").value.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field").value[x]'
+    value: ['"PID.39"']
+
+  - name: sr-patient-tribal-affiliation-coding
+    resource: 'Bundle.entry.resource.ofType(Patient)'
+    condition: '%resource.extension("http://hl7.org/fhir/us/core/StructureDefinition/us-core-tribal-affiliation").exists() and %resource.extension("http://hl7.org/fhir/us/core/StructureDefinition/us-core-tribal-affiliation").extension("tribalAffiliation").exists()'
+    bundleProperty: '%resource.extension("http://hl7.org/fhir/StructureDefinition/patient-citizenship").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/code").value.coding.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding").value[x]'
+    value: ['"coding"']
+
+  - name: sr-patient-tribal-affiliation-system
+    resource: 'Bundle.entry.resource.ofType(Patient)'
+    condition: '%resource.extension("http://hl7.org/fhir/us/core/StructureDefinition/us-core-tribal-affiliation").exists() and %resource.extension("http://hl7.org/fhir/us/core/StructureDefinition/us-core-tribal-affiliation").extension("tribalAffiliation").exists()'
+    bundleProperty: '%resource.extension("http://hl7.org/fhir/StructureDefinition/patient-citizenship").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/code").value.coding.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system").value[x]'
+    value: ['"HL70171"']
+
   # Covid pipeline populates this by looking at the hl70078 value-set version
   - name: sr-observation-abnormal-flag-version
     condition: '%resource.interpretation.empty().not()'
