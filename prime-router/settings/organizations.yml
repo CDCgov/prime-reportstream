@@ -1309,30 +1309,344 @@
         port: 22
         filePath: ./upload
         credentialName: DEFAULT-SFTP
-    - name: DEV_ENRICHMENT
-      externalName: Enrichment Development
-      organizationName: development
-      topic: full-elr
-      customerStatus: active
-      jurisdictionalFilter: [ "true" ]
-      qualityFilter:
-        - "true"
-      processingModeFilter: [ "true" ]
-      timing:
-        operation: MERGE
-        numberPerDay: 1440 # Every minute
-        initialTime: 00:00
-      translation:
-        schemaName: "classpath:/metadata/hl7_mapping/ORU_R01/ORU_R01-base.yml"
-        useTestProcessingMode: false
-        useBatchHeaders: false
-        type: "HL7"
-        receivingApplicationName: ""
-        receivingFacilityName: ""
-      transport:
-        type: SFTP
-        host: sftp
-        port: 22
-        filePath: ./upload
-        credentialName: DEFAULT-SFTP
-      enrichmentSchemaNames: ["classpath:/metadata/fhir_transforms/receivers/fhir-message-header-sample.yml"]
+- name: "wi-dph"
+  description: "Wisconsin Department of Public Health"
+  jurisdiction: "STATE"
+  stateCode: "WI"
+  countyName: null
+  filters: null
+  featureFlags: null
+  keys: null
+  senders: []
+  receivers:
+  - name: "elr-test"
+    organizationName: "wi-dph"
+    topic: "covid-19"
+    customerStatus: "testing"
+    translation:
+      schemaName: "covid-19"
+      useTestProcessingMode: false
+      useBatchHeaders: true
+      receivingApplicationName: null
+      receivingApplicationOID: null
+      receivingFacilityName: null
+      receivingFacilityOID: null
+      messageProfileId: null
+      replaceValue: {}
+      replaceValueAwithB: {}
+      reportingFacilityName: null
+      reportingFacilityId: null
+      reportingFacilityIdType: null
+      suppressQstForAoe: false
+      suppressHl7Fields: null
+      suppressAoe: true
+      defaultAoeToUnknown: false
+      replaceUnicodeWithAscii: false
+      useBlankInsteadOfUnknown: null
+      truncateHDNamespaceIds: false
+      truncateHl7Fields: null
+      usePid14ForPatientEmail: false
+      convertTimestampToDateTime: null
+      cliaForOutOfStateTesting: null
+      cliaForSender: {}
+      phoneNumberFormatting: "STANDARD"
+      suppressNonNPI: false
+      processingModeCode: null
+      replaceDiiWithOid: null
+      applyOTCDefault: false
+      useOrderingFacilityName: "STANDARD"
+      valueSetOverrides: {}
+      nameFormat: "STANDARD"
+      receivingOrganization: null
+      convertPositiveDateTimeOffsetToNegative: false
+      stripInvalidCharsRegex: null
+      convertDateTimesToReceiverLocalTime: false
+      useHighPrecisionHeaderDateTimeFormat: false
+      type: "HL7"
+      truncationConfig:
+        truncateHDNamespaceIds: false
+        truncateHl7Fields: []
+        customLengthHl7Fields: {}
+    jurisdictionalFilter:
+    - "matches(processing_mode_code, T)"
+    - "orEquals(ordering_facility_state, WI, patient_state, WI)"
+    qualityFilter: []
+    routingFilter:
+    - "DoesNotMatch(test_performed_code, 85478-6,76080-1,92141-1,80383-3,82170-2,85477-8,76078-5,77026-3,77028-9,77027-1,92142-9,80382-5,82166-0,82167-8,82169-4,82168-6,92809-3,92808-5,95423-0)"
+    processingModeFilter: []
+    reverseTheQualityFilter: false
+    conditionFilter: []
+    mappedConditionFilter: []
+    deidentify: false
+    deidentifiedValue: ""
+    timing:
+      operation: "MERGE"
+      numberPerDay: 1
+      initialTime: "09:50"
+      timeZone: "EASTERN"
+      maxReportCount: 100
+      whenEmpty:
+        action: "NONE"
+        onlyOncePerDay: false
+    description: ""
+    transport:
+      host: "sftp"
+      port: "22"
+      filePath: "./upload"
+      credentialName: "DEFAULT-SFTP"
+      type: "SFTP"
+    externalName: null
+    enrichmentSchemaNames: []
+    timeZone: null
+    dateTimeFormat: "OFFSET"
+  - name: "elr"
+    organizationName: "wi-dph"
+    topic: "covid-19"
+    customerStatus: "active"
+    translation:
+      schemaName: "covid-19"
+      useTestProcessingMode: false
+      useBatchHeaders: true
+      receivingApplicationName: null
+      receivingApplicationOID: null
+      receivingFacilityName: null
+      receivingFacilityOID: null
+      messageProfileId: null
+      replaceValue: {}
+      replaceValueAwithB: {}
+      reportingFacilityName: null
+      reportingFacilityId: null
+      reportingFacilityIdType: null
+      suppressQstForAoe: false
+      suppressHl7Fields: null
+      suppressAoe: false
+      defaultAoeToUnknown: false
+      replaceUnicodeWithAscii: false
+      useBlankInsteadOfUnknown: null
+      truncateHDNamespaceIds: false
+      truncateHl7Fields: null
+      usePid14ForPatientEmail: false
+      convertTimestampToDateTime: null
+      cliaForOutOfStateTesting: null
+      cliaForSender: {}
+      phoneNumberFormatting: "STANDARD"
+      suppressNonNPI: false
+      processingModeCode: null
+      replaceDiiWithOid: null
+      applyOTCDefault: false
+      useOrderingFacilityName: "STANDARD"
+      valueSetOverrides: {}
+      nameFormat: "STANDARD"
+      receivingOrganization: null
+      convertPositiveDateTimeOffsetToNegative: false
+      stripInvalidCharsRegex: null
+      convertDateTimesToReceiverLocalTime: false
+      useHighPrecisionHeaderDateTimeFormat: false
+      type: "HL7"
+      truncationConfig:
+        truncateHDNamespaceIds: false
+        truncateHl7Fields: []
+        customLengthHl7Fields: {}
+    jurisdictionalFilter:
+    - "matches(processing_mode_code, P)"
+    - "orEquals(ordering_facility_state, WI, patient_state, WI)"
+    qualityFilter: []
+    routingFilter:
+    - "DoesNotMatch(test_performed_code, 85478-6,76080-1,92141-1,80383-3,82170-2,85477-8,76078-5,77026-3,77028-9,77027-1,92142-9,80382-5,82166-0,82167-8,82169-4,82168-6,92809-3,92808-5,95423-0)"
+    processingModeFilter: []
+    reverseTheQualityFilter: false
+    conditionFilter: []
+    mappedConditionFilter: []
+    deidentify: false
+    deidentifiedValue: ""
+    timing:
+      operation: "MERGE"
+      numberPerDay: 1
+      initialTime: "09:50"
+      timeZone: "EASTERN"
+      maxReportCount: 100
+      whenEmpty:
+        action: "NONE"
+        onlyOncePerDay: false
+    description: ""
+    transport:
+      host: "sftp"
+      port: "22"
+      filePath: "./upload"
+      credentialName: "DEFAULT-SFTP"
+      type: "SFTP"
+    externalName: null
+    enrichmentSchemaNames: []
+    timeZone: null
+    dateTimeFormat: "OFFSET"
+
+- name: "wi-dph"
+  description: "Wisconsin Department of Public Health"
+  jurisdiction: "STATE"
+  stateCode: "WI"
+  countyName: null
+  filters: null
+  featureFlags: null
+  keys: null
+  senders: []
+  receivers:
+  - name: "elr-test"
+    organizationName: "wi-dph"
+    topic: "covid-19"
+    customerStatus: "testing"
+    translation:
+      schemaName: "covid-19"
+      useTestProcessingMode: false
+      useBatchHeaders: true
+      receivingApplicationName: null
+      receivingApplicationOID: null
+      receivingFacilityName: null
+      receivingFacilityOID: null
+      messageProfileId: null
+      replaceValue: {}
+      replaceValueAwithB: {}
+      reportingFacilityName: null
+      reportingFacilityId: null
+      reportingFacilityIdType: null
+      suppressQstForAoe: false
+      suppressHl7Fields: null
+      suppressAoe: false
+      defaultAoeToUnknown: false
+      replaceUnicodeWithAscii: false
+      useBlankInsteadOfUnknown: null
+      truncateHDNamespaceIds: false
+      truncateHl7Fields: null
+      usePid14ForPatientEmail: false
+      convertTimestampToDateTime: null
+      cliaForOutOfStateTesting: null
+      cliaForSender: {}
+      phoneNumberFormatting: "STANDARD"
+      suppressNonNPI: false
+      processingModeCode: null
+      replaceDiiWithOid: null
+      applyOTCDefault: false
+      useOrderingFacilityName: "STANDARD"
+      valueSetOverrides: {}
+      nameFormat: "STANDARD"
+      receivingOrganization: null
+      convertPositiveDateTimeOffsetToNegative: false
+      stripInvalidCharsRegex: null
+      convertDateTimesToReceiverLocalTime: false
+      useHighPrecisionHeaderDateTimeFormat: false
+      type: "HL7"
+      truncationConfig:
+        truncateHDNamespaceIds: false
+        truncateHl7Fields: []
+        customLengthHl7Fields: {}
+    jurisdictionalFilter:
+    - "matches(processing_mode_code, T)"
+    - "orEquals(ordering_facility_state, WI, patient_state, WI)"
+    qualityFilter: []
+    routingFilter:
+    - "DoesNotMatch(test_performed_code, 85478-6,76080-1,92141-1,80383-3,82170-2,85477-8,76078-5,77026-3,77028-9,77027-1,92142-9,80382-5,82166-0,82167-8,82169-4,82168-6,92809-3,92808-5,95423-0)"
+    processingModeFilter: []
+    reverseTheQualityFilter: false
+    conditionFilter: []
+    mappedConditionFilter: []
+    deidentify: false
+    deidentifiedValue: ""
+    timing:
+      operation: "MERGE"
+      numberPerDay: 1
+      initialTime: "09:50"
+      timeZone: "EASTERN"
+      maxReportCount: 100
+      whenEmpty:
+        action: "NONE"
+        onlyOncePerDay: false
+    description: ""
+    transport:
+      host: "sftp"
+      port: "22"
+      filePath: "./upload"
+      credentialName: "DEFAULT-SFTP"
+      type: "SFTP"
+    externalName: null
+    enrichmentSchemaNames: []
+    timeZone: null
+    dateTimeFormat: "OFFSET"
+  - name: "elr"
+    organizationName: "wi-dph"
+    topic: "covid-19"
+    customerStatus: "active"
+    translation:
+      schemaName: "covid-19"
+      useTestProcessingMode: false
+      useBatchHeaders: true
+      receivingApplicationName: null
+      receivingApplicationOID: null
+      receivingFacilityName: null
+      receivingFacilityOID: null
+      messageProfileId: null
+      replaceValue: {}
+      replaceValueAwithB: {}
+      reportingFacilityName: null
+      reportingFacilityId: null
+      reportingFacilityIdType: null
+      suppressQstForAoe: false
+      suppressHl7Fields: null
+      suppressAoe: false
+      defaultAoeToUnknown: false
+      replaceUnicodeWithAscii: false
+      useBlankInsteadOfUnknown: null
+      truncateHDNamespaceIds: false
+      truncateHl7Fields: null
+      usePid14ForPatientEmail: false
+      convertTimestampToDateTime: null
+      cliaForOutOfStateTesting: null
+      cliaForSender: {}
+      phoneNumberFormatting: "STANDARD"
+      suppressNonNPI: false
+      processingModeCode: null
+      replaceDiiWithOid: null
+      applyOTCDefault: false
+      useOrderingFacilityName: "STANDARD"
+      valueSetOverrides: {}
+      nameFormat: "STANDARD"
+      receivingOrganization: null
+      convertPositiveDateTimeOffsetToNegative: false
+      stripInvalidCharsRegex: null
+      convertDateTimesToReceiverLocalTime: false
+      useHighPrecisionHeaderDateTimeFormat: false
+      type: "HL7"
+      truncationConfig:
+        truncateHDNamespaceIds: false
+        truncateHl7Fields: []
+        customLengthHl7Fields: {}
+    jurisdictionalFilter:
+    - "matches(processing_mode_code, P)"
+    - "orEquals(ordering_facility_state, WI, patient_state, WI)"
+    qualityFilter: []
+    routingFilter:
+    - "DoesNotMatch(test_performed_code, 85478-6,76080-1,92141-1,80383-3,82170-2,85477-8,76078-5,77026-3,77028-9,77027-1,92142-9,80382-5,82166-0,82167-8,82169-4,82168-6,92809-3,92808-5,95423-0)"
+    processingModeFilter: []
+    reverseTheQualityFilter: false
+    conditionFilter: []
+    mappedConditionFilter: []
+    deidentify: false
+    deidentifiedValue: ""
+    timing:
+      operation: "MERGE"
+      numberPerDay: 1
+      initialTime: "09:50"
+      timeZone: "EASTERN"
+      maxReportCount: 100
+      whenEmpty:
+        action: "NONE"
+        onlyOncePerDay: false
+    description: ""
+    transport:
+      host: "sftp"
+      port: "22"
+      filePath: "./upload"
+      credentialName: "DEFAULT-SFTP"
+      type: "SFTP"
+    externalName: null
+    enrichmentSchemaNames: []
+    timeZone: null
+    dateTimeFormat: "OFFSET"

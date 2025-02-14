@@ -7,7 +7,7 @@ elements:
     bundleProperty: '%resource.value'
 
     ##OBX-18-2
-  - name: suppess-device-namespace_id
+  - name: suppress-device-namespace_id
     resource: 'Bundle.entry.resource.ofType(Device).identifier'
     condition: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id").exists()'
     bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id").value[x]'
@@ -25,3 +25,25 @@ elements:
     resource: 'Bundle.entry.resource.ofType(Device).identifier'
     bundleProperty: '%resource.type.coding.code'
     value: [ '""' ]
+
+  ##SPM-4-9
+  - name: suppress-patient-spm-4-9
+    resource: 'Bundle.entry.resource.ofType(Specimen).type'
+    condition: '%resource.text.exists()'
+    value: [ '""' ]
+    bundleProperty: '%resource.text'
+
+  ##PID-10-9
+  - name: suppress-patient-pid-10-9-value
+    resource: 'Bundle.entry.resource.ofType(Patient)'
+    condition: '%resource.extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").exists()'
+    bundleProperty: '%resource.extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").value.text'
+    value: [ '""' ]
+
+  ##PID-22-ethnic-value (Hispanic or Latino)
+  - name: suppress-patient-ethnic-pid-22--value
+    resource: 'Bundle.entry.resource.ofType(Patient)'
+    condition: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/ethnic-group").exists()'
+    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/ethnic-group").value.text'
+    value: [ '""' ]
+
