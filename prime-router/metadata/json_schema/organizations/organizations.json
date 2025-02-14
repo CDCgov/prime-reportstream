@@ -1198,6 +1198,11 @@
           ]
         }
       },
+      "required": [
+        "filterName",
+        "filterDescription",
+        "filterExpressions"
+      ],
       "title": "FHIRExpressionFilter"
     }
   }
