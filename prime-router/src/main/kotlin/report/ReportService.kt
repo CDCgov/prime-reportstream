@@ -22,10 +22,8 @@ class ReportService(
      * @param childReportId child report ID
      * @return ReportFile object of the root report -- of the child report itself if it has no parents
      */
-    fun getRootReport(childReportId: ReportId): ReportFile {
-        return reportGraph.getRootReport(childReportId)
+    fun getRootReport(childReportId: ReportId): ReportFile = reportGraph.getRootReport(childReportId)
             ?: reportGraph.db.fetchReportFile(childReportId)
-    }
 
     /**
      * Gets the index of the item in the submitted report by recursing the item lineage
@@ -47,9 +45,9 @@ class ReportService(
      * @param childReportId child report ID
      * @return List of ReportFile objects of the root reports
      */
-    fun getRootReports(childReportId: ReportId): List<ReportFile> {
-        return reportGraph.getRootReports(childReportId).distinctBy { it.reportId }
-    }
+    fun getRootReports(
+        childReportId: ReportId,
+    ): List<ReportFile> = reportGraph.getRootReports(childReportId).distinctBy { it.reportId }
 
     /**
      * Accepts a descendant item (report id and index) and finds the ancestor report associated with the
@@ -61,11 +59,13 @@ class ReportService(
      *
      * @return the [ReportFile] ancestor at the passed [TaskAction]
      */
-    fun getReportForItemAtTask(childReportId: ReportId, childIndex: Int, task: TaskAction): ReportFile? {
-        return db.transactReturning { txn ->
+    fun getReportForItemAtTask(
+        childReportId: ReportId,
+        childIndex: Int,
+        task: TaskAction,
+    ): ReportFile? = db.transactReturning { txn ->
              reportGraph.getAncestorReport(txn, childReportId, childIndex, task)
         }
-    }
 
     /**
      * Gets the root report and concatenates sender fields

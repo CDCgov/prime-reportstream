@@ -72,8 +72,7 @@ class DeliveryHistory(
         fun createDeliveryHistoryFromReportAndAction(
             reportFile: ReportFile,
             action: Action,
-        ): DeliveryHistory {
-            return DeliveryHistory(
+        ): DeliveryHistory = DeliveryHistory(
                 actionId = action.actionId,
                 createdAt = action.createdAt,
                 receivingOrg = reportFile.receivingOrg,
@@ -86,7 +85,6 @@ class DeliveryHistory(
                 schemaName = reportFile.schemaName,
                 bodyFormat = reportFile.bodyFormat
             )
-        }
     }
 
     @JsonIgnore

@@ -42,12 +42,10 @@ class AzureConfig {
     }
 
     @Bean
-    fun queueClient(): QueueClient {
-        return QueueServiceClientBuilder()
+    fun queueClient(): QueueClient = QueueServiceClientBuilder()
             .connectionString(connectionString)
             .buildClient()
             .getQueueClient(queueName)
-    }
 
     @Bean
     fun tableClient(): TableClient {

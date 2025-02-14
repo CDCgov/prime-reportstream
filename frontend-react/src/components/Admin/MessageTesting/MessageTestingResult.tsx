@@ -20,18 +20,18 @@ export interface MessageTestingResultProps extends PropsWithChildren {
     receivername: string;
 }
 
-const filterFields: (keyof RSMessageResult)[] = ["filterErrors"];
-const transformFields: (keyof RSMessageResult)[] = [
+const filterFields = ["filterErrors"] satisfies (keyof RSMessageResult)[];
+const transformFields = [
     "senderTransformErrors",
     "enrichmentSchemaErrors",
     "receiverTransformErrors",
-];
+] satisfies (keyof RSMessageResult)[];
 
-const warningFields: (keyof RSMessageResult)[] = [
+const warningFields = [
     "senderTransformWarnings",
     "enrichmentSchemaWarnings",
     "receiverTransformWarnings",
-];
+] satisfies (keyof RSMessageResult)[];
 
 const MessageTestingResult = ({
     resultData,
@@ -81,6 +81,7 @@ const MessageTestingResult = ({
             isPassed={isPassed}
         />
     );
+
     const [instance] = usePDF({ document: MessageTestingPDFRef });
     return (
         <section {...props}>
@@ -120,7 +121,12 @@ const MessageTestingResult = ({
                 </Alert>
             </div>
 
-            <MessageTestingAccordion accordionTitle="Filters triggered" priority="error" fieldData={filterFieldData} />
+            <MessageTestingAccordion
+                accordionTitle="Filters triggered"
+                priority="error"
+                fieldData={filterFieldData}
+                dataHaveSubsections
+            />
 
             <MessageTestingAccordion
                 accordionTitle="Transform errors"
@@ -143,7 +149,10 @@ const MessageTestingResult = ({
                                 className: "bg-gray-5",
                                 title: <span className="font-body-lg">Output message</span>,
                                 content: (
-                                    <div className="bg-white font-sans-sm padding-top-2 padding-bottom-2 padding-left-1 padding-right-1">
+                                    <div
+                                        aria-label="Output message"
+                                        className="bg-white font-sans-sm padding-top-2 padding-bottom-2 padding-left-1 padding-right-1"
+                                    >
                                         <HL7Message message={resultData.message} />
                                     </div>
                                 ),
@@ -163,7 +172,10 @@ const MessageTestingResult = ({
                             className: "bg-gray-5",
                             title: <span className="font-body-lg">Test message</span>,
                             content: (
-                                <div className="bg-white font-sans-sm padding-top-2 padding-bottom-2 padding-left-1 padding-right-1">
+                                <div
+                                    aria-label="Test message"
+                                    className="bg-white font-sans-sm padding-top-2 padding-bottom-2 padding-left-1 padding-right-1"
+                                >
                                     <pre>{prettifyJSON(submittedMessage?.reportBody ?? "")}</pre>
                                 </div>
                             ),

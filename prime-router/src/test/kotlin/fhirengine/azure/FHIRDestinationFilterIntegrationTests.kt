@@ -132,8 +132,7 @@ class FHIRDestinationFilterIntegrationTests : Logging {
         )
     }
 
-    fun generateQueueMessage(action: TaskAction, report: Report, blobContents: String, sender: Sender): String {
-        return """
+    fun generateQueueMessage(action: TaskAction, report: Report, blobContents: String, sender: Sender): String = """
             {
                 "type": "${action.literal}",
                 "reportId": "${report.id}",
@@ -144,7 +143,6 @@ class FHIRDestinationFilterIntegrationTests : Logging {
                 "schemaName": "${sender.schemaName}" 
             }
         """.trimIndent()
-    }
 
     @Test
     fun `should send valid FHIR report only to receivers listening to full-elr`() {
