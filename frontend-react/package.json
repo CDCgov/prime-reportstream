@@ -18,7 +18,7 @@
     "classnames": "^2.5.1",
     "date-fns": "^3.6.0",
     "date-fns-tz": "^3.2.0",
-    "dompurify": "^3.1.7",
+    "dompurify": "^3.2.4",
     "downloadjs": "^1.4.7",
     "export-to-csv-fix-source-map": "^0.2.1",
     "focus-trap-react": "^10.3.0",
