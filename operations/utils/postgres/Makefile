@@ -1,5 +1,5 @@
 # Variables
-IMAGE_NAME = rs-postgres-16.6
+IMAGE_NAME = rs-postgres
 CONTAINER_NAME = rs-postgres
 DOCKERFILE = Dockerfile.postgres
 POSTGRES_PORT = 5432
@@ -7,7 +7,7 @@ NETWORK_NAME = pg_network
 
 
 build:
-	docker build -t $(IMAGE_NAME) -f $(DOCKERFILE) .
+	time docker build --debug -t $(IMAGE_NAME) -f $(DOCKERFILE) .
 
 network:
 	@docker network ls | grep -q $(NETWORK_NAME) || docker network create $(NETWORK_NAME)
@@ -16,7 +16,7 @@ network:
 run: stop network
 	docker run -d --name $(CONTAINER_NAME) --network $(NETWORK_NAME) \
 		-p $(POSTGRES_PORT):5432 \
-		-e POSTGRES_USER=user \
+		-e POSTGRES_USER=rsuser \
 		-e POSTGRES_PASSWORD=password \
 		-e POSTGRES_DB=mydb \
 		$(IMAGE_NAME)
@@ -31,7 +31,7 @@ logs:
 	docker logs -f $(CONTAINER_NAME)
 
 psql:
-	docker exec -it $(CONTAINER_NAME) psql -U muser -d mydb
+	docker exec -it $(CONTAINER_NAME) psql -U rsuser -d mydb
 
 shell:
 	docker exec -it $(CONTAINER_NAME) /bin/sh
