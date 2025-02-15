@@ -1,0 +1,68 @@
+# 🏗️ Builder
+FROM cgr.dev/chainguard/wolfi-base:latest
+
+ENV PG_VERSION=16.6
+ENV PG_SRC_DIR=/usr/local/src/postgresql
+
+RUN apk add --no-cache \
+    icu-dev \
+    build-base \
+    clang \
+    gcc \
+    git \
+    make \
+    perl \
+    readline-dev \
+    zlib-dev \
+    openssl-dev \
+    wget \
+    curl \
+    flex \
+    bison
+
+
+WORKDIR /usr/local/src
+RUN wget -q https://ftp.postgresql.org/pub/source/v${PG_VERSION}/postgresql-${PG_VERSION}.tar.gz && \
+    tar -xf postgresql-${PG_VERSION}.tar.gz && \
+    mv postgresql-${PG_VERSION} ${PG_SRC_DIR} && \
+    cd ${PG_SRC_DIR} && \
+    ./configure --prefix=/usr/local/postgres --with-openssl --with-readline && \
+    make -j$(nproc) && \
+    make install
+
+# Runtime
+FROM cgr.dev/chainguard/wolfi-base:latest
+
+RUN apk add --no-cache \
+    bash \
+    su-exec \
+    shadow \
+    ca-certificates \
+    openssl \
+    tzdata \ 
+    icu \
+    readline
+
+COPY --from=builder /usr/local/postgres /usr/local/postgres
+
+ENV PATH="/usr/local/postgres/bin:$PATH"
+ENV PGDATA="/var/lib/postgresql/data"
+
+RUN addgroup -S postgres && adduser -S postgres -G postgres && \
+    mkdir -p ${PGDATA} && chown -R postgres:postgres ${PGDATA}
+
+USER postgres
+
+RUN initdb --locale=C -D ${PGDATA} && \
+    echo "listen_addresses='*'" >> ${PGDATA}/postgresql.conf && \
+    echo "host all all 0.0.0.0/0 md5" >> ${PGDATA}/pg_hba.conf && \
+    pg_ctl -D ${PGDATA} -o "-c listen_addresses='*'" -w start && \
+    psql --username=postgres -c "CREATE USER user WITH PASSWORD 'password';" && \
+    psql --username=postgres -c "ALTER USER user WITH SUPERUSER;" && \
+    psql --username=postgres -c "CREATE DATABASE mydb OWNER user;" && \
+    pg_ctl -D ${PGDATA} -m fast -w stop
+
+EXPOSE 5432
+
+ENTRYPOINT ["/usr/local/postgres/bin/postgres"]
+CMD ["-D", "/var/lib/postgresql/data"]
