@@ -103,24 +103,6 @@ class FHIRReceiverFilter(
     class ReceiverItemFilteredActionLogDetail(
         val filter: String,
         @JsonProperty
-        val filterType: ReportStreamFilterType,
-        @JsonProperty
-        val receiverOrg: String,
-        @JsonProperty
-        val receiverName: String,
-        val index: Int = 1,
-    ) : ActionLogDetail {
-        override val scope: ActionLogScope = ActionLogScope.item
-
-        override val message: String = "Item was not routed to $receiverOrg.$receiverName because it did not pass the" +
-            " $filterType. Item failed on: $filter"
-
-        override val errorCode: ErrorCode = ErrorCode.UNKNOWN
-    }
-
-    class AlternativeReceiverItemFilteredActionLogDetail(
-        val filter: String,
-        @JsonProperty
         val filterType: String,
         @JsonProperty
         val receiverOrg: String,
@@ -137,27 +119,27 @@ class FHIRReceiverFilter(
     }
 
     interface FilterDetailsInterface {
-        fun theFilterType(): String
-        fun theFilters(): List<String>
-        fun theEnumFilterType(): ReportStreamFilterType
+        fun filterType(): String
+        fun filters(): List<String>
+        fun enumFilterType(): ReportStreamFilterType
     }
 
     data class FilterDetails(val filters: List<String>, val filterType: ReportStreamFilterType) :
         FilterDetailsInterface {
-        override fun theFilterType() = filterType.name
+        override fun filterType() = filterType.name
 
-        override fun theFilters() = filters
+        override fun filters() = filters
 
-        override fun theEnumFilterType() = filterType
+        override fun enumFilterType() = filterType
     }
 
     data class ReceiverFilterDetails(val filters: List<String>, val filterName: String, val filterDescription: String) :
         FilterDetailsInterface {
-        override fun theFilterType() = filterName
+        override fun filterType() = filterName
 
-        override fun theFilters() = filters
+        override fun filters() = filters
 
-        override fun theEnumFilterType() = ReportStreamFilterType.ROUTING_FILTER
+        override fun enumFilterType() = ReportStreamFilterType.ROUTING_FILTER
     }
 
     sealed class ReceiverFilterEvaluationResult {
@@ -243,7 +225,7 @@ class FHIRReceiverFilter(
         if (!filtersEvaluated.all { (passes, _) -> passes }) {
             val failingFilters = filtersEvaluated.filter { (passes, _) -> !passes }.map { (_, filter) ->
                 actionLogger.getItemLogger(1, trackingId).warn(
-                    AlternativeReceiverItemFilteredActionLogDetail(
+                    ReceiverItemFilteredActionLogDetail(
                         filter,
                         fhirExpressionFilter.filterName,
                         receiver.organizationName,
@@ -314,7 +296,7 @@ class FHIRReceiverFilter(
                 actionLogger.getItemLogger(1, trackingId).warn(
                     ReceiverItemFilteredActionLogDetail(
                         conditionFilters.joinToString(","),
-                        ReportStreamFilterType.CONDITION_FILTER,
+                        ReportStreamFilterType.CONDITION_FILTER.name,
                         receiver.organizationName,
                         receiver.name,
                         1
@@ -344,7 +326,7 @@ class FHIRReceiverFilter(
                 actionLogger.getItemLogger(1, trackingId).warn(
                     ReceiverItemFilteredActionLogDetail(
                         mappedConditionFilters.joinToString(","),
-                        ReportStreamFilterType.MAPPED_CONDITION_FILTER,
+                        ReportStreamFilterType.MAPPED_CONDITION_FILTER.name,
                         receiver.organizationName,
                         receiver.name,
                         1
@@ -404,7 +386,7 @@ class FHIRReceiverFilter(
                 actionLogger.getItemLogger(1, trackingId).warn(
                     ReceiverItemFilteredActionLogDetail(
                         filter,
-                        filterType,
+                        filterType.name,
                         receiver.organizationName,
                         receiver.name,
                         1
@@ -544,10 +526,10 @@ class FHIRReceiverFilter(
                         ReportStreamFilterResult(
                             receiver.fullName,
                             db.fetchReportFile(queueMessage.reportId).itemCount,
-                            filterResult.failingFilter.theFilters().joinToString("\n"),
+                            filterResult.failingFilter.filters().joinToString("\n"),
                             emptyList(),
                             AzureEventUtils.getIdentifier(bundle).value ?: "",
-                            filterResult.failingFilter.theEnumFilterType(),
+                            filterResult.failingFilter.enumFilterType(),
                             scope = ActionLogScope.report
                         )
                     )
@@ -574,8 +556,8 @@ class FHIRReceiverFilter(
                         trackingId(bundle)
                         params(
                             mapOf(
-                                ReportStreamEventProperties.FAILING_FILTERS to filterResult.failingFilter.theFilters(),
-                                ReportStreamEventProperties.FILTER_TYPE to filterResult.failingFilter.theFilterType(),
+                                ReportStreamEventProperties.FAILING_FILTERS to filterResult.failingFilter.filters(),
+                                ReportStreamEventProperties.FILTER_TYPE to filterResult.failingFilter.filterType(),
                                 ReportStreamEventProperties.RECEIVER_NAME to receiver.fullName,
                                 ReportStreamEventProperties.BUNDLE_DIGEST
                                     to bundleDigestExtractor.generateDigest(bundle)

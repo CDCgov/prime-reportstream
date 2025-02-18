@@ -242,7 +242,7 @@ class FhirReceiverFilterTests {
         actionLogger.logs.forEach {
             assertThat(it.detail)
                 .isInstanceOf<FHIRReceiverFilter.ReceiverItemFilteredActionLogDetail>()
-                .matchesPredicate { it.filterType == ReportStreamFilterType.QUALITY_FILTER }
+                .matchesPredicate { it.filterType == ReportStreamFilterType.QUALITY_FILTER.name }
         }
     }
 
@@ -306,7 +306,7 @@ class FhirReceiverFilterTests {
         assertThat(actionLogger.logs).hasSize(2)
         actionLogger.logs.forEach {
             assertThat(it.detail)
-                .isInstanceOf<FHIRReceiverFilter.AlternativeReceiverItemFilteredActionLogDetail>()
+                .isInstanceOf<FHIRReceiverFilter.ReceiverItemFilteredActionLogDetail>()
                 .matchesPredicate { it.filterType == "name" }
         }
     }
@@ -367,7 +367,7 @@ class FhirReceiverFilterTests {
         actionLogger.logs.forEach {
             assertThat(it.detail)
                 .isInstanceOf<FHIRReceiverFilter.ReceiverItemFilteredActionLogDetail>()
-                .matchesPredicate { it.filterType == ReportStreamFilterType.ROUTING_FILTER }
+                .matchesPredicate { it.filterType == ReportStreamFilterType.ROUTING_FILTER.name }
         }
     }
 
@@ -429,7 +429,7 @@ class FhirReceiverFilterTests {
         actionLogger.logs.forEach {
             assertThat(it.detail)
                 .isInstanceOf<FHIRReceiverFilter.ReceiverItemFilteredActionLogDetail>()
-                .matchesPredicate { it.filterType == ReportStreamFilterType.PROCESSING_MODE_FILTER }
+                .matchesPredicate { it.filterType == ReportStreamFilterType.PROCESSING_MODE_FILTER.name }
         }
     }
 
@@ -491,7 +491,7 @@ class FhirReceiverFilterTests {
         actionLogger.logs.forEach {
             assertThat(it.detail)
                 .isInstanceOf<FHIRReceiverFilter.ReceiverItemFilteredActionLogDetail>()
-                .matchesPredicate { it.filterType == ReportStreamFilterType.CONDITION_FILTER }
+                .matchesPredicate { it.filterType == ReportStreamFilterType.CONDITION_FILTER.name }
         }
     }
 
@@ -548,7 +548,7 @@ class FhirReceiverFilterTests {
             assertThat(actionLogger.logs).hasSize(1)
             assertThat(actionLogger.logs.first().detail)
                 .isInstanceOf<FHIRReceiverFilter.ReceiverItemFilteredActionLogDetail>()
-                .matchesPredicate { it.filterType == ReportStreamFilterType.MAPPED_CONDITION_FILTER }
+                .matchesPredicate { it.filterType == ReportStreamFilterType.MAPPED_CONDITION_FILTER.name }
         }
     }
 
@@ -608,7 +608,7 @@ class FhirReceiverFilterTests {
             assertThat(actionLogger.logs).hasSize(1)
             assertThat(actionLogger.logs.first().detail)
                 .isInstanceOf<FHIRReceiverFilter.ReceiverItemFilteredActionLogDetail>()
-                .matchesPredicate { it.filterType == ReportStreamFilterType.MAPPED_CONDITION_FILTER }
+                .matchesPredicate { it.filterType == ReportStreamFilterType.MAPPED_CONDITION_FILTER.name }
         }
     }
 
@@ -957,7 +957,7 @@ class FhirReceiverFilterTests {
         assertThat(actionLogger.logs).hasSize(1)
         assertThat(actionLogger.logs.first().detail)
             .isInstanceOf<FHIRReceiverFilter.ReceiverItemFilteredActionLogDetail>()
-            .matchesPredicate { it.filterType == ReportStreamFilterType.MAPPED_CONDITION_FILTER }
+            .matchesPredicate { it.filterType == ReportStreamFilterType.MAPPED_CONDITION_FILTER.name }
     }
 
     @Test
@@ -999,7 +999,7 @@ class FhirReceiverFilterTests {
         assertThat(actionLogger.logs).hasSize(1)
         assertThat(actionLogger.logs.first().detail)
             .isInstanceOf<FHIRReceiverFilter.ReceiverItemFilteredActionLogDetail>()
-            .matchesPredicate { it.filterType == ReportStreamFilterType.CONDITION_FILTER }
+            .matchesPredicate { it.filterType == ReportStreamFilterType.CONDITION_FILTER.name }
     }
 
     @Test

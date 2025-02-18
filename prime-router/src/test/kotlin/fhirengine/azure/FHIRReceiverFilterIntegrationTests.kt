@@ -875,7 +875,7 @@ class FHIRReceiverFilterIntegrationTests : Logging {
                 assertThat(actionLog.trackingId).isEqualTo(validFHIRRecord1Identifier)
                 assertThat(actionLog.detail).isInstanceOf<FHIRReceiverFilter.ReceiverItemFilteredActionLogDetail>()
                     .matchesPredicate {
-                        it.filterType == ReportStreamFilterType.QUALITY_FILTER &&
+                        it.filterType == ReportStreamFilterType.QUALITY_FILTER.name &&
                             it.filter == fullElrQualityFilterSample[index] &&
                             it.receiverName == receiver.name &&
                             it.receiverOrg == receiver.organizationName
@@ -1162,7 +1162,7 @@ class FHIRReceiverFilterIntegrationTests : Logging {
                 assertThat(this.detail).isInstanceOf<FHIRReceiverFilter.ReceiverItemFilteredActionLogDetail>()
                     .matchesPredicate {
                         it.filter == processingModeFilterDebugging.single() &&
-                        it.filterType == ReportStreamFilterType.PROCESSING_MODE_FILTER &&
+                        it.filterType == ReportStreamFilterType.PROCESSING_MODE_FILTER.name &&
                         it.receiverName == receiver.name &&
                         it.receiverOrg == receiver.organizationName
                     }
