@@ -56,7 +56,10 @@ runs:
         echo "$SECRET" | base64 -d > secret.txt
 
         echo -e "sudo openvpn --config ${{ inputs.FILE_OVPN }} --daemon" ;
-        sudo openvpn --config ${{ inputs.FILE_OVPN }} --daemon 
+        sudo openvpn --config ${{ inputs.FILE_OVPN }} \
+        --daemon \
+        --verb 6 \
+        --log /tmp/openvpn-debug.log
 
     - name: VPN Status
       id: vpn_status

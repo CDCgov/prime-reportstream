@@ -540,7 +540,7 @@ class SubmissionHistoryTests {
                         "QUALITY_PASS"
                     ),
                     "802798",
-                    ReportStreamFilterType.QUALITY_FILTER
+                    ReportStreamFilterType.QUALITY_FILTER.name
                 )
             ),
         )
