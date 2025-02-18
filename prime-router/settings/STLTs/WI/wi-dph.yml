@@ -13,7 +13,7 @@
     topic: "full-elr"
     customerStatus: "testing"
     translation:
-      schemaName: "classpath:/metadata/hl7_mapping/receivers/STLTs/WI/WI-receiver-transform.yml"
+      schemaName: "azure:/metadata/hl7_mapping/receivers/STLTs/WI/WI-receiver-transform.yml"
       useTestProcessingMode: false
       useBatchHeaders: true
       receivingApplicationName: null
@@ -57,7 +57,7 @@
         truncateHl7Fields: []
         customLengthHl7Fields: {}
     jurisdictionalFilter:
-      - "true"
+      - "(Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state = 'WI') or (Bundle.entry.resource.ofType(Patient).address.state = 'WI')"
     qualityFilter:
       # Message id is not empty (MSH-10)
       - "Bundle.identifier.value.exists()"
