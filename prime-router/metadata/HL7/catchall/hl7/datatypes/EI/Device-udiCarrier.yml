@@ -8,6 +8,11 @@ deviceIdentifier:
 extension:
   expressionType: nested
   generateList: true
+  vars:
+    ei2: EI.2
+    ei3: EI.3
+    ei4: EI.4
+  condition: $ei2 NOT_NULL || $ei3 NOT_NULL || $ei4 NOT_NULL
   expressions:
     - expressionType: nested
       expressionsMap:
@@ -19,6 +24,7 @@ extension:
           expressionType: nested
           expressions:
             - expressionType: nested
+              condition: $ei2 NOT_NULL
               expressionsMap:
                 url:
                   type: SYSTEM_URL
@@ -28,6 +34,7 @@ extension:
                   expressionType: HL7Spec
                   valueOf: EI.2
             - expressionType: nested
+              condition: $ei3 NOT_NULL
               expressionsMap:
                 url:
                   type: SYSTEM_URL
@@ -37,6 +44,7 @@ extension:
                   expressionType: HL7Spec
                   valueOf: EI.3
             - expressionType: nested
+              condition: $ei4 NOT_NULL
               expressionsMap:
                 url:
                   type: SYSTEM_URL

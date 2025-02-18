@@ -67,12 +67,13 @@ enum class ReportStreamEventProperties {
     BUNDLE_DIGEST,
     INGESTION_TYPE,
     POISON_QUEUE_MESSAGE_ID,
+    ENRICHMENTS,
+    ORIGINAL_FORMAT,
+    TARGET_FORMAT,
     ;
 
     @JsonKey
-    fun externalKey(): String {
-        return CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.LOWER_CAMEL, name)
-    }
+    fun externalKey(): String = CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.LOWER_CAMEL, name)
 }
 
 /**
@@ -92,6 +93,7 @@ enum class ReportStreamEventName {
     REPORT_NOT_PROCESSABLE,
     ITEM_SENT,
     PIPELINE_EXCEPTION,
+    ITEM_TRANSFORMED,
 }
 
 /**

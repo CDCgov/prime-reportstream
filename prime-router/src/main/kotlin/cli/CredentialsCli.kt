@@ -20,7 +20,8 @@ import org.apache.logging.log4j.Level
 import org.apache.logging.log4j.core.config.Configurator
 import java.util.Base64
 
-class CredentialsCli : CredentialManagement, CliktCommand(
+class CredentialsCli :
+    CliktCommand(
     name = "create-credential",
     help = """
         create credential JSON or persist to store
@@ -38,7 +39,8 @@ class CredentialsCli : CredentialManagement, CliktCommand(
         getting_started.md for some ideas on how you can do that for
         your environment.
     """.trimIndent()
-) {
+),
+    CredentialManagement {
     val type by option(help = "Type of credential to create")
         .groupChoice(
             "UserPass" to UserPassCredentialOptions(),

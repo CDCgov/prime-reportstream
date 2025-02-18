@@ -147,7 +147,7 @@ export default defineConfig(async ({ mode }) => {
         css: {
             preprocessorOptions: {
                 scss: {
-                    includePaths: ["node_modules/@uswds/uswds/packages"],
+                    loadPaths: ["node_modules/@uswds/uswds/packages"],
                 },
             },
             devSourcemap: true,

@@ -43,7 +43,9 @@ import java.io.ByteArrayInputStream
  * See [Google API for Exposure Notification](https://https://developers.google.com/android/exposure-notifications/exposure-notifications-api) for details on GAEN.
  * See [Issue API](https://https://github.com/google/exposure-notifications-verification-server/blob/main/docs/api.md#apiissue) for the details on the issue API ReportStream calls.
  */
-class GAENTransport(val httpClient: HttpClient? = null) : ITransport, Logging {
+class GAENTransport(val httpClient: HttpClient? = null) :
+    ITransport,
+    Logging {
     /**
      * Information helpful for the sending, logging and recording history all bundled together
      * to avoid long parameter lists in functions

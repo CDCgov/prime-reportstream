@@ -20,9 +20,9 @@ interface AzureEventService {
 /**
  * Default implementation
  */
-class AzureEventServiceImpl(
-    private val telemetryClient: TelemetryClient = TelemetryClient(),
-) : AzureEventService, Logging {
+class AzureEventServiceImpl(private val telemetryClient: TelemetryClient = TelemetryClient()) :
+    AzureEventService,
+    Logging {
 
     /**
      * Send event to Azure AppInsights using the Azure TelemetryClient
@@ -39,7 +39,9 @@ class AzureEventServiceImpl(
     }
 }
 
-class InMemoryAzureEventService : AzureEventService, Logging {
+class InMemoryAzureEventService :
+    AzureEventService,
+    Logging {
 
     val events: MutableList<AzureCustomEvent> = mutableListOf()
     val reportStreamEvents = mutableMapOf<ReportStreamEventName, MutableList<AzureCustomEvent>>()

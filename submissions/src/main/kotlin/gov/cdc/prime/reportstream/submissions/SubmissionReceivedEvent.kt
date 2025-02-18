@@ -18,7 +18,4 @@ data class SubmissionReceivedEvent(
     val pipelineStepName: String,
 )
 
-data class SubmissionDetails(
-    val headers: Map<String, String>,
-    val queryParameters: Map<String, List<String>>,
-)
+data class SubmissionDetails(val headers: Map<String, String>, val queryParameters: Map<String, List<String>>)

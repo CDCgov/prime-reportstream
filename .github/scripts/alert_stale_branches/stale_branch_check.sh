@@ -23,7 +23,7 @@ get_branches () {
 count=0
 for k in $branches
 do
-  if [[ "$k" != *"HEAD"* ]] && [[ "$k" != *"->"* ]] && [[ "$k" != *"master"* ]]
+  if [[ "$k" != *"HEAD"* ]] && [[ "$k" != *"->"* ]] && [[ "$k" != *"main"* ]]
     then
       if [ -z "$(git log -1 --since='6 months ago' -s $k)" ]
         then

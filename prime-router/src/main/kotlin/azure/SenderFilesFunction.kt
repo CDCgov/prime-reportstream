@@ -38,8 +38,7 @@ class SenderFilesFunction(
             authLevel = AuthorizationLevel.ANONYMOUS,
             route = "sender-files"
         ) request: HttpRequestMessage<String?>,
-    ): HttpResponseMessage {
-        return oktaAuthentication.checkAccess(request) {
+    ): HttpResponseMessage = oktaAuthentication.checkAccess(request) {
             try {
                 val parameters = checkParameters(request)
                 val result = processRequest(parameters)
@@ -54,21 +53,16 @@ class SenderFilesFunction(
                 HttpUtilities.internalErrorResponse(request)
             }
         }
-    }
 
     /**
      * To indicate a bad request error throw an [IllegalArgumentException] with [message]
      */
-    private fun badRequest(message: String): Nothing {
-        throw IllegalArgumentException(message)
-    }
+    private fun badRequest(message: String): Nothing = throw IllegalArgumentException(message)
 
     /**
      * To indicate a not found error throw an [FileNotFoundException] with [message]
      */
-    private fun notFound(message: String): Nothing {
-        throw FileNotFoundException(message)
-    }
+    private fun notFound(message: String): Nothing = throw FileNotFoundException(message)
 
     /**
      * Encapsulates the possible query parameters
@@ -146,10 +140,7 @@ class SenderFilesFunction(
         )
     }
 
-    data class ProcessResult(
-        val payload: String,
-        val reportsIds: List<String>? = null,
-    )
+    data class ProcessResult(val payload: String, val reportsIds: List<String>? = null)
 
     /**
      * Main logic of the Azure function. Useful for unit testing.
@@ -171,17 +162,14 @@ class SenderFilesFunction(
         return ProcessResult(payload, senderReports.map { it.reportId })
     }
 
-    private fun findOutputFile(parameters: FunctionParameters): ReportFile {
-        return when {
+    private fun findOutputFile(parameters: FunctionParameters): ReportFile = when {
             parameters.reportId != null -> dbAccess.fetchReportFile(parameters.reportId)
             parameters.reportFileName != null -> dbAccess.fetchReportFileByBlobURL(parameters.reportFileName)
             else -> null
         } ?: notFound("Could not find the specified report-file")
-    }
 
-    private fun findSenderItems(reportId: UUID, offset: Int, limit: Int): List<SenderItems> {
-        return dbAccess.fetchSenderItems(reportId, offset, limit)
-    }
+    private fun findSenderItems(reportId: UUID, offset: Int, limit: Int): List<SenderItems> =
+        dbAccess.fetchSenderItems(reportId, offset, limit)
 
     /**
      * Given a list of receiver items with their associated sender items in [items],
@@ -233,28 +221,26 @@ class SenderFilesFunction(
         }
     }
 
-    private fun cutContent(reportBlob: String, senderFormat: MimeFormat, itemIndices: List<Int>): String {
-        return when (senderFormat) {
+    private fun cutContent(reportBlob: String, senderFormat: MimeFormat, itemIndices: List<Int>): String =
+        when (senderFormat) {
             MimeFormat.CSV -> CsvUtilities.cut(reportBlob, itemIndices)
             MimeFormat.HL7, MimeFormat.HL7_BATCH -> Hl7Utilities.cut(reportBlob, itemIndices)
             else -> throw IllegalStateException("Sender format $senderFormat is not supported")
         }
-    }
 
     /**
      * Write as a JSON string
      */
-    private fun List<ReportFileMessage>.serialize(): String {
-        return mapper.writeValueAsString(this)
-    }
+    private fun List<ReportFileMessage>.serialize(): String = mapper.writeValueAsString(this)
 
     /**
      * Create a log message for the purpose of recording who downloaded what.
      * [reportIds] tell the what. [userName] tells the who.
      */
-    private fun fromAuditMessage(userName: String, reportIds: List<String>?): String {
-        return "User $userName has downloaded these reports through the sender-file API: $reportIds"
-    }
+    private fun fromAuditMessage(
+        userName: String,
+        reportIds: List<String>?,
+    ): String = "User $userName has downloaded these reports through the sender-file API: $reportIds"
 
     companion object {
         /**
@@ -294,12 +280,10 @@ class SenderFilesFunction(
 
         private val mapper = JacksonMapperUtilities.defaultMapper
 
-        private fun mapBodyFormatToSenderFormat(bodyFormat: String): MimeFormat {
-            return when (bodyFormat) {
+        private fun mapBodyFormatToSenderFormat(bodyFormat: String): MimeFormat = when (bodyFormat) {
                 "CSV", "CSV_SINGLE", "INTERNAL" -> MimeFormat.CSV
                 "HL7", "HL7_BATCH" -> MimeFormat.HL7
                 else -> error("Unknown body format type: $bodyFormat")
             }
-        }
     }
 }

@@ -76,7 +76,7 @@ Launch a shell and run it:
 
 ### Steps to Authenticate with ReportStream, using Tokens
 
-Authentication is done in three steps.   Details are found in the ReportStream-Programmers-Guide.docx, in https://github.com/CDCgov/prime-reportstream/tree/master/prime-router/docs, but here is a quick outline:
+Authentication is done in three steps.   Details are found in the ReportStream-Programmers-Guide.docx, in https://github.com/CDCgov/prime-reportstream/tree/main/prime-router/docs, but here is a quick outline:
 
 #### Step 1:  Prior to submission, send your public key to ReportStream
 
@@ -100,8 +100,8 @@ Authentication is done in three steps.   Details are found in the ReportStream-P
 
 ### Further documentation
 
-- Your main source of documentation should be the ReportStream-Programmers-Guide.docx, in https://github.com/CDCgov/prime-reportstream/tree/master/prime-router/docs.
-- If python is not your cup of tea, then an example for how to generate a sender token, written in kotlin, can be found in function `generateSenderToken` in https://github.com/CDCgov/prime-reportstream/blob/master/prime-router/src/main/kotlin/tokens/SenderUtils.kt
+- Your main source of documentation should be the ReportStream-Programmers-Guide.docx, in https://github.com/CDCgov/prime-reportstream/tree/main/prime-router/docs.
+- If python is not your cup of tea, then an example for how to generate a sender token, written in kotlin, can be found in function `generateSenderToken` in https://github.com/CDCgov/prime-reportstream/blob/main/prime-router/src/main/kotlin/tokens/SenderUtils.kt
 - Our implementation is based on these standard guidelines for the FHIR community:  http://hl7.org/fhir/uv/bulkdata/authorization/index.html
-- Documentation meant mainly for ReportStream operations personnel can be found here:  https://github.com/CDCgov/prime-reportstream/blob/master/prime-router/docs/playbooks/how-to-use-token-auth.md
-- Documentation on our token auth implementation (meant for ReportStream coders, but might be of general interest) is found here:  https://github.com/CDCgov/prime-reportstream/blob/master/prime-router/docs/proposals/0001-authentication.md
+- Documentation meant mainly for ReportStream operations personnel can be found here:  https://github.com/CDCgov/prime-reportstream/blob/main/prime-router/docs/playbooks/how-to-use-token-auth.md
+- Documentation on our token auth implementation (meant for ReportStream coders, but might be of general interest) is found here:  https://github.com/CDCgov/prime-reportstream/blob/main/prime-router/docs/proposals/0001-authentication.md

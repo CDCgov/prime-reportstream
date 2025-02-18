@@ -53,17 +53,9 @@ class Facility private constructor(
     }
 }
 
-class Action private constructor(
-    val date: String?,
-    val user: String?,
-    val action: String?,
-) {
+class Action private constructor(val date: String?, val user: String?, val action: String?) {
 
-    data class Builder(
-        var date: String? = null,
-        var user: String? = null,
-        var action: String? = null,
-    ) {
+    data class Builder(var date: String? = null, var user: String? = null, var action: String? = null) {
 
         fun date(date: String) = apply { this.date = date }
         fun user(user: String) = apply { this.user = user }
@@ -153,8 +145,7 @@ class ReportView private constructor(
 
 data class FileReturn(val content: String, val filename: String, val mimetype: String)
 
-class GetReports :
-    BaseHistoryFunction() {
+class GetReports : BaseHistoryFunction() {
     @FunctionName("getReports")
     @StorageAccount("AzureWebJobsStorage")
     fun run(
@@ -204,8 +195,7 @@ class GetReports :
     }
 }
 
-class GetReportById :
-    BaseHistoryFunction() {
+class GetReportById : BaseHistoryFunction() {
     @FunctionName("getReportById")
     @StorageAccount("AzureWebJobsStorage")
     fun run(
@@ -217,13 +207,10 @@ class GetReportById :
         ) request: HttpRequestMessage<String?>,
         @BindingName("reportId") reportId: String,
         context: ExecutionContext,
-    ): HttpResponseMessage {
-        return getReportById(request, reportId, context)
-    }
+    ): HttpResponseMessage = getReportById(request, reportId, context)
 }
 
-class GetFacilitiesByReportId :
-    BaseHistoryFunction() {
+class GetFacilitiesByReportId : BaseHistoryFunction() {
     @FunctionName("getFacilitiesByReportId")
     @StorageAccount("AzureWebJobsStorage")
     fun run(
@@ -235,9 +222,7 @@ class GetFacilitiesByReportId :
         ) request: HttpRequestMessage<String?>,
         @BindingName("reportId") reportId: String,
         context: ExecutionContext,
-    ): HttpResponseMessage {
-        return getFacilitiesForReportId(request, reportId, context)
-    }
+    ): HttpResponseMessage = getFacilitiesForReportId(request, reportId, context)
 }
 
 open class BaseHistoryFunction : Logging {
@@ -260,7 +245,6 @@ open class BaseHistoryFunction : Logging {
                 organizationName ?: authClaims.organization.name
             )
 
-            @Suppress("NEW_INFERENCE_NO_INFORMATION_FOR_PARAMETER")
             val reports = headers.sortedByDescending { it.createdAt }.map {
                 // removing the call for facilities for now so we can call a
                 // method directly to just get the facilities and display them then
@@ -332,7 +316,8 @@ open class BaseHistoryFunction : Logging {
         val requestOrgName: String = request.headers["organization"]
             ?: return HttpUtilities.bad(request, "Missing organization in header")
 
-        if (claims == null || !claims.authorized(
+        if (claims == null ||
+            !claims.authorized(
                 setOf(
                     PRIME_ADMIN_PATTERN,
                     "$requestOrgName.*.*",
@@ -470,10 +455,7 @@ open class BaseHistoryFunction : Logging {
         }
     }
 
-    data class AuthClaims(
-        val userName: String,
-        val organization: Organization,
-    )
+    data class AuthClaims(val userName: String, val organization: Organization)
 
     /**
      * returns null if not authorized, otherwise returns a set of claims.

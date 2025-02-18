@@ -1130,17 +1130,14 @@ internal class ElementTests {
         class SomeCoolMapper : Mapper {
             override val name = "some"
 
-            override fun valueNames(element: Element, args: List<String>): List<String> {
-                return args
-            }
+            override fun valueNames(element: Element, args: List<String>): List<String> = args
 
             override fun apply(
                 element: Element,
                 args: List<String>,
                 values: List<ElementAndValue>,
                 sender: Sender?,
-            ): ElementResult {
-                return if (args.isEmpty()) {
+            ): ElementResult = if (args.isEmpty()) {
                     ElementResult(null)
                 } else {
                     when (args[0]) {
@@ -1155,7 +1152,6 @@ internal class ElementTests {
                         else -> throw UnsupportedOperationException()
                     }
                 }
-            }
         }
 
         val elementA = Element("a", mapperRef = SomeCoolMapper())

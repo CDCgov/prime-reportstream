@@ -16,8 +16,7 @@ resourceType: Observation
 # Not implementing OBX.29 not in mapping not in NIST
 # Not implementing OBX.31 not in mapping not in NIST
 # Not implementing OBX.32 not in mapping not in NIST
-# Not implementing OBX.33 as it's not in the NIST spec the logic in the inventory cannot be implemented in the library
-
+# OBX.33 is repeatable but maps to specimen on Observation which is not, so it's all captured in OBXExtension
 
 id:
   type: STRING

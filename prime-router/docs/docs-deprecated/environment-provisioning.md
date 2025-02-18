@@ -6,7 +6,7 @@ Any adjustments to the infrastructure provisining process should be noted here s
 2. [Trial Frontend Environments](#trial-frontend-environments)
 
 ## Azure Prerequisites
-We assume the following infrastructure has already been deployed by CMS. 
+We assume the following infrastructure has already been deployed by CMS.
  - Resource Group for underlying infrastructure
  - Storage Account - Used to store the terraform tf state.
  - You will need to authenticate the az command line application using your SU account:
@@ -42,14 +42,14 @@ Push (or merge) code into any of the following branches:
 > 1. Navigate to `demo` Terraform directory using one of the following methods:
 >    * `terraform -chdir=operations/app/terraform/vars/demo`
 >    * `operations/app/terraform/vars/demo terraform`
-> 
+>
 > 2. Specify `-var-file` and `-backend-config` from the desired demo directory (demo1, demo2, or demo3)
 >    * `-var-file=demo1/env.tfvars.json`
 >    * `-backend-config=demo1/env.tfbackend`
-> 
+>
 > 3. Target the `init` Terraform module to `apply` base resources (vnets, key vaults, etc.)
 >    * `-target=module.init`
-> 
+>
 > 4. After base resources are created, run `apply` without a target
 
 ### Specify environment & Terraform path
@@ -84,11 +84,11 @@ echo "init complete"
 # Import access polices that are shared with init and key_vault modules
 terraform -chdir=$path import -var-file=$env/env.tfvars.json \
 module.key_vault.azurerm_key_vault_access_policy.terraform_app_config_access_policy[0] \
-"/subscriptions/7d1e3999-6577-4cd5-b296-f518e5c8e677/resourceGroups/prime-data-hub-$env/providers/Microsoft.KeyVault/vaults/pdh$env-appconfigmt8/objectId/4d81288c-27a3-4df8-b776-c9da8e688bc7"
+"/subscriptions/7d1e3999-6577-4cd5-b296-f518e5c8e677/resourceGroups/prime-data-hub-$env/providers/Microsoft.KeyVault/vaults/pdh$env-appconfigmt8/objectId/a58ee002-62c7-4a91-a2dc-4a837663aa00"
 
 terraform -chdir=$path import -var-file=$env/env.tfvars.json \
  module.key_vault.azurerm_key_vault_access_policy.terraform_access_policy[0] \
-"/subscriptions/7d1e3999-6577-4cd5-b296-f518e5c8e677/resourceGroups/prime-data-hub-$env/providers/Microsoft.KeyVault/vaults/pdh$env-keyvaultmt8/objectId/4d81288c-27a3-4df8-b776-c9da8e688bc7"
+"/subscriptions/7d1e3999-6577-4cd5-b296-f518e5c8e677/resourceGroups/prime-data-hub-$env/providers/Microsoft.KeyVault/vaults/pdh$env-keyvaultmt8/objectId/a58ee002-62c7-4a91-a2dc-4a837663aa00"
 
 for i in {1..3}; do \
 terraform -chdir=$path apply \

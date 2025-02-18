@@ -63,8 +63,4 @@ class ValueValidationTest {
     }
 }
 
-private data class TestDataClass(
-    val string: String,
-    val nullable: Int?,
-    val list: List<String>,
-)
+private data class TestDataClass(val string: String, val nullable: Int?, val list: List<String>)

@@ -54,9 +54,7 @@ class DeliveryTable : CustomTable<DeliveryRecord>(DSL.name("delivery")) {
         val DELIVERY = DeliveryTable()
     }
 
-    override fun getRecordType(): Class<out DeliveryRecord> {
-        return DeliveryRecord::class.java
-    }
+    override fun getRecordType(): Class<out DeliveryRecord> = DeliveryRecord::class.java
 }
 
 class DeliveryRecord : CustomRecord<DeliveryRecord>(DeliveryTable.DELIVERY)
@@ -71,8 +69,7 @@ sealed class DeliveryApiSearchFilter<T> : ApiFilter<DeliveryRecord, T> {
      * Filters results to those where the created_at is greater than or equal to the passed in date
      * @param value the date that results will be greater than or equal to
      */
-    class Since(override val value: OffsetDateTime) :
-        DeliveryApiSearchFilter<OffsetDateTime>() {
+    class Since(override val value: OffsetDateTime) : DeliveryApiSearchFilter<OffsetDateTime>() {
         override val tableField: TableField<DeliveryRecord, OffsetDateTime> = DeliveryTable.DELIVERY.CREATED_AT
     }
 
@@ -80,8 +77,7 @@ sealed class DeliveryApiSearchFilter<T> : ApiFilter<DeliveryRecord, T> {
      * Filters results to those where the created_at is less than or equal to the passed in date
      * @param value the date that results will be less than or equal to
      */
-    class Until(override val value: OffsetDateTime) :
-        DeliveryApiSearchFilter<OffsetDateTime>() {
+    class Until(override val value: OffsetDateTime) : DeliveryApiSearchFilter<OffsetDateTime>() {
         override val tableField: TableField<DeliveryRecord, OffsetDateTime> = DeliveryTable.DELIVERY.CREATED_AT
     }
 }
@@ -104,20 +100,14 @@ class DeliveryApiSearch(
     page,
     limit
 ) {
-    override fun getCondition(filter: DeliveryApiSearchFilter<*>): Condition {
-        return when (filter) {
+    override fun getCondition(filter: DeliveryApiSearchFilter<*>): Condition = when (filter) {
             is DeliveryApiSearchFilter.Since -> filter.tableField.ge(filter.value)
             is DeliveryApiSearchFilter.Until -> filter.tableField.le(filter.value)
         }
-    }
 
-    override fun getSortColumn(): Field<*> {
-        return sortParameter ?: DeliveryTable.DELIVERY.CREATED_AT
-    }
+    override fun getSortColumn(): Field<*> = sortParameter ?: DeliveryTable.DELIVERY.CREATED_AT
 
-    override fun getPrimarySortColumn(): Field<*> {
-        return DeliveryTable.DELIVERY.SORT_ID
-    }
+    override fun getPrimarySortColumn(): Field<*> = DeliveryTable.DELIVERY.SORT_ID
 
     companion object :
         ApiSearchParser<Delivery, DeliveryApiSearch, DeliveryRecord, DeliveryApiSearchFilter<*>>(),

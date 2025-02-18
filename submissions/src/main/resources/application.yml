@@ -6,8 +6,12 @@ spring:
       resourceserver:
         jwt:
           issuer-uri: https://reportstream.oktapreview.com/oauth2/ausekaai7gUuUtHda1d7
-  server:
-    port: 8880
+
+server:
+  port: 8880
+
+auth:
+  jwtEncodedPublicKeyJWK: eyJrdHkiOiJSU0EiLCJlIjoiQVFBQiIsIm4iOiJuVlE1VDUwWTdDc0FmSF9aWXNCMGFFUUdieVhySVB0NTV0bk5MZk1JZDBtYlgzWWN1UHpxVVBtUnNiWGI2Y09iaVdPWTVmeTZQbF9oRkN5SzZ6b2pTUnFoV0J3Z0xwejY1SDc1UnZtWTljYVBud0tJd085aGlLZkdNbkMyR29LdTZLWi1wUUs1eUdpRTBEaFVEYTRDeDFrSHg2UlRTNWhJeUdkdEU5eTl4aUJTREk4MjR5dXBnVnlKRi1TVy14cEg1UVh3LWxpTEZ1UHBIWmdadDI0SFVGUE8zUmpxcldOY2RZRnRLTS1kaHNaTExBenRwRlIwaWpjczVIR2NtRWVadGlpUEljMWlQX01aVkZJX1JudVB3MHFsQ0VEMXhQZ2p5eHNPdlJwOUh1Tzk0NV96eWJva3JjOVVtOWNmelNMR3daZ0lJb0dlV21zZVFhZHRnLW53UFEifQ==
 
 azure:
   storage:

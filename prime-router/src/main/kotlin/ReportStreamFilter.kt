@@ -10,8 +10,15 @@ import kotlin.reflect.full.memberProperties
  */
 typealias ReportStreamFilter = List<String>
 typealias ReportStreamConditionFilter = List<ConditionFilter>
+typealias ReportStreamReceiverRoutingFilter = List<FHIRExpressionFilter>
 
 fun ReportStreamConditionFilter.codes(): List<String> = this.flatMap { it.codes() }
+
+data class FHIRExpressionFilter(
+    val filterName: String,
+    val filterDescription: String,
+    val filterExpressions: List<String>,
+)
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonSubTypes(
@@ -22,9 +29,7 @@ fun ReportStreamConditionFilter.codes(): List<String> = this.flatMap { it.codes(
 abstract class ConditionFilter(val value: String) {
     abstract fun codes(): List<String>
 
-    override fun toString(): String {
-        return value
-    }
+    override fun toString(): String = value
 }
 
 class CodeStringConditionFilter(value: String) : ConditionFilter(value) {

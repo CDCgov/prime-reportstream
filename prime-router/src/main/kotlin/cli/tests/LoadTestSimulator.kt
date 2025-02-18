@@ -35,8 +35,7 @@ abstract class LoadTestSimulator : CoolTest() {
         val sender: Sender,
         val doBatchAndSend: Boolean = true,
     ) {
-        override fun toString(): String {
-            return "Simulation:\t$name\n" +
+        override fun toString(): String = "Simulation:\t$name\n" +
                 "Simultaneous Threads:\t$numThreads\n" +
                 "Submissions Per Thread:\t$numSubmissionsPerThread\n" +
                 "Total Submissions:\t${numThreads * numSubmissionsPerThread}\n" +
@@ -48,7 +47,6 @@ abstract class LoadTestSimulator : CoolTest() {
                 "Delay between Submits:\t$millisBetweenSubmissions millis\n" +
                 "Sending From:\t${sender.fullName}\n" +
                 "Do Batch/Send too:\t$doBatchAndSend\n"
-        }
     }
 
     /**
@@ -65,8 +63,7 @@ abstract class LoadTestSimulator : CoolTest() {
         var elapsedMillisForWholeSimulation: Long = -1,
     ) {
 
-        override fun toString(): String {
-            return "Simulation Results: \n" +
+        override fun toString(): String = "Simulation Results: \n" +
                 "Passed:$passed\n" +
                 "Total Submissions:\t$totalSubmissionsCount\n" +
                 "Total Items Submitted:\t$totalItemsCount\n" +
@@ -74,7 +71,6 @@ abstract class LoadTestSimulator : CoolTest() {
                 "Elapsed Seconds for Simulation:\t${elapsedMillisForWholeSimulation / 1000} seconds\n" +
                 "Processing Rate:\t$rateString submissions/second\n" +
                 "Avg Speed per submission:\t$avgSecsPerSubmissionString seconds/submission\n"
-        }
     }
 
     /**
@@ -168,8 +164,7 @@ abstract class LoadTestSimulator : CoolTest() {
         file: File,
         simulation: Simulation,
         options: CoolTestOptions,
-    ): Pair<Int, String> {
-        return HttpUtilities.postReportFile(
+    ): Pair<Int, String> = HttpUtilities.postReportFile(
             environment,
             file,
             simulation.sender,
@@ -177,7 +172,6 @@ abstract class LoadTestSimulator : CoolTest() {
             options.key,
             (if (simulation.doBatchAndSend) null else Options.SkipSend)
         )
-    }
 
     /**
      * A library of useful [Simulation]
@@ -397,7 +391,8 @@ abstract class LoadTestSimulator : CoolTest() {
         val processWaitTimeMillis = measureTimeMillis {
             // if we are running in async mode, verify the correct number of 'process' records have been generated
             if (isAsyncProcessMode) {
-                passed = passed && checkTimedResults(
+                passed = passed &&
+                    checkTimedResults(
                     expectedResults,
                     afterActionId,
                     TaskAction.process,
@@ -434,7 +429,8 @@ abstract class LoadTestSimulator : CoolTest() {
         // poll for batch results - wait for up to 7 minutes
         // TODO: Will this always be 1 batch? Should it determine results count based on what tests were run?
         // TODO: Should this dynamically determine how long to wait in case of 60_MIN receiver?
-        passed = passed && checkTimedResults(
+        passed = passed &&
+            checkTimedResults(
             expectedResults,
             afterActionId,
             TaskAction.batch,
@@ -446,7 +442,8 @@ abstract class LoadTestSimulator : CoolTest() {
         // poll for send results - wait for up to 7 minutes
         // TODO: Will this always be 1 batch? Should it determine results count based on what tests were run?
         // TODO: Should this dynamically determine how long to wait in case of 60_MIN receiver?
-        passed = passed && checkTimedResults(
+        passed = passed &&
+            checkTimedResults(
             expectedResults,
             afterActionId,
             TaskAction.send,

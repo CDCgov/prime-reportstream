@@ -1,0 +1,46 @@
+# $schema: ./../../../../../json_schema/fhir/hl7-to-fhir-mapping-resource-template.json
+
+url:
+  type: STRING
+  valueOf: $auiExtensionName
+
+extension:
+  generateList: true
+  expressionType: nested
+  expressions:
+    - expressionType: nested
+      vars:
+        aui1: STRING_ALL, AUI.1
+      condition: $aui1 NOT_NULL
+      expressionsMap:
+        url:
+          type: STRING
+          valueOf: AUI.1
+        valueString:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: AUI.1
+    - expressionType: nested
+      vars:
+        aui2: STRING_ALL, AUI.2
+      condition: $aui2 NOT_NULL
+      expressionsMap:
+        url:
+          type: STRING
+          valueOf: AUI.2
+        valueString:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: AUI.2
+    - expressionType: nested
+      vars:
+        aui3: STRING_ALL, AUI.3
+      condition: $aui3 NOT_NULL
+      expressionsMap:
+        url:
+          type: STRING
+          valueOf: AUI.3
+        valueString:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: AUI.3

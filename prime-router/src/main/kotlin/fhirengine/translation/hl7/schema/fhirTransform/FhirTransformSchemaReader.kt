@@ -11,10 +11,8 @@ import gov.cdc.prime.router.fhirengine.translation.hl7.schema.ConfigSchemaReader
 fun fhirTransformSchemaFromFile(
     schemaName: String,
     blobConnectionInfo: BlobAccess.BlobContainerMetadata,
-): FhirTransformSchema {
-    return ConfigSchemaReader.fromFile(
+): FhirTransformSchema = ConfigSchemaReader.fromFile(
         schemaName,
         schemaClass = FhirTransformSchema::class.java,
         blobConnectionInfo
     )
-}

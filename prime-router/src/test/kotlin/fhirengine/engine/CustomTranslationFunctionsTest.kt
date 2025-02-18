@@ -82,6 +82,19 @@ class CustomTranslationFunctionsTest {
     }
 
     @org.junit.jupiter.api.Test
+    fun `test mojuroTimezone with convertDateTimeToHL7`() {
+        val timezoneParameters1: MutableList<MutableList<Base>> =
+            mutableListOf(mutableListOf(StringType("Pacific/Majuro")))
+        val adjustedDateTime =
+            CustomFHIRFunctions.changeTimezone(
+                mutableListOf(DateTimeType("2015-04-05T12:22:11Z")),
+                timezoneParameters1
+            )[0] as DateTimeType
+        val tmp1 = Hl7TranslationFunctions().convertDateTimeToHL7(adjustedDateTime)
+        assertThat(tmp1).isEqualTo("20150406002211+1200")
+    }
+
+    @org.junit.jupiter.api.Test
     fun `test convertDateTimeToHL7 with CustomContext with receiver setting`() {
         val receiver = mockkClass(Receiver::class, relaxed = true)
         val appContext = mockkClass(CustomContext::class)

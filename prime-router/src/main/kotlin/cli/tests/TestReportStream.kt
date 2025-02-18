@@ -57,7 +57,8 @@ enum class TestStatus(val description: String) {
  * Each individual Test then implements [CoolTest].
  *
  */
-class TestReportStream : CliktCommand(
+class TestReportStream :
+    CliktCommand(
     name = "test",
     help = """Run tests of the Router functions
 
@@ -814,7 +815,8 @@ abstract class CoolTest {
             val errorCount = tree["errorCount"]
             val destCount = tree["destinationCount"]
 
-            if (topic != null && !topic.isNull &&
+            if (topic != null &&
+                !topic.isNull &&
                 (
                     listOf(
                         Topic.COVID_19.jsonVal,
@@ -1073,25 +1075,19 @@ abstract class CoolTest {
          * Format a [msg] string as a good message.
          * @return a formatted message string
          */
-        fun goodMsgFormat(msg: String): String {
-            return ANSI_GREEN + msg + ANSI_RESET
-        }
+        fun goodMsgFormat(msg: String): String = ANSI_GREEN + msg + ANSI_RESET
 
         /**
          * Format a [msg] string as a bad message.
          * @return a formatted message string
          */
-        fun badMsgFormat(msg: String): String {
-            return ANSI_RED + msg + ANSI_RESET
-        }
+        fun badMsgFormat(msg: String): String = ANSI_RED + msg + ANSI_RESET
 
         /**
          * Format a [msg] string as an ugly message.
          * @return a formatted message string
          */
-        fun uglyMsgFormat(msg: String): String {
-            return ANSI_CYAN + msg + ANSI_RESET
-        }
+        fun uglyMsgFormat(msg: String): String = ANSI_CYAN + msg + ANSI_RESET
 
         /**
          * Queries the database and pulls back the action_response json for the requested [reportId]

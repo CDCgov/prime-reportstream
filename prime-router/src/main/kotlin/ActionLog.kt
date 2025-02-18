@@ -54,9 +54,7 @@ data class ActionLog(
 ) {
     val scope = detail.scope
 
-    fun getActionId(): Long {
-        return action!!.actionId
-    }
+    fun getActionId(): Long = action!!.actionId
 }
 
 /**
@@ -162,25 +160,19 @@ class ActionLogger(val logs: MutableList<ActionLog> = mutableListOf()) {
      * Check if the logger has logged any errors.
      * @return true if there are errors logged, false otherwise
      */
-    fun hasErrors(): Boolean {
-        return logs.any { it.type == ActionLogLevel.error }
-    }
+    fun hasErrors(): Boolean = logs.any { it.type == ActionLogLevel.error }
 
     /**
      * Check if the logger has logged any warnings.
      * @return true if there are warnings logged, false otherwise
      */
-    fun hasWarnings(): Boolean {
-        return logs.any { it.type == ActionLogLevel.warning }
-    }
+    fun hasWarnings(): Boolean = logs.any { it.type == ActionLogLevel.warning }
 
     /**
      * Check if any logs have been logged.
      * @return true if any log has been logged, false otherwise.
      */
-    fun isEmpty(): Boolean {
-        return logs.isEmpty()
-    }
+    fun isEmpty(): Boolean = logs.isEmpty()
 
     /**
      * Log a given [actionDetail] and a [level] log level.

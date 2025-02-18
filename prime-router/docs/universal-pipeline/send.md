@@ -54,7 +54,7 @@ transport:
   credentialName: DEFAULT-SFTP
 ```
 
-For more details on how to set up a receiver, see [onboarding receivers](../onboarding-users/receivers.md).
+For more details on how to set up a receiver, see [onboarding receivers](../onboarding-users/receiver-onboarding/receivers.md).
 
 ## How it works
 

@@ -47,8 +47,7 @@ object UnitTestUtils {
         useTestProcessingMode: Boolean = false,
         convertTimestampToDateTime: String? = null,
         schemaName: String = "covid-19",
-    ): Hl7Configuration {
-        return Hl7Configuration(
+    ): Hl7Configuration = Hl7Configuration(
             messageProfileId = "",
             receivingApplicationOID = "",
             receivingApplicationName = "",
@@ -68,7 +67,6 @@ object UnitTestUtils {
             schemaName = schemaName,
             convertTimestampToDateTime = convertTimestampToDateTime
         )
-    }
 
     fun createCustomContext(
         bundle: Bundle = Bundle(),
@@ -77,8 +75,7 @@ object UnitTestUtils {
         customFhirFunctions: FhirPathFunctions? = null,
         config: ContextConfig? = null,
         translationFunctions: TranslationFunctions? = Hl7TranslationFunctions(),
-    ): CustomContext {
-        return CustomContext(
+    ): CustomContext = CustomContext(
             bundle,
             focusResource,
             constants,
@@ -86,5 +83,4 @@ object UnitTestUtils {
             config,
             translationFunctions
         )
-    }
 }
