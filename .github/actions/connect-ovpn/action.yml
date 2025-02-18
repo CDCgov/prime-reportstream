@@ -64,7 +64,7 @@ runs:
         PING_URL: ${{ inputs.PING_URL }}
       shell: bash
       run: |
-        sleep 5
+        sleep 10
         if ping -c 2 $PING_URL > /dev/null 2>&1; then
 
           # echo -e "\nPinging URL: ${{ inputs.PING_URL }}" ;
