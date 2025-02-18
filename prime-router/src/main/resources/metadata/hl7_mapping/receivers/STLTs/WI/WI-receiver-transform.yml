@@ -9,3 +9,11 @@ elements:
     condition: '%resource.code.exists()'
     value: [ '%resource.system.getCodingSystemMapping()' ]
     hl7Spec: [ '/PATIENT_RESULT/PATIENT/PID-10-3' ]
+
+  - name: observation-result-with-aoe
+    resource: "Bundle.entry.resource.ofType(Observation).where(code.coding.extension('https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code').value.where(code in ('AOE')).exists().not())"
+
+  - name: wi-patient-county-codes
+    condition: 'Bundle.entry.resource.ofType(Patient).address.district.empty().not() and Bundle.entry.resource.ofType(Patient).address.state.empty().not()'
+    hl7Spec: [ '/PATIENT_RESULT/PATIENT/PID-11-9' ]
+    value: ["FIPSCountyLookup(Bundle.entry.resource.ofType(Patient).address.district,Bundle.entry.resource.ofType(Patient).address.state)[0]"]

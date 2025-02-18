@@ -13,7 +13,7 @@
     topic: "full-elr"
     customerStatus: "testing"
     translation:
-      schemaName: "azure:/metadata/hl7_mapping/receivers/STLTs/WI/WI-receiver-transform.yml"
+      schemaName: "classpath:/metadata/hl7_mapping/receivers/STLTs/WI/WI-receiver-transform.yml"
       useTestProcessingMode: false
       useBatchHeaders: true
       receivingApplicationName: null
@@ -57,7 +57,7 @@
         truncateHl7Fields: []
         customLengthHl7Fields: {}
     jurisdictionalFilter:
-      - "(Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state = 'WI') or (Bundle.entry.resource.ofType(Patient).address.state = 'WI')"
+      - "true"
     qualityFilter:
       # Message id is not empty (MSH-10)
       - "Bundle.identifier.value.exists()"
@@ -96,6 +96,11 @@
       credentialName: null
       type: "SFTP"
     externalName: null
-    enrichmentSchemaNames: [ ]
+    enrichmentSchemaNames:
+        - "classpath:/metadata/fhir_transforms/common/observation-end-datetime.yml"
+        - "classpath:/metadata/fhir_transforms/common/livd-lookup.yml"
+        - "classpath:/metadata/fhir_transforms/common/use-pid-14-for-email.yml"
+        - "classpath:/metadata/fhir_transforms/common/suppress-xtn-12.yml"
+        - "classpath:/metadata/fhir_transforms/common/suppress-device-information.yml"
     timeZone: null
     dateTimeFormat: "OFFSET"

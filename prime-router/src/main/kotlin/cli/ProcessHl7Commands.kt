@@ -85,8 +85,9 @@ class ProcessHl7Commands :
         }
 
         val outputLineCount = reorderedFile.split("\r").count()
-
-        if (outputLineCount == originalLineCount) {
+        if (outputLineCount != originalLineCount) {
+            echo("Something went wrong when ordering. Ordering kept the same.")
+        } else {
             comparisonFile = reorderedFile
         }
 
