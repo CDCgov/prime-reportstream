@@ -8,7 +8,6 @@ import gov.cdc.prime.router.ActionLogDetail
 import gov.cdc.prime.router.ActionLogScope
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.ErrorCode
-import gov.cdc.prime.router.FHIRExpressionFilter
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.Options
@@ -118,38 +117,16 @@ class FHIRReceiverFilter(
         override val errorCode: ErrorCode = ErrorCode.UNKNOWN
     }
 
-    interface FilterDetailsInterface {
-        fun filterType(): String
-        fun filters(): List<String>
-        fun enumFilterType(): ReportStreamFilterType
-    }
-
-    data class FilterDetails(val filters: List<String>, val filterType: ReportStreamFilterType) :
-        FilterDetailsInterface {
-        override fun filterType() = filterType.name
-
-        override fun filters() = filters
-
-        override fun enumFilterType() = filterType
-    }
-
-    data class ReceiverFilterDetails(val filters: List<String>, val filterName: String, val filterDescription: String) :
-        FilterDetailsInterface {
-        override fun filterType() = filterName
-
-        override fun filters() = filters
-
-        override fun enumFilterType() = ReportStreamFilterType.ROUTING_FILTER
-    }
+    data class FilterDetails(val filters: List<String>, val filterType: String)
 
     sealed class ReceiverFilterEvaluationResult {
         data class Success(val bundle: Bundle) : ReceiverFilterEvaluationResult()
-        data class Failure(val failingFilter: FilterDetailsInterface) : ReceiverFilterEvaluationResult()
+        data class Failure(val failingFilter: FilterDetails) : ReceiverFilterEvaluationResult()
     }
 
     sealed class FhirExpressionEvaluationResult {
         data object Success : FhirExpressionEvaluationResult()
-        data class Failure(val failingFilter: FilterDetailsInterface) : FhirExpressionEvaluationResult()
+        data class Failure(val failingFilter: FilterDetails) : FhirExpressionEvaluationResult()
     }
 
     /**
@@ -166,11 +143,14 @@ class FHIRReceiverFilter(
         val trackingId = bundle.identifier.value
 
         // filter groups for looped evaluation
-        val fhirFilters = listOf(
-            Pair(receiver.qualityFilter, ReportStreamFilterType.QUALITY_FILTER),
-            Pair(receiver.routingFilter, ReportStreamFilterType.ROUTING_FILTER),
-            Pair(receiver.processingModeFilter, ReportStreamFilterType.PROCESSING_MODE_FILTER),
+        val fhirFilters = mutableListOf(
+            Pair(receiver.qualityFilter, ReportStreamFilterType.QUALITY_FILTER.name),
+            Pair(receiver.routingFilter, ReportStreamFilterType.ROUTING_FILTER.name),
+            Pair(receiver.processingModeFilter, ReportStreamFilterType.PROCESSING_MODE_FILTER.name),
         )
+        receiver.routingFilters.forEach {
+            fhirFilters.add(Pair(it.filterExpressions, it.filterName))
+        }
 
         // evaluate all filter groups
         fhirFilters.forEach {
@@ -187,63 +167,7 @@ class FHIRReceiverFilter(
             }
         }
 
-        receiver.routingFilters.forEach {
-            val result = evaluateFhirRoutingFilters(
-                receiver,
-                bundle,
-                actionLogger,
-                trackingId,
-                it
-            )
-            if (result is FhirExpressionEvaluationResult.Failure) {
-                return ReceiverFilterEvaluationResult.Failure(result.failingFilter)
-            }
-        }
-
         return evaluateObservationConditionFilters(receiver, bundle, actionLogger, trackingId)
-    }
-
-    private fun evaluateFhirRoutingFilters(
-        receiver: Receiver,
-        bundle: Bundle,
-        actionLogger: ActionLogger,
-        trackingId: String,
-        fhirExpressionFilter: FHIRExpressionFilter,
-        ): FhirExpressionEvaluationResult {
-        val filtersEvaluated = fhirExpressionFilter.filterExpressions.map { filter ->
-            Pair(
-                FhirPathUtils.evaluateCondition(
-                    CustomContext(bundle, bundle, shorthandLookupTable, CustomFhirPathFunctions()),
-                    bundle,
-                    bundle,
-                    bundle,
-                    filter
-                ),
-                filter
-            )
-        }
-        if (!filtersEvaluated.all { (passes, _) -> passes }) {
-            val failingFilters = filtersEvaluated.filter { (passes, _) -> !passes }.map { (_, filter) ->
-                actionLogger.getItemLogger(1, trackingId).warn(
-                    ReceiverItemFilteredActionLogDetail(
-                        filter,
-                        fhirExpressionFilter.filterName,
-                        receiver.organizationName,
-                        receiver.name,
-                        1
-                    )
-                )
-                filter
-            }
-            return FhirExpressionEvaluationResult.Failure(
-                ReceiverFilterDetails(
-                    failingFilters,
-                    fhirExpressionFilter.filterName,
-                    fhirExpressionFilter.filterDescription
-                )
-            )
-        }
-        return FhirExpressionEvaluationResult.Success
     }
 
     class MisconfiguredReceiverConditionFilters(val receiver: Receiver) : RuntimeException() {
@@ -303,7 +227,7 @@ class FHIRReceiverFilter(
                     )
                 )
                 ReceiverFilterEvaluationResult.Failure(
-                    FilterDetails(conditionFilters, ReportStreamFilterType.CONDITION_FILTER)
+                    FilterDetails(conditionFilters, ReportStreamFilterType.CONDITION_FILTER.name)
                 )
             } else {
                 filteredObservations.forEach { observation ->
@@ -335,7 +259,7 @@ class FHIRReceiverFilter(
                 ReceiverFilterEvaluationResult.Failure(
                     FilterDetails(
                         mappedConditionFilters.map { it.value },
-                        ReportStreamFilterType.MAPPED_CONDITION_FILTER
+                        ReportStreamFilterType.MAPPED_CONDITION_FILTER.name
                     )
                 )
             } else {
@@ -367,7 +291,7 @@ class FHIRReceiverFilter(
         actionLogger: ActionLogger,
         trackingId: String,
         filters: List<String>,
-        filterType: ReportStreamFilterType,
+        filterType: String,
     ): FhirExpressionEvaluationResult {
         val filtersEvaluated = filters.map { filter ->
             Pair(
@@ -386,7 +310,7 @@ class FHIRReceiverFilter(
                 actionLogger.getItemLogger(1, trackingId).warn(
                     ReceiverItemFilteredActionLogDetail(
                         filter,
-                        filterType.name,
+                        filterType,
                         receiver.organizationName,
                         receiver.name,
                         1
@@ -526,10 +450,10 @@ class FHIRReceiverFilter(
                         ReportStreamFilterResult(
                             receiver.fullName,
                             db.fetchReportFile(queueMessage.reportId).itemCount,
-                            filterResult.failingFilter.filters().joinToString("\n"),
+                            filterResult.failingFilter.filters.joinToString("\n"),
                             emptyList(),
                             AzureEventUtils.getIdentifier(bundle).value ?: "",
-                            filterResult.failingFilter.enumFilterType(),
+                            filterResult.failingFilter.filterType,
                             scope = ActionLogScope.report
                         )
                     )
@@ -556,8 +480,8 @@ class FHIRReceiverFilter(
                         trackingId(bundle)
                         params(
                             mapOf(
-                                ReportStreamEventProperties.FAILING_FILTERS to filterResult.failingFilter.filters(),
-                                ReportStreamEventProperties.FILTER_TYPE to filterResult.failingFilter.filterType(),
+                                ReportStreamEventProperties.FAILING_FILTERS to filterResult.failingFilter.filters,
+                                ReportStreamEventProperties.FILTER_TYPE to filterResult.failingFilter.filterType,
                                 ReportStreamEventProperties.RECEIVER_NAME to receiver.fullName,
                                 ReportStreamEventProperties.BUNDLE_DIGEST
                                     to bundleDigestExtractor.generateDigest(bundle)

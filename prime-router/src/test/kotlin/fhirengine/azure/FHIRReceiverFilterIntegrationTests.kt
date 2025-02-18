@@ -866,7 +866,7 @@ class FHIRReceiverFilterIntegrationTests : Logging {
                 assertThat(this.detail).isInstanceOf<ReportStreamFilterResult>()
                     .matchesPredicate {
                         it.filterName == fullElrQualityFilterSample.joinToString("\n") &&
-                        it.filterType == ReportStreamFilterType.QUALITY_FILTER &&
+                        it.filterType == ReportStreamFilterType.QUALITY_FILTER.name &&
                         it.receiverName == receiver.fullName
                     }
             }
@@ -1149,7 +1149,7 @@ class FHIRReceiverFilterIntegrationTests : Logging {
                 assertThat(this.detail).isInstanceOf<ReportStreamFilterResult>()
                     .matchesPredicate {
                         it.filterName == processingModeFilterDebugging.single() &&
-                        it.filterType == ReportStreamFilterType.PROCESSING_MODE_FILTER &&
+                        it.filterType == ReportStreamFilterType.PROCESSING_MODE_FILTER.name &&
                         it.receiverName == receiver.fullName
                     }
             }
