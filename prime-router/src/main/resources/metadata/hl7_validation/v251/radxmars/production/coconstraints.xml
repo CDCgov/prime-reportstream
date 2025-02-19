@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<CoConstraintContext ID="2c4bdb01-7906-4e47-928f-7825de3d780c17194047231541719404725408">
-   <ByMessage ID="6494460e8b87bc0007492d42">
+<CoConstraintContext xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                     ID="54456e9f-6388-47f4-9d77-3bff49df96321737752389150"
+                     xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/usnistgov/hl7-v2-schemas/1.7.0/src/main/resources/hl7-v2-schemas/CoConstraintContext.xsd">
+   <ByMessage ID="6765ce808b87bc0007c065f6">
       <Context Name="ORU_R01" Path="."/>
       <Context Name="PATIENT_RESULT.ORDER_OBSERVATION.OBSERVATION" Path="3[*].2[*].6[*]"/>
    </ByMessage>

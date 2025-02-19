@@ -1,2 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<ProfileSlicing ID="5ed96fe3-6961-484a-a4af-80bfe17f597e17194047231551719404725410"/>
+<ProfileSlicing xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                ID="4f23d28a-4929-4d5d-88c2-bb9d087331b61737752389151"
+                xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/usnistgov/hl7-v2-schemas/1.7.0/src/main/resources/hl7-v2-schemas/ProfileSlicing.xsd"/>

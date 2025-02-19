@@ -1,42 +1,76 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<ValueSetBindingsContext ID="57c4fa24-071c-488d-9d9b-69ff2128208817194047231561719404725413">
+<ValueSetBindingsContext xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                         ID="c8780f4f-da4f-4fbf-a53f-ae7a7d4343aa1737752389153"
+                         xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/usnistgov/hl7-v2-schemas/1.7.0/src/main/resources/hl7-v2-schemas/ValueSetBindings.xsd">
    <ValueSetBindings>
       <Datatype>
-         <ByID ID="HD_MSH">
+         <ByID ID="XAD">
+            <ValueSetBinding BindingStrength="R" Target="7[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70190"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="R" Target="6[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70399"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="S" Target="9[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70289"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="R" Target="11[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70465"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="S" Target="10[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70288"/>
+               </Bindings>
+            </ValueSetBinding>
+         </ByID>
+         <ByID ID="XTN_ORC-23">
+            <ValueSetBinding BindingStrength="R" Target="2[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70201"/>
+               </Bindings>
+            </ValueSetBinding>
             <ValueSetBinding BindingStrength="R" Target="3[*]">
                <BindingLocations>
                   <SimpleBindingLocation CodeLocation="."/>
                </BindingLocations>
                <Bindings>
-                  <Binding BindingIdentifier="HL70301NIH"/>
+                  <Binding BindingIdentifier="HL70202"/>
                </Bindings>
             </ValueSetBinding>
          </ByID>
-         <ByID ID="EI_NIH2">
+         <ByID ID="EI_MSH-21">
             <ValueSetBinding BindingStrength="R" Target="4[*]">
                <BindingLocations>
                   <SimpleBindingLocation CodeLocation="."/>
                </BindingLocations>
                <Bindings>
                   <Binding BindingIdentifier="HL70301NIH"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="S" Target="2[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70363"/>
-               </Bindings>
-            </ValueSetBinding>
-         </ByID>
-         <ByID ID="EI">
-            <ValueSetBinding BindingStrength="R" Target="4[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70301"/>
                </Bindings>
             </ValueSetBinding>
             <ValueSetBinding BindingStrength="S" Target="2[*]">
@@ -63,388 +97,6 @@
                </BindingLocations>
                <Bindings>
                   <Binding BindingIdentifier="HL70327"/>
-               </Bindings>
-            </ValueSetBinding>
-         </ByID>
-         <ByID ID="HD_NIH2">
-            <ValueSetBinding BindingStrength="R" Target="3[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70301NIH"/>
-               </Bindings>
-            </ValueSetBinding>
-         </ByID>
-         <ByID ID="CE">
-            <ValueSetBinding BindingStrength="R" Target="6[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70396"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="R" Target="3[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70396"/>
-               </Bindings>
-            </ValueSetBinding>
-         </ByID>
-         <ByID ID="XCN_NIH">
-            <ValueSetBinding BindingStrength="S" Target="8[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70297"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="R" Target="12[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70061"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="R" Target="18[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70444"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="R" Target="13[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70203"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="S" Target="7[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70360"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="R" Target="15[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70465"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="S" Target="16[*]">
-               <BindingLocations>
-                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70448"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="R" Target="10[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70200"/>
-               </Bindings>
-            </ValueSetBinding>
-         </ByID>
-         <ByID ID="DLD">
-            <ValueSetBinding BindingStrength="S" Target="1[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70113"/>
-               </Bindings>
-            </ValueSetBinding>
-         </ByID>
-         <ByID ID="OSD">
-            <ValueSetBinding BindingStrength="S" Target="3[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70363"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="R" Target="9[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70301"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="S" Target="5[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70363"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="R" Target="11[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70301"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="R" Target="1[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70524"/>
-               </Bindings>
-            </ValueSetBinding>
-         </ByID>
-         <ByID ID="XPN_NIH">
-            <ValueSetBinding BindingStrength="R" Target="7[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70200"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="R" Target="11[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70444"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="S" Target="6[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70360"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="S" Target="9[*]">
-               <BindingLocations>
-                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70448"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="R" Target="8[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70465"/>
-               </Bindings>
-            </ValueSetBinding>
-         </ByID>
-         <ByID ID="HD">
-            <ValueSetBinding BindingStrength="R" Target="3[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70301"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="S" Target="1[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70300"/>
-               </Bindings>
-            </ValueSetBinding>
-         </ByID>
-         <ByID ID="XTN_ORC-23">
-            <ValueSetBinding BindingStrength="R" Target="2[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70201"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="R" Target="3[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70202"/>
-               </Bindings>
-            </ValueSetBinding>
-         </ByID>
-         <ByID ID="XAD_OBX-24">
-            <ValueSetBinding BindingStrength="R" Target="7[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70190"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="R" Target="11[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70465"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="S" Target="10[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70288"/>
-               </Bindings>
-            </ValueSetBinding>
-         </ByID>
-         <ByID ID="XAD_NIH2">
-            <ValueSetBinding BindingStrength="R" Target="7[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70190"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="R" Target="11[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70465"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="S" Target="10[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70288"/>
-               </Bindings>
-            </ValueSetBinding>
-         </ByID>
-         <ByID ID="VID_NIH">
-            <ValueSetBinding BindingStrength="R" Target="1[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70104"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="R" Target="2[*]">
-               <BindingLocations>
-                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70399"/>
-               </Bindings>
-            </ValueSetBinding>
-         </ByID>
-         <ByID ID="XPN">
-            <ValueSetBinding BindingStrength="R" Target="7[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70200"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="R" Target="11[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70444"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="S" Target="6[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70360"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="S" Target="9[*]">
-               <BindingLocations>
-                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70448"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="R" Target="8[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70465"/>
-               </Bindings>
-            </ValueSetBinding>
-         </ByID>
-         <ByID ID="EI_NIH3">
-            <ValueSetBinding BindingStrength="R" Target="4[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70301NIH"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="S" Target="2[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70363"/>
-               </Bindings>
-            </ValueSetBinding>
-         </ByID>
-         <ByID ID="XTN_NIH2">
-            <ValueSetBinding BindingStrength="R" Target="2[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70201"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="R" Target="3[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70202"/>
-               </Bindings>
-            </ValueSetBinding>
-         </ByID>
-         <ByID ID="CX_NIH2">
-            <ValueSetBinding BindingStrength="R" Target="3[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70061"/>
                </Bindings>
             </ValueSetBinding>
          </ByID>
@@ -490,21 +142,155 @@
                </Bindings>
             </ValueSetBinding>
          </ByID>
-         <ByID ID="CP">
+         <ByID ID="CWE_NIH2">
             <ValueSetBinding BindingStrength="R" Target="6[*]">
                <BindingLocations>
                   <SimpleBindingLocation CodeLocation="."/>
                </BindingLocations>
                <Bindings>
-                  <Binding BindingIdentifier="HL70298"/>
+                  <Binding BindingIdentifier="HL70396"/>
                </Bindings>
             </ValueSetBinding>
-            <ValueSetBinding BindingStrength="R" Target="2[*]">
+            <ValueSetBinding BindingStrength="R" Target="3[*]">
                <BindingLocations>
                   <SimpleBindingLocation CodeLocation="."/>
                </BindingLocations>
                <Bindings>
-                  <Binding BindingIdentifier="HL70205"/>
+                  <Binding BindingIdentifier="HL70396"/>
+               </Bindings>
+            </ValueSetBinding>
+         </ByID>
+         <ByID ID="CNE">
+            <ValueSetBinding BindingStrength="R" Target="3[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70396"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="R" Target="6[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70396"/>
+               </Bindings>
+            </ValueSetBinding>
+         </ByID>
+         <ByID ID="RP">
+            <ValueSetBinding BindingStrength="R" Target="3[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70191"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="R" Target="4[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70291"/>
+               </Bindings>
+            </ValueSetBinding>
+         </ByID>
+         <ByID ID="CNN">
+            <ValueSetBinding BindingStrength="S" Target="7[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70360"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="S" Target="9[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70363"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="R" Target="11[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70301"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="S" Target="8[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70297"/>
+               </Bindings>
+            </ValueSetBinding>
+         </ByID>
+         <ByID ID="CF">
+            <ValueSetBinding BindingStrength="R" Target="6[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70396"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="R" Target="3[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70396"/>
+               </Bindings>
+            </ValueSetBinding>
+         </ByID>
+         <ByID ID="CWE_NIH3">
+            <ValueSetBinding BindingStrength="R" Target="6[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70396"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="R" Target="3[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70396"/>
+               </Bindings>
+            </ValueSetBinding>
+         </ByID>
+         <ByID ID="AD">
+            <ValueSetBinding BindingStrength="R" Target="6[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70399"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="R" Target="7[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70190"/>
+               </Bindings>
+            </ValueSetBinding>
+         </ByID>
+         <ByID ID="HD_NIH2">
+            <ValueSetBinding BindingStrength="R" Target="3[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70301NIH"/>
                </Bindings>
             </ValueSetBinding>
          </ByID>
@@ -531,6 +317,106 @@
                </BindingLocations>
                <Bindings>
                   <Binding BindingIdentifier="HL70288"/>
+               </Bindings>
+            </ValueSetBinding>
+         </ByID>
+         <ByID ID="VID_NIH">
+            <ValueSetBinding BindingStrength="R" Target="1[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70104"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="R" Target="2[*]">
+               <BindingLocations>
+                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70399"/>
+               </Bindings>
+            </ValueSetBinding>
+         </ByID>
+         <ByID ID="EI">
+            <ValueSetBinding BindingStrength="R" Target="4[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70301"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="S" Target="2[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70363"/>
+               </Bindings>
+            </ValueSetBinding>
+         </ByID>
+         <ByID ID="DLD">
+            <ValueSetBinding BindingStrength="S" Target="1[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70113"/>
+               </Bindings>
+            </ValueSetBinding>
+         </ByID>
+         <ByID ID="HD_NIH">
+            <ValueSetBinding BindingStrength="R" Target="3[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70301NIH"/>
+               </Bindings>
+            </ValueSetBinding>
+         </ByID>
+         <ByID ID="HD">
+            <ValueSetBinding BindingStrength="R" Target="3[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70301"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="S" Target="1[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70300"/>
+               </Bindings>
+            </ValueSetBinding>
+         </ByID>
+         <ByID ID="CX">
+            <ValueSetBinding BindingStrength="S" Target="4[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="1[1]"/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70363"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="R" Target="3[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70061"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="R" Target="5[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70203"/>
                </Bindings>
             </ValueSetBinding>
          </ByID>
@@ -568,91 +454,13 @@
                </Bindings>
             </ValueSetBinding>
          </ByID>
-         <ByID ID="CWE_NIH4">
-            <ValueSetBinding BindingStrength="R" Target="6[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70396"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="R" Target="3[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70396"/>
-               </Bindings>
-            </ValueSetBinding>
-         </ByID>
-         <ByID ID="RPT">
-            <ValueSetBinding BindingStrength="S" Target="1[*]">
-               <BindingLocations>
-                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70335"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="R" Target="2[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70527"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="R" Target="7[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70136"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="R" Target="8[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70528"/>
-               </Bindings>
-            </ValueSetBinding>
-         </ByID>
-         <ByID ID="RI">
-            <ValueSetBinding BindingStrength="S" Target="1[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70335"/>
-               </Bindings>
-            </ValueSetBinding>
-         </ByID>
-         <ByID ID="XAD">
+         <ByID ID="XAD_OBX-24">
             <ValueSetBinding BindingStrength="R" Target="7[*]">
                <BindingLocations>
                   <SimpleBindingLocation CodeLocation="."/>
                </BindingLocations>
                <Bindings>
                   <Binding BindingIdentifier="HL70190"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="R" Target="6[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70399"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="S" Target="9[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70289"/>
                </Bindings>
             </ValueSetBinding>
             <ValueSetBinding BindingStrength="R" Target="11[*]">
@@ -669,6 +477,246 @@
                </BindingLocations>
                <Bindings>
                   <Binding BindingIdentifier="HL70288"/>
+               </Bindings>
+            </ValueSetBinding>
+         </ByID>
+         <ByID ID="XPN_NIH">
+            <ValueSetBinding BindingStrength="R" Target="7[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70200"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="R" Target="11[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70444"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="S" Target="6[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70360"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="S" Target="9[*]">
+               <BindingLocations>
+                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70448"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="R" Target="8[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70465"/>
+               </Bindings>
+            </ValueSetBinding>
+         </ByID>
+         <ByID ID="FC">
+            <ValueSetBinding BindingStrength="S" Target="1[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70064"/>
+               </Bindings>
+            </ValueSetBinding>
+         </ByID>
+         <ByID ID="PL">
+            <ValueSetBinding BindingStrength="S" Target="1[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70302"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="S" Target="5[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70306"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="S" Target="7[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70307"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="S" Target="6[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70305"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="S" Target="2[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70303"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="S" Target="8[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70308"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="S" Target="3[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70304"/>
+               </Bindings>
+            </ValueSetBinding>
+         </ByID>
+         <ByID ID="XON_SFT">
+            <ValueSetBinding BindingStrength="S" Target="6[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="1[1]"/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70363"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="R" Target="7[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70203"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="R" Target="5[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70061"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="R" Target="9[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70465"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="S" Target="2[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70204"/>
+               </Bindings>
+            </ValueSetBinding>
+         </ByID>
+         <ByID ID="XTN">
+            <ValueSetBinding BindingStrength="R" Target="2[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70201"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="R" Target="3[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70202"/>
+               </Bindings>
+            </ValueSetBinding>
+         </ByID>
+         <ByID ID="XON_ORC-21">
+            <ValueSetBinding BindingStrength="S" Target="6[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="1[1]"/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70363"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="R" Target="7[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70203"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="R" Target="5[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70061"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="R" Target="9[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70465"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="S" Target="2[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70204"/>
+               </Bindings>
+            </ValueSetBinding>
+         </ByID>
+         <ByID ID="XTN_NIH2">
+            <ValueSetBinding BindingStrength="R" Target="2[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70201"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="R" Target="3[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70202"/>
+               </Bindings>
+            </ValueSetBinding>
+         </ByID>
+         <ByID ID="TS">
+            <ValueSetBinding BindingStrength="R" Target="2[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70529"/>
                </Bindings>
             </ValueSetBinding>
          </ByID>
@@ -690,69 +738,17 @@
                </Bindings>
             </ValueSetBinding>
          </ByID>
-         <ByID ID="XTN_NIH">
-            <ValueSetBinding BindingStrength="R" Target="2[*]">
+         <ByID ID="RI">
+            <ValueSetBinding BindingStrength="S" Target="1[*]">
                <BindingLocations>
                   <SimpleBindingLocation CodeLocation="."/>
                </BindingLocations>
                <Bindings>
-                  <Binding BindingIdentifier="HL70201"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="R" Target="3[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70202"/>
+                  <Binding BindingIdentifier="HL70335"/>
                </Bindings>
             </ValueSetBinding>
          </ByID>
-         <ByID ID="MSG_NIH">
-            <ValueSetBinding BindingStrength="R" Target="2[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70003"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="R" Target="3[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70354"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="R" Target="1[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70076"/>
-               </Bindings>
-            </ValueSetBinding>
-         </ByID>
-         <ByID ID="CNE">
-            <ValueSetBinding BindingStrength="R" Target="3[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70396"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="R" Target="6[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70396"/>
-               </Bindings>
-            </ValueSetBinding>
-         </ByID>
-         <ByID ID="CWE_NIH3">
+         <ByID ID="CWE_OBX-17">
             <ValueSetBinding BindingStrength="R" Target="6[*]">
                <BindingLocations>
                   <SimpleBindingLocation CodeLocation="."/>
@@ -836,29 +832,57 @@
                </Bindings>
             </ValueSetBinding>
          </ByID>
-         <ByID ID="PL">
-            <ValueSetBinding BindingStrength="S" Target="1[*]">
+         <ByID ID="TQ">
+            <ValueSetBinding BindingStrength="R" Target="9[*]">
                <BindingLocations>
                   <SimpleBindingLocation CodeLocation="."/>
                </BindingLocations>
                <Bindings>
-                  <Binding BindingIdentifier="HL70302"/>
+                  <Binding BindingIdentifier="HL70472"/>
                </Bindings>
             </ValueSetBinding>
-            <ValueSetBinding BindingStrength="S" Target="5[*]">
+         </ByID>
+         <ByID ID="ED">
+            <ValueSetBinding BindingStrength="R" Target="2[*]">
                <BindingLocations>
                   <SimpleBindingLocation CodeLocation="."/>
                </BindingLocations>
                <Bindings>
-                  <Binding BindingIdentifier="HL70306"/>
+                  <Binding BindingIdentifier="HL70191"/>
                </Bindings>
             </ValueSetBinding>
-            <ValueSetBinding BindingStrength="S" Target="7[*]">
+            <ValueSetBinding BindingStrength="R" Target="4[*]">
                <BindingLocations>
                   <SimpleBindingLocation CodeLocation="."/>
                </BindingLocations>
                <Bindings>
-                  <Binding BindingIdentifier="HL70307"/>
+                  <Binding BindingIdentifier="HL70299"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="R" Target="3[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70291"/>
+               </Bindings>
+            </ValueSetBinding>
+         </ByID>
+         <ByID ID="XPN">
+            <ValueSetBinding BindingStrength="R" Target="7[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70200"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="R" Target="11[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70444"/>
                </Bindings>
             </ValueSetBinding>
             <ValueSetBinding BindingStrength="S" Target="6[*]">
@@ -866,7 +890,57 @@
                   <SimpleBindingLocation CodeLocation="."/>
                </BindingLocations>
                <Bindings>
-                  <Binding BindingIdentifier="HL70305"/>
+                  <Binding BindingIdentifier="HL70360"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="S" Target="9[*]">
+               <BindingLocations>
+                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70448"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="R" Target="8[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70465"/>
+               </Bindings>
+            </ValueSetBinding>
+         </ByID>
+         <ByID ID="XON_OBX-23">
+            <ValueSetBinding BindingStrength="S" Target="6[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="1[1]"/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70363"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="R" Target="7[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70203"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="R" Target="5[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70061"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="R" Target="9[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70465"/>
                </Bindings>
             </ValueSetBinding>
             <ValueSetBinding BindingStrength="S" Target="2[*]">
@@ -874,23 +948,223 @@
                   <SimpleBindingLocation CodeLocation="."/>
                </BindingLocations>
                <Bindings>
-                  <Binding BindingIdentifier="HL70303"/>
+                  <Binding BindingIdentifier="HL70204"/>
                </Bindings>
             </ValueSetBinding>
+         </ByID>
+         <ByID ID="XTN_NIH">
+            <ValueSetBinding BindingStrength="R" Target="2[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70201"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="R" Target="3[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70202"/>
+               </Bindings>
+            </ValueSetBinding>
+         </ByID>
+         <ByID ID="EI_NIH3">
+            <ValueSetBinding BindingStrength="R" Target="4[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70301NIH"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="S" Target="2[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70363"/>
+               </Bindings>
+            </ValueSetBinding>
+         </ByID>
+         <ByID ID="CX_NIH2">
+            <ValueSetBinding BindingStrength="R" Target="3[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70061"/>
+               </Bindings>
+            </ValueSetBinding>
+         </ByID>
+         <ByID ID="XCN_NIH">
             <ValueSetBinding BindingStrength="S" Target="8[*]">
                <BindingLocations>
                   <SimpleBindingLocation CodeLocation="."/>
                </BindingLocations>
                <Bindings>
-                  <Binding BindingIdentifier="HL70308"/>
+                  <Binding BindingIdentifier="HL70297"/>
                </Bindings>
             </ValueSetBinding>
-            <ValueSetBinding BindingStrength="S" Target="3[*]">
+            <ValueSetBinding BindingStrength="R" Target="12[*]">
                <BindingLocations>
                   <SimpleBindingLocation CodeLocation="."/>
                </BindingLocations>
                <Bindings>
-                  <Binding BindingIdentifier="HL70304"/>
+                  <Binding BindingIdentifier="HL70061"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="R" Target="18[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70444"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="R" Target="13[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70203"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="S" Target="7[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70360"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="R" Target="15[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70465"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="S" Target="16[*]">
+               <BindingLocations>
+                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70448"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="R" Target="10[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70200"/>
+               </Bindings>
+            </ValueSetBinding>
+         </ByID>
+         <ByID ID="EI_NIH">
+            <ValueSetBinding BindingStrength="R" Target="4[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70301NIH"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="S" Target="2[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70363"/>
+               </Bindings>
+            </ValueSetBinding>
+         </ByID>
+         <ByID ID="MSG_NIH">
+            <ValueSetBinding BindingStrength="R" Target="2[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70003"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="R" Target="3[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70354"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="R" Target="1[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70076"/>
+               </Bindings>
+            </ValueSetBinding>
+         </ByID>
+         <ByID ID="XAD_NIH2">
+            <ValueSetBinding BindingStrength="R" Target="7[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70190"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="R" Target="11[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70465"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="S" Target="10[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70288"/>
+               </Bindings>
+            </ValueSetBinding>
+         </ByID>
+         <ByID ID="RPT">
+            <ValueSetBinding BindingStrength="S" Target="1[*]">
+               <BindingLocations>
+                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70335"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="R" Target="2[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70527"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="R" Target="7[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70136"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="R" Target="8[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70528"/>
                </Bindings>
             </ValueSetBinding>
          </ByID>
@@ -968,6 +1242,230 @@
                </Bindings>
             </ValueSetBinding>
          </ByID>
+         <ByID ID="PLN">
+            <ValueSetBinding BindingStrength="S" Target="2[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70338"/>
+               </Bindings>
+            </ValueSetBinding>
+         </ByID>
+         <ByID ID="CP">
+            <ValueSetBinding BindingStrength="R" Target="6[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70298"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="R" Target="2[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70205"/>
+               </Bindings>
+            </ValueSetBinding>
+         </ByID>
+         <ByID ID="CE">
+            <ValueSetBinding BindingStrength="R" Target="6[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70396"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="R" Target="3[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70396"/>
+               </Bindings>
+            </ValueSetBinding>
+         </ByID>
+         <ByID ID="XAD_ORC-24">
+            <ValueSetBinding BindingStrength="R" Target="7[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70190"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="R" Target="11[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70465"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="S" Target="10[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70288"/>
+               </Bindings>
+            </ValueSetBinding>
+         </ByID>
+         <ByID ID="PT_NIH">
+            <ValueSetBinding BindingStrength="R" Target="1[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70103"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="R" Target="2[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70207"/>
+               </Bindings>
+            </ValueSetBinding>
+         </ByID>
+         <ByID ID="CWE_NIH4">
+            <ValueSetBinding BindingStrength="R" Target="6[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70396"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="R" Target="3[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70396"/>
+               </Bindings>
+            </ValueSetBinding>
+         </ByID>
+         <ByID ID="CWE_OBX-15">
+            <ValueSetBinding BindingStrength="R" Target="6[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70396"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="R" Target="3[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70396"/>
+               </Bindings>
+            </ValueSetBinding>
+         </ByID>
+         <ByID ID="OSD">
+            <ValueSetBinding BindingStrength="S" Target="3[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70363"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="R" Target="9[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70301"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="S" Target="5[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70363"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="R" Target="11[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70301"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="R" Target="1[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70524"/>
+               </Bindings>
+            </ValueSetBinding>
+         </ByID>
+         <ByID ID="CWE_NIH">
+            <ValueSetBinding BindingStrength="R" Target="6[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70396"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="R" Target="3[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70396"/>
+               </Bindings>
+            </ValueSetBinding>
+         </ByID>
+         <ByID ID="EI_NIH2">
+            <ValueSetBinding BindingStrength="R" Target="4[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70301NIH"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="S" Target="2[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70363"/>
+               </Bindings>
+            </ValueSetBinding>
+         </ByID>
+         <ByID ID="HD_MSH">
+            <ValueSetBinding BindingStrength="R" Target="3[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70301NIH"/>
+               </Bindings>
+            </ValueSetBinding>
+         </ByID>
+         <ByID ID="DLN">
+            <ValueSetBinding BindingStrength="S" Target="2[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70333"/>
+               </Bindings>
+            </ValueSetBinding>
+         </ByID>
          <ByID ID="NDL">
             <ValueSetBinding BindingStrength="S" Target="5[*]">
                <BindingLocations>
@@ -1026,209 +1524,15 @@
                </Bindings>
             </ValueSetBinding>
          </ByID>
-         <ByID ID="FC">
-            <ValueSetBinding BindingStrength="S" Target="1[*]">
+      </Datatype>
+      <Segment>
+         <ByID ID="NTE">
+            <ValueSetBinding BindingStrength="S" Target="4[*]">
                <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
+                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
                </BindingLocations>
                <Bindings>
-                  <Binding BindingIdentifier="HL70064"/>
-               </Bindings>
-            </ValueSetBinding>
-         </ByID>
-         <ByID ID="XON_SFT">
-            <ValueSetBinding BindingStrength="S" Target="6[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="1[1]"/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70363"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="R" Target="7[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70203"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="R" Target="5[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70061"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="R" Target="9[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70465"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="S" Target="2[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70204"/>
-               </Bindings>
-            </ValueSetBinding>
-         </ByID>
-         <ByID ID="TQ">
-            <ValueSetBinding BindingStrength="R" Target="9[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70472"/>
-               </Bindings>
-            </ValueSetBinding>
-         </ByID>
-         <ByID ID="XON_ORC-21">
-            <ValueSetBinding BindingStrength="S" Target="6[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="1[1]"/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70363"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="R" Target="7[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70203"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="R" Target="5[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70061"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="R" Target="9[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70465"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="S" Target="2[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70204"/>
-               </Bindings>
-            </ValueSetBinding>
-         </ByID>
-         <ByID ID="CWE_NIH">
-            <ValueSetBinding BindingStrength="R" Target="6[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70396"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="R" Target="3[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70396"/>
-               </Bindings>
-            </ValueSetBinding>
-         </ByID>
-         <ByID ID="DLN">
-            <ValueSetBinding BindingStrength="S" Target="2[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70333"/>
-               </Bindings>
-            </ValueSetBinding>
-         </ByID>
-         <ByID ID="CWE_OBX-15">
-            <ValueSetBinding BindingStrength="R" Target="6[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70396"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="R" Target="3[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70396"/>
-               </Bindings>
-            </ValueSetBinding>
-         </ByID>
-         <ByID ID="CWE_NIH2">
-            <ValueSetBinding BindingStrength="R" Target="6[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70396"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="R" Target="3[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70396"/>
-               </Bindings>
-            </ValueSetBinding>
-         </ByID>
-         <ByID ID="EI_NIH">
-            <ValueSetBinding BindingStrength="R" Target="4[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70301NIH"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="S" Target="2[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70363"/>
-               </Bindings>
-            </ValueSetBinding>
-         </ByID>
-         <ByID ID="TS">
-            <ValueSetBinding BindingStrength="R" Target="2[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70529"/>
-               </Bindings>
-            </ValueSetBinding>
-         </ByID>
-         <ByID ID="PT_NIH">
-            <ValueSetBinding BindingStrength="R" Target="1[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70103"/>
+                  <Binding BindingIdentifier="HL70364"/>
                </Bindings>
             </ValueSetBinding>
             <ValueSetBinding BindingStrength="R" Target="2[*]">
@@ -1236,77 +1540,149 @@
                   <SimpleBindingLocation CodeLocation="."/>
                </BindingLocations>
                <Bindings>
-                  <Binding BindingIdentifier="HL70207"/>
+                  <Binding BindingIdentifier="HL70105"/>
                </Bindings>
             </ValueSetBinding>
          </ByID>
-         <ByID ID="XTN">
-            <ValueSetBinding BindingStrength="R" Target="2[*]">
+         <ByID ID="SPM_NIH">
+            <ValueSetBinding BindingStrength="S" Target="9[*]">
+               <BindingLocations>
+                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70542"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="S" Target="24[*]">
+               <BindingLocations>
+                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70493"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="S" Target="11[*]">
+               <BindingLocations>
+                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70369"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="R" Target="21[*]">
+               <BindingLocations>
+                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70490"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="S" Target="23[*]">
+               <BindingLocations>
+                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70492"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="S" Target="5[*]">
+               <BindingLocations>
+                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70541"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="R" Target="20[*]">
                <BindingLocations>
                   <SimpleBindingLocation CodeLocation="."/>
                </BindingLocations>
                <Bindings>
-                  <Binding BindingIdentifier="HL70201"/>
+                  <Binding BindingIdentifier="HL70136"/>
                </Bindings>
             </ValueSetBinding>
-            <ValueSetBinding BindingStrength="R" Target="3[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70202"/>
-               </Bindings>
-            </ValueSetBinding>
-         </ByID>
-         <ByID ID="XAD_ORC-24">
             <ValueSetBinding BindingStrength="R" Target="7[*]">
                <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
+                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
                </BindingLocations>
                <Bindings>
-                  <Binding BindingIdentifier="HL70190"/>
+                  <Binding BindingIdentifier="HL70488"/>
                </Bindings>
             </ValueSetBinding>
-            <ValueSetBinding BindingStrength="R" Target="11[*]">
+            <ValueSetBinding BindingStrength="S" Target="28[*]">
                <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
+                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
                </BindingLocations>
                <Bindings>
-                  <Binding BindingIdentifier="HL70465"/>
+                  <Binding BindingIdentifier="HL70544"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="R" Target="29[*]">
+               <BindingLocations>
+                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70494"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="S" Target="15[*]">
+               <BindingLocations>
+                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70376"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="S" Target="16[*]">
+               <BindingLocations>
+                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70489"/>
                </Bindings>
             </ValueSetBinding>
             <ValueSetBinding BindingStrength="S" Target="10[*]">
                <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
+                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
                </BindingLocations>
                <Bindings>
-                  <Binding BindingIdentifier="HL70288"/>
+                  <Binding BindingIdentifier="HL70543"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="R" Target="6[*]">
+               <BindingLocations>
+                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70371"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="S" Target="22[*]">
+               <BindingLocations>
+                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70491"/>
                </Bindings>
             </ValueSetBinding>
          </ByID>
-         <ByID ID="XON_OBX-23">
-            <ValueSetBinding BindingStrength="S" Target="6[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="1[1]"/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70363"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="R" Target="7[*]">
+         <ByID ID="DSC">
+            <ValueSetBinding BindingStrength="R" Target="2[*]">
                <BindingLocations>
                   <SimpleBindingLocation CodeLocation="."/>
                </BindingLocations>
                <Bindings>
-                  <Binding BindingIdentifier="HL70203"/>
+                  <Binding BindingIdentifier="HL70398"/>
                </Bindings>
             </ValueSetBinding>
-            <ValueSetBinding BindingStrength="R" Target="5[*]">
+         </ByID>
+         <ByID ID="PD1">
+            <ValueSetBinding BindingStrength="S" Target="16[*]">
                <BindingLocations>
                   <SimpleBindingLocation CodeLocation="."/>
                </BindingLocations>
                <Bindings>
-                  <Binding BindingIdentifier="HL70061"/>
+                  <Binding BindingIdentifier="HL70441"/>
                </Bindings>
             </ValueSetBinding>
             <ValueSetBinding BindingStrength="R" Target="9[*]">
@@ -1314,85 +1690,31 @@
                   <SimpleBindingLocation CodeLocation="."/>
                </BindingLocations>
                <Bindings>
-                  <Binding BindingIdentifier="HL70465"/>
+                  <Binding BindingIdentifier="HL70136"/>
                </Bindings>
             </ValueSetBinding>
-            <ValueSetBinding BindingStrength="S" Target="2[*]">
+            <ValueSetBinding BindingStrength="S" Target="20[*]">
                <BindingLocations>
                   <SimpleBindingLocation CodeLocation="."/>
                </BindingLocations>
                <Bindings>
-                  <Binding BindingIdentifier="HL70204"/>
+                  <Binding BindingIdentifier="HL70141"/>
                </Bindings>
             </ValueSetBinding>
-         </ByID>
-         <ByID ID="CWE_OBX-17">
-            <ValueSetBinding BindingStrength="R" Target="6[*]">
+            <ValueSetBinding BindingStrength="S" Target="21[*]">
                <BindingLocations>
                   <SimpleBindingLocation CodeLocation="."/>
                </BindingLocations>
                <Bindings>
-                  <Binding BindingIdentifier="HL70396"/>
+                  <Binding BindingIdentifier="HL70142"/>
                </Bindings>
             </ValueSetBinding>
-            <ValueSetBinding BindingStrength="R" Target="3[*]">
+            <ValueSetBinding BindingStrength="S" Target="15[*]">
                <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
+                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
                </BindingLocations>
                <Bindings>
-                  <Binding BindingIdentifier="HL70396"/>
-               </Bindings>
-            </ValueSetBinding>
-         </ByID>
-         <ByID ID="CX">
-            <ValueSetBinding BindingStrength="S" Target="4[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="1[1]"/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70363"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="R" Target="3[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70061"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="R" Target="5[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70203"/>
-               </Bindings>
-            </ValueSetBinding>
-         </ByID>
-         <ByID ID="CNN">
-            <ValueSetBinding BindingStrength="S" Target="7[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70360"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="S" Target="9[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70363"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="R" Target="11[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70301"/>
+                  <Binding BindingIdentifier="HL70435"/>
                </Bindings>
             </ValueSetBinding>
             <ValueSetBinding BindingStrength="S" Target="8[*]">
@@ -1400,37 +1722,23 @@
                   <SimpleBindingLocation CodeLocation="."/>
                </BindingLocations>
                <Bindings>
-                  <Binding BindingIdentifier="HL70297"/>
+                  <Binding BindingIdentifier="HL70316"/>
                </Bindings>
             </ValueSetBinding>
-         </ByID>
-         <ByID ID="PLN">
-            <ValueSetBinding BindingStrength="S" Target="2[*]">
+            <ValueSetBinding BindingStrength="S" Target="7[*]">
                <BindingLocations>
                   <SimpleBindingLocation CodeLocation="."/>
                </BindingLocations>
                <Bindings>
-                  <Binding BindingIdentifier="HL70338"/>
+                  <Binding BindingIdentifier="HL70315"/>
                </Bindings>
             </ValueSetBinding>
-         </ByID>
-         <ByID ID="HD_NIH">
-            <ValueSetBinding BindingStrength="R" Target="3[*]">
+            <ValueSetBinding BindingStrength="S" Target="6[*]">
                <BindingLocations>
                   <SimpleBindingLocation CodeLocation="."/>
                </BindingLocations>
                <Bindings>
-                  <Binding BindingIdentifier="HL70301NIH"/>
-               </Bindings>
-            </ValueSetBinding>
-         </ByID>
-         <ByID ID="EI_MSH-21">
-            <ValueSetBinding BindingStrength="R" Target="4[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70301NIH"/>
+                  <Binding BindingIdentifier="HL70295"/>
                </Bindings>
             </ValueSetBinding>
             <ValueSetBinding BindingStrength="S" Target="2[*]">
@@ -1438,12 +1746,1036 @@
                   <SimpleBindingLocation CodeLocation="."/>
                </BindingLocations>
                <Bindings>
-                  <Binding BindingIdentifier="HL70363"/>
+                  <Binding BindingIdentifier="HL70220"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="S" Target="5[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70231"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="R" Target="12[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70136"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="S" Target="1[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70223"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="S" Target="11[*]">
+               <BindingLocations>
+                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70215"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="S" Target="19[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70140"/>
                </Bindings>
             </ValueSetBinding>
          </ByID>
-      </Datatype>
-      <Segment>
+         <ByID ID="OBR_NIH">
+            <ValueSetBinding BindingStrength="R" Target="30[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70124"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="S" Target="44[*]">
+               <BindingLocations>
+                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70088"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="R" Target="24[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70074"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="S" Target="45[*]">
+               <BindingLocations>
+                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70340"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="R" Target="42[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70225"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="R" Target="41[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70224"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="R" Target="25[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70123"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="S" Target="48[*]">
+               <BindingLocations>
+                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70476"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="R" Target="11[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70065"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="S" Target="49[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70507"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="S" Target="47[*]">
+               <BindingLocations>
+                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70411"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="S" Target="46[*]">
+               <BindingLocations>
+                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70411"/>
+               </Bindings>
+            </ValueSetBinding>
+         </ByID>
+         <ByID ID="TQ1">
+            <ValueSetBinding BindingStrength="S" Target="12[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70427"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="S" Target="9[*]">
+               <BindingLocations>
+                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70485"/>
+               </Bindings>
+            </ValueSetBinding>
+         </ByID>
+         <ByID ID="FT1">
+            <ValueSetBinding BindingStrength="S" Target="14[*]">
+               <BindingLocations>
+                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70072"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="S" Target="20[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="1[1]"/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70084"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="S" Target="28[*]">
+               <BindingLocations>
+                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70476"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="S" Target="17[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70024"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="S" Target="18[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70018"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="S" Target="13[*]">
+               <BindingLocations>
+                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70049"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="S" Target="29[*]">
+               <BindingLocations>
+                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70549"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="S" Target="7[*]">
+               <BindingLocations>
+                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70132"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="S" Target="19[*]">
+               <BindingLocations>
+                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70051"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="S" Target="27[*]">
+               <BindingLocations>
+                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70339"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="S" Target="6[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70017"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="S" Target="26[*]">
+               <BindingLocations>
+                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70340"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="S" Target="25[*]">
+               <BindingLocations>
+                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70088"/>
+               </Bindings>
+            </ValueSetBinding>
+         </ByID>
+         <ByID ID="PV1">
+            <ValueSetBinding BindingStrength="S" Target="13[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70092"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="S" Target="9[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="1[1]"/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70010"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="S" Target="2[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70004"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="S" Target="14[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70023"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="S" Target="17[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="1[1]"/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70010"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="S" Target="23[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70046"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="S" Target="16[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70099"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="S" Target="31[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70021"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="S" Target="38[*]">
+               <BindingLocations>
+                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70114"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="S" Target="34[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70111"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="S" Target="36[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70112"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="S" Target="22[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70045"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="S" Target="10[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70069"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="S" Target="41[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70117"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="S" Target="8[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="1[1]"/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70010"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="S" Target="24[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70044"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="S" Target="21[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70032"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="S" Target="15[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70009"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="S" Target="18[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70018"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="S" Target="12[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70087"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="S" Target="29[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70110"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="S" Target="51[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70326"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="S" Target="40[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70116"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="S" Target="4[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70007"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="S" Target="28[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70073"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="S" Target="39[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70115"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="S" Target="7[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="1[1]"/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70010"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="S" Target="52[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="1[1]"/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70010"/>
+               </Bindings>
+            </ValueSetBinding>
+         </ByID>
+         <ByID ID="TQ2">
+            <ValueSetBinding BindingStrength="R" Target="10[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70506"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="R" Target="6[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70504"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="R" Target="2[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70503"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="R" Target="7[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70505"/>
+               </Bindings>
+            </ValueSetBinding>
+         </ByID>
+         <ByID ID="NTE_NIH">
+            <ValueSetBinding BindingStrength="S" Target="4[*]">
+               <BindingLocations>
+                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70364"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="R" Target="2[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70105"/>
+               </Bindings>
+            </ValueSetBinding>
+         </ByID>
+         <ByID ID="OBX_NIH_2-8-1">
+            <ValueSetBinding BindingStrength="R" Target="2[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70125NIH"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="R" Target="10[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70080"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="R" Target="11[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70085"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="R" Target="8[*]">
+               <BindingLocations>
+                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70078"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="R" Target="20[*]">
+               <BindingLocations>
+                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70163"/>
+               </Bindings>
+            </ValueSetBinding>
+         </ByID>
+         <ByID ID="PID_NIH">
+            <ValueSetBinding BindingStrength="S" Target="16[*]">
+               <BindingLocations>
+                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70002"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="R" Target="24[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70136"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="S" Target="27[*]">
+               <BindingLocations>
+                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70172"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="S" Target="15[*]">
+               <BindingLocations>
+                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70296"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="S" Target="26[*]">
+               <BindingLocations>
+                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70171"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="S" Target="39[*]">
+               <BindingLocations>
+                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70171"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="R" Target="30[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70136"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="S" Target="32[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70445"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="S" Target="17[*]">
+               <BindingLocations>
+                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70006"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="S" Target="28[*]">
+               <BindingLocations>
+                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70212"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="S" Target="35[*]">
+               <BindingLocations>
+                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70446"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="S" Target="22[*]">
+               <BindingLocations>
+                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70189"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="S" Target="38[*]">
+               <BindingLocations>
+                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70429"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="R" Target="31[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70136"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="S" Target="8[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70001"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="S" Target="10[*]">
+               <BindingLocations>
+                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70005"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="S" Target="36[*]">
+               <BindingLocations>
+                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70447"/>
+               </Bindings>
+            </ValueSetBinding>
+         </ByID>
+         <ByID ID="ORC_NIH">
+            <ValueSetBinding BindingStrength="R" Target="29[*]">
+               <BindingLocations>
+                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70482"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="R" Target="1[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70119"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="S" Target="28[*]">
+               <BindingLocations>
+                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70177"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="R" Target="30[*]">
+               <BindingLocations>
+                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70483"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="R" Target="5[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70038"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="R" Target="6[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70121"/>
+               </Bindings>
+            </ValueSetBinding>
+         </ByID>
+         <ByID ID="OBX">
+            <ValueSetBinding BindingStrength="S" Target="8[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70078"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="R" Target="11[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70085"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="R" Target="2[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70125"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="R" Target="10[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70080"/>
+               </Bindings>
+            </ValueSetBinding>
+         </ByID>
+         <ByID ID="MSH_NIH">
+            <ValueSetBinding BindingStrength="R" Target="16[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70155"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="R" Target="17[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70399"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="R" Target="18[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70211"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="R" Target="15[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70155"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="R" Target="20[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70356"/>
+               </Bindings>
+            </ValueSetBinding>
+         </ByID>
+         <ByID ID="NK1">
+            <ValueSetBinding BindingStrength="S" Target="14[*]">
+               <BindingLocations>
+                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70002"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="S" Target="35[*]">
+               <BindingLocations>
+                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70005"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="S" Target="21[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70220"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="S" Target="25[*]">
+               <BindingLocations>
+                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70006"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="S" Target="19[*]">
+               <BindingLocations>
+                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70171"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="R" Target="23[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70136"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="S" Target="36[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70295"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="S" Target="20[*]">
+               <BindingLocations>
+                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70296"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="S" Target="15[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70001"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="S" Target="7[*]">
+               <BindingLocations>
+                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70131"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="S" Target="3[*]">
+               <BindingLocations>
+                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70063"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="S" Target="39[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70099"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="S" Target="27[*]">
+               <BindingLocations>
+                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70212"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="S" Target="18[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70009"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="S" Target="34[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70311"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="S" Target="24[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70231"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="S" Target="17[*]">
+               <BindingLocations>
+                  <SimpleBindingLocation CodeLocation="."/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70223"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="S" Target="29[*]">
+               <BindingLocations>
+                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70222"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="S" Target="28[*]">
+               <BindingLocations>
+                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70189"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="S" Target="22[*]">
+               <BindingLocations>
+                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70215"/>
+               </Bindings>
+            </ValueSetBinding>
+         </ByID>
+         <ByID ID="CTD">
+            <ValueSetBinding BindingStrength="R" Target="6[*]">
+               <BindingLocations>
+                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70185"/>
+               </Bindings>
+            </ValueSetBinding>
+            <ValueSetBinding BindingStrength="S" Target="1[*]">
+               <BindingLocations>
+                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
+               </BindingLocations>
+               <Bindings>
+                  <Binding BindingIdentifier="HL70131"/>
+               </Bindings>
+            </ValueSetBinding>
+         </ByID>
          <ByID ID="PV2">
             <ValueSetBinding BindingStrength="S" Target="30[*]">
                <BindingLocations>
@@ -1659,1174 +2991,6 @@
                </BindingLocations>
                <Bindings>
                   <Binding BindingIdentifier="HL70315"/>
-               </Bindings>
-            </ValueSetBinding>
-         </ByID>
-         <ByID ID="TQ2">
-            <ValueSetBinding BindingStrength="R" Target="10[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70506"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="R" Target="6[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70504"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="R" Target="2[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70503"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="R" Target="7[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70505"/>
-               </Bindings>
-            </ValueSetBinding>
-         </ByID>
-         <ByID ID="DSC">
-            <ValueSetBinding BindingStrength="R" Target="2[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70398"/>
-               </Bindings>
-            </ValueSetBinding>
-         </ByID>
-         <ByID ID="OBX_NIH_2-8-1">
-            <ValueSetBinding BindingStrength="R" Target="2[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70125NIH"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="R" Target="10[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70080"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="R" Target="11[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70085"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="R" Target="8[*]">
-               <BindingLocations>
-                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70078"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="R" Target="20[*]">
-               <BindingLocations>
-                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70163"/>
-               </Bindings>
-            </ValueSetBinding>
-         </ByID>
-         <ByID ID="PD1">
-            <ValueSetBinding BindingStrength="S" Target="16[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70441"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="R" Target="9[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70136"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="S" Target="20[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70141"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="S" Target="21[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70142"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="S" Target="15[*]">
-               <BindingLocations>
-                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70435"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="S" Target="8[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70316"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="S" Target="7[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70315"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="S" Target="6[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70295"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="S" Target="2[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70220"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="S" Target="5[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70231"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="R" Target="12[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70136"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="S" Target="1[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70223"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="S" Target="11[*]">
-               <BindingLocations>
-                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70215"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="S" Target="19[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70140"/>
-               </Bindings>
-            </ValueSetBinding>
-         </ByID>
-         <ByID ID="CTD">
-            <ValueSetBinding BindingStrength="R" Target="6[*]">
-               <BindingLocations>
-                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70185"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="S" Target="1[*]">
-               <BindingLocations>
-                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70131"/>
-               </Bindings>
-            </ValueSetBinding>
-         </ByID>
-         <ByID ID="TQ1">
-            <ValueSetBinding BindingStrength="S" Target="12[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70427"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="S" Target="9[*]">
-               <BindingLocations>
-                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70485"/>
-               </Bindings>
-            </ValueSetBinding>
-         </ByID>
-         <ByID ID="NTE">
-            <ValueSetBinding BindingStrength="S" Target="4[*]">
-               <BindingLocations>
-                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70364"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="R" Target="2[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70105"/>
-               </Bindings>
-            </ValueSetBinding>
-         </ByID>
-         <ByID ID="SPM_NIH">
-            <ValueSetBinding BindingStrength="S" Target="9[*]">
-               <BindingLocations>
-                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70542"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="S" Target="24[*]">
-               <BindingLocations>
-                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70493"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="S" Target="11[*]">
-               <BindingLocations>
-                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70369"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="R" Target="21[*]">
-               <BindingLocations>
-                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70490"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="S" Target="23[*]">
-               <BindingLocations>
-                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70492"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="S" Target="5[*]">
-               <BindingLocations>
-                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70541"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="R" Target="20[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70136"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="R" Target="7[*]">
-               <BindingLocations>
-                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70488"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="S" Target="28[*]">
-               <BindingLocations>
-                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70544"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="R" Target="29[*]">
-               <BindingLocations>
-                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70494"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="S" Target="15[*]">
-               <BindingLocations>
-                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70376"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="S" Target="16[*]">
-               <BindingLocations>
-                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70489"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="S" Target="10[*]">
-               <BindingLocations>
-                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70543"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="R" Target="6[*]">
-               <BindingLocations>
-                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70371"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="S" Target="22[*]">
-               <BindingLocations>
-                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70491"/>
-               </Bindings>
-            </ValueSetBinding>
-         </ByID>
-         <ByID ID="MSH_NIH">
-            <ValueSetBinding BindingStrength="R" Target="16[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70155"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="R" Target="17[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70399"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="R" Target="18[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70211"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="R" Target="15[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70155"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="R" Target="20[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70356"/>
-               </Bindings>
-            </ValueSetBinding>
-         </ByID>
-         <ByID ID="PID_NIH">
-            <ValueSetBinding BindingStrength="S" Target="16[*]">
-               <BindingLocations>
-                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70002"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="R" Target="24[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70136"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="S" Target="27[*]">
-               <BindingLocations>
-                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70172"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="S" Target="15[*]">
-               <BindingLocations>
-                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70296"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="S" Target="26[*]">
-               <BindingLocations>
-                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70171"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="S" Target="39[*]">
-               <BindingLocations>
-                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70171"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="R" Target="30[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70136"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="S" Target="32[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70445"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="S" Target="17[*]">
-               <BindingLocations>
-                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70006"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="S" Target="28[*]">
-               <BindingLocations>
-                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70212"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="S" Target="35[*]">
-               <BindingLocations>
-                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70446"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="S" Target="22[*]">
-               <BindingLocations>
-                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70189"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="S" Target="38[*]">
-               <BindingLocations>
-                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70429"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="R" Target="31[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70136"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="S" Target="8[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70001"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="S" Target="10[*]">
-               <BindingLocations>
-                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70005"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="S" Target="36[*]">
-               <BindingLocations>
-                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70447"/>
-               </Bindings>
-            </ValueSetBinding>
-         </ByID>
-         <ByID ID="NK1">
-            <ValueSetBinding BindingStrength="S" Target="14[*]">
-               <BindingLocations>
-                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70002"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="S" Target="35[*]">
-               <BindingLocations>
-                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70005"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="S" Target="21[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70220"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="S" Target="25[*]">
-               <BindingLocations>
-                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70006"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="S" Target="19[*]">
-               <BindingLocations>
-                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70171"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="R" Target="23[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70136"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="S" Target="36[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70295"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="S" Target="20[*]">
-               <BindingLocations>
-                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70296"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="S" Target="15[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70001"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="S" Target="7[*]">
-               <BindingLocations>
-                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70131"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="S" Target="3[*]">
-               <BindingLocations>
-                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70063"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="S" Target="39[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70099"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="S" Target="27[*]">
-               <BindingLocations>
-                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70212"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="S" Target="18[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70009"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="S" Target="34[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70311"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="S" Target="24[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70231"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="S" Target="17[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70223"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="S" Target="29[*]">
-               <BindingLocations>
-                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70222"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="S" Target="28[*]">
-               <BindingLocations>
-                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70189"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="S" Target="22[*]">
-               <BindingLocations>
-                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70215"/>
-               </Bindings>
-            </ValueSetBinding>
-         </ByID>
-         <ByID ID="NTE_NIH">
-            <ValueSetBinding BindingStrength="S" Target="4[*]">
-               <BindingLocations>
-                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70364"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="R" Target="2[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70105"/>
-               </Bindings>
-            </ValueSetBinding>
-         </ByID>
-         <ByID ID="FT1">
-            <ValueSetBinding BindingStrength="S" Target="14[*]">
-               <BindingLocations>
-                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70072"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="S" Target="28[*]">
-               <BindingLocations>
-                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70476"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="S" Target="17[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70024"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="S" Target="18[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70018"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="S" Target="13[*]">
-               <BindingLocations>
-                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70049"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="S" Target="29[*]">
-               <BindingLocations>
-                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70549"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="S" Target="7[*]">
-               <BindingLocations>
-                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70132"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="S" Target="19[*]">
-               <BindingLocations>
-                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70051"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="S" Target="27[*]">
-               <BindingLocations>
-                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70339"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="S" Target="6[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70017"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="S" Target="26[*]">
-               <BindingLocations>
-                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70340"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="S" Target="25[*]">
-               <BindingLocations>
-                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70088"/>
-               </Bindings>
-            </ValueSetBinding>
-         </ByID>
-         <ByID ID="OBR_NIH">
-            <ValueSetBinding BindingStrength="R" Target="30[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70124"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="S" Target="44[*]">
-               <BindingLocations>
-                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70088"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="R" Target="24[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70074"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="S" Target="45[*]">
-               <BindingLocations>
-                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70340"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="R" Target="42[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70225"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="R" Target="41[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70224"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="R" Target="25[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70123"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="S" Target="48[*]">
-               <BindingLocations>
-                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70476"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="R" Target="11[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70065"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="S" Target="49[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70507"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="S" Target="47[*]">
-               <BindingLocations>
-                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70411"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="S" Target="46[*]">
-               <BindingLocations>
-                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70411"/>
-               </Bindings>
-            </ValueSetBinding>
-         </ByID>
-         <ByID ID="ORC_NIH">
-            <ValueSetBinding BindingStrength="R" Target="29[*]">
-               <BindingLocations>
-                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70482"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="R" Target="1[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70119"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="S" Target="28[*]">
-               <BindingLocations>
-                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70177"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="R" Target="30[*]">
-               <BindingLocations>
-                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70483"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="R" Target="5[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70038"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="R" Target="6[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70121"/>
-               </Bindings>
-            </ValueSetBinding>
-         </ByID>
-         <ByID ID="PV1">
-            <ValueSetBinding BindingStrength="S" Target="13[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70092"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="S" Target="2[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70004"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="S" Target="14[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70023"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="S" Target="23[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70046"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="S" Target="16[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70099"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="S" Target="31[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70021"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="S" Target="38[*]">
-               <BindingLocations>
-                  <ComplexBindingLocation CodeLocation="1[1]" CodeSystemLocation="3[1]"/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70114"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="S" Target="34[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70111"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="S" Target="36[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70112"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="S" Target="22[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70045"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="S" Target="10[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70069"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="S" Target="41[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70117"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="S" Target="24[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70044"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="S" Target="21[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70032"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="S" Target="15[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70009"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="S" Target="18[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70018"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="S" Target="12[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70087"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="S" Target="29[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70110"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="S" Target="51[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70326"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="S" Target="40[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70116"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="S" Target="4[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70007"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="S" Target="28[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70073"/>
-               </Bindings>
-            </ValueSetBinding>
-            <ValueSetBinding BindingStrength="S" Target="39[*]">
-               <BindingLocations>
-                  <SimpleBindingLocation CodeLocation="."/>
-               </BindingLocations>
-               <Bindings>
-                  <Binding BindingIdentifier="HL70115"/>
                </Bindings>
             </ValueSetBinding>
          </ByID>
