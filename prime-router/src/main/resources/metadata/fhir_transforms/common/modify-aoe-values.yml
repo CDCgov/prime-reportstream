@@ -65,10 +65,3 @@ elements:
     condition: '%resource.address.country.exists()'
     value: [ '""' ]
     bundleProperty: '%resource.address.country'
-
-  #OBX-29
-  - name: suppress-obx-29-for-aoe
-    resource: 'Bundle.entry.resource.ofType(ServiceRequest).supportingInfo.resolve()'
-    condition: '%resource.exists()'
-    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/obx-observation").extension("OBX.29").value[x]'
-    value: [ '""' ]
