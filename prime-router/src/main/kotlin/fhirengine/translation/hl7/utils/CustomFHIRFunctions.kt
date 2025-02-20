@@ -269,12 +269,14 @@ object CustomFHIRFunctions : FhirPathFunctions {
         val primVal = focus[0].primitiveValue()
         val areaCodePart = PhoneUtilities.getPhoneNumberPart(primVal, PhonePart.AreaCode)
         val localNumberPart = PhoneUtilities.getPhoneNumberPart(primVal, PhonePart.Local)
-        if(areaCodePart != null && localNumberPart != null) {
-            val nationalNumber = String.format("(%s)%s-%s",
-                areaCodePart, localNumberPart.substring(0,3), localNumberPart.substring(3))
+        if (areaCodePart != null && localNumberPart != null) {
+            val nationalNumber = String.format(
+                "(%s)%s-%s",
+                areaCodePart, localNumberPart.substring(0, 3), localNumberPart.substring(3)
+            )
             return mutableListOf(StringType(nationalNumber))
         }
-        return mutableListOf();
+        return mutableListOf()
     }
 
     /**
