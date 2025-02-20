@@ -55,6 +55,18 @@ elements:
   value: [ '""' ]
   bundleProperty: '%resource.value[x]'
 
+- name: suppress-org-additional-email
+  resource: 'Bundle.entry.resource.ofType(Organization).telecom.where(system = "email")'
+  condition: '%resource.exists()'
+  value: [ '""' ]
+  bundleProperty: '%resource.use'
+
+- name: suppress-org-additional-phone
+  resource: 'Bundle.entry.resource.ofType(Organization).telecom.where(system = "phone")[1]'
+  condition: '%resource.exists()'
+  value: [ '""' ]
+  bundleProperty: '%resource.use'
+
 - name: suppress-servicerequest-orc-23-xtn-12
   resource: 'Bundle.entry.resource.ofType(ServiceRequest).requester.extension.value.extension.extension("XTN.12")'
   condition: '%resource.exists()'
