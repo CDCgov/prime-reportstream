@@ -3,12 +3,38 @@
 ## Prerequisites
 
 A few secrets are required to run the Auth which are not committed to source. These values are
-configured in Okta.
+configured in Okta. We have to set up applications with properly scoped permissions to allow our
+application to properly retrieve that data from Okta.
 
-| Environment variable | Value                           |
-|----------------------|---------------------------------|
-| OKTA_ADMIN_CLIENT_API_ENCODED_PRIVATE_KEY | Base 64 encoded private key pem |
-| SPRING_SECURITY_OAUTH2_RESOURCESERVER_OPAQUETOKEN_CLIENT_SECRET | Base 64 encoded secret |
+| Environment variable                                            | Value                           |
+|-----------------------------------------------------------------|---------------------------------|
+| OKTA_ADMIN_CLIENT_API_ENCODED_PRIVATE_KEY                       | Base 64 encoded private key pem |
+| SPRING_SECURITY_OAUTH2_RESOURCESERVER_OPAQUETOKEN_CLIENT_SECRET | Shared secret                   |
+
+Setup for `OKTA_ADMIN_CLIENT_API_ENCODED_PRIVATE_KEY`:
+1. Sign into Okta Admin Portal
+2. Go to Applications > Applications in the sidebar
+3. Click "Create a new app integration" button
+4. Select "API Services" radio button and click "Next"
+5. Give it an appropriate name like "Authn Admin Integration"
+6. Select "Public key / Private key" as the Client authentication method
+7. Copy client ID and private key in PEM format somewhere 
+8. Grant the application the `okta.apps.read` scope 
+9. Grant the application the `Read-only Administrator role`
+10. Set client id at `okta.adminClient.clientId` in application.yml 
+11. Base 64 encode the private key PEM and set it in the environment variable `OKTA_ADMIN_CLIENT_API_ENCODED_PRIVATE_KEY`
+
+Setup for `SPRING_SECURITY_OAUTH2_RESOURCESERVER_OPAQUETOKEN_CLIENT_SECRET`:
+1. Sign into Okta Admin Portal
+2. Go to Applications > Applications in the sidebar
+3. Click "Create a new app integration" button
+4. Select "API Services" radio button and click "Next"
+5. Give it an appropriate name like "Authn Token Integration"
+6. Select "Client secret" as the Client authentication method 
+7. Copy client ID and client secret string somewhere 
+8. Grant the application the `okta.apiTokens.read` scope 
+9. Set client id at `spring.security.oauth2.resourceserver.opaquetoken.client-id` in application.yml 
+10. Set secret in the environment variable `SPRING_SECURITY_OAUTH2_RESOURCESERVER_OPAQUETOKEN_CLIENT_SECRET`
 
 ## How to run application locally
 
