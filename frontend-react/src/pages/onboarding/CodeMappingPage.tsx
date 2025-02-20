@@ -15,6 +15,7 @@ enum CodeMappingSteps {
 const CodeMappingPage = () => {
     const { data, isPending, mutate } = useCodeMappingFormSubmit();
     const [currentCodeMapStep, setCurrentCodeMapStep] = useState<CodeMappingSteps>(CodeMappingSteps.StepOne);
+    const [fileName, setFileName] = useState("");
     const onCancelHandler = useCallback<MouseEventHandler>((_ev) => {
         // Don't have a proper mechanism to cancel in-flight requests so refresh page
         window.location.reload();
@@ -23,6 +24,7 @@ const CodeMappingPage = () => {
         (ev) => {
             ev.preventDefault();
             mutate();
+            setCurrentCodeMapStep(CodeMappingSteps.StepTwo);
             return false;
         },
         [mutate],
@@ -49,9 +51,11 @@ const CodeMappingPage = () => {
                 ) : (
                     <>
                         {currentCodeMapStep === CodeMappingSteps.StepOne && (
-                            <CodeMappingForm onSubmitHandler={onSubmitHandler} />
+                            <CodeMappingForm onSubmitHandler={onSubmitHandler} setFileName={setFileName} />
                         )}
-                        {currentCodeMapStep === CodeMappingSteps.StepTwo && <CodeMappingResults />}
+                        {currentCodeMapStep === CodeMappingSteps.StepTwo && (
+                            <CodeMappingResults fileName={fileName} data={data} />
+                        )}
                     </>
                 )}
 

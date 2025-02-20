@@ -1,10 +1,17 @@
-import type { PropsWithChildren } from "react";
+interface CodeMappingResultsProps {
+    fileName: string;
+}
 
-export type CodeMappingResultsProps = PropsWithChildren;
-
-/**
- * TODO: Implement result page
- */
-const CodeMappingResults = (props: CodeMappingResultsProps) => <>TODO {props.children}</>;
+const CodeMappingResults = ({ fileName, data }: CodeMappingResultsProps) => (
+    <>
+        <h2 className="margin-bottom-0">
+            <span className="text-normal font-body-md text-base margin-bottom-0">
+                File Name
+                <br />
+                {fileName}
+            </span>
+        </h2>
+    </>
+);
 
 export default CodeMappingResults;

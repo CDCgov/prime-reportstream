@@ -6,10 +6,18 @@ interface CodeMappingFormProps {
     onSubmitHandler: () => void;
 }
 
-const CodeMappingForm = ({ onSubmitHandler }: CodeMappingFormProps) => {
+const CodeMappingForm = ({ onSubmitHandler, setFileName }: CodeMappingFormProps) => {
     const onBackHandler = useCallback<MouseEventHandler>((_ev) => {
         window.history.back();
     }, []);
+
+    const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const files = event.target.files;
+        if (!files || files.length === 0) return;
+
+        // Take the first file name
+        setFileName(files[0].name);
+    };
 
     return (
         <>
@@ -30,7 +38,7 @@ const CodeMappingForm = ({ onSubmitHandler }: CodeMappingFormProps) => {
                 <span className="usa-hint" id="file-input-specific-hint">
                     Make sure your file has a .csv extension
                 </span>
-                <FileInput id={""} name={"file"} className="maxw-full" accept=".csv" />
+                <FileInput id={""} name={"file"} className="maxw-full" accept=".csv" onChange={handleFileChange} />
                 <ButtonGroup className="margin-top-5">
                     <Button type={"button"} outline onClick={onBackHandler}>
                         Back
