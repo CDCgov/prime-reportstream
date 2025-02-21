@@ -131,10 +131,10 @@ class SenderFunctionTest {
                 "mapped?" to "Y"
             ),
             mapOf(
-                "test code" to "00002",
-                "test description" to "test description 2",
-                "coding system" to "Another Condition Code System",
-                "mapped?" to "N"
+                "testCode" to "00002",
+                "testDescription" to "test description 2",
+                "codingSystem" to "Another Condition Code System",
+                "mapped" to "N"
             )
         )
         mockkObject(LookupTableCompareMappingCommand)
