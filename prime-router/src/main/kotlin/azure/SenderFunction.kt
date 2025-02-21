@@ -69,7 +69,21 @@ class SenderFunction(
             )
 
             // Create output JSON with mapping comparison result
-            val conditionCodeComparisonJson = ObjectMapper().writeValueAsString(conditionCodeComparison)
+            // For this output specifically, rename the keys for the JSON output
+            val comparisonsRemappedKeys = mutableListOf<Map<String, String>>()
+            for (entry in conditionCodeComparison) {
+                val replacedMap = entry.map { (key, value) ->
+                    when (key) {
+                        "test code" -> "testCode" to value
+                        "test description" -> "testDescription" to value
+                        "coding system" -> "codingSystem" to value
+                        "mapped?" -> "mapped" to value
+                        else -> key to value
+                    }
+                }.toMap()
+                comparisonsRemappedKeys.add(replacedMap)
+            }
+            val conditionCodeComparisonJson = ObjectMapper().writeValueAsString(comparisonsRemappedKeys)
 
             return HttpUtilities.okResponse(request, conditionCodeComparisonJson)
         } catch (ex: Exception) {
