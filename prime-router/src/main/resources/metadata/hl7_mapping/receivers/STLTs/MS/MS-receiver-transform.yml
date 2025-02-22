@@ -1,0 +1,29 @@
+hl7Class: ca.uhn.hl7v2.model.v251.message.ORU_R01
+
+extends: classpath:/metadata/hl7_mapping/ORU_R01/ORU_R01-base.yml
+
+elements:
+  - name: ms-name-of-the-sender-application-Namespace-Id
+    condition: 'true'
+    value: [ '"CDC PRIME - Atlanta, Georgia (Dekalb)"' ]
+    hl7Spec: [ 'MSH-3-1' ]
+
+  - name: ms-name-of-the-receiving-application
+    condition: 'true'
+    value: [ '"MSDH-ELR"' ]
+    hl7Spec: [ 'MSH-5-1' ]
+
+  - name: ms-receiving-facility-namespace-ID
+    condition: 'true'
+    value: [ '"MSDOH"' ]
+    hl7Spec: [ 'MSH-6-1' ]
+
+  - name: ms-receiving-facility-universal-ID
+    condition: 'true'
+    value: [ '"2.16.840.1.114222.1.3645"' ]
+    hl7Spec: [ 'MSH-6-2' ]
+
+  - name: ms-receiving-facility-universal-ID-Type
+    condition: 'true'
+    value: [ '"ISO"' ]
+    hl7Spec: [ 'MSH-6-3' ]
