@@ -84,9 +84,7 @@ class DeliveryHistoryTable : CustomTable<DeliveryHistoryRecord>(DSL.name("delive
         val DELIVERY_HISTORY = DeliveryHistoryTable()
     }
 
-    override fun getRecordType(): Class<out DeliveryHistoryRecord> {
-        return DeliveryHistoryRecord::class.java
-    }
+    override fun getRecordType(): Class<out DeliveryHistoryRecord> = DeliveryHistoryRecord::class.java
 }
 
 class DeliveryHistoryRecord : CustomRecord<DeliveryHistoryRecord>(DeliveryHistoryTable.DELIVERY_HISTORY)
@@ -101,8 +99,7 @@ sealed class DeliveryHistoryApiSearchFilter<T> : ApiFilter<DeliveryHistoryRecord
      * Filters results to those where the created_at is greater than or equal to the passed in date
      * @param value the date that results will be greater than or equal to
      */
-    class Since(override val value: OffsetDateTime) :
-        DeliveryHistoryApiSearchFilter<OffsetDateTime>() {
+    class Since(override val value: OffsetDateTime) : DeliveryHistoryApiSearchFilter<OffsetDateTime>() {
         override val tableField: TableField<DeliveryHistoryRecord, OffsetDateTime> =
             DeliveryHistoryTable.DELIVERY_HISTORY.CREATED_AT
     }
@@ -111,8 +108,7 @@ sealed class DeliveryHistoryApiSearchFilter<T> : ApiFilter<DeliveryHistoryRecord
      * Filters results to those where the created_at is less than or equal to the passed in date
      * @param value the date that results will be less than or equal to
      */
-    class Until(override val value: OffsetDateTime) :
-        DeliveryHistoryApiSearchFilter<OffsetDateTime>() {
+    class Until(override val value: OffsetDateTime) : DeliveryHistoryApiSearchFilter<OffsetDateTime>() {
         override val tableField: TableField<DeliveryHistoryRecord, OffsetDateTime> =
             DeliveryHistoryTable.DELIVERY_HISTORY.CREATED_AT
     }
@@ -137,20 +133,14 @@ class DeliveryHistoryApiSearch(
     page,
     limit
 ) {
-    override fun getCondition(filter: DeliveryHistoryApiSearchFilter<*>): Condition {
-        return when (filter) {
+    override fun getCondition(filter: DeliveryHistoryApiSearchFilter<*>): Condition = when (filter) {
             is DeliveryHistoryApiSearchFilter.Since -> filter.tableField.ge(filter.value)
             is DeliveryHistoryApiSearchFilter.Until -> filter.tableField.le(filter.value)
         }
-    }
 
-    override fun getSortColumn(): Field<*> {
-        return sortParameter ?: DeliveryHistoryTable.DELIVERY_HISTORY.CREATED_AT
-    }
+    override fun getSortColumn(): Field<*> = sortParameter ?: DeliveryHistoryTable.DELIVERY_HISTORY.CREATED_AT
 
-    override fun getPrimarySortColumn(): Field<*> {
-        return DeliveryHistoryTable.DELIVERY_HISTORY.REPORT_ID
-    }
+    override fun getPrimarySortColumn(): Field<*> = DeliveryHistoryTable.DELIVERY_HISTORY.REPORT_ID
 
     companion object :
         ApiSearchParser<
@@ -226,8 +216,8 @@ class DeliveryHistoryDatabaseAccess(
             )
 
         val deliveriesExpression = DSL.select(
-                Tables.ACTION.ACTION_ID.`as`(DeliveryHistoryTable.DELIVERY_HISTORY.DELIVERY_ID),
-                Tables.ACTION.CREATED_AT,
+                Tables.REPORT_FILE.ACTION_ID.`as`(DeliveryHistoryTable.DELIVERY_HISTORY.DELIVERY_ID),
+                Tables.REPORT_FILE.CREATED_AT,
                 // Currently an open issue for doing this via the DSL
                 // https://github.com/jOOQ/jOOQ/issues/6723
                 DSL.field(
@@ -247,11 +237,7 @@ class DeliveryHistoryDatabaseAccess(
                 Tables.REPORT_FILE.BODY_FORMAT.`as`(DeliveryHistoryTable.DELIVERY_HISTORY.FILE_TYPE)
             )
             .from(
-                Tables.ACTION.join(Tables.REPORT_FILE).on(
-                    Tables.REPORT_FILE.ACTION_ID.eq(Tables.ACTION.ACTION_ID)
-                )
-                    .and(Tables.ACTION.RECEIVING_ORG.eq(Tables.REPORT_FILE.RECEIVING_ORG))
-                    .and(Tables.ACTION.RECEIVING_ORG_SVC.eq(Tables.REPORT_FILE.RECEIVING_ORG_SVC))
+                Tables.REPORT_FILE
                     .join(Tables.SETTING)
                     .on(
                         Tables.REPORT_FILE.RECEIVING_ORG

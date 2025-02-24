@@ -64,7 +64,5 @@ class ValidateUtilities(val service: ConfigurationValidationService) {
     /**
      * Returns whether the [result] is a [ConfigurationValidationFailure] or not.
      */
-    private fun isFailure(result: ConfigurationValidationResult<*>): Boolean {
-        return result is ConfigurationValidationFailure
-    }
+    private fun isFailure(result: ConfigurationValidationResult<*>): Boolean = result is ConfigurationValidationFailure
 }

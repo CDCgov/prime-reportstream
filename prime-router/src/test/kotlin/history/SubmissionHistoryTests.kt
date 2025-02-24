@@ -28,12 +28,10 @@ import kotlin.test.Test
 class SubmissionHistoryTests {
     @Test
     fun `tests consolidation of logs`() {
-        fun createLogs(logs: List<DetailedActionLog>): DetailedSubmissionHistory {
-            return DetailedSubmissionHistory(
+        fun createLogs(logs: List<DetailedActionLog>): DetailedSubmissionHistory = DetailedSubmissionHistory(
                 1, TaskAction.receive, OffsetDateTime.now(),
                 null, mutableListOf(), logs
             )
-        }
 
         val messageM = "message 1"
         val messageA = "A message 2"
@@ -542,7 +540,7 @@ class SubmissionHistoryTests {
                         "QUALITY_PASS"
                     ),
                     "802798",
-                    ReportStreamFilterType.QUALITY_FILTER
+                    ReportStreamFilterType.QUALITY_FILTER.name
                 )
             ),
         )

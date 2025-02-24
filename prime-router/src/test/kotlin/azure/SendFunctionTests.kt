@@ -61,6 +61,7 @@ class SendFunctionTests {
         null,
         null,
         null,
+        null,
         null
     )
     private val reportFile = ReportFile(
@@ -92,8 +93,7 @@ class SendFunctionTests {
         every { workflowEngine.reportService }.returns(mockk<ReportService>(relaxed = true))
     }
 
-    fun makeIgnoreDotCSVHeader(): WorkflowEngine.Header {
-        return WorkflowEngine.Header(
+    fun makeIgnoreDotCSVHeader(): WorkflowEngine.Header = WorkflowEngine.Header(
             task, reportFile,
             null,
             settings.findOrganization("ignore"),
@@ -101,10 +101,8 @@ class SendFunctionTests {
             metadata.findSchema("covid-19"), "hello".toByteArray(),
             true
         )
-    }
 
-    fun makeIgnoreDotHL7NullHeader(): WorkflowEngine.Header {
-        return WorkflowEngine.Header(
+    fun makeIgnoreDotHL7NullHeader(): WorkflowEngine.Header = WorkflowEngine.Header(
             task, reportFile,
             null,
             settings.findOrganization("ignore"),
@@ -112,7 +110,6 @@ class SendFunctionTests {
             metadata.findSchema("covid-19"), "hello".toByteArray(),
             true
         )
-    }
 
     @AfterEach
     fun reset() {

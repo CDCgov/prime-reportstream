@@ -73,9 +73,7 @@ enum class ReportStreamEventProperties {
     ;
 
     @JsonKey
-    fun externalKey(): String {
-        return CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.LOWER_CAMEL, name)
-    }
+    fun externalKey(): String = CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.LOWER_CAMEL, name)
 }
 
 /**

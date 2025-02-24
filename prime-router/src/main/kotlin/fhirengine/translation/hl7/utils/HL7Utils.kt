@@ -28,8 +28,7 @@ object HL7Utils : Logging {
      * Gets a new object for the given [hl7Class].
      * @return a message object
      */
-    internal fun getMessage(hl7Class: String): Message {
-        return try {
+    internal fun getMessage(hl7Class: String): Message = try {
             val messageClass = Class.forName(hl7Class)
             if (AbstractMessage::class.java.isAssignableFrom(messageClass)) {
                 // We verify above that we have a valid subclass of Message as required for parsing
@@ -46,7 +45,6 @@ object HL7Utils : Logging {
         } catch (e: Exception) {
             throw IllegalArgumentException("$hl7Class is not a class to use for the conversion.")
         }
-    }
 
     /**
      * Gets the type string for the given [message].
@@ -65,14 +63,12 @@ object HL7Utils : Logging {
      * Checks if a specific HL7 message [hl7Class] is supported.
      * @return true if the HL7 message is supported, false otherwise
      */
-    fun supports(hl7Class: String): Boolean {
-        return try {
+    fun supports(hl7Class: String): Boolean = try {
             getMessage(hl7Class)
             true
         } catch (e: java.lang.IllegalArgumentException) {
             false
         }
-    }
 
     /**
      * Get an instance of a message.

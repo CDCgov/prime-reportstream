@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.databind.json.JsonMapper
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.github.ajalt.clikt.core.CliktError
+import com.google.common.net.HttpHeaders
 import com.microsoft.azure.functions.HttpMethod
 import com.microsoft.azure.functions.HttpRequestMessage
 import com.microsoft.azure.functions.HttpResponseMessage
@@ -148,6 +149,8 @@ class ReportFunction(
         ) request: HttpRequestMessage<String?>,
     ): HttpResponseMessage {
         val claims = AuthenticatedClaims.authenticate(request)
+        val caseInsensitiveHeaders = request.headers.mapKeys { it.key.lowercase() }
+        val accessToken = caseInsensitiveHeaders[HttpHeaders.AUTHORIZATION.lowercase()]
         if (claims != null && claims.authorized(setOf(Scope.primeAdminScope))) {
             val receiverName = request.queryParameters["receiverName"]
             val organizationName = request.queryParameters["organizationName"]
@@ -179,11 +182,12 @@ class ReportFunction(
             try {
                 val result = ProcessFhirCommands().processFhirDataRequest(
                     file,
-                    Environment.get().envName,
+                    Environment.get(),
                     receiverName,
                     organizationName,
                     senderSchema,
-                    false
+                    false,
+                    accessToken!!
                 )
                 file.delete()
                 val message = if (result.message != null) {
@@ -202,17 +206,13 @@ class ReportFunction(
                         MessageOrBundleStringified(
                             message,
                             bundle,
-                            result.senderTransformPassed,
                             result.senderTransformErrors,
                             result.senderTransformWarnings,
-                            result.enrichmentSchemaPassed,
                             result.enrichmentSchemaErrors,
                             result.senderTransformWarnings,
-                            result.receiverTransformPassed,
                             result.receiverTransformErrors,
                             result.receiverTransformWarnings,
                             result.filterErrors,
-                            result.filtersPassed
                         )
                     )
                 )
@@ -227,17 +227,13 @@ class ReportFunction(
     class MessageOrBundleStringified(
         var message: String? = null,
         var bundle: String? = null,
-        override var senderTransformPassed: Boolean = true,
         override var senderTransformErrors: MutableList<String> = mutableListOf(),
         override var senderTransformWarnings: MutableList<String> = mutableListOf(),
-        override var enrichmentSchemaPassed: Boolean = true,
         override var enrichmentSchemaErrors: MutableList<String> = mutableListOf(),
         override var enrichmentSchemaWarnings: MutableList<String> = mutableListOf(),
-        override var receiverTransformPassed: Boolean = true,
         override var receiverTransformErrors: MutableList<String> = mutableListOf(),
         override var receiverTransformWarnings: MutableList<String> = mutableListOf(),
-        override var filterErrors: MutableList<String> = mutableListOf(),
-        override var filtersPassed: Boolean = true,
+        override var filterErrors: MutableList<ProcessFhirCommands.FilterError> = mutableListOf(),
     ) : ProcessFhirCommands.MessageOrBundleParent()
 
     /**
@@ -247,8 +243,7 @@ class ReportFunction(
         request: HttpRequestMessage<String?>,
         blobAccess: BlobAccess.Companion = BlobAccess,
         defaultBlobMetadata: BlobAccess.BlobContainerMetadata = BlobAccess.defaultBlobMetadata,
-    ): HttpResponseMessage {
-        return try {
+    ): HttpResponseMessage = try {
             val updatedBlobMetadata = defaultBlobMetadata.copy(containerName = "test-bank")
             val results = blobAccess.listBlobs("", updatedBlobMetadata)
             val reports = mutableListOf<TestReportInfo>()
@@ -275,13 +270,8 @@ class ReportFunction(
             logger.error("Unable to fetch messages from test bank", e)
             HttpUtilities.internalErrorResponse(request)
         }
-    }
 
-    class TestReportInfo(
-        var dateCreated: String,
-        var fileName: String,
-        var reportBody: String,
-    )
+    class TestReportInfo(var dateCreated: String, var fileName: String, var reportBody: String)
 
     /**
      * GET report to download
@@ -432,9 +422,7 @@ class ReportFunction(
         actionHistory.queueMessages(workflowEngine)
     }
 
-    private fun extractPayloadNameFromFilePath(filename: String): String {
-        return Path(filename).fileName.toString()
-    }
+    private fun extractPayloadNameFromFilePath(filename: String): String = Path(filename).fileName.toString()
 
     private fun getSenderIdFromFilePath(filename: String): String {
         val path = Path(filename)
