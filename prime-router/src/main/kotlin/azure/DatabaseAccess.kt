@@ -65,6 +65,7 @@ import javax.sql.DataSource
 const val databaseVariable = "POSTGRES_URL"
 const val userVariable = "POSTGRES_USER"
 const val passwordVariable = "POSTGRES_PASSWORD"
+const val timeoutVariable = "HIKARI_CONFIG_TIMEOUT_MS"
 
 // general max length of free from metadata strings since jooq/postgres
 // does not truncate values when persisting to the database
@@ -1414,10 +1415,7 @@ class DatabaseAccess(val create: DSLContext) : Logging {
             config.addDataSourceProperty("cachePrepStmts", "true")
             config.addDataSourceProperty("prepStmtCacheSize", "250")
             config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048")
-            config.addDataSourceProperty(
-                "connectionTimeout",
-                "60000"
-            ) // Default is 30000 (30 seconds)
+            config.connectionTimeout = System.getenv(timeoutVariable).toLong()
 
             // See this info why these are a good value
             //  https://github.com/brettwooldridge/HikariCP/wiki/About-Pool-Sizing
