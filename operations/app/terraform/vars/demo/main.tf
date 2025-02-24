@@ -165,6 +165,7 @@ module "function_app" {
   pagerduty_url                     = data.azurerm_key_vault_secret.pagerduty_url.value
   postgres_user                     = data.azurerm_key_vault_secret.postgres_user.value
   postgres_pass                     = data.azurerm_key_vault_secret.postgres_pass.value
+  hikari_config_timeout_ms          = local.init.hikari_config_timeout_ms
   container_registry_admin_username = module.container_registry.container_registry_admin_username
   container_registry_admin_password = module.container_registry.container_registry_admin_password
   subnets                           = module.network.subnets

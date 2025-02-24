@@ -4,8 +4,9 @@ locals {
     "AzureWebJobs.emailScheduleEngine.Disabled" = 0
     "AzureWebJobs.send.Disabled"                = 0
 
-    "POSTGRES_USER"     = "${var.postgres_user}@${var.resource_prefix}-pgsql"
-    "POSTGRES_PASSWORD" = var.postgres_pass
+    "POSTGRES_USER"            = "${var.postgres_user}@${var.resource_prefix}-pgsql"
+    "POSTGRES_PASSWORD"        = var.postgres_pass
+    "HIKARI_CONFIG_TIMEOUT_MS" = var.hikari_config_timeout_ms
 
     "PRIME_ENVIRONMENT" = var.environment
 

@@ -86,6 +86,7 @@ module "database" {
   postgres_pass            = data.azurerm_key_vault_secret.postgres_pass.value
   postgres_readonly_user   = data.azurerm_key_vault_secret.postgres_readonly_user.value
   postgres_readonly_pass   = data.azurerm_key_vault_secret.postgres_readonly_pass.value
+  hikari_config_timeout_ms = local.init.hikari_config_timeout_ms
   db_sku_name              = local.database.db_sku_name
   db_version               = local.database.db_version
   db_storage_mb            = local.database.db_storage_mb
