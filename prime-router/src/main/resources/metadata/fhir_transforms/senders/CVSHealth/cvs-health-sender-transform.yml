@@ -14,45 +14,38 @@ elements:
 
   - name: cvs-temp-extension-to-store-codeable-concept
     resource: 'Bundle.entry.resource.ofType(Observation)'
-    debug: true
     value: [ '%resource.value' ]
     bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/temp").valueCodeableConcept.coding.display'
 
   - name: cvs-set-obx-5-to-temp-extension-value
     resource: 'Bundle.entry.resource.ofType(Observation)'
     condition: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/temp").exists()'
-    debug: true
     bundleProperty: '%resource.value[x]'
     value: ['%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/temp").value']
 
   - name: cvs-delete-temp-extension
     resource: 'Bundle.entry.resource.ofType(Observation).extension("https://reportstream.cdc.gov/fhir/StructureDefinition/temp")'
     condition: '%resource.exists()'
-    debug: true
     bundleProperty: '%resource.value[x]'
     value: [ '""' ]
 
   - name: cvs-obx-5-coding
-    debug: true
     resource: 'Bundle.entry.resource.ofType(Observation).value.coding'
     bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding").value[x]'
     value: [ '"coding"' ]
 
   - name: cvs-obx-5-coding-system
-    debug: true
     resource: 'Bundle.entry.resource.ofType(Observation).value.coding'
     bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system").value[x]'
     value: [ '"SCT"' ]
 
   - name: cvs-obx-5-system-url
-    debug: true
     resource: 'Bundle.entry.resource.ofType(Observation)'
     bundleProperty: '%resource.value.coding.system'
     value: [ '"http://snomed.info/sct"' ]
 
   - name: cvs-obx-5-display-to-snomed-code
     resource: 'Bundle.entry.resource.ofType(Observation)'
-    debug: true
     condition: '%resource.value.coding.code.exists().not()'
     value: [ '%resource.value.coding.display.upper()' ]
     bundleProperty: '%resource.value.coding.code'
@@ -65,13 +58,11 @@ elements:
 
   - name: cvs-spm-4-other-code
     resource: 'Bundle.entry.resource.ofType(Specimen)'
-    debug: true
     condition: '%resource.type.exists() and %resource.type.coding.code.upper() = "OTHER"'
     value: [ '"455371000124106"' ]
     bundleProperty: '%resource.type.coding.code'
 
   - name: cvs-spm-4-sct
-    debug: true
     resource: 'Bundle.entry.resource.ofType(Specimen).type.coding'
     condition: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system").exists().not()'
     bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system").value[x]'
