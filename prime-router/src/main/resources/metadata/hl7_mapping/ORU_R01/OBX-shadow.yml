@@ -1,0 +1,18 @@
+constants:
+  hl7ObservationPath: '/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION(%{resultIndex})'
+
+elements:
+  # OBX 15.2
+  - name: obx-producer-text
+    value: [ '""' ]
+    hl7Spec: [ '%{hl7ObservationPath}/OBX-15-2' ]
+
+  # OBX 15.3
+  - name: obx-producer-coding-system-name
+    value: [ '""' ]
+    hl7Spec: [ '%{hl7ObservationPath}/OBX-15-3' ]
+
+  # OBX 24
+  - name: obx-organization-name-type-code
+    value: [ '"L"' ]
+    hl7Spec: [ '%{hl7ObservationPath}/OBX-23-2' ]

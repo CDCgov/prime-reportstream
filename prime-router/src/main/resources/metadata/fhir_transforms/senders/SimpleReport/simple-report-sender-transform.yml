@@ -598,6 +598,10 @@ elements:
     bundleProperty: 'Bundle.entry.resource.ofType(ServiceRequest).requester.resolve().practitioner.resolve().address.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/xad-address").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/sad-address-line").extension("SAD.1").value[x]'
     value: [ 'Bundle.entry.resource.ofType(ServiceRequest).requester.resolve().practitioner.resolve().address.line[0]' ]
 
+  - name: sr-service-request-requester-address-street-2
+    bundleProperty: 'Bundle.entry.resource.ofType(ServiceRequest).requester.resolve().practitioner.resolve().address.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/xad-address").extension("XAD.2").value[x]'
+    value: [ 'Bundle.entry.resource.ofType(ServiceRequest).requester.resolve().practitioner.resolve().address.line[1]' ]
+
   # order-effective-date
   - name: sr-service-request-orc-order-effective-date
     bundleProperty: 'Bundle.entry.resource.ofType(ServiceRequest).extension("https://reportstream.cdc.gov/fhir/StructureDefinition/orc-common-order").extension("ORC.15").value[x]'
