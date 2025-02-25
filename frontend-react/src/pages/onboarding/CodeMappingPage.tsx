@@ -20,6 +20,9 @@ const CodeMappingPage = () => {
         // Don't have a proper mechanism to cancel in-flight requests so refresh page
         window.location.reload();
     }, []);
+    const initialStepHandler = () => {
+        setCurrentCodeMapStep(CodeMappingSteps.StepOne);
+    };
     const onSubmitHandler = useCallback<FormEventHandler<HTMLFormElement>>(
         (ev) => {
             ev.preventDefault();
@@ -54,7 +57,11 @@ const CodeMappingPage = () => {
                             <CodeMappingForm onSubmitHandler={onSubmitHandler} setFileName={setFileName} />
                         )}
                         {currentCodeMapStep === CodeMappingSteps.StepTwo && (
-                            <CodeMappingResults fileName={fileName} data={data} />
+                            <CodeMappingResults
+                                fileName={fileName}
+                                data={data}
+                                initialStepHandler={initialStepHandler}
+                            />
                         )}
                     </>
                 )}

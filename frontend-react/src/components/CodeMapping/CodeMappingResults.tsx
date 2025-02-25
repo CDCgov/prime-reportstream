@@ -1,12 +1,11 @@
+import { Accordion, Button, Icon } from "@trussworks/react-uswds";
 import { Alert, Table } from "../../shared";
 
 interface CodeMappingResultsProps {
     fileName: string;
 }
 
-const CodeMappingResults = ({ fileName, data }: CodeMappingResultsProps) => {
-    console.log("data  = ", data);
-
+const CodeMappingResults = ({ fileName, data, initialStepHandler }: CodeMappingResultsProps) => {
     const unmappedData = data.filter((item) => item.mapped === "N");
     const areCodesMapped = unmappedData.length === 0;
     const rowData = unmappedData.map((dataRow) => [
@@ -30,12 +29,11 @@ const CodeMappingResults = ({ fileName, data }: CodeMappingResultsProps) => {
         <>
             <h2 className="margin-bottom-0">
                 <span className="text-normal font-body-md text-base margin-bottom-0">
-                    File Name
-                    <br />
-                    {fileName}
+                    <p>File Name</p>
+                    <p>{fileName}</p>
                 </span>
             </h2>
-            <div>
+            <div className="margin-top-2">
                 {areCodesMapped ? (
                     <Alert type={"success"} heading={"All codes are mapped"}></Alert>
                 ) : (
@@ -46,9 +44,13 @@ const CodeMappingResults = ({ fileName, data }: CodeMappingResultsProps) => {
                     </Alert>
                 )}
             </div>
-            <div className="bg-gray-5">
-                <Table borderless rowData={rowData} />
+            <h3>Unmapped codes</h3>
+            <div className="padding-top-2 padding-bottom-4 padding-x-3 bg-gray-5 margin-bottom-4">
+                <Table gray borderless rowData={rowData} />
             </div>
+            <Button type="button" onClick={initialStepHandler}>
+                Test another file
+            </Button>
         </>
     );
 };
