@@ -2982,10 +2982,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/lodash@npm:^4.17.14":
-  version: 4.17.14
-  resolution: "@types/lodash@npm:4.17.14"
-  checksum: 2dbeaff92b31cb523f6bc4bb99a3d8c88fbb001d54f2367a888add85784fb213744a9b1600e1e98b6790ab191fdb6ec839eb0e3d63fcf6fb6cf1ebe4c3d21149
+"@types/lodash@npm:^4.17.15":
+  version: 4.17.15
+  resolution: "@types/lodash@npm:4.17.15"
+  checksum: 5037564154411f4ac0b187b914031c150520a7ca037dea007f774b7123c97c0da55b2e41ae81dc1bc80ff09e8d6a236455ea676d5062af12c592b8e81baec7bf
   languageName: node
   linkType: hard
 
@@ -10090,7 +10090,7 @@ __metadata:
     "@types/eslint__js": ^8.42.3
     "@types/github-slugger": ^2.0.0
     "@types/html-to-text": ^9.0.4
-    "@types/lodash": ^4.17.14
+    "@types/lodash": ^4.17.15
     "@types/mdx": ^2.0.13
     "@types/node": ^20.12.5
     "@types/react": ^18.3.11
@@ -10171,7 +10171,7 @@ __metadata:
     typescript-eslint: ^8.19.0
     undici: ^6.21.1
     use-deep-compare-effect: ^1.8.1
-    uuid: ^11.0.5
+    uuid: ^11.1.0
     vite: ^6.1.0
     vite-plugin-checker: ^0.8.0
     vite-plugin-svgr: ^4.3.0
@@ -12409,12 +12409,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"uuid@npm:^11.0.5":
-  version: 11.0.5
-  resolution: "uuid@npm:11.0.5"
+"uuid@npm:^11.1.0":
+  version: 11.1.0
+  resolution: "uuid@npm:11.1.0"
   bin:
     uuid: dist/esm/bin/uuid
-  checksum: 8a8ed824c77ccc9387eed3049e75268a862379f0d41222716020743c438f31e9acfbe6495bd4cb1a7727c91fcf5ae20be40b306826a62c96f9ff42db48e8ed93
+  checksum: 840f19758543c4631e58a29439e51b5b669d5f34b4dd2700b6a1d15c5708c7a6e0c3e2c8c4a2eae761a3a7caa7e9884d00c86c02622ba91137bd3deade6b4b4a
   languageName: node
   linkType: hard
 
