@@ -1,14 +1,16 @@
 import { Button } from "@trussworks/react-uswds";
+import site from "../../content/site.json";
 import { CodeMapData } from "../../hooks/api/UseCodeMappingFormSubmit/UseCodeMappingFormSubmit";
 import { Alert, Table } from "../../shared";
+import { USExtLink } from "../USLink";
 
 interface CodeMappingResultsProps {
     fileName: string;
     data: CodeMapData[];
-    initialStepHandler: () => void;
+    onReset: () => void;
 }
 
-const CodeMappingResults = ({ fileName, data, initialStepHandler }: CodeMappingResultsProps) => {
+const CodeMappingResults = ({ fileName, data, onReset }: CodeMappingResultsProps) => {
     const unmappedData = data.filter((item: CodeMapData) => item.mapped === "N");
     const areCodesMapped = unmappedData.length === 0;
     const rowData = unmappedData.map((dataRow) => [
@@ -42,8 +44,9 @@ const CodeMappingResults = ({ fileName, data, initialStepHandler }: CodeMappingR
                 ) : (
                     <Alert type={"error"} heading={"Your file contains unmapped codes "}>
                         Review unmapped codes for any user error, such as a typo. If the unmapped codes are accurate,
-                        download the table and send the file to your onboarding engineer or reportstream@cdc.gov. Our
-                        team will support any remaining mapping needed.
+                        download the table and send the file to your onboarding engineer or{" "}
+                        <USExtLink href={`mailto: ${site.orgs.RS.email}`}>{site.orgs.RS.email}</USExtLink> . Our team
+                        will support any remaining mapping needed.
                     </Alert>
                 )}
             </div>
@@ -51,7 +54,12 @@ const CodeMappingResults = ({ fileName, data, initialStepHandler }: CodeMappingR
             <div className="padding-top-2 padding-bottom-4 padding-x-3 bg-gray-5 margin-bottom-4">
                 <Table gray borderless rowData={rowData} />
             </div>
-            <Button type="button" onClick={initialStepHandler}>
+            <Alert type="tip" className="margin-bottom-6">
+                Follow <a href={site.assets.codeMapTemplate.path}>these instructions</a> and use{" "}
+                <a href="/developer-resources/api/getting-started#2_4">our template</a> to format your result and
+                organism codes to LOINC or SNOMED.
+            </Alert>
+            <Button type="button" onClick={onReset}>
                 Test another file
             </Button>
         </>

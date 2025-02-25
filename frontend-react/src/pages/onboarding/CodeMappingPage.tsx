@@ -4,7 +4,8 @@ import { Helmet } from "react-helmet-async";
 import CodeMappingForm from "../../components/CodeMapping/CodeMappingForm";
 import CodeMappingResults from "../../components/CodeMapping/CodeMappingResults";
 import Spinner from "../../components/Spinner";
-import { USLink } from "../../components/USLink";
+import { USExtLink } from "../../components/USLink";
+import site from "../../content/site.json";
 import useCodeMappingFormSubmit from "../../hooks/api/UseCodeMappingFormSubmit/UseCodeMappingFormSubmit";
 
 enum CodeMappingSteps {
@@ -20,10 +21,10 @@ const CodeMappingPage = () => {
         // Don't have a proper mechanism to cancel in-flight requests so refresh page
         window.location.reload();
     }, []);
-    const initialStepHandler = () => {
+    const onReset = () => {
         setCurrentCodeMapStep(CodeMappingSteps.StepOne);
     };
-    const onSubmitHandler = useCallback<FormEventHandler<HTMLFormElement>>(
+    const onSubmit = useCallback<FormEventHandler<HTMLFormElement>>(
         (ev) => {
             ev.preventDefault();
             mutate();
@@ -54,21 +55,17 @@ const CodeMappingPage = () => {
                 ) : (
                     <>
                         {currentCodeMapStep === CodeMappingSteps.StepOne && (
-                            <CodeMappingForm onSubmitHandler={onSubmitHandler} setFileName={setFileName} />
+                            <CodeMappingForm onSubmit={onSubmit} setFileName={setFileName} />
                         )}
                         {currentCodeMapStep === CodeMappingSteps.StepTwo && (
-                            <CodeMappingResults
-                                fileName={fileName}
-                                data={data ?? []}
-                                initialStepHandler={initialStepHandler}
-                            />
+                            <CodeMappingResults fileName={fileName} data={data ?? []} onReset={onReset} />
                         )}
                     </>
                 )}
 
                 <p className="margin-top-9">
                     Questions or feedback? Please email{" "}
-                    <USLink href="mailto:reportstream@cdc.gov">reportstream@cdc.gov</USLink>
+                    <USExtLink href={`mailto: ${site.orgs.RS.email}`}>{site.orgs.RS.email}</USExtLink>{" "}
                 </p>
             </GridContainer>
         </>

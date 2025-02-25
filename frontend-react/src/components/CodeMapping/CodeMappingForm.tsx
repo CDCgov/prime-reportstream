@@ -3,11 +3,11 @@ import { FormEventHandler, MouseEventHandler, useCallback } from "react";
 import site from "../../content/site.json";
 
 interface CodeMappingFormProps {
-    onSubmitHandler: FormEventHandler<HTMLFormElement>;
+    onSubmit: FormEventHandler<HTMLFormElement>;
     setFileName: (fileName: string) => void;
 }
 
-const CodeMappingForm = ({ onSubmitHandler, setFileName }: CodeMappingFormProps) => {
+const CodeMappingForm = ({ onSubmit, setFileName }: CodeMappingFormProps) => {
     const onBackHandler = useCallback<MouseEventHandler>((_ev) => {
         window.history.back();
     }, []);
@@ -32,7 +32,7 @@ const CodeMappingForm = ({ onSubmitHandler, setFileName }: CodeMappingFormProps)
                 LOINC or SNOMED. Note: Local codes cannot be automatically mapped.
             </p>
 
-            <form onSubmit={onSubmitHandler}>
+            <form onSubmit={onSubmit}>
                 <label className="usa-label" htmlFor="file-input-specific">
                     Upload CSV file
                 </label>
