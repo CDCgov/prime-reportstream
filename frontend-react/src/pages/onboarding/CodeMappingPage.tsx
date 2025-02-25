@@ -59,7 +59,7 @@ const CodeMappingPage = () => {
                         {currentCodeMapStep === CodeMappingSteps.StepTwo && (
                             <CodeMappingResults
                                 fileName={fileName}
-                                data={data}
+                                data={data ?? []}
                                 initialStepHandler={initialStepHandler}
                             />
                         )}

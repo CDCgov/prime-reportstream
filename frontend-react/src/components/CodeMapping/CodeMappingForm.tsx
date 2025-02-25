@@ -1,9 +1,10 @@
 import { Button, ButtonGroup, FileInput } from "@trussworks/react-uswds";
-import { MouseEventHandler, useCallback } from "react";
+import { FormEventHandler, MouseEventHandler, useCallback } from "react";
 import site from "../../content/site.json";
 
 interface CodeMappingFormProps {
-    onSubmitHandler: () => void;
+    onSubmitHandler: FormEventHandler<HTMLFormElement>;
+    setFileName: (fileName: string) => void;
 }
 
 const CodeMappingForm = ({ onSubmitHandler, setFileName }: CodeMappingFormProps) => {

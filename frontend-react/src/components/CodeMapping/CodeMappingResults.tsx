@@ -1,12 +1,15 @@
-import { Accordion, Button, Icon } from "@trussworks/react-uswds";
+import { Button } from "@trussworks/react-uswds";
+import { CodeMapData } from "../../hooks/api/UseCodeMappingFormSubmit/UseCodeMappingFormSubmit";
 import { Alert, Table } from "../../shared";
 
 interface CodeMappingResultsProps {
     fileName: string;
+    data: CodeMapData[];
+    initialStepHandler: () => void;
 }
 
 const CodeMappingResults = ({ fileName, data, initialStepHandler }: CodeMappingResultsProps) => {
-    const unmappedData = data.filter((item) => item.mapped === "N");
+    const unmappedData = data.filter((item: CodeMapData) => item.mapped === "N");
     const areCodesMapped = unmappedData.length === 0;
     const rowData = unmappedData.map((dataRow) => [
         {

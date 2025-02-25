@@ -1,5 +1,12 @@
 import { useMutation } from "@tanstack/react-query";
 
+export interface CodeMapData {
+    "test code": string;
+    "test description": string;
+    "coding system": string;
+    mapped: string;
+}
+
 const useCodeMappingFormSubmit = () => {
     const fn = async () => {
         // Simulate network request
