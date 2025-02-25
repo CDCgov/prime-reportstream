@@ -214,9 +214,6 @@ class DeliveryHistoryDatabaseAccess(
         }
 
         val whereClause = createSendWhereCondition(organization, orgService)
-//            this.createWhereCondition(
-//            organization, orgService, receivingOrgSvcStatus, reportId, fileName
-//        )
 
         val deliveriesExpression = DSL.select(
             Tables.REPORT_FILE.ACTION_ID.`as`(DeliveryHistoryTable.DELIVERY_HISTORY.DELIVERY_ID),
