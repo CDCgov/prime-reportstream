@@ -72,6 +72,9 @@ variable "postgres_user" {}
 variable "postgres_pass" {
   sensitive = true
 }
+variable "hikari_config_timeout_ms" {
+  type = number
+}
 variable "application_key_vault_id" {}
 variable "sa_partner_connection_string" {
   sensitive = true

@@ -3,21 +3,22 @@ locals {
   is_temp_env = true
   address_id  = var.address_id
   init = {
-    environment           = var.environment
-    location              = "eastus"
-    is_metabase_env       = false
-    random_id             = local.random_id
-    resource_group_name   = "prime-data-hub-${var.environment}"
-    resource_prefix       = "pdh${var.environment}"
-    okta_redirect_url     = "https://${var.environment}.prime.cdc.gov/download"
-    okta_base_url         = "hhs-prime.oktapreview.com"
-    OKTA_scope            = "simple_report_dev"
-    sftp_container_module = false
-    RS_okta_base_url      = "reportstream.oktapreview.com"
-    RS_okta_redirect_url  = "https://prime-data-hub-XXXXXXX.azurefd.net/download"
-    RS_OKTA_scope         = "reportstream_dev"
-    etor_ti_base_url      = "https://cdcti-stg-api.azurewebsites.net"
-    JAVA_OPTS             = "-Dfile.encoding=UTF-8"
+    environment              = var.environment
+    location                 = "eastus"
+    is_metabase_env          = false
+    random_id                = local.random_id
+    resource_group_name      = "prime-data-hub-${var.environment}"
+    resource_prefix          = "pdh${var.environment}"
+    okta_redirect_url        = "https://${var.environment}.prime.cdc.gov/download"
+    okta_base_url            = "hhs-prime.oktapreview.com"
+    OKTA_scope               = "simple_report_dev"
+    sftp_container_module    = false
+    RS_okta_base_url         = "reportstream.oktapreview.com"
+    RS_okta_redirect_url     = "https://prime-data-hub-XXXXXXX.azurefd.net/download"
+    RS_OKTA_scope            = "reportstream_dev"
+    etor_ti_base_url         = "https://cdcti-stg-api.azurewebsites.net"
+    JAVA_OPTS                = "-Dfile.encoding=UTF-8"
+    hikari_config_timeout_ms = 60000
   }
   key_vault = {
     app_config_kv_name    = "pdh${local.init.environment}-appconfig${local.init.random_id}"
