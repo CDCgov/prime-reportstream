@@ -32,6 +32,7 @@ import gov.cdc.prime.router.azure.observability.event.CodeSummary
 import gov.cdc.prime.router.azure.observability.event.InMemoryAzureEventService
 import gov.cdc.prime.router.azure.observability.event.ItemEventData
 import gov.cdc.prime.router.azure.observability.event.ObservationSummary
+import gov.cdc.prime.router.azure.observability.event.OrderingFacilitySummary
 import gov.cdc.prime.router.azure.observability.event.ReportEventData
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventProperties
 import gov.cdc.prime.router.azure.observability.event.ReportStreamItemEvent
@@ -410,8 +411,8 @@ class FhirDestinationFilterTests {
                             ),
                         ),
                         patientState = listOf("CA"),
-                        performerState = emptyList(),
-                        orderingFacilityState = listOf("CA"),
+                        performerSummaries = emptyList(),
+                        orderingFacilitySummaries = listOf(OrderingFacilitySummary(orderingFacilityState = "CA")),
                         eventType = "ORU/ACK - Unsolicited transmission of an observation message"
                     )
                 )
@@ -573,8 +574,8 @@ class FhirDestinationFilterTests {
                                 ),
                             ),
                             patientState = listOf("CA"),
-                            performerState = emptyList(),
-                            orderingFacilityState = listOf("CA"),
+                            performerSummaries = emptyList(),
+                            orderingFacilitySummaries = listOf(OrderingFacilitySummary(orderingFacilityState = "CA")),
                             eventType = "ORU/ACK - Unsolicited transmission of an observation message"
                         )
                     )
