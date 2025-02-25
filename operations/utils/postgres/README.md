@@ -21,13 +21,13 @@ Read through the Makefile, or run:
 #### Connect From Another Container
 
 ```shell
-    docker run --rm --network pg_network postgres:16 psql -h rs-postgres -U user -d mydb
+    docker run --rm --network pg_network postgres:16 psql -h rs-postgres -U rsuser -d mydb
 ```
 
 #### Connect From Host Machine
 
 ```shell
-    psql -h localhost -U user -d mydb -p 5432
+    psql -h localhost -U rsuser -d mydb -p 5432
 ```
 
 ### Important Security Warnings
