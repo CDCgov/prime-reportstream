@@ -4,15 +4,40 @@ constants:
 elements:
   # OBX 15.2
   - name: obx-producer-text
+    condition: '%resource.code.coding.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code").value.where(code in ("AOE")).exists()'
     value: [ '""' ]
     hl7Spec: [ '%{hl7ObservationPath}/OBX-15-2' ]
 
   # OBX 15.3
   - name: obx-producer-coding-system-name
+    condition: '%resource.code.coding.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code").value.where(code in ("AOE")).exists()'
     value: [ '""' ]
     hl7Spec: [ '%{hl7ObservationPath}/OBX-15-3' ]
 
-  # OBX 24
+  # OBX 23-2
   - name: obx-organization-name-type-code
+    condition: '%resource.code.coding.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code").value.where(code in ("AOE")).exists().not()'
     value: [ '"L"' ]
     hl7Spec: [ '%{hl7ObservationPath}/OBX-23-2' ]
+
+  # OBX 23-2 - Remove tag if AOE
+  - name: obx-organization-name-type-code-aoe
+    condition: '%resource.code.coding.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code").value.where(code in ("AOE")).exists()'
+    value: [ '""' ]
+    hl7Spec: [ '%{hl7ObservationPath}/OBX-23-2' ]
+
+  # OBX 23-6.1-3
+  - name: obx-assigning-authority-namespace-id
+    condition: '%resource.code.coding.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code").value.where(code in ("AOE")).exists().not()'
+    value: [ '"CLIA"' ]
+    hl7Spec: [ '%{hl7ObservationPath}/OBX-23-6-1' ]
+
+  - name: obx-assigning-authority-universal-id
+    condition: '%resource.code.coding.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code").value.where(code in ("AOE")).exists().not()'
+    value: [ '"2.16.840.1.113883.4.7"' ]
+    hl7Spec: [ '%{hl7ObservationPath}/OBX-23-6-2' ]
+
+  - name: obx-assigning-authority-universal-id-type
+    condition: '%resource.code.coding.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code").value.where(code in ("AOE")).exists().not()'
+    value: [ '"ISO"' ]
+    hl7Spec: [ '%{hl7ObservationPath}/OBX-23-6-3' ]
