@@ -55,9 +55,9 @@ const CodeMappingResults = ({ fileName, data, onReset }: CodeMappingResultsProps
                 <Table gray borderless rowData={rowData} />
             </div>
             <Alert type="tip" className="margin-bottom-6">
-                Follow <a href={site.assets.codeMapTemplate.path}>these instructions</a> and use{" "}
-                <a href="/developer-resources/api/getting-started#2_4">our template</a> to format your result and
-                organism codes to LOINC or SNOMED.
+                Follow <a href="/developer-resources/api/getting-started#2_4">these instructions</a> and use{" "}
+                <a href={site.assets.codeMapTemplate.path}>our template</a> to format your result and organism codes to
+                LOINC or SNOMED.
             </Alert>
             <Button type="button" onClick={onReset}>
                 Test another file
