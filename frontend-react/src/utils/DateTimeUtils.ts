@@ -19,14 +19,15 @@ export interface DateTimeData {
     timeString format: 16:30
 */
 export const generateDateTitles = (dateTimeString?: string) => {
-    if (!dateTimeString) {
-        return { dateString: "N/A", timeString: "N/A" };
-    }
+    // Default to the current time
+    let date = new Date();
 
-    const date = parseISO(dateTimeString);
-
-    if (!isValid(date)) {
-        return { dateString: "N/A", timeString: "N/A" };
+    if (dateTimeString) {
+        const parsedDate = parseISO(dateTimeString);
+        // If the parsedDate is valid, use that instead
+        if (isValid(parsedDate)) {
+            date = parsedDate;
+        }
     }
 
     return {
