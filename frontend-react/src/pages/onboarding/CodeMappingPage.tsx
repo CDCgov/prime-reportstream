@@ -6,7 +6,7 @@ import CodeMappingResults from "../../components/CodeMapping/CodeMappingResults"
 import Spinner from "../../components/Spinner";
 import { USExtLink } from "../../components/USLink";
 import site from "../../content/site.json";
-import useCodeMappingFormSubmit from "../../hooks/api/UseCodeMappingFormSubmit/UseCodeMappingFormSubmit";
+import useCodeMappingFormSubmit, { sampArr } from "../../hooks/api/UseCodeMappingFormSubmit/UseCodeMappingFormSubmit";
 
 enum CodeMappingSteps {
     StepOne = "CodeMapFileSelect",
@@ -58,7 +58,7 @@ const CodeMappingPage = () => {
                             <CodeMappingForm onSubmit={onSubmit} setFileName={setFileName} />
                         )}
                         {currentCodeMapStep === CodeMappingSteps.StepTwo && (
-                            <CodeMappingResults fileName={fileName} data={data ?? []} onReset={onReset} />
+                            <CodeMappingResults fileName={fileName} data={data ?? sampArr} onReset={onReset} />
                         )}
                     </>
                 )}
