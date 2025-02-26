@@ -49,6 +49,7 @@
   "scripts": {
     "postinstall": "scripts/postinstall.sh",
     "dev": "vite",
+    "dev:disable:overlays": "DISABLE_OVERLAYS=1 vite",
     "preview": "vite preview --mode preview",
     "preview:csp": "yarn run preview --mode csp",
     "preview:test": "yarn run preview --mode test",
