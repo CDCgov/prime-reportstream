@@ -7,7 +7,7 @@ elements:
     value: [ '"cvs-health"' ]
 
   - name: cvs-suppress-aoes-without-loincs
-    resource: 'Bundle.entry.resource.ofType(Observation).where(code.coding.code.empty())'
+    resource: 'Bundle.entry.resource.ofType(Observation).where(code.coding.code.empty() or code.coding.code.matches("\\d{5}-\\d{1}").not())'
     bundleProperty: '%resource.value[x]'
     value: [ '""' ]
     action: DELETE
@@ -64,7 +64,7 @@ elements:
   - name: cvs-spm-4-other-code
     resource: 'Bundle.entry.resource.ofType(Specimen)'
     condition: '%resource.type.exists() and %resource.type.coding.code.upper() = "OTHER"'
-    value: [ '"455371000124106"' ]
+    value: [ '"445297001"' ]
     bundleProperty: '%resource.type.coding.code'
 
   - name: cvs-spm-4-sct
