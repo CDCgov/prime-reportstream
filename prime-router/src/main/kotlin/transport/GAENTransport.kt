@@ -216,7 +216,8 @@ class GAENTransport(val httpClient: HttpClient? = null) :
             // As a backup for missing symptomDate, use the testDate per conversation with WA-PHD
             symptomDate = table[0]["illness_onset_date"] ?: testDate
             phone = table[0]["patient_phone_number"] ?: ""
-            padding = RandomStringUtils.randomAlphanumeric(16)
+            // padding obfuscates the size of the request body to observers.
+            padding = RandomStringUtils.secure().nextAlphanumeric(16)
             uuid = formatUUID(uuidFormat, reportId, phone, testDate, uuidIV)
         }
     }
