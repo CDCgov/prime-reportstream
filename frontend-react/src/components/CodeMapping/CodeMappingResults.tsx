@@ -1,4 +1,4 @@
-import { Button } from "@trussworks/react-uswds";
+import { Button, Icon } from "@trussworks/react-uswds";
 import site from "../../content/site.json";
 import { CodeMapData } from "../../hooks/api/UseCodeMappingFormSubmit/UseCodeMappingFormSubmit";
 import { Alert, Table } from "../../shared";
@@ -50,7 +50,13 @@ const CodeMappingResults = ({ fileName, data, onReset }: CodeMappingResultsProps
                     </Alert>
                 )}
             </div>
-            <h3>Unmapped codes</h3>
+            <div className="display-flex flex-justify flex-align-center">
+                <h3>Unmapped codes</h3>
+                <Button type="button" outline>
+                    Download table as CSV <Icon.FileDownload className="text-top" />
+                </Button>
+            </div>
+
             <div className="padding-top-2 padding-bottom-4 padding-x-3 bg-gray-5 margin-bottom-4">
                 <Table gray borderless rowData={rowData} />
             </div>

@@ -6,7 +6,7 @@ import CodeMappingResults from "../../components/CodeMapping/CodeMappingResults"
 import Spinner from "../../components/Spinner";
 import { USExtLink } from "../../components/USLink";
 import site from "../../content/site.json";
-import useCodeMappingFormSubmit from "../../hooks/api/UseCodeMappingFormSubmit/UseCodeMappingFormSubmit";
+import useCodeMappingFormSubmit, { sampArr } from "../../hooks/api/UseCodeMappingFormSubmit/UseCodeMappingFormSubmit";
 
 enum CodeMappingSteps {
     StepOne = "CodeMapFileSelect",
@@ -15,7 +15,7 @@ enum CodeMappingSteps {
 
 const CodeMappingPage = () => {
     const { data, isPending, mutate } = useCodeMappingFormSubmit();
-    const [currentCodeMapStep, setCurrentCodeMapStep] = useState<CodeMappingSteps>(CodeMappingSteps.StepOne);
+    const [currentCodeMapStep, setCurrentCodeMapStep] = useState<CodeMappingSteps>(CodeMappingSteps.StepTwo);
     const [fileName, setFileName] = useState("");
     const onCancelHandler = useCallback<MouseEventHandler>((_ev) => {
         // Don't have a proper mechanism to cancel in-flight requests so refresh page
@@ -58,7 +58,7 @@ const CodeMappingPage = () => {
                             <CodeMappingForm onSubmit={onSubmit} setFileName={setFileName} />
                         )}
                         {currentCodeMapStep === CodeMappingSteps.StepTwo && (
-                            <CodeMappingResults fileName={fileName} data={data ?? []} onReset={onReset} />
+                            <CodeMappingResults fileName={fileName} data={data ?? sampArr} onReset={onReset} />
                         )}
                     </>
                 )}
