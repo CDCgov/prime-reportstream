@@ -19,13 +19,13 @@ export interface DateTimeData {
     timeString format: 16:30
 */
 export const generateDateTitles = (dateTimeString?: string, useNow?: boolean) => {
-    if (!dateTimeString && !useNow) {
+    if (!(dateTimeString || useNow)) {
         return { dateString: "N/A", timeString: "N/A" };
     }
 
-    const date = dateTimeString && useNow == false ? parseISO(dateTimeString) : new Date();
+    const date = useNow ? new Date() : parseISO(dateTimeString!);
 
-    if (!isValid(date)) {
+    if (!isValid(date) && useNow !== true) {
         return { dateString: "N/A", timeString: "N/A" };
     }
 
