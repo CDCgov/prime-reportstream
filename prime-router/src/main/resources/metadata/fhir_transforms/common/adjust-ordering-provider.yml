@@ -18,11 +18,11 @@ elements:
   - name: set-obr-16-13-if-not-practitioner
     resource: 'Bundle.entry.resource.ofType(Practitioner)'
     condition: '%npiResource.value.exists().not()'
-    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/xcn-practitioner").extension("XCN.13").value[x]'
+    bundleProperty: '%resource.identifier.type.coding.code'
     value: [ '"U"' ]
 
   - name: set-obr-16-13-if-practitioner
     resource: 'Bundle.entry.resource.ofType(Practitioner)'
     condition: '%npiResource.value.exists()'
-    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/xcn-practitioner").extension("XCN.13").value[x]'
+    bundleProperty: '%resource.identifier.type.coding.code'
     value: [ '"NPI"' ]

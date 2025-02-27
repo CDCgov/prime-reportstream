@@ -1,0 +1,16 @@
+# $schema: ./../../../../../../metadata/json_schema/fhir/fhir-to-hl7-mapping.json
+
+hl7Class: ca.uhn.hl7v2.model.v27.message.ORU_R01
+extends: classpath:/metadata/hl7_mapping/ORU_R01/ORU_R01-base.yml
+
+elements:
+  - name: obx-shadow
+    resource: 'Bundle.entry.resource.ofType(Observation)'
+    condition: '%resource.count() > 0'
+    schema: classpath:/metadata/hl7_mapping/ORU_R01/OBX-shadow.yml
+    resourceIndex: resultIndex
+
+  # ORC 21.7
+  - name: orc-identifier-type-code
+    value: [ '""' ]
+    hl7Spec: [ /PATIENT_RESULT/ORDER_OBSERVATION/ORC-21-7 ]

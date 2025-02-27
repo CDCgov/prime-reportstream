@@ -420,21 +420,21 @@ elements:
     bundleProperty: '%resource.collection.bodySite.coding[0].display'
     value: [ '%resource.collection.bodySite.text' ]
 
+  - name: sr-observation-producer-id-hl7use
+    resource: 'Bundle.entry.resource.ofType(Observation).performer.resolve()'
+    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field")[0].value[x]'
+    value: [ '"OBX.15"' ]
+
+  - name: sr-observation-performing-org-hl7use
+    resource: 'Bundle.entry.resource.ofType(Observation).performer.resolve()'
+    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field")[1].value[x]'
+    value: [ '"OBX.25"' ]
+
   - name: sr-observation-producer-id-identifier
     resource: 'Bundle.entry.resource.ofType(Observation)'
     condition: '%resource.performer.exists().not()'
     bundleProperty: '%resource.performer'
     value: [ '%diagnosticReport.basedOn.resolve().performer' ]
-
-  - name: sr-observation-producer-id-hl7use
-    resource: 'Bundle.entry.resource.ofType(Observation).performer.resolve()'
-    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field")[1].value[x]'
-    value: [ '"OBX.15"' ]
-
-  - name: sr-observation-performing-org-hl7use
-    resource: 'Bundle.entry.resource.ofType(Observation).performer.resolve()'
-    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field")[0].value[x]'
-    value: [ '"OBX.25"' ]
 
   - name: sr-observation-producer-id-cwe-identifier
     resource: 'Bundle.entry.resource.ofType(Observation).performer.resolve()'
@@ -597,6 +597,10 @@ elements:
   - name: sr-service-request-requester-address-street
     bundleProperty: 'Bundle.entry.resource.ofType(ServiceRequest).requester.resolve().practitioner.resolve().address.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/xad-address").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/sad-address-line").extension("SAD.1").value[x]'
     value: [ 'Bundle.entry.resource.ofType(ServiceRequest).requester.resolve().practitioner.resolve().address.line[0]' ]
+
+  - name: sr-service-request-requester-address-street-2
+    bundleProperty: 'Bundle.entry.resource.ofType(ServiceRequest).requester.resolve().practitioner.resolve().address.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/xad-address").extension("XAD.2").value[x]'
+    value: [ 'Bundle.entry.resource.ofType(ServiceRequest).requester.resolve().practitioner.resolve().address.line[1]' ]
 
   # order-effective-date
   - name: sr-service-request-orc-order-effective-date
