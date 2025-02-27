@@ -18,16 +18,15 @@ export interface DateTimeData {
     dateString format: 1 Jan 2022
     timeString format: 16:30
 */
-export const generateDateTitles = (dateTimeString?: string) => {
-    // Default to the current time
-    let date = new Date();
+export const generateDateTitles = (dateTimeString?: string, useNow?: boolean) => {
+    if (!dateTimeString && !useNow) {
+        return { dateString: "N/A", timeString: "N/A" };
+    }
 
-    if (dateTimeString) {
-        const parsedDate = parseISO(dateTimeString);
-        // If the parsedDate is valid, use that instead
-        if (isValid(parsedDate)) {
-            date = parsedDate;
-        }
+    const date = dateTimeString && useNow == false ? parseISO(dateTimeString) : new Date();
+
+    if (!isValid(date)) {
+        return { dateString: "N/A", timeString: "N/A" };
     }
 
     return {

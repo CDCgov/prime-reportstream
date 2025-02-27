@@ -1,4 +1,4 @@
-import { Button, Icon } from "@trussworks/react-uswds";
+import { Button, Icon, Link } from "@trussworks/react-uswds";
 import site from "../../content/site.json";
 import { CodeMapData } from "../../hooks/api/UseCodeMappingFormSubmit/UseCodeMappingFormSubmit";
 import { Alert, Table } from "../../shared";
@@ -34,9 +34,9 @@ const CodeMappingResults = ({ fileName, data, onReset }: CodeMappingResultsProps
         },
     ]);
     function handleSaveToCsvClick() {
-        const dateObj = generateDateTitles();
+        const dateObj = generateDateTitles(undefined, true);
         return saveToCsv(unmappedData, {
-            filename: `${removeFileExtension(fileName)} ${dateObj.dateString}${dateObj.timeString}`,
+            filename: `${removeFileExtension(fileName)} ${dateObj.dateString}`,
         });
     }
     return (
@@ -52,8 +52,11 @@ const CodeMappingResults = ({ fileName, data, onReset }: CodeMappingResultsProps
                     <Alert type={"success"} heading={"All codes are mapped"}></Alert>
                 ) : (
                     <Alert type={"error"} heading={"Your file contains unmapped codes "}>
-                        Review unmapped codes for any user error, such as a typo. If the unmapped codes are accurate,
-                        download the table and send the file to your onboarding engineer or{" "}
+                        Review unmapped codes for any user error, such as a typo. If the unmapped codes are accurate,{" "}
+                        <Link href="#" onClick={handleSaveToCsvClick}>
+                            download the table
+                        </Link>{" "}
+                        and send the file to your onboarding engineer or{" "}
                         <USExtLink href={`mailto: ${site.orgs.RS.email}`}>{site.orgs.RS.email}</USExtLink> . Our team
                         will support any remaining mapping needed.
                     </Alert>
