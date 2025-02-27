@@ -87,6 +87,7 @@ val KEY_DB_USER = "DB_USER"
 val KEY_DB_PASSWORD = "DB_PASSWORD"
 val KEY_DB_URL = "DB_URL"
 val KEY_PRIME_RS_API_ENDPOINT_HOST = "PRIME_RS_API_ENDPOINT_HOST"
+val KEY_HIKARI_CONFIG_TIMEOUT_MS = "HIKARI_CONFIG_TIMEOUT_MS"
 val dbUser = (
     project.properties[KEY_DB_USER]
         ?: System.getenv(KEY_DB_USER)
@@ -101,6 +102,11 @@ val dbUrl = (
     project.properties[KEY_DB_URL]
         ?: System.getenv(KEY_DB_URL)
         ?: "jdbc:postgresql://localhost:5432/prime_data_hub"
+    ) as String
+val hikariConfigTimeout = (
+    project.properties[KEY_HIKARI_CONFIG_TIMEOUT_MS]
+        ?: System.getenv(KEY_HIKARI_CONFIG_TIMEOUT_MS)
+        ?: "60000"
     ) as String
 
 val reportsApiEndpointHost = (
@@ -123,6 +129,7 @@ val env = mutableMapOf<String, Any>(
     "POSTGRES_USER" to dbUser,
     "POSTGRES_PASSWORD" to dbPassword,
     "POSTGRES_URL" to dbUrl,
+    KEY_HIKARI_CONFIG_TIMEOUT_MS to hikariConfigTimeout,
     "PRIME_ENVIRONMENT" to "local",
     "VAULT_API_ADDR" to "http://localhost:8200",
     "SFTP_HOST_OVERRIDE" to "localhost",
@@ -186,6 +193,7 @@ tasks.test {
     environment["POSTGRES_URL"] = dbUrl
     environment["POSTGRES_USER"] = dbUser
     environment["POSTGRES_PASSWORD"] = dbPassword
+    environment[KEY_HIKARI_CONFIG_TIMEOUT_MS] = hikariConfigTimeout
 
     // Set max parellel forks as recommended in https://docs.gradle.org/current/userguide/performance.html
     maxParallelForks = (Runtime.getRuntime().availableProcessors() / 2).takeIf { it > 0 } ?: 1
@@ -299,6 +307,7 @@ tasks.register<Test>("testIntegration") {
     environment["POSTGRES_URL"] = dbUrl
     environment["POSTGRES_USER"] = dbUser
     environment["POSTGRES_PASSWORD"] = dbPassword
+    environment[KEY_HIKARI_CONFIG_TIMEOUT_MS] = hikariConfigTimeout
 
     testClassesDirs = sourceSets["testIntegration"].output.classesDirs
     classpath = sourceSets["testIntegration"].runtimeClasspath
@@ -423,6 +432,7 @@ tasks.register<JavaExec>("primeCLI") {
     environment["POSTGRES_URL"] = dbUrl
     environment["POSTGRES_USER"] = dbUser
     environment["POSTGRES_PASSWORD"] = dbPassword
+    environment[KEY_HIKARI_CONFIG_TIMEOUT_MS] = hikariConfigTimeout
     environment[KEY_PRIME_RS_API_ENDPOINT_HOST] = reportsApiEndpointHost
     addVaultValuesToEnv(environment)
     environment(env)
