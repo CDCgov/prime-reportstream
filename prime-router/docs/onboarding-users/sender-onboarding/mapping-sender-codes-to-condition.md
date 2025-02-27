@@ -76,22 +76,22 @@ Output JSON:
 ```json
 [
     {
-        "test code": "97097-0",
-        "test description": "SARS-CoV-2 (COVID-19) Ag [Presence] in Upper respiratory specimen by Rapid  immunoassay",
-        "coding system": "LOINC",
-        "mapped?": "Y"
+        "testCode": "97097-0",
+        "testDescription": "SARS-CoV-2 (COVID-19) Ag [Presence] in Upper respiratory specimen by Rapid  immunoassay",
+        "codingSystem": "LOINC",
+        "mapped": "Y"
     },
     {
-        "test code": "80382-5",
-        "test description": "Influenza virus A Ag [Presence] in Upper respiratory specimen by Rapid immunoassay",
-        "coding system": "LOINC",
-        "mapped?": "Y"
+        "testCode": "80382-5",
+        "testDescription": "Influenza virus A Ag [Presence] in Upper respiratory specimen by Rapid immunoassay",
+        "codingSystem": "LOINC",
+        "mapped": "Y"
     },
     {
-        "test code": "12345",
-        "test description": "Flu B",
-        "coding system": "LOCAL",
-        "mapped?": "N"
+        "testCode": "12345",
+        "testDescription": "Flu B",
+        "codingSystem": "LOCAL",
+        "mapped": "N"
     }
 ]
 ```
