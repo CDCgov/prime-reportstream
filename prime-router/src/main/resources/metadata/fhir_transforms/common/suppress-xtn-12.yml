@@ -79,12 +79,6 @@ elements:
   value: [ '""' ]
   bundleProperty: '%resource.value[x]'
 
-- name: suppress-organization-orc-21-xtn-7
-  resource: 'Bundle.entry.resource.ofType(Organization).identifier.type.coding[1]'
-  condition: '%resource.code.exists()'
-  value: [ '""' ]
-  bundleProperty: '%resource.code'
-
 #  TODO: Enable this once simple report starts sending us Covid through the UP
 #  The received date time for the specimen. This field is very important to many states for their HL7,
 #  but for most of our senders, the received date time is the same as the collected date time. Unfortunately,
