@@ -213,7 +213,9 @@ class DeliveryHistoryDatabaseAccess(
             throw IllegalArgumentException("Invalid format for report ID: $reportIdStr")
         }
 
-        val whereClause = createSendWhereCondition(organization, orgService)
+        val whereClause = this.createWhereCondition(
+            organization, orgService, receivingOrgSvcStatus, reportId, fileName
+        )
 
         val deliveriesExpression = DSL.select(
             Tables.REPORT_FILE.ACTION_ID.`as`(DeliveryHistoryTable.DELIVERY_HISTORY.DELIVERY_ID),
@@ -306,7 +308,7 @@ class DeliveryHistoryDatabaseAccess(
         reportId: UUID?,
         fileName: String?,
     ): Condition {
-        var filter = databaseDeliveryAccess.organizationFilter(organization, orgService)
+        var filter = organizationFilter(organization, orgService)
 
         if (receivingOrgSvcStatus != null) {
             val statusList = receivingOrgSvcStatus.map { it.name.lowercase() }
@@ -327,7 +329,12 @@ class DeliveryHistoryDatabaseAccess(
         return filter
     }
 
-    private fun createSendWhereCondition(
+    /**
+     * Filter by organization on the send step.
+     * @param organization is the Organization Name returned from the Okta JWT Claim.
+     * @param orgService is a specifier for an organization, such as the client or service used to send/receive
+     */
+    private fun organizationFilter(
         organization: String,
         orgService: String?,
     ): Condition {
