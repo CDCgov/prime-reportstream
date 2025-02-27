@@ -32,7 +32,7 @@ jobs:
         run: yarn install --immutable
 
       - name: Run Chromatic
-        uses: chromaui/action@f4e60a7072abcac4203f4ca50613f28e199a52ba
+        uses: chromaui/action@fb9e1a8348b79ee0fda3e439a841a05141a4ccec
         with:
           workingDir: frontend-react
           token: ${{ secrets.GITHUB_TOKEN }}
