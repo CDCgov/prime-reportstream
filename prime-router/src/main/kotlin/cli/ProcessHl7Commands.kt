@@ -46,50 +46,15 @@ class ProcessHl7Commands :
         var comparisonFile = comparisonFile.inputStream().readBytes().toString(Charsets.UTF_8)
         if (comparisonFile.isBlank()) throw CliktError("File ${this.comparisonFile.absolutePath} is empty.")
 
-        var reorderedFile = comparisonFile.substringBefore("OBX|2")
-        var lines = comparisonFile.split("\r")
-        val originalLineCount = lines.count()
-        val aoeCodes = listOf(
-            "95418-0",
-            "95417-2",
-            "11368-8",
-            "95421-4",
-            "95419-8",
-            "82810-3",
-            "76691-5",
-            "75325-1",
-            "92131-2",
-            "85478-6",
-            "85477-8",
-        )
-        aoeCodes.forEach { code ->
-            if (code == "95417-2") {
-                // including this one because this AOE only exists in the CP
-                reorderedFile += "OBX|3|CWE|95417-2^First test for condition of interest^LN^^^^2.69||N^No^HL70136|" +
-                    "|||||F|||20241231233722+0000|12D0112200||||20241231235222+0000||||Shadow Test Lab^^^^^^XX^^^" +
-                    "12D0112200|285 E State St^Suite 201^Columbus^OH^43215^^^^39049\r"
-            } else {
-                val linesContainingCode = lines.filter { line -> line.contains(code) }
-                if (linesContainingCode.isNotEmpty()) {
-                    linesContainingCode.forEach {
-                        reorderedFile += it + "\r"
-                    }
-                    lines = lines.filter { line -> !line.contains(code) }
-                }
-            }
+        var reorderedFile = comparisonFile.substringBefore("MSH")
+        val results = comparisonFile.split("MSH")
+        for (i in 1..17) {
+            val resultWithId = results.filter { result -> result.contains("ID12345-$i&") }
+            val clean = resultWithId.first().replace("BTS|17\r", "").replace("FTS|1\r", "")
+            reorderedFile += "MSH$clean"
         }
-        lines.forEach { line ->
-            if (line.contains("SPM") || line.contains("FTS") || line.contains("BTS")) {
-                reorderedFile += line
-            }
-        }
-
-        val outputLineCount = reorderedFile.split("\r").count()
-        if (outputLineCount != originalLineCount) {
-            echo("Something went wrong when ordering. Ordering kept the same.")
-        } else {
-            comparisonFile = reorderedFile
-        }
+        reorderedFile += "BTS|17\n" + "FTS|1"
+        comparisonFile = reorderedFile
 
         val starterMessages = Hl7InputStreamMessageStringIterator(starterFile.byteInputStream()).asSequence()
             .map { rawItem ->
