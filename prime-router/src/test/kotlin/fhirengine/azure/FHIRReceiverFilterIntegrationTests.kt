@@ -421,7 +421,12 @@ class FHIRReceiverFilterIntegrationTests : Logging {
                     eventType = "ORU/ACK - Unsolicited transmission of an observation message",
                     patientState = listOf("CA"),
                     performerSummaries = emptyList(),
-                    orderingFacilitySummaries = listOf(OrderingFacilitySummary(orderingFacilityState = "CA"))
+                    orderingFacilitySummaries = listOf(
+                        OrderingFacilitySummary(
+                            orderingFacilityName = "Winchester House",
+                            orderingFacilityState = "CA"
+                        )
+                    )
                 ),
                 ReportStreamEventProperties.RECEIVER_NAME to receiver.fullName
             )
@@ -598,7 +603,12 @@ class FHIRReceiverFilterIntegrationTests : Logging {
                         eventType = "ORU/ACK - Unsolicited transmission of an observation message",
                         patientState = listOf("CA"),
                         performerSummaries = emptyList(),
-                        orderingFacilitySummaries = listOf(OrderingFacilitySummary(orderingFacilityState = "CA"))
+                        orderingFacilitySummaries = listOf(
+                            OrderingFacilitySummary(
+                                orderingFacilityName = "Winchester House",
+                                orderingFacilityState = "CA"
+                            )
+                        )
                     ),
                     ReportStreamEventProperties.RECEIVER_NAME to receiver.fullName
                 )
@@ -788,7 +798,12 @@ class FHIRReceiverFilterIntegrationTests : Logging {
                     eventType = "ORU/ACK - Unsolicited transmission of an observation message",
                     patientState = listOf("CA"),
                     performerSummaries = emptyList(),
-                    orderingFacilitySummaries = listOf(OrderingFacilitySummary(orderingFacilityState = "CA"))
+                    orderingFacilitySummaries = listOf(
+                        OrderingFacilitySummary(
+                            orderingFacilityName = "Winchester House",
+                            orderingFacilityState = "CA"
+                        )
+                    )
                 ),
                 ReportStreamEventProperties.RECEIVER_NAME to receiver.fullName
             )
@@ -1208,7 +1223,12 @@ class FHIRReceiverFilterIntegrationTests : Logging {
                     eventType = "ORU/ACK - Unsolicited transmission of an observation message",
                     patientState = listOf("CO"),
                     performerSummaries = emptyList(),
-                    orderingFacilitySummaries = listOf(OrderingFacilitySummary(orderingFacilityState = "CO"))
+                    orderingFacilitySummaries = listOf(
+                        OrderingFacilitySummary(
+                            orderingFacilityName = "******************************",
+                            orderingFacilityState = "CO"
+                        )
+                    )
                 ),
                 ReportStreamEventProperties.RECEIVER_NAME to receiver.fullName
             )

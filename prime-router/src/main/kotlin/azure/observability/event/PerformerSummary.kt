@@ -18,17 +18,40 @@ data class PerformerSummary(
          * Create an instance of [PerformerSummary] from a [DomainResource]
          */
         fun fromPerformer(performer: Base): PerformerSummary {
-            // For a given reference, resolve the object. This can reference many differing FHIR resource types
-            // (Practitioner, Organization, etc). Return a PerformerSummary object from the paths listed above.
-            val performerName = performer.getNamedProperty(performerNamePath)
-            val performerState = performer.getNamedProperty(performerStatePath)
-            val performerCLIA = performer.getNamedProperty(performerCLIAPath)
+            when (performer) {
+                is org.hl7.fhir.r4.model.Practitioner -> {
+                    // Practitioner has a name list and an address list
+                    val performerName = performer.name
+                        ?.firstOrNull()
+                        ?.nameAsSingleString ?: UNKNOWN
 
-            return PerformerSummary(
-                (performerName ?: PerformerSummary.UNKNOWN).toString(),
-                (performerState ?: PerformerSummary.UNKNOWN).toString(),
-                (performerCLIA ?: PerformerSummary.UNKNOWN).toString(),
-            )
+                    val performerState = performer.address
+                        ?.firstOrNull()
+                        ?.state ?: UNKNOWN
+
+                    // For Practitioner, identifier list may contain CLIA. You need to find it explicitly.
+                    val performerCLIA = performer.identifier
+                        ?.firstOrNull { it.system?.contains("CLIA", ignoreCase = true) == true }
+                        ?.value ?: UNKNOWN
+
+                    return PerformerSummary(performerName, performerState, performerCLIA)
+                }
+
+                is org.hl7.fhir.r4.model.Organization -> {
+                    // Handle Organization similarly, as a fallback
+                    val performerName = performer.name ?: UNKNOWN
+                    val performerState = performer.address
+                        ?.firstOrNull()
+                        ?.state ?: UNKNOWN
+                    val performerCLIA = performer.identifier
+                        ?.firstOrNull { it.system?.contains("CLIA", ignoreCase = true) == true }
+                        ?.value ?: UNKNOWN
+
+                    return PerformerSummary(performerName, performerState, performerCLIA)
+                }
+
+                else -> return PerformerSummary()
+            }
         }
     }
 }

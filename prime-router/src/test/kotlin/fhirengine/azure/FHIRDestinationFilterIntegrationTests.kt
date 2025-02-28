@@ -379,7 +379,12 @@ class FHIRDestinationFilterIntegrationTests : Logging {
                         eventType = "ORU/ACK - Unsolicited transmission of an observation message",
                         patientState = listOf("CO"),
                         performerSummaries = emptyList(),
-                        orderingFacilitySummaries = listOf(OrderingFacilitySummary(orderingFacilityState = "CO"))
+                        orderingFacilitySummaries = listOf(
+                            OrderingFacilitySummary(
+                                orderingFacilityName = "******************************",
+                                orderingFacilityState = "CO"
+                            )
+                        )
                     )
                 )
             )
@@ -481,7 +486,12 @@ class FHIRDestinationFilterIntegrationTests : Logging {
                 eventType = "ORU/ACK - Unsolicited transmission of an observation message",
                 patientState = listOf("CO"),
                 performerSummaries = emptyList(),
-                orderingFacilitySummaries = listOf(OrderingFacilitySummary(orderingFacilityState = "CO"))
+                orderingFacilitySummaries = listOf(
+                    OrderingFacilitySummary(
+                        orderingFacilityName = "******************************",
+                        orderingFacilityState = "CO"
+                    )
+                )
             )
         )
         )

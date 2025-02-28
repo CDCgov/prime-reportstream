@@ -502,7 +502,12 @@ class FHIRConverterIntegrationTests {
                                 )
                             ),
                         patientState = listOf("TX"),
-                        orderingFacilitySummaries = listOf(OrderingFacilitySummary(orderingFacilityState = "FL")),
+                        orderingFacilitySummaries = listOf(
+                            OrderingFacilitySummary(
+                                orderingFacilityName = "Avante at Ormond Beach",
+                                orderingFacilityState = "FL"
+                            )
+                        ),
                         performerSummaries = emptyList(),
                         eventType = "ORU^R01^ORU_R01"
                     ),
@@ -658,7 +663,12 @@ class FHIRConverterIntegrationTests {
                                 )
                             ),
                         patientState = listOf("TX"),
-                        orderingFacilitySummaries = listOf(OrderingFacilitySummary(orderingFacilityState = "FL")),
+                        orderingFacilitySummaries = listOf(
+                            OrderingFacilitySummary(
+                                orderingFacilityName = "Avante at Ormond Beach",
+                                orderingFacilityState = "FL"
+                            )
+                        ),
                         performerSummaries = emptyList(),
                         eventType = "ORU^R01^ORU_R01"
                     ),

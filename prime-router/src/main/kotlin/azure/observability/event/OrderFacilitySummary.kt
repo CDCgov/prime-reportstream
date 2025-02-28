@@ -9,21 +9,19 @@ data class OrderingFacilitySummary(
 ) {
     companion object {
         const val UNKNOWN = "Unknown"
-        const val orderingFacilityNamePath = "Bundle.entry.resource.name"
-        const val orderingFacilityStatePath = "Bundle.entry.resource.address.state"
 
         /**
          * Create an instance of [OrderingFacilitySummary] from a [Organization]
          */
         fun fromOrganization(requester: Base): OrderingFacilitySummary {
-            // For a given organization, return a OrderingFacilitySummary object from the paths listed above.
-            val organizationName = requester.getNamedProperty(orderingFacilityNamePath)
-            val organizationState = requester.getNamedProperty(orderingFacilityStatePath)
+            val org = requester as? Organization
+                ?: return OrderingFacilitySummary()
 
-            return OrderingFacilitySummary(
-                (organizationName ?: PerformerSummary.UNKNOWN).toString(),
-                (organizationState ?: PerformerSummary.UNKNOWN).toString(),
-            )
+            val name = org.name ?: UNKNOWN
+            val state = org.address
+                ?.firstOrNull() // pick the first address if present
+                ?.state ?: UNKNOWN
+            return OrderingFacilitySummary(name, state)
         }
     }
 }

@@ -412,7 +412,7 @@ class FhirDestinationFilterTests {
                         ),
                         patientState = listOf("CA"),
                         performerSummaries = emptyList(),
-                        orderingFacilitySummaries = listOf(OrderingFacilitySummary(orderingFacilityState = "CA")),
+                        orderingFacilitySummaries = listOf(OrderingFacilitySummary(orderingFacilityName = "Winchester House", orderingFacilityState = "CA")),
                         eventType = "ORU/ACK - Unsolicited transmission of an observation message"
                     )
                 )
@@ -575,7 +575,7 @@ class FhirDestinationFilterTests {
                             ),
                             patientState = listOf("CA"),
                             performerSummaries = emptyList(),
-                            orderingFacilitySummaries = listOf(OrderingFacilitySummary(orderingFacilityState = "CA")),
+                            orderingFacilitySummaries = listOf(OrderingFacilitySummary(orderingFacilityName = "Winchester House", orderingFacilityState = "CA")),
                             eventType = "ORU/ACK - Unsolicited transmission of an observation message"
                         )
                     )
