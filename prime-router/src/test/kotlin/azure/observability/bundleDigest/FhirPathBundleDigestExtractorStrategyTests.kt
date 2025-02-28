@@ -6,6 +6,8 @@ import fhirengine.engine.CustomFhirPathFunctions
 import gov.cdc.prime.router.azure.ConditionStamper.Companion.CONDITION_CODE_EXTENSION_URL
 import gov.cdc.prime.router.azure.observability.event.CodeSummary
 import gov.cdc.prime.router.azure.observability.event.ObservationSummary
+import gov.cdc.prime.router.azure.observability.event.OrderingFacilitySummary
+import gov.cdc.prime.router.azure.observability.event.PerformerSummary
 import gov.cdc.prime.router.azure.observability.event.TestSummary
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import org.hl7.fhir.r4.model.Address
@@ -58,7 +60,12 @@ class FhirPathBundleDigestExtractorStrategyTests {
                             )
                         )
                     ),
-                                listOf("VA"), listOf("MD"), listOf("DC"), "ORU_R01"
+                                listOf("VA"),
+                                listOf(PerformerSummary(performerState = "MD")),
+                                listOf(
+                                    OrderingFacilitySummary(orderingFacilityState = "DC")
+                    ),
+                        "ORU_R01"
                 )
             )
     }
@@ -83,7 +90,13 @@ class FhirPathBundleDigestExtractorStrategyTests {
 
         assertThat(digest)
             .isDataClassEqualTo(
-                BundleDigestLabResult(emptyList(), emptyList(), listOf("MD"), listOf("DC"), "ORU_R01")
+                BundleDigestLabResult(
+                    emptyList(),
+                    emptyList(),
+                    listOf(PerformerSummary(performerState = "MD")),
+                    listOf(OrderingFacilitySummary(orderingFacilityState = "DC")),
+                    "ORU_R01"
+                )
             )
     }
 
