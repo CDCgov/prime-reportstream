@@ -2,7 +2,7 @@
 elements:
   # TODO codes to be suppressed could maybe be re-organized?
   - name: suppress-obx-aoe-codes
-    resource: 'Bundle.entry.resource.ofType(Observation).where(code.coding.code in ("75325-1" | "76691-5" | "82810-3" | "92131-2" | "85478-6" | "85477-8" | "44904-9" | "43081-8"))'
+    resource: 'Bundle.entry.resource.ofType(Observation).where(code.coding.code in ("75325-1" | "76691-5" | "92131-2" | "85478-6" | "85477-8" | "44904-9" | "43081-8"))'
     bundleProperty: '%resource.value[x]'
     value: [ '""' ]
     action: DELETE

@@ -460,14 +460,8 @@ elements:
     bundleProperty: '%diagnosticReport.basedOn.resolve().performer.resolve().identifier[0].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/coding-system").valueCodeableConcept.coding.code'
     value: [ '%diagnosticReport.basedOn.resolve().performer.resolve().identifier[0].value.getIdType()' ]
 
-  - name: sr-ordering-facility-phone
-    resource: '%diagnosticReport.basedOn.resolve().requester.resolve().organization.resolve().contact[0].telecom'
-    resourceIndex: telecomIndex
-    schema: classpath:/metadata/fhir_transforms/senders/SimpleReport/datatypes/simple-report-telecom.yml
-
-  - name: sr-ordering-facility-telecom
-    condition: '%diagnosticReport.basedOn.resolve().requester.resolve().organization.resolve().contact.empty()'
-    resource: '%diagnosticReport.basedOn.resolve().requester.resolve().organization.resolve().telecom'
+  - name: sr-telecom
+    resource: 'Bundle.entry.resource.telecom'
     resourceIndex: telecomIndex
     schema: classpath:/metadata/fhir_transforms/senders/SimpleReport/datatypes/simple-report-telecom.yml
 
