@@ -6,8 +6,16 @@ elements:
     bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/sender-id").value[x]'
     value: [ '"cvs-health"' ]
 
-  - name: cvs-suppress-aoes-without-loincs
-    resource: 'Bundle.entry.resource.ofType(Observation).where(code.coding.code.empty() or code.coding.code.matches("\\d{5}-\\d{1}").not())'
+  - name: cvs-suppress-observations-without-code
+    resource: 'Bundle.entry.resource.ofType(Observation).where(code.coding.exists().not())'
+    condition: '%resource.exists()'
+    bundleProperty: '%resource.value[x]'
+    value: [ '""' ]
+    action: DELETE
+
+  - name: cvs-suppress-observations-without-code-extension
+    resource: 'Bundle.entry.resource.ofType(Observation).where(code.coding.where(extension("https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code").exists().not()))'
+    condition: '%resource.exists()'
     bundleProperty: '%resource.value[x]'
     value: [ '""' ]
     action: DELETE
@@ -20,16 +28,16 @@ elements:
   - name: cvs-temp-extension-to-store-codeable-concept
     resource: 'Bundle.entry.resource.ofType(Observation)'
     value: [ '%resource.value' ]
-    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/temp").valueCodeableConcept.coding.display'
+    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/obx-5-temp").valueCodeableConcept.coding.display'
 
   - name: cvs-set-obx-5-to-temp-extension-value
     resource: 'Bundle.entry.resource.ofType(Observation)'
-    condition: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/temp").exists()'
+    condition: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/obx-5-temp").exists()'
     bundleProperty: '%resource.value[x]'
-    value: ['%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/temp").value']
+    value: ['%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/obx-5-temp").value']
 
   - name: cvs-delete-temp-extension
-    resource: 'Bundle.entry.resource.ofType(Observation).extension("https://reportstream.cdc.gov/fhir/StructureDefinition/temp")'
+    resource: 'Bundle.entry.resource.ofType(Observation).extension("https://reportstream.cdc.gov/fhir/StructureDefinition/obx-5-temp")'
     condition: '%resource.exists()'
     bundleProperty: '%resource.value[x]'
     value: [ '""' ]
@@ -52,12 +60,14 @@ elements:
   - name: cvs-obx-5-display-to-snomed-code
     resource: 'Bundle.entry.resource.ofType(Observation)'
     condition: '%resource.value.coding.code.exists().not()'
-    value: [ '%resource.value.coding.display.upper()' ]
+    value: [ '%resource.value.coding.display.upper().replace(" ","")' ]
     bundleProperty: '%resource.value.coding.code'
     valueSet:
       values:
         POSITIVE: 260373001
+        DETECTED: 260373001
         NEGATIVE: 260415000
+        NOTDETECTED: 260415000
         INVALID: 455371000124106
         OTHER: 445297001
 
