@@ -1,0 +1,7 @@
+
+elements:
+  - name: suppress-obx-aoe-gender-illness-onset-datetime
+    resource: 'Bundle.entry.resource.ofType(Observation).where(code.coding.code in ("76691-5" | "11368-8"))'
+    bundleProperty: '%resource.value[x]'
+    value: [ '""' ]
+    action: DELETE
