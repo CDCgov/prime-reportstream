@@ -92,7 +92,7 @@
       \ = 'P'"
       reverseTheQualityFilter: false
       conditionFilter:
-        #  COVID: 840539006 (+), FLU (A or B by Antigen): 6142004 (+), FLU (A or B by Culture and Identification Method),: 541131000124102, RSV: 55735004
+        #  COVID: 840539006 (+/-), FLU (A or B by Antigen): 6142004 (+), FLU (A or B by Culture and Identification Method),: 541131000124102, RSV: 55735004
         - "(%resource.code.coding.extension('https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code').value.where(code  in ('840539006'|'895448002')).exists() or %resource.where(interpretation.coding.code = 'A').code.coding.extension('https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code').value.where(code in ('55735004'|'6142004'|'541131000124102')).exists())"
       mappedConditionFilter: []
       deidentify: false
