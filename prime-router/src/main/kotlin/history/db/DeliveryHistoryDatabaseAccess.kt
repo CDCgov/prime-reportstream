@@ -308,7 +308,7 @@ class DeliveryHistoryDatabaseAccess(
         reportId: UUID?,
         fileName: String?,
     ): Condition {
-        var filter = organizationFilter(organization, orgService)
+        var filter = databaseDeliveryAccess.deliveredReportsByOrgFilter(organization, orgService)
 
         if (receivingOrgSvcStatus != null) {
             val statusList = receivingOrgSvcStatus.map { it.name.lowercase() }
@@ -326,25 +326,6 @@ class DeliveryHistoryDatabaseAccess(
             filter = filter.and(Tables.REPORT_FILE.BODY_URL.likeIgnoreCase("%$fileName"))
         }
 
-        return filter
-    }
-
-    /**
-     * Filter by organization on the send step.
-     * @param organization is the Organization Name returned from the Okta JWT Claim.
-     * @param orgService is a specifier for an organization, such as the client or service used to send/receive
-     */
-    private fun organizationFilter(
-        organization: String,
-        orgService: String?,
-    ): Condition {
-        var filter = Tables.REPORT_FILE.NEXT_ACTION.isNull.and(Tables.REPORT_FILE.TRANSPORT_PARAMS.isNotNull)
-            .and(Tables.REPORT_FILE.DOWNLOADED_BY.isNull)
-            .and(Tables.REPORT_FILE.RECEIVING_ORG.eq(organization))
-
-        if (orgService != null) {
-            filter = filter.and(Tables.REPORT_FILE.RECEIVING_ORG_SVC.eq(orgService))
-        }
         return filter
     }
 }
