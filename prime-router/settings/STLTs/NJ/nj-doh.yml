@@ -117,6 +117,7 @@
       enrichmentSchemaNames:
         - "classpath:/metadata/fhir_transforms/common/handle-aoe-unknown-value.yml"
         - "classpath:/metadata/fhir_transforms/common/suppress-device-information.yml"
+        - "classpath:/metadata/fhir_transforms/common/observation-obx-dt-reformate/observation-obx-dt-reformate.yml",
         - "classpath:/metadata/fhir_transforms/common/suppress-obx-aoe-gender-illness-onset-datetime.yml"
       timeZone: EASTERN
       dateTimeFormat: "OFFSET"
