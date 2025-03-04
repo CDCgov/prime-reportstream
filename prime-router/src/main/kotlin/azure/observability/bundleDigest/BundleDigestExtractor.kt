@@ -4,9 +4,7 @@ import gov.cdc.prime.router.azure.observability.event.ObservationSummary
 import org.hl7.fhir.r4.model.Bundle
 
 class BundleDigestExtractor(private val strategy: BundleDigestExtractorStrategy) {
-    fun generateDigest(bundle: Bundle): BundleDigest {
-        return strategy.extract(bundle)
-    }
+    fun generateDigest(bundle: Bundle): BundleDigest = strategy.extract(bundle)
 }
 
 interface BundleDigestExtractorStrategy {

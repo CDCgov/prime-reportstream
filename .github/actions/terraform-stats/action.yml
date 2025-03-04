@@ -1,0 +1,108 @@
+# action.yml
+name: 'Generate Terraform statistics'
+description: 'Output Terraform stats for drift and pending changes'
+branding:
+  icon: 'bar-chart'  
+  color: 'purple'
+inputs:
+  terraform-directory:
+    description: Terraform commands will run in this location.
+    required: true
+    default: "./terraform"
+  include-no-op:
+    description: "\"no-op\" refers to the before and after Terraform changes are identical as a value will only be known after apply."
+    required: true
+    default: false
+  add-args:
+    description: Pass additional arguments to Terraform plan.
+    required: true
+    default: ""
+  upload-plan:
+    description: Upload plan file. true or false
+    required: true
+    default: false
+  upload-retention-days:
+    description: Number of days to keep uploaded plan.
+    required: true
+    default: 7
+  plan-file:
+    description: Name of plan file.
+    required: true
+    default: tf__stats__plan.bin
+  terraform-version:
+    description: Specify a specific version of Terraform
+    required: true
+    default: latest
+  
+outputs:
+  terraform-version:
+    description: 'Terraform version'
+    value: ${{ steps.local-action.outputs.terraform-version }}
+  drift-count:
+    description: 'Count of drifts'
+    value: ${{ steps.local-action.outputs.drift-count }}
+  resource-drifts:
+    description: 'JSON output of resource drifts'
+    value: ${{ steps.local-action.outputs.resource-drifts }}
+  change-count:
+    description: 'Count of changes'
+    value: ${{ steps.local-action.outputs.change-count }}
+  resource-changes:
+    description: 'JSON output of resource changes'
+    value: ${{ steps.local-action.outputs.resource-changes }}
+  change-percent:
+    description: 'Percentage of changes to total resources'
+    value: ${{ steps.local-action.outputs.change-percent }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Use specific version of Terraform
+      uses: hashicorp/setup-terraform@v3
+      with:
+        terraform_version: ${{ inputs.terraform-version }}
+        terraform_wrapper: false
+    - name: Run Terraform stats
+      id: local-action
+      run: |
+        ${{ github.action_path }}/lib/tf_stats.sh \
+        "${{ inputs.terraform-directory }}" \
+        ${{ inputs.include-no-op }} \
+        "${{ inputs.add-args }}" \
+        "${{ inputs.plan-file }}"
+      shell: bash
+
+    - name: Upload Artifact
+      if: inputs.upload-plan == 'true'
+      uses: actions/upload-artifact@v4.3.3
+      with:
+        name: ${{ inputs.plan-file }}
+        path: "${{ inputs.terraform-directory }}/${{ inputs.plan-file }}"
+        retention-days: ${{ inputs.upload-retention-days }}
+
+    - name: Create summary
+      if: |
+        steps.local-action.outputs.change-count > 0 ||
+        steps.local-action.outputs.drift-count > 0
+      run: |
+        echo "### :construction: Terraform Stats :construction:" >> $GITHUB_STEP_SUMMARY
+        if [[ ${{ steps.local-action.outputs.change-count }} > 0 ]]; then
+        resource_changes=$(echo "${{ steps.local-action.outputs.resource-changes }}" | jq .)
+        echo "
+        * change-count: ${{ steps.local-action.outputs.change-count }}
+        * change-percent: ${{ steps.local-action.outputs.change-percent }}
+        * resource-changes:
+        \`\`\`json
+        $resource_changes
+        \`\`\`" >> $GITHUB_STEP_SUMMARY
+        fi
+        if [[ ${{ steps.local-action.outputs.drift-count }} > 0 ]]; then
+        resource_drifts=$(echo "${{ steps.local-action.outputs.resource-drifts }}" | jq .)
+        echo "
+        * drift-count: ${{ steps.local-action.outputs.drift-count }}
+        * resource-drift:
+        \`\`\`json
+        $resource_drifts
+        \`\`\`" >> $GITHUB_STEP_SUMMARY
+        fi
+      shell: bash

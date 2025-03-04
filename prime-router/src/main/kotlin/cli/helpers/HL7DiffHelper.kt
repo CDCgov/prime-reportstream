@@ -345,10 +345,8 @@ class HL7DiffHelper {
     private fun effectivelyBlank(
         outputHL7v2Segment: Array<ca.uhn.hl7v2.model.Type>,
         inputHL7v2Segment: Array<ca.uhn.hl7v2.model.Type>,
-    ): Boolean {
-        return ((outputHL7v2Segment.size == 1 && outputHL7v2Segment[0].isEmpty) || outputHL7v2Segment.isEmpty()) &&
+    ): Boolean = ((outputHL7v2Segment.size == 1 && outputHL7v2Segment[0].isEmpty) || outputHL7v2Segment.isEmpty()) &&
                 ((inputHL7v2Segment.size == 1 && inputHL7v2Segment[0].isEmpty) || inputHL7v2Segment.isEmpty())
-    }
 
     /**
      * helper - heuristically check input and output are compatible types

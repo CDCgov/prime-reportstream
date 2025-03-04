@@ -16,9 +16,7 @@ import java.util.UUID
 /**
  * Class to access lookup tables stored in the database.
  */
-class DatabaseDeliveryAccess(
-    db: DatabaseAccess = BaseEngine.databaseAccessSingleton,
-) : HistoryDatabaseAccess(db) {
+class DatabaseDeliveryAccess(db: DatabaseAccess = BaseEngine.databaseAccessSingleton) : HistoryDatabaseAccess(db) {
 
     /**
      * Values that facilities can be sorted by
@@ -46,11 +44,17 @@ class DatabaseDeliveryAccess(
         val org = BaseEngine.settingsProviderSingleton.findOrganization(organization)
 
         var filter = if (org?.featureFlags?.contains("ELIMS_DATA") == true) {
-                ACTION.ACTION_NAME.eq(TaskAction.batch)
-                    .or(ACTION.ACTION_NAME.eq(TaskAction.send).and(REPORT_FILE.SCHEMA_TOPIC.eq(Topic.ELR_ELIMS)))
-                    .and(REPORT_FILE.RECEIVING_ORG.eq(organization))
+            REPORT_FILE.NEXT_ACTION.eq(TaskAction.send)
+                .and(REPORT_FILE.SCHEMA_TOPIC.notEqualIgnoreCase(Topic.ELR_ELIMS.jsonVal))
+                .or(
+                    REPORT_FILE.NEXT_ACTION.isNull
+                        .and(REPORT_FILE.TRANSPORT_PARAMS.isNotNull)
+                        .and(REPORT_FILE.TRANSPORT_RESULT.notLike("%downloadedBy%"))
+                        .and(REPORT_FILE.SCHEMA_TOPIC.equalIgnoreCase(Topic.ELR_ELIMS.jsonVal))
+            )
+            .and(REPORT_FILE.RECEIVING_ORG.eq(organization))
         } else {
-            ACTION.ACTION_NAME.eq(TaskAction.batch)
+            REPORT_FILE.NEXT_ACTION.eq(TaskAction.send)
                 .and(REPORT_FILE.RECEIVING_ORG.eq(organization))
         }
 
@@ -73,8 +77,7 @@ class DatabaseDeliveryAccess(
         actionId: Long,
         orgName: String?,
         klass: Class<T>,
-    ): T? {
-        return db.transactReturning { txn ->
+    ): T? = db.transactReturning { txn ->
             DSL.using(txn)
                 .select(
                     ACTION.ACTION_ID,
@@ -100,7 +103,6 @@ class DatabaseDeliveryAccess(
                     ACTION.ACTION_ID.eq(actionId)
                 ).fetchOne()?.into(klass)
         }
-    }
 
     override fun <T> fetchRelatedActions(reportId: UUID, klass: Class<T>): List<T> {
         TODO("Not yet implemented")

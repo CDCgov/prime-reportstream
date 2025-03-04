@@ -3419,6 +3419,99 @@
               hl7Use: XTN.12
 
 - Resource: Any
+  FHIR-Type: Extension
+  HL7-Type:
+    CP:
+      Example:
+        {
+          "fullUrl": "Coverage/1733795578717198000.8888487d-55f4-4d1d-963d-f8692fc77e9c",
+          "resource": {
+            "resourceType": "Coverage",
+            "id": "1733795578717198000.8888487d-55f4-4d1d-963d-f8692fc77e9c",
+            "extension": [
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/composite-price",
+                "extension": [
+                  {
+                    "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
+                    "valueString": "IN1.40"
+                  },
+                  {
+                    "url": "CP.1.1",
+                    "valueDecimal": 33.33
+                  },
+                  {
+                    "url": "CP.1.2",
+                    "valueString": "MXN"
+                  },
+                  {
+                    "url": "CP.2",
+                    "valueString": "P3"
+                  },
+                  {
+                    "url": "CP.3",
+                    "valueDecimal": 3.003
+                  },
+                  {
+                    "url": "CP.4",
+                    "valueDecimal": -3
+                  },
+                  {
+                    "url": "CP.5",
+                    "valueCodeableConcept": {
+                      # CWE to CodeableConcept
+                    }
+                  },
+                  {
+                    "url": "CP.6",
+                    "valueString": "P"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      Extension:
+        - id: composite-price
+          url: "https://reportstream.cdc.gov/fhir/StructureDefinition/composite-price"
+          valueType: Extension
+          hl7Use: NA
+          extension:
+            - id: hl7v2Field
+              url: "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field"
+              valueType: String
+              hl7Use: NA
+              description: Identifies the HL7 field of the data.
+            - id: cp-price-quantity
+              url: "CP.1.1"
+              valueType: Decimal
+              hl7use: CP.1.1
+            - id: cp-price-denomination
+              url: "CP.1.2"
+              valueType: String
+              hl7use: CP.1.2
+            - id: cp-price-type
+              url: "CP.2"
+              valueType: String
+              hl7use: CP.2
+            - id: cp-from-value
+              url: "CP.3"
+              valueType: Decimal
+              hl7use: CP.3
+            - id: cp-to-value
+              url: "CP.4"
+              valueType: Decimal
+              hl7use: CP.4
+            - id: cp-range-units
+              url: "CP.5"
+              valueType: CodeableConcept
+              hl7use: CP.5
+            - id: cp-range-type
+              url: "CP.6"
+              valueType: String
+              hl7use: CP.6
+
+- Resource: Any
   FHIR-Type: MessageHeader.destination
   HL7-Type:
     HD:

@@ -53,8 +53,7 @@ class Server2ServerAuthenticationException(
     val server2ServerError: Server2ServerError,
     val scope: String,
     val iss: String? = null,
-) :
-    Exception() {
+) : Exception() {
     override fun getLocalizedMessage(): String {
         val message = "${server2ServerError.name} while generating token for scope: $scope"
         if (iss != null) {

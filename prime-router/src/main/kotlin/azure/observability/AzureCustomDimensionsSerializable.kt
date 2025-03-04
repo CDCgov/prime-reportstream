@@ -16,13 +16,11 @@ interface AzureCustomDimensionsSerializable {
      *
      * This will blow up if the implementing class serializes to something other than an object
      */
-    fun serialize(): Map<String, String> {
-        return JacksonMapperUtilities.jacksonObjectMapper
+    fun serialize(): Map<String, String> = JacksonMapperUtilities.jacksonObjectMapper
             .valueToTree<ObjectNode>(this)
             .fields()
             .asSequence()
             .associate { it.key to serializeValue(it.value) }
-    }
 
     /**
      * All primitives will be in their string format.
@@ -31,10 +29,8 @@ interface AzureCustomDimensionsSerializable {
      * All objects and arrays will be serialized to a string
      * Ex: obj -> "{\"key\": \"value\"}", arr -> "[\"a\", \"b\", \"c\"]"
      */
-    private fun serializeValue(valueNode: JsonNode): String {
-        return when (valueNode) {
+    private fun serializeValue(valueNode: JsonNode): String = when (valueNode) {
             is ContainerNode<*> -> valueNode.toString() // object or array
             else -> valueNode.asText()
         }
-    }
 }

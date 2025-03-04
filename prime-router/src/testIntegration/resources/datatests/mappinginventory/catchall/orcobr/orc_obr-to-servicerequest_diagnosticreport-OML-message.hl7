@@ -1,0 +1,6 @@
+MSH|^~\&#|||||20230816123358-0500||OML^O21^OML_O21|20230816123358||2.5.1
+PID|1
+ORC|RE|ORC Placer Identifier
+OBR|1|Placer Identifier
+OBX|1|CWE|||^Observation Value||||||F
+SPM|1|&Placer Assigned Identifier||||||^Specimen Source Site

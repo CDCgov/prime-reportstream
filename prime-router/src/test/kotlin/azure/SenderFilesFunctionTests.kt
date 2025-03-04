@@ -48,8 +48,7 @@ class SenderFilesFunctionTests {
         return mockRequest
     }
 
-    private fun buildReportFile(reportId: UUID): ReportFile {
-        return ReportFile(
+    private fun buildReportFile(reportId: UUID): ReportFile = ReportFile(
             reportId,
             1,
             TaskAction.send,
@@ -72,10 +71,9 @@ class SenderFilesFunctionTests {
             "",
             null,
         )
-    }
 
-    private fun buildCovidResultMetadata(reportId: UUID? = null, messageID: String? = null): CovidResultMetadata {
-        return CovidResultMetadata(
+    private fun buildCovidResultMetadata(reportId: UUID? = null, messageID: String? = null): CovidResultMetadata =
+        CovidResultMetadata(
             0,
             reportId,
             1,
@@ -122,7 +120,6 @@ class SenderFilesFunctionTests {
             null,
             null
         )
-    }
 
     @Test
     fun `test checkParameters`() {

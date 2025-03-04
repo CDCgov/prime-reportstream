@@ -46,7 +46,8 @@ private const val localTokenFileName = "accessToken.json"
 /**
  * Logs into the Okta account and saves the access token in a hidden file
  */
-class LoginCommand : OktaCommand(
+class LoginCommand :
+    OktaCommand(
     name = "login",
     help = "Login to the ReportStream authorization service"
 ) {
@@ -100,8 +101,8 @@ class LoginCommand : OktaCommand(
         return fetchAccessToken(code, codeVerifier, clientId, oktaBaseUrl)
     }
 
-    private fun authorizeUrl(clientId: String, oktaUrl: String, state: String, codeChallenge: String): String {
-        return "$oktaUrl$oktaAuthorizePath?" +
+    private fun authorizeUrl(clientId: String, oktaUrl: String, state: String, codeChallenge: String): String =
+        "$oktaUrl$oktaAuthorizePath?" +
             "client_id=$clientId&" +
             "response_type=code&" +
             "scope=$oktaScope&" +
@@ -109,7 +110,6 @@ class LoginCommand : OktaCommand(
             "state=$state&" +
             "code_challenge_method=S256&" +
             "code_challenge=$codeChallenge"
-    }
 
     private fun startRedirectServer() {
         val server = HttpServer.create(InetSocketAddress(redirectPort), 0)
@@ -138,8 +138,7 @@ class LoginCommand : OktaCommand(
         codeVerifier: String,
         clientId: String,
         oktaBaseUrl: String,
-    ): TokenInfo {
-        return HttpClientUtils.submitFormT(
+    ): TokenInfo = HttpClientUtils.submitFormT(
             url = "$oktaBaseUrl$oktaTokenPath",
             formParams = mapOf(
                 Pair("grant_type", "authorization_code"),
@@ -149,7 +148,6 @@ class LoginCommand : OktaCommand(
                 Pair("code_verifier", codeVerifier)
             )
         )
-    }
 
     private fun generateCodeVerifier(): String {
         val bytes = Random.nextBytes(32)
@@ -168,7 +166,8 @@ class LoginCommand : OktaCommand(
 /**
  * Logs out of the Okta account by deleting the saved access token file
  */
-class LogoutCommand : OktaCommand(
+class LogoutCommand :
+    OktaCommand(
     name = "logout",
     help = "Logout of the ReportStream authorization service"
 ) {
@@ -190,9 +189,7 @@ abstract class OktaCommand(name: String, help: String) : CliktCommand(name = nam
 
     data class AccessTokenFile(val token: String, val clientId: String, val expiresAt: LocalDateTime)
 
-    fun abort(message: String): Nothing {
-        throw PrintMessage(message, printError = true)
-    }
+    fun abort(message: String): Nothing = throw PrintMessage(message, printError = true)
 
     companion object {
         /**
@@ -224,8 +221,7 @@ abstract class OktaCommand(name: String, help: String) : CliktCommand(name = nam
          * Returns the access token saved from the last login if valid given [app].
          * @return the Okta access token, a dummy token if [app] is null. or null if there is no valid token
          */
-        fun fetchAccessToken(app: OktaApp?): String? {
-            return if (app == null) {
+        fun fetchAccessToken(app: OktaApp?): String? = if (app == null) {
                 dummyOktaAccessToken
             } else {
                 val accessTokenFile = readAccessTokenFile(app)
@@ -235,7 +231,6 @@ abstract class OktaCommand(name: String, help: String) : CliktCommand(name = nam
                     null
                 }
             }
-        }
 
         fun readAccessTokenFile(app: OktaApp): AccessTokenFile? {
             val filePath = primeAccessFilePath(app)
@@ -286,16 +281,12 @@ abstract class OktaCommand(name: String, help: String) : CliktCommand(name = nam
             }
         }
 
-        private fun getOktaUrlBase(oktaApp: OktaApp): String {
-            return oktaBaseUrls.getValue(oktaApp)
-        }
+        private fun getOktaUrlBase(oktaApp: OktaApp): String = oktaBaseUrls.getValue(oktaApp)
 
-        private fun primeFolderPath(app: OktaApp): Path {
-            return Path.of(System.getProperty("user.home"), localPrimeFolder, app.name)
-        }
+        private fun primeFolderPath(app: OktaApp): Path =
+            Path.of(System.getProperty("user.home"), localPrimeFolder, app.name)
 
-        private fun primeAccessFilePath(app: OktaApp): Path {
-            return Path.of(System.getProperty("user.home"), localPrimeFolder, app.name, localTokenFileName)
-        }
+        private fun primeAccessFilePath(app: OktaApp): Path =
+            Path.of(System.getProperty("user.home"), localPrimeFolder, app.name, localTokenFileName)
     }
 }

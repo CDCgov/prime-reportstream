@@ -22,9 +22,7 @@ import java.time.OffsetDateTime
  *
  * A [workflowEngine] can be passed in for mocking/testing purposes.
  */
-class CovidBatchFunction(
-    private val workflowEngine: WorkflowEngine = WorkflowEngine(),
-) : Logging {
+class CovidBatchFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()) : Logging {
     @FunctionName(BatchConstants.Function.COVID_BATCH_FUNCTION)
     @StorageAccount("AzureWebJobsStorage")
     fun run(

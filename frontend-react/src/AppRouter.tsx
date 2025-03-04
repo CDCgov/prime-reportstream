@@ -62,6 +62,7 @@ const Login = lazy(() => import("./pages/Login"));
 const ErrorNoPage = lazy(() => import("./pages/error/legacy-content/ErrorNoPage"));
 
 /* Auth Pages */
+const AdminMessageTestingPage = lazy(() => import("./pages/admin/AdminMessageTestingPage/AdminMessageTestingPage"));
 const FeatureFlagsPage = lazy(() => import("./pages/misc/FeatureFlags"));
 const SubmissionDetailsPage = lazy(() => import("./pages/submissions/SubmissionDetails"));
 const SubmissionsPage = lazy(() => import("./pages/submissions/Submissions"));
@@ -91,6 +92,7 @@ const FacilityProviderSubmitterDetailsPage = lazy(
     () => import("./components/DataDashboard/FacilityProviderSubmitterDetails/FacilityProviderSubmitterDetails"),
 );
 const NewSettingPage = lazy(() => import("./components/Admin/NewSetting"));
+const CodeMappingPage = lazy(() => import("./pages/onboarding/CodeMappingPage"));
 
 const MainLayout = lazy(() => import("./layouts/Main/MainLayout"));
 
@@ -438,6 +440,10 @@ export const appRoutes: RouteObject[] = [
                         element: <EditReceiverSettingsPage />,
                     },
                     {
+                        path: "orgreceiversettings/org/:orgname/receiver/:receivername/action/:action/message-testing",
+                        element: <AdminMessageTestingPage />,
+                    },
+                    {
                         path: "orgsendersettings/org/:orgname/sender/:sendername/action/:action",
                         element: <EditSenderSettingsPage />,
                     },
@@ -488,6 +494,20 @@ export const appRoutes: RouteObject[] = [
                         <MessageDetailsPage />
                     </RequireGate>
                 ),
+            },
+            {
+                path: "onboarding",
+                element: (
+                    <RequireGate auth>
+                        <Outlet />
+                    </RequireGate>
+                ),
+                children: [
+                    {
+                        path: "code-mapping",
+                        element: <CodeMappingPage />,
+                    },
+                ],
             },
             /* Handles any undefined route */
             {

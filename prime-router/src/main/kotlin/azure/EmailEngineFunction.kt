@@ -28,6 +28,7 @@ import com.sendgrid.helpers.mail.Mail
 import com.sendgrid.helpers.mail.objects.Email
 import com.sendgrid.helpers.mail.objects.Personalization
 import gov.cdc.prime.router.azure.db.enums.SettingType
+import gov.cdc.prime.router.azure.db.tables.pojos.Setting
 import gov.cdc.prime.router.common.BaseEngine
 import gov.cdc.prime.router.common.HttpClientUtils
 import gov.cdc.prime.router.secrets.SecretHelper
@@ -217,24 +218,19 @@ class EmailScheduleEngine {
      *
      * @returns List of organizations for the schedule
      */
-    private fun getOrgs(schedule: EmailSchedule): Iterable<String> {
-        return (if (schedule.organizations.size > 0) schedule.organizations else fetchAllOrgs())
-    }
+    private fun getOrgs(
+        schedule: EmailSchedule,
+    ): Iterable<String> = (if (schedule.organizations.size > 0) schedule.organizations else fetchAllOrgs())
 
     /**
      * Retrieves the list of all organization supported
      *
      * @returns List of all organizations supported
      */
-    private fun fetchAllOrgs(): Iterable<String> {
-        @Suppress("NEW_INFERENCE_NO_INFORMATION_FOR_PARAMETER")
-        return workflowEngine.db.transactReturning { tx ->
-            @Suppress("UNRESOLVED_REFERENCE")
-            val settings = workflowEngine.db.fetchSettings(SettingType.ORGANIZATION, tx)
-            @Suppress("NEW_INFERENCE_NO_INFORMATION_FOR_PARAMETER")
-            settings.map { it.getName() }
+    private fun fetchAllOrgs(): Iterable<String> = workflowEngine.db.transactReturning { tx ->
+            val settings: List<Setting> = workflowEngine.db.fetchSettings(SettingType.ORGANIZATION, tx)
+            settings.map { it.name }
         }
-    }
 
     /**
      * Validates the JWT Token supplied in the authorization header. To be valid, the token must be
@@ -289,9 +285,7 @@ class EmailScheduleEngine {
      *
      * @returns encoded org name (ex. DHpima_az_phd )
      */
-    private fun encodeOrg(org: String): String {
-        return "DH" + org.replace("-", "_")
-    }
+    private fun encodeOrg(org: String): String = "DH" + org.replace("-", "_")
 
     /**
      * Retrieve a list of emails within an organization
@@ -324,9 +318,11 @@ class EmailScheduleEngine {
                 )
 
                 val users = JSONArray(respStrJson)
-                for (user in users) emails.add(
+                for (user in users) {
+                    emails.add(
                     (user as JSONObject).getJSONObject("profile").getString("email")
                 )
+                }
             }
         } catch (ex: Throwable) {
             logger.warning("Error in fetching emails, exception: ${ex.message}")

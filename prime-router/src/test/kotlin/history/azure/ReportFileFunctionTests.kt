@@ -10,7 +10,7 @@ import kotlin.test.Test
 
 class ReportFileFunctionTests {
     @Nested
-    inner class HistoryApiParameters() {
+    inner class HistoryApiParameters {
         @Test
         fun `test fileName gets encoded`() {
             val httpRequestMessage = MockHttpRequestMessage()

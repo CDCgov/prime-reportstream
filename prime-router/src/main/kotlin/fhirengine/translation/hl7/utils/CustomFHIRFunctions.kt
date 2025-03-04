@@ -3,6 +3,7 @@ package gov.cdc.prime.router.fhirengine.translation.hl7.utils
 import ca.uhn.fhir.model.api.TemporalPrecisionEnum
 import fhirengine.translation.hl7.utils.FhirPathFunctions
 import fhirengine.translation.hl7.utils.helpers.convertDateToAge
+import gov.cdc.prime.router.common.DateUtilities
 import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
 import org.hl7.fhir.r4.fhirpath.FHIRPathUtilityClasses.FunctionDetails
 import org.hl7.fhir.r4.model.Base
@@ -13,7 +14,9 @@ import org.hl7.fhir.r4.model.HumanName
 import org.hl7.fhir.r4.model.IntegerType
 import org.hl7.fhir.r4.model.StringType
 import java.time.DateTimeException
+import java.time.LocalDate
 import java.time.ZoneId
+import java.time.format.DateTimeParseException
 import java.util.TimeZone
 
 /**
@@ -46,13 +49,11 @@ object CustomFHIRFunctions : FhirPathFunctions {
              * Get from a [functionName].
              * @return the function name enum or null if not found
              */
-            fun get(functionName: String?): CustomFHIRFunctionNames? {
-                return try {
+            fun get(functionName: String?): CustomFHIRFunctionNames? = try {
                     functionName?.let { CustomFHIRFunctionNames.valueOf(it.replaceFirstChar(Char::titlecase)) }
                 } catch (e: IllegalArgumentException) {
                     null
                 }
-            }
         }
     }
 
@@ -64,8 +65,7 @@ object CustomFHIRFunctions : FhirPathFunctions {
     override fun resolveFunction(
         functionName: String?,
         additionalFunctions: FhirPathFunctions?,
-    ): FunctionDetails? {
-        return when (CustomFHIRFunctionNames.get(functionName)) {
+    ): FunctionDetails? = when (CustomFHIRFunctionNames.get(functionName)) {
             CustomFHIRFunctionNames.GetPhoneNumberCountryCode -> {
                 FunctionDetails("extract country code from FHIR phone number", 0, 0)
             }
@@ -108,9 +108,13 @@ object CustomFHIRFunctions : FhirPathFunctions {
 
             CustomFHIRFunctionNames.ChangeTimezone -> {
                 FunctionDetails(
-                    "changes the timezone of a dateTime, instant, or date resource to the timezone passed in",
+                    "changes the timezone of a dateTime, instant, or date resource to the timezone passed in. " +
+                        "optional params: " +
+                        "dateTimeFormat ('OFFSET', 'LOCAL', 'HIGH_PRECISION_OFFSET', 'DATE_ONLY')(default: 'OFFSET')," +
+                        " convertPositiveDateTimeOffsetToNegative (boolean)(default: false)," +
+                        " useHighPrecisionHeaderDateTimeFormat (boolean)(default: false)",
                     1,
-                    1
+                    4
                 )
             }
 
@@ -134,7 +138,6 @@ object CustomFHIRFunctions : FhirPathFunctions {
 
             else -> additionalFunctions?.resolveFunction(functionName)
         }
-    }
 
     /**
      * Execute the function on a [focus] resource for a given [functionName] and [parameters]. [additionalFunctions] can
@@ -261,8 +264,10 @@ object CustomFHIRFunctions : FhirPathFunctions {
      * Splits the [focus] into multiple strings using the delimiter provided in [parameters]
      * @returns list of strings
      */
-    fun split(focus: MutableList<Base>, parameters: MutableList<MutableList<Base>>?): MutableList<Base> {
-        return if (!parameters.isNullOrEmpty() &&
+    fun split(
+        focus: MutableList<Base>,
+        parameters: MutableList<MutableList<Base>>?,
+    ): MutableList<Base> = if (!parameters.isNullOrEmpty() &&
             parameters.size == 1 &&
             parameters.first().size == 1 &&
             focus.size == 1 &&
@@ -275,7 +280,6 @@ object CustomFHIRFunctions : FhirPathFunctions {
         } else {
             mutableListOf()
         }
-    }
 
     /**
      * Enum representing the CodingSystemMapping.
@@ -302,11 +306,9 @@ object CustomFHIRFunctions : FhirPathFunctions {
              * Get a coding system mapper by its [fhirURL]
              * @return an enum instance representing the appropriate mapping
              */
-            fun getByFhirUrl(fhirURL: String): CodingSystemMapper {
-                return CodingSystemMapper.values().find {
+            fun getByFhirUrl(fhirURL: String): CodingSystemMapper = CodingSystemMapper.values().find {
                     it.fhirURL == fhirURL
                 } ?: NONE
-            }
         }
     }
 
@@ -315,9 +317,9 @@ object CustomFHIRFunctions : FhirPathFunctions {
      * HL7 v2.5.1 - 0396 - Coding system.
      * @return a mutable list containing the single character HL7 result status
      */
-    private fun getCodingSystemMapping(focus: MutableList<Base>): MutableList<Base> {
-        return mutableListOf(StringType(CodingSystemMapper.getByFhirUrl(focus[0].primitiveValue()).hl7ID))
-    }
+    private fun getCodingSystemMapping(
+        focus: MutableList<Base>,
+    ): MutableList<Base> = mutableListOf(StringType(CodingSystemMapper.getByFhirUrl(focus[0].primitiveValue()).hl7ID))
 
     /**
      * Regex to identify OIDs.  Source: https://www.hl7.org/fhir/datatypes.html#oid
@@ -423,15 +425,13 @@ object CustomFHIRFunctions : FhirPathFunctions {
         return if (type != null) mutableListOf(StringType(type)) else mutableListOf()
     }
 
-    fun getPrimitiveValue(focus: MutableList<Base>): MutableList<Base> {
-        return focus.map {
+    fun getPrimitiveValue(focus: MutableList<Base>): MutableList<Base> = focus.map {
             if (it.isPrimitive) {
                 it.copy()
             } else {
                 it
             }
         }.toMutableList()
-    }
 
     /**
      * Applies a timezone given by [parameters] to a dateTime in [focus] and returns the result.
@@ -445,13 +445,17 @@ object CustomFHIRFunctions : FhirPathFunctions {
             throw SchemaException("Must call changeTimezone on a single element")
         }
 
-        val inputDate = focus[0] as? BaseDateTimeType ?: throw SchemaException(
-            "Must call changeTimezone on a dateTime, instant, or date; " +
-                "was attempted on a ${focus[0].fhirType()}"
-        )
-
-        if (parameters == null || parameters[0].size != 1) {
+        if (parameters == null || parameters.first().isEmpty()) {
             throw SchemaException("Must pass a timezone as the parameter")
+        }
+
+        var dateTimeFormat = DateUtilities.DateTimeFormat.OFFSET
+        if (parameters.size > 1) {
+            try {
+                dateTimeFormat = DateUtilities.DateTimeFormat.valueOf(parameters.get(1).first().primitiveValue())
+            } catch (e: IllegalArgumentException) {
+                throw SchemaException("Date time format not found.")
+            }
         }
 
         val inputTimeZone = parameters.first().first().primitiveValue()
@@ -465,14 +469,38 @@ object CustomFHIRFunctions : FhirPathFunctions {
             )
         }
 
-        return when (inputDate.precision) {
-            TemporalPrecisionEnum.YEAR, TemporalPrecisionEnum.MONTH, TemporalPrecisionEnum.DAY, null -> mutableListOf(
-                inputDate
+        return if (focus[0] is StringType) {
+            val inputDate = try {
+                DateUtilities.parseDate((focus[0].toString()))
+            } catch (e: DateTimeParseException) {
+                throw SchemaException("Error trying to change time zone: " + e.message)
+            }
+
+            if (inputDate is LocalDate) {
+                return mutableListOf(StringType(focus[0].toString()))
+            }
+
+            val formattedDate = DateUtilities.formatDateForReceiver(
+                inputDate,
+                ZoneId.of(inputTimeZone),
+                dateTimeFormat,
+                parameters.getOrNull(2)?.first()?.primitiveValue()?.toBoolean() ?: false,
+                parameters.getOrNull(3)?.first()?.primitiveValue()?.toBoolean() ?: false
+            )
+            mutableListOf(StringType(formattedDate))
+        } else {
+            val inputDate = focus[0] as? BaseDateTimeType ?: throw SchemaException(
+                "Must call changeTimezone on a dateTime, instant, or date; " +
+                    "was attempted on a ${focus[0].fhirType()}"
             )
 
-            TemporalPrecisionEnum.MINUTE, TemporalPrecisionEnum.SECOND, TemporalPrecisionEnum.MILLI -> mutableListOf(
-                DateTimeType(inputDate.value, inputDate.precision, timezonePassed)
-            )
+            when (inputDate.precision) {
+                TemporalPrecisionEnum.YEAR, TemporalPrecisionEnum.MONTH, TemporalPrecisionEnum.DAY, null ->
+                    mutableListOf(inputDate)
+
+                TemporalPrecisionEnum.MINUTE, TemporalPrecisionEnum.SECOND, TemporalPrecisionEnum.MILLI ->
+                    mutableListOf(DateTimeType(inputDate.value, inputDate.precision, timezonePassed))
+            }
         }
     }
 }

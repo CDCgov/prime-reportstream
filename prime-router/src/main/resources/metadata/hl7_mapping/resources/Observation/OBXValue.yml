@@ -22,7 +22,6 @@ elements:
     value: [ '%resource.value.extension(%`rsext-hl7v2-date-time`).value' ]
     hl7Spec: [ '%{hl7OBXField}-5' ]
 
-
   - name: obx-value-vr-1
     condition: '%context.extension(%`rsext-obx-observation`).extension.where(url = "OBX.2").value = "VR"'
     value: [ '%resource.value.split("-").first()' ]
@@ -97,7 +96,6 @@ elements:
     resource: '%resource.value'
     constants:
       hl7NRField: '%{hl7OBXField}-5'
-
 
   - name: obx-value-nm
     condition: '%context.extension(%`rsext-obx-observation`).extension.where(url = "OBX.2").value = "NM"'

@@ -77,21 +77,13 @@ class Jwk(
     }
 
     companion object {
-        fun generateECPublicKey(jwkString: String): ECPublicKey {
-            return ECKey.parse(jwkString).toECPublicKey()
-        }
+        fun generateECPublicKey(jwkString: String): ECPublicKey = ECKey.parse(jwkString).toECPublicKey()
 
-        fun generateECPrivateKey(jwkString: String): ECPrivateKey {
-            return ECKey.parse(jwkString).toECPrivateKey()
-        }
+        fun generateECPrivateKey(jwkString: String): ECPrivateKey = ECKey.parse(jwkString).toECPrivateKey()
 
-        fun generateRSAPublicKey(jwkString: String): RSAPublicKey {
-            return RSAKey.parse(jwkString).toRSAPublicKey()
-        }
+        fun generateRSAPublicKey(jwkString: String): RSAPublicKey = RSAKey.parse(jwkString).toRSAPublicKey()
 
-        fun generateRSAPrivateKey(jwkString: String): RSAPrivateKey {
-            return RSAKey.parse(jwkString).toRSAPrivateKey()
-        }
+        fun generateRSAPrivateKey(jwkString: String): RSAPrivateKey = RSAKey.parse(jwkString).toRSAPrivateKey()
     }
 }
 
@@ -107,9 +99,7 @@ data class JwkSet(
     // overlapping key rotation
     val keys: List<Jwk>,
 ) {
-    fun filterByKid(kid: String): List<Jwk> {
-        return keys.filter { !it.kid.isNullOrEmpty() && kid == it.kid }
-    }
+    fun filterByKid(kid: String): List<Jwk> = keys.filter { !it.kid.isNullOrEmpty() && kid == it.kid }
 
     companion object {
 
@@ -120,9 +110,7 @@ data class JwkSet(
          *
          * @return the maximum number of keys can be configured for a scope
          */
-        fun getMaximumNumberOfKeysPerScope(): Int {
-            return (System.getenv("MAX_NUM_KEY_PER_SCOPE") ?: "10").toInt()
-        }
+        fun getMaximumNumberOfKeysPerScope(): Int = (System.getenv("MAX_NUM_KEY_PER_SCOPE") ?: "10").toInt()
 
         /**
          * Copy an old set of authorizations to a new set, and add one to it, if needed.

@@ -4,6 +4,7 @@ elements:
   - name: dateTime
     value:
       - '%resource.extension(%`rsext-hl7v2-date-time`).value'
+      - '%resource.extension(%`rsext-hl7v2-date`).value'
       # These two values are backups to allow FHIR senders to not have to use the rs specific extensions
       - '%resource.extension("http://hl7.org/fhir/StructureDefinition/patient-birthTime").value'
       - '%resource'

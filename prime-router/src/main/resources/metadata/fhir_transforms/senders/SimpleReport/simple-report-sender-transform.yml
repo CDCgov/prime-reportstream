@@ -6,6 +6,10 @@ constants:
   patient: 'Bundle.entry.resource.ofType(Patient)'
   specimen: 'Bundle.entry.resource.ofType(Specimen)'
 elements:
+  - name: sender-identifier
+    resource: 'Bundle.entry.resource.ofType(MessageHeader)'
+    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/sender-id").value[x]'
+    value: [ '"SimpleReport"' ]
 
   # MSH
   - name: sending-application-target-msh3-extension

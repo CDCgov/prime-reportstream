@@ -244,9 +244,7 @@ data class FHIRConfiguration
  * A translation for a Google/Apple Exposure Notification. This translation does not have any options.
  */
 data class GAENConfiguration
-@JsonCreator constructor(
-    val dummy: String? = null,
-) : TranslatorConfiguration("GAEN") {
+@JsonCreator constructor(val dummy: String? = null) : TranslatorConfiguration("GAEN") {
     @get:JsonIgnore
     override val format: MimeFormat get() = MimeFormat.CSV_SINGLE // Single item CSV
 

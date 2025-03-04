@@ -103,8 +103,8 @@ runs:
     - name: Set Build Environment - STAGING
       id: build_staging
       if: |
-        (github.event_name != 'pull_request' && github.ref_name == 'master') ||
-        (github.event_name == 'pull_request' && github.base_ref == 'master')
+        (github.event_name != 'pull_request' && github.ref_name == 'main') ||
+        (github.event_name == 'pull_request' && github.base_ref == 'main')
       shell: bash
       run: |
         echo "env_name=staging" >> $GITHUB_OUTPUT
@@ -170,7 +170,7 @@ runs:
             - 'frontend-react/**/!(*.md)'
             - '.github/actions/build-vars/action.yml'
             - '.github/actions/build-frontend/action.yml'
-            - '.github/workflows/frontend_ci.yml'          
+            - '.github/workflows/frontend_ci.yml'
           terraform:
             - 'operations/app/terraform/**/!(*.md)'
             - '.github/workflows/validate_terraform.yml'
@@ -215,7 +215,7 @@ runs:
         else
           echo "has_router_change=${{ steps.filter.outputs.router }}" >> $GITHUB_OUTPUT
         fi
-    
+
     - name: Determine if frontend changed
       if: github.event_name != 'schedule'
       id: frontend_change_result
@@ -234,7 +234,7 @@ runs:
           echo "has_frontend_change=${{ steps.filter.outputs.frontend_react }}" >> $GITHUB_OUTPUT
         fi
 
-    - uses: azure/login@a65d910e8af852a8061c627c456678983e180302
+    - uses: azure/login@v2
       if: inputs.sp-creds != 'false'
       with:
         creds: ${{ inputs.sp-creds }}

@@ -52,9 +52,7 @@ enum class ErrorCode {
 /**
  * Action details for item logs for specific [fieldMapping] and [errorCode].
  */
-abstract class ItemActionLogDetail(
-    val fieldMapping: String = "",
-) : ActionLogDetail {
+abstract class ItemActionLogDetail(val fieldMapping: String = "") : ActionLogDetail {
     override val scope = ActionLogScope.item
     override val errorCode = ErrorCode.UNKNOWN
 }
@@ -134,10 +132,7 @@ class InvalidCodeMessage(
 /**
  * Message for an invalid phone number for a given [fieldMapping] and [formattedValue].
  */
-class InvalidPhoneMessage(
-    formattedValue: String = "",
-    fieldMapping: String,
-) : ItemActionLogDetail(fieldMapping) {
+class InvalidPhoneMessage(formattedValue: String = "", fieldMapping: String) : ItemActionLogDetail(fieldMapping) {
     override val message = "Invalid phone number '$formattedValue' for $fieldMapping. Reformat to a 10-digit phone " +
         "number (e.g. (555) - 555-5555)."
     override val errorCode = ErrorCode.INVALID_MSG_PARSE_TELEPHONE
@@ -165,10 +160,7 @@ class InvalidPostalMessage(
 /**
  * Message for an invalid HD for a given [fieldMapping] and [formattedValue].
  */
-class UnsupportedHDMessage(
-    formattedValue: String = "",
-    fieldMapping: String,
-) : ItemActionLogDetail(fieldMapping) {
+class UnsupportedHDMessage(formattedValue: String = "", fieldMapping: String) : ItemActionLogDetail(fieldMapping) {
     override val message = "Unsupported HD format for input: '$formattedValue' in $fieldMapping"
     override val errorCode = ErrorCode.INVALID_MSG_PARSE_HD
 }
@@ -176,10 +168,7 @@ class UnsupportedHDMessage(
 /**
  * Message for an invalid EI for a given [fieldMapping] and [formattedValue].
  */
-class UnsupportedEIMessage(
-    formattedValue: String = "",
-    fieldMapping: String,
-) : ItemActionLogDetail(fieldMapping) {
+class UnsupportedEIMessage(formattedValue: String = "", fieldMapping: String) : ItemActionLogDetail(fieldMapping) {
     override val message = "Unsupported EI format for input: '$formattedValue' in $fieldMapping"
     override val errorCode = ErrorCode.INVALID_MSG_PARSE_EI
 }
@@ -187,9 +176,7 @@ class UnsupportedEIMessage(
 /**
  * A message to denote that equipment was not found in the LIVD table for a given [fieldMapping].
  */
-class InvalidEquipmentMessage(
-    fieldMapping: String,
-) : ItemActionLogDetail(fieldMapping) {
+class InvalidEquipmentMessage(fieldMapping: String) : ItemActionLogDetail(fieldMapping) {
     override val message = "No match found for $fieldMapping; please refer to the " +
         "CDC LIVD table LOINC Mapping spreadsheet for acceptable values."
     override val errorCode = ErrorCode.INVALID_MSG_EQUIPMENT_MAPPING
@@ -217,10 +204,8 @@ class FieldProcessingMessage(
  * A [message] for invalid HL7 message.  Note field mapping is not available from the HAPI errors.
  * An optional [errorCode] for the error. Used to display a friendly error.
  */
-class InvalidHL7Message(
-    override val message: String,
-    override val errorCode: ErrorCode = ErrorCode.UNKNOWN,
-) : ItemActionLogDetail("")
+class InvalidHL7Message(override val message: String, override val errorCode: ErrorCode = ErrorCode.UNKNOWN) :
+    ItemActionLogDetail("")
 
 /**
  * A [message] for invalid request parameter.
@@ -257,7 +242,7 @@ class DuplicateSubmissionMessage(val payloadName: String?) : ActionLogDetail {
 /**
  * A [message] for a duplicate item within a submission
  */
-class DuplicateItemMessage() : ActionLogDetail {
+class DuplicateItemMessage : ActionLogDetail {
     override val scope = ActionLogScope.item
     override val errorCode = ErrorCode.UNKNOWN
     override val message = "Item is a duplicate."
@@ -266,14 +251,13 @@ class DuplicateItemMessage() : ActionLogDetail {
 /**
  * A [message] for non-error details.
  */
-class FhirActionLogDetail(
-    override val message: String,
-) : GenericActionLogDetail(message, ActionLogScope.report, ErrorCode.UNKNOWN)
+class FhirActionLogDetail(override val message: String) :
+    GenericActionLogDetail(message, ActionLogScope.report, ErrorCode.UNKNOWN)
 
 /**
  * A return message for invalid processing type
  */
-class UnsupportedProcessingTypeMessage() : ActionLogDetail {
+class UnsupportedProcessingTypeMessage : ActionLogDetail {
     override val scope = ActionLogScope.report
     override val errorCode = ErrorCode.UNKNOWN
     override val message = "Full ELR senders must be configured for async processing."
@@ -291,7 +275,8 @@ class EvaluateFilterConditionErrorMessage(message: String?) : ActionLogDetail {
 /**
  * A [message] for when observations have been pruned for any receiver of a report
  */
-class PrunedObservationsLogMessage(override val message: String) : GenericActionLogDetail(
+class PrunedObservationsLogMessage(override val message: String) :
+    GenericActionLogDetail(
     message, ActionLogScope.report
 ) {
     constructor(reportId: ReportId, filteredIdMap: Map<String, List<String>>) : this(
