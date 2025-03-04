@@ -4,7 +4,9 @@
 
 The PRIME command line interface allows you to interact with certain parts of report stream functionality without using the API or running all of ReportStream. A common use case for the CLI is testing while developing mappers for the new FHIR pipeline.
 
-The primary way to access the cli is through the gradle command (although a deprecated bash script exists as well). If you are an IntelliJ user, you can set up the gradle command to be run through your IDE and be run in debug mode to step through your code line by line.
+The primary way to access the cli is through the gradle command (although a deprecated bash script exists as well). 
+> [!TIP]
+> If you are an IntelliJ user, you can set up the gradle command to be run through your IDE and be run in debug mode to step through your code line by line.
 
 ```bash
 cd ./prime-router
@@ -41,3 +43,7 @@ cd ./prime-router
 # Converts the FHIR file to HL7 using the provided schema (IN DEV MODE)
 ./gradlew primeCLI --args='fhirdata --input-file "src/testIntegration/resources/datatests/HL7_to_FHIR/sample_co_1_20220518-0001.fhir" -s metadata/hl7_mapping/ORU_R01/ORU_R01-base.yml'
 ```
+
+### Command Documentation:
+
+* [fhirpath](./fhir-path.md)
