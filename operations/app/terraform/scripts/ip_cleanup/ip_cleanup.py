@@ -2,7 +2,7 @@
 ip_cleanup.py
 
 This script processes a list of whitelisted IP addresses, looks up details using IPWhois,
-and categorizes them as Government, ISP, or Commercial entities.
+and categorizes them. 
 
 Requirements:
 - Python 3.x
