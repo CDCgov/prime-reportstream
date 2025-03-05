@@ -36,6 +36,7 @@ import gov.cdc.prime.router.azure.observability.bundleDigest.BundleDigestLabResu
 import gov.cdc.prime.router.azure.observability.event.AzureEventUtils
 import gov.cdc.prime.router.azure.observability.event.InMemoryAzureEventService
 import gov.cdc.prime.router.azure.observability.event.ItemEventData
+import gov.cdc.prime.router.azure.observability.event.OrderingFacilitySummary
 import gov.cdc.prime.router.azure.observability.event.ReportEventData
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventName
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventProperties
@@ -501,8 +502,13 @@ class FHIRConverterIntegrationTests {
                                 )
                             ),
                         patientState = listOf("TX"),
-                        orderingFacilityState = listOf("FL"),
-                        performerState = emptyList(),
+                        orderingFacilitySummaries = listOf(
+                            OrderingFacilitySummary(
+                                orderingFacilityName = "Avante at Ormond Beach",
+                                orderingFacilityState = "FL"
+                            )
+                        ),
+                        performerSummaries = emptyList(),
                         eventType = "ORU^R01^ORU_R01"
                     ),
                     ReportStreamEventProperties.ENRICHMENTS to ""
@@ -657,8 +663,13 @@ class FHIRConverterIntegrationTests {
                                 )
                             ),
                         patientState = listOf("TX"),
-                        orderingFacilityState = listOf("FL"),
-                        performerState = emptyList(),
+                        orderingFacilitySummaries = listOf(
+                            OrderingFacilitySummary(
+                                orderingFacilityName = "Avante at Ormond Beach",
+                                orderingFacilityState = "FL"
+                            )
+                        ),
+                        performerSummaries = emptyList(),
                         eventType = "ORU^R01^ORU_R01"
                     ),
                     ReportStreamEventProperties.ENRICHMENTS to ""
@@ -833,8 +844,8 @@ class FHIRConverterIntegrationTests {
                                 )
                             ),
                         patientState = emptyList(),
-                        orderingFacilityState = emptyList(),
-                        performerState = emptyList(),
+                        orderingFacilitySummaries = emptyList(),
+                        performerSummaries = emptyList(),
                         eventType = "ORU^R01^ORU_R01"
                     ),
                     ReportStreamEventProperties.ENRICHMENTS to ""
