@@ -28,7 +28,7 @@ dependencies {
 
     // okta
     implementation("com.okta.sdk:okta-sdk-api:20.0.0")
-    runtimeOnly("com.okta.sdk:okta-sdk-impl:20.0.0")
+    runtimeOnly("com.okta.sdk:okta-sdk-impl:21.0.0")
 
     // Swagger
     implementation("org.springdoc:springdoc-openapi-starter-webflux-ui:2.7.0")
