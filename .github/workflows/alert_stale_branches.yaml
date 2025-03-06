@@ -30,6 +30,6 @@ jobs:
             Merged ${{ steps.counts.outputs.MERGE_COUNT }}
             Not Merged ${{ steps.counts.outputs.NOT_MERGE_COUNT }}
           icon-emoji: ':bell:'
-          channel: cdc-reportstream-bot-notifications
+          channel: cdc-reportstream-devsecops-new
           webhook-url: ${{ secrets.SLACK_NOTIFICATIONS_WEBHOOK_URL }}
           color: warning
