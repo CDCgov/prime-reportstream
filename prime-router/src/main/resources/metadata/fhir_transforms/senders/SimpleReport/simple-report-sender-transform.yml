@@ -553,6 +553,17 @@ elements:
         keyColumn: LOINC_NUM
         valueColumn: LONG_COMMON_NAME
 
+  ## Note extension
+  - name: sr-note-cwe-coding-extension
+    resource: 'Bundle.entry.resource.ofType(ServiceRequest).note.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/note-type").value.coding'
+    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding").value[x]'
+    value: [ '"coding"' ]
+
+  - name: sr-note-cwe-coding-system-extension
+    resource: 'Bundle.entry.resource.ofType(ServiceRequest).note.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/note-type").value.coding'
+    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system").value[x]'
+    value: [ '%resource.system' ]
+
 
   ## Requester
   - name: sr-service-request-requester-telecom
@@ -712,7 +723,7 @@ elements:
     resource: 'Bundle.entry.resource.ofType(Observation)'
     condition: '%resource.value is dateTime'
     bundleProperty: '%resource.value.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time").value[x]'
-    value: [ '%resource.value' ]
+    value: [ '%resource.value.toString().replace("-","")' ]
 
   - name: sr-observation-value-coding-system
     resource: 'Bundle.entry.resource.ofType(Observation)'
