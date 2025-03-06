@@ -1,5 +1,6 @@
 """ip_cleanup.py
 This script processes a list of whitelisted IP addresses, looks up details using IPWhois, and categorizes them.
+The script now supports command-line arguments to specify input and output files without code changes.
 
 Requirements:
 - Python 3.x
