@@ -1,0 +1,49 @@
+name: "Terraform Plan"
+
+on:
+  push:
+    branches:
+      - production
+
+jobs:
+  terraform:
+    name: "Terraform Plan"
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Upload Configuration
+        uses: hashicorp/tfc-workflows-github/actions/upload-configuration@v1.0.0
+        id: plan-upload
+        with:
+          workspace: ${{ env.TF_WORKSPACE }}
+          directory: ${{ env.CONFIG_DIRECTORY }}
+          speculative: true
+
+      - name: Create Plan Run
+        uses: hashicorp/tfc-workflows-github/actions/create-run@v1.0.0
+        id: plan-run
+        with:
+          workspace: ${{ env.TF_WORKSPACE }}
+          configuration_version: ${{ steps.plan-upload.outputs.configuration_version_id }}
+          plan_only: true
+
+      - name: Get Plan Output
+        uses: hashicorp/tfc-workflows-github/actions/plan-output@v1.0.0
+        id: plan-output
+        with:
+          plan: ${{ fromJSON(steps.plan-run.outputs.payload).data.relationships.plan.data.id }}
+
+      - name: Convert Terraform Plan to JSON
+        run: |
+          echo '${{ steps.plan-output.outputs.json }}' > plan.json
+
+      - name: Post Plan as PR Comment
+        uses: borchero/terraform-plan-comment@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          planfile: plan.json
