@@ -5,12 +5,6 @@ on:
     branches:
       - production
 
-env:
-  TF_CLOUD_ORGANIZATION: "YOUR-ORGANIZATION-HERE"
-  TF_API_TOKEN: "${{ secrets.TF_API_TOKEN }}"
-  TF_WORKSPACE: "your-production-workspace"
-  CONFIG_DIRECTORY: "./"
-
 jobs:
   terraform:
     name: "Terraform Plan"
@@ -44,61 +38,12 @@ jobs:
         with:
           plan: ${{ fromJSON(steps.plan-run.outputs.payload).data.relationships.plan.data.id }}
 
-      - name: Create or Update PR
-        uses: actions/github-script@v6
-        id: plan-comment
+      - name: Convert Terraform Plan to JSON
+        run: |
+          echo '${{ steps.plan-output.outputs.json }}' > plan.json
+
+      - name: Post Plan as PR Comment
+        uses: borchero/terraform-plan-comment@v2
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            const { data: pulls } = await github.rest.pulls.list({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              state: 'open',
-              head: 'production'
-            });
-
-            const output = `#### Terraform Cloud Plan Output
-            \`\`\`
-            Plan: ${{ steps.plan-output.outputs.add }} to add, ${{ steps.plan-output.outputs.change }} to change, ${{ steps.plan-output.outputs.destroy }} to destroy.
-            \`\`\`
-            [Terraform Cloud Plan](${{ steps.plan-run.outputs.run_link }})`;
-
-            let pr;
-            if (pulls.length === 0) {
-              const { data: newPR } = await github.rest.pulls.create({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                title: "Terraform Plan for Production",
-                head: "production",
-                base: "main",
-                body: output
-              });
-              pr = newPR;
-            } else {
-              pr = pulls[0];
-              // Remove previous bot comment if exists
-              const { data: comments } = await github.rest.issues.listComments({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: pr.number,
-              });
-              const botComment = comments.find(comment => {
-                return comment.user.type === 'Bot' && comment.body.includes('Terraform Cloud Plan Output');
-              });
-
-              if (botComment) {
-                await github.rest.issues.deleteComment({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  comment_id: botComment.id,
-                });
-              }
-
-              // Post new comment with plan output
-              await github.rest.issues.createComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: pr.number,
-                body: output
-              });
-            }
+          token: ${{ secrets.GITHUB_TOKEN }}
+          planfile: plan.json
