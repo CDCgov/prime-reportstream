@@ -1,5 +1,7 @@
 # Submission History API
 
+## How to Use
+
 As mentioned in the [Universal Pipeline Overview](README.md), a `Report` is submitted via an HTTP POST to the preferred `/api/waters/report` (in honor of [Dr. Michael Stephan Waters](https://reportstream.cdc.gov/developer-resources/api#about-our-api).) or the deprecated `/api/report` endpoints.  The subsequent status of that submission is determined via an HTTP GET request to `/api/waters/report{id}/history` or `/api/report/{id}/history` where id is either the “id” or “submissionId” returned from the original POST (or the "Report ID" from the Submission History page on the web site).
 
 ## Examples of JSON Responses
