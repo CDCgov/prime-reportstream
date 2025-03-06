@@ -41,10 +41,7 @@ import java.util.logging.Logger
 
 class CheckFunction : Logging {
     // data structure for sftp file
-    data class SftpFile(
-        val name: String,
-        val contents: String,
-    )
+    data class SftpFile(val name: String, val contents: String)
 
     /**
      * A class to wrap the connection check event

@@ -31,7 +31,7 @@ class HistoryDatabaseAccessTests {
     fun `test organizationFilter`() {
         var conditionExpected = """
             (
-              "public"."action"."action_name" = 'batch'
+              "public"."report_file"."next_action" = 'send'
               and "public"."report_file"."receiving_org" = 'test'
               and "public"."report_file"."receiving_org_svc" = 'test'
             )
@@ -48,10 +48,15 @@ class HistoryDatabaseAccessTests {
         var conditionExpected = """
             (
               (
-                "public"."action"."action_name" = 'batch'
+                (
+                  "public"."report_file"."next_action" = 'send'
+                  and lower(cast("public"."report_file"."schema_topic" as varchar)) <> lower('elr-elims')
+                )
                 or (
-                  "public"."action"."action_name" = 'send'
-                  and "public"."report_file"."schema_topic" = 'ELR_ELIMS'
+                  "public"."report_file"."next_action" is null
+                  and "public"."report_file"."transport_params" is not null
+                  and "public"."report_file"."transport_result" not like '%downloadedBy%'
+                  and lower(cast("public"."report_file"."schema_topic" as varchar)) = lower('elr-elims')
                 )
               )
               and "public"."report_file"."receiving_org" = 'test'

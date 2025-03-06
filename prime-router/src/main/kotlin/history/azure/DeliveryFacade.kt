@@ -145,13 +145,11 @@ class DeliveryFacade(
         reportId: ReportId,
         sortDir: HistoryDatabaseAccess.SortDir,
         sortColumn: DatabaseDeliveryAccess.FacilitySortColumn,
-    ): List<DeliveryFacility> {
-        return dbDeliveryAccess.fetchFacilityList(
+    ): List<DeliveryFacility> = dbDeliveryAccess.fetchFacilityList(
             reportId,
             sortDir,
             sortColumn,
         )
-    }
 
     /**
      * Check whether these [claims] from this [request]
@@ -163,9 +161,7 @@ class DeliveryFacade(
         claims: AuthenticatedClaims,
         action: Action,
         request: HttpRequestMessage<String?>,
-    ): Boolean {
-        return claims.authorizedForSendOrReceive(action.receivingOrg, null, request)
-    }
+    ): Boolean = claims.authorizedForSendOrReceive(action.receivingOrg, null, request)
 
     companion object {
         val instance: DeliveryFacade by lazy(LazyThreadSafetyMode.SYNCHRONIZED) {

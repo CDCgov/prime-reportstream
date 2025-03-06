@@ -67,33 +67,33 @@ class AuthUtils {
             keyId: String,
             expirationSecondsFromNow: Int = 300,
             jti: String? = UUID.randomUUID().toString(),
-        ): String {
-            return generateToken(organization.name, baseUrl, privateKey, keyId, jti, expirationSecondsFromNow)
-        }
+        ): String = generateToken(organization.name, baseUrl, privateKey, keyId, jti, expirationSecondsFromNow)
 
         /**
          * [organizationToken] is a signed JWT from this organization, to go to the api/token endpoint.
          * [scope] is the desired scope being requested.   See [Scope] for details on format.
          * @return a map of the standard parameters needed to create an acceptable token request.
          */
-        private fun generateOrganizationUrlParameterMap(organizationToken: String, scope: String): Map<String, String> {
-            return mapOf<String, String>(
+        private fun generateOrganizationUrlParameterMap(
+            organizationToken: String,
+            scope: String,
+        ): Map<String, String> = mapOf<String, String>(
                 "scope" to scope,
                 "grant_type" to "client_credentials",
                 "client_assertion_type" to "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
                 "client_assertion" to organizationToken,
             )
-        }
 
         /**
          * [organizationToken] is a signed JWT from this organization, to go to the api/token endpoint.
          * [scope] is the desired scope being requested.   See [Scope] for details on format.
          * @return a string of the standard parameters needed to create an acceptable token request.
          */
-        fun generateOrganizationUrlParameterString(organizationToken: String, scope: String): String {
-            return generateOrganizationUrlParameterMap(organizationToken, scope)
+        fun generateOrganizationUrlParameterString(
+            organizationToken: String,
+            scope: String,
+        ): String = generateOrganizationUrlParameterMap(organizationToken, scope)
                 .map { "${it.key}=${it.value}" }.joinToString("&")
-        }
 
         fun readPublicKeyPemFile(pemFile: File): Jwk {
             if (!pemFile.exists()) error("Cannot file file ${pemFile.absolutePath}")

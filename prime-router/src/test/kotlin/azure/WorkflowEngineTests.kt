@@ -52,10 +52,14 @@ class WorkflowEngineTests {
         receivers = listOf(Receiver("elr", "phd", Topic.TEST, CustomerStatus.INACTIVE, "one"))
     )
 
-    private fun makeEngine(metadata: Metadata, settings: SettingsProvider): WorkflowEngine {
-        return WorkflowEngine.Builder().metadata(metadata).settingsProvider(settings).databaseAccess(accessSpy)
-            .blobAccess(blobMock).queueAccess(queueMock).build()
-    }
+    private fun makeEngine(metadata: Metadata, settings: SettingsProvider): WorkflowEngine =
+        WorkflowEngine.Builder()
+                .metadata(metadata)
+                .settingsProvider(settings)
+                .databaseAccess(accessSpy)
+                .blobAccess(blobMock)
+                .queueAccess(queueMock)
+                .build()
 
     @BeforeEach
     fun reset() {

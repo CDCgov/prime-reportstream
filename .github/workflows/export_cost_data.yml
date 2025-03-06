@@ -4,6 +4,10 @@ on:
   schedule:
     # The workflow runs every day at 3PM
     - cron: "0 19 * * *"  #UTC-5
+
+env:
+  AZURE_CREDENTIALS: '{"clientId":"${{ secrets.AZURE_CLIENT_ID }}","clientSecret":"${{ secrets.AZURE_CLIENT_SECRET }}","subscriptionId":"${{ secrets.AZURE_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.AZURE_TENANT_ID }}"}'
+
 jobs:
   export_cost_data:
     name: Export Azure Cost Data to Storage
@@ -27,7 +31,7 @@ jobs:
         uses: ./.github/actions/vpn-azure
         with:
           env-name: ${{ matrix.env }}
-          sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
+          sp-creds: ${{ env.AZURE_CREDENTIALS }}
           tf-auth: false
       - name: Run Az Cost CLI
         id: az-cost
@@ -76,7 +80,7 @@ jobs:
           user: prime
           database: prime_data_hub
           output-file: result.txt
-          query: |            
+          query: |
             CREATE TABLE IF NOT EXISTS Azure_Costs (
               Date       date,
               Cost       NUMERIC(13, 8),

@@ -32,6 +32,7 @@ import io.mockk.spyk
 import io.mockk.unmockkAll
 import net.schmizz.sshj.SSHClient
 import net.schmizz.sshj.connection.ConnectionException
+import net.schmizz.sshj.sftp.RemoteResourceFilter
 import net.schmizz.sshj.sftp.RemoteResourceInfo
 import net.schmizz.sshj.sftp.SFTPClient
 import net.schmizz.sshj.transport.verification.HostKeyVerifier
@@ -77,6 +78,7 @@ class SftpTransportIntegrationTests : TransportIntegrationTests() {
             4,
             "",
             "",
+            null,
             null,
             null,
             null,
@@ -456,10 +458,11 @@ class SftpTransportIntegrationTests : TransportIntegrationTests() {
     @Test
     fun `ls happy path`() {
         val f = Fixture()
+        val nullRemoteResourceFilter: RemoteResourceFilter? = null
 
         every { f.mockSSHClient.newSFTPClient() } returns f.mockSFTPClient
         // mock a successful ls on the remote SFTP server
-        every { f.mockSFTPClient.ls(f.lsPath, null) } returns f.remoteResourceInfos
+        every { f.mockSFTPClient.ls(f.lsPath, nullRemoteResourceFilter) } returns f.remoteResourceInfos
         every { f.mockSFTPClient.close() } just runs
         every { f.mockSSHClient.close() } just runs
         every { f.mockSSHClient.disconnect() } just runs
@@ -473,10 +476,11 @@ class SftpTransportIntegrationTests : TransportIntegrationTests() {
     @Test
     fun `ls connection error`() {
         val f = Fixture()
+        val nullRemoteResourceFilter: RemoteResourceFilter? = null
 
         every { f.mockSSHClient.newSFTPClient() } returns f.mockSFTPClient
         // throw a connection exception on ls
-        every { f.mockSFTPClient.ls(f.lsPath, null) } throws ConnectionException("oops")
+        every { f.mockSFTPClient.ls(f.lsPath, nullRemoteResourceFilter) } throws ConnectionException("oops")
         every { f.mockSFTPClient.close() } just runs
         every { f.mockSSHClient.close() } just runs
         every { f.mockSSHClient.disconnect() } just runs
@@ -490,10 +494,14 @@ class SftpTransportIntegrationTests : TransportIntegrationTests() {
     @Test
     fun `ls ignore timeout error`() {
         val f = Fixture()
+        val nullRemoteResourceFilter: RemoteResourceFilter? = null
 
         every { f.mockSSHClient.newSFTPClient() } returns f.mockSFTPClient
         // throw a ConnectionException on ls with TimeoutException as a cause
-        every { f.mockSFTPClient.ls(f.lsPath, null) } throws ConnectionException("oops", TimeoutException())
+        every { f.mockSFTPClient.ls(f.lsPath, nullRemoteResourceFilter) } throws ConnectionException(
+            "oops",
+            TimeoutException()
+        )
         every { f.mockSFTPClient.close() } just runs
         every { f.mockSSHClient.close() } just runs
         every { f.mockSSHClient.disconnect() } just runs

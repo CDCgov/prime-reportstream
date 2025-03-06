@@ -48,6 +48,6 @@ az network front-door routing-rule update --front-door-name <FD_NAME>
 
 If the application must completely be removed from Azure, Terraform can destroy all application resources. To do this:
 
-1. [Follow the operations/README.md for environment tear down directions](https://github.com/CDCgov/prime-reportstream/blob/master/operations/README.md#tear-down-a-environment)
+1. [Follow the operations/README.md for environment tear down directions](https://github.com/CDCgov/prime-reportstream/blob/main/operations/README.md#tear-down-a-environment)
 2. Start with the app stage (`04-app`) and work backwards until the resources needed are destroyed
 3. Make note of the warning when tearing down resources that are not ephemeral

@@ -62,3 +62,6 @@ elements:
     condition: '%resource.value[x].coding[0].code = "UNK" or %resource.value.coding[0].code = "ASKU"'
     value: [ '"U"' ]
     hl7Spec: [ '%{PID}-10-1' ]
+
+  - name: observation-result-with-aoe
+    resource: "Bundle.entry.resource.ofType(Observation).where(code.coding.extension('https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code').value.where(code in ('AOE')).exists().not())"

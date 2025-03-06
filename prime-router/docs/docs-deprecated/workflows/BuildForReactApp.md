@@ -1,6 +1,6 @@
 **File Name – build_frontend.yml**
 
-There are 2 events that trigger the workflow on push to master or pull request to master or production. The virtual environment used to run the workflow is an Ubuntu machine in the latest version.
+There are 2 events that trigger the workflow on push to main or pull request to main or production. The virtual environment used to run the workflow is an Ubuntu machine in the latest version.
 &nbsp;  
 **Step1: run yarn install --ignore-platform**
 Installs the dependencies required to run the application:

@@ -62,14 +62,22 @@ enum USTimeZone {
     ARIZONA = "ARIZONA",
     CENTRAL = "CENTRAL",
     CHAMORRO = "CHAMORRO",
+    CHUUK = "CHUUK",
     EASTERN = "EASTERN",
     EAST_INDIANA = "EAST_INDIANA",
     HAWAII = "HAWAII",
     INDIANA_STARKE = "INDIANA_STARKE",
+    MAJURO = "MAJURO",
     MICHIGAN = "MICHIGAN",
     MOUNTAIN = "MOUNTAIN",
+    NORTHERN_MARIANA_ISLANDS = "NORTHERN_MARIANA_ISLANDS",
     PACIFIC = "PACIFIC",
+    PALAU = "PALAU",
+    PUERTO_RICO = "PUERTO_RICO",
+    POHNPEI = "POHNPEI",
+    KOSRAE = "KOSRAE",
     SAMOA = "SAMOA",
+    US_VIRGIN_ISLANDS = "US_VIRGIN_ISLANDS",
     UTC = "UTC",
 }
 
@@ -139,10 +147,7 @@ class SampleFilterObject extends SampleObject {
 
     getAllEnums(): Map<string, string[]> {
         return new Map<string, string[]>([
-            [
-                "Available Filters",
-                Array.from(Object.values(ReportStreamFilterDefinition)),
-            ],
+            ["Available Filters", Array.from(Object.values(ReportStreamFilterDefinition))],
         ]);
     }
 
@@ -221,9 +226,7 @@ class SampleTranslationObj extends SampleObject {
     schemaName = "schema";
 
     getAllEnums(): Map<string, string[]> {
-        return new Map<string, string[]>([
-            ["format", Array.from(Object.values(Format))],
-        ]);
+        return new Map<string, string[]>([["format", Array.from(Object.values(Format))]]);
     }
 
     description(): string {
@@ -265,9 +268,7 @@ class SampleTransportObject extends SampleObject {
     };
 
     getAllEnums(): Map<string, string[]> {
-        return new Map<string, string[]>([
-            ["GAEN.uuidFormat", Array.from(Object.values(GAENUUIDFormat))],
-        ]);
+        return new Map<string, string[]>([["GAEN.uuidFormat", Array.from(Object.values(GAENUUIDFormat))]]);
     }
 
     description(): string {

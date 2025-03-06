@@ -259,9 +259,9 @@ class Server2ServerAuthentication(val workflowEngine: WorkflowEngine) : Logging 
      *
      * @return the ReportStream AuthenticatedClaims obj if authentication was successful.  Otherwise returns null.
      */
-    fun authenticate(accessToken: String): AuthenticatedClaims? {
-        return authenticate(accessToken, FindReportStreamSecretInVault())
-    }
+    fun authenticate(
+        accessToken: String,
+    ): AuthenticatedClaims? = authenticate(accessToken, FindReportStreamSecretInVault())
 
     /**
      * This confirms that [accessToken] is properly unexpired and signed by that secret. This does not do authorization,

@@ -12,7 +12,7 @@ import {
 export const StringErrorDisplay = ({ message }: { message?: string }) => {
     return (
         <Alert headingLevel="h4" type="error" role="alert">
-            {message ? message : GENERIC_ERROR_STRING}
+            {message ?? GENERIC_ERROR_STRING}
         </Alert>
     );
 };
@@ -28,10 +28,7 @@ export const ParagraphErrorDisplay = ({
             <Helmet>
                 <title>Error</title>
             </Helmet>
-            <div
-                data-testid={"error-page-wrapper"}
-                className="usa-section padding-top-6"
-            >
+            <div data-testid={"error-page-wrapper"} className="usa-section padding-top-6">
                 <div className="grid-container">
                     <div className="grid-row grid-gap">
                         <div className="usa-prose">
@@ -40,10 +37,7 @@ export const ParagraphErrorDisplay = ({
                             <div className="margin-y-5">
                                 <ul className="usa-button-group">
                                     <li className="usa-button-group__item">
-                                        <Button
-                                            type="button"
-                                            onClick={() => navigate("/")}
-                                        >
+                                        <Button type="button" onClick={() => navigate("/")}>
                                             Visit homepage
                                         </Button>
                                     </li>
@@ -61,18 +55,11 @@ export interface GenericErrorProps {
     displayAsPage?: boolean;
     displayConfig?: ErrorDisplayMessage;
 }
-export const BasicErrorDisplay = ({
-    displayAsPage,
-    displayConfig,
-}: GenericErrorProps) => {
+export const BasicErrorDisplay = ({ displayAsPage, displayConfig }: GenericErrorProps) => {
     if (!displayConfig) {
         // For back-compat with older uses
         // TODO: Remove when we stop using GenericError outside of RSErrorBoundary
-        return displayAsPage ? (
-            <ParagraphErrorDisplay />
-        ) : (
-            <StringErrorDisplay />
-        );
+        return displayAsPage ? <ParagraphErrorDisplay /> : <StringErrorDisplay />;
     } else {
         // For use with RSNetworkError
         // Error message/page configs are designed in `/src/content/error/ErrorMessages.ts`

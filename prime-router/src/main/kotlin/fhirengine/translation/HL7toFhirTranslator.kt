@@ -33,11 +33,10 @@ class HL7toFhirTranslator(
         private val hl7ToFhirTranslatorInstances =
             Collections.synchronizedMap(mutableMapOf<String, HL7toFhirTranslator>())
 
-        fun getHL7ToFhirTranslatorInstance(configFolderPath: String = "./metadata/HL7/catchall"): HL7toFhirTranslator {
-            return hl7ToFhirTranslatorInstances.getOrPut(configFolderPath) {
+        fun getHL7ToFhirTranslatorInstance(configFolderPath: String = "./metadata/HL7/catchall"): HL7toFhirTranslator =
+            hl7ToFhirTranslatorInstances.getOrPut(configFolderPath) {
                 HL7toFhirTranslator(configFolderPath)
             }
-        }
     }
 
     /**

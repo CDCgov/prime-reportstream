@@ -25,7 +25,7 @@
                 "automated",
                 "checks",
                 "deployment",
-                "DevOps",
+                "DevSecOps",
                 "pipeline",
                 "scan",
                 "workflow"
@@ -113,6 +113,6 @@
       }
     },
     "base_branches": [
-      "master"
+      "main"
     ]
 }

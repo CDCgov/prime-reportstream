@@ -10,7 +10,7 @@ name: Terraform Plan
 
 # configure to run on merges to 'main' branchbranchon:
   push:
-    branches: [ master ]
+    branches: [ main ]
 
 jobs:
   deploy:
@@ -51,7 +51,7 @@ jobs:
 The previous GitHub Action example runs the following steps:
 <body>
 <ol type = "1">
-<li>GitHub Action runs on pushes to the master branch</li>
+<li>GitHub Action runs on pushes to the main branch</li>
 <li>Repository code is checked out</li>
 <li>Cloud provider is authenticated. In this example, Microsoft Azure is authenticated against.</li>
 <li>Terraform will be setup using the hashicorp/setup-terraform action.</li>
@@ -100,7 +100,7 @@ jobs:
 
 The previous GitHub Action runs the following steps:
 <ol type = "1">
-<li>GitHub Action runs on pushes to the master branch.</li>
+<li>GitHub Action runs on pushes to the main branch.</li>
 <li>Repository code is checked out.</li>
 <li>Cloud provider is authenticated. In this example, Microsoft Azure is authenticated against.</li>
 <li>Terraform is setup using the hashicorp/setup-terraform action.</li>

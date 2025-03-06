@@ -191,9 +191,9 @@ class ReportGraphBuilder {
 class ReportNodeBuilder {
 
     companion object {
-        fun reportGraph(initializer: ReportGraphBuilder.() -> Unit): ReportGraphBuilder {
-            return ReportGraphBuilder().apply(initializer)
-        }
+        fun reportGraph(
+            initializer: ReportGraphBuilder.() -> Unit,
+        ): ReportGraphBuilder = ReportGraphBuilder().apply(initializer)
     }
     lateinit var theAction: TaskAction
     var theNextAction: TaskAction? = null

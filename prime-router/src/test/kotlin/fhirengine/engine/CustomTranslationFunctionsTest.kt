@@ -82,6 +82,110 @@ class CustomTranslationFunctionsTest {
     }
 
     @org.junit.jupiter.api.Test
+    fun `test MajuroTimezone for Marshall Island timezone with convertDateTimeToHL7`() {
+        val timezoneParameters1: MutableList<MutableList<Base>> =
+            mutableListOf(mutableListOf(StringType("Pacific/Majuro")))
+        val adjustedDateTime =
+            CustomFHIRFunctions.changeTimezone(
+                mutableListOf(DateTimeType("2015-04-05T12:22:11Z")),
+                timezoneParameters1
+            )[0] as DateTimeType
+        val tmp1 = Hl7TranslationFunctions().convertDateTimeToHL7(adjustedDateTime)
+        assertThat(tmp1).isEqualTo("20150406002211+1200")
+    }
+
+    @org.junit.jupiter.api.Test
+    fun `test Puerto_RicoTimezone for Puerto Rico timezone with convertDateTimeToHL7`() {
+        val timezoneParameters1: MutableList<MutableList<Base>> =
+            mutableListOf(mutableListOf(StringType("America/Puerto_Rico")))
+        val adjustedDateTime =
+            CustomFHIRFunctions.changeTimezone(
+                mutableListOf(DateTimeType("2015-04-05T12:22:11Z")),
+                timezoneParameters1
+            )[0] as DateTimeType
+        val tmp1 = Hl7TranslationFunctions().convertDateTimeToHL7(adjustedDateTime)
+        assertThat(tmp1).isEqualTo("20150405082211-0400")
+    }
+
+    @org.junit.jupiter.api.Test
+    fun `test US_Virgin_IslandsTimezone for US Virgin Island timezone with convertDateTimeToHL7`() {
+        val timezoneParameters1: MutableList<MutableList<Base>> =
+            mutableListOf(mutableListOf(StringType("America/St_Thomas")))
+        val adjustedDateTime =
+            CustomFHIRFunctions.changeTimezone(
+                mutableListOf(DateTimeType("2015-04-05T12:22:11Z")),
+                timezoneParameters1
+            )[0] as DateTimeType
+        val tmp1 = Hl7TranslationFunctions().convertDateTimeToHL7(adjustedDateTime)
+        assertThat(tmp1).isEqualTo("20150405082211-0400")
+    }
+
+    @org.junit.jupiter.api.Test
+    fun `test ChuukTimezone for Micronesia timezone with convertDateTimeToHL7`() {
+        val timezoneParameters1: MutableList<MutableList<Base>> =
+            mutableListOf(mutableListOf(StringType("Pacific/Port_Moresby")))
+        val adjustedDateTime =
+            CustomFHIRFunctions.changeTimezone(
+                mutableListOf(DateTimeType("2015-04-05T12:22:11Z")),
+                timezoneParameters1
+            )[0] as DateTimeType
+        val tmp1 = Hl7TranslationFunctions().convertDateTimeToHL7(adjustedDateTime)
+        assertThat(tmp1).isEqualTo("20150405222211+1000")
+    }
+
+    @org.junit.jupiter.api.Test
+    fun `test PohnpeiTimezone for Micronesia timezone with convertDateTimeToHL7`() {
+        val timezoneParameters1: MutableList<MutableList<Base>> =
+            mutableListOf(mutableListOf(StringType("Pacific/Guadalcanal")))
+        val adjustedDateTime =
+            CustomFHIRFunctions.changeTimezone(
+                mutableListOf(DateTimeType("2015-04-05T12:22:11Z")),
+                timezoneParameters1
+            )[0] as DateTimeType
+        val tmp1 = Hl7TranslationFunctions().convertDateTimeToHL7(adjustedDateTime)
+        assertThat(tmp1).isEqualTo("20150405232211+1100")
+    }
+
+    @org.junit.jupiter.api.Test
+    fun `test KosraeTimezone for Micronesia timezone with convertDateTimeToHL7`() {
+        val timezoneParameters1: MutableList<MutableList<Base>> =
+            mutableListOf(mutableListOf(StringType("Pacific/Kosrae")))
+        val adjustedDateTime =
+            CustomFHIRFunctions.changeTimezone(
+                mutableListOf(DateTimeType("2015-04-05T12:22:11Z")),
+                timezoneParameters1
+            )[0] as DateTimeType
+        val tmp1 = Hl7TranslationFunctions().convertDateTimeToHL7(adjustedDateTime)
+        assertThat(tmp1).isEqualTo("20150405232211+1100")
+    }
+
+    @org.junit.jupiter.api.Test
+    fun `test Northern_Mariana_IslandsTimezone for Northern Mariana Islands timezone with convertDateTimeToHL7`() {
+        val timezoneParameters1: MutableList<MutableList<Base>> =
+            mutableListOf(mutableListOf(StringType("Pacific/Saipan")))
+        val adjustedDateTime =
+            CustomFHIRFunctions.changeTimezone(
+                mutableListOf(DateTimeType("2015-04-05T12:22:11Z")),
+                timezoneParameters1
+            )[0] as DateTimeType
+        val tmp1 = Hl7TranslationFunctions().convertDateTimeToHL7(adjustedDateTime)
+        assertThat(tmp1).isEqualTo("20150405222211+1000")
+    }
+
+    @org.junit.jupiter.api.Test
+    fun `test PauluTimezone for Palau timezone with convertDateTimeToHL7`() {
+        val timezoneParameters1: MutableList<MutableList<Base>> =
+            mutableListOf(mutableListOf(StringType("Pacific/Palau")))
+        val adjustedDateTime =
+            CustomFHIRFunctions.changeTimezone(
+                mutableListOf(DateTimeType("2015-04-05T12:22:11Z")),
+                timezoneParameters1
+            )[0] as DateTimeType
+        val tmp1 = Hl7TranslationFunctions().convertDateTimeToHL7(adjustedDateTime)
+        assertThat(tmp1).isEqualTo("20150405212211+0900")
+    }
+
+    @org.junit.jupiter.api.Test
     fun `test convertDateTimeToHL7 with CustomContext with receiver setting`() {
         val receiver = mockkClass(Receiver::class, relaxed = true)
         val appContext = mockkClass(CustomContext::class)

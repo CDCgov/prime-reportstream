@@ -42,7 +42,7 @@ import gov.cdc.prime.router.common.validFHIRRecord1
 import gov.cdc.prime.router.db.ReportStreamTestDatabaseContainer
 import gov.cdc.prime.router.db.ReportStreamTestDatabaseSetupExtension
 import gov.cdc.prime.router.fhirengine.engine.FHIRDestinationFilter
-import gov.cdc.prime.router.fhirengine.engine.FhirReceiverFilterQueueMessage
+import gov.cdc.prime.router.fhirengine.engine.FhirReceiverEnrichmentQueueMessage
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.history.db.ReportGraph
 import gov.cdc.prime.router.metadata.LookupTable
@@ -132,8 +132,7 @@ class FHIRDestinationFilterIntegrationTests : Logging {
         )
     }
 
-    fun generateQueueMessage(action: TaskAction, report: Report, blobContents: String, sender: Sender): String {
-        return """
+    fun generateQueueMessage(action: TaskAction, report: Report, blobContents: String, sender: Sender): String = """
             {
                 "type": "${action.literal}",
                 "reportId": "${report.id}",
@@ -144,7 +143,6 @@ class FHIRDestinationFilterIntegrationTests : Logging {
                 "schemaName": "${sender.schemaName}" 
             }
         """.trimIndent()
-    }
 
     @Test
     fun `should send valid FHIR report only to receivers listening to full-elr`() {
@@ -204,7 +202,7 @@ class FHIRDestinationFilterIntegrationTests : Logging {
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
             val routedReports = fetchChildReports(report, txn, 2, 2)
             with(routedReports.first()) {
-                assertThat(this.nextAction).isEqualTo(TaskAction.receiver_filter)
+                assertThat(this.nextAction).isEqualTo(TaskAction.receiver_enrichment)
                 assertThat(this.receivingOrg).isEqualTo("phd")
                 assertThat(this.receivingOrgSvc).isEqualTo("x")
                 assertThat(this.schemaName).isEqualTo("None")
@@ -212,7 +210,7 @@ class FHIRDestinationFilterIntegrationTests : Logging {
                 assertThat(this.bodyFormat).isEqualTo("FHIR")
             }
             with(routedReports.last()) {
-                assertThat(this.nextAction).isEqualTo(TaskAction.receiver_filter)
+                assertThat(this.nextAction).isEqualTo(TaskAction.receiver_enrichment)
                 assertThat(this.receivingOrg).isEqualTo("phd")
                 assertThat(this.receivingOrgSvc).isEqualTo("y")
                 assertThat(this.schemaName).isEqualTo("None")
@@ -233,7 +231,7 @@ class FHIRDestinationFilterIntegrationTests : Logging {
             // check queue message
             val expectedRouteQueueMessages = routedReports.flatMap { report ->
                 listOf(
-                    FhirReceiverFilterQueueMessage(
+                    FhirReceiverEnrichmentQueueMessage(
                         report.reportId,
                         report.bodyUrl,
                         BlobUtils.digestToString(report.blobDigest),
@@ -241,7 +239,7 @@ class FHIRDestinationFilterIntegrationTests : Logging {
                         UniversalPipelineTestUtils.fhirSenderWithNoTransform.topic,
                         "phd.x"
                     ),
-                    FhirReceiverFilterQueueMessage(
+                    FhirReceiverEnrichmentQueueMessage(
                         report.reportId,
                         report.bodyUrl,
                         BlobUtils.digestToString(report.blobDigest),
@@ -256,7 +254,7 @@ class FHIRDestinationFilterIntegrationTests : Logging {
 
             verify(exactly = 2) {
                 QueueAccess.sendMessage(
-                    QueueMessage.elrReceiverFilterQueueName,
+                    QueueMessage.elrReceiverEnrichmentQueueName,
                     match {
                         expectedRouteQueueMessages.contains(it)
                     }
@@ -309,7 +307,7 @@ class FHIRDestinationFilterIntegrationTests : Logging {
         // check results
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
             val routedReport = fetchChildReports(report, txn, 1).single()
-            assertThat(routedReport.nextAction).isEqualTo(TaskAction.receiver_filter)
+            assertThat(routedReport.nextAction).isEqualTo(TaskAction.receiver_enrichment)
             assertThat(routedReport.receivingOrg).isEqualTo("phd")
             assertThat(routedReport.receivingOrgSvc).isEqualTo("x")
             assertThat(routedReport.schemaName).isEqualTo("None")
@@ -324,7 +322,7 @@ class FHIRDestinationFilterIntegrationTests : Logging {
             assertThat(reportContents).isEqualTo(routedBundle)
 
             // check queue message
-            val expectedQueueMessage = FhirReceiverFilterQueueMessage(
+            val expectedQueueMessage = FhirReceiverEnrichmentQueueMessage(
                 routedReport.reportId,
                 routedReport.bodyUrl,
                 BlobUtils.digestToString(routedReport.blobDigest),
@@ -336,7 +334,7 @@ class FHIRDestinationFilterIntegrationTests : Logging {
             // filter should permit message and should not mangle message
             verify(exactly = 1) {
                 QueueAccess.sendMessage(
-                    QueueMessage.elrReceiverFilterQueueName,
+                    QueueMessage.elrReceiverEnrichmentQueueName,
                     expectedQueueMessage.serialize()
                 )
             }

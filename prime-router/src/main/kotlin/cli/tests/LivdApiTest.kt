@@ -92,8 +92,7 @@ class LivdApiTest : CoolTest() {
     /**
      * Run each individual test case
      */
-    private fun runLivdApiTestCases(testCases: List<LivdApiTestCase>): Boolean {
-        return testCases.map {
+    private fun runLivdApiTestCases(testCases: List<LivdApiTestCase>): Boolean = testCases.map {
             ugly("Starting test: ${it.name}")
             val (queryPass, json) = livdApiQuery(it)
             val sanityCheck = when {
@@ -106,7 +105,6 @@ class LivdApiTest : CoolTest() {
             if (sanityCheck) good("Test passed: ${it.name}")
             sanityCheck
         }.reduce { acc, onePassed -> acc and onePassed }
-    }
 
     /**
      * Runs the query against the LIVD API for the given path and parameters

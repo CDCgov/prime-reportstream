@@ -2,6 +2,7 @@ package gov.cdc.prime.router.datatests.mappinginventory.obx
 
 import gov.cdc.prime.router.datatests.mappinginventory.verifyHL7ToFHIRToHL7Mapping
 import org.junit.jupiter.api.Test
+import kotlin.test.Ignore
 
 class OBXToObservationTests {
 
@@ -124,6 +125,23 @@ class OBXToObservationTests {
         assert(
             verifyHL7ToFHIRToHL7Mapping(
                 "catchall/obx/OBX-to-Observation-obx-18-extra-device-identifier",
+                skipHl7ToFhir = true
+            ).passed
+        )
+    }
+
+    @Test
+    fun `test correctly handles OBX-33`() {
+        assert(verifyHL7ToFHIRToHL7Mapping("catchall/obx/OBX-to-Observation-obx-33").passed)
+    }
+
+    // TODO https://github.com/CDCgov/prime-reportstream/issues/16522
+    @Test
+    @Ignore
+    fun `test correctly handles OBX-33 without extension`() {
+        assert(
+            verifyHL7ToFHIRToHL7Mapping(
+                "catchall/obx/OBX-to-Observation-obx-33-no-extension",
                 skipHl7ToFhir = true
             ).passed
         )
