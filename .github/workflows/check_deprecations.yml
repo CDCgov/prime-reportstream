@@ -1,4 +1,4 @@
-name: Deploy Terraform
+name: Check Deprecation in Terraform
 
 on:
   push:
