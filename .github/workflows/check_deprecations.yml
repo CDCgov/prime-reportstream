@@ -148,6 +148,7 @@ jobs:
           terraform plan -out ${{ needs.pre_job.outputs.env_name }}-tf.plan
       - name: Run TF Deprecations Check
         run: python .github/scripts/tf-deprecations/check_deprecations.py ${{ needs.pre_job.outputs.env_name }}-tf.plan        
+
       # - name: Run Terraform Apply
       #   run: |
       #     terraform apply -input=false -no-color -lock-timeout=600s -auto-approve ${{ needs.pre_job.outputs.env_name }}-tf.plan
