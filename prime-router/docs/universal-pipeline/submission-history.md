@@ -12,7 +12,7 @@ This section documents some typical JSON responses one might expect to receive a
 
 Use the **overallStuatus** field to determine the current progress of the submission as it is being processed through the pipeline.  Use the **destinations** field to determine where the report has been assigned to be routed.
 
-#### Waiting to Deliver
+#### Example Respose 1
 
 This response contains the "Waiting to Deliver" value within the **overallStatus** field. This means the report has been processed successfully and it's waiting to be delivered to the listed destination(s) – which, in this example, is the "FOR DEVELOPMENT PURPOSES ONLY" organization (normally this would be a public health organization).
 
@@ -54,7 +54,7 @@ This response contains the "Waiting to Deliver" value within the **overallStatus
 }
 ```
 
-#### Not Delivering
+#### Example Response 2
 
 This response contains the "Not Delivering" value within the **overallStatus** field.  This response means ReportStream couldn't find any destination to route this report and/or the report was filtered out due to a receiver's filter settings.
 
@@ -84,7 +84,7 @@ This response contains the "Not Delivering" value within the **overallStatus** f
 }
 ```
 
-#### Partially Delivered
+#### Example Response 3
 
 This response contains the "Partially Delivered" value within the **overallStatus** field AND contains multiple **organizations** ("FOR CONNECTATHON PURPOSES ONLY" and "Data Ingestion CDC NBS") under **destinations**. This response means the report was assigned to be routed to multiple places, but it was only delivered successfully to the destination(s) that contains the **sentReports** set – in this case the "FOR CONNECTATHON PURPOSES ONLY" organization. Destinations that contain **filteredReportRows** mean that the report was filtered out for that specific destination – in this case the "Data Ingestion CDC NBS" organization – due to the matching arguments provided to the "PROCESSING_MODE_FILTER".
 
@@ -158,9 +158,9 @@ This response contains the "Partially Delivered" value within the **overallStatu
 }
 ```
 
-#### Delivered
+#### Example Response 4
 
-This response contains the "Delivered" value within the **overallStatus** field.  This response means the report was successfully delivered to all destination(s) – in this case to the "New York Public Health Department" organization.  Do note that this **destination** contains a **sentReprts** set.
+This response contains the "Delivered" value within the **overallStatus** field and at least one **destination** set. This **destination** CONTAINS a **sentReports** set and DOES NOT CONTAIN **filterReportRows**.  This response means the report was successfully delivered to all listed destination(s) – in this case, to the "New York Public Health Department" organization.
 
 
 ```
@@ -214,7 +214,7 @@ This response contains the "Delivered" value within the **overallStatus** field.
 Use the **errors** and **warnings** fields to identify any errors or warnings that may have been flagged during the processing of the report.
 
 
-#### Failed to Parse Message
+#### Example Response 5
 
 This is an example of a synchronous response when sending a report and the message is malformed. The **overallStatus** is "Received" – meaning the submission was received by ReportStream and awaits further processing in the pipeline – but **errors** show ReportStream "Failed to parse message".
 
@@ -250,7 +250,7 @@ This is an example of a synchronous response when sending a report and the messa
 }
 ```
 
-#### Profile Validation
+#### Example Response 6
 
 This is an example of an asynchronous response, and because the message has failed a specified profile validation (as detailed in the **errors** set), the report will not be delivered (as stated in the **overallStatus**).
 
@@ -311,7 +311,7 @@ The JSON data that is returned to the consumer of these API endpoints is identic
 | fileName |  | The actual download path for the file. May be empty. |
 | httpStatus | e.g., "201" | The [HTTP status](https://www.restapitutorial.com/httpstatuscodes) from when the Report was received. |
 | id | e.g., "ab774756-83e3-4add-bf91-765ddae1877f" | Alias for the reportId ("Report ID" as seen in the web view of Submission History). |
-| overallStatus | One of: <ol><li>"Valid"</li><li>"Error"</li><li> "Received"</li><li>"Not Delivering"</li><li>"Waiting to Deliver"</li><li>"Partially Delivered"</li><li>"Delivered"</li></ol> | Documents the current progress through the pipeline.<ol><li>Successfully validated but not sent.</li><li>Error on initial submission.</li><li>Passed the received step in the pipeline and awaits processing/routing.</li><li>Processed but has no intended receivers.</li><li>Processed but yet to be sent/downloaded.</li><li>Processed, successfully sent to/downloaded by at least one receiver.</li><li>Processed, successfully sent to/downloaded by all receivers.</li></ol> |
+| overallStatus | One of: <ol><li>"Valid"</li><li>"Error"</li><li> "Received"</li><li>"Not Delivering"</li><li>"Waiting to Deliver"</li><li>"Partially Delivered"</li><li>"Delivered"</li></ol> | Documents the current progress through the pipeline.<ol><li>Successfully validated but not sent.</li><li>Error on initial submission.</li><li>Passed the received step in the pipeline and awaits processing/routing.</li><li>Processed but has no intended receivers.</li><li>Processed but yet to be sent/downloaded.</li><li>Processed, successfully sent to/downloaded by at least one receiver.</li><li>Processed, all reports that passed jurisdictional filters and assigned destination(s) are successfully sent/downloaded by all listed receivers.</li></ol> |
 | plannedCompletionAt | e.g., "2024-08-19T18:04:57.593Z" | When this submission is expected to finish sending.  May be null if there is an error with submission. |
 | reportId | e.g., "ab774756-83e3-4add-bf91-765ddae1877f" | [Unique identifier](https://en.wikipedia.org/wiki/Universally_unique_identifier) for this specific report file. |
 | reportItemCount | 1,2,3, ... | The integer number of tests (data rows) contained in the report. |
