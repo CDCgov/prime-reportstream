@@ -8,9 +8,13 @@ As mentioned in the [Universal Pipeline Overview](README.md), a `Report` is subm
 
 This section documents some typical JSON responses one might expect to receive as part of submission history requests.
 
-### Waiting to Deliver
+### Checking for Overall Status and Destinations
 
-This response means the report has been processed successfully and it's waiting to be delivered to the listed destinations.
+Use the **overallStuatus** field to determine the current progress of the submission as it is being processed through the pipeline.  Use the **destinations** field to determine where the report has been assigned to be routed.
+
+#### Waiting to Deliver
+
+This response contains the "Waiting to Deliver" value within the **overallStatus** field. This means the report has been processed successfully and it's waiting to be delivered to the listed destination(s) – which, in this example, is the "FOR DEVELOPMENT PURPOSES ONLY" organization (normally this would be a public health organization).
 
 ```
 {
@@ -50,9 +54,9 @@ This response means the report has been processed successfully and it's waiting 
 }
 ```
 
-### Not Delivering
+#### Not Delivering
 
-This response means ReportStream couldn't find any destination to route this report or the report didn't pass a receiver's filters.
+This response contains the "Not Delivering" value within the **overallStatus** field.  This response means ReportStream couldn't find any destination to route this report and/or the report was filtered out due to a receiver's filter settings.
 
 ```
 {
@@ -80,9 +84,9 @@ This response means ReportStream couldn't find any destination to route this rep
 }
 ```
 
-### Partially Delivered
+#### Partially Delivered
 
-This response means the report got routed multiple places and only was delivered successfully to the destinations that don't have filteredReportRows or have sentReports set.
+This response contains the "Partially Delivered" value within the **overallStatus** field AND contains multiple **organizations** ("FOR CONNECTATHON PURPOSES ONLY" and "Data Ingestion CDC NBS") under **destinations**. This response means the report was assigned to be routed to multiple places, but it was only delivered successfully to the destination(s) that contains the **sentReports** set – in this case the "FOR CONNECTATHON PURPOSES ONLY" organization. Destinations that contain **filteredReportRows** mean that the report was filtered out for that specific destination – in this case the "Data Ingestion CDC NBS" organization – due to the matching arguments provided to the "PROCESSING_MODE_FILTER".
 
 ```
 {
@@ -154,9 +158,9 @@ This response means the report got routed multiple places and only was delivered
 }
 ```
 
-### Delivered
+#### Delivered
 
-This response means the report was successfully delivered to all destinations.
+This response contains the "Delivered" value within the **overallStatus** field.  This response means the report was successfully delivered to all destination(s) – in this case to the "New York Public Health Department" organization.  Do note that this **destination** contains a **sentReprts** set.
 
 
 ```
@@ -205,9 +209,14 @@ This response means the report was successfully delivered to all destinations.
 }
 ```
 
-### Failure - Can't Parse Message
+### Checking for Failures
 
-Synchronous response when sending a report and the message is malformed. Status is received, but **errors** show ReportStream failed to parse the message.
+Use the **errors** and **warnings** fields to identify any errors or warnings that may have been flagged during the processing of the report.
+
+
+#### Failed to Parse Message
+
+This is an example of a synchronous response when sending a report and the message is malformed. The **overallStatus** is "Received" – meaning the submission was received by ReportStream and awaits further processing in the pipeline – but **errors** show ReportStream "Failed to parse message".
 
 ```
 {
@@ -241,9 +250,9 @@ Synchronous response when sending a report and the message is malformed. Status 
 }
 ```
 
-### Failure - Profile Validation
+#### Profile Validation
 
-The response shows under **errors** that this report failed RADx MARS profile validation.
+This is an example of an asynchronous response, and because the message has failed a specified profile validation (as detailed in the **errors** set), the report will not be delivered (as stated in the **overallStatus**).
 
 
 ```
