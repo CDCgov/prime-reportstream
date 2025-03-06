@@ -67,7 +67,7 @@ jobs:
           message: |
             ${{ steps.stale_out.outputs.MESSAGE_RESPONSE }}
           icon-emoji: ':hourglass_flowing_sand:'
-          channel: cdc-reportstream-devsecops-new
+          channel: cdc-reportstream-bot-notifications
           webhook-url: ${{ secrets.SLACK_NOTIFICATIONS_WEBHOOK_URL }}
           color: warning
           slackify-markdown: true
@@ -80,7 +80,7 @@ jobs:
           message: |
             ${{ steps.stale_out.outputs.MESSAGE_ISSUES_RESPONSE }}
           icon-emoji: ':hourglass_flowing_sand:'
-          channel: cdc-reportstream-devsecops-new
+          channel: cdc-reportstream-bot-notifications
           webhook-url: ${{ secrets.SLACK_NOTIFICATIONS_WEBHOOK_URL }}
           color: warning
           slackify-markdown: true

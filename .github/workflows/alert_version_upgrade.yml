@@ -44,7 +44,7 @@ jobs:
               "Staging Metabase Version": "${{ env.Schedules_UpgradeDetails_0_StgVersion }}"
               "Production Metabase Version": "${{ env.Schedules_UpgradeDetails_0_PrdVersion }}"
             icon-emoji: ':bell:'
-            channel:  cdc-reportstream-devsecops-new
+            channel:  cdc-reportstream-bot-notifications
             webhook-url: ${{ secrets.SLACK_NOTIFICATIONS_WEBHOOK_URL }}
             color: warning
         
