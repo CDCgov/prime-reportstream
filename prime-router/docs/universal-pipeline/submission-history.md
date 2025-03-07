@@ -14,7 +14,7 @@ Use the **overallStuatus** field to determine the current progress of the submis
 
 #### Example Respose 1
 
-This response contains the "Waiting to Deliver" value within the **overallStatus** field. This means the report has been processed successfully and it's waiting to be delivered to the listed destination(s) – which, in this example, is the "FOR DEVELOPMENT PURPOSES ONLY" organization (normally this would be a public health organization).
+This response contains the "Waiting to Deliver" value within the **overallStatus** field. This means the report has been processed successfully and is waiting to be delivered to the listed destination(s) – which, in this example, is the "FOR DEVELOPMENT PURPOSES ONLY" organization (normally this would be a public health organization).
 
 ```
 {
