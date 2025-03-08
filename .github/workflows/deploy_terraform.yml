@@ -1,75 +1,86 @@
 confirm_changes:
-    name: Check Terraform Stats - ${{ needs.pre_job.outputs.env_name }}
-    if: ${{ needs.pre_job.outputs.tf_change == 'true' }}
-    concurrency:
-      group: ${{ github.workflow }}-${{ needs.pre_job.outputs.env_name }}
-      cancel-in-progress: true
-    needs:
-      - pre_job
-    environment: ${{ needs.pre_job.outputs.env_name }}
-    runs-on: ubuntu-latest
-    outputs:
-      change_count: ${{ steps.stats1.outputs.change-count }}
-    steps:
-      - name: Check Out Changes
-        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938
+  name: Check Terraform Stats - ${{ needs.pre_job.outputs.env_name }}
+  if: ${{ needs.pre_job.outputs.tf_change == 'true' }}
+  concurrency:
+    group: ${{ github.workflow }}-${{ needs.pre_job.outputs.env_name }}
+    cancel-in-progress: true
+  needs:
+    - pre_job
+  environment: ${{ needs.pre_job.outputs.env_name }}
+  runs-on: ubuntu-latest
+  outputs:
+    change_count: ${{ steps.stats1.outputs.change-count }}
+  steps:
+    - name: Check Out Changes
+      uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938
 
-      - name: Connect to VPN and login to Azure
-        uses: ./.github/actions/vpn-azure
-        with:
-          env-name: ${{ needs.pre_job.outputs.env_name }}
-          tls-key: ${{ secrets.TLS_KEY }}
-          ca-cert: ${{ secrets.CA_CRT}}
-          user-crt: ${{ secrets.USER_CRT }}
-          user-key: ${{ secrets.USER_KEY }}
-          sp-creds: ${{ env.AZURE_CREDENTIALS }}
-          tf-auth: true
+    - name: Connect to VPN and login to Azure
+      uses: ./.github/actions/vpn-azure
+      with:
+        env-name: ${{ needs.pre_job.outputs.env_name }}
+        tls-key: ${{ secrets.TLS_KEY }}
+        ca-cert: ${{ secrets.CA_CRT}}
+        user-crt: ${{ secrets.USER_CRT }}
+        user-key: ${{ secrets.USER_KEY }}
+        sp-creds: ${{ env.AZURE_CREDENTIALS }}
+        tf-auth: true
 
-      - name: Collect Terraform stats
-        uses: ./.github/actions/terraform-stats
-        id: stats1
-        with:
-          terraform-directory: operations/app/terraform/vars/${{ needs.pre_job.outputs.env_name }}
-          terraform-version: 1.7.4
-          add-args: "-refresh=false"
+    - name: Collect Terraform stats
+      uses: ./.github/actions/terraform-stats
+      id: stats1
+      with:
+        terraform-directory: operations/app/terraform/vars/${{ needs.pre_job.outputs.env_name }}
+        terraform-version: 1.7.4
+        add-args: "-refresh=false"
 
-      - name: Terraform Format
-        run: terraform fmt -check -recursive
+    - name: Terraform Format
+      run: terraform fmt -check -recursive
 
-      - name: Terraform Init
-        run: terraform init -input=false
+    - name: Terraform Init
+      run: terraform init -input=false
 
-      - name: Terraform Validate
-        run: terraform validate
+    - name: Terraform Validate
+      run: terraform validate
 
-      - name: Upload Configuration
-        uses: hashicorp/tfc-workflows-github/actions/upload-configuration@v1.0.0
-        id: plan-upload
-        with:
-          workspace: ${{ env.TF_WORKSPACE }}
-          directory: ${{ env.CONFIG_DIRECTORY }}
-          speculative: true
+    - name: Terraform Plan
+      run: terraform plan -out=tf.plan -input=false -no-color -lock-timeout=600s
 
-      - name: Create Plan Run
-        uses: hashicorp/tfc-workflows-github/actions/create-run@v1.0.0
-        id: plan-run
-        with:
-          workspace: ${{ env.TF_WORKSPACE }}
-          configuration_version: ${{ steps.plan-upload.outputs.configuration_version_id }}
-          plan_only: true
+    - name: Comment Plan on PR
+      uses: blinqas/tf-plan-pr-comment@v1
+      with:
+        output_file: ${{ github.workspace }}/plan_output.txt
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Get Plan Output
-        uses: hashicorp/tfc-workflows-github/actions/plan-output@v1.0.0
-        id: plan-output
-        with:
-          plan: ${{ fromJSON(steps.plan-run.outputs.payload).data.relationships.plan.data.id }}
+    # --- Your Terraform Plan Code Added Here ---
+    - name: Upload Configuration
+      uses: hashicorp/tfc-workflows-github/actions/upload-configuration@v1.0.0
+      id: plan-upload
+      with:
+        workspace: ${{ env.TF_WORKSPACE }}
+        directory: ${{ env.CONFIG_DIRECTORY }}
+        speculative: true
 
-      - name: Convert Terraform Plan to JSON
-        run: |
-          echo '${{ steps.plan-output.outputs.json }}' > plan.json
+    - name: Create Plan Run
+      uses: hashicorp/tfc-workflows-github/actions/create-run@v1.0.0
+      id: plan-run
+      with:
+        workspace: ${{ env.TF_WORKSPACE }}
+        configuration_version: ${{ steps.plan-upload.outputs.configuration_version_id }}
+        plan_only: true
 
-      - name: Post Plan as PR Comment
-        uses: borchero/terraform-plan-comment@v2
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          planfile: plan.json
+    - name: Get Plan Output
+      uses: hashicorp/tfc-workflows-github/actions/plan-output@v1.0.0
+      id: plan-output
+      with:
+        plan: ${{ fromJSON(steps.plan-run.outputs.payload).data.relationships.plan.data.id }}
+
+    - name: Convert Terraform Plan to JSON
+      run: |
+        echo '${{ steps.plan-output.outputs.json }}' > plan.json
+
+    - name: Post Plan as PR Comment
+      uses: borchero/terraform-plan-comment@v2
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        planfile: plan.json
