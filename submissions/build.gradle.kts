@@ -40,7 +40,7 @@ configurations.all {
 
 dependencyManagement {
     imports {
-        mavenBom("com.azure.spring:spring-cloud-azure-dependencies:5.19.0")
+        mavenBom("com.azure.spring:spring-cloud-azure-dependencies:5.20.1")
     }
 }
 
