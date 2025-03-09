@@ -12,3 +12,7 @@ elements:
     condition: '%resource.code.exists()'
     value: [ '%resource.system.getCodingSystemMapping()' ]
     hl7Spec: [ '/PATIENT_RESULT/PATIENT/PID-10-3' ]
+
+  # Suppress the XON.10 value in Organization
+  - name: suppress-organization-orc-21-10
+    schema: classpath:/metadata/hl7_mapping/receivers/Common/remove-orc-21-10/remove-orc-21-10.yml
