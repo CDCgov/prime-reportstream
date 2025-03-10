@@ -56,28 +56,32 @@ class AzureEventUtilsTest {
                         "12345",
                         "Covid 19 Test"
                     )
-                )
+                ),
+                listOf(CodeSummary(system = "http://terminology.hl7.org/CodeSystem/v2-0078", code = "N", display = "Normal"))
             ),
             ObservationSummary(
                 listOf(
                     TestSummary(
                         testPerformedCode = "95418-0",
                     )
-                )
+                ),
+                emptyList()
             ),
             ObservationSummary(
                 listOf(
                     TestSummary(
                         testPerformedSystem = loincSystem
                     )
-                )
+                ),
+                emptyList()
             ),
             ObservationSummary(
                 listOf(
                     TestSummary(
                         testPerformedDisplay = "SARS-CoV-2 (COVID-19) N gene [Presence] in Saliva (oral fluid) by Nucleic acid amplification using CDC primer-probe set N1"
                     )
-                )
+                ),
+                emptyList()
             ),
             ObservationSummary(
                 listOf(
@@ -85,7 +89,8 @@ class AzureEventUtilsTest {
                         testPerformedCode = "95419-8",
                         testPerformedSystem = loincSystem
                     )
-                )
+                ),
+                emptyList()
             )
         )
         val actual = AzureEventUtils.getObservationSummaries(bundle)
