@@ -51,11 +51,9 @@ class PerformerSummaryTest {
                 family = "Roe"
                 given = listOf(org.hl7.fhir.r4.model.StringType("Jane"))
             }
-            // Provide an address
             addAddress().apply {
                 state = "TX"
             }
-            // Provide an identifier with a different system
             addIdentifier().apply {
                 system = "http://some.system/NPI"
                 value = "999999"

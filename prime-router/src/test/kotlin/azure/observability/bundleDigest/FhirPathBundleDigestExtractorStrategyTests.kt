@@ -61,7 +61,13 @@ class FhirPathBundleDigestExtractorStrategyTests {
                         )
                     ),
                                 listOf("VA"),
-                                listOf(PerformerSummary(performerState = "MD")),
+                                listOf(
+                                    PerformerSummary(
+                                        performerName = "Jane Roe",
+                                        performerState = "MD",
+                                        performerCLIA = "999999"
+                                    )
+                                ),
                                 listOf(
                                     OrderingFacilitySummary(orderingFacilityState = "DC")
                     ),
@@ -93,7 +99,13 @@ class FhirPathBundleDigestExtractorStrategyTests {
                 BundleDigestLabResult(
                     emptyList(),
                     emptyList(),
-                    listOf(PerformerSummary(performerState = "MD")),
+                    listOf(
+                        PerformerSummary(
+                            performerName = "Jane Roe",
+                            performerState = "MD",
+                            performerCLIA = "999999"
+                        )
+                    ),
                     listOf(OrderingFacilitySummary(orderingFacilityState = "DC")),
                     "ORU_R01"
                 )
@@ -146,9 +158,19 @@ class FhirPathBundleDigestExtractorStrategyTests {
     private fun createPerformer(bundle: Bundle): Practitioner {
         val performer = Practitioner()
         performer.id = "Performer/1"
-        val performerAddress = Address()
-        performerAddress.state = "MD"
-        performer.address = listOf(performerAddress)
+        performer.apply {
+            addName().apply {
+                family = "Roe"
+                given = listOf(org.hl7.fhir.r4.model.StringType("Jane"))
+            }
+            addAddress().apply {
+                state = "MD"
+            }
+            addIdentifier().apply {
+                system = "CLIA"
+                value = "999999"
+            }
+        }
         val performerEntry = bundle.addEntry()
         performerEntry.resource = performer
         performerEntry.fullUrl = performer.id
