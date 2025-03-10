@@ -28,7 +28,7 @@ runs:
 
     # CHECKSUM START
     - name: Generate SHA
-      uses: nick-fields/retry@v3.0.0
+      uses: nick-fields/retry@v3.0.2
       with:
         max_attempts: 5
         retry_on: any
