@@ -39,6 +39,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Use specific version of Terraform
+        uses: hashicorp/setup-terraform@v1
+        with:
+          terraform_version: 1.7.4
+          terraform_wrapper: false
+
       - name: Upload Configuration
         uses: hashicorp/tfc-workflows-github/actions/upload-configuration@v1.0.0
         id: plan-upload
@@ -86,23 +92,24 @@ jobs:
     steps:
       - name: Check Out Changes
         uses: actions/checkout@v4
-      - name: Connect to VPN and login to Azure
-        uses: ./.github/actions/vpn-azure
+
+      - name: Use specific version of Terraform
+        uses: hashicorp/setup-terraform@v1
         with:
-          env-name: ${{ needs.pre_job.outputs.env_name }}
-          tls-key: ${{ secrets.TLS_KEY }}
-          ca-cert: ${{ secrets.CA_CRT }}
-          user-crt: ${{ secrets.USER_CRT }}
-          user-key: ${{ secrets.USER_KEY }}
-          sp-creds: ${{ env.AZURE_CREDENTIALS }}
-          tf-auth: true
-      - name: Collect Terraform stats
-        uses: ./.github/actions/terraform-stats
-        id: stats1
-        with:
-          terraform-directory: operations/app/terraform/vars/${{ needs.pre_job.outputs.env_name }}
-          terraform-version: 1.7.4
-          add-args: "-refresh=false"
+          terraform_version: 1.7.4
+          terraform_wrapper: false
+
+      - name: Terraform Init
+        run: terraform init -input=false
+
+      - name: Select/Create Workspace
+        run: terraform workspace select -or-create ${{ needs.pre_job.outputs.env_name }}
+
+      - name: Terraform Format
+        run: terraform fmt -check -recursive
+
+      - name: Terraform Validate
+        run: terraform validate
 
   approve_deploy:
     name: Approve Deploy - ${{ needs.pre_job.outputs.env_name }}
@@ -110,9 +117,8 @@ jobs:
       group: ${{ github.workflow }}-${{ needs.pre_job.outputs.env_name }}
       cancel-in-progress: true
     needs:
-      - pre_job
       - confirm_changes
-    if: needs.confirm_changes.outputs.change_count != '0'
+    if: ${{ fromJson(needs.confirm_changes.outputs.change_count) > 0 }}
     runs-on: ubuntu-latest
     environment: ${{ needs.pre_job.outputs.env_name }}_terraform
     steps:
@@ -125,9 +131,8 @@ jobs:
       group: ${{ github.workflow }}-${{ needs.pre_job.outputs.env_name }}
       cancel-in-progress: true
     needs:
-      - pre_job
       - approve_deploy
-    if: needs.confirm_changes.outputs.change_count != '0'
+    if: ${{ fromJson(needs.confirm_changes.outputs.change_count) > 0 }}
     runs-on: ubuntu-latest
     environment: ${{ needs.pre_job.outputs.env_name }}
     defaults:
@@ -136,31 +141,28 @@ jobs:
     steps:
       - name: Check Out Changes
         uses: actions/checkout@v4
-      - name: Connect to VPN and login to Azure
-        uses: ./.github/actions/vpn-azure
-        with:
-          env-name: ${{ needs.pre_job.outputs.env_name }}
-          tls-key: ${{ secrets.TLS_KEY }}
-          ca-cert: ${{ secrets.CA_CRT }}
-          user-crt: ${{ secrets.USER_CRT }}
-          user-key: ${{ secrets.USER_KEY }}
-          sp-creds: ${{ env.AZURE_CREDENTIALS }}
-          tf-auth: true
+
       - name: Use specific version of Terraform
         uses: hashicorp/setup-terraform@v1
         with:
-          terraform_version: 1.7.4  
+          terraform_version: 1.7.4
+          terraform_wrapper: false
+
       - name: Terraform Init
         run: terraform init -input=false
+
+      - name: Select/Create Workspace
+        run: terraform workspace select -or-create ${{ needs.pre_job.outputs.env_name }}
+
       - name: Run Terraform Sanity Checks
         run: |
           terraform fmt -check -recursive
           terraform validate
-          terraform workspace select -or-create ${{ needs.pre_job.outputs.env_name }}
+
       - name: Run Terraform Plan
         run: |
           terraform plan -out ${{ needs.pre_job.outputs.env_name }}-${{ github.sha }}-tf.plan
+
       - name: Run Terraform Apply
         run: |
           terraform apply -input=false -no-color -lock-timeout=600s -auto-approve ${{ needs.pre_job.outputs.env_name }}-${{ github.sha }}-tf.plan
-
