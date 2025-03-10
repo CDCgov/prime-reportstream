@@ -10,9 +10,6 @@ data class PerformerSummary(
 ) {
     companion object {
         const val UNKNOWN = "Unknown"
-        const val performerNamePath = "Bundle.entry.resource.name"
-        const val performerStatePath = "Bundle.entry.resource.address.state"
-        const val performerCLIAPath = "Bundle.entry.resource.identifier.value.getIdType() = 'CLIA'"
 
         /**
          * Create an instance of [PerformerSummary] from a [DomainResource]
