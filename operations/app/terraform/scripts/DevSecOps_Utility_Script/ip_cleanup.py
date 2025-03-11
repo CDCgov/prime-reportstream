@@ -48,39 +48,30 @@ def parse_arguments():
 
 def read_ips_from_csv(filename):
     """
-    Read IP addresses from a CSV file, handling one IP address per column.
-    Process the file line by line to handle large files efficiently.
-   
+    Read IP addresses from a CSV file using csv.reader for proper CSV parsing.
+    
     Args:
         filename (str): Path to the CSV file
-       
+        
     Returns:
         generator: A generator yielding IP addresses
     """
     unique_ips = set()
-   
-    with open(filename, 'r') as csvfile:
-        # Process file line by line
-        for line in csvfile:
-            # Skip empty lines
-            if not line.strip():
-                continue
-               
-            # Split the line by commas to get values
-            values = line.strip().split(',')
-           
-            for value in values:
-                # Clean the value (remove quotes and spaces)
-                ip = value.strip().strip('"\'')
-               
+    
+    with open(filename, 'r', newline='') as csvfile:
+        # Use csv.reader to correctly parse CSV format
+        csv_reader = csv.reader(csvfile)
+        
+        for row in csv_reader:
+            for value in row:
                 # Skip empty values
-                if not ip:
+                if not value.strip():
                     continue
-               
+                
                 # Only yield if it's a unique IP and looks like an IP (contains dots)
-                if ip not in unique_ips and '.' in ip:
-                    unique_ips.add(ip)
-                    yield ip
+                if value.strip() not in unique_ips and '.' in value:
+                    unique_ips.add(value.strip())
+                    yield value.strip()
 
 
 def get_ip_details(ip_address):
