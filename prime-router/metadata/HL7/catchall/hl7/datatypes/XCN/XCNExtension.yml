@@ -15,7 +15,7 @@ extension:
     xcn8: STRING_ALL, XCN.8
     xcn9: STRING_ALL, XCN.9
     xcn10: String, XCN.10
-    xcn15: String, XCN.12
+    xcn15: String, XCN.15
     xcn16: STRING_ALL, XCN.16
     xcn17: STRING_ALL, XCN.17
     xcn19: String, XCN.19

@@ -86,8 +86,7 @@ object QueueAccess {
      * Creates the queue client for the given queue [name] or reuses an existing one.
      * @return the queue client
      */
-    private fun createQueueClient(name: String): QueueClient {
-        return if (clients.containsKey(name)) {
+    private fun createQueueClient(name: String): QueueClient = if (clients.containsKey(name)) {
             clients[name]!!
         } else {
             clients[name] = QueueServiceClientBuilder()
@@ -96,5 +95,4 @@ object QueueAccess {
                 .createQueue(name)
             clients[name]!!
         }
-    }
 }

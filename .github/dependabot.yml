@@ -19,6 +19,10 @@ updates:
     directory: "/.environment/docker/docker-compose"
     schedule:
       interval: "weekly"
+  - package-ecosystem: "docker"
+    directory: "/frontend-react"
+    schedule:
+      interval: "weekly"
 
   # slack-boltjs-app (chatops)
   - package-ecosystem: "gitsubmodule"
@@ -125,6 +129,11 @@ updates:
     schedule:
       interval: "daily"
 
+  - package-ecosystem: "github-actions"
+    directory: "/.github/actions/checksum-validate"
+    schedule:
+      interval: "daily"
+
   # Frontend
   - package-ecosystem: "npm"
     directory: "/frontend-react"
@@ -135,6 +144,29 @@ updates:
       time: "00:17"
       timezone: "US/Eastern"
     rebase-strategy: "disabled"
+    # Remove ignore entries when frontend is manually migrated for these libraries
+    ignore:
+      - dependency-name: "react"
+        update-types:
+          - version-update:semver-major
+      - dependency-name: "react-dom"
+        update-types:
+          - version-update:semver-major
+      - dependency-name: "@types/react"
+        update-types:
+          - version-update:semver-major
+      - dependency-name: "@types/react-dom"
+        update-types:
+          - version-update:semver-major
+      - dependency-name: "react-router"
+        update-types:
+          - version-update:semver-major
+      - dependency-name: "react-router-dom"
+        update-types:
+          - version-update:semver-major
+      - dependency-name: "undici"
+        update-types:
+          - version-update:semver-major
     groups:
       project:
         patterns:

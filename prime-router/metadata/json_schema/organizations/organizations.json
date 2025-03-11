@@ -213,6 +213,9 @@
             "HL7_BATCH"
           ]
         },
+        "hl7AcknowledgementEnabled": {
+          "type": "boolean"
+        },
         "name": {
           "type": "string"
         },
@@ -444,6 +447,12 @@
           "items": {
             "type": "string"
           }
+        },
+        "routingFilters": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/FHIRExpressionFilter"
+          }
         }
       },
       "required": [
@@ -554,6 +563,7 @@
         "HAWAII",
         "EAST_INDIANA",
         "INDIANA_STARKE",
+        "MAJURO",
         "MICHIGAN",
         "CHAMORRO",
         "UTC",
@@ -1158,6 +1168,42 @@
         "type"
       ],
       "title": "Transport"
+    },
+    "FHIRExpressionFilter": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "filterExpressions": {
+          "anyOf": [
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "filterDescription": {
+          "type": "string"
+        },
+        "filterName": {
+          "type": "string",
+          "enum": [
+            "quality",
+            "processingMode",
+            "routing"
+          ]
+        }
+      },
+      "required": [
+        "filterName",
+        "filterDescription",
+        "filterExpressions"
+      ],
+      "title": "FHIRExpressionFilter"
     }
   }
 }

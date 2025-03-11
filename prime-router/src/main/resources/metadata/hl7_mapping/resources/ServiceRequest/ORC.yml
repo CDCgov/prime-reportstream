@@ -1,8 +1,5 @@
 # $schema: ./../../../../../../../metadata/json_schema/fhir/fhir-to-hl7-mapping.json
 
-constants:
-  hl7Order: /PATIENT_RESULT(%{patientIndex})/ORDER_OBSERVATION(%{orderIndex})/ORC
-
 elements:
   - name: order-control
     hl7Spec: [ '%{hl7Order}-1' ]

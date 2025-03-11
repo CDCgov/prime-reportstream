@@ -119,7 +119,16 @@
       "extension" : [ {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Segment",
         "valueString" : "OBR"
-      } ]
+      } ],
+      "collection" : {
+        "collectedDateTime" : "2023-02-27",
+        "_collectedDateTime" : {
+          "extension" : [ {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+            "valueString" : "20230227"
+          } ]
+        }
+      }
     }
   }, {
     "fullUrl" : "ServiceRequest/1710882479463509000.8bf4d839-88e3-40b8-9d4e-6795636a4aff",
@@ -129,15 +138,24 @@
       "extension" : [ {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/obr-observation-request",
         "extension" : [ {
+          "url" : "OBR.16",
+          "valueReference" : {
+            "reference" : "Practitioner/1731634783563452000.70fb569b-0b26-4b24-88e5-9e3b5130b495"
+          }
+        }, {
           "url" : "OBR.22",
           "valueString" : "20230405133600-0400"
         }, {
           "url" : "OBR.25",
           "valueId" : "F"
         }, {
-          "url" : "OBR.16",
-          "valueReference" : {
-            "reference" : "Practitioner/1710882479459596000.dea2fa3a-c4d5-42c1-a425-7756c8c633fd"
+          "url" : "OBR.7",
+          "valueDateTime" : "2023-02-27",
+          "_valueDateTime" : {
+            "extension" : [ {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+              "valueString" : "20230227"
+            } ]
           }
         } ]
       } ],
@@ -291,10 +309,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Practitioner/1710882479459596000.dea2fa3a-c4d5-42c1-a425-7756c8c633fd",
+    "fullUrl" : "Practitioner/1731634783563452000.70fb569b-0b26-4b24-88e5-9e3b5130b495",
     "resource" : {
       "resourceType" : "Practitioner",
-      "id" : "1710882479459596000.dea2fa3a-c4d5-42c1-a425-7756c8c633fd",
+      "id" : "1731634783563452000.70fb569b-0b26-4b24-88e5-9e3b5130b495",
       "extension" : [ {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority",
         "extension" : [ {

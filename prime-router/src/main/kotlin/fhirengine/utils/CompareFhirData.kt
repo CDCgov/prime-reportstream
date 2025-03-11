@@ -320,8 +320,7 @@ class CompareFhirData(
      * Filter the properties of a given [resource], so only the properties we want to compare are listed.
      * @return the list of properties to compare.
      */
-    internal fun filterResourceProperties(resource: Base): List<Property> {
-        return resource.children().filter {
+    internal fun filterResourceProperties(resource: Base): List<Property> = resource.children().filter {
             // Skip any properties to be ignored
             val isSkipped = skippedProperties.contains("${resource.fhirType()}.${it.name}")
             // Skip any resource IDs
@@ -330,7 +329,6 @@ class CompareFhirData(
             val isBundleEntry = (resource.hasType("Bundle") && it.name == "entry")
             !(isSkipped || isResourceId || isBundleEntry)
         }
-    }
 
     /**
      * There can be many reasons that the expected and actual child values differ.
@@ -395,8 +393,7 @@ class CompareFhirData(
          * is NOT the same as a FHIR path, and we use it to log the resources we are comparing and to match types we
          * want to ignore.  E.g. Bundle.meta.lastUpdated, Organization.name.
          */
-        internal fun getFhirIdPath(parentIdPath: String, resource: Base): String {
-            return when {
+        internal fun getFhirIdPath(parentIdPath: String, resource: Base): String = when {
                 resource is Extension ->
                     "$parentIdPath->${resource.fhirType()}(${resource.url.substringAfterLast("/")})"
 
@@ -410,16 +407,13 @@ class CompareFhirData(
 
                 else -> parentIdPath
             }
-        }
 
         /**
          * comma delimited list of IDs
          */
-        internal fun generateResourcesId(resources: List<Base>): String? {
-            return resources
+        internal fun generateResourcesId(resources: List<Base>): String? = resources
                 .mapNotNull { it.idBase }
                 .joinToString()
                 .ifEmpty { null }
-        }
     }
 }

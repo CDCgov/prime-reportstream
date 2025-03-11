@@ -25,7 +25,7 @@ locals {
     tf_secrets_vault      = "pdh${local.init.environment}-keyvault"
   }
   ad = {
-    terraform_object_id       = "4d81288c-27a3-4df8-b776-c9da8e688bc7"
+    terraform_object_id       = "a58ee002-62c7-4a91-a2dc-4a837663aa00"
     aad_object_keyvault_admin = "5c6a951e-a4c2-4890-b62c-0ed8179501bb"
     aad_group_postgres_admin  = "c4031f1f-229c-4a8a-b3b9-23bae9dbf197"
   }

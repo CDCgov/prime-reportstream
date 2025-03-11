@@ -1,0 +1,26 @@
+# $schema: ./../../../../../../../../../metadata/json_schema/fhir/fhir-to-hl7-mapping.json
+
+elements:
+
+  - name: observation-result
+    resource: '%resource'
+    required: false
+    schema: classpath:/metadata/hl7_mapping/resources/Observation/OBX.yml
+    constants:
+      hl7OBXField: '/ORDER(%{orderIndex})/OBSERVATION_REQUEST/OBSERVATION(%{observationIndex})/OBX'
+      hl7ObservationPath: '/ORDER(%{orderIndex})/OBSERVATION_REQUEST/OBSERVATION(%{observationIndex})'
+      resultIndex: observationIndex
+
+  - name: observation-result-note
+    resource: '%resource.note'
+    resourceIndex: noteIndex
+    schema: classpath:/metadata/hl7_mapping/datatypes/annotation/NTE.yml
+    constants:
+      hl7NotePath: '/ORDER(%{orderIndex})/OBSERVATION_REQUEST/OBSERVATION(%{observationIndex})'
+
+# todo
+#  - name: observation-participation-information
+#    resource: '%observationPath.device.resolve().where(udiCarrier.exists())'
+#    schema: classpath:/metadata/hl7_mapping/resources/Device/PRT.yml
+#    constants:
+#      hl7SegmentGroup: '/ORDER(%{orderIndex})/OBSERVATION_REQUEST/OBSERVATION(%{resultIndex})'

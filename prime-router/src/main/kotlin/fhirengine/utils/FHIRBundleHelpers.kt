@@ -7,14 +7,16 @@ import gov.cdc.prime.router.ReportStreamConditionFilter
 import gov.cdc.prime.router.ReportStreamFilter
 import gov.cdc.prime.router.azure.ConditionStamper.Companion.BUNDLE_CODE_IDENTIFIER
 import gov.cdc.prime.router.azure.ConditionStamper.Companion.BUNDLE_VALUE_IDENTIFIER
-import gov.cdc.prime.router.azure.ConditionStamper.Companion.conditionCodeExtensionURL
+import gov.cdc.prime.router.azure.ConditionStamper.Companion.CONDITION_CODE_EXTENSION_URL
 import gov.cdc.prime.router.codes
+import gov.cdc.prime.router.fhirengine.engine.RSMessageType
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers.Companion.getChildProperties
 import io.github.linuxforhealth.hl7.data.Hl7RelatedGeneralUtils
 import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.Bundle
+import org.hl7.fhir.r4.model.CodeType
 import org.hl7.fhir.r4.model.CodeableConcept
 import org.hl7.fhir.r4.model.Coding
 import org.hl7.fhir.r4.model.DateTimeType
@@ -59,12 +61,10 @@ fun Observation.getCodeSourcesMap(): Map<String, List<Coding>> {
 /**
  * Gets mapped condition extensions present on an [Observation]
  */
-fun Observation.getMappedConditionExtensions(): List<Extension> {
-    return this.getCodeSourcesMap()
+fun Observation.getMappedConditionExtensions(): List<Extension> = this.getCodeSourcesMap()
         .flatMap { it.value }
         .flatMap { it.extension }
-        .filter { it.url == conditionCodeExtensionURL }
-}
+        .filter { it.url == CONDITION_CODE_EXTENSION_URL }
 
 /**
  * Gets mapped conditions present on an [Observation]
@@ -75,9 +75,7 @@ fun Observation.getMappedConditions(): List<Coding> =
 /**
  * Gets mapped condition codes present on an [Observation]
  */
-fun Observation.getMappedConditionCodes(): List<String> {
-    return this.getMappedConditions().map { it.code }
-}
+fun Observation.getMappedConditionCodes(): List<String> = this.getMappedConditions().map { it.code }
 
 fun Bundle.getObservations() = this.entry.map { it.resource }.filterIsInstance<Observation>()
 
@@ -117,37 +115,62 @@ fun Bundle.addProvenanceReference() {
 }
 
 /**
+ * Return true if Bundle contains an ELR in the MessageHeader.
+ *
+ * @return true if has a MesssageHeader that contains an R01 or ORU_R01, otherwise false.
+ */
+fun Bundle.isElr(): Boolean {
+    val code = FhirPathUtils.evaluate(
+        null,
+        this,
+        this,
+        "Bundle.entry.resource.ofType(MessageHeader).event.code"
+    )
+        .filterIsInstance<CodeType>()
+        .firstOrNull()
+        ?.code
+    return ((code == "R01") || (code == "ORU_R01"))
+}
+
+/**
+ * Return RSMessageType based on grouping logic.
+ *
+ * @return RSMessageType of this Bundle.
+ */
+fun Bundle.getRSMessageType(): RSMessageType = when {
+        isElr() -> RSMessageType.LAB_RESULT
+        else -> RSMessageType.UNKNOWN
+    }
+
+/**
  * Gets all properties for a [Base] resource recursively and filters only its references
  *
  * @return a list of reference identifiers for a [Base] resource
  *
  */
-fun Base.getResourceReferences(): List<String> {
-    return FHIRBundleHelpers.filterReferenceProperties(this.getResourceProperties())
-}
+fun Base.getResourceReferences(): List<String> =
+    FHIRBundleHelpers.filterReferenceProperties(this.getResourceProperties())
 
 /**
  * Gets all properties for a [Base] resource recursively
  *
  * @return a list of all [Property] for a [Base] resource
  */
-fun Base.getResourceProperties(): List<Property> {
-    return this.children().stream().flatMap { getChildProperties(it) }.collect(Collectors.toList())
-}
+fun Base.getResourceProperties(): List<Property> = this.children().stream().flatMap {
+    getChildProperties(it)
+}.collect(Collectors.toList())
 
 /**
  * Gets all diagnostic report that have no observations from a [bundle]
  *
  * @return a list of [Base] diagnostic reports that have no observations
  */
-fun Bundle.getDiagnosticReportNoObservations(): List<Base> {
-    return FhirPathUtils.evaluate(
+fun Bundle.getDiagnosticReportNoObservations(): List<Base> = FhirPathUtils.evaluate(
         null,
         this,
         this,
         "Bundle.entry.resource.ofType(DiagnosticReport).where(result.empty())"
     )
-}
 
 /**
  * Deletes a [resource] from a bundle, removes all references to the [resource] and any orphaned children.
@@ -458,24 +481,20 @@ class FHIRBundleHelpers {
          *
          * @return a list containing only the references in [properties]
          */
-        fun filterReferenceProperties(properties: List<Property>): List<String> {
-            return properties
+        fun filterReferenceProperties(properties: List<Property>): List<String> = properties
                 .filter { it.hasValues() }
                 .flatMap { it.values }
                 .filterIsInstance<Reference>()
                 .map { it.reference }
-        }
 
         /**
          * Gets all child properties for a resource [property] recursively
          *
          * @return a flatmap stream of all child properties on a [property]
          */
-        fun getChildProperties(property: Property): Stream<Property> {
-            return Stream.concat(
+        fun getChildProperties(property: Property): Stream<Property> = Stream.concat(
                 Stream.of(property),
                 property.values.flatMap { it.children() }.stream().flatMap { getChildProperties(it) }
             )
-        }
     }
 }

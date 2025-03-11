@@ -70,12 +70,14 @@ class UniversalBatchFunctionTests {
         ),
     )
 
-    private fun makeEngine(metadata: Metadata, settings: SettingsProvider): WorkflowEngine {
-        return spyk(
-            WorkflowEngine.Builder().metadata(metadata).settingsProvider(settings).databaseAccess(accessSpy)
+    private fun makeEngine(
+        metadata: Metadata,
+        settings: SettingsProvider,
+        dbAccess: DatabaseAccess = accessSpy,
+    ): WorkflowEngine = spyk(
+            WorkflowEngine.Builder().metadata(metadata).settingsProvider(settings).databaseAccess(dbAccess)
                 .blobAccess(blobMock).queueAccess(queueMock).build()
         )
-    }
 
     @BeforeEach
     fun reset() {
@@ -426,8 +428,13 @@ class UniversalBatchFunctionTests {
         every { BlobAccess.Companion.deleteBlob(any()) } just runs
         every { BlobAccess.Companion.exists(any()) } returns true
         every { ActionHistory.sanityCheckReports(any(), any(), any()) } just runs
+        val mockDb = mockk<DatabaseAccess>()
+        every { mockDb.transact(any()) } answers {
+            val txn = mockk<Configuration>()
+            firstArg<(Configuration?) -> Unit>().invoke(txn)
+        }
         val settings = FileSettings().loadOrganizations(oneOrganization)
-        val engine = makeEngine(UnitTestUtils.simpleMetadata, settings)
+        val engine = makeEngine(UnitTestUtils.simpleMetadata, settings, mockDb)
         val mockReportFile = mockk<ReportFile>()
         val randomUUID = UUID.randomUUID()
         val bodyURL = "someurl"
@@ -448,10 +455,10 @@ class UniversalBatchFunctionTests {
         every { mockTask.schemaName } returns schemaName
         every { mockTask.bodyFormat } returns bodyFormat
         every { engine.generateEmptyReport(any(), any()) } returns Unit
-        every { engine.db.fetchAndLockBatchTasksForOneReceiver(any(), any(), any(), any(), any()) } returns listOf(
+        every { mockDb.fetchAndLockBatchTasksForOneReceiver(any(), any(), any(), any(), any()) } returns listOf(
             mockTask
         )
-        every { engine.db.fetchReportFile(any(), any(), any()) } returns mockReportFile
+        every { mockDb.fetchReportFile(any(), any(), any()) } returns mockReportFile
         every { BlobAccess.Companion.exists(any()) } returns true
         mockkObject(Topic.COVID_19)
         every { Topic.COVID_19.isUniversalPipeline } returns true

@@ -788,7 +788,7 @@ class ApiKeysFunctionsTest {
         }
 
         @Nested
-        inner class V1() {
+        inner class V1 {
             @Test
             fun `Test get keys`() {
                 settings.organizationStore.put(

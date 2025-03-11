@@ -29,7 +29,8 @@ import java.io.File
 import java.nio.file.Files
 import java.nio.file.Paths
 
-class RouterCli : CliktCommand(
+class RouterCli :
+    CliktCommand(
     name = "prime",
     help = "Tools and commands that support the PRIME Data Hub.",
     printHelpOnEmptyArgs = true,
@@ -46,7 +47,8 @@ fun listSchemas(metadata: Metadata) {
     }
 }
 
-class ListSchemas : CliktCommand(
+class ListSchemas :
+    CliktCommand(
     name = "list",
     help = "list known schemas, senders, and receivers"
 ) {
@@ -91,7 +93,8 @@ class ListSchemas : CliktCommand(
     }
 }
 
-class GenerateDocs : CliktCommand(
+class GenerateDocs :
+    CliktCommand(
     help = """
     generate documentation for schemas
 
@@ -236,7 +239,8 @@ class GenerateDocs : CliktCommand(
     }
 }
 
-class CompareCsvFiles : CliktCommand(
+class CompareCsvFiles :
+    CliktCommand(
     name = "compare",
     help = """
     compares two CSV files so you can view the differences within them

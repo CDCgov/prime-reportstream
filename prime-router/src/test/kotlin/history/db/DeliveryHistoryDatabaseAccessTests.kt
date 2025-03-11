@@ -2,10 +2,8 @@ package gov.cdc.prime.router.history.db
 
 import assertk.all
 import assertk.assertThat
-import assertk.assertions.endsWith
 import assertk.assertions.hasSize
 import assertk.assertions.isNotNull
-import assertk.assertions.startsWith
 import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.OrganizationAPI
@@ -121,12 +119,11 @@ class DeliveryHistoryDatabaseAccessTests {
             null
         )
 
-        val batchReportId = submittedReport.children[0].children[0].children[0].children[0].node.reportId
+        val fileName = submittedReport.children[0].children[0].children[0].children[0].node.externalName
 
         assertThat(deliveries.results).hasSize(1)
         assertThat(deliveries.results[0].fileName).isNotNull().all {
-            startsWith("generated-report-$batchReportId")
-            endsWith(".hl7")
+            equals(fileName)
         }
     }
 }

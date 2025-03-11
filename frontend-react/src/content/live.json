@@ -1,184 +1,188 @@
 {
-    "data": [
-        {
-            "status": "Live",
-            "state": "Alabama"
-        },
-        {
-            "status": "Live",
-            "state": "Alaska"
-        },
-        {
-            "status": "Live",
-            "state": "Arkansas"
-        },
-        {
-            "status": "Live",
-            "state": "Arizona"
-        },
-        {
-            "status": "Live",
-            "state": "California"
-        },
-        {
-            "status": "Live",
-            "state": "Colorado"
-        },
-        {
-            "status": "Live",
-            "state": "Delaware"
-        },
-        {
-            "status": "Live",
-            "state": "Florida"
-        },
-        {
-            "status": "Live",
-            "state": "Guam"
-        },
-        {
-            "status": "Live",
-            "state": "Hawaii"
-        },
-        {
-            "status": "Live",
-            "state": "Idaho"
-        },
-        {
-            "status": "Live",
-            "state": "Illinois"
-        },
-        {
-            "status": "Live",
-            "state": "Indiana"
-        },
-        {
-            "status": "Live",
-            "state": "Iowa"
-        },
-        {
-            "status": "Live",
-            "state": "Kansas"
-        },
-        {
-            "status": "Live",
-            "state": "Louisiana"
-        },
-        {
-            "status": "Live",
-            "state": "Marshall Islands"
-        },
-        {
-            "status": "Live",
-            "state": "Maryland"
-        },
-        {
-            "status": "Live",
-            "state": "Massachusetts"
-        },
-        {
-            "status": "Live",
-            "state": "Minnesota"
-        },
-        {
-            "status": "Live",
-            "state": "Mississippi"
-        },
-        {
-            "status": "Live",
-            "state": "Montana"
-        },
-        {
-            "status": "Live",
-            "state": "Missouri"
-        },
-        {
-            "status": "Live",
-            "state": "Nevada"
-        },
-        {
-            "status": "Live",
-            "state": "New Jersey"
-        },
-        {
-            "status": "Live",
-            "state": "New Hampshire"
-        },
-        {
-            "status": "Live",
-            "state": "New Mexico"
-        },
-        {
-            "status": "Live",
-            "state": "New York"
-        },
-        {
-            "status": "Live",
-            "state": "North Dakota"
-        },
-        {
-            "status": "Live",
-            "state": "Oklahoma"
-        },
-        {
-            "status": "Live",
-            "state": "Ohio"
-        },
-        {
-            "status": "Live",
-            "state": "Oregon"
-        },
-        {
-            "status": "Live",
-            "state": "Pennsylvania"
-        },
-        {
-            "status": "Live",
-            "state": "Puerto Rico"
-        },
-        {
-            "status": "Live",
-            "state": "Rhode Island"
-        },
-        {
-            "status": "Live",
-            "state": "South Dakota"
-        },
-        {
-            "status": "Live",
-            "state": "South Carolina"
-        },
-        {
-            "status": "Live",
-            "state": "Tennessee"
-        },
-        {
-            "status": "Live",
-            "state": "Texas"
-        },
-        {
-            "status": "Live",
-            "state": "Utah"
-        },
-        {
-            "status": "Live",
-            "state": "Vermont"
-        },
-        {
-            "status": "Live",
-            "state": "Virgin Islands"
-        },
-        {
-            "status": "Live",
-            "state": "Washington"
-        },
-        {
-            "status": "Live",
-            "state": "Wisconsin"
-        },
-        {
-            "status": "Live",
-            "state": "Wyoming"
-        }
-    ]
+  "data": [
+    {
+      "status": "Live",
+      "state": "Alabama"
+    },
+    {
+      "status": "Live",
+      "state": "Alaska"
+    },
+    {
+      "status": "Live",
+      "state": "Arkansas"
+    },
+    {
+      "status": "Live",
+      "state": "Arizona"
+    },
+    {
+      "status": "Live",
+      "state": "California"
+    },
+    {
+      "status": "Live",
+      "state": "Colorado"
+    },
+    {
+      "status": "Live",
+      "state": "Delaware"
+    },
+    {
+      "status": "Live",
+      "state": "Florida"
+    },
+    {
+      "status": "Live",
+      "state": "Guam"
+    },
+    {
+      "status": "Live",
+      "state": "Hawaii"
+    },
+    {
+      "status": "Live",
+      "state": "Idaho"
+    },
+    {
+      "status": "Live",
+      "state": "Illinois"
+    },
+    {
+      "status": "Live",
+      "state": "Indiana"
+    },
+    {
+      "status": "Live",
+      "state": "Iowa"
+    },
+    {
+      "status": "Live",
+      "state": "Kansas"
+    },
+    {
+      "status": "Live",
+      "state": "Louisiana"
+    },
+    {
+      "status": "Live",
+      "state": "Maine"
+    },
+    {
+      "status": "Live",
+      "state": "Marshall Islands"
+    },
+    {
+      "status": "Live",
+      "state": "Maryland"
+    },
+    {
+      "status": "Live",
+      "state": "Massachusetts"
+    },
+    {
+      "status": "Live",
+      "state": "Minnesota"
+    },
+    {
+      "status": "Live",
+      "state": "Mississippi"
+    },
+    {
+      "status": "Live",
+      "state": "Montana"
+    },
+    {
+      "status": "Live",
+      "state": "Missouri"
+    },
+    {
+      "status": "Live",
+      "state": "Nevada"
+    },
+    {
+      "status": "Live",
+      "state": "New Jersey"
+    },
+    {
+      "status": "Live",
+      "state": "New Hampshire"
+    },
+    {
+      "status": "Live",
+      "state": "New Mexico"
+    },
+    {
+      "status": "Live",
+      "state": "New York"
+    },
+    {
+      "status": "Live",
+      "state": "North Dakota"
+    },
+    {
+      "status": "Live",
+      "state": "Oklahoma"
+    },
+    {
+      "status": "Live",
+      "state": "Ohio"
+    },
+    {
+      "status": "Live",
+      "state": "Oregon"
+    },
+    {
+      "status": "Live",
+      "state": "Pennsylvania"
+    },
+    {
+      "status": "Live",
+      "state": "Puerto Rico"
+    },
+    {
+      "status": "Live",
+      "state": "Rhode Island"
+    },
+    {
+      "status": "Live",
+      "state": "South Dakota"
+    },
+    {
+      "status": "Live",
+      "state": "South Carolina"
+    },
+    {
+      "status": "Live",
+      "state": "Tennessee"
+    },
+    {
+      "status": "Live",
+      "state": "Texas"
+    },
+    {
+      "status": "Live",
+      "state": "Utah"
+    },
+    {
+      "status": "Live",
+      "state": "Vermont"
+    },
+    {
+      "status": "Live",
+      "state": "Virgin Islands"
+    },
+    {
+      "status": "Live",
+      "state": "Washington"
+    },
+    {
+      "status": "Live",
+      "state": "Wisconsin"
+    },
+    {
+      "status": "Live",
+      "state": "Wyoming"
+    }
+  ]
 }

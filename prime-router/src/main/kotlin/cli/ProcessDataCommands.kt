@@ -371,9 +371,13 @@ class ProcessData(
         }
     }
 
-    private fun getOutputFormat(default: MimeFormat): MimeFormat {
-        return if (forcedFormat != null) MimeFormat.valueOf(forcedFormat!!) else default
-    }
+    private fun getOutputFormat(default: MimeFormat): MimeFormat = if (forcedFormat !=
+        null
+    ) {
+            MimeFormat.valueOf(forcedFormat!!)
+        } else {
+            default
+        }
 
     private fun getDefaultValues(): DefaultValues {
         val values = mutableMapOf<String, String>()

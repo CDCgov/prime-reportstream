@@ -2,12 +2,8 @@ import type { StorybookConfig } from "@storybook/react-vite";
 import remarkToc from "remark-mdx-toc";
 
 const config: StorybookConfig = {
-    stories: [
-        "../src/**/*.stories.mdx",
-        "../src/**/*.stories.@(js|jsx|ts|tsx)",
-    ],
+    stories: ["../src/**/*.stories.mdx", "../src/**/*.stories.@(js|jsx|ts|tsx)"],
     addons: [
-        "storybook-addon-remix-react-router",
         "@storybook/addon-links",
         "@storybook/addon-essentials",
         "@storybook/addon-interactions",
@@ -30,9 +26,7 @@ const config: StorybookConfig = {
     core: {},
     async viteFinal(config, { configType }) {
         // Exclude our mdx plugin from vite config in favor of storybook's
-        config.plugins = config.plugins?.filter(
-            (x: any, i) => x.name !== "@mdx-js/rollup",
-        );
+        config.plugins = config.plugins?.filter((x: any, i) => x.name !== "@mdx-js/rollup");
 
         return {
             ...config,

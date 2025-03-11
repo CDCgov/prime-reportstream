@@ -82,15 +82,13 @@ sealed interface HL7Truncator {
      * @param truncationLimit the starting limit
      * @return the new truncation limit or starting limit if no special characters are found
      */
-    fun getTruncationLimitWithEncoding(value: String, truncationLimit: Int?): Int? {
-        return truncationLimit?.let { limit ->
+    fun getTruncationLimitWithEncoding(value: String, truncationLimit: Int?): Int? = truncationLimit?.let { limit ->
             val regex = "[&^~|]".toRegex()
             val endIndex = min(value.length, limit)
             val matchCount = regex.findAll(value.substring(0, endIndex)).count()
 
             limit - (matchCount * 2)
         }
-    }
 
     /**
      * Attempts to lookup a subcomponents max length on our internal table
@@ -128,24 +126,18 @@ sealed interface HL7Truncator {
         segment: Segment,
         field: Type,
         parts: HL7FieldComponents,
-    ): Int? {
-        return if (parts.third != null) {
+    ): Int? = if (parts.third != null) {
             getMaxLengthForCompositeType(field, parts.third)
         } else if (parts.second != null) {
             getMaxLengthForCompositeType(field, parts.second)
         } else {
             segment.getLength(parts.first)
         }
-    }
 
     /**
      * Container for an HL7 field's components
      */
-    data class HL7FieldComponents(
-        val first: Int,
-        val second: Int?,
-        val third: Int?,
-    ) {
+    data class HL7FieldComponents(val first: Int, val second: Int?, val third: Int?) {
         companion object {
             /**
              * This will blow up if a malformed string is passed

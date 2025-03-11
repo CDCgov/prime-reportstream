@@ -84,8 +84,7 @@ internal fun calculateAgeWithSpecifiedTimeUnit(
     dateOfBirth: LocalDate,
     referenceDate: LocalDate,
     ageUnit: TemporalPrecisionEnum?,
-): Age {
-    return when (ageUnit) {
+): Age = when (ageUnit) {
         TemporalPrecisionEnum.DAY -> {
             createAge(ageUnit, BigDecimal(ChronoUnit.DAYS.between(dateOfBirth, referenceDate)))
         }
@@ -97,7 +96,6 @@ internal fun calculateAgeWithSpecifiedTimeUnit(
         }
         else -> throw SchemaException("Age unit must be one of: year, month, day")
     }
-}
 
 /**
  * This method calculates the time passed from the [referenceDate] to the [dateOfBirth] while assuming what unit the

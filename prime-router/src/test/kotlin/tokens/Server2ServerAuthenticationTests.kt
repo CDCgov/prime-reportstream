@@ -123,13 +123,12 @@ class Server2ServerAuthenticationTests {
         // Good for testing:  Each time you create a new GetTestSecret() obj, its a totally new secret.
         private val tokenSigningSecret = this.generateSecret()
 
-        override fun getReportStreamTokenSigningSecret(): SecretKey {
-            return Keys.hmacShaKeyFor(Decoders.BASE64.decode(tokenSigningSecret))
-        }
+        override fun getReportStreamTokenSigningSecret(): SecretKey =
+            Keys.hmacShaKeyFor(Decoders.BASE64.decode(tokenSigningSecret))
 
-        private fun generateSecret(): String {
-            return Encoders.BASE64.encode(Keys.secretKeyFor(TOKEN_SIGNING_KEY_ALGORITHM).encoded)
-        }
+        private fun generateSecret(): String =
+            Encoders.BASE64
+                .encode(Keys.secretKeyFor(TOKEN_SIGNING_KEY_ALGORITHM).encoded)
     }
 
     @BeforeEach

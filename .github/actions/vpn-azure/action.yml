@@ -59,11 +59,13 @@ runs:
           echo "## ✅ VPN connected: \`${{ steps.connect_vpn.outputs.STATUS }}\` ✅" >> $GITHUB_STEP_SUMMARY
         else
           echo "## ❌ VPN connected: \`${{ steps.connect_vpn.outputs.STATUS }}\` ❌" >> $GITHUB_STEP_SUMMARY
+          echo "VPN log:"
+          cat /tmp/openvpn-debug.log
           exit 1
         fi
       shell: bash
 
-    - uses: azure/login@a65d910e8af852a8061c627c456678983e180302
+    - uses: azure/login@v2
       if: inputs.sp-creds
       with:
         creds: ${{ inputs.sp-creds }}
