@@ -16,9 +16,7 @@ data class ObservationSummary(
             val summaries = mutableListOf<TestSummary>()
             val interpretations = mutableListOf<CodeSummary>()
             observation.interpretation.forEach { concept ->
-                (
-                    concept.coding.forEach { interpretations.add(CodeSummary.fromCoding(it)) }
-                    )
+                (concept.coding.forEach { interpretations.add(CodeSummary.fromCoding(it)) })
             }
             observation.code.coding.forEach { codingCode ->
                 summaries.add(TestSummary.fromCoding(codingCode))
