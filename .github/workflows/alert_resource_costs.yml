@@ -65,7 +65,7 @@ jobs:
             * **Provisioned by: \`${{ steps.last-pusher.outputs.username }}\`**
             * **Last Change Date: \`${{ steps.last-pusher.outputs.last_change_date }}\`**
           icon-emoji: ':money_with_wings:'
-          channel: cdc-reportstream-bot-notifications
+          channel: cdc-reportstream-devsecops-new
   # Updated channel
           webhook-url: ${{ secrets.SLACK_NOTIFICATIONS_WEBHOOK_URL }}  # Updated webhook secret
           color: failure
