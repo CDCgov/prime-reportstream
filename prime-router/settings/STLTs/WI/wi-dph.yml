@@ -96,6 +96,11 @@
       credentialName: null
       type: "SFTP"
     externalName: null
-    enrichmentSchemaNames: [ ]
+    enrichmentSchemaNames:
+        - "classpath:/metadata/fhir_transforms/common/observation-end-datetime.yml"
+        - "classpath:/metadata/fhir_transforms/common/livd-lookup.yml"
+        - "classpath:/metadata/fhir_transforms/common/use-pid-14-for-email.yml"
+        - "classpath:/metadata/fhir_transforms/common/suppress-xtn-12.yml"
+        - "classpath:/metadata/fhir_transforms/common/suppress-device-information.yml"
     timeZone: null
     dateTimeFormat: "OFFSET"

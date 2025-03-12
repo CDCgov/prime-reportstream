@@ -1,0 +1,34 @@
+# $schema: ../../../../../../metadata/json_schema/fhir/fhir-to-fhir-transform.json
+## Used to populated OBX-17 based on the LIVD look up tables
+elements:
+  - name: observation-loinc-device-version-id
+    resource: '%resource.code.coding.where(extension("https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding").value = "coding")'
+    condition: '%resource.version.exists().not()'
+    bundleProperty: '%resource.version'
+    value: [ 'Bundle.entry.resource.ofType(Observation)[%observationIndex].livdTableLookup("LOINC Version ID")' ]
+
+  ##OBX-17-9
+  - name: observation-loinc-device-display
+    resource: '%resource.method.union(%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/obx-observation").extension.where(url = "OBX.17").tail().value).coding.where(extension("https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding").value = "coding")'
+    condition: '%resource.code.exists()'
+    bundleProperty: '%resource.code'
+    value: [ '%resource.code + "_" + Bundle.entry.resource.ofType(Observation)[%observationIndex].livdTableLookup("Testkit Name ID Type")' ]
+
+  - name: observation-loinc-device-text
+    resource: '%resource.method'
+    condition: '%resource.coding.code.exists()'
+    bundleProperty: '%resource.text'
+    value: [ '%resource.text + "_" + Bundle.entry.resource.ofType(Observation)[%observationIndex].livdTableLookup("Testkit Name ID Type")' ]
+
+  - name: observation-device-version
+    resource: '%resource.method.union(%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/obx-observation").extension.where(url = "OBX.17").tail().value).coding.where(extension("https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding").value = "coding")'
+    condition: '%resource.code.exists()'
+    bundleProperty: '%resource.version'
+    value: [ 'Bundle.entry.resource.ofType(Observation)[%observationIndex].livdTableLookup("LOINC Version ID")' ]
+
+  ##OBX-17-3
+  - name: observation-device
+    resource: '%resource.method.union(%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/obx-observation").extension.where(url = "OBX.17").tail().value).coding.where(extension("https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding").value = "coding")'
+    condition: '%resource.code.exists()'
+    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system").value[x]'
+    value: [ '"99ELR"' ]
