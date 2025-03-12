@@ -1,54 +1,180 @@
-name: "Prepare Deployment Branch"
+name: Deploy Terraform
 
 on:
-  workflow_dispatch:
-  schedule:
-    # 3:00am UTC Tuesdays and Thursdays // 10:00pm EST Mondays and Wednesdays // 7:00pm PST Mondays and Wednesdays (https://crontab.guru/#0_3_*_*_2,4)
-    # GitHub actions run in UTC (and EDT is UTC-4)
-    # If this schedule changes, check any reminders that might be in slack with `/remind list`
-    - cron: "0 3 * * 2,4"
+  push:
+    branches:
+      - main
+      - production
+    paths:
+      - '**.tf'
+
+env:
+  AZURE_CREDENTIALS: '{"clientId":"${{ secrets.AZURE_CLIENT_ID }}","clientSecret":"${{ secrets.AZURE_CLIENT_SECRET }}","subscriptionId":"${{ secrets.AZURE_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.AZURE_TENANT_ID }}"}'
 
 jobs:
-  prepare_branch:
-    name: "Prepare the deployment branch and file a PR"
+  pre_job:
+    name: Set Build Environment
+    concurrency: 
+      group: ${{ github.workflow }}-${{ needs.pre_job.outputs.env_name }}
+      cancel-in-progress: true
     runs-on: ubuntu-latest
+    outputs:
+      env_name: ${{ steps.build_vars.outputs.env_name }}
+      tf_change: ${{ steps.build_vars.outputs.has_terraform_change }}
     steps:
-      - name: "Check out changes"
-        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938
+      - name: Check out changes
+        uses: actions/checkout@v4
+      - name: Build vars
+        id: build_vars
+        uses: ./.github/actions/build-vars
 
-      - name: Set Environment Variables
-        run: |
-          DEPLOYMENT_DATE=$(date +%Y-%m-%d)
-          echo >> ${GITHUB_ENV} DEPLOYMENT_DATE=${DEPLOYMENT_DATE?}
-          echo >> ${GITHUB_ENV} BRANCH_NAME=deployment/${DEPLOYMENT_DATE?}
+  terraform_plan:
+    name: "Terraform Plan"
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    needs: pre_job
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - name: Output Branch Name
-        run: |
-          echo "Branch name: \"${BRANCH_NAME}\""
-
-      - name: "Create branch '${{ env.BRANCH_NAME }}' to contain the changes for the deployment on ${{ env.DEPLOYMENT_DATE }}"
-
-        uses: ./.github/actions/remote-branch
-
+      - name: Use specific version of Terraform
+        uses: hashicorp/setup-terraform@v1
         with:
-          branch: "${{ env.BRANCH_NAME }}"
+          terraform_version: 1.7.4
+          terraform_wrapper: false
 
-      - name: "Prepare a Pull Request from ${{ env.BRANCH_NAME }} into production branch"
-        id: pr
-
-        uses: ./.github/actions/reliable-pull-request
-
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Upload Configuration
+        uses: hashicorp/tfc-workflows-github/actions/upload-configuration@v1.0.0
+        id: plan-upload
         with:
-          title: "Deployment of ${{ env.DEPLOYMENT_DATE }}"
-          sourceBranch: "${{ env.BRANCH_NAME }}"
-          targetBranch: "production"
-          labels: DevOps,chore,deployment
-          body: |
-            ## Deployment of ${{ env.DEPLOYMENT_DATE }}
-            This PR contains the changes that will go into the deployment scheduled for ${{ env.DEPLOYMENT_DATE }}.
+          workspace: ${{ needs.pre_job.outputs.env_name }}
+          directory: operations/app/terraform/vars/${{ needs.pre_job.outputs.env_name }}
+          speculative: true
 
-      - name: "Produce Pull Request URL"
+      - name: Create Plan Run
+        uses: hashicorp/tfc-workflows-github/actions/create-run@v1.0.0
+        id: plan-run
+        with:
+          workspace: ${{ needs.pre_job.outputs.env_name }}
+          configuration_version: ${{ steps.plan-upload.outputs.configuration_version_id }}
+          plan_only: true
+
+      - name: Get Plan Output
+        uses: hashicorp/tfc-workflows-github/actions/plan-output@v1.0.0
+        id: plan-output
+        with:
+          plan: ${{ fromJSON(steps.plan-run.outputs.payload).data.relationships.plan.data.id }}
+
+      - name: Convert Terraform Plan to JSON
         run: |
-          echo "PR URL: ${{ steps.pr.outputs.PRURL }}"
+          echo '${{ steps.plan-output.outputs.json }}' > plan.json
+
+      - name: Post Plan as PR Comment
+        uses: borchero/terraform-plan-comment@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          planfile: plan.json
+
+  confirm_changes:
+    name: Check Terraform Stats - ${{ needs.pre_job.outputs.env_name }}
+    if: ${{ needs.pre_job.outputs.tf_change == 'true' }}
+    concurrency: 
+      group: ${{ github.workflow }}-${{ needs.pre_job.outputs.env_name }}
+      cancel-in-progress: true
+    needs:
+      - pre_job
+    environment: ${{ needs.pre_job.outputs.env_name }}
+    runs-on: ubuntu-latest
+    outputs:
+      change_count: ${{ steps.stats1.outputs.change-count }}
+    steps:
+      - name: Check Out Changes
+        uses: actions/checkout@v4
+
+      - name: Use specific version of Terraform
+        uses: hashicorp/setup-terraform@v1
+        with:
+          terraform_version: 1.7.4
+          terraform_wrapper: false
+
+      - name: Terraform Init
+        run: terraform init -input=false
+
+      - name: Select/Create Workspace
+        run: terraform workspace select -or-create ${{ needs.pre_job.outputs.env_name }}
+
+      - name: Terraform Format
+        run: terraform fmt -recursive
+
+      - name: Terraform Validate
+        run: terraform validate
+
+  approve_deploy:
+    name: Approve Deploy - ${{ needs.pre_job.outputs.env_name }}
+    concurrency: 
+      group: ${{ github.workflow }}-${{ needs.pre_job.outputs.env_name }}
+      cancel-in-progress: true
+    needs:
+      - confirm_changes
+    if: ${{ fromJson(needs.confirm_changes.outputs.change_count) > 0 }}
+    runs-on: ubuntu-latest
+    environment: ${{ needs.pre_job.outputs.env_name }}_terraform
+    steps:
+      - name: Echo change count
+        run: echo ${{ needs.confirm_changes.outputs.change_count }}
+
+  run_deploy:
+    name: Run Deploy - ${{ needs.pre_job.outputs.env_name }}
+    concurrency: 
+      group: ${{ github.workflow }}-${{ needs.pre_job.outputs.env_name }}
+      cancel-in-progress: true
+    needs:
+      - approve_deploy
+    if: ${{ fromJson(needs.confirm_changes.outputs.change_count) > 0 }}
+    runs-on: ubuntu-latest
+    environment: ${{ needs.pre_job.outputs.env_name }}
+    defaults:
+      run:
+        working-directory: operations/app/terraform/vars/${{ needs.pre_job.outputs.env_name }}
+    steps:
+      - name: Check Out Changes
+        uses: actions/checkout@v4
+
+      - name: Use specific version of Terraform
+        uses: hashicorp/setup-terraform@v1
+        with:
+          terraform_version: 1.7.4
+          terraform_wrapper: false
+
+      - name: Terraform Init
+        run: terraform init -input=false
+
+      - name: Select/Create Workspace
+        run: terraform workspace select -or-create ${{ needs.pre_job.outputs.env_name }}
+
+      - name: Run Terraform Sanity Checks
+        run: |
+          terraform fmt -recursive
+          terraform validate
+
+      - name: Run Terraform Plan
+        run: |
+          terraform plan -out ${{ needs.pre_job.outputs.env_name }}-tf.plan
+
+      - name: Connect to VPN and login to Azure
+        uses: ./.github/actions/vpn-azure
+        with:
+          env-name: ${{ needs.pre_job.outputs.env_name }}
+          tls-key: ${{ secrets.TLS_KEY }}
+          ca-cert: ${{ secrets.CA_CRT }}
+          user-crt: ${{ secrets.USER_CRT }}
+          user-key: ${{ secrets.USER_KEY }}
+          sp-creds: ${{ env.AZURE_CREDENTIALS }}
+          tf-auth: true
+        continue-on-error: true
+
+      - name: Run Terraform Apply
+        run: |
+          terraform apply -input=false -no-color -lock-timeout=600s -auto-approve ${{ needs.pre_job.outputs.env_name }}-tf.plan
