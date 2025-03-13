@@ -12,6 +12,7 @@ import gov.cdc.prime.router.azure.observability.event.TestSummary
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import org.hl7.fhir.r4.model.Address
 import org.hl7.fhir.r4.model.Bundle
+import org.hl7.fhir.r4.model.CodeableConcept
 import org.hl7.fhir.r4.model.Coding
 import org.hl7.fhir.r4.model.Extension
 import org.hl7.fhir.r4.model.MessageHeader
@@ -53,10 +54,17 @@ class FhirPathBundleDigestExtractorStrategyTests {
                         ObservationSummary(
                             testSummary = listOf(
                                 TestSummary(
-                                conditions = listOf(
-                                    CodeSummary(system = "Unknown", code = "Unknown", display = "Unknown")
+                                    conditions = listOf(
+                                        CodeSummary(system = "Unknown", code = "Unknown", display = "Unknown")
+                                    )
                                 )
-                            )
+                            ),
+                            interpretations = listOf(
+                                CodeSummary(
+                                    system = "http://snomed.info/sct",
+                                    code = "260385009",
+                                    display = "Negative"
+                                )
                             )
                         )
                     ),
@@ -191,6 +199,15 @@ class FhirPathBundleDigestExtractorStrategyTests {
         extension.setValue(Coding())
         coding.extension = listOf(extension)
         observation.code.coding = listOf(coding)
+
+        val interpretation = CodeableConcept()
+        val interpretationCoding = Coding()
+        interpretationCoding.system = "http://snomed.info/sct"
+        interpretationCoding.code = "260385009"
+        interpretationCoding.display = "Negative"
+        interpretation.addCoding(interpretationCoding)
+        observation.interpretation = listOf(interpretation)
+
         bundle.addEntry().resource = observation
     }
 }
