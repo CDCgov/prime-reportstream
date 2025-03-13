@@ -21,7 +21,7 @@ class PerformerSummaryTest {
             }
             // Add an identifier with CLIA
             addIdentifier().apply {
-                system = "http://some.system/CLIA"
+                type.coding[0].code = "http://some.system/CLIA"
                 value = "123456"
             }
         }
@@ -55,7 +55,7 @@ class PerformerSummaryTest {
                 state = "TX"
             }
             addIdentifier().apply {
-                system = "http://some.system/NPI"
+                type.coding[0].code = "http://some.system/NPI"
                 value = "999999"
             }
         }
@@ -75,7 +75,7 @@ class PerformerSummaryTest {
                 state = "CA"
             }
             addIdentifier().apply {
-                system = "http://another.system/CLIA"
+                type.coding[0].code = "http://another.system/CLIA"
                 value = "ORG-CLIA-001"
             }
         }
