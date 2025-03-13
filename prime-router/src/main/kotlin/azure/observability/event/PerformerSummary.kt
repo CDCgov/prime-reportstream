@@ -41,9 +41,12 @@ data class PerformerSummary(
                         ?.firstOrNull()
                         ?.state ?: UNKNOWN
                     val performerCLIA = performer.identifier
-                        ?.firstOrNull { it.system?.contains("CLIA", ignoreCase = true) == true }
+                        ?.firstOrNull { identifier ->
+                            identifier.type.coding.any { coding ->
+                                coding.code?.contains("CLIA", ignoreCase = true) == true
+                            }
+                        }
                         ?.value ?: UNKNOWN
-
                     return PerformerSummary(performerName, performerState, performerCLIA)
                 }
 
