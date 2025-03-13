@@ -13,7 +13,7 @@ class FhirPathBundleDigestLabResultExtractorStrategy(private val context: Custom
     private val eventCodePath = "Bundle.entry.resource.ofType(MessageHeader).event.display"
     private val patientStatePath = "Bundle.entry.resource.ofType(Patient).address.state"
     private val performerPath =
-        "Bundle.entry.resource.ofType(ServiceRequest)[0].performer.resolve()"
+        "Bundle.entry.resource.ofType(MessageHeader)[0].sender.resolve()"
     private val orderingFacilityPath =
         "Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve()"
 
