@@ -28,7 +28,11 @@ data class PerformerSummary(
 
                     // For Practitioner, identifier list may contain CLIA. You need to find it explicitly.
                     val performerCLIA = performer.identifier
-                        ?.firstOrNull { it.system?.contains("CLIA", ignoreCase = true) == true }
+                        ?.firstOrNull { identifier ->
+                            identifier.type.coding.any { coding ->
+                                coding.code?.contains("CLIA", ignoreCase = true) == true
+                            }
+                        }
                         ?.value ?: UNKNOWN
 
                     return PerformerSummary(performerName, performerState, performerCLIA)
