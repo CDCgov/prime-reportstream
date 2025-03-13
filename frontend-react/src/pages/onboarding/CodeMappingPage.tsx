@@ -23,7 +23,7 @@ const CodeMappingPage = () => {
     const { data: senderDetail } = useOrganizationSender();
     const { data, isLoading, setRequestBody, setClient } = useCodeMappingFormSubmit();
     const [currentCodeMapStep, setCurrentCodeMapStep] = useState<CodeMappingSteps>(CodeMappingSteps.StepOne);
-    const [file, setFile] = useState<File | null>(null);
+    const [file, setFile] = useState<string | null>(null);
     const [fileName, setFileName] = useState("");
     const onCancelHandler = useCallback<MouseEventHandler>((_ev) => {
         // Don't have a proper mechanism to cancel in-flight requests so refresh page
@@ -32,8 +32,6 @@ const CodeMappingPage = () => {
     const onReset = () => {
         setCurrentCodeMapStep(CodeMappingSteps.StepOne);
     };
-
-    console.log("senderDetail = ", senderDetail);
 
     const handleFileSelect = async (event: ChangeEvent<HTMLInputElement>) => {
         event.preventDefault();

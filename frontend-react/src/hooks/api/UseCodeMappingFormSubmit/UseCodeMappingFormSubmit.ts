@@ -7,13 +7,11 @@ const { mapSenderCode } = conditionCodeEndpoints;
 
 const useCodeMappingFormSubmit = () => {
     const { activeMembership, authorizedFetch } = useSessionContext();
-    const [requestBody, setRequestBody] = useState<File | null>(null);
+    const [requestBody, setRequestBody] = useState<string | null>(null);
     const [client, setClient] = useState("");
 
     const fetchData = useCallback(async () => {
         try {
-            // Attempt the fetch
-            console.log("requestBody = ", requestBody);
             const result = await authorizedFetch<ConditionCodeData[]>(
                 {
                     data: requestBody,
@@ -34,7 +32,7 @@ const useCodeMappingFormSubmit = () => {
                 return Promise.reject(new Error(String(err)));
             }
         }
-    }, [authorizedFetch, requestBody]);
+    }, [authorizedFetch, client, requestBody]);
 
     const useQueryResult = useQuery<ConditionCodeData[], Error>({
         queryKey: [mapSenderCode.queryKey, activeMembership, requestBody],
