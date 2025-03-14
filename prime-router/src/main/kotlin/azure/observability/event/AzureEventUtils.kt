@@ -23,10 +23,8 @@ object AzureEventUtils {
     fun getObservationSummaries(
         observations: List<Observation>,
     ): List<ObservationSummary> = observations.map { observation ->
-            ObservationSummary(
-                observation.code.coding.map(TestSummary::fromCoding),
-            )
-        }
+        ObservationSummary.fromObservation(observation)
+    }
 
     /**
      * For tracking the Message ID, we need the bundle.identifier value and system.
