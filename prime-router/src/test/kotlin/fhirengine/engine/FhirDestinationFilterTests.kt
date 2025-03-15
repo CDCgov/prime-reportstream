@@ -374,6 +374,13 @@ class FhirDestinationFilterTests {
                                         loincSystem,
                                         "94558-4",
                                     )
+                                ),
+                                listOf(
+                                    CodeSummary(
+                                        system = "http://terminology.hl7.org/CodeSystem/v2-0078",
+                                        code = "N",
+                                        display = "Normal"
+                                    )
                                 )
                             ),
                             ObservationSummary(
@@ -536,6 +543,13 @@ class FhirDestinationFilterTests {
                                             ),
                                             loincSystem,
                                             "94558-4",
+                                        )
+                                    ),
+                                    listOf(
+                                        CodeSummary(
+                                            system = "http://terminology.hl7.org/CodeSystem/v2-0078",
+                                            code = "N",
+                                            display = "Normal"
                                         )
                                     )
                                 ),
