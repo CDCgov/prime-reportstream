@@ -1,12 +1,17 @@
 import { Button, GridContainer } from "@trussworks/react-uswds";
-import { FormEventHandler, MouseEventHandler, useCallback, useState } from "react";
+import { ChangeEvent, FormEvent, MouseEventHandler, useCallback, useState } from "react";
 import { Helmet } from "react-helmet-async";
 import CodeMappingForm from "../../components/CodeMapping/CodeMappingForm";
 import CodeMappingResults from "../../components/CodeMapping/CodeMappingResults";
 import Spinner from "../../components/Spinner";
 import { USExtLink } from "../../components/USLink";
 import site from "../../content/site.json";
-import useCodeMappingFormSubmit, { sampArr } from "../../hooks/api/UseCodeMappingFormSubmit/UseCodeMappingFormSubmit";
+import useSessionContext from "../../contexts/Session/useSessionContext";
+import { showToast } from "../../contexts/Toast";
+import useOrganizationSender from "../../hooks/api/organizations/UseOrganizationSender/UseOrganizationSender";
+import useCodeMappingFormSubmit from "../../hooks/api/UseCodeMappingFormSubmit/UseCodeMappingFormSubmit";
+import { parseCsvForError } from "../../utils/FileUtils";
+import { getClientHeader } from "../../utils/SessionStorageTools";
 
 enum CodeMappingSteps {
     StepOne = "CodeMapFileSelect",
@@ -14,8 +19,11 @@ enum CodeMappingSteps {
 }
 
 const CodeMappingPage = () => {
-    const { data, isPending, mutate } = useCodeMappingFormSubmit();
+    const { activeMembership } = useSessionContext();
+    const { data: senderDetail } = useOrganizationSender();
+    const { data, isLoading, setRequestBody, setClient } = useCodeMappingFormSubmit();
     const [currentCodeMapStep, setCurrentCodeMapStep] = useState<CodeMappingSteps>(CodeMappingSteps.StepOne);
+    const [file, setFile] = useState<string | null>(null);
     const [fileName, setFileName] = useState("");
     const onCancelHandler = useCallback<MouseEventHandler>((_ev) => {
         // Don't have a proper mechanism to cancel in-flight requests so refresh page
@@ -24,15 +32,34 @@ const CodeMappingPage = () => {
     const onReset = () => {
         setCurrentCodeMapStep(CodeMappingSteps.StepOne);
     };
-    const onSubmit = useCallback<FormEventHandler<HTMLFormElement>>(
-        (ev) => {
-            ev.preventDefault();
-            mutate();
-            setCurrentCodeMapStep(CodeMappingSteps.StepTwo);
-            return false;
-        },
-        [mutate],
-    );
+
+    const handleFileSelect = async (event: ChangeEvent<HTMLInputElement>) => {
+        event.preventDefault();
+        if (!event?.target?.files?.length) {
+            return;
+        }
+        const selectedFile = event.target.files.item(0)!;
+
+        const selectedFileContent = await selectedFile.text();
+
+        if (selectedFile.type === "csv" || selectedFile.type === "text/csv") {
+            const localCsvError = parseCsvForError(selectedFile.name, selectedFileContent);
+            if (localCsvError) {
+                showToast(localCsvError, "error");
+                return;
+            }
+        }
+        setClient(getClientHeader(senderDetail?.schemaName, activeMembership, senderDetail ?? undefined));
+        setFileName(selectedFile.name);
+        setFile(selectedFileContent);
+    };
+
+    const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+        setRequestBody(file);
+        setCurrentCodeMapStep(CodeMappingSteps.StepTwo);
+    };
+
     return (
         <>
             <Helmet>
@@ -41,7 +68,7 @@ const CodeMappingPage = () => {
 
             <GridContainer>
                 <h1>Code mapping tool</h1>
-                {isPending ? (
+                {isLoading ? (
                     <>
                         <Spinner />
                         <p className="text-center">
@@ -55,10 +82,15 @@ const CodeMappingPage = () => {
                 ) : (
                     <>
                         {currentCodeMapStep === CodeMappingSteps.StepOne && (
-                            <CodeMappingForm onSubmit={onSubmit} setFileName={setFileName} />
+                            <CodeMappingForm
+                                onSubmit={handleSubmit}
+                                setFile={(e) => {
+                                    void handleFileSelect(e);
+                                }}
+                            />
                         )}
                         {currentCodeMapStep === CodeMappingSteps.StepTwo && (
-                            <CodeMappingResults fileName={fileName} data={data ?? sampArr} onReset={onReset} />
+                            <CodeMappingResults data={data} fileName={fileName} onReset={onReset} />
                         )}
                     </>
                 )}
