@@ -150,7 +150,7 @@
     "@vitejs/plugin-react": "^4.3.4",
     "@vitest/coverage-istanbul": "^3.0.5",
     "@vitest/ui": "^3.0.5",
-    "autoprefixer": "^10.4.20",
+    "autoprefixer": "^10.4.21",
     "browserslist": "^4.24.4",
     "browserslist-useragent-regexp": "^4.1.3",
     "chromatic": "^11.22.2",
