@@ -45,7 +45,7 @@ for users via the UI. I will delve into how to set it up for senders later in th
 ### Submit claim
 
 There will also be an optional `userSubmit` or `appSubmit` claim containing specific organizations AND optional sender. 
-These values will be dot seperated. If a sender is not included, it will be assumed to be a wildcard and allow all 
+These values will be dot separated. If a sender is not included, it will be assumed to be a wildcard and allow all 
 senders under that organization. Unfortunately, we cannot define duplicate claims nor can we have multiple expressions 
 within a single claim. This is why there are multiple claims as defined below:
 
