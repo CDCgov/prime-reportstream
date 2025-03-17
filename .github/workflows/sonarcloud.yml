@@ -46,9 +46,9 @@ jobs:
         with:
           fetch-depth: 0
 
-      #- name: Get branch name
-        #id: branch-name
-        #uses: tj-actions/branch-names@6871f53176ad61624f978536bbf089c574dc19a2
+      - name: Get branch name
+        id: branch-name
+        uses: tj-actions/branch-names@v8
     
 
       - name: Set up JDK 17
