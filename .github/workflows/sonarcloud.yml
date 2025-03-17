@@ -46,19 +46,19 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Get branch name
-        id: branch-name
-        uses: tj-actions/branch-names@6871f53176ad61624f978536bbf089c574dc19a2
+      #- name: Get branch name
+        #id: branch-name
+        #uses: tj-actions/branch-names@6871f53176ad61624f978536bbf089c574dc19a2
         
-      - name: "Get changed files with yaml"
-        id: changed-files-yaml
-        uses: tj-actions/changed-files@48d8f15b2aaa3d255ca5af3eba4870f807ce6b3c
-        with:
-          files_yaml: |
-            frontend:
-              - 'frontend-react/**'
-            backend:
-              - 'prime-router/**'
+      #- name: "Get changed files with yaml"
+        #id: changed-files-yaml
+        #uses: tj-actions/changed-files@48d8f15b2aaa3d255ca5af3eba4870f807ce6b3c
+        #with:
+        #  files_yaml: |
+        #    frontend:
+        #      - 'frontend-react/**'
+        #    backend:
+        #      - 'prime-router/**'
 
       - name: Set up JDK 17
         if: steps.changed-files-yaml.outputs.backend_any_changed == 'true' || steps.branch-name.outputs.is_default == 'true'
