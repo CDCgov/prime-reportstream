@@ -47,7 +47,7 @@ runs:
   using: "composite"
   steps:
     - name: Use Node.js with yarn
-      uses: actions/setup-node@0a44ba7841725637a19e28fa30b79a866c81b0a6
+      uses: actions/setup-node@cdca7365b2dadb8aad0a33bc7601856ffabcc48e
       with:
         node-version-file: "frontend-react/.nvmrc"
 
