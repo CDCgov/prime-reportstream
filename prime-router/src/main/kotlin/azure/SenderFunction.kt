@@ -56,6 +56,25 @@ class SenderFunction(
 
             // Read request body CSV
             val bodyCsvText = request.body ?: ""
+
+            // Check CSV headers in request body
+            val csvHeader = bodyCsvText.lineSequence().firstOrNull()
+            if (csvHeader != null) {
+                val headersToCheck = csvHeader.split(",")
+
+                val missingHeaders = mutableListOf<String>()
+                val requiredHeaders = listOf("test code", "test description", "coding system")
+                for (header in requiredHeaders) {
+                    if (header !in headersToCheck) {
+                        missingHeaders.add(header)
+                    }
+                }
+
+                // Return 400 with list of missing headers if any
+                if (missingHeaders.isNotEmpty()) {
+                    return HttpUtilities.bad(request, "Missing required CSV header(s): '$missingHeaders'")
+                }
+            }
             val bodyCsv = csvReader().readAllWithHeader(bodyCsvText)
 
             // Get observation mapping table
