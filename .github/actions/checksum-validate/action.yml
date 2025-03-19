@@ -77,7 +77,7 @@ runs:
     # VALIDATE FILE START
     - name: Download checksum file
       if: inputs.validate == 'true'
-      uses: actions/download-artifact@eaceaf801fd36c7dee90939fad912460b18a1ffe
+      uses: actions/download-artifact@b14cf4c92620c250e1c074ab0a5800e37df86765
       with:
         name: "${{ github.sha }}-${{ inputs.key }}.txt"
 
