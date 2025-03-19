@@ -64,10 +64,18 @@ Setup for `SPRING_SECURITY_OAUTH2_RESOURCESERVER_OPAQUETOKEN_CLIENT_SECRET`:
 
 - Retrieve an access token directly from Okta and ensure the JWT contains the "sender" scope
   - Make a well-formed request to https://reportstream.oktapreview.com/oauth2/default/v1/token to retrieve your access token
+    - See [sample code](../src/scripts/get_client_access_token.py)
+      - `authorization_server_id` defined in Security > API in Okta admin; must match spring.security.oauth2.resourceserver.opaquetoken.introspection-url
     - [See Okta documentation on that endpoint here](https://developer.okta.com/docs/guides/implement-oauth-for-okta-serviceapp/main/#get-an-access-token)
 - Submit your report to http://localhost:9000/api/v1/reports
-  - Note the it's port 9000 which is auth rather than directly to 8880 which is submissions
+  - Note API is on port 9000 which is auth rather than directly to submissions on port 8880
   - See endpoint definition in [SubmissionController](../../submissions/src/main/kotlin/gov/cdc/prime/reportstream/submissions/controllers/SubmissionController.kt)
+  - Required headers:
+    - `Content-Type`: the content type of the report (must be "application/hl7-v2" or "application/fhir+ndjson")
+    - `clientId`: the ID of the client submitting the report. Should represent org.senderName
+    - `content-length`
+    - `x-azure-clientip`
+  - Content of report (HL7, FHIR) in body of post request 
   - Add the access token you retrieved from Okta as a `Bearer` token in the `Authorization` header
 - Inspect the logs if you received a 401 or a 403. This indicates there is an issue with your access token.
 
