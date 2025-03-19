@@ -178,6 +178,11 @@ elements:
     bundleProperty: 'Bundle.entry.resource.ofType(Patient).address.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/xad-address").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/sad-address-line").extension("SAD.1").value[x]'
     value: [ 'Bundle.entry.resource.ofType(Patient).address.line[0]' ]
 
+  - name: sr-patient-address-street-2
+    condition: 'Bundle.entry.resource.ofType(Patient).address.line[1].value.exists()'
+    bundleProperty: 'Bundle.entry.resource.ofType(Patient).address.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/xad-address").extension("XAD.2").value[x]'
+    value: [ 'Bundle.entry.resource.ofType(Patient).address.line[1]' ]
+
   ## Code
   - name: sr-patient-ethnic-group-code-extension
     resource: 'Bundle.entry.resource.ofType(Patient).extension("https://reportstream.cdc.gov/fhir/StructureDefinition/ethnic-group").value'
@@ -216,6 +221,31 @@ elements:
   - name: sr-patient-identifier-ext-assigning-facility
     bundleProperty: 'Bundle.entry.resource.ofType(Patient).identifier[0].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility").value[x]'
     value: [ 'Bundle.entry.resource.ofType(Patient).managingOrganization' ]
+
+
+  - name: sr-patient-tribal-affiliation-ext
+    resource: 'Bundle.entry.resource.ofType(Patient)'
+    condition: '%resource.extension("http://hl7.org/fhir/us/core/StructureDefinition/us-core-tribal-affiliation").exists() and %resource.extension("http://hl7.org/fhir/us/core/StructureDefinition/us-core-tribal-affiliation").extension("tribalAffiliation").exists()'
+    bundleProperty: '%resource.extension("http://hl7.org/fhir/StructureDefinition/patient-citizenship").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/code").value[x]'
+    value: ['%resource.extension("http://hl7.org/fhir/us/core/StructureDefinition/us-core-tribal-affiliation").extension("tribalAffiliation").value']
+
+  - name: sr-patient-tribal-affiliation-hl7ext
+    resource: 'Bundle.entry.resource.ofType(Patient)'
+    condition: '%resource.extension("http://hl7.org/fhir/us/core/StructureDefinition/us-core-tribal-affiliation").exists() and %resource.extension("http://hl7.org/fhir/us/core/StructureDefinition/us-core-tribal-affiliation").extension("tribalAffiliation").exists()'
+    bundleProperty: '%resource.extension("http://hl7.org/fhir/StructureDefinition/patient-citizenship").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/code").value.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field").value[x]'
+    value: ['"PID.39"']
+
+  - name: sr-patient-tribal-affiliation-coding
+    resource: 'Bundle.entry.resource.ofType(Patient)'
+    condition: '%resource.extension("http://hl7.org/fhir/us/core/StructureDefinition/us-core-tribal-affiliation").exists() and %resource.extension("http://hl7.org/fhir/us/core/StructureDefinition/us-core-tribal-affiliation").extension("tribalAffiliation").exists()'
+    bundleProperty: '%resource.extension("http://hl7.org/fhir/StructureDefinition/patient-citizenship").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/code").value.coding.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding").value[x]'
+    value: ['"coding"']
+
+  - name: sr-patient-tribal-affiliation-system
+    resource: 'Bundle.entry.resource.ofType(Patient)'
+    condition: '%resource.extension("http://hl7.org/fhir/us/core/StructureDefinition/us-core-tribal-affiliation").exists() and %resource.extension("http://hl7.org/fhir/us/core/StructureDefinition/us-core-tribal-affiliation").extension("tribalAffiliation").exists()'
+    bundleProperty: '%resource.extension("http://hl7.org/fhir/StructureDefinition/patient-citizenship").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/code").value.coding.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system").value[x]'
+    value: ['"HL70171"']
 
   # Covid pipeline populates this by looking at the hl70078 value-set version
   - name: sr-observation-abnormal-flag-version
@@ -390,21 +420,21 @@ elements:
     bundleProperty: '%resource.collection.bodySite.coding[0].display'
     value: [ '%resource.collection.bodySite.text' ]
 
+  - name: sr-observation-producer-id-hl7use
+    resource: 'Bundle.entry.resource.ofType(Observation).performer.resolve()'
+    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field")[0].value[x]'
+    value: [ '"OBX.15"' ]
+
+  - name: sr-observation-performing-org-hl7use
+    resource: 'Bundle.entry.resource.ofType(Observation).performer.resolve()'
+    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field")[1].value[x]'
+    value: [ '"OBX.25"' ]
+
   - name: sr-observation-producer-id-identifier
     resource: 'Bundle.entry.resource.ofType(Observation)'
     condition: '%resource.performer.exists().not()'
     bundleProperty: '%resource.performer'
     value: [ '%diagnosticReport.basedOn.resolve().performer' ]
-
-  - name: sr-observation-producer-id-hl7use
-    resource: 'Bundle.entry.resource.ofType(Observation).performer.resolve()'
-    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field")[1].value[x]'
-    value: [ '"OBX.15"' ]
-
-  - name: sr-observation-performing-org-hl7use
-    resource: 'Bundle.entry.resource.ofType(Observation).performer.resolve()'
-    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field")[0].value[x]'
-    value: [ '"OBX.25"' ]
 
   - name: sr-observation-producer-id-cwe-identifier
     resource: 'Bundle.entry.resource.ofType(Observation).performer.resolve()'
@@ -430,14 +460,8 @@ elements:
     bundleProperty: '%diagnosticReport.basedOn.resolve().performer.resolve().identifier[0].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/coding-system").valueCodeableConcept.coding.code'
     value: [ '%diagnosticReport.basedOn.resolve().performer.resolve().identifier[0].value.getIdType()' ]
 
-  - name: sr-ordering-facility-phone
-    resource: '%diagnosticReport.basedOn.resolve().requester.resolve().organization.resolve().contact[0].telecom'
-    resourceIndex: telecomIndex
-    schema: classpath:/metadata/fhir_transforms/senders/SimpleReport/datatypes/simple-report-telecom.yml
-
-  - name: sr-ordering-facility-telecom
-    condition: '%diagnosticReport.basedOn.resolve().requester.resolve().organization.resolve().contact.empty()'
-    resource: '%diagnosticReport.basedOn.resolve().requester.resolve().organization.resolve().telecom'
+  - name: sr-telecom
+    resource: 'Bundle.entry.resource.telecom'
     resourceIndex: telecomIndex
     schema: classpath:/metadata/fhir_transforms/senders/SimpleReport/datatypes/simple-report-telecom.yml
 
@@ -529,6 +553,17 @@ elements:
         keyColumn: LOINC_NUM
         valueColumn: LONG_COMMON_NAME
 
+  ## Note extension
+  - name: sr-note-cwe-coding-extension
+    resource: 'Bundle.entry.resource.ofType(ServiceRequest).note.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/note-type").value.coding'
+    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding").value[x]'
+    value: [ '"coding"' ]
+
+  - name: sr-note-cwe-coding-system-extension
+    resource: 'Bundle.entry.resource.ofType(ServiceRequest).note.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/note-type").value.coding'
+    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system").value[x]'
+    value: [ '%resource.system' ]
+
 
   ## Requester
   - name: sr-service-request-requester-telecom
@@ -567,6 +602,10 @@ elements:
   - name: sr-service-request-requester-address-street
     bundleProperty: 'Bundle.entry.resource.ofType(ServiceRequest).requester.resolve().practitioner.resolve().address.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/xad-address").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/sad-address-line").extension("SAD.1").value[x]'
     value: [ 'Bundle.entry.resource.ofType(ServiceRequest).requester.resolve().practitioner.resolve().address.line[0]' ]
+
+  - name: sr-service-request-requester-address-street-2
+    bundleProperty: 'Bundle.entry.resource.ofType(ServiceRequest).requester.resolve().practitioner.resolve().address.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/xad-address").extension("XAD.2").value[x]'
+    value: [ 'Bundle.entry.resource.ofType(ServiceRequest).requester.resolve().practitioner.resolve().address.line[1]' ]
 
   # order-effective-date
   - name: sr-service-request-orc-order-effective-date
