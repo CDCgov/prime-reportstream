@@ -83,13 +83,13 @@ jobs:
           fetch-depth: 0
       - name: Download router artifact
         if: ${{ needs.wf_vars.outputs.enable_builds == 'true' }}
-        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16
+        uses: actions/download-artifact@b14cf4c92620c250e1c074ab0a5800e37df86765
         with:
           name: prime-router-build-${{ needs.wf_vars.outputs.version }}
           path: archives/
       - name: Download frontend artifact
         if: ${{ needs.wf_vars.outputs.enable_builds == 'true' }}
-        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16
+        uses: actions/download-artifact@b14cf4c92620c250e1c074ab0a5800e37df86765
         with:
           name: static-website-react-${{ needs.wf_vars.outputs.version }}
           path: archives/
