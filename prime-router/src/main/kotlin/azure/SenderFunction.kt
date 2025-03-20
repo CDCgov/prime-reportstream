@@ -2,6 +2,9 @@ package gov.cdc.prime.router.azure
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.github.doyaaaaaken.kotlincsv.dsl.csvReader
+import com.github.doyaaaaaken.kotlincsv.util.CSVFieldNumDifferentException
+import com.github.doyaaaaaken.kotlincsv.util.CSVParseFormatException
+import com.github.doyaaaaaken.kotlincsv.util.MalformedCSVException
 import com.microsoft.azure.functions.HttpMethod
 import com.microsoft.azure.functions.HttpRequestMessage
 import com.microsoft.azure.functions.HttpResponseMessage
@@ -59,23 +62,36 @@ class SenderFunction(
 
             // Check CSV headers in request body
             val csvHeader = bodyCsvText.lineSequence().firstOrNull()
-            if (csvHeader != null) {
-                val headersToCheck = csvHeader.split(",")
+            // 400 if CSV is empty
+            if (csvHeader.isNullOrBlank()) {
+                return HttpUtilities.bad(request, "CSV file is empty")
+            }
+            val requiredHeaders = setOf("test code", "test description", "coding system")
+            val headersToCheck = csvHeader.split(",").toSet()
+            val missingHeaders = requiredHeaders.minus(headersToCheck)
 
-                val missingHeaders = mutableListOf<String>()
-                val requiredHeaders = listOf("test code", "test description", "coding system")
-                for (header in requiredHeaders) {
-                    if (header !in headersToCheck) {
-                        missingHeaders.add(header)
-                    }
+            // 400 with list of missing headers if any
+            if (missingHeaders.isNotEmpty()) {
+                return HttpUtilities.bad(
+                    request,
+                    "CSV file is missing the following header column(s): '$missingHeaders'"
+                )
+            }
+
+            val bodyCsv = csvReader().readAllWithHeader(bodyCsvText)
+            // 400 if CSV contains no data rows
+            if (bodyCsv.isEmpty()) {
+                return HttpUtilities.bad(request, "CSV file contains no rows of data")
+            } else {
+                // Find rows that have columns with empty values
+                val rowsWithEmptyValues = bodyCsv.filter { row ->
+                    row.filter { (_, v) -> v.isEmpty() }.isNotEmpty()
                 }
-
-                // Return 400 with list of missing headers if any
-                if (missingHeaders.isNotEmpty()) {
-                    return HttpUtilities.bad(request, "Missing required CSV header(s): '$missingHeaders'")
+                // 400 if there are rows with columns with empty values
+                if (rowsWithEmptyValues.isNotEmpty()) {
+                    return HttpUtilities.bad(request, "CSV file contains rows with empty values")
                 }
             }
-            val bodyCsv = csvReader().readAllWithHeader(bodyCsvText)
 
             // Get observation mapping table
             val tableMapper = LookupTableConditionMapper(workflowEngine.metadata)
@@ -89,9 +105,8 @@ class SenderFunction(
 
             // Create output JSON with mapping comparison result
             // For this output specifically, rename the keys for the JSON output
-            val comparisonsRemappedKeys = mutableListOf<Map<String, String>>()
-            for (entry in conditionCodeComparison) {
-                val replacedMap = entry.map { (key, value) ->
+            val comparisonsRemappedKeys = conditionCodeComparison.map { entry ->
+                entry.map { (key, value) ->
                     when (key) {
                         "test code" -> "testCode" to value
                         "test description" -> "testDescription" to value
@@ -100,18 +115,25 @@ class SenderFunction(
                         else -> key to value
                     }
                 }.toMap()
-                comparisonsRemappedKeys.add(replacedMap)
             }
             val conditionCodeComparisonJson = ObjectMapper().writeValueAsString(comparisonsRemappedKeys)
 
             return HttpUtilities.okResponse(request, conditionCodeComparisonJson)
         } catch (ex: Exception) {
-            if (ex.message != null) {
-                logger.error(ex.message!!, ex)
-            } else {
-                logger.error(ex)
+            return when (ex) {
+                is CSVFieldNumDifferentException -> {
+                    logger.error(ex)
+                    HttpUtilities.bad(request, "CSV file contains rows with missing data")
+                }
+                is CSVParseFormatException, is MalformedCSVException -> {
+                    logger.error(ex)
+                    HttpUtilities.bad(request, "Error parsing CSV")
+                }
+                else -> {
+                    logger.error(ex)
+                    HttpUtilities.internalErrorResponse(request)
+                }
             }
-            return HttpUtilities.internalErrorResponse(request)
         }
     }
 }
