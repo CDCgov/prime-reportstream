@@ -39,7 +39,7 @@ class SenderFunction(
     ): HttpResponseMessage {
         val senderName = extractClient(request)
         if (senderName.isBlank()) {
-            return HttpUtilities.bad(request, "Expected a '$CLIENT_PARAMETER' query parameter")
+            return HttpUtilities.bad(request, "Expected a '$CLIENT_PARAMETER' request header")
         }
 
         actionHistory.trackActionParams(request)
