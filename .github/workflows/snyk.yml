@@ -36,7 +36,7 @@ jobs:
       - uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938
       - uses: snyk/actions/setup@b98d498629f1c368650224d6d212bf7dfa89e4bf
       - name: Set up JDK 17 to generate backend coverage stats
-        uses: actions/setup-java@b36c23c0d998641eff861008f374ee103c25ac73
+        uses: actions/setup-java@3a4f6e1af504cf6a31855fa899c6aa5355ba6c12
         with:
           java-version: "17"
           distribution: "temurin"
