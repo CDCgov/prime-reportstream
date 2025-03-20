@@ -105,8 +105,7 @@ NTE|1|L|This is a final comment|RE
         stripInvalidCharsRegex: String? = null,
         replaceUnicodeWithAscii: Boolean = false,
         useBatchHeaders: Boolean = false,
-    ): Hl7Configuration {
-        return Hl7Configuration(
+    ): Hl7Configuration = Hl7Configuration(
             messageProfileId = "",
             receivingApplicationOID = "",
             receivingApplicationName = "",
@@ -124,7 +123,6 @@ NTE|1|L|This is a final comment|RE
             replaceUnicodeWithAscii = replaceUnicodeWithAscii,
             useBatchHeaders = useBatchHeaders
         )
-    }
 
     @Test
     fun `test write batch`() {

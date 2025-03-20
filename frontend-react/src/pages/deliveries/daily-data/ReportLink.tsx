@@ -1,7 +1,7 @@
 import { Button, Icon } from "@trussworks/react-uswds";
-import download from "downloadjs";
 import { PropsWithChildren } from "react";
 
+import { downloadReport } from "./ReportsUtils";
 import config from "../../../config";
 import useSessionContext from "../../../contexts/Session/useSessionContext";
 import { isDateExpired } from "../../../utils/DateTimeUtils";
@@ -28,13 +28,7 @@ const formatFileType = (fileType: string) => {
     This element provides a download link on each row of the table and on the report
     details page
 */
-function ReportLink({
-    reportId,
-    fileType,
-    reportExpires,
-    children,
-    button,
-}: PropsWithChildren<ReportLinkProps>) {
+function ReportLink({ reportId, fileType, reportExpires, children, button }: PropsWithChildren<ReportLinkProps>) {
     const { authState } = useSessionContext();
     const { activeMembership } = useSessionContext();
     const organization = activeMembership?.parsedName;
@@ -50,15 +44,7 @@ function ReportLink({
             })
                 .then((res) => res.json())
                 .then((report) => {
-                    // The filename to use for the download should not contain blob folders if present
-                    let filename = decodeURIComponent(report.fileName);
-                    const filenameStartIndex = filename.lastIndexOf("/");
-                    if (
-                        filenameStartIndex >= 0 &&
-                        filename.length > filenameStartIndex + 1
-                    )
-                        filename = filename.substring(filenameStartIndex + 1);
-                    download(report.content, filename, report.mimetype);
+                    downloadReport(report);
                 });
         }
     };
@@ -73,21 +59,16 @@ function ReportLink({
     } else {
         return (
             <>
-                {fileType !== undefined &&
-                    !isDateExpired(reportExpires ?? "") && (
-                        <Button
-                            type="button"
-                            outline
-                            onClick={handleClick}
-                            className="usa-button usa-button--outline float-right display-flex flex-align-center margin-left-1"
-                        >
-                            {formatFileType(fileType)}{" "}
-                            <Icon.FileDownload
-                                className="margin-left-1"
-                                size={3}
-                            />
-                        </Button>
-                    )}
+                {fileType !== undefined && !isDateExpired(reportExpires ?? "") && (
+                    <Button
+                        type="button"
+                        outline
+                        onClick={handleClick}
+                        className="usa-button usa-button--outline float-right display-flex flex-align-center margin-left-1"
+                    >
+                        {formatFileType(fileType)} <Icon.FileDownload className="margin-left-1" size={3} />
+                    </Button>
+                )}
             </>
         );
     }

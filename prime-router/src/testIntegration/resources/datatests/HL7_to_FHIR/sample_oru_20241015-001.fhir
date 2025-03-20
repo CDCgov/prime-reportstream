@@ -450,6 +450,22 @@
                 }
               }
             ],
+            "relationship": [
+              {
+                "coding": [
+                  {
+                    "extension": [
+                      {
+                        "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                        "valueString": "coding"
+                      }
+                    ],
+                    "code": "MTH",
+                    "display": "Mother"
+                  }
+                ]
+              }
+            ],
             "name": {
               "family": "CDPHSIX"
             },
@@ -14207,7 +14223,18 @@
             "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Segment",
             "valueString": "OBR"
           }
-        ]
+        ],
+        "collection": {
+          "collectedDateTime": "2024-10-15T03:35:00Z",
+          "_collectedDateTime": {
+            "extension": [
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+                "valueString": "202410150335"
+              }
+            ]
+          }
+        }
       }
     },
     {
@@ -14220,7 +14247,18 @@
             "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Segment",
             "valueString": "OBR"
           }
-        ]
+        ],
+        "collection": {
+          "collectedDateTime": "2024-10-15T15:35:00Z",
+          "_collectedDateTime": {
+            "extension": [
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+                "valueString": "202410151535"
+              }
+            ]
+          }
+        }
       }
     },
     {
@@ -14233,7 +14271,18 @@
             "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Segment",
             "valueString": "OBR"
           }
-        ]
+        ],
+        "collection": {
+          "collectedDateTime": "2024-10-15T15:35:00Z",
+          "_collectedDateTime": {
+            "extension": [
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+                "valueString": "202410151535"
+              }
+            ]
+          }
+        }
       }
     },
     {
@@ -14246,7 +14295,18 @@
             "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Segment",
             "valueString": "OBR"
           }
-        ]
+        ],
+        "collection": {
+          "collectedDateTime": "2024-10-15T03:35:00Z",
+          "_collectedDateTime": {
+            "extension": [
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+                "valueString": "202410150335"
+              }
+            ]
+          }
+        }
       }
     },
     {
@@ -14259,7 +14319,18 @@
             "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Segment",
             "valueString": "OBR"
           }
-        ]
+        ],
+        "collection": {
+          "collectedDateTime": "2024-10-15T03:35:00Z",
+          "_collectedDateTime": {
+            "extension": [
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+                "valueString": "202410150335"
+              }
+            ]
+          }
+        }
       }
     },
     {
@@ -14272,7 +14343,18 @@
             "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Segment",
             "valueString": "OBR"
           }
-        ]
+        ],
+        "collection": {
+          "collectedDateTime": "2024-10-15T03:35:00Z",
+          "_collectedDateTime": {
+            "extension": [
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+                "valueString": "202410150335"
+              }
+            ]
+          }
+        }
       }
     },
     {
@@ -14285,7 +14367,18 @@
             "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Segment",
             "valueString": "OBR"
           }
-        ]
+        ],
+        "collection": {
+          "collectedDateTime": "2024-10-15T03:35:00Z",
+          "_collectedDateTime": {
+            "extension": [
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+                "valueString": "202410150335"
+              }
+            ]
+          }
+        }
       }
     },
     {
@@ -14298,7 +14391,18 @@
             "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Segment",
             "valueString": "OBR"
           }
-        ]
+        ],
+        "collection": {
+          "collectedDateTime": "2024-10-15T03:35:00Z",
+          "_collectedDateTime": {
+            "extension": [
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+                "valueString": "202410150335"
+              }
+            ]
+          }
+        }
       }
     },
     {
@@ -14311,7 +14415,18 @@
             "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Segment",
             "valueString": "OBR"
           }
-        ]
+        ],
+        "collection": {
+          "collectedDateTime": "2024-10-15T03:35:00Z",
+          "_collectedDateTime": {
+            "extension": [
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+                "valueString": "202410150335"
+              }
+            ]
+          }
+        }
       }
     },
     {
@@ -14324,7 +14439,18 @@
             "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Segment",
             "valueString": "OBR"
           }
-        ]
+        ],
+        "collection": {
+          "collectedDateTime": "2024-10-15T03:35:00Z",
+          "_collectedDateTime": {
+            "extension": [
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+                "valueString": "202410150335"
+              }
+            ]
+          }
+        }
       }
     },
     {
@@ -14337,7 +14463,18 @@
             "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Segment",
             "valueString": "OBR"
           }
-        ]
+        ],
+        "collection": {
+          "collectedDateTime": "2024-10-15T03:35:00Z",
+          "_collectedDateTime": {
+            "extension": [
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+                "valueString": "202410150335"
+              }
+            ]
+          }
+        }
       }
     },
     {
@@ -14350,7 +14487,18 @@
             "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Segment",
             "valueString": "OBR"
           }
-        ]
+        ],
+        "collection": {
+          "collectedDateTime": "2024-10-15T03:35:00Z",
+          "_collectedDateTime": {
+            "extension": [
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+                "valueString": "202410150335"
+              }
+            ]
+          }
+        }
       }
     },
     {
@@ -14363,7 +14511,18 @@
             "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Segment",
             "valueString": "OBR"
           }
-        ]
+        ],
+        "collection": {
+          "collectedDateTime": "2024-10-15T03:35:00Z",
+          "_collectedDateTime": {
+            "extension": [
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+                "valueString": "202410150335"
+              }
+            ]
+          }
+        }
       }
     },
     {
@@ -14376,7 +14535,18 @@
             "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Segment",
             "valueString": "OBR"
           }
-        ]
+        ],
+        "collection": {
+          "collectedDateTime": "2024-10-15T03:35:00Z",
+          "_collectedDateTime": {
+            "extension": [
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+                "valueString": "202410150335"
+              }
+            ]
+          }
+        }
       }
     },
     {
@@ -14389,7 +14559,18 @@
             "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Segment",
             "valueString": "OBR"
           }
-        ]
+        ],
+        "collection": {
+          "collectedDateTime": "2024-10-15T03:35:00Z",
+          "_collectedDateTime": {
+            "extension": [
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+                "valueString": "202410150335"
+              }
+            ]
+          }
+        }
       }
     },
     {
@@ -14402,7 +14583,18 @@
             "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Segment",
             "valueString": "OBR"
           }
-        ]
+        ],
+        "collection": {
+          "collectedDateTime": "2024-10-15T03:35:00Z",
+          "_collectedDateTime": {
+            "extension": [
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+                "valueString": "202410150335"
+              }
+            ]
+          }
+        }
       }
     },
     {
@@ -14415,7 +14607,18 @@
             "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Segment",
             "valueString": "OBR"
           }
-        ]
+        ],
+        "collection": {
+          "collectedDateTime": "2024-10-15T03:35:00Z",
+          "_collectedDateTime": {
+            "extension": [
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+                "valueString": "202410150335"
+              }
+            ]
+          }
+        }
       }
     },
     {
@@ -14428,7 +14631,18 @@
             "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Segment",
             "valueString": "OBR"
           }
-        ]
+        ],
+        "collection": {
+          "collectedDateTime": "2024-10-15T03:35:00Z",
+          "_collectedDateTime": {
+            "extension": [
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+                "valueString": "202410150335"
+              }
+            ]
+          }
+        }
       }
     },
     {
@@ -14441,7 +14655,18 @@
             "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Segment",
             "valueString": "OBR"
           }
-        ]
+        ],
+        "collection": {
+          "collectedDateTime": "2024-10-15T03:35:00Z",
+          "_collectedDateTime": {
+            "extension": [
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+                "valueString": "202410150335"
+              }
+            ]
+          }
+        }
       }
     },
     {
@@ -14454,7 +14679,18 @@
             "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Segment",
             "valueString": "OBR"
           }
-        ]
+        ],
+        "collection": {
+          "collectedDateTime": "2024-10-15T03:35:00Z",
+          "_collectedDateTime": {
+            "extension": [
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+                "valueString": "202410150335"
+              }
+            ]
+          }
+        }
       }
     },
     {
@@ -14532,6 +14768,12 @@
                 }
               },
               {
+                "url": "OBR.16",
+                "valueReference": {
+                  "reference": "Practitioner/1731693602713184000.734a188a-2520-4f05-bf34-6622b15dbab7"
+                }
+              },
+              {
                 "url": "OBR.22",
                 "valueString": "20241015034304"
               },
@@ -14540,9 +14782,15 @@
                 "valueId": "F"
               },
               {
-                "url": "OBR.16",
-                "valueReference": {
-                  "reference": "Practitioner/1729025865259286197.346a3816-311c-4378-beab-801edd9b75b8"
+                "url": "OBR.7",
+                "valueDateTime": "2024-10-15T03:35:00Z",
+                "_valueDateTime": {
+                  "extension": [
+                    {
+                      "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+                      "valueString": "202410150335"
+                    }
+                  ]
                 }
               }
             ]
@@ -14807,10 +15055,10 @@
       }
     },
     {
-      "fullUrl": "Practitioner/1729025865259286197.346a3816-311c-4378-beab-801edd9b75b8",
+      "fullUrl": "Practitioner/1731693602713184000.734a188a-2520-4f05-bf34-6622b15dbab7",
       "resource": {
         "resourceType": "Practitioner",
-        "id": "1729025865259286197.346a3816-311c-4378-beab-801edd9b75b8",
+        "id": "1731693602713184000.734a188a-2520-4f05-bf34-6622b15dbab7",
         "extension": [
           {
             "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn-practitioner",
@@ -14842,6 +15090,12 @@
             "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/obr-observation-request",
             "extension": [
               {
+                "url": "OBR.16",
+                "valueReference": {
+                  "reference": "Practitioner/1731693602715782000.9b3bc61b-45b4-450e-862b-7b10e639b4db"
+                }
+              },
+              {
                 "url": "OBR.22",
                 "valueString": "20241015034304"
               },
@@ -14850,9 +15104,15 @@
                 "valueId": "F"
               },
               {
-                "url": "OBR.16",
-                "valueReference": {
-                  "reference": "Practitioner/1729025865274418038.e663574d-f32d-46d5-a9cc-afb5b456037e"
+                "url": "OBR.7",
+                "valueDateTime": "2024-10-15T15:35:00Z",
+                "_valueDateTime": {
+                  "extension": [
+                    {
+                      "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+                      "valueString": "202410151535"
+                    }
+                  ]
                 }
               }
             ]
@@ -14940,10 +15200,10 @@
       }
     },
     {
-      "fullUrl": "Practitioner/1729025865274418038.e663574d-f32d-46d5-a9cc-afb5b456037e",
+      "fullUrl": "Practitioner/1731693602715782000.9b3bc61b-45b4-450e-862b-7b10e639b4db",
       "resource": {
         "resourceType": "Practitioner",
-        "id": "1729025865274418038.e663574d-f32d-46d5-a9cc-afb5b456037e",
+        "id": "1731693602715782000.9b3bc61b-45b4-450e-862b-7b10e639b4db",
         "extension": [
           {
             "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn-practitioner",
@@ -14975,6 +15235,12 @@
             "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/obr-observation-request",
             "extension": [
               {
+                "url": "OBR.16",
+                "valueReference": {
+                  "reference": "Practitioner/1731693602718412000.51cfb819-c199-4852-a0e7-c0e4f3ad4c8f"
+                }
+              },
+              {
                 "url": "OBR.22",
                 "valueString": "20241015034304"
               },
@@ -14983,9 +15249,15 @@
                 "valueId": "F"
               },
               {
-                "url": "OBR.16",
-                "valueReference": {
-                  "reference": "Practitioner/1729025865288484220.ff33ae57-9ee3-4143-bbe7-1f571cd5a166"
+                "url": "OBR.7",
+                "valueDateTime": "2024-10-15T15:35:00Z",
+                "_valueDateTime": {
+                  "extension": [
+                    {
+                      "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+                      "valueString": "202410151535"
+                    }
+                  ]
                 }
               }
             ]
@@ -15073,10 +15345,10 @@
       }
     },
     {
-      "fullUrl": "Practitioner/1729025865288484220.ff33ae57-9ee3-4143-bbe7-1f571cd5a166",
+      "fullUrl": "Practitioner/1731693602718412000.51cfb819-c199-4852-a0e7-c0e4f3ad4c8f",
       "resource": {
         "resourceType": "Practitioner",
-        "id": "1729025865288484220.ff33ae57-9ee3-4143-bbe7-1f571cd5a166",
+        "id": "1731693602718412000.51cfb819-c199-4852-a0e7-c0e4f3ad4c8f",
         "extension": [
           {
             "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn-practitioner",
@@ -15108,6 +15380,12 @@
             "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/obr-observation-request",
             "extension": [
               {
+                "url": "OBR.16",
+                "valueReference": {
+                  "reference": "Practitioner/1731693602720664000.6053b7ca-d471-40a1-9d44-67d93cafb3af"
+                }
+              },
+              {
                 "url": "OBR.22",
                 "valueString": "20241015034304"
               },
@@ -15116,9 +15394,15 @@
                 "valueId": "F"
               },
               {
-                "url": "OBR.16",
-                "valueReference": {
-                  "reference": "Practitioner/1729025865302786215.5b5dc9e8-8430-4c2a-80cd-bb5ea867af4c"
+                "url": "OBR.7",
+                "valueDateTime": "2024-10-15T03:35:00Z",
+                "_valueDateTime": {
+                  "extension": [
+                    {
+                      "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+                      "valueString": "202410150335"
+                    }
+                  ]
                 }
               }
             ]
@@ -15206,10 +15490,10 @@
       }
     },
     {
-      "fullUrl": "Practitioner/1729025865302786215.5b5dc9e8-8430-4c2a-80cd-bb5ea867af4c",
+      "fullUrl": "Practitioner/1731693602720664000.6053b7ca-d471-40a1-9d44-67d93cafb3af",
       "resource": {
         "resourceType": "Practitioner",
-        "id": "1729025865302786215.5b5dc9e8-8430-4c2a-80cd-bb5ea867af4c",
+        "id": "1731693602720664000.6053b7ca-d471-40a1-9d44-67d93cafb3af",
         "extension": [
           {
             "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn-practitioner",
@@ -15241,6 +15525,12 @@
             "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/obr-observation-request",
             "extension": [
               {
+                "url": "OBR.16",
+                "valueReference": {
+                  "reference": "Practitioner/1731693602722936000.05f7e286-9982-437c-8960-771942e12635"
+                }
+              },
+              {
                 "url": "OBR.22",
                 "valueString": "20241015034304"
               },
@@ -15249,9 +15539,15 @@
                 "valueId": "F"
               },
               {
-                "url": "OBR.16",
-                "valueReference": {
-                  "reference": "Practitioner/1729025865334206662.6f2a02d3-2252-4ed3-b792-440aef2f0520"
+                "url": "OBR.7",
+                "valueDateTime": "2024-10-15T03:35:00Z",
+                "_valueDateTime": {
+                  "extension": [
+                    {
+                      "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+                      "valueString": "202410150335"
+                    }
+                  ]
                 }
               }
             ]
@@ -15339,10 +15635,10 @@
       }
     },
     {
-      "fullUrl": "Practitioner/1729025865334206662.6f2a02d3-2252-4ed3-b792-440aef2f0520",
+      "fullUrl": "Practitioner/1731693602722936000.05f7e286-9982-437c-8960-771942e12635",
       "resource": {
         "resourceType": "Practitioner",
-        "id": "1729025865334206662.6f2a02d3-2252-4ed3-b792-440aef2f0520",
+        "id": "1731693602722936000.05f7e286-9982-437c-8960-771942e12635",
         "extension": [
           {
             "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn-practitioner",
@@ -15374,6 +15670,12 @@
             "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/obr-observation-request",
             "extension": [
               {
+                "url": "OBR.16",
+                "valueReference": {
+                  "reference": "Practitioner/1731693602733178000.4956bd78-e583-4ee8-b665-62d60279f2be"
+                }
+              },
+              {
                 "url": "OBR.22",
                 "valueString": "20241015034304"
               },
@@ -15382,9 +15684,15 @@
                 "valueId": "F"
               },
               {
-                "url": "OBR.16",
-                "valueReference": {
-                  "reference": "Practitioner/1729025865349254698.75e18fa4-d581-400f-974a-f57ed2eaaa7d"
+                "url": "OBR.7",
+                "valueDateTime": "2024-10-15T03:35:00Z",
+                "_valueDateTime": {
+                  "extension": [
+                    {
+                      "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+                      "valueString": "202410150335"
+                    }
+                  ]
                 }
               }
             ]
@@ -15472,10 +15780,10 @@
       }
     },
     {
-      "fullUrl": "Practitioner/1729025865349254698.75e18fa4-d581-400f-974a-f57ed2eaaa7d",
+      "fullUrl": "Practitioner/1731693602733178000.4956bd78-e583-4ee8-b665-62d60279f2be",
       "resource": {
         "resourceType": "Practitioner",
-        "id": "1729025865349254698.75e18fa4-d581-400f-974a-f57ed2eaaa7d",
+        "id": "1731693602733178000.4956bd78-e583-4ee8-b665-62d60279f2be",
         "extension": [
           {
             "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn-practitioner",
@@ -15507,6 +15815,12 @@
             "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/obr-observation-request",
             "extension": [
               {
+                "url": "OBR.16",
+                "valueReference": {
+                  "reference": "Practitioner/1731693602735825000.ca2d0314-066b-4c6a-bca7-fad2712cd68e"
+                }
+              },
+              {
                 "url": "OBR.22",
                 "valueString": "20241015034304"
               },
@@ -15515,9 +15829,15 @@
                 "valueId": "F"
               },
               {
-                "url": "OBR.16",
-                "valueReference": {
-                  "reference": "Practitioner/1729025865364623153.c29075d3-d3fb-4fcd-95eb-9b541c22a400"
+                "url": "OBR.7",
+                "valueDateTime": "2024-10-15T03:35:00Z",
+                "_valueDateTime": {
+                  "extension": [
+                    {
+                      "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+                      "valueString": "202410150335"
+                    }
+                  ]
                 }
               }
             ]
@@ -15605,10 +15925,10 @@
       }
     },
     {
-      "fullUrl": "Practitioner/1729025865364623153.c29075d3-d3fb-4fcd-95eb-9b541c22a400",
+      "fullUrl": "Practitioner/1731693602735825000.ca2d0314-066b-4c6a-bca7-fad2712cd68e",
       "resource": {
         "resourceType": "Practitioner",
-        "id": "1729025865364623153.c29075d3-d3fb-4fcd-95eb-9b541c22a400",
+        "id": "1731693602735825000.ca2d0314-066b-4c6a-bca7-fad2712cd68e",
         "extension": [
           {
             "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn-practitioner",
@@ -15640,6 +15960,12 @@
             "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/obr-observation-request",
             "extension": [
               {
+                "url": "OBR.16",
+                "valueReference": {
+                  "reference": "Practitioner/1731693602738103000.6db2d6da-4963-4eca-a9b2-c3f32faa3448"
+                }
+              },
+              {
                 "url": "OBR.22",
                 "valueString": "20241015034304"
               },
@@ -15648,9 +15974,15 @@
                 "valueId": "F"
               },
               {
-                "url": "OBR.16",
-                "valueReference": {
-                  "reference": "Practitioner/1729025865382820865.a396a3e5-8337-4ba2-8156-55fe16dedbe9"
+                "url": "OBR.7",
+                "valueDateTime": "2024-10-15T03:35:00Z",
+                "_valueDateTime": {
+                  "extension": [
+                    {
+                      "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+                      "valueString": "202410150335"
+                    }
+                  ]
                 }
               }
             ]
@@ -15738,10 +16070,10 @@
       }
     },
     {
-      "fullUrl": "Practitioner/1729025865382820865.a396a3e5-8337-4ba2-8156-55fe16dedbe9",
+      "fullUrl": "Practitioner/1731693602738103000.6db2d6da-4963-4eca-a9b2-c3f32faa3448",
       "resource": {
         "resourceType": "Practitioner",
-        "id": "1729025865382820865.a396a3e5-8337-4ba2-8156-55fe16dedbe9",
+        "id": "1731693602738103000.6db2d6da-4963-4eca-a9b2-c3f32faa3448",
         "extension": [
           {
             "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn-practitioner",
@@ -15773,6 +16105,12 @@
             "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/obr-observation-request",
             "extension": [
               {
+                "url": "OBR.16",
+                "valueReference": {
+                  "reference": "Practitioner/1731693602740434000.0f65a61d-eabc-47ec-9a81-4f12f491d04c"
+                }
+              },
+              {
                 "url": "OBR.22",
                 "valueString": "20241015034304"
               },
@@ -15781,9 +16119,15 @@
                 "valueId": "F"
               },
               {
-                "url": "OBR.16",
-                "valueReference": {
-                  "reference": "Practitioner/1729025865400018421.bbfd232a-a5bd-4ca2-aeaf-92c8b64acbde"
+                "url": "OBR.7",
+                "valueDateTime": "2024-10-15T03:35:00Z",
+                "_valueDateTime": {
+                  "extension": [
+                    {
+                      "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+                      "valueString": "202410150335"
+                    }
+                  ]
                 }
               }
             ]
@@ -15871,10 +16215,10 @@
       }
     },
     {
-      "fullUrl": "Practitioner/1729025865400018421.bbfd232a-a5bd-4ca2-aeaf-92c8b64acbde",
+      "fullUrl": "Practitioner/1731693602740434000.0f65a61d-eabc-47ec-9a81-4f12f491d04c",
       "resource": {
         "resourceType": "Practitioner",
-        "id": "1729025865400018421.bbfd232a-a5bd-4ca2-aeaf-92c8b64acbde",
+        "id": "1731693602740434000.0f65a61d-eabc-47ec-9a81-4f12f491d04c",
         "extension": [
           {
             "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn-practitioner",
@@ -15906,6 +16250,12 @@
             "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/obr-observation-request",
             "extension": [
               {
+                "url": "OBR.16",
+                "valueReference": {
+                  "reference": "Practitioner/1731693602742639000.75de4f5e-8ff9-420a-89c7-dfc96b021b47"
+                }
+              },
+              {
                 "url": "OBR.22",
                 "valueString": "20241015034304"
               },
@@ -15914,9 +16264,15 @@
                 "valueId": "F"
               },
               {
-                "url": "OBR.16",
-                "valueReference": {
-                  "reference": "Practitioner/1729025865415003354.518deaef-14ae-47e2-a0e2-f3953f8a42b1"
+                "url": "OBR.7",
+                "valueDateTime": "2024-10-15T03:35:00Z",
+                "_valueDateTime": {
+                  "extension": [
+                    {
+                      "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+                      "valueString": "202410150335"
+                    }
+                  ]
                 }
               }
             ]
@@ -16004,10 +16360,10 @@
       }
     },
     {
-      "fullUrl": "Practitioner/1729025865415003354.518deaef-14ae-47e2-a0e2-f3953f8a42b1",
+      "fullUrl": "Practitioner/1731693602742639000.75de4f5e-8ff9-420a-89c7-dfc96b021b47",
       "resource": {
         "resourceType": "Practitioner",
-        "id": "1729025865415003354.518deaef-14ae-47e2-a0e2-f3953f8a42b1",
+        "id": "1731693602742639000.75de4f5e-8ff9-420a-89c7-dfc96b021b47",
         "extension": [
           {
             "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn-practitioner",
@@ -16039,6 +16395,12 @@
             "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/obr-observation-request",
             "extension": [
               {
+                "url": "OBR.16",
+                "valueReference": {
+                  "reference": "Practitioner/1731693602744828000.d18eacd1-7729-4580-bf63-d069b7733864"
+                }
+              },
+              {
                 "url": "OBR.22",
                 "valueString": "20241015034304"
               },
@@ -16047,9 +16409,15 @@
                 "valueId": "F"
               },
               {
-                "url": "OBR.16",
-                "valueReference": {
-                  "reference": "Practitioner/1729025865429841279.b8ebe18d-2976-470f-8370-cdaa47b5190f"
+                "url": "OBR.7",
+                "valueDateTime": "2024-10-15T03:35:00Z",
+                "_valueDateTime": {
+                  "extension": [
+                    {
+                      "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+                      "valueString": "202410150335"
+                    }
+                  ]
                 }
               }
             ]
@@ -16137,10 +16505,10 @@
       }
     },
     {
-      "fullUrl": "Practitioner/1729025865429841279.b8ebe18d-2976-470f-8370-cdaa47b5190f",
+      "fullUrl": "Practitioner/1731693602744828000.d18eacd1-7729-4580-bf63-d069b7733864",
       "resource": {
         "resourceType": "Practitioner",
-        "id": "1729025865429841279.b8ebe18d-2976-470f-8370-cdaa47b5190f",
+        "id": "1731693602744828000.d18eacd1-7729-4580-bf63-d069b7733864",
         "extension": [
           {
             "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn-practitioner",
@@ -16172,6 +16540,12 @@
             "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/obr-observation-request",
             "extension": [
               {
+                "url": "OBR.16",
+                "valueReference": {
+                  "reference": "Practitioner/1731693602747010000.53bd28ca-2e5e-4714-9eeb-113e6cb1404d"
+                }
+              },
+              {
                 "url": "OBR.22",
                 "valueString": "20241015034304"
               },
@@ -16180,9 +16554,15 @@
                 "valueId": "F"
               },
               {
-                "url": "OBR.16",
-                "valueReference": {
-                  "reference": "Practitioner/1729025865445277037.9fb23c6e-6525-4fa5-8656-ae2f9c93640e"
+                "url": "OBR.7",
+                "valueDateTime": "2024-10-15T03:35:00Z",
+                "_valueDateTime": {
+                  "extension": [
+                    {
+                      "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+                      "valueString": "202410150335"
+                    }
+                  ]
                 }
               }
             ]
@@ -16270,10 +16650,10 @@
       }
     },
     {
-      "fullUrl": "Practitioner/1729025865445277037.9fb23c6e-6525-4fa5-8656-ae2f9c93640e",
+      "fullUrl": "Practitioner/1731693602747010000.53bd28ca-2e5e-4714-9eeb-113e6cb1404d",
       "resource": {
         "resourceType": "Practitioner",
-        "id": "1729025865445277037.9fb23c6e-6525-4fa5-8656-ae2f9c93640e",
+        "id": "1731693602747010000.53bd28ca-2e5e-4714-9eeb-113e6cb1404d",
         "extension": [
           {
             "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn-practitioner",
@@ -16305,6 +16685,12 @@
             "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/obr-observation-request",
             "extension": [
               {
+                "url": "OBR.16",
+                "valueReference": {
+                  "reference": "Practitioner/1731693602749196000.37010e13-9103-42e2-af39-78d621cd2956"
+                }
+              },
+              {
                 "url": "OBR.22",
                 "valueString": "20241015034304"
               },
@@ -16313,9 +16699,15 @@
                 "valueId": "F"
               },
               {
-                "url": "OBR.16",
-                "valueReference": {
-                  "reference": "Practitioner/1729025865460259370.b550f180-92c4-4c17-8ed2-14d222e2a005"
+                "url": "OBR.7",
+                "valueDateTime": "2024-10-15T03:35:00Z",
+                "_valueDateTime": {
+                  "extension": [
+                    {
+                      "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+                      "valueString": "202410150335"
+                    }
+                  ]
                 }
               }
             ]
@@ -16403,10 +16795,10 @@
       }
     },
     {
-      "fullUrl": "Practitioner/1729025865460259370.b550f180-92c4-4c17-8ed2-14d222e2a005",
+      "fullUrl": "Practitioner/1731693602749196000.37010e13-9103-42e2-af39-78d621cd2956",
       "resource": {
         "resourceType": "Practitioner",
-        "id": "1729025865460259370.b550f180-92c4-4c17-8ed2-14d222e2a005",
+        "id": "1731693602749196000.37010e13-9103-42e2-af39-78d621cd2956",
         "extension": [
           {
             "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn-practitioner",
@@ -16438,6 +16830,12 @@
             "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/obr-observation-request",
             "extension": [
               {
+                "url": "OBR.16",
+                "valueReference": {
+                  "reference": "Practitioner/1731693602751351000.bc2bf032-9522-4e97-9d4e-aebb25c59820"
+                }
+              },
+              {
                 "url": "OBR.22",
                 "valueString": "20241015034304"
               },
@@ -16446,9 +16844,15 @@
                 "valueId": "F"
               },
               {
-                "url": "OBR.16",
-                "valueReference": {
-                  "reference": "Practitioner/1729025865474539664.110c834b-856b-4af7-a04a-022d97f85860"
+                "url": "OBR.7",
+                "valueDateTime": "2024-10-15T03:35:00Z",
+                "_valueDateTime": {
+                  "extension": [
+                    {
+                      "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+                      "valueString": "202410150335"
+                    }
+                  ]
                 }
               }
             ]
@@ -16536,10 +16940,10 @@
       }
     },
     {
-      "fullUrl": "Practitioner/1729025865474539664.110c834b-856b-4af7-a04a-022d97f85860",
+      "fullUrl": "Practitioner/1731693602751351000.bc2bf032-9522-4e97-9d4e-aebb25c59820",
       "resource": {
         "resourceType": "Practitioner",
-        "id": "1729025865474539664.110c834b-856b-4af7-a04a-022d97f85860",
+        "id": "1731693602751351000.bc2bf032-9522-4e97-9d4e-aebb25c59820",
         "extension": [
           {
             "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn-practitioner",
@@ -16571,6 +16975,12 @@
             "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/obr-observation-request",
             "extension": [
               {
+                "url": "OBR.16",
+                "valueReference": {
+                  "reference": "Practitioner/1731693602753548000.d9176daf-bbdb-4940-947d-1c46642767f6"
+                }
+              },
+              {
                 "url": "OBR.22",
                 "valueString": "20241015034304"
               },
@@ -16579,9 +16989,15 @@
                 "valueId": "F"
               },
               {
-                "url": "OBR.16",
-                "valueReference": {
-                  "reference": "Practitioner/1729025865490316841.6b130d46-d6e4-416f-9703-6e3fcd64b1b7"
+                "url": "OBR.7",
+                "valueDateTime": "2024-10-15T03:35:00Z",
+                "_valueDateTime": {
+                  "extension": [
+                    {
+                      "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+                      "valueString": "202410150335"
+                    }
+                  ]
                 }
               }
             ]
@@ -16669,10 +17085,10 @@
       }
     },
     {
-      "fullUrl": "Practitioner/1729025865490316841.6b130d46-d6e4-416f-9703-6e3fcd64b1b7",
+      "fullUrl": "Practitioner/1731693602753548000.d9176daf-bbdb-4940-947d-1c46642767f6",
       "resource": {
         "resourceType": "Practitioner",
-        "id": "1729025865490316841.6b130d46-d6e4-416f-9703-6e3fcd64b1b7",
+        "id": "1731693602753548000.d9176daf-bbdb-4940-947d-1c46642767f6",
         "extension": [
           {
             "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn-practitioner",
@@ -16704,6 +17120,12 @@
             "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/obr-observation-request",
             "extension": [
               {
+                "url": "OBR.16",
+                "valueReference": {
+                  "reference": "Practitioner/1731693602755700000.96bfb6e9-3e3d-4578-a3c5-70073e1b8c04"
+                }
+              },
+              {
                 "url": "OBR.22",
                 "valueString": "20241015034304"
               },
@@ -16712,9 +17134,15 @@
                 "valueId": "F"
               },
               {
-                "url": "OBR.16",
-                "valueReference": {
-                  "reference": "Practitioner/1729025865505065961.73827d17-696e-41f8-965f-8c0c3178618e"
+                "url": "OBR.7",
+                "valueDateTime": "2024-10-15T03:35:00Z",
+                "_valueDateTime": {
+                  "extension": [
+                    {
+                      "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+                      "valueString": "202410150335"
+                    }
+                  ]
                 }
               }
             ]
@@ -16802,10 +17230,10 @@
       }
     },
     {
-      "fullUrl": "Practitioner/1729025865505065961.73827d17-696e-41f8-965f-8c0c3178618e",
+      "fullUrl": "Practitioner/1731693602755700000.96bfb6e9-3e3d-4578-a3c5-70073e1b8c04",
       "resource": {
         "resourceType": "Practitioner",
-        "id": "1729025865505065961.73827d17-696e-41f8-965f-8c0c3178618e",
+        "id": "1731693602755700000.96bfb6e9-3e3d-4578-a3c5-70073e1b8c04",
         "extension": [
           {
             "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn-practitioner",
@@ -16837,6 +17265,12 @@
             "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/obr-observation-request",
             "extension": [
               {
+                "url": "OBR.16",
+                "valueReference": {
+                  "reference": "Practitioner/1731693602757880000.b29654c1-31a2-4351-bdd5-5ad765a6592d"
+                }
+              },
+              {
                 "url": "OBR.22",
                 "valueString": "20241015034304"
               },
@@ -16845,9 +17279,15 @@
                 "valueId": "F"
               },
               {
-                "url": "OBR.16",
-                "valueReference": {
-                  "reference": "Practitioner/1729025865522358322.6e8d8944-8783-4d5f-ad00-57357e087549"
+                "url": "OBR.7",
+                "valueDateTime": "2024-10-15T03:35:00Z",
+                "_valueDateTime": {
+                  "extension": [
+                    {
+                      "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+                      "valueString": "202410150335"
+                    }
+                  ]
                 }
               }
             ]
@@ -16935,10 +17375,10 @@
       }
     },
     {
-      "fullUrl": "Practitioner/1729025865522358322.6e8d8944-8783-4d5f-ad00-57357e087549",
+      "fullUrl": "Practitioner/1731693602757880000.b29654c1-31a2-4351-bdd5-5ad765a6592d",
       "resource": {
         "resourceType": "Practitioner",
-        "id": "1729025865522358322.6e8d8944-8783-4d5f-ad00-57357e087549",
+        "id": "1731693602757880000.b29654c1-31a2-4351-bdd5-5ad765a6592d",
         "extension": [
           {
             "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn-practitioner",
@@ -16970,6 +17410,12 @@
             "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/obr-observation-request",
             "extension": [
               {
+                "url": "OBR.16",
+                "valueReference": {
+                  "reference": "Practitioner/1731693602760044000.7f91a118-c072-4838-ae1a-e0dbfa446021"
+                }
+              },
+              {
                 "url": "OBR.22",
                 "valueString": "20241015034304"
               },
@@ -16978,9 +17424,15 @@
                 "valueId": "F"
               },
               {
-                "url": "OBR.16",
-                "valueReference": {
-                  "reference": "Practitioner/1729025865535416648.acae9afe-d587-455b-9247-069d6ec4643b"
+                "url": "OBR.7",
+                "valueDateTime": "2024-10-15T03:35:00Z",
+                "_valueDateTime": {
+                  "extension": [
+                    {
+                      "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+                      "valueString": "202410150335"
+                    }
+                  ]
                 }
               }
             ]
@@ -17068,10 +17520,10 @@
       }
     },
     {
-      "fullUrl": "Practitioner/1729025865535416648.acae9afe-d587-455b-9247-069d6ec4643b",
+      "fullUrl": "Practitioner/1731693602760044000.7f91a118-c072-4838-ae1a-e0dbfa446021",
       "resource": {
         "resourceType": "Practitioner",
-        "id": "1729025865535416648.acae9afe-d587-455b-9247-069d6ec4643b",
+        "id": "1731693602760044000.7f91a118-c072-4838-ae1a-e0dbfa446021",
         "extension": [
           {
             "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn-practitioner",
@@ -17103,6 +17555,12 @@
             "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/obr-observation-request",
             "extension": [
               {
+                "url": "OBR.16",
+                "valueReference": {
+                  "reference": "Practitioner/1731693602762176000.415e4af4-0caa-467f-bda2-575d0efb347f"
+                }
+              },
+              {
                 "url": "OBR.22",
                 "valueString": "20241015034304"
               },
@@ -17111,9 +17569,15 @@
                 "valueId": "F"
               },
               {
-                "url": "OBR.16",
-                "valueReference": {
-                  "reference": "Practitioner/1729025865593660086.c3a3d3c1-400b-44e4-91b7-b43294c56b7d"
+                "url": "OBR.7",
+                "valueDateTime": "2024-10-15T03:35:00Z",
+                "_valueDateTime": {
+                  "extension": [
+                    {
+                      "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+                      "valueString": "202410150335"
+                    }
+                  ]
                 }
               }
             ]
@@ -17206,10 +17670,10 @@
       }
     },
     {
-      "fullUrl": "Practitioner/1729025865593660086.c3a3d3c1-400b-44e4-91b7-b43294c56b7d",
+      "fullUrl": "Practitioner/1731693602762176000.415e4af4-0caa-467f-bda2-575d0efb347f",
       "resource": {
         "resourceType": "Practitioner",
-        "id": "1729025865593660086.c3a3d3c1-400b-44e4-91b7-b43294c56b7d",
+        "id": "1731693602762176000.415e4af4-0caa-467f-bda2-575d0efb347f",
         "extension": [
           {
             "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn-practitioner",
@@ -17241,6 +17705,12 @@
             "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/obr-observation-request",
             "extension": [
               {
+                "url": "OBR.16",
+                "valueReference": {
+                  "reference": "Practitioner/1731693602764326000.bb30014c-0830-4cc1-a234-aa3573ce7a81"
+                }
+              },
+              {
                 "url": "OBR.22",
                 "valueString": "20241015034304"
               },
@@ -17249,9 +17719,15 @@
                 "valueId": "F"
               },
               {
-                "url": "OBR.16",
-                "valueReference": {
-                  "reference": "Practitioner/1729025865680272601.0c1682e6-d771-497d-94a0-7ee2fa153165"
+                "url": "OBR.7",
+                "valueDateTime": "2024-10-15T03:35:00Z",
+                "_valueDateTime": {
+                  "extension": [
+                    {
+                      "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+                      "valueString": "202410150335"
+                    }
+                  ]
                 }
               }
             ]
@@ -17344,10 +17820,10 @@
       }
     },
     {
-      "fullUrl": "Practitioner/1729025865680272601.0c1682e6-d771-497d-94a0-7ee2fa153165",
+      "fullUrl": "Practitioner/1731693602764326000.bb30014c-0830-4cc1-a234-aa3573ce7a81",
       "resource": {
         "resourceType": "Practitioner",
-        "id": "1729025865680272601.0c1682e6-d771-497d-94a0-7ee2fa153165",
+        "id": "1731693602764326000.bb30014c-0830-4cc1-a234-aa3573ce7a81",
         "extension": [
           {
             "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn-practitioner",

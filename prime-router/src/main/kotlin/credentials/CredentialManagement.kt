@@ -1,18 +1,14 @@
 package gov.cdc.prime.router.credentials
 
 // Option to access credential service by static class
-class CredentialHelper() {
+class CredentialHelper {
     companion object {
-        fun getCredentialService(): CredentialService {
-            return credentialServiceForStorageMethod()
-        }
+        fun getCredentialService(): CredentialService = credentialServiceForStorageMethod()
 
-        fun formCredentialLabel(fromReceiverName: String): String {
-            return fromReceiverName
+        fun formCredentialLabel(fromReceiverName: String): String = fromReceiverName
                 .replace(".", "--")
                 .replace("_", "-")
                 .uppercase()
-        }
     }
 }
 
@@ -23,10 +19,9 @@ interface CredentialManagement {
         get() = credentialServiceForStorageMethod()
 }
 
-internal fun credentialServiceForStorageMethod(): CredentialService {
-    return when (System.getenv("CREDENTIAL_STORAGE_METHOD")) {
+internal fun credentialServiceForStorageMethod(): CredentialService =
+    when (System.getenv("CREDENTIAL_STORAGE_METHOD")) {
         "AZURE" -> AzureCredentialService
         "HASHICORP_VAULT" -> HashicorpVaultCredentialService
         else -> MemoryCredentialService
     }
-}

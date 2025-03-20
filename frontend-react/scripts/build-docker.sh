@@ -1,0 +1,1 @@
+docker build . --build-arg NODE_VERSION=$(cat .nvmrc) -t rs-frontend:latest

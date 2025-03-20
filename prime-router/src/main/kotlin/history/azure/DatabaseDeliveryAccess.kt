@@ -3,6 +3,7 @@ package gov.cdc.prime.router.history.azure
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.DatabaseAccess
+import gov.cdc.prime.router.azure.db.Tables
 import gov.cdc.prime.router.azure.db.Tables.ACTION
 import gov.cdc.prime.router.azure.db.Tables.REPORT_FACILITIES
 import gov.cdc.prime.router.azure.db.Tables.REPORT_FILE
@@ -16,9 +17,7 @@ import java.util.UUID
 /**
  * Class to access lookup tables stored in the database.
  */
-class DatabaseDeliveryAccess(
-    db: DatabaseAccess = BaseEngine.databaseAccessSingleton,
-) : HistoryDatabaseAccess(db) {
+class DatabaseDeliveryAccess(db: DatabaseAccess = BaseEngine.databaseAccessSingleton) : HistoryDatabaseAccess(db) {
 
     /**
      * Values that facilities can be sorted by
@@ -46,11 +45,17 @@ class DatabaseDeliveryAccess(
         val org = BaseEngine.settingsProviderSingleton.findOrganization(organization)
 
         var filter = if (org?.featureFlags?.contains("ELIMS_DATA") == true) {
-                ACTION.ACTION_NAME.eq(TaskAction.batch)
-                    .or(ACTION.ACTION_NAME.eq(TaskAction.send).and(REPORT_FILE.SCHEMA_TOPIC.eq(Topic.ELR_ELIMS)))
-                    .and(REPORT_FILE.RECEIVING_ORG.eq(organization))
+            REPORT_FILE.NEXT_ACTION.eq(TaskAction.send)
+                .and(REPORT_FILE.SCHEMA_TOPIC.notEqualIgnoreCase(Topic.ELR_ELIMS.jsonVal))
+                .or(
+                    REPORT_FILE.NEXT_ACTION.isNull
+                        .and(REPORT_FILE.TRANSPORT_PARAMS.isNotNull)
+                        .and(REPORT_FILE.TRANSPORT_RESULT.notLike("%downloadedBy%"))
+                        .and(REPORT_FILE.SCHEMA_TOPIC.equalIgnoreCase(Topic.ELR_ELIMS.jsonVal))
+                )
+                .and(REPORT_FILE.RECEIVING_ORG.eq(organization))
         } else {
-            ACTION.ACTION_NAME.eq(TaskAction.batch)
+            REPORT_FILE.NEXT_ACTION.eq(TaskAction.send)
                 .and(REPORT_FILE.RECEIVING_ORG.eq(organization))
         }
 
@@ -58,6 +63,25 @@ class DatabaseDeliveryAccess(
             filter = filter.and(REPORT_FILE.RECEIVING_ORG_SVC.eq(orgService))
         }
 
+        return filter
+    }
+
+    /**
+     * Filter for sent reports for a particular receiver organization.
+     * @param organization is the Organization Name returned from the Okta JWT Claim.
+     * @param orgService is a specifier for an organization, such as the client or service used to send/receive
+     */
+    fun deliveredReportsByOrgFilter(
+        organization: String,
+        orgService: String?,
+    ): Condition {
+        var filter = Tables.REPORT_FILE.NEXT_ACTION.isNull.and(Tables.REPORT_FILE.TRANSPORT_PARAMS.isNotNull)
+            .and(Tables.REPORT_FILE.DOWNLOADED_BY.isNull)
+            .and(Tables.REPORT_FILE.RECEIVING_ORG.eq(organization))
+
+        if (orgService != null) {
+            filter = filter.and(Tables.REPORT_FILE.RECEIVING_ORG_SVC.eq(orgService))
+        }
         return filter
     }
 
@@ -73,33 +97,31 @@ class DatabaseDeliveryAccess(
         actionId: Long,
         orgName: String?,
         klass: Class<T>,
-    ): T? {
-        return db.transactReturning { txn ->
-            DSL.using(txn)
-                .select(
-                    ACTION.ACTION_ID,
-                    ACTION.CREATED_AT,
-                    ACTION.SENDING_ORG,
-                    REPORT_FILE.RECEIVING_ORG,
-                    REPORT_FILE.RECEIVING_ORG_SVC,
-                    ACTION.HTTP_STATUS,
-                    ACTION.EXTERNAL_NAME,
-                    REPORT_FILE.REPORT_ID,
-                    REPORT_FILE.SCHEMA_TOPIC,
-                    REPORT_FILE.ITEM_COUNT,
-                    REPORT_FILE.BODY_URL,
-                    REPORT_FILE.SCHEMA_NAME,
-                    REPORT_FILE.BODY_FORMAT
+    ): T? = db.transactReturning { txn ->
+        DSL.using(txn)
+            .select(
+                ACTION.ACTION_ID,
+                ACTION.CREATED_AT,
+                ACTION.SENDING_ORG,
+                REPORT_FILE.RECEIVING_ORG,
+                REPORT_FILE.RECEIVING_ORG_SVC,
+                ACTION.HTTP_STATUS,
+                ACTION.EXTERNAL_NAME,
+                REPORT_FILE.REPORT_ID,
+                REPORT_FILE.SCHEMA_TOPIC,
+                REPORT_FILE.ITEM_COUNT,
+                REPORT_FILE.BODY_URL,
+                REPORT_FILE.SCHEMA_NAME,
+                REPORT_FILE.BODY_FORMAT
+            )
+            .from(
+                ACTION.join(REPORT_FILE).on(
+                    REPORT_FILE.ACTION_ID.eq(ACTION.ACTION_ID)
                 )
-                .from(
-                    ACTION.join(REPORT_FILE).on(
-                        REPORT_FILE.ACTION_ID.eq(ACTION.ACTION_ID)
-                    )
-                )
-                .where(
-                    ACTION.ACTION_ID.eq(actionId)
-                ).fetchOne()?.into(klass)
-        }
+            )
+            .where(
+                ACTION.ACTION_ID.eq(actionId)
+            ).fetchOne()?.into(klass)
     }
 
     override fun <T> fetchRelatedActions(reportId: UUID, klass: Class<T>): List<T> {

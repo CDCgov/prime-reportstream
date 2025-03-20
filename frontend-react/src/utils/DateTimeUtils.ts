@@ -18,14 +18,14 @@ export interface DateTimeData {
     dateString format: 1 Jan 2022
     timeString format: 16:30
 */
-export const generateDateTitles = (dateTimeString?: string) => {
-    if (!dateTimeString) {
+export const generateDateTitles = (dateTimeString?: string, useNow?: boolean) => {
+    if (!(dateTimeString || useNow)) {
         return { dateString: "N/A", timeString: "N/A" };
     }
 
-    const date = parseISO(dateTimeString);
+    const date = useNow ? new Date() : parseISO(dateTimeString!);
 
-    if (!isValid(date)) {
+    if (!isValid(date) && useNow !== true) {
         return { dateString: "N/A", timeString: "N/A" };
     }
 

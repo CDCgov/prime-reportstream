@@ -23,8 +23,7 @@ class ConfigurationValueValidationServiceImpl : ConfigurationValueValidationServ
     override fun <T> validate(
         configType: ConfigurationType<T>,
         config: T,
-    ): ConfigurationValidationResult<T> {
-        return when (val result = configType.konformValidation.validation.validate(config)) {
+    ): ConfigurationValidationResult<T> = when (val result = configType.konformValidation.validation.validate(config)) {
             is Valid -> {
                 ConfigurationValidationSuccess(config)
             }
@@ -33,9 +32,6 @@ class ConfigurationValueValidationServiceImpl : ConfigurationValueValidationServ
                 ConfigurationValidationFailure(errors)
             }
         }
-    }
 
-    private fun formatErrorMessage(error: ValidationError): String {
-        return "path=${error.dataPath}, message=${error.message}"
-    }
+    private fun formatErrorMessage(error: ValidationError): String = "path=${error.dataPath}, message=${error.message}"
 }

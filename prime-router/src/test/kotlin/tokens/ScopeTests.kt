@@ -144,4 +144,23 @@ class ScopeTests {
         assertThat(Scope.scopeListContainsScope("x   x", "")).isFalse()
         assertThat(Scope.scopeListContainsScope("x   x", " ")).isFalse()
     }
+
+    @Test
+    fun `test mapped scopes`() {
+        val groupMemberships = listOf(
+            "DHPrimeAdmins",
+            "DHmd-phdAdmins",
+            "DHSender_md-phd",
+            "DHmd-phd"
+        )
+
+        val mappedScopes = Scope.mapOktaGroupsToScopes(groupMemberships)
+
+        val expected = setOf(
+            "*.*.primeadmin",
+            "md-phd.*.admin",
+            "md-phd.*.user"
+        )
+        assertThat(mappedScopes).isEqualTo(expected)
+    }
 }

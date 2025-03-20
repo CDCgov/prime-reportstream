@@ -40,7 +40,6 @@ jobs:
           echo -e "$messageInactiveUsers">> $GITHUB_OUTPUT
           echo "$EOF" >> $GITHUB_OUTPUT
 
-     
       - name: Slack Notification
         uses: ./.github/actions/notifications
         with:
@@ -49,8 +48,8 @@ jobs:
           message: |
             ${{ steps.users_out.outputs.MESSAGE_RESPONSE }}
           icon-emoji: ':hourglass_flowing_sand:'
-          channel: pagerduty-alert-dump
-          webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
+          channel: cdc-reportstream-devsecops-new
+  # Updated channel in slack
+          webhook-url: ${{ secrets.SLACK_NOTIFICATIONS_WEBHOOK_URL }}  # Updated webhook secret
           color: warning
           slackify-markdown: true
-  

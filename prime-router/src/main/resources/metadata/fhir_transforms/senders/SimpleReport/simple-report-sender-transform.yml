@@ -6,6 +6,10 @@ constants:
   patient: 'Bundle.entry.resource.ofType(Patient)'
   specimen: 'Bundle.entry.resource.ofType(Specimen)'
 elements:
+  - name: sender-identifier
+    resource: 'Bundle.entry.resource.ofType(MessageHeader)'
+    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/sender-id").value[x]'
+    value: [ '"SimpleReport"' ]
 
   # MSH
   - name: sending-application-target-msh3-extension
@@ -680,7 +684,7 @@ elements:
     resource: 'Bundle.entry.resource.ofType(Observation)'
     condition: '%resource.value is dateTime'
     bundleProperty: '%resource.value.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time").value[x]'
-    value: [ '%resource.value' ]
+    value: [ '%resource.value.toString().replace("-","")' ]
 
   - name: sr-observation-value-coding-system
     resource: 'Bundle.entry.resource.ofType(Observation)'

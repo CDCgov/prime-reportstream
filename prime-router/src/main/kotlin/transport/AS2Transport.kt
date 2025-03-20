@@ -38,7 +38,9 @@ import java.util.concurrent.TimeUnit
  * See [Wikapedia AS2](https://en.wikipedia.org/wiki/AS2) for details on AS2.
  * See [PHAX as2-lib](https://github.com/phax/as2-lib) for the details on the library we use.
  */
-class AS2Transport(val metadata: Metadata? = null) : ITransport, Logging {
+class AS2Transport(val metadata: Metadata? = null) :
+    ITransport,
+    Logging {
     /**
      * The send a report or return [RetryItems]
      */
@@ -167,8 +169,7 @@ class AS2Transport(val metadata: Metadata? = null) : ITransport, Logging {
     /**
      * Look at the [ex] exception and determine if the error is possibly transient and it is worth retrying.
      */
-    private fun isErrorTransient(ex: Throwable): Boolean {
-        return when {
+    private fun isErrorTransient(ex: Throwable): Boolean = when {
             // Connection to service is down, possibly a service down or under load situation
             ex is WrappedAS2Exception && ex.cause is ConnectException -> true
             ex is WrappedAS2Exception && ex.cause is ConnectTimeoutException -> true
@@ -177,5 +178,4 @@ class AS2Transport(val metadata: Metadata? = null) : ITransport, Logging {
             // Assume everything else is not transient
             else -> false
         }
-    }
 }

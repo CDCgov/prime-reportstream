@@ -14,85 +14,92 @@ name:
 
 identifier:
   expressionType: nested
-  vars:
-    xon3: XON.3
-    xon4: XON.4
-    xon5: XON.5
-    xon6: XON.6
-    xon7: XON.7
-    xon8: XON.8
-    xon10: String, XON.10
-  expressionsMap:
-    value_1:
-      condition: $xon10 NULL
-      type: STRING
-      expressionType: HL7Spec
-      valueOf: XON.3
-    value_2:
-      condition: $xon10 NOT_NULL
-      type: STRING
-      expressionType: HL7Spec
-      valueOf: XON.10
-    type:
-      condition: $xon7 NOT_NULL
+  expressions:
+    - condition: $CXIdentifier NOT_NULL
+      valueOf: datatypes/CX/Identifier
+      expressionType: resource
+      specs: $CXIdentifier
+    - condition: $CXIdentifier NULL
       expressionType: nested
-      generateList: true
+      vars:
+        xon3: XON.3
+        xon4: XON.4
+        xon5: XON.5
+        xon6: XON.6
+        xon7: XON.7
+        xon8: XON.8
+        xon10: String, XON.10
       expressionsMap:
-        coding:
+        value_1:
+          condition: $xon10 NULL
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: XON.3
+        value_2:
+          condition: $xon10 NOT_NULL
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: XON.10
+        type:
+          condition: $xon7 NOT_NULL
           expressionType: nested
           generateList: true
           expressionsMap:
-            code:
-              valueOf: XON.7
+            coding:
+              expressionType: nested
+              generateList: true
+              expressionsMap:
+                code:
+                  valueOf: XON.7
+                  type: STRING
+                  expressionType: HL7Spec
+                system:
+                  type: STRING
+                  value: "http://terminology.hl7.org/CodeSystem/v2-0203"
+        extension_1-checkDigitSchema:
+          condition: $xon5 NOT_NULL
+          generateList: true
+          expressionType: nested
+          expressionsMap:
+            url:
+              type: SYSTEM_URL
+              value: naming-system-check-digit
+            valueCode:
+              valueOf: XON.5
               type: STRING
               expressionType: HL7Spec
-            system:
+        extension_2-checkDigit:
+          condition: $xon4 NOT_NULL
+          generateList: true
+          expressionType: nested
+          expressionsMap:
+            url:
+              type: SYSTEM_URL
+              value: identifier-check-digit
+            valueString:
               type: STRING
-              value: "http://terminology.hl7.org/CodeSystem/v2-0203"
-    extension_1-checkDigitSchema:
-      condition: $xon5 NOT_NULL
-      generateList: true
-      expressionType: nested
-      expressionsMap:
-        url:
-          type: SYSTEM_URL
-          value: naming-system-check-digit
-        valueCode:
-          valueOf: XON.5
-          type: STRING
-          expressionType: HL7Spec
-    extension_2-checkDigit:
-      condition: $xon4 NOT_NULL
-      generateList: true
-      expressionType: nested
-      expressionsMap:
-        url:
-          type: SYSTEM_URL
-          value: identifier-check-digit
-        valueString:
-          type: STRING
-          expressionType: HL7Spec
-          valueOf: XON.4
-    extension_3-assigningAuthority:
-      condition: $xon6 NOT_NULL
-      generateList: true
-      expressionType: resource
-      valueOf: datatypes/HD/ExtensionAssigningAuthority
-      specs: XON.6
-    extension_4-location:
-      condition: $xon8 NOT_NULL
-      generateList: true
-      expressionType: nested
-      vars:
-        xon8: String, XON.8
-      expressionsMap:
-        url:
-          type: SYSTEM_URL
-          value: identifier-location
-        valueReference:
-          expressionType: reference
-          valueOf: datatypes/HD/Location
-          specs: XON.8
+              expressionType: HL7Spec
+              valueOf: XON.4
+        extension_3-assigningAuthority:
+          condition: $xon6 NOT_NULL
+          generateList: true
+          expressionType: resource
+          valueOf: datatypes/HD/ExtensionAssigningAuthority
+          specs: XON.6
+        extension_4-location:
+          condition: $xon8 NOT_NULL
+          generateList: true
+          expressionType: nested
+          vars:
+            xon8: String, XON.8
+          expressionsMap:
+            url:
+              type: SYSTEM_URL
+              value: identifier-location
+            valueReference:
+              expressionType: reference
+              valueOf: datatypes/HD/Location
+              specs: XON.8
 
 address:
   condition: $XADAddress NOT_NULL

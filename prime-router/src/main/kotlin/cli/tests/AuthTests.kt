@@ -48,9 +48,7 @@ class OktaAuthTests : CoolTest() {
     companion object {
         private const val accessTokenDummy = "dummy"
 
-        fun abort(message: String): Nothing {
-            throw PrintMessage(message, printError = true)
-        }
+        fun abort(message: String): Nothing = throw PrintMessage(message, printError = true)
 
         /**
          * Create a fake report file using the schema expected by [sender].  Creates a file locally.  Does not submit it.
@@ -79,8 +77,7 @@ class OktaAuthTests : CoolTest() {
         fun getOktaAccessToken(
             environment: Environment,
             testName: String = "",
-        ): String {
-            return if (environment.oktaApp == null) {
+        ): String = if (environment.oktaApp == null) {
                 accessTokenDummy
             } else {
                 OktaCommand.fetchAccessToken(environment.oktaApp)
@@ -91,7 +88,6 @@ class OktaAuthTests : CoolTest() {
 
                     )
             }
-        }
     }
 
     override suspend fun run(environment: Environment, options: CoolTestOptions): Boolean {

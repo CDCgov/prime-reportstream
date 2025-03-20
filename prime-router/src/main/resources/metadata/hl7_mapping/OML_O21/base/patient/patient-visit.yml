@@ -1,0 +1,16 @@
+# $schema: ./../../../../../../../../../metadata/json_schema/fhir/fhir-to-hl7-mapping.json
+
+elements:
+
+  - name: encounter-pv1
+    condition: '%resource.count() = 1'
+    required: true
+    schema: classpath:/metadata/hl7_mapping/resources/Encounter/PV1.yml
+    constants:
+      hl7PV1Field: '/PATIENT/PATIENT_VISIT/PV1'
+
+  - name: encounter-pv2
+    condition: '%resource.count() = 1'
+    schema: classpath:/metadata/hl7_mapping/resources/Encounter/PV2.yml
+    constants:
+      hl7PV2Field: '/PATIENT/PATIENT_VISIT/PV2'

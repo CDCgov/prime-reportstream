@@ -1,0 +1,41 @@
+# action.yml
+name: 'Workflow Housekeeper'
+description: 'Retain a time period or quantity of workflow runs.'
+branding:
+  icon: 'trash-2'
+  color: 'red'
+inputs:
+  ignore-branch-workflows:
+    description: 'Ignore runs from workflows currently in ./github/workflow'
+    required: false
+  retention-time:
+    description: 'Period of time to maintain history. E.g. "2 weeks", "3 days", etc.'
+    required: false
+  retain-run-count:
+    description: 'Number of latest runs to keep'
+    required: false
+  dry-run:
+    description: 'Only list runs pending deletion'
+    required: false
+outputs:
+  housekeeping_output:
+    description: 'Output of housekeeping steps'
+    value: ${{ steps.local-action.outputs.housekeeping_output }}
+runs:
+  using: "composite"
+  steps:
+    - name: Run local action
+      id: local-action
+      run: |
+        ${{ github.action_path }}/lib/housekeeper.sh \
+        "${{ github.repository }}" \
+        "${{ inputs.ignore-branch-workflows }}" \
+        "${{ inputs.retention-time }}" \
+        "${{ inputs.retain-run-count }}" \
+        "${{ inputs.dry-run }}"
+      shell: bash
+    - name: Create summary
+      run: |
+        echo "### :sparkles: Workflow Housekeeper :sparkles:" >> $GITHUB_STEP_SUMMARY
+        echo -e "${{ steps.local-action.outputs.housekeeping_output }}" >> $GITHUB_STEP_SUMMARY
+      shell: bash

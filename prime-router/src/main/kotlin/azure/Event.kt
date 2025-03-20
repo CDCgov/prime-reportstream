@@ -27,6 +27,7 @@ abstract class Event(val eventAction: EventAction, val at: OffsetDateTime?) {
         PROCESS_WARNING, // when an attempt at a process action fails, but will be retried
         PROCESS_ERROR, // when an attempt at a process action fails permanently
         DESTINATION_FILTER,
+        RECEIVER_ENRICHMENT,
         RECEIVER_FILTER,
         RECEIVE,
         CONVERT, // for universal pipeline converting to FHIR
@@ -44,12 +45,12 @@ abstract class Event(val eventAction: EventAction, val at: OffsetDateTime?) {
         OTHER, // a default/unknown
         ;
 
-        fun toTaskAction(): TaskAction {
-            return when (this) {
+        fun toTaskAction(): TaskAction = when (this) {
                 PROCESS -> TaskAction.process
                 PROCESS_WARNING -> TaskAction.process_warning
                 PROCESS_ERROR -> TaskAction.process_error
                 DESTINATION_FILTER -> TaskAction.destination_filter
+                RECEIVER_ENRICHMENT -> TaskAction.receiver_enrichment
                 RECEIVER_FILTER -> TaskAction.receiver_filter
                 RECEIVE -> TaskAction.receive
                 CONVERT -> TaskAction.convert
@@ -67,10 +68,8 @@ abstract class Event(val eventAction: EventAction, val at: OffsetDateTime?) {
                 // OTHER is not an expected value, more of a logical fallback/default used in BlobAccess.uploadBody
                 OTHER -> TaskAction.other
             }
-        }
 
-        fun toQueueName(): String? {
-            return when (this) {
+        fun toQueueName(): String? = when (this) {
                 PROCESS,
                 TRANSLATE,
                 BATCH,
@@ -79,11 +78,9 @@ abstract class Event(val eventAction: EventAction, val at: OffsetDateTime?) {
                 -> this.toString().lowercase()
                 else -> null
             }
-        }
 
         companion object {
-            fun parseQueueMessage(action: String): EventAction {
-                return when (action.lowercase()) {
+            fun parseQueueMessage(action: String): EventAction = when (action.lowercase()) {
                     "process" -> PROCESS
                     "receive" -> RECEIVE
                     "translate" -> TRANSLATE
@@ -96,13 +93,13 @@ abstract class Event(val eventAction: EventAction, val at: OffsetDateTime?) {
                     "wipe_error" -> WIPE_ERROR
                     else -> error("Internal Error: $action does not match known action names")
                 }
-            }
         }
     }
 
     companion object {
-        fun parsePrimeRouterQueueMessage(event: String): Event {
-            return when (val message = JacksonMapperUtilities.defaultMapper.readValue<PrimeRouterQueueMessage>(event)) {
+        fun parsePrimeRouterQueueMessage(
+            event: String,
+        ): Event = when (val message = JacksonMapperUtilities.defaultMapper.readValue<PrimeRouterQueueMessage>(event)) {
                 is ReportEventQueueMessage -> {
                     val at = if (message.at.isNotEmpty()) {
                         OffsetDateTime.parse(message.at)
@@ -146,7 +143,6 @@ abstract class Event(val eventAction: EventAction, val at: OffsetDateTime?) {
                 }
                 else -> error("Internal Error: invalid event type: $event")
             }
-        }
     }
 }
 
@@ -177,13 +173,11 @@ class ProcessEvent(
         return JacksonMapperUtilities.objectMapper.writeValueAsString(queueMessage)
     }
 
-    override fun equals(other: Any?): Boolean {
-        return other is ProcessEvent &&
+    override fun equals(other: Any?): Boolean = other is ProcessEvent &&
             eventAction == other.eventAction &&
             reportId == other.reportId &&
             at == other.at &&
             retryToken == other.retryToken
-    }
 
     override fun hashCode(): Int {
         // vars used in hashCode() must match those in equals()
@@ -214,20 +208,16 @@ class ReportEvent(
         return JacksonMapperUtilities.objectMapper.writeValueAsString(queueMessage)
     }
 
-    override fun equals(other: Any?): Boolean {
-        return other is ReportEvent &&
+    override fun equals(other: Any?): Boolean = other is ReportEvent &&
             eventAction == other.eventAction &&
             reportId == other.reportId &&
             at == other.at &&
             retryToken == other.retryToken
-    }
 
-    override fun hashCode(): Int {
-        return (7 * eventAction.hashCode()) +
+    override fun hashCode(): Int = (7 * eventAction.hashCode()) +
             (31 * reportId.hashCode()) +
             (17 * at.hashCode()) +
             (19 * retryToken.hashCode())
-    }
 
     companion object {
         const val eventType = "report"
@@ -251,18 +241,14 @@ class BatchEvent(
         return JacksonMapperUtilities.objectMapper.writeValueAsString(queueMessage)
     }
 
-    override fun equals(other: Any?): Boolean {
-        return other is BatchEvent &&
+    override fun equals(other: Any?): Boolean = other is BatchEvent &&
             eventAction == other.eventAction &&
             receiverName == other.receiverName &&
             at == other.at
-    }
 
-    override fun hashCode(): Int {
-        return (7 * eventAction.hashCode()) +
+    override fun hashCode(): Int = (7 * eventAction.hashCode()) +
             (19 * receiverName.hashCode()) +
             (17 * at.hashCode())
-    }
 
     // this should say 'batch' but will break production on deploy if there is anything in the batch queue
     //  when it goes to prod. This value is used only to queue and dequeue message types

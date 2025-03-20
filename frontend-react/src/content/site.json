@@ -59,6 +59,9 @@
     },
     "onePager": {
       "path": "/assets/pdf/ReportStream_Onepager_20240605.pdf"
+    },
+    "codeMapTemplate": {
+      "path": "/assets/xlsm/20241204_ReportStream-Mapping-Template.xlsm"
     }
   },
   "external": {

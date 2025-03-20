@@ -15,13 +15,11 @@ internal object AzureSecretService : SecretService() {
     internal fun initSecretClient(
         secretClientBuilder: SecretClientBuilder = SecretClientBuilder(),
         credential: TokenCredential = DefaultAzureCredentialBuilder().build(),
-    ): SecretClient {
-        return secretClientBuilder
+    ): SecretClient = secretClientBuilder
             .vaultUrl("https://$KEY_VAULT_NAME.vault.azure.net")
             .credential(credential)
             .retryPolicy(RetryPolicy(ExponentialBackoff(3, Duration.ofMillis(250L), Duration.ofSeconds(2))))
             .buildClient()
-    }
 
     override fun fetchSecretFromStore(secretName: String): String? {
         val azureSafeSecretName = secretName.lowercase().replace("_", "-")

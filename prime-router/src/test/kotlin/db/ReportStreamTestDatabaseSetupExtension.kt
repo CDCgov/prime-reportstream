@@ -18,7 +18,9 @@ import org.testcontainers.junit.jupiter.Testcontainers
  *
  */
 @Testcontainers
-class ReportStreamTestDatabaseSetupExtension : BeforeAllCallback, AfterEachCallback {
+class ReportStreamTestDatabaseSetupExtension :
+    BeforeAllCallback,
+    AfterEachCallback {
     /**
      * Starts and sets up the test Postgres container
      */

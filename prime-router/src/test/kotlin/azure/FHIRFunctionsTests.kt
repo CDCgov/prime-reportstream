@@ -27,6 +27,7 @@ import org.jooq.tools.jdbc.MockResult
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import java.util.Base64
 import java.util.UUID
 
 class FHIRFunctionsTests {
@@ -98,7 +99,7 @@ class FHIRFunctionsTests {
         verify(exactly = 1) {
             QueueAccess.sendMessage(
                 "${QueueMessage.elrConvertQueueName}-poison",
-                queueMessage
+                Base64.getEncoder().encodeToString(queueMessage.toByteArray())
             )
             mockReportEventService.sendReportProcessingError(
                 ReportStreamEventName.PIPELINE_EXCEPTION,
@@ -124,7 +125,7 @@ class FHIRFunctionsTests {
         verify(exactly = 0) {
             QueueAccess.sendMessage(
                 "${QueueMessage.elrConvertQueueName}-poison",
-                queueMessage
+                Base64.getEncoder().encodeToString(queueMessage.toByteArray())
             )
         }
     }

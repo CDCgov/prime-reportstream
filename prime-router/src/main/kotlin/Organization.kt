@@ -54,8 +54,7 @@ open class Organization(
     /**
      * Validate the object and return null or an error message
      */
-    fun consistencyErrorMessage(): String? {
-        return when (jurisdiction) {
+    fun consistencyErrorMessage(): String? = when (jurisdiction) {
             Jurisdiction.FEDERAL -> {
                 if (stateCode != null || countyName != null) {
                     "stateCode or countyName not allowed for FEDERAL organizations"
@@ -78,11 +77,8 @@ open class Organization(
                 }
             }
         }
-    }
 
-    fun makeCopyWithNewScopeAndJwk(scope: String, jwk: Jwk): Organization {
-        return Organization(this, scope, jwk)
-    }
+    fun makeCopyWithNewScopeAndJwk(scope: String, jwk: Jwk): Organization = Organization(this, scope, jwk)
 }
 
 /**

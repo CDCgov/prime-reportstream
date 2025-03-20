@@ -1,6 +1,6 @@
 package gov.cdc.prime.router.azure.observability.event
 
-import gov.cdc.prime.router.azure.ConditionStamper.Companion.conditionCodeExtensionURL
+import gov.cdc.prime.router.azure.ConditionStamper.Companion.CONDITION_CODE_EXTENSION_URL
 import org.hl7.fhir.r4.model.Coding
 
 data class TestSummary(
@@ -17,7 +17,7 @@ data class TestSummary(
          */
         fun fromCoding(coding: Coding): TestSummary {
             val conditions = coding.extension
-                .filter { it.url == conditionCodeExtensionURL }
+                .filter { it.url == CONDITION_CODE_EXTENSION_URL }
                 .map { it.castToCoding(it.value) }
                 .map(CodeSummary::fromCoding)
             return TestSummary(
