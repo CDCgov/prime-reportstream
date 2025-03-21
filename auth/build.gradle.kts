@@ -21,7 +21,7 @@ dependencies {
      * Spring WebFlux was chosen for this project to be able to better handle periods of high traffic
      */
     implementation("org.springframework.boot:spring-boot-starter-webflux")
-    implementation("org.springframework.cloud:spring-cloud-starter-gateway")
+    implementation("org.springframework.cloud:spring-cloud-starter-gateway@4.2.1")
     implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
 
     runtimeOnly("com.nimbusds:oauth2-oidc-sdk:11.20.1")
