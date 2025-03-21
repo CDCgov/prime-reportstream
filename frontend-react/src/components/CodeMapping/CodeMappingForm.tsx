@@ -1,24 +1,16 @@
 import { Button, ButtonGroup, FileInput } from "@trussworks/react-uswds";
-import { FormEventHandler, MouseEventHandler, useCallback } from "react";
+import { ChangeEvent, FormEventHandler, MouseEventHandler, useCallback } from "react";
 import site from "../../content/site.json";
 
 interface CodeMappingFormProps {
     onSubmit: FormEventHandler<HTMLFormElement>;
-    setFileName: (fileName: string) => void;
+    setFile: (event: ChangeEvent<HTMLInputElement>) => void;
 }
 
-const CodeMappingForm = ({ onSubmit, setFileName }: CodeMappingFormProps) => {
+const CodeMappingForm = ({ onSubmit, setFile }: CodeMappingFormProps) => {
     const onBackHandler = useCallback<MouseEventHandler>((_ev) => {
         window.history.back();
     }, []);
-
-    const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const files = event.target.files;
-        if (!files || files.length === 0) return;
-
-        // Take the first file name
-        setFileName(files[0].name);
-    };
 
     return (
         <>
@@ -39,7 +31,7 @@ const CodeMappingForm = ({ onSubmit, setFileName }: CodeMappingFormProps) => {
                 <span className="usa-hint" id="file-input-specific-hint">
                     Make sure your file has a .csv extension
                 </span>
-                <FileInput id={""} name={"file"} className="maxw-full" accept=".csv" onChange={handleFileChange} />
+                <FileInput id={""} name={"file"} className="maxw-full" accept=".csv" onChange={setFile} />
                 <ButtonGroup className="margin-top-5">
                     <Button type={"button"} outline onClick={onBackHandler}>
                         Back
