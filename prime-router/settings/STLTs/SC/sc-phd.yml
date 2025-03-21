@@ -1,6 +1,5 @@
 # $schema: ./../../../metadata/json_schema/organizations/organizations.json
 
----
 - name: "sc-phd"
   description: "South Carolina Public Health Department"
   jurisdiction: "STATE"
@@ -15,7 +14,7 @@
       organizationName: "sc-phd"
       topic: "full-elr"
       customerStatus: "active"
-      translation: !<HL7>
+      translation:
         schemaName: "classpath:/metadata/hl7_mapping/receivers/STLTs/SC/SC-receiver-transform.yml"
         useTestProcessingMode: false
         useBatchHeaders: true
@@ -73,12 +72,24 @@
         - "Bundle.entry.resource.ofType(Patient).name.family.exists()"
         - "Bundle.entry.resource.ofType(Patient).name.given.count() > 0"
         - "Bundle.entry.resource.ofType(Specimen).type.exists()"
-      routingFilter: []
+      routingFilter:
+        - "Bundle.entry.resource.ofType(MessageHeader).extension('https://reportstream.cdc.gov/fhir/StructureDefinition/sender-id').where(value\
+      \ in ('SimpleReport')).exists()"
       processingModeFilter: []
       reverseTheQualityFilter: false
       conditionFilter:
-        - "(%resource.interpretation.coding.code = 'A' and %resource.code.coding.extension('https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code').value.where(code in ('840539006')).exists()) or \
-        (%resource.code.coding.extension('https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code').value.where(code in ('6142004' | '541131000124102')).exists())"
+        - "%resource.where(interpretation.coding.code = 'A').code.coding.extension('https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code').value.extension('https://reportstream.cdc.gov/fhir/StructureDefinition/test-performed-member-oid').where(value in (\
+  '2.16.840.1.113762.1.4.1146.1143' | '2.16.840.1.113762.1.4.1146.1142' | \
+  '2.16.840.1.113762.1.4.1146.1409' | '2.16.840.1.113762.1.4.1146.2161' | \
+  '2.16.840.1.113762.1.4.1146.1155' | '2.16.840.1.113762.1.4.1146.1157' | \      
+  '2.16.840.1.113762.1.4.1146.338' | '2.16.840.1.113762.1.4.1146.797' | \
+  '2.16.840.1.113762.1.4.1146.340' | '2.16.840.1.113762.1.4.1146.275' | \
+  '2.16.840.1.113762.1.4.1146.795' | '2.16.840.1.113762.1.4.1146.796' | \
+  '2.16.840.1.113762.1.4.1146.276' | '2.16.840.1.113762.1.4.1146.772' | \
+  '2.16.840.1.113762.1.4.1146.277' | '2.16.840.1.113762.1.4.1146.773' | \
+  '2.16.840.1.113762.1.4.1146.335' | '2.16.840.1.113762.1.4.1146.336' | \
+  '2.16.840.1.113762.1.4.1146.798' | '2.16.840.1.113762.1.4.1146.801' | \
+  '2.16.840.1.113762.1.4.1146.802' | '2.16.840.1.113762.1.4.1146.2149')).exists()"
       mappedConditionFilter: []
       deidentify: false
       deidentifiedValue: ""
@@ -93,12 +104,13 @@
           onlyOncePerDay: false
       description: ""
       transport:
-        host: "sftp.dhec.sc.gov"
+        host: "sftp"
         port: "22"
-        filePath: "./Prod"
-        credentialName: null
+        filePath: "./upload"
+        credentialName: "DEFAULT-SFTP"
         type: "SFTP"
       externalName: null
       enrichmentSchemaNames: []
+      routingFilters: []
       timeZone: null
       dateTimeFormat: "OFFSET"
