@@ -12,6 +12,7 @@ import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.DeepOrganization
 import gov.cdc.prime.router.FileSettings
+import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Receiver
@@ -35,6 +36,7 @@ import gov.cdc.prime.router.azure.observability.event.ReportEventData
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventProperties
 import gov.cdc.prime.router.azure.observability.event.ReportStreamItemEvent
 import gov.cdc.prime.router.azure.observability.event.TestSummary
+import gov.cdc.prime.router.metadata.LookupTable
 import gov.cdc.prime.router.report.ReportService
 import gov.cdc.prime.router.unittest.UnitTestUtils
 import gov.cdc.prime.router.version.Version
@@ -50,6 +52,7 @@ import org.jooq.tools.jdbc.MockDataProvider
 import org.jooq.tools.jdbc.MockResult
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.TestInstance
+import java.io.ByteArrayInputStream
 import java.io.File
 import java.time.OffsetDateTime
 import java.util.UUID
@@ -102,7 +105,7 @@ class FhirDestinationFilterTests {
         )
     )
 
-    private val secondElrOrganization = DeepOrganization(
+    val secondElrOrganization = DeepOrganization(
         "second org",
         "test",
         Organization.Jurisdiction.FEDERAL,
@@ -194,7 +197,24 @@ class FhirDestinationFilterTests {
         )
     )
 
+    val csv = """
+            variable,fhirPath
+            processingId,Bundle.entry.resource.ofType(MessageHeader).meta.extension('https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id').value.coding.code
+            messageId,Bundle.entry.resource.ofType(MessageHeader).id
+            patient,Bundle.entry.resource.ofType(Patient)
+            performerState,Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state
+            patientState,Bundle.entry.resource.ofType(Patient).address.state
+            specimen,Bundle.entry.resource.ofType(Specimen)
+            serviceRequest,Bundle.entry.resource.ofType(ServiceRequest)
+            observation,Bundle.entry.resource.ofType(Observation)
+            test-dash,Bundle.test.dash
+            test_underscore,Bundle.test.underscore
+            test'apostrophe,Bundle.test.apostrophe
+    """.trimIndent()
+
+    private val shorthandTable = LookupTable.read(inputStream = ByteArrayInputStream(csv.toByteArray()))
     val one = Schema(name = "None", topic = Topic.FULL_ELR, elements = emptyList())
+    val metadata = Metadata(schema = one).loadLookupTable("fhirpath_filter_shorthand", shorthandTable)
     val report = Report(one, listOf(listOf("1", "2")), TestSource, metadata = UnitTestUtils.simpleMetadata)
 
     private var actionLogger = ActionLogger()
@@ -215,7 +235,7 @@ class FhirDestinationFilterTests {
         ),
     )
 
-    private fun makeFhirEngine(settings: SettingsProvider): FHIREngine {
+    private fun makeFhirEngine(metadata: Metadata, settings: SettingsProvider): FHIREngine {
         val rootReport = mockk<ReportFile>(relaxed = true)
         every { rootReport.reportId } returns submittedId
         every { rootReport.sendingOrg } returns "sendingOrg"
@@ -226,6 +246,7 @@ class FhirDestinationFilterTests {
         every { accessSpy.fetchReportFile(any()) } returns rootReport
 
         return FHIREngine.Builder()
+            .metadata(metadata)
             .settingsProvider(settings)
             .databaseAccess(accessSpy)
             .blobAccess(blobMock)
@@ -250,7 +271,7 @@ class FhirDestinationFilterTests {
         val settings = FileSettings().loadOrganizations(
             makeOrgWithJurisdictionalFilter(FAIL_FILTER)
         )
-        val engine = spyk(makeFhirEngine(settings) as FHIRDestinationFilter)
+        val engine = spyk(makeFhirEngine(metadata, settings) as FHIRDestinationFilter)
         val message = spyk(
             FhirDestinationFilterQueueMessage(
                 UUID.randomUUID(),
@@ -280,7 +301,7 @@ class FhirDestinationFilterTests {
         val settings = FileSettings().loadOrganizations(
             makeOrgWithJurisdictionalFilter(PASS_FILTER)
         )
-        val engine = spyk(makeFhirEngine(settings) as FHIRDestinationFilter)
+        val engine = spyk(makeFhirEngine(metadata, settings) as FHIRDestinationFilter)
         val message = spyk(
             FhirDestinationFilterQueueMessage(
                 UUID.randomUUID(),
@@ -415,7 +436,7 @@ class FhirDestinationFilterTests {
     fun `test a message is queued per receiver that will have the report delivered`() {
         // engine setup
         val settings = FileSettings().loadOrganizations(oneOrganization, secondElrOrganization)
-        val engine = spyk(makeFhirEngine(settings) as FHIRDestinationFilter)
+        val engine = spyk(makeFhirEngine(metadata, settings) as FHIRDestinationFilter)
         val message = spyk(
             FhirDestinationFilterQueueMessage(
                 UUID.randomUUID(),
@@ -453,7 +474,7 @@ class FhirDestinationFilterTests {
     fun `test bundle with no receivers is not routed to translate function`() {
         // engine setup
         val settings = FileSettings().loadOrganizations(oneOrganization)
-        val engine = spyk(makeFhirEngine(settings) as FHIRDestinationFilter)
+        val engine = spyk(makeFhirEngine(metadata, settings) as FHIRDestinationFilter)
         val message = spyk(
             FhirDestinationFilterQueueMessage(
                 UUID.randomUUID(),
@@ -585,7 +606,7 @@ class FhirDestinationFilterTests {
     fun `test etor topic routing`() {
         // engine setup
         val settings = FileSettings().loadOrganizations(etorOrganization)
-        val engine = spyk(makeFhirEngine(settings) as FHIRDestinationFilter)
+        val engine = spyk(makeFhirEngine(metadata, settings) as FHIRDestinationFilter)
 
         // assert
         // when doing routing for full-elr, verify that etor receiver isn't included (not even in logged results)
@@ -603,7 +624,7 @@ class FhirDestinationFilterTests {
     fun `test elr topic routing`() {
         // engine setup
         val settings = FileSettings().loadOrganizations(oneOrganization)
-        val engine = spyk(makeFhirEngine(settings) as FHIRDestinationFilter)
+        val engine = spyk(makeFhirEngine(metadata, settings) as FHIRDestinationFilter)
 
         // assert
         // when doing routing for etor, verify that full-elr receiver isn't included (not even in logged results)
@@ -621,7 +642,7 @@ class FhirDestinationFilterTests {
     fun `test elr-elims topic routing`() {
         // engine setup
         val settings = FileSettings().loadOrganizations(elimsOrganization)
-        val engine = spyk(makeFhirEngine(settings) as FHIRDestinationFilter)
+        val engine = spyk(makeFhirEngine(metadata, settings) as FHIRDestinationFilter)
 
         // assert
         // when doing routing for full-elr, verify that elims receiver isn't included (not even in logged results)
@@ -640,7 +661,7 @@ class FhirDestinationFilterTests {
         // engine setup
         val settings = FileSettings().loadOrganizations(etorAndElrOrganizations)
         val actionHistory = ActionHistory(TaskAction.destination_filter)
-        val engine = spyk(makeFhirEngine(settings) as FHIRDestinationFilter)
+        val engine = spyk(makeFhirEngine(metadata, settings) as FHIRDestinationFilter)
 
         // assert
         // when routing for etor, verify that only the active etor receiver is included (even in logged results)
