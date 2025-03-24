@@ -212,9 +212,8 @@ class FhirDestinationFilterTests {
             test'apostrophe,Bundle.test.apostrophe
     """.trimIndent()
 
-    private val shorthandTable = LookupTable.read(inputStream = ByteArrayInputStream(csv.toByteArray()))
     val one = Schema(name = "None", topic = Topic.FULL_ELR, elements = emptyList())
-    val metadata = Metadata(schema = one).loadLookupTable("fhirpath_filter_shorthand", shorthandTable)
+    val metadata = Metadata(schema = one)
     val report = Report(one, listOf(listOf("1", "2")), TestSource, metadata = UnitTestUtils.simpleMetadata)
 
     private var actionLogger = ActionLogger()
