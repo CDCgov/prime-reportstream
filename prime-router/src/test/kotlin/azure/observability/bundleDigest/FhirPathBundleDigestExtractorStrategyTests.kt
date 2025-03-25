@@ -30,10 +30,10 @@ class FhirPathBundleDigestExtractorStrategyTests {
     @Test
     fun `test extracts data from bundle correctly when all data is populated`() {
         val bundle = Bundle()
-        addMessageHeader(bundle)
         addPatient(bundle)
         addObservation(bundle)
         val performer = createPerformer(bundle)
+        addMessageHeader(bundle, performer)
         val orderingFacility = createOrganization(bundle)
         val orderingPractitionerRole = createPractiionerRole(orderingFacility, bundle)
         addServiceRequest(performer, orderingPractitionerRole, bundle)
@@ -87,8 +87,8 @@ class FhirPathBundleDigestExtractorStrategyTests {
     @Test
     fun `test extracts data from bundle correctly when data is missing`() {
         val bundle = Bundle()
-        addMessageHeader(bundle)
         val performer = createPerformer(bundle)
+        addMessageHeader(bundle, performer)
         val orderingFacility = createOrganization(bundle)
         val orderingPractitionerRole = createPractiionerRole(orderingFacility, bundle)
         addServiceRequest(performer, orderingPractitionerRole, bundle)
@@ -175,7 +175,9 @@ class FhirPathBundleDigestExtractorStrategyTests {
                 state = "MD"
             }
             addIdentifier().apply {
-                system = "CLIA"
+                type.addCoding().apply {
+                    code = "CLIA"
+                }
                 value = "999999"
             }
         }
@@ -185,9 +187,13 @@ class FhirPathBundleDigestExtractorStrategyTests {
         return performer
     }
 
-    private fun addMessageHeader(bundle: Bundle) {
+    private fun addMessageHeader(bundle: Bundle, performer: Practitioner) {
         val messageHeader = MessageHeader()
         messageHeader.event = Coding("ORU", "R01", "ORU_R01")
+
+        val senderReference = Reference()
+        senderReference.reference = performer.id
+        messageHeader.sender = senderReference
         bundle.addEntry().resource = messageHeader
     }
 
