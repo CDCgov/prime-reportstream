@@ -19,11 +19,8 @@ class FhirPathBundleDigestLabResultExtractorStrategy(private val context: Custom
 
     override fun extract(bundle: Bundle): BundleDigest {
         val patientStates = getListOfFHIRValues(bundle, patientStatePath)
-        val rawPerformers = FhirPathUtils.evaluate(context, bundle, bundle, performerPath)
-        println("Raw Performer Results: $rawPerformers")
         val performerSummaries = FhirPathUtils.evaluate(context, bundle, bundle, performerPath)
             .map { PerformerSummary.fromPerformer(it) }
-        println("Mapped Performer Summaries: $performerSummaries")
         val orderingFacilitySummaries = FhirPathUtils.evaluate(context, bundle, bundle, orderingFacilityPath)
             .map { OrderingFacilitySummary.fromOrganization(it) }
         val eventCode = FhirPathUtils.evaluateString(context, bundle, bundle, eventCodePath)
