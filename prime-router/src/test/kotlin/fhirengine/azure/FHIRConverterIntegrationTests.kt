@@ -37,6 +37,7 @@ import gov.cdc.prime.router.azure.observability.event.AzureEventUtils
 import gov.cdc.prime.router.azure.observability.event.InMemoryAzureEventService
 import gov.cdc.prime.router.azure.observability.event.ItemEventData
 import gov.cdc.prime.router.azure.observability.event.OrderingFacilitySummary
+import gov.cdc.prime.router.azure.observability.event.PerformerSummary
 import gov.cdc.prime.router.azure.observability.event.ReportEventData
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventName
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventProperties
@@ -508,7 +509,13 @@ class FHIRConverterIntegrationTests {
                                 orderingFacilityState = "FL"
                             )
                         ),
-                        performerSummaries = emptyList(),
+                        performerSummaries = listOf(
+                            PerformerSummary(
+                                performerName = "Unknown",
+                                performerState = "Unknown",
+                                performerCLIA = "10D0876999"
+                            )
+                        ),
                         eventType = "ORU^R01^ORU_R01"
                     ),
                     ReportStreamEventProperties.ENRICHMENTS to ""
@@ -669,7 +676,13 @@ class FHIRConverterIntegrationTests {
                                 orderingFacilityState = "FL"
                             )
                         ),
-                        performerSummaries = emptyList(),
+                        performerSummaries = listOf(
+                            PerformerSummary(
+                                performerName = "Unknown",
+                                performerState = "Unknown",
+                                performerCLIA = "10D0876999"
+                            )
+                        ),
                         eventType = "ORU^R01^ORU_R01"
                     ),
                     ReportStreamEventProperties.ENRICHMENTS to ""
