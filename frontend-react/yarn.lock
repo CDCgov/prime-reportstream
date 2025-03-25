@@ -10210,7 +10210,7 @@ __metadata:
     remark-mdx-frontmatter: ^5.0.0
     remark-mdx-toc: ^0.3.1
     rest-hooks: ^6.1.7
-    sanitize-html: ^2.14.0
+    sanitize-html: ^2.15.0
     sass: ^1.85.1
     storybook: ^8.4.7
     ts-node: ^10.9.2
@@ -10902,9 +10902,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"sanitize-html@npm:^2.14.0":
-  version: 2.14.0
-  resolution: "sanitize-html@npm:2.14.0"
+"sanitize-html@npm:^2.15.0":
+  version: 2.15.0
+  resolution: "sanitize-html@npm:2.15.0"
   dependencies:
     deepmerge: ^4.2.2
     escape-string-regexp: ^4.0.0
@@ -10912,7 +10912,7 @@ __metadata:
     is-plain-object: ^5.0.0
     parse-srcset: ^1.0.2
     postcss: ^8.3.11
-  checksum: e8eb9ac1bd4d5d41cfbe647c506bdecaebb19932dc9acd044e6322a31ebdf2abc43213384d518f855d19b54782e136f1aa14b0e1ac79ffc9bdea9d47d2d5a812
+  checksum: bb2f734a19d7597a87cede25c2a519cf348e17e86fd381ccbd6020aade6406358032adb7a31fbe86c86ce2b531582e3dadc387a470742f8cc5d2257d97207bc1
   languageName: node
   linkType: hard
 
