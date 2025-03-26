@@ -70,6 +70,9 @@ enum class ReportStreamEventProperties {
     ENRICHMENTS,
     ORIGINAL_FORMAT,
     TARGET_FORMAT,
+    RETRY_COUNT,
+    NEXT_RETRY_TIME,
+    QUEUE_MESSAGE,
     ;
 
     @JsonKey
@@ -94,6 +97,8 @@ enum class ReportStreamEventName {
     ITEM_SENT,
     PIPELINE_EXCEPTION,
     ITEM_TRANSFORMED,
+    ITEM_LAST_MILE_FAILURE,
+    ITEM_SEND_ATTEMPT_FAIL,
 }
 
 /**
