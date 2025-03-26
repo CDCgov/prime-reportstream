@@ -1,0 +1,72 @@
+ARG JAVA_VERSION=17
+# This Docker file was generated from a `mvn archetype:generate -Ddocker` command. It creates 
+# a container that is deployable to the Azure cloud
+#
+# This image additionally contains function core tools – useful when using custom extensions
+#FROM mcr.microsoft.com/azure-functions/java:4-java$JAVA_VERSION-core-tools AS installer-env
+# FROM mcr.microsoft.com/azure-functions/java:4-java${JAVA_VERSION}-build AS installer-env
+
+# matts: this is less likely to be loaded with CVEs, but should be tested thoroughly before being deployed 
+FROM mcr.microsoft.com/azure-functions/java:4-nightly-java17 AS installer-env
+# COPY . /src/java-function-app
+# RUN cd /src/java-function-app && \
+#     mkdir -p /home/site/wwwroot && \
+#     cd ./build/azure-functions/ && \
+#     cd $(ls -d */|head -n 1) && \
+#     cp -a . /home/site/wwwroot
+
+# This image is ssh enabled
+FROM mcr.microsoft.com/azure-functions/java:4-java${JAVA_VERSION}-appservice
+# This image isn't ssh enabled
+#FROM mcr.microsoft.com/azure-functions/java:4-java$JAVA_VERSION
+ARG AFCT_VERSION=4.0.6821-1
+
+
+
+USER root
+# add unprivileged user to run the function app
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+RUN useradd -m -u 1000 -s /bin/bash appuser && \
+mkdir -p /home/site/wwwroot && \
+chown -R  appuser /home/site/wwwroot
+
+# Add the Azure Functions Core Tools to the image and fix OS-level CVEs
+RUN echo 'deb [arch=amd64,arm64,armhf] http://deb.debian.org/debian bullseye-backports main' > /etc/apt/sources.list.d/backports.list 
+RUN apt-get update && apt-get dist-upgrade -y
+RUN apt-get update && apt-get upgrade -y libc6-dev libc6 apt-utils curl apt-transport-https gnupg2 acl libfreetype6 expat  && \
+curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - && \
+curl https://packages.microsoft.com/config/ubuntu/20.04/packages-microsoft-prod.deb -o packages-microsoft-prod.deb && \
+dpkg -i packages-microsoft-prod.deb && \
+apt-get update && \
+apt-get install azure-functions-core-tools-4=${AFCT_VERSION} -y && \
+apt-get install -y linux-libc-dev=5.10.234-1 && \
+apt-get clean && \
+rm -fr  /usr/lib/azure-functions-core-tools-4/workers/{python,node,powershell} rm -f /usr/lib/azure-functions-core-tools-4/gozip 
+
+ENV AzureWebJobsScriptRoot=/home/site/wwwroot \
+    AzureFunctionsJobHost__Logging__Console__IsEnabled=true
+
+# COPY --from=installer-env ["/home/site/wwwroot", "/home/site/wwwroot"]
+# RUN chown -R appuser /home/site/wwwroot
+
+COPY ./certs/CDC-G2.crt $JAVA_HOME/conf/security
+RUN cd $JAVA_HOME/conf/security \
+    && $JAVA_HOME/bin/keytool -cacerts -storepass changeit -noprompt -trustcacerts -importcert -alias G1 -file CDC-G2.crt
+
+COPY ./certs/CDC-G2-S1.crt $JAVA_HOME/conf/security
+RUN cd $JAVA_HOME/conf/security \
+    && $JAVA_HOME/bin/keytool -cacerts -storepass changeit -noprompt -trustcacerts -importcert -alias G2 -file CDC-G2-S1.crt
+
+COPY ./certs/CA-CA-S1.crt $JAVA_HOME/conf/security
+RUN cd $JAVA_HOME/conf/security \
+    && $JAVA_HOME/bin/keytool -cacerts -storepass changeit -noprompt -trustcacerts -importcert -alias S1 -file CA-CA-S1.crt
+    
+COPY ./certs/CA-CA-S2.crt $JAVA_HOME/conf/security
+RUN cd $JAVA_HOME/conf/security \
+    && $JAVA_HOME/bin/keytool -cacerts -storepass changeit -noprompt -trustcacerts -importcert -alias S2 -file CA-CA-S2.crt
+
+# matts: this may break things, so it sohuld be tested before being deployed anywhere    
+RUN rm -fr /usr/share/dotnet/
+# Drop privileges
+USER appuser
+WORKDIR /home/site/wwwroot
