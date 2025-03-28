@@ -1,8 +1,5 @@
 name: Find next person on call
-on:
-  schedule:
-    - cron: "7 13 * * Tue-Fri"  #UTC-5
-    - cron: "7 13 * * Mon"  #UTC-5
+on: workflow_dispatch
 
 env:
   channel: cdc-reportstream-devsecops-new
