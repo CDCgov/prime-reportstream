@@ -4,8 +4,6 @@ on:
     - cron: "7 13 * * Tue-Fri"  #UTC-5
     - cron: "7 13 * * Mon"  #UTC-5
 
-env:
-  channel: cdc-reportstream-devsecops-new
 jobs:
   pre_job:
     name: Pre Job
@@ -131,7 +129,5 @@ jobs:
           "${{ env.Schedules_oncallSchedule_3_ScheduleName }}"
           ❗"Now": *"${{ env.Schedules_oncallSchedule_3_OnCallPersonName }}"*
         icon-emoji: ':alarm_clock:'
-        channel:  ${{ env.channel }}
-        webhook-url: ${{ secrets.SLACK_NOTIFICATIONS_WEBHOOK_URL }}
+        webhook-url: ${{ secrets.SLACK_WEBHOOK_URL_NAVA_ENGINEERING_NEW_CHANNEL }}
         color: good
-
