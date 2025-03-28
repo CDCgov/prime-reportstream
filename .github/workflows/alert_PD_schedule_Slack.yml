@@ -131,7 +131,6 @@ jobs:
           "${{ env.Schedules_oncallSchedule_3_ScheduleName }}"
           ❗"Now": *"${{ env.Schedules_oncallSchedule_3_OnCallPersonName }}"*
         icon-emoji: ':alarm_clock:'
-        channel:  ${{ env.channel }}
         webhook-url: ${{ secrets.SLACK_NOTIFICATIONS_WEBHOOK_URL }}
         color: good
 
