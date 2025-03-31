@@ -2,6 +2,7 @@ package gov.cdc.prime.reportstream.auth.config
 
 import com.okta.sdk.client.AuthorizationMode
 import com.okta.sdk.client.Clients
+import com.okta.sdk.resource.api.ApplicationApi
 import com.okta.sdk.resource.api.ApplicationGroupsApi
 import com.okta.sdk.resource.client.ApiClient
 import gov.cdc.prime.reportstream.shared.StringUtilities.base64Decode
@@ -26,6 +27,9 @@ class OktaClientConfig(private val oktaClientProperties: OktaClientProperties) {
 
     @Bean
     fun applicationGroupsApi(): ApplicationGroupsApi = ApplicationGroupsApi(apiClient())
+
+    @Bean
+    fun applicationApi(): ApplicationApi = ApplicationApi(apiClient())
 
     @ConfigurationProperties(prefix = "okta.admin-client")
     data class OktaClientProperties(

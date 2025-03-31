@@ -30,6 +30,7 @@ okta:
     clientId: 0oak8383risyLJY9W1d7
     requiredScopes:
       - okta.apps.read
+      - okta.apps.manage
     # set base 64 encoded pem string in OKTA_ADMIN_CLIENT_API_ENCODED_PRIVATE_KEY env variable
   jwt:
     nbf: 5s

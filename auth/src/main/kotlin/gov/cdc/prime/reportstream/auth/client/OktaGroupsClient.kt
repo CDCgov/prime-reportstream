@@ -1,13 +1,15 @@
 package gov.cdc.prime.reportstream.auth.client
 
 import com.okta.sdk.resource.api.ApplicationGroupsApi
+import com.okta.sdk.resource.api.ApplicationApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.apache.logging.log4j.kotlin.Logging
 import org.springframework.stereotype.Service
 
 @Service
-class OktaGroupsClient(private val applicationGroupsApi: ApplicationGroupsApi) : Logging {
+class OktaGroupsClient(private val applicationGroupsApi: ApplicationGroupsApi,
+    private val applicationApi: ApplicationApi) : Logging {
 
     /**
      * Get all application groups from the Okta Admin API
@@ -24,6 +26,10 @@ class OktaGroupsClient(private val applicationGroupsApi: ApplicationGroupsApi) :
                     .map { it["profile"] as Map<*, *> }
                     .map { it["name"] as String }
                 logger.info("$appId is a member of ${groups.joinToString()}")
+                val app = applicationApi.getApplication(appId, null)
+                app.putprofileItem("groups", groups)
+                applicationApi.replaceApplication(appId, app)
+
                 groups
             } catch (ex: Exception) {
                 logger.error("Error retrieving application groups from Okta API", ex)
