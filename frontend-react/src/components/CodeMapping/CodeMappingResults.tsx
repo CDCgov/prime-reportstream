@@ -1,6 +1,6 @@
 import { Button, Icon, Link } from "@trussworks/react-uswds";
+import { ConditionCodeData } from "../../config/endpoints/conditionCode";
 import site from "../../content/site.json";
-import { CodeMapData } from "../../hooks/api/UseCodeMappingFormSubmit/UseCodeMappingFormSubmit";
 import { Alert, Table } from "../../shared";
 import { generateDateTitles } from "../../utils/DateTimeUtils";
 import { saveToCsv } from "../../utils/FileUtils";
@@ -8,29 +8,29 @@ import { removeFileExtension } from "../../utils/misc";
 import { USExtLink } from "../USLink";
 
 interface CodeMappingResultsProps {
-    fileName: string;
-    data: CodeMapData[];
+    data: ConditionCodeData[];
     onReset: () => void;
+    fileName: string;
 }
 
-const CodeMappingResults = ({ fileName, data, onReset }: CodeMappingResultsProps) => {
-    const unmappedData = data.filter((item: CodeMapData) => item.mapped === "N");
+const CodeMappingResults = ({ data, onReset, fileName }: CodeMappingResultsProps) => {
+    const unmappedData = data.filter((item: ConditionCodeData) => item.mapped === "N");
     const areCodesMapped = unmappedData.length === 0;
     const rowData = unmappedData.map((dataRow) => [
         {
             columnKey: "Code",
             columnHeader: "Code",
-            content: dataRow["test code"],
+            content: dataRow.testCode,
         },
         {
             columnKey: "Name",
             columnHeader: "Name",
-            content: dataRow["test description"],
+            content: dataRow.testDescription,
         },
         {
             columnKey: "Coding system",
             columnHeader: "Coding system",
-            content: dataRow["coding system"],
+            content: dataRow.codingSystem,
         },
     ]);
     function handleSaveToCsvClick() {
