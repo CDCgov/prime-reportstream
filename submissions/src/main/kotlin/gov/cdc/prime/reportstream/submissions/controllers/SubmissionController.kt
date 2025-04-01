@@ -19,6 +19,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.authorization.AuthorizationDeniedException
+import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken
 import org.springframework.web.bind.MissingRequestHeaderException
 import org.springframework.web.bind.annotation.ControllerAdvice
@@ -31,6 +32,7 @@ import org.springframework.web.client.HttpClientErrorException.UnsupportedMediaT
 import java.io.IOException
 import java.time.Instant
 import java.util.UUID
+
 
 private val logger = LoggerFactory.getLogger(SubmissionController::class.java)
 
@@ -76,7 +78,8 @@ class SubmissionController(
         @RequestBody data: String,
         request: HttpServletRequest,
     ): ResponseEntity<*> {
-        val authorized = authZService.isSenderAuthorized(clientId, request::getHeader)
+        val auth = SecurityContextHolder.getContext().authentication as JwtAuthenticationToken
+        val authorized = authZService.isSenderAuthorized(clientId, auth.token.getClaimAsStringList("app_groups") )
         if (!authorized) {
             logger.warn("Sender is not authorized to submit reports as $clientId")
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null)
