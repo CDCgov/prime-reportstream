@@ -6,6 +6,7 @@ This document will detail the steps needed to successfully transition from the c
 * API changes for new auth flow
   * Need to decide if cutting over or maintaining both APIs - see analysis in Questions section 
 * Consider design for when auth service updates sender profiles (must be done via API)
+  * Should sender groups be stored as Okta groups or solely as profile attributes? 
 * Create test workflow in staging representative of production environment
   * Update workflow documentation to create new sender
 * Add auth/submissions endpoints to deployment and CI processes

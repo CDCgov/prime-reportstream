@@ -78,6 +78,7 @@ class SubmissionController(
         @RequestBody data: String,
         request: HttpServletRequest,
     ): ResponseEntity<*> {
+        // TODO: consider if this needs to be in auth instead of submissions
         val auth = SecurityContextHolder.getContext().authentication as JwtAuthenticationToken
         val authorized = authZService.isSenderAuthorized(clientId, auth.token.getClaimAsStringList("app_groups") )
         if (!authorized) {
