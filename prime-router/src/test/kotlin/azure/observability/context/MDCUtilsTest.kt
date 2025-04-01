@@ -153,7 +153,4 @@ class MDCUtilsTest {
     }
 }
 
-data class TestContext(
-    val key1: String,
-    val key2: Int,
-) : AzureLoggingContext
+data class TestContext(val key1: String, val key2: Int) : AzureLoggingContext

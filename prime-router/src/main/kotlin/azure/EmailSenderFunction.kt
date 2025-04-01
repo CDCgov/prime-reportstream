@@ -126,14 +126,12 @@ class EmailSenderFunction {
      *  param) to parse many types of request bodies. Currently it only takes a single
      *  class, TosAgreementForm.
      */
-    private fun parseBody(requestBody: String, logger: Logger): TosAgreementForm? {
-        return try {
+    private fun parseBody(requestBody: String, logger: Logger): TosAgreementForm? = try {
             jacksonObjectMapper.readValue<TosAgreementForm>(requestBody, TosAgreementForm::class.java)
         } catch (ex: MismatchedInputException) {
             logger.info("There was an exception thrown when parsing your JSON")
             null
         }
-    }
 
     private fun createMail(body: TosAgreementForm): String {
         val mail: Mail = Mail()

@@ -1,4 +1,10 @@
-import type { RSMessageResult } from "../../../config/endpoints/reports";
+import type { RSFilterError, RSMessageResult } from "../../../config/endpoints/reports";
+
+const sampleFilterError = {
+    filter: "Sample Filter",
+    filterType: "QUALITY_FILTER",
+    message: "Sample message, sample text.",
+} as RSFilterError;
 
 export const passMessageResult: RSMessageResult = {
     senderTransformPassed: true,
@@ -25,7 +31,7 @@ export const errorMessageResult: RSMessageResult = {
     receiverTransformPassed: false,
     receiverTransformErrors: ["receiverTransformError 1", "receiverTransformError 2"],
     receiverTransformWarnings: [],
-    filterErrors: [],
+    filterErrors: [sampleFilterError],
     filtersPassed: false,
 };
 

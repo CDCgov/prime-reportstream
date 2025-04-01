@@ -102,7 +102,7 @@ class FHIRReceiverFilter(
     class ReceiverItemFilteredActionLogDetail(
         val filter: String,
         @JsonProperty
-        val filterType: ReportStreamFilterType,
+        val filterType: String,
         @JsonProperty
         val receiverOrg: String,
         @JsonProperty
@@ -117,7 +117,7 @@ class FHIRReceiverFilter(
         override val errorCode: ErrorCode = ErrorCode.UNKNOWN
     }
 
-    data class FilterDetails(val filters: List<String>, val filterType: ReportStreamFilterType)
+    data class FilterDetails(val filters: List<String>, val filterType: String)
 
     sealed class ReceiverFilterEvaluationResult {
         data class Success(val bundle: Bundle) : ReceiverFilterEvaluationResult()
@@ -143,11 +143,14 @@ class FHIRReceiverFilter(
         val trackingId = bundle.identifier.value
 
         // filter groups for looped evaluation
-        val fhirFilters = listOf(
-            Pair(receiver.qualityFilter, ReportStreamFilterType.QUALITY_FILTER),
-            Pair(receiver.routingFilter, ReportStreamFilterType.ROUTING_FILTER),
-            Pair(receiver.processingModeFilter, ReportStreamFilterType.PROCESSING_MODE_FILTER),
+        val fhirFilters = mutableListOf(
+            Pair(receiver.qualityFilter, ReportStreamFilterType.QUALITY_FILTER.name),
+            Pair(receiver.routingFilter, ReportStreamFilterType.ROUTING_FILTER.name),
+            Pair(receiver.processingModeFilter, ReportStreamFilterType.PROCESSING_MODE_FILTER.name),
         )
+        receiver.routingFilters.forEach {
+            fhirFilters.add(Pair(it.filterExpressions, it.filterName))
+        }
 
         // evaluate all filter groups
         fhirFilters.forEach {
@@ -200,7 +203,7 @@ class FHIRReceiverFilter(
             val (keptObservations, filteredObservations) = allObservations.partition { observation ->
                 conditionFilters.any { filter ->
                     FhirPathUtils.evaluateCondition(
-                        CustomContext(bundle, observation, shorthandLookupTable, CustomFhirPathFunctions()),
+                        CustomContext(bundle, observation, mutableMapOf(), CustomFhirPathFunctions()),
                         observation,
                         bundle,
                         bundle,
@@ -217,14 +220,14 @@ class FHIRReceiverFilter(
                 actionLogger.getItemLogger(1, trackingId).warn(
                     ReceiverItemFilteredActionLogDetail(
                         conditionFilters.joinToString(","),
-                        ReportStreamFilterType.CONDITION_FILTER,
+                        ReportStreamFilterType.CONDITION_FILTER.name,
                         receiver.organizationName,
                         receiver.name,
                         1
                     )
                 )
                 ReceiverFilterEvaluationResult.Failure(
-                    FilterDetails(conditionFilters, ReportStreamFilterType.CONDITION_FILTER)
+                    FilterDetails(conditionFilters, ReportStreamFilterType.CONDITION_FILTER.name)
                 )
             } else {
                 filteredObservations.forEach { observation ->
@@ -233,7 +236,7 @@ class FHIRReceiverFilter(
                     }
                 }
                 ReceiverFilterEvaluationResult.Success(
-                    bundle.filterObservations(conditionFilters, shorthandLookupTable)
+                    bundle.filterObservations(conditionFilters)
                 )
             }
         } else if (mappedConditionFilters.isNotEmpty()) {
@@ -247,7 +250,7 @@ class FHIRReceiverFilter(
                 actionLogger.getItemLogger(1, trackingId).warn(
                     ReceiverItemFilteredActionLogDetail(
                         mappedConditionFilters.joinToString(","),
-                        ReportStreamFilterType.MAPPED_CONDITION_FILTER,
+                        ReportStreamFilterType.MAPPED_CONDITION_FILTER.name,
                         receiver.organizationName,
                         receiver.name,
                         1
@@ -256,7 +259,7 @@ class FHIRReceiverFilter(
                 ReceiverFilterEvaluationResult.Failure(
                     FilterDetails(
                         mappedConditionFilters.map { it.value },
-                        ReportStreamFilterType.MAPPED_CONDITION_FILTER
+                        ReportStreamFilterType.MAPPED_CONDITION_FILTER.name
                     )
                 )
             } else {
@@ -282,18 +285,18 @@ class FHIRReceiverFilter(
      *
      * [actionLogger], [trackingId], and [filterType] facilitate logging
      */
-    private fun evaluateFhirExpressionFilters(
+    fun evaluateFhirExpressionFilters(
         receiver: Receiver,
         bundle: Bundle,
         actionLogger: ActionLogger,
         trackingId: String,
         filters: List<String>,
-        filterType: ReportStreamFilterType,
+        filterType: String,
     ): FhirExpressionEvaluationResult {
         val filtersEvaluated = filters.map { filter ->
             Pair(
                 FhirPathUtils.evaluateCondition(
-                    CustomContext(bundle, bundle, shorthandLookupTable, CustomFhirPathFunctions()),
+                    CustomContext(bundle, bundle, mutableMapOf(), CustomFhirPathFunctions()),
                     bundle,
                     bundle,
                     bundle,

@@ -417,25 +417,22 @@ abstract class ReportFileFunction(
              * @param query Incoming query params
              * @return converted params
              */
-            fun extractShowFailed(query: Map<String, String>): Boolean {
-                return query["showfailed"]?.toBoolean() ?: false
-            }
+            fun extractShowFailed(query: Map<String, String>): Boolean = query["showfailed"]?.toBoolean() ?: false
 
             /**
              * Convert fileName from query into param used for the DB
              * @param query Incoming query params
              * @return encoded param
              */
-            fun extractFileName(query: Map<String, String>): String? {
-                return if (query["fileName"] != null) {
+            fun extractFileName(query: Map<String, String>): String? = if (query["fileName"] != null) {
                     URLEncoder.encode(query["fileName"], Charset.defaultCharset())
                 } else {
                     null
                 }
-            }
 
-            fun extractReceivingOrgSvcStatus(query: Map<String, String>): List<CustomerStatus>? {
-                return query["receivingOrgSvcStatus"]?.split(",")?.map { CustomerStatus.valueOf(it) }
+            fun extractReceivingOrgSvcStatus(query: Map<String, String>): List<CustomerStatus>? =
+                query["receivingOrgSvcStatus"]?.split(",")?.map {
+                    CustomerStatus.valueOf(it)
             }
         }
     }
@@ -446,12 +443,10 @@ abstract class ReportFileFunction(
      * @param str Potential UUID
      * @return a valid UUID, or null if this [str] cannot be parsed into a valid UUID.
      */
-    internal fun toUuidOrNull(str: String): UUID? {
-        return try {
+    internal fun toUuidOrNull(str: String): UUID? = try {
             UUID.fromString(str)
         } catch (e: IllegalArgumentException) {
             logger.debug("Invalid format for report ID: $str", e)
             null
         }
-    }
 }

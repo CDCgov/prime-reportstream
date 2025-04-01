@@ -16,9 +16,7 @@ import org.springframework.security.web.server.SecurityWebFilterChain
  */
 @Configuration
 @EnableWebFluxSecurity
-class SecurityConfig(
-    private val applicationConfig: ApplicationConfig,
-) : Logging {
+class SecurityConfig(private val applicationConfig: ApplicationConfig) : Logging {
 
     @Bean
     fun securityWebFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {

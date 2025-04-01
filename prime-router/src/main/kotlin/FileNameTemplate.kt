@@ -29,8 +29,9 @@ interface FileNameElement {
 class Literal : FileNameElement {
     override val name = "literal"
 
-    override fun getElementValue(args: List<String>, translatorConfig: TranslatorConfiguration?): String {
-        return args.getOrElse(0) { "" }
+    override fun getElementValue(args: List<String>, translatorConfig: TranslatorConfiguration?): String =
+        args.getOrElse(0) {
+        ""
     }
 }
 
@@ -49,13 +50,12 @@ class FileUuid : FileNameElement {
     override val name: String
         get() = "uuid"
 
-    override fun getElementValue(args: List<String>, translatorConfig: TranslatorConfiguration?): String {
-        return if (args.isEmpty()) {
+    override fun getElementValue(args: List<String>, translatorConfig: TranslatorConfiguration?): String =
+        if (args.isEmpty()) {
             UUID.randomUUID().toString()
         } else {
             args[0]
         }
-    }
 }
 
 class RegexReplace : FileNameElement {
@@ -107,8 +107,7 @@ class CreatedDate : FileNameElement {
 
     override val name = "createdDate"
 
-    override fun getElementValue(args: List<String>, translatorConfig: TranslatorConfiguration?): String {
-        return try {
+    override fun getElementValue(args: List<String>, translatorConfig: TranslatorConfiguration?): String = try {
             val pattern = if (args.isEmpty() || args[0].isEmpty()) {
                 defaultFormat
             } else {
@@ -120,7 +119,6 @@ class CreatedDate : FileNameElement {
         } catch (_: Exception) {
             ""
         }
-    }
 }
 
 /**
@@ -186,11 +184,9 @@ open class FileNameTemplate(
             Rand6()
         )
 
-        private fun findFileNameElement(elementName: String): FileNameElement? {
-            return fileNameElements.firstOrNull {
+        private fun findFileNameElement(elementName: String): FileNameElement? = fileNameElements.firstOrNull {
                 it.name == elementName
             }
-        }
 
         fun parseFileNameElement(fileNameElement: String): Pair<String, List<String>> {
             // Using a permissive match in the (arg1, arg2) section, to allow most regexes to be passed as args.

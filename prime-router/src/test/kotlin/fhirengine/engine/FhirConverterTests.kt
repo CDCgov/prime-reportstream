@@ -141,11 +141,11 @@ class FhirConverterTests {
         "2222542&ISO||445297001^Swab of internal nose^SCT^^^^2.67||||53342003^Internal nose structure (body " +
         "structure)^SCT^^^^2020-09-01|||||||||202108020000-0500|20210802000006.0000-0500"
 
-    private fun makeFhirEngine(metadata: Metadata, settings: SettingsProvider, taskAction: TaskAction): FHIREngine {
-        return FHIREngine.Builder().metadata(metadata).settingsProvider(settings).databaseAccess(accessSpy)
+    private fun makeFhirEngine(metadata: Metadata, settings: SettingsProvider, taskAction: TaskAction): FHIREngine =
+        FHIREngine.Builder()
+            .metadata(metadata).settingsProvider(settings).databaseAccess(accessSpy)
             .reportService(reportService).blobAccess(blobMock)
             .submissionTableService(mockSubmissionTableService).build(taskAction)
-    }
 
     @BeforeEach
     fun reset() {

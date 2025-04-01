@@ -255,8 +255,7 @@ class TranslationTests {
      * Get the report format from the extension of a [filename].
      * @return the report format
      */
-    private fun getFormat(filename: String): MimeFormat {
-        return when {
+    private fun getFormat(filename: String): MimeFormat = when {
             File(filename).extension.uppercase() == "INTERNAL" || filename.uppercase().endsWith("INTERNAL.CSV") -> {
                 MimeFormat.INTERNAL
             }
@@ -273,7 +272,6 @@ class TranslationTests {
                 MimeFormat.CSV
             }
         }
-    }
 
     /**
      * Perform test based on the given configuration.
@@ -490,10 +488,7 @@ class TranslationTests {
             }
 
             if (!config.conditionFiler.isNullOrBlank()) {
-                fhirBundle = fhirBundle.filterObservations(
-                    listOf(config.conditionFiler),
-                    emptyMap<String, String>().toMutableMap()
-                )
+                fhirBundle = fhirBundle.filterObservations(listOf(config.conditionFiler))
             }
 
             val hl7 = FhirToHl7Converter(

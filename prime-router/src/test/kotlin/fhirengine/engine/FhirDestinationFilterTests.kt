@@ -32,11 +32,11 @@ import gov.cdc.prime.router.azure.observability.event.CodeSummary
 import gov.cdc.prime.router.azure.observability.event.InMemoryAzureEventService
 import gov.cdc.prime.router.azure.observability.event.ItemEventData
 import gov.cdc.prime.router.azure.observability.event.ObservationSummary
+import gov.cdc.prime.router.azure.observability.event.OrderingFacilitySummary
 import gov.cdc.prime.router.azure.observability.event.ReportEventData
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventProperties
 import gov.cdc.prime.router.azure.observability.event.ReportStreamItemEvent
 import gov.cdc.prime.router.azure.observability.event.TestSummary
-import gov.cdc.prime.router.metadata.LookupTable
 import gov.cdc.prime.router.report.ReportService
 import gov.cdc.prime.router.unittest.UnitTestUtils
 import gov.cdc.prime.router.version.Version
@@ -52,7 +52,6 @@ import org.jooq.tools.jdbc.MockDataProvider
 import org.jooq.tools.jdbc.MockResult
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.TestInstance
-import java.io.ByteArrayInputStream
 import java.io.File
 import java.time.OffsetDateTime
 import java.util.UUID
@@ -212,9 +211,8 @@ class FhirDestinationFilterTests {
             test'apostrophe,Bundle.test.apostrophe
     """.trimIndent()
 
-    private val shorthandTable = LookupTable.read(inputStream = ByteArrayInputStream(csv.toByteArray()))
     val one = Schema(name = "None", topic = Topic.FULL_ELR, elements = emptyList())
-    val metadata = Metadata(schema = one).loadLookupTable("fhirpath_filter_shorthand", shorthandTable)
+    val metadata = Metadata(schema = one)
     val report = Report(one, listOf(listOf("1", "2")), TestSource, metadata = UnitTestUtils.simpleMetadata)
 
     private var actionLogger = ActionLogger()
@@ -374,6 +372,13 @@ class FhirDestinationFilterTests {
                                         loincSystem,
                                         "94558-4",
                                     )
+                                ),
+                                listOf(
+                                    CodeSummary(
+                                        system = "http://terminology.hl7.org/CodeSystem/v2-0078",
+                                        code = "N",
+                                        display = "Normal"
+                                    )
                                 )
                             ),
                             ObservationSummary(
@@ -410,8 +415,13 @@ class FhirDestinationFilterTests {
                             ),
                         ),
                         patientState = listOf("CA"),
-                        performerState = emptyList(),
-                        orderingFacilityState = listOf("CA"),
+                        performerSummaries = emptyList(),
+                        orderingFacilitySummaries = listOf(
+                            OrderingFacilitySummary(
+                                orderingFacilityName = "Winchester House",
+                                orderingFacilityState = "CA"
+                            )
+                        ),
                         eventType = "ORU/ACK - Unsolicited transmission of an observation message"
                     )
                 )
@@ -537,6 +547,13 @@ class FhirDestinationFilterTests {
                                             loincSystem,
                                             "94558-4",
                                         )
+                                    ),
+                                    listOf(
+                                        CodeSummary(
+                                            system = "http://terminology.hl7.org/CodeSystem/v2-0078",
+                                            code = "N",
+                                            display = "Normal"
+                                        )
                                     )
                                 ),
                                 ObservationSummary(
@@ -573,8 +590,13 @@ class FhirDestinationFilterTests {
                                 ),
                             ),
                             patientState = listOf("CA"),
-                            performerState = emptyList(),
-                            orderingFacilityState = listOf("CA"),
+                            performerSummaries = emptyList(),
+                            orderingFacilitySummaries = listOf(
+                                OrderingFacilitySummary(
+                                    orderingFacilityName = "Winchester House",
+                                    orderingFacilityState = "CA"
+                                )
+                            ),
                             eventType = "ORU/ACK - Unsolicited transmission of an observation message"
                         )
                     )

@@ -22,8 +22,6 @@ on:
       - "frontend-react/**"
       - "prime-router/src/scripts/**"
       - "/operations/app/functions/admin/**"
-  schedule:
-    - cron: '20 4 * * 1'
 
 jobs:
   analyze:

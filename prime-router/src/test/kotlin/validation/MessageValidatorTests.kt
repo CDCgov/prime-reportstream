@@ -20,7 +20,7 @@ private const val radxmarsProfileLocation = "metadata/hl7_validation/v251/radxma
 class MessageValidatorTests {
 
     @Nested
-    inner class MessageValidationResultTests() {
+    inner class MessageValidationResultTests {
 
         @Test
         fun `test HL7ValidationResult is valid`() {

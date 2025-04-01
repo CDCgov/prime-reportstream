@@ -40,22 +40,18 @@ class ConfigurationValidationServiceImpl(
     ConfigurationValueValidationServiceImpl(),
 ) : ConfigurationValidationService {
 
-    override fun <T> validateYAML(configType: ConfigurationType<T>, file: File): ConfigurationValidationResult<T> {
-        return validateYAML(configType, file.inputStream())
-    }
+    override fun <T> validateYAML(configType: ConfigurationType<T>, file: File): ConfigurationValidationResult<T> =
+        validateYAML(configType, file.inputStream())
 
     override fun <T> validateYAML(
         configType: ConfigurationType<T>,
         yamlString: String,
-    ): ConfigurationValidationResult<T> {
-        return validateYAML(configType, yamlString.byteInputStream())
-    }
+    ): ConfigurationValidationResult<T> = validateYAML(configType, yamlString.byteInputStream())
 
     override fun <T> validateYAML(
         configType: ConfigurationType<T>,
         inputStream: InputStream,
-    ): ConfigurationValidationResult<T> {
-        return when (
+    ): ConfigurationValidationResult<T> = when (
             val jsonSchemaValidation = jsonSchemaValidationService.validateYAMLStructure(configType, inputStream)
         ) {
             is ConfigurationValidationSuccess -> {
@@ -63,5 +59,4 @@ class ConfigurationValidationServiceImpl(
             }
             is ConfigurationValidationFailure -> jsonSchemaValidation
         }
-    }
 }

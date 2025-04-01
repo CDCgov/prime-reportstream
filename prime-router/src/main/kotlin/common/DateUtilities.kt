@@ -121,8 +121,7 @@ object DateUtilities {
     fun getFormatter(
         dateTimeFormat: DateTimeFormat? = null,
         useHighPrecisionOffset: Boolean? = null,
-    ): DateTimeFormatter {
-        return when (dateTimeFormat) {
+    ): DateTimeFormatter = when (dateTimeFormat) {
             DateTimeFormat.HIGH_PRECISION_OFFSET -> highPrecisionDateTimeFormatter
             DateTimeFormat.LOCAL -> localDateTimeFormatter
             DateTimeFormat.DATE_ONLY -> dateFormatter
@@ -134,7 +133,6 @@ object DateUtilities {
                 }
             }
         }
-    }
 
     /**
      * This method takes a date value as a string and returns a
@@ -174,8 +172,7 @@ object DateUtilities {
     }
 
     /** Parse the date according to the single pattern passed in, or return null */
-    fun parseDate(dateValue: String, formatString: String): TemporalAccessor? {
-        return try {
+    fun parseDate(dateValue: String, formatString: String): TemporalAccessor? = try {
             DateTimeFormatter.ofPattern(formatString)
                 .parseBest(
                     dateValue,
@@ -188,15 +185,12 @@ object DateUtilities {
         } catch (_: Throwable) {
             null
         }
-    }
 
-    fun tryParseIsoDate(dateValue: String): TemporalAccessor? {
-        return try {
+    fun tryParseIsoDate(dateValue: String): TemporalAccessor? = try {
             Instant.parse(dateValue)
         } catch (_: DateTimeParseException) {
             null
         }
-    }
 
     /**
      * Given a [temporalAccessor] this will check the type that it needs to return
@@ -407,9 +401,7 @@ object DateUtilities {
      * @param [value] datetime value to be parsed.
      * @return [OffsetDateTime] the best parsed datetime value
      */
-    private fun getBestDateTime(value: String): OffsetDateTime {
-        return parseDate(value).toOffsetDateTime()
-    }
+    private fun getBestDateTime(value: String): OffsetDateTime = parseDate(value).toOffsetDateTime()
 
     /**
      * Convert a [Duration] to an integer years value. It takes the [Duration.toDays] value
@@ -420,17 +412,14 @@ object DateUtilities {
      * number of years calculated from this slightly based on birthdate, but it's an outside
      * chance, so it's acceptable
      */
-    fun Duration.toYears(): Int {
-        return floor(abs(this.toDays() / 365.0)).toInt()
-    }
+    fun Duration.toYears(): Int = floor(abs(this.toDays() / 365.0)).toInt()
 
     /**
      * Given a temporal accessor of some sort, coerce it to an offset date time value.
      * If the temporal accessor is of type LocalDate, then we don't have a time, and we coerce it
      * to use the local "start of day", and then convert to the date time offset.
      */
-    fun TemporalAccessor.toOffsetDateTime(zoneId: ZoneId? = null): OffsetDateTime {
-        return when (this) {
+    fun TemporalAccessor.toOffsetDateTime(zoneId: ZoneId? = null): OffsetDateTime = when (this) {
             // coerce the local date to the start of the day. it's not great, but if we did not
             // get the time, then pushing it to start of day is *probably* okay. At some point
             // we should probably throw a coercion warning when we do this
@@ -446,7 +435,6 @@ object DateUtilities {
             is OffsetDateTime, is ZonedDateTime -> OffsetDateTime.from(this)
             else -> error("Unsupported format!")
         }
-    }
 
     /**
      * Given a temporal accessor, it converts it to a local date time instant. It can cleanly convert
@@ -459,8 +447,7 @@ object DateUtilities {
      * time value to start of day is okay. Probably. Maybe. For future work we should probably throw
      * a coercion error when this happens and root these out of the system.
      */
-    fun TemporalAccessor.toLocalDateTime(): LocalDateTime {
-        return when (this) {
+    fun TemporalAccessor.toLocalDateTime(): LocalDateTime = when (this) {
             is LocalDateTime -> this
             // we are coercing local date to start of date for the local time and then casting it to
             // local date time. This is a dicey proposition, and we should probably elicit some kind
@@ -470,16 +457,13 @@ object DateUtilities {
             is ZonedDateTime, is OffsetDateTime, is Instant -> LocalDateTime.from(this)
             else -> error("Unsupported format")
         }
-    }
 
     /** Convert to a local date */
-    fun TemporalAccessor.toLocalDate(): LocalDate {
-        return when (this) {
+    fun TemporalAccessor.toLocalDate(): LocalDate = when (this) {
             is LocalDate -> this
             is ZonedDateTime, is OffsetDateTime, is LocalDateTime, is Instant -> LocalDate.from(this)
             else -> error("Unsupported format")
         }
-    }
 
     /**
      * Given a Temporal Accessor, this attempts to convert to other date time types available. Some
@@ -488,8 +472,7 @@ object DateUtilities {
      * try to convert a LocalDate to a ZonedDateTime without telling it what time zone "local" is, it's
      * going to fail.
      */
-    fun TemporalAccessor.toZonedDateTime(zoneId: ZoneId? = null): ZonedDateTime {
-        return when (this) {
+    fun TemporalAccessor.toZonedDateTime(zoneId: ZoneId? = null): ZonedDateTime = when (this) {
             is ZonedDateTime -> {
                 if (zoneId != null && this.zone != zoneId) {
                     this.withZoneSameInstant(zoneId)
@@ -514,7 +497,6 @@ object DateUtilities {
             }
             else -> error("Unsupported format for converting to ZonedDateTime")
         }
-    }
 
     /**
      * An extension method to TemporalAccessor that will format the date for us by calling the internal method
@@ -550,11 +532,9 @@ object DateUtilities {
     fun TemporalAccessor.asFormattedString(
         dateTimeFormat: String? = null,
         convertPositiveDateTimeOffsetToNegative: Boolean = false,
-    ): String {
-        return getDateAsFormattedString(
+    ): String = getDateAsFormattedString(
             this,
             dateTimeFormat ?: DateUtilities.datetimePattern,
             convertPositiveDateTimeOffsetToNegative
         )
-    }
 }

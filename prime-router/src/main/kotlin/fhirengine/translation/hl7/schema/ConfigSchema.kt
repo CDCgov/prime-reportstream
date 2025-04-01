@@ -184,9 +184,7 @@ abstract class ConfigSchemaElement<
 ) {
     private var validationErrors: MutableSet<String> = mutableSetOf()
 
-    override fun toString(): String {
-        return "$name"
-    }
+    override fun toString(): String = "$name"
 
     /**
      * Add an error [msg] to the list of errors.
@@ -226,7 +224,8 @@ abstract class ConfigSchemaElement<
         // value set keys and values cannot be null
         if (valueSet?.toSortedMap()?.keys?.any {
                 it == null
-            } == true || valueSet?.toSortedMap()?.values?.any { it == null } == true
+            } == true ||
+            valueSet?.toSortedMap()?.values?.any { it == null } == true
         ) {
             addError("Value sets cannot contain null values")
         }

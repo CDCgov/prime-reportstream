@@ -233,7 +233,7 @@ class ReportFunction(
         override var enrichmentSchemaWarnings: MutableList<String> = mutableListOf(),
         override var receiverTransformErrors: MutableList<String> = mutableListOf(),
         override var receiverTransformWarnings: MutableList<String> = mutableListOf(),
-        override var filterErrors: MutableList<String> = mutableListOf(),
+        override var filterErrors: MutableList<ProcessFhirCommands.FilterError> = mutableListOf(),
     ) : ProcessFhirCommands.MessageOrBundleParent()
 
     /**
@@ -243,8 +243,7 @@ class ReportFunction(
         request: HttpRequestMessage<String?>,
         blobAccess: BlobAccess.Companion = BlobAccess,
         defaultBlobMetadata: BlobAccess.BlobContainerMetadata = BlobAccess.defaultBlobMetadata,
-    ): HttpResponseMessage {
-        return try {
+    ): HttpResponseMessage = try {
             val updatedBlobMetadata = defaultBlobMetadata.copy(containerName = "test-bank")
             val results = blobAccess.listBlobs("", updatedBlobMetadata)
             val reports = mutableListOf<TestReportInfo>()
@@ -271,13 +270,8 @@ class ReportFunction(
             logger.error("Unable to fetch messages from test bank", e)
             HttpUtilities.internalErrorResponse(request)
         }
-    }
 
-    class TestReportInfo(
-        var dateCreated: String,
-        var fileName: String,
-        var reportBody: String,
-    )
+    class TestReportInfo(var dateCreated: String, var fileName: String, var reportBody: String)
 
     /**
      * GET report to download
@@ -428,9 +422,7 @@ class ReportFunction(
         actionHistory.queueMessages(workflowEngine)
     }
 
-    private fun extractPayloadNameFromFilePath(filename: String): String {
-        return Path(filename).fileName.toString()
-    }
+    private fun extractPayloadNameFromFilePath(filename: String): String = Path(filename).fileName.toString()
 
     private fun getSenderIdFromFilePath(filename: String): String {
         val path = Path(filename)

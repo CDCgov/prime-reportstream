@@ -27,7 +27,7 @@ export class OrganizationPage extends BasePage {
     }
 
     get isPageLoadExpected() {
-        return super.isPageLoadExpected && this.testArgs.storageState === this.testArgs.adminLogin.path;
+        return super.isPageLoadExpected && this.isAdminSession;
     }
 
     createMockOrganizationHandler(): RouteHandlerFulfillEntry {

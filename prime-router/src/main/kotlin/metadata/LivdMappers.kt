@@ -129,7 +129,8 @@ class LIVDLookupMapper : Mapper {
 
         return ElementResult(null).also {
             // Hide any warnings to fields the user does not send to us
-            if (!element.csvFields.isNullOrEmpty() || !element.hl7Field.isNullOrBlank() ||
+            if (!element.csvFields.isNullOrEmpty() ||
+                !element.hl7Field.isNullOrBlank() ||
                 !element.hl7OutputFields.isNullOrEmpty()
             ) {
                 it.warning(InvalidEquipmentMessage(element.fieldMapping))
@@ -158,8 +159,7 @@ class Obx17Mapper : Mapper {
         args: List<String>,
         values: List<ElementAndValue>,
         sender: Sender?,
-    ): ElementResult {
-        return ElementResult(
+    ): ElementResult = ElementResult(
             if (values.isEmpty()) {
                 null
             } else {
@@ -187,7 +187,6 @@ class Obx17Mapper : Mapper {
                 }
             }
         )
-    }
 }
 
 /**
@@ -210,8 +209,7 @@ class Obx17TypeMapper : Mapper {
         args: List<String>,
         values: List<ElementAndValue>,
         sender: Sender?,
-    ): ElementResult {
-        return ElementResult(
+    ): ElementResult = ElementResult(
             if (values.isEmpty()) {
                 null
             } else {
@@ -232,5 +230,4 @@ class Obx17TypeMapper : Mapper {
                 }
             }
         )
-    }
 }

@@ -17,9 +17,7 @@ interface IProcessedItem<ParsedType> {
          *
          * @param hl7Message the message to get the tracking ID
          */
-        fun extractTrackingId(hl7Message: Message): String {
-            return Terser(hl7Message).get("MSH-10") ?: ""
-        }
+        fun extractTrackingId(hl7Message: Message): String = Terser(hl7Message).get("MSH-10") ?: ""
 
         /**
          * Extracts a tracking id from an FHIR Bundle (Bundle.identifier) which
@@ -28,9 +26,7 @@ interface IProcessedItem<ParsedType> {
          *
          * @param bundle the message to get the tracking ID
          */
-        fun extractTrackingId(bundle: Bundle): String {
-            return bundle.identifier?.value ?: ""
-        }
+        fun extractTrackingId(bundle: Bundle): String = bundle.identifier?.value ?: ""
     }
 
     val rawItem: String
@@ -61,13 +57,11 @@ data class ProcessedFHIRItem(
     override val validationError: FHIRConverter.InvalidItemActionLogDetail? = null,
     override val bundle: Bundle? = null,
 ) : IProcessedItem<Bundle> {
-    override fun updateParsed(error: FHIRConverter.InvalidItemActionLogDetail): ProcessedFHIRItem {
-        return this.copy(parseError = error)
-    }
+    override fun updateParsed(
+        error: FHIRConverter.InvalidItemActionLogDetail,
+    ): ProcessedFHIRItem = this.copy(parseError = error)
 
-    override fun updateParsed(parsed: Bundle): ProcessedFHIRItem {
-        return this.copy(parsedItem = parsed)
-    }
+    override fun updateParsed(parsed: Bundle): ProcessedFHIRItem = this.copy(parsedItem = parsed)
 
     override fun updateValidation(error: FHIRConverter.InvalidItemActionLogDetail): ProcessedFHIRItem {
         if (parseError == null && parsedItem != null) {
@@ -90,9 +84,7 @@ data class ProcessedFHIRItem(
         return ""
     }
 
-    override fun getError(): FHIRConverter.InvalidItemActionLogDetail? {
-        return parseError ?: validationError
-    }
+    override fun getError(): FHIRConverter.InvalidItemActionLogDetail? = parseError ?: validationError
 }
 
 data class ProcessedHL7Item(
@@ -104,13 +96,11 @@ data class ProcessedHL7Item(
     val conversionError: FHIRConverter.InvalidItemActionLogDetail? = null,
     override val bundle: Bundle? = null,
 ) : IProcessedItem<Message> {
-    override fun updateParsed(error: FHIRConverter.InvalidItemActionLogDetail): ProcessedHL7Item {
-        return this.copy(parseError = error)
-    }
+    override fun updateParsed(
+        error: FHIRConverter.InvalidItemActionLogDetail,
+    ): ProcessedHL7Item = this.copy(parseError = error)
 
-    override fun updateParsed(parsed: Message): ProcessedHL7Item {
-        return this.copy(parsedItem = parsed)
-    }
+    override fun updateParsed(parsed: Message): ProcessedHL7Item = this.copy(parsedItem = parsed)
 
     override fun updateValidation(error: FHIRConverter.InvalidItemActionLogDetail): ProcessedHL7Item {
         if (parseError == null && parsedItem != null) {
@@ -135,11 +125,9 @@ data class ProcessedHL7Item(
         return ""
     }
 
-    fun setConversionError(error: FHIRConverter.InvalidItemActionLogDetail): ProcessedHL7Item {
-        return this.copy(conversionError = error)
-    }
+    fun setConversionError(error: FHIRConverter.InvalidItemActionLogDetail): ProcessedHL7Item =
+        this.copy(conversionError = error)
 
-    override fun getError(): FHIRConverter.InvalidItemActionLogDetail? {
-        return parseError ?: validationError ?: conversionError
-    }
+    override fun getError(): FHIRConverter.InvalidItemActionLogDetail? =
+        parseError ?: validationError ?: conversionError
 }

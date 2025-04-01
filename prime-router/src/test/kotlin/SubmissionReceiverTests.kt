@@ -299,12 +299,10 @@ class SubmissionReceiverTests {
         "42&ISO||445297001^Swab of internal nose^SCT^^^^2.67||||53342003^Internal nose structure (body structure)^" +
         "SCT^^^^2020-09-01|||||||||202108020000-0500|20210802000006.0000-0500"
 
-    private fun makeEngine(metadata: Metadata, settings: SettingsProvider): WorkflowEngine {
-        return spyk(
+    private fun makeEngine(metadata: Metadata, settings: SettingsProvider): WorkflowEngine = spyk(
             WorkflowEngine.Builder().metadata(metadata).settingsProvider(settings).databaseAccess(accessSpy)
                 .blobAccess(blobMock).queueAccess(queueMock).build()
         )
-    }
 
     @BeforeEach
     fun reset() {

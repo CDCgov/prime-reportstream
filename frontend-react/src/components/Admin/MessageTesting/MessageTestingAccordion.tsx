@@ -1,23 +1,30 @@
 import { Accordion, Icon, Tag } from "@trussworks/react-uswds";
-import { RSMessageResult } from "../../../config/endpoints/reports";
+import { RSFilterError } from "../../../config/endpoints/reports";
+
+type MessageTestingAccordionProps =
+    | {
+          dataHaveSubsections: true;
+          accordionTitle: string;
+          priority: "error" | "warning";
+          fieldData: RSFilterError[];
+      }
+    | {
+          dataHaveSubsections?: false | undefined; // false or missing
+          accordionTitle: string;
+          priority: "error" | "warning";
+          fieldData: string[];
+      };
 
 export const MessageTestingAccordion = ({
     accordionTitle,
     priority,
-    resultData,
-    fieldsToRender,
-}: {
-    accordionTitle: string;
-    priority: "error" | "warning";
-    resultData: RSMessageResult;
-    fieldsToRender: (keyof RSMessageResult)[];
-}) => {
+    fieldData,
+    dataHaveSubsections,
+}: MessageTestingAccordionProps) => {
     const fieldID = accordionTitle.toLowerCase().split(" ").join("-");
-    const existingFields = fieldsToRender.filter((field) => Object.keys(resultData).includes(field));
-    const combinedFieldData = existingFields.flatMap((field) => resultData[field]);
 
     // Immediately return if there's no warning/error data to display
-    if (combinedFieldData.length === 0) return;
+    if (fieldData.length === 0) return;
 
     return (
         <div key={`${fieldID}-accordion-wrapper`} className="padding-top-4 ">
@@ -37,22 +44,34 @@ export const MessageTestingAccordion = ({
                                 <span className="font-body-lg">{accordionTitle}</span>
 
                                 {priority === "error" && (
-                                    <Tag className="margin-left-1 bg-secondary-vivid">{combinedFieldData.length}</Tag>
+                                    <Tag className="margin-left-1 bg-secondary-vivid">{fieldData.length}</Tag>
                                 )}
 
                                 {priority === "warning" && (
-                                    <Tag className="margin-left-1 bg-accent-warm">{combinedFieldData.length}</Tag>
+                                    <Tag className="margin-left-1 bg-accent-warm">{fieldData.length}</Tag>
                                 )}
                             </>
                         ),
                         content: (
-                            <div className="bg-white font-sans-sm padding-top-2 padding-bottom-2 padding-left-1 padding-right-1">
-                                {combinedFieldData.map((item, index) => (
-                                    <div key={index}>
-                                        <div>{item}</div>
-                                        {index < combinedFieldData.length - 1 && <hr className="rs-hr--half-margin" />}
-                                    </div>
-                                ))}
+                            <div
+                                aria-label={accordionTitle}
+                                className="bg-white font-sans-sm padding-top-2 padding-bottom-2 padding-left-1 padding-right-1"
+                            >
+                                {dataHaveSubsections
+                                    ? fieldData.map((item, index) => (
+                                          <div key={index}>
+                                              <div>
+                                                  {item.filter}: {item.message}
+                                              </div>
+                                              {index < fieldData.length - 1 && <hr className="rs-hr--half-margin" />}
+                                          </div>
+                                      ))
+                                    : fieldData.map((item, index) => (
+                                          <div key={index}>
+                                              <div>{item}</div>
+                                              {index < fieldData.length - 1 && <hr className="rs-hr--half-margin" />}
+                                          </div>
+                                      ))}
                             </div>
                         ),
                         expanded: false,

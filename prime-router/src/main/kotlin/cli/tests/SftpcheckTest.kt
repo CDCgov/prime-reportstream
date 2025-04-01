@@ -115,10 +115,8 @@ class SftpcheckTest : CoolTest() {
     private fun sftpReceiverIgnoreOrganizationCheck(
         path: String,
         accessToken: String,
-    ): Pair<HttpResponse, String> {
-        return HttpClientUtils.getWithStringResponse(
+    ): Pair<HttpResponse, String> = HttpClientUtils.getWithStringResponse(
             url = path,
             accessToken = accessToken
         )
-    }
 }

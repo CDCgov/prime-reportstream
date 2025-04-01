@@ -6,8 +6,10 @@
   },
   "extensions": {
     "queues": {
-      "batchSize": 8,
-      "newBatchThreshold": 4
+      "batchSize": 4,
+      "newBatchThreshold": 2,
+      "visibilityTimeout": "00:05:00",
+      "maxDequeueCount": 5
     }
   },
   "logging": {

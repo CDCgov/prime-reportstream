@@ -184,7 +184,7 @@ Organizations serve as containers for Senders and Receivers, but have their own 
 
 #### Sender Settings
 
-Sender settings allow the Sender to indicate what [topic](./topic.md) they would like to use as well as the format of their message. `allowDuplicates` allows Senders to indicate if duplicate Items in a Report should be filtered out prior to processing. For more information regarding `allowDuplicates`, see documentation on the [Receive step](../../universal-pipeline/receive.md) of the Universal Pipeline.
+Sender settings allow the Sender to indicate what [topic](./topic.md) they would like to use as well as the format of their message. `allowDuplicates` allows Senders to indicate if duplicate Items in a Report should be filtered out prior to processing. For more information regarding deduplication, see [Universal Pipeline Deduplication](../design/deduplication/deduplication.md).
 
 Example Sender settings configuration. Deprecated options have been omitted.
 ```json

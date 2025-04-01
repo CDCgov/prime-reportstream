@@ -18,9 +18,10 @@ In order to handle different data **formats** and **types** in a scalable and ma
 ```mermaid
 flowchart LR;
     Receive-->Convert;
-    Convert-->Destination Filter;
-    Destination Filter-->Receiver Filter;
-    Receiver Filter-->Translate;
+    Convert-->id4[Destination Filter];
+    id4-->id5[Receiver Enrichment];
+    id5-->id6[Receiver Filter];
+    id6-->Translate;
     Translate-->Batch;
     Batch-->Send;
 ```
@@ -29,6 +30,7 @@ The sections listed below will aim to describe each step of the pipeline in tech
 - [Receive](./receive.md)
 - [Convert](./convert.md)
 - [Destination Filter](./destination-filter.md)
+- [Receiver Enrichment](./receiver-enrichment.md)
 - [Receiver Filter](./receiver-filter.md)
 - [Translate](./translate.md)
 - [Batch](./batch.md)
@@ -112,9 +114,10 @@ messagesToSend.add(
 )
 ```
 
-The four queues specific to the Universal Pipeline are:
+The five queues specific to the Universal Pipeline are:
 - elr-fhir-convert
 - elr-fhir-destination-filter
+- elf-fhir-receiver-enrichment
 - elr-fhir-receiver-filter
 - elr-fhir-translate
 

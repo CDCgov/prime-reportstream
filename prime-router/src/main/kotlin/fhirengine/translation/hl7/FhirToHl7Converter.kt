@@ -112,9 +112,8 @@ Logging {
         return message
     }
 
-    override fun checkForEquality(converted: Message, expectedOutput: Message): Boolean {
-        return converted.encodePreserveEncodingChars() == expectedOutput.encodePreserveEncodingChars()
-    }
+    override fun checkForEquality(converted: Message, expectedOutput: Message): Boolean =
+        converted.encodePreserveEncodingChars() == expectedOutput.encodePreserveEncodingChars()
 
     /**
      * Get the first valid string from the list of values specified in the schema for a given [element] using

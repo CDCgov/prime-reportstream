@@ -357,8 +357,7 @@ object UniversalPipelineTestUtils {
         val enrichmentSchemaNames: List<String> = emptyList(),
     )
 
-    fun createReceivers(receiverSetupDataList: List<ReceiverSetupData>): List<Receiver> {
-        return receiverSetupDataList.map {
+    fun createReceivers(receiverSetupDataList: List<ReceiverSetupData>): List<Receiver> = receiverSetupDataList.map {
             Receiver(
                 it.name,
                 it.orgName,
@@ -376,10 +375,8 @@ object UniversalPipelineTestUtils {
                 enrichmentSchemaNames = it.enrichmentSchemaNames
             )
         }
-    }
 
-    fun createOrganizationWithReceivers(receiverList: List<Receiver>): DeepOrganization {
-        return DeepOrganization(
+    fun createOrganizationWithReceivers(receiverList: List<Receiver>): DeepOrganization = DeepOrganization(
             "phd",
             "test",
             Organization.Jurisdiction.FEDERAL,
@@ -392,7 +389,6 @@ object UniversalPipelineTestUtils {
             ),
             receivers = receiverList
         )
-    }
 
     fun createFHIRFunctionsInstance(): FHIRFunctions {
         val settings = FileSettings().loadOrganizations(universalPipelineOrganization)

@@ -12,13 +12,10 @@ import org.springframework.context.annotation.Profile
 
 @Configuration
 @Profile("!test")
-class OktaClientConfig(
-    private val oktaClientProperties: OktaClientProperties,
-) {
+class OktaClientConfig(private val oktaClientProperties: OktaClientProperties) {
 
     @Bean
-    fun apiClient(): ApiClient {
-        return Clients.builder()
+    fun apiClient(): ApiClient = Clients.builder()
             .setOrgUrl(oktaClientProperties.orgUrl)
             .setAuthorizationMode(AuthorizationMode.PRIVATE_KEY)
             .setClientId(oktaClientProperties.clientId)
@@ -26,12 +23,9 @@ class OktaClientConfig(
             .setPrivateKey(oktaClientProperties.apiPrivateKey)
             // .setCacheManager(...) TODO: investigate caching since groups don't often change
             .build()
-    }
 
     @Bean
-    fun applicationGroupsApi(): ApplicationGroupsApi {
-        return ApplicationGroupsApi(apiClient())
-    }
+    fun applicationGroupsApi(): ApplicationGroupsApi = ApplicationGroupsApi(apiClient())
 
     @ConfigurationProperties(prefix = "okta.admin-client")
     data class OktaClientProperties(

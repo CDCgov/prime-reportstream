@@ -44,6 +44,7 @@ export const MessageTestingCustomMessage = ({
                 onChange={handleTextareaChange}
                 id="custom-message-text"
                 name="custom-message-text"
+                aria-label="Custom message text"
                 className="width-full maxw-full margin-bottom-205"
             />
             <div className="width-full text-right">
