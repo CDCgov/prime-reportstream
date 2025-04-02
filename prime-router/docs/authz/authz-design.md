@@ -178,9 +178,18 @@ We have several viable approaches to handling updates to senders:
       group memberships periodically. This removes the potential for group memberships and sender profiles to fall out
       of sync, but the refresh will happen on a delay and this would require the microservice to perform more work on an
       ongoing basis.
-    * Research Okta event hooks to see if it is possible for the auth API to receive a notification when application
-      user profile group memberships change. If possible, this would certainly be preferable to the other proposed
-      update methods.
+    * Using Okta event hooks to send a POST request to the auth microservice whenever an application's group membership
+      changes. The relevant events:
+      * Add assigned application to group.
+      * Update assigned application in group.
+      * Remove assigned application from group.
+      
+      Whenever group membership is changed, a notification will be sent via an API on the auth microservice, which will
+      make profile updates accordingly. The request will identify the application being updated (`data.events[0].target[1].id`)
+      as well as the group (`data.events[0].target[0].displayName`). We can either define separate event hooks for each of 
+      the event types, or have all three configured for the same endpoint and parse `data.events[0].eventType` to
+      determine which event occurred. We should also plan to have one of the other methods available in case of dropped
+      events due to network or application issues. Event hooks are documented [here](https://developer.okta.com/docs/guides/event-hook-implementation/nodejs/main/).
 * Build out APIs within the auth project to manage application users within the RS frontend, forgoing the Okta Admin
   Console.
   * This would require adding CLI calls or frontend development work to be a viable solution.
