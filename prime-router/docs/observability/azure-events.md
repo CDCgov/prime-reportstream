@@ -114,7 +114,7 @@ Additional Parameters
 The PIPELINE_EXCEPTION event can be logged if any step within the pipeline fails or encounters a processing error.
 
 This information is also captured in [LucidChart](https://lucidgov.app/lucidchart/89edc4c3-695b-4324-be8e-6556dd9fec95/edit?viewport_[…]I_OT3aNK&invitationId=inv_a44a9145-fc99-49ca-9053-a873937c7b23) (requires login), which also denotes what properties are being logged for each custom event.
-To see where in the pipeline these events sequentially occur, please refer to another [LucidChart diagram]([url](https://lucidgov.app/lucidchart/3820834e-a916-43d5-9575-0482c8e3f299/edit?viewport_loc=-608%2C-997%2C2973%2C1621%2CKYWo9OtDiKnx&invitationId=inv_db7796a6-a5ef-476b-b199-329581794844)).
+To see where in the pipeline these events sequentially occur, please refer to another [LucidChart diagram](https://lucidgov.app/lucidchart/3820834e-a916-43d5-9575-0482c8e3f299/edit?viewport_loc=-608%2C-997%2C2973%2C1621%2CKYWo9OtDiKnx&invitationId=inv_db7796a6-a5ef-476b-b199-329581794844).
 
 ## How to query for events
 
