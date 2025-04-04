@@ -149,8 +149,6 @@ class SubmissionControllerTest {
 
         `when`(blobClient.blobUrl).thenReturn(expectedBlobUrl)
         `when`(queueClient.sendMessage(anyString())).thenReturn(sendMessageResult)
-        `when`(authZService.isSenderAuthorized(org.mockito.kotlin.any(), org.mockito.kotlin.any<(String) -> String>()))
-            .thenReturn(true)
 
         mockMvc.perform(
             MockMvcRequestBuilders.post("/api/v1/reports")
@@ -198,8 +196,6 @@ class SubmissionControllerTest {
 
         `when`(blobClient.blobUrl).thenReturn(expectedBlobUrl)
         `when`(queueClient.sendMessage(anyString())).thenReturn(sendMessageResult)
-        `when`(authZService.isSenderAuthorized(org.mockito.kotlin.any(), org.mockito.kotlin.any<(String) -> String>()))
-            .thenReturn(true)
 
         mockMvc.perform(
             MockMvcRequestBuilders.post("/api/v1/reports")
@@ -270,8 +266,6 @@ class SubmissionControllerTest {
         val data = mapOf("key" to "value")
         val requestBody = objectMapper.writeValueAsString(data)
 
-        `when`(authZService.isSenderAuthorized(org.mockito.kotlin.any(), org.mockito.kotlin.any<(String) -> String>()))
-            .thenReturn(true)
         doThrow(RuntimeException("Blob storage failure"))
             .`when`(blobClient).upload(any(ByteArrayInputStream::class.java), anyLong())
 
@@ -295,8 +289,6 @@ class SubmissionControllerTest {
         val data = mapOf("key" to "value")
         val requestBody = objectMapper.writeValueAsString(data)
 
-        `when`(authZService.isSenderAuthorized(org.mockito.kotlin.any(), org.mockito.kotlin.any<(String) -> String>()))
-            .thenReturn(true)
         doNothing().`when`(blobClient).upload(any(ByteArrayInputStream::class.java), anyLong())
         doThrow(RuntimeException("Queue service failure")).`when`(queueClient).sendMessage(anyString())
 
@@ -336,8 +328,6 @@ class SubmissionControllerTest {
         // Mock the UUID generation to ensure a predictable report ID
         val uuidMockedStatic = mockStatic(UUID::class.java)
         uuidMockedStatic.`when`<UUID> { UUID.randomUUID() }.thenReturn(reportId)
-        `when`(authZService.isSenderAuthorized(org.mockito.kotlin.any(), org.mockito.kotlin.any<(String) -> String>()))
-            .thenReturn(true)
 
         mockMvc.perform(
             MockMvcRequestBuilders.post("/api/v1/reports")
