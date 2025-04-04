@@ -69,6 +69,7 @@ runs:
       if: inputs.sp-creds
       with:
         creds: ${{ inputs.sp-creds }}
+        auth-type: 'SERVICE_PRINCIPAL'
 
     - name: Terraform Auth
       if: inputs.tf-auth == 'true' && inputs.sp-creds
