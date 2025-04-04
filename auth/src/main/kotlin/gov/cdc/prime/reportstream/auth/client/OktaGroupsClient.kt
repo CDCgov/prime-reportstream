@@ -27,7 +27,7 @@ class OktaGroupsClient(private val applicationGroupsApi: ApplicationGroupsApi,
                     .map { it["name"] as String }
                 logger.info("$appId is a member of ${groups.joinToString()}")
 
-                // TEMP - use application api to store group assignments as profile items
+                // TODO to be removed: use application api to store group assignments as profile items
                 val app = applicationApi.getApplication(appId, null)
                 app.putprofileItem("groups", groups)
                 applicationApi.replaceApplication(appId, app)
