@@ -33,7 +33,6 @@ import java.io.IOException
 import java.time.Instant
 import java.util.UUID
 
-
 private val logger = LoggerFactory.getLogger(SubmissionController::class.java)
 
 /**
@@ -80,7 +79,7 @@ class SubmissionController(
     ): ResponseEntity<*> {
         // TODO: consider if this needs to be in auth instead of submissions
         val auth = SecurityContextHolder.getContext().authentication as JwtAuthenticationToken
-        val authorized = authZService.isSenderAuthorized(clientId, auth.token.getClaimAsStringList("app_groups") )
+        val authorized = authZService.isSenderAuthorized(clientId, auth.token.getClaimAsStringList("app_groups"))
         if (!authorized) {
             logger.warn("Sender is not authorized to submit reports as $clientId")
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null)
