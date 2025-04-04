@@ -120,13 +120,232 @@ options:
 Table versions can be found by looking in the "Lookup Table Version" table in staging or prod Metabase. The active version of a table will have the value "true" in the "Is Active" column of the table.  
 
 ### Uploading new table manually
+- Sign in or register to an ERSD account: [AIMS](https://ersd.aimsplatform.org/#/home)
+- Click on "Download Latest RCTC Spreadsheet & Change Log". This will create a zip file containing one Excel file for the
+whole list of codes and one for the codes that have changed in the current version.
+- Import the spreadsheet into Google sheets (can also use Excel if you have access). 
+  - File > Import > Select RCTC_Release.xlsx file that was previously downloaded.
+- We need to source data from the following sheets:
+  - Organism_Substance
+  - Lab Order Test Name
+  - Lab Obs Test Name
+  
+  Each sheet contains a `Grouping List` and an `Expansion List` table below it. Each row in the `Expansion List` table represents a test or
+some resource associated with an OID. Use this OID to map to a condition in the `Grouping List` table.
+The resulting row is then mapped to the appropriate columns in the lookup table (See reference table below for specific mappings.)
+
+  | Column in ReportStream Table  | Column in RCTC Grouping List      | Column in RCTC Expansion List  | Notes                                      |
+  |:------------------------------|:----------------------------------|:-------------------------------|:-------------------------------------------|
+  | Code                          |                                   | Code                           |                                            |
+  | Name                          | Name                              |                                |                                            |
+  | Status                        |                                   | Status                         |                                            |
+  | Version                       |                                   | Version                        |                                            |
+  | Created At                    |                                   |                                | Set to current date                        |
+  | Descriptor                    |                                   | Descriptor                     |                                            |
+  | Member OID                    | OID                               | Member OID                     | These columns are used to join both tables |
+  | Code System                   |                                   | Code System                    |                                            |
+  | Value Source                  |                                   |                                | Set to "RCTC" or "LOINC" for AOE questions |
+  | condition_code                | Condition Code                    |                                |                                            |
+  | condition_name                | Condition Name                    |                                |                                            |
+  | Condition Code System         | Condition Code System             |                                |                                            |
+  | Condition Code System Version | Condition Code System Version     |                                |                                            |
+
+
+- One way to automate this process is to import the following macro and run it
+  - Extensions > Import Macro (If "Import Macros" and "Manage Macros" options are disabled, record a Macro and the options will enable.)
+    <details>
+    <summary>Macro</summary>
+
+    ```Java
+    function formatToRSTable() {
+      var spreadsheet = SpreadsheetApp.getActive();
+      spreadsheet.getRange('A1:G1').activate();
+      spreadsheet.insertSheet(6);
+      spreadsheet.getRange('A1').activate();
+      spreadsheet.getCurrentCell().setValue('Sheet Name')
+      spreadsheet.getRange('A2').activate();
+      spreadsheet.getCurrentCell().setRichTextValue(SpreadsheetApp.newRichTextValue()
+      .setText('Grouping List Row Num')
+      .setTextStyle(0, 20, SpreadsheetApp.newTextStyle()
+      .setFontFamily('Arial')
+      .build())
+      .build());
+      spreadsheet.getRange('A3').activate();
+      spreadsheet.getCurrentCell().setRichTextValue(SpreadsheetApp.newRichTextValue()
+      .setText('Expansion List Row Num')
+      .setTextStyle(0, 21, SpreadsheetApp.newTextStyle()
+      .setFontFamily('Arial')
+      .build())
+      .build());
+      spreadsheet.getRange('A4').activate();
+      spreadsheet.getCurrentCell().setFormula('=Match("Code", INDIRECT("\'"&$B$1&"\'!"&B3 +1&":"&B3 + 1),0)');
+      spreadsheet.getRange('A5').activate();
+      spreadsheet.getCurrentCell().setFormula('=SUBSTITUTE(ADDRESS(1, A4, 4), "1", "")');
+      spreadsheet.getRange('A6').activate();
+      spreadsheet.getCurrentCell().setRichTextValue(SpreadsheetApp.newRichTextValue()
+      .setText('OID column in grouping list')
+      .setTextStyle(0, 26, SpreadsheetApp.newTextStyle()
+      .setFontFamily('Arial')
+      .build())
+      .build());
+      spreadsheet.getRange('A7').activate();
+      spreadsheet.getCurrentCell().setRichTextValue(SpreadsheetApp.newRichTextValue()
+      .setText('OID column name')
+      .setTextStyle(0, 14, SpreadsheetApp.newTextStyle()
+      .setFontFamily('Arial')
+      .build())
+      .build());
+      spreadsheet.getRange('A8').activate();
+      spreadsheet.getCurrentCell().setFormula('=split("Code,Name,Status,Version,Created At,Descriptor,Member OID,Code System,Value Source,condition_code,condition_name,Condition Code System,Condition Code System Version",",")');
+      spreadsheet.getRange('A9').activate();
+      spreadsheet.getCurrentCell().setFormula('=INDIRECT("\'"&$B$1&"\'!"&ADDRESS($B$3+2,A4)&":"&A5)');
+      spreadsheet.getRange('B2').activate();
+      spreadsheet.getCurrentCell().setFormula('=Match("Grouping List", indirect("\'"&$B$1&"\'!A:A"),0)');
+      spreadsheet.getRange('B3').activate();
+      spreadsheet.getCurrentCell().setFormula('=Match("Expansion List", indirect("\'"&$B$1&"\'!A:A"),0)');
+      spreadsheet.getRange('B4').activate();
+      spreadsheet.getCurrentCell().setFormula('=Match("Name", INDIRECT("\'"&$B$1&"\'!"&B2 +1&":"&B2 + 1),0)');
+      spreadsheet.getRange('B5').activate();
+      spreadsheet.getCurrentCell().setFormula('=SUBSTITUTE(ADDRESS(1, B4, 4), "1", "")');
+      spreadsheet.getRange('B6').activate();
+      spreadsheet.getCurrentCell().setFormula('=Match("OID", INDIRECT("\'"&$B$1&"\'!"&B2 +1&":"&B2 + 1),0)');
+      spreadsheet.getRange('B7').activate();
+      spreadsheet.getCurrentCell().setFormula('=SUBSTITUTE(ADDRESS(1, B6, 4), "1", "")');
+      spreadsheet.getRange('C4').activate();
+      spreadsheet.getCurrentCell().setFormula('=Match("Status", INDIRECT("\'"&$B$1&"\'!"&B3 +1&":"&B3 + 1),0)');
+      spreadsheet.getRange('D4').activate();
+      spreadsheet.getCurrentCell().setFormula('=Match("Version", INDIRECT("\'"&$B$1&"\'!"&B3 +1&":"&B3 + 1),0)');
+      spreadsheet.getRange('E4').activate();
+      spreadsheet.getCurrentCell().setRichTextValue(SpreadsheetApp.newRichTextValue()
+      .setText('Create Date')
+      .setTextStyle(0, 10, SpreadsheetApp.newTextStyle()
+      .setFontFamily('Arial')
+      .build())
+      .build());
+      spreadsheet.getRange('F4').activate();
+      spreadsheet.getCurrentCell().setFormula('=Match("Descriptor", INDIRECT("\'"&$B$1&"\'!"&B3 +1&":"&B3 + 1),0)');
+      spreadsheet.getRange('G4').activate();
+      spreadsheet.getCurrentCell().setFormula('=Match("Member OID", INDIRECT("\'"&$B$1&"\'!"&B3 +1&":"&B3 + 1),0)');
+      spreadsheet.getRange('H4').activate();
+      spreadsheet.getCurrentCell().setFormula('=Match("Code System", INDIRECT("\'"&$B$1&"\'!"&B3 +1&":"&B3 + 1),0)');
+      spreadsheet.getRange('I4').activate();
+      spreadsheet.getCurrentCell().setRichTextValue(SpreadsheetApp.newRichTextValue()
+      .setText('RCTC')
+      .setTextStyle(0, 3, SpreadsheetApp.newTextStyle()
+      .setFontFamily('Arial')
+      .build())
+      .build());
+      spreadsheet.getRange('J4').activate();
+      spreadsheet.getCurrentCell().setFormula('=Match("Condition Code", INDIRECT("\'"&$B$1&"\'!"&B2 +1&":"&B2 + 1),0)');
+      spreadsheet.getRange('K4').activate();
+      spreadsheet.getCurrentCell().setFormula('=Match("Condition Name", INDIRECT("\'"&$B$1&"\'!"&B2 +1&":"&B2 + 1),0)');
+      spreadsheet.getRange('L4').activate();
+      spreadsheet.getCurrentCell().setFormula('=Match("Condition Code System", INDIRECT("\'"&$B$1&"\'!"&B2 +1&":"&B2 + 1),0)');
+      spreadsheet.getRange('M4').activate();
+      spreadsheet.getCurrentCell().setFormula('=Match("Condition Code System Version", INDIRECT("\'"&$B$1&"\'!"&B2 +1&":"&B2 + 1),0)');
+      spreadsheet.getRange('C5').activate();
+      spreadsheet.getCurrentCell().setFormula('=SUBSTITUTE(ADDRESS(1, C4, 4), "1", "")');
+      spreadsheet.getRange('D5').activate();
+      spreadsheet.getCurrentCell().setFormula('=SUBSTITUTE(ADDRESS(1, D4, 4), "1", "")');
+      spreadsheet.getRange('F5').activate();
+      spreadsheet.getCurrentCell().setFormula('=SUBSTITUTE(ADDRESS(1, F4, 4), "1", "")');
+      spreadsheet.getRange('G5').activate();
+      spreadsheet.getCurrentCell().setFormula('=SUBSTITUTE(ADDRESS(1, G4, 4), "1", "")');
+      spreadsheet.getRange('H5').activate();
+      spreadsheet.getCurrentCell().setFormula('=SUBSTITUTE(ADDRESS(1, H4, 4), "1", "")');
+      spreadsheet.getRange('J5').activate();
+      spreadsheet.getCurrentCell().setFormula('=SUBSTITUTE(ADDRESS(1, J4, 4), "1", "")');
+      spreadsheet.getRange('K5').activate();
+      spreadsheet.getCurrentCell().setFormula('=SUBSTITUTE(ADDRESS(1, K4, 4), "1", "")');
+      spreadsheet.getRange('L5').activate();
+      spreadsheet.getCurrentCell().setFormula('=SUBSTITUTE(ADDRESS(1, L4, 4), "1", "")');
+      spreadsheet.getRange('M5').activate();
+      spreadsheet.getCurrentCell().setFormula('=SUBSTITUTE(ADDRESS(1, M4, 4), "1", "")');
+      spreadsheet.getRange('B9').activate();
+      spreadsheet.getCurrentCell().setFormula('=Index(INDIRECT("\'"&$B$1&"\'!"&ADDRESS($B$2+2,1)&":"&$B$3),MATCH($G9,INDIRECT("\'"&$B$1&"\'!"&ADDRESS($B$2+2,$B$6)&":"&$B$7&$B$3),0),B$4)');
+      spreadsheet.getRange('C9').activate();
+      spreadsheet.getCurrentCell().setFormula('=INDIRECT("\'"&$B$1&"\'!"&ADDRESS($B$3+2,C4)&":"&(SUBSTITUTE(ADDRESS(1, C4, 4), "1", "")))');
+      spreadsheet.getRange('D9').activate();
+      spreadsheet.getCurrentCell().setFormula('=INDIRECT("\'"&$B$1&"\'!"&ADDRESS($B$3+2,D4)&":"&(SUBSTITUTE(ADDRESS(1, D4, 4), "1", "")))');
+      spreadsheet.getRange('F9').activate();
+      spreadsheet.getCurrentCell().setFormula('=INDIRECT("\'"&$B$1&"\'!"&ADDRESS($B$3+2,F4)&":"&(SUBSTITUTE(ADDRESS(1, F4, 4), "1", "")))');
+      spreadsheet.getRange('G9').activate();
+      spreadsheet.getCurrentCell().setFormula('=INDIRECT("\'"&$B$1&"\'!"&ADDRESS($B$3+2,G4)&":"&(SUBSTITUTE(ADDRESS(1, G4, 4), "1", "")))');
+      spreadsheet.getRange('H9').activate();
+      spreadsheet.getCurrentCell().setFormula('=INDIRECT("\'"&$B$1&"\'!"&ADDRESS($B$3+2,H4)&":"&(SUBSTITUTE(ADDRESS(1, H4, 4), "1", "")))');
+      spreadsheet.getRange('I9').activate();
+      spreadsheet.getCurrentCell().setRichTextValue(SpreadsheetApp.newRichTextValue()
+      .setText('RCTC')
+      .setTextStyle(0, 4, SpreadsheetApp.newTextStyle()
+      .setFontFamily('Arial')
+      .build())
+      .build());
+      spreadsheet.getRange('J9').activate();
+      spreadsheet.getCurrentCell().setFormula('=Index(INDIRECT("\'"&$B$1&"\'!"&ADDRESS($B$2+2,1)&":"&$B$3),MATCH($G9,INDIRECT("\'"&$B$1&"\'!"&ADDRESS($B$2+2,$B$6)&":"&$B$7&$B$3),0),J$4)');
+      spreadsheet.getRange('K9').activate();
+      spreadsheet.getCurrentCell().setFormula('=Index(INDIRECT("\'"&$B$1&"\'!"&ADDRESS($B$2+2,1)&":"&$B$3),MATCH($G9,INDIRECT("\'"&$B$1&"\'!"&ADDRESS($B$2+2,$B$6)&":"&$B$7&$B$3),0),K$4)');
+      spreadsheet.getRange('L9').activate();
+      spreadsheet.getCurrentCell().setFormula('=Index(INDIRECT("\'"&$B$1&"\'!"&ADDRESS($B$2+2,1)&":"&$B$3),MATCH($G9,INDIRECT("\'"&$B$1&"\'!"&ADDRESS($B$2+2,$B$6)&":"&$B$7&$B$3),0),L$4)');
+      spreadsheet.getRange('M9').activate();
+      spreadsheet.getCurrentCell().setFormula('=Index(INDIRECT("\'"&$B$1&"\'!"&ADDRESS($B$2+2,1)&":"&$B$3),MATCH($G9,INDIRECT("\'"&$B$1&"\'!"&ADDRESS($B$2+2,$B$6)&":"&$B$7&$B$3),0),M$4)');
+      spreadsheet.getRange('B2').activate();
+      spreadsheet.getRange('B9').activate();
+      spreadsheet.getActiveRange().autoFillToNeighbor(SpreadsheetApp.AutoFillSeries.DEFAULT_SERIES);
+      spreadsheet.getRange('I9').activate();
+      spreadsheet.getActiveRange().autoFillToNeighbor(SpreadsheetApp.AutoFillSeries.DEFAULT_SERIES);
+      spreadsheet.getRange('J9').activate();
+      spreadsheet.getActiveRange().autoFillToNeighbor(SpreadsheetApp.AutoFillSeries.DEFAULT_SERIES);
+      spreadsheet.getRange('K9').activate();
+      spreadsheet.getActiveRange().autoFillToNeighbor(SpreadsheetApp.AutoFillSeries.DEFAULT_SERIES);
+      spreadsheet.getRange('L9').activate();
+      spreadsheet.getActiveRange().autoFillToNeighbor(SpreadsheetApp.AutoFillSeries.DEFAULT_SERIES);
+      spreadsheet.getRange('M9').activate();
+      spreadsheet.getActiveRange().autoFillToNeighbor(SpreadsheetApp.AutoFillSeries.DEFAULT_SERIES);
+      spreadsheet.getRange('A8:M8').activate();
+      spreadsheet.getActiveRangeList().setBackground('#cccccc');
+      spreadsheet.getRange('A9').activate();
+      spreadsheet.getActiveSheet().autoResizeColumns(1, 1);
+      spreadsheet.getActiveSheet().autoResizeColumns(2, 1);
+      spreadsheet.getActiveSheet().autoResizeColumns(6, 1);
+      spreadsheet.getActiveSheet().autoResizeColumns(7, 1);
+      spreadsheet.getActiveSheet().autoResizeColumns(11, 1);
+      spreadsheet.getActiveSheet().autoResizeColumns(13, 1);
+      spreadsheet.getRange('8:8').activate();
+      spreadsheet.getActiveSheet().setFrozenRows(8);
+      spreadsheet.getRange('B1').activate();
+      spreadsheet.getActiveRangeList().setBackground('#fff2cc');
+      spreadsheet.getRange('F1').activate();
+      spreadsheet.getCurrentCell().setRichTextValue(SpreadsheetApp.newRichTextValue()
+      .setText('Note: Change the sheet name to grab values from another sheet. Rows 1-7 are used to facilitate formulas, delete if exporting to update the observation mapping table.')
+      .setTextStyle(0, 99, SpreadsheetApp.newTextStyle()
+      .setFontFamily('Arial')
+      .build())
+      .build());
+      spreadsheet.getRange('F2').activate();
+    };
+    
+    ```
+    </details>
+
+- Export rows from all three sheets to CSV file and use it to replace `observation-mapping.csv`.
+- Add rows for AOE Questions:
+    - Either copy the values from the website and map them into the appropriate columns 
+      - [LOINC General](https://loinc.org/81959-9)
+      - [LOINC COVID](https://loinc.org/sars-cov-2-and-covid-19/#aoe)
+
+  -OR-  
+    - Sign up for an account, download the CSV, and map the data from it
+- Add rows for codes that have been added ad-hoc (not coming from any standardized source). 
+Look for these codes in the current version of `observation-mapping.csv` file. They are listed at the end
+and have `Condition Code System` = `ReportStream`.
+
 
 Uploading the table to remote environments can utilize the lookuptables CLI command (./prime lookuptables create). Creating a new table with the same name will automatically create a new version of that table with that name and activate it if the -a parameter is used.
 
 Example:
 
 ```
-./prime lookuptables create -i "file-path-location" -s -a -n observation-mapping -e "prod or staging"
+./prime lookuptables create -i "prime-router/metadata/tables/local/observation-mapping.csv" -s -a -n observation-mapping -e "prod or staging"
 ```
 options:
 ```
@@ -198,25 +417,14 @@ The `Value Source` column needs to be manually entered based on data source belo
 - RCTC
 
 ### Data sources
-- RCTC: [AIMS](https://ersd.aimsplatform.org/#/home) *Account required*
+- Reportable Conditions Trigger Codes (RCTC): [AIMS](https://ersd.aimsplatform.org/#/home) *Account required*
+  - Data from the following sheets:
+    - Organism_Substance
+    - Lab Order Test Name
+    - Lab Obs Test Name
 - AOE Questions *Account required for download (can copy/paste w/o)*
     - [LOINC General](https://loinc.org/81959-9)
     - [LOINC COVID](https://loinc.org/sars-cov-2-and-covid-19/#aoe)
-
-#### Reportable Conditions Trigger Codes (RCTC)
-We need to source data from the following spreadsheets:
-- Organism-Substance
-- Lab Order Test Name
-- Lab Obs Test Name
-
-Scroll down in the spreadsheet and you will find an `Expansion List` table. Each row in this table represents a test or
-some resource associated with an OID. Each resource/test needs to be mapped to a condition at the top of the
-spreadsheet using its code/OID. The resulting row is then mapped to the appropriate columns in the lookup table.
-
-#### AOE Questions
-Either copy the values from the website and map them into the appropriate columns  
--OR-  
-Sign up for an account, download the CSV, and map the data from it
 
 ## Sender Onboarding
 
