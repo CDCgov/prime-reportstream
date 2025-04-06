@@ -27,7 +27,7 @@ dependencies {
     runtimeOnly("com.nimbusds:oauth2-oidc-sdk:11.20.1")
 
     // okta
-    implementation("com.okta.sdk:okta-sdk-api:20.0.0")
+    implementation("com.okta.sdk:okta-sdk-api:22.0.0")
     runtimeOnly("com.okta.sdk:okta-sdk-impl:20.0.0")
 
     // Swagger
