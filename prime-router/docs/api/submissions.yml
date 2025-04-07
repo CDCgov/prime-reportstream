@@ -168,6 +168,7 @@ paths:
           description: Internal Server Error
   /waters/report/{reportId}/history/etorMetadata:
     get:
+      deprecated: true
       summary: Retrieves ETOR metadata for a sender's report
       description: Fetches the ETOR intermediary's metadata given the sender's report ID.
       operationId: getEtorMetadataForHistory
@@ -223,6 +224,6 @@ components:
 
   securitySchemes:
     OAuth2:
-      $ref: 'https://raw.githubusercontent.com/CDCgov/prime-reportstream/master/prime-router/docs/api/components/security_schemes.yml#/OAuth2'
+      $ref: 'https://raw.githubusercontent.com/CDCgov/prime-reportstream/main/prime-router/docs/api/components/security_schemes.yml#/OAuth2'
     ApiKeyAuth:
-      $ref: 'https://raw.githubusercontent.com/CDCgov/prime-reportstream/master/prime-router/docs/api/components/security_schemes.yml#/ApiKeyAuth'
+      $ref: 'https://raw.githubusercontent.com/CDCgov/prime-reportstream/main/prime-router/docs/api/components/security_schemes.yml#/ApiKeyAuth'

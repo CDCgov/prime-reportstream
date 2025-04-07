@@ -174,7 +174,7 @@ runs:
       with:
         owner: CDCgov
         repo: prime-reportstream
-        ref: master
+        ref: main
         github_token: ${{ inputs.github-token }}
         workflow_file_name: restore_databases.yml
         wait_interval: 120

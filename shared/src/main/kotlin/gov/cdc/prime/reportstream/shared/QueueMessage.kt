@@ -68,7 +68,7 @@ interface QueueMessage {
         /**
          * Constant for receive queue on UP
          */
-        const val elrReceiveQueueName = "elr-fhir-receive"
+        const val elrSubmissionConvertQueueName = "elr-fhir-convert-submission"
 
         /**
          * Constant for convert queue on UP
@@ -89,6 +89,11 @@ interface QueueMessage {
          * Constant for translation queue on UP
          */
         const val elrTranslationQueueName = "elr-fhir-translate"
+
+        /**
+         * Constant for receiver enrichment queue on UP.
+         */
+        const val elrReceiverEnrichmentQueueName = "elr-fhir-receiver-enrichment"
 
         /**
          * Constant for send queue
@@ -152,7 +157,7 @@ interface QueueMessage {
     ) : QueueMessage,
         ReportInformation,
         ReceiveInformation {
-        override val messageQueueName = elrReceiveQueueName
+        override val messageQueueName = elrSubmissionConvertQueueName
     }
 
     /**

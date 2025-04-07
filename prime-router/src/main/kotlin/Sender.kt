@@ -31,6 +31,7 @@ import java.time.OffsetDateTime
  * @property allowDuplicates if false a duplicate submission will be rejected
  * @property senderType one of four broad sender categories
  * @property primarySubmissionMethod Sender preference for submission - manual or automatic
+ * @property hl7AcknowledgementEnabled should we return an HL7 ACK response if MSH.15 == "AL"?
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonTypeInfo(
@@ -59,6 +60,7 @@ abstract class Sender(
     val allowDuplicates: Boolean = true,
     val senderType: SenderType? = null,
     val primarySubmissionMethod: PrimarySubmissionMethod? = null,
+    val hl7AcknowledgementEnabled: Boolean = false,
     override var version: Int? = null,
     override var createdBy: String? = null,
     override var createdAt: OffsetDateTime? = null,
@@ -168,13 +170,12 @@ abstract class Sender(
             }
         }
 
-        fun createFullName(organizationName: String?, senderName: String?): String? {
-            return if (!organizationName.isNullOrEmpty() && !senderName.isNullOrEmpty()) {
+        fun createFullName(organizationName: String?, senderName: String?): String? =
+            if (!organizationName.isNullOrEmpty() && !senderName.isNullOrEmpty()) {
                 "$organizationName${fullNameSeparator}$senderName"
             } else {
                 null
             }
-        }
     }
 }
 
@@ -194,6 +195,7 @@ class UniversalPipelineSender : Sender {
         allowDuplicates: Boolean = true,
         senderType: SenderType? = null,
         primarySubmissionMethod: PrimarySubmissionMethod? = null,
+        hl7AcknowledgementEnabled: Boolean = false,
         topic: Topic,
     ) : super(
         topic,
@@ -205,7 +207,8 @@ class UniversalPipelineSender : Sender {
         processingType,
         allowDuplicates,
         senderType,
-        primarySubmissionMethod
+        primarySubmissionMethod,
+        hl7AcknowledgementEnabled
     )
 
     constructor(copy: UniversalPipelineSender) : this(
@@ -214,22 +217,19 @@ class UniversalPipelineSender : Sender {
         copy.format,
         copy.customerStatus,
         copy.schemaName,
+        hl7AcknowledgementEnabled = copy.hl7AcknowledgementEnabled,
         topic = copy.topic,
     )
 
     /**
      * To ensure existing functionality, we need to be able to create a straight copy of this UniversalPipelineSender
      */
-    override fun makeCopy(): Sender {
-        return UniversalPipelineSender(this)
-    }
+    override fun makeCopy(): Sender = UniversalPipelineSender(this)
 
     /**
      * For validation, not used in this context. Maybe refactor in the future.
      */
-    override fun consistencyErrorMessage(metadata: Metadata): String? {
-        return null
-    }
+    override fun consistencyErrorMessage(metadata: Metadata): String? = null
 }
 
 open class LegacyPipelineSender : Sender {
@@ -270,16 +270,12 @@ open class LegacyPipelineSender : Sender {
     /**
      * To ensure existing functionality, we need to be able to create a straight copy of this Sender
      */
-    override fun makeCopy(): Sender {
-        return LegacyPipelineSender(this)
-    }
+    override fun makeCopy(): Sender = LegacyPipelineSender(this)
 
     /**
      * For validation, not used in this context. Maybe refactor in the future.
      */
-    override fun consistencyErrorMessage(metadata: Metadata): String? {
-        return null
-    }
+    override fun consistencyErrorMessage(metadata: Metadata): String? = null
 }
 
 /**
@@ -324,9 +320,7 @@ class CovidSender : LegacyPipelineSender {
     /**
      * To ensure existing functionality, we need to be able to create a straight copy of this CovidSender
      */
-    override fun makeCopy(): Sender {
-        return CovidSender(this)
-    }
+    override fun makeCopy(): Sender = CovidSender(this)
 }
 
 /**
@@ -368,14 +362,10 @@ class MonkeypoxSender : LegacyPipelineSender {
     /**
      * To ensure existing functionality, we need to be able to create a straight copy of this MonkeypoxSender
      */
-    override fun makeCopy(): Sender {
-        return MonkeypoxSender(this)
-    }
+    override fun makeCopy(): Sender = MonkeypoxSender(this)
 
     /**
      * For validation, not used in this context. Maybe refactor in the future.
      */
-    override fun consistencyErrorMessage(metadata: Metadata): String? {
-        return null
-    }
+    override fun consistencyErrorMessage(metadata: Metadata): String? = null
 }

@@ -1,0 +1,33 @@
+# $schema: ./../../../../../../../metadata/json_schema/fhir/fhir-to-hl7-mapping.json
+
+elements:
+
+  - name: cp-price-quantity
+    value: [ '%resource.extension.where(url = "CP.1.1").value' ]
+    hl7Spec: [ '%{cpField}-1-1' ]
+
+  - name: cp-price-denomination
+    value: [ '%resource.extension.where(url = "CP.1.2").value' ]
+    hl7Spec: [ '%{cpField}-1-2' ]
+
+  - name: cp-price-type
+    value: [ '%resource.extension.where(url = "CP.2").value' ]
+    hl7Spec: [ '%{cpField}-2' ]
+
+  - name: cp-from-value
+    value: [ '%resource.extension.where(url = "CP.3").value' ]
+    hl7Spec: [ '%{cpField}-3' ]
+
+  - name: cp-to-value
+    value: [ '%resource.extension.where(url = "CP.4").value' ]
+    hl7Spec: [ '%{cpField}-4' ]
+
+  - name: cp-range-units
+    resource: '%resource.extension.where(url = "CP.5").value'
+    schema: classpath:/metadata/hl7_mapping/datatypes/codeableConcept/CWE.yml
+    constants:
+      cweField: '%{cpField}-5'
+
+  - name: cp-range-type
+    value: [ '%resource.extension.where(url = "CP.6").value' ]
+    hl7Spec: [ '%{cpField}-6' ]

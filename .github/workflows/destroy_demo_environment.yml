@@ -12,6 +12,10 @@ on:
         - demo3
         type: choice
 
+
+env:
+  AZURE_CREDENTIALS: '{"clientId":"${{ secrets.REPO_AZURE_CLIENT_ID }}","clientSecret":"${{ secrets.REPO_AZURE_CLIENT_SECRET }}","subscriptionId":"${{ secrets.REPO_AZURE_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.REPO_AZURE_TENANT_ID }}"}'
+
 jobs:
   destroy_demo_environment:
     name: "Destroy Environment: ${{ github.event.inputs.env_name }}"
@@ -36,7 +40,7 @@ jobs:
         uses: ./.github/actions/vpn-azure
         with:
           env-name: ${{ github.event.inputs.env_name }}
-          sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
+          sp-creds: ${{ env.AZURE_CREDENTIALS }}
           tf-auth: true
 
       - name: Destroy demo environment

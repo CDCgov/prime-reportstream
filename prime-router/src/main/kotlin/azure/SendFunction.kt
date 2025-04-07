@@ -8,6 +8,7 @@ import com.microsoft.azure.functions.annotation.StorageAccount
 import gov.cdc.prime.router.AS2TransportType
 import gov.cdc.prime.router.BlobStoreTransportType
 import gov.cdc.prime.router.CustomerStatus
+import gov.cdc.prime.router.EmailTransportType
 import gov.cdc.prime.router.GAENTransportType
 import gov.cdc.prime.router.NullTransportType
 import gov.cdc.prime.router.RESTTransportType
@@ -25,7 +26,6 @@ import gov.cdc.prime.router.azure.observability.event.ReportStreamEventName
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventProperties
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventService
 import gov.cdc.prime.router.transport.ITransport
-import gov.cdc.prime.router.transport.NullTransport
 import gov.cdc.prime.router.transport.RetryToken
 import org.apache.logging.log4j.kotlin.Logging
 import java.time.OffsetDateTime
@@ -100,30 +100,26 @@ class SendFunction(
                 receiverStatus = receiver.customerStatus
                 val inputReportId = header.reportFile.reportId
                 actionHistory.trackExistingInputReport(inputReportId)
-                val serviceName = receiver.fullName
                 val nextRetryItems = mutableListOf<String>()
                 val externalFileName = Report.formExternalFilename(header, workflowEngine.reportService)
                 val sentReportId = UUID.randomUUID() // each sent report gets its own UUID
-                if (receiver.transport == null) {
-                    actionHistory.setActionType(TaskAction.send_warning)
-                    actionHistory.trackActionResult("Not sending $inputReportId to $serviceName: No transports defined")
-                } else {
-                    val retryItems = retryToken?.items
-                    val nextRetry = getTransport(receiver.transport)?.send(
-                        receiver.transport,
-                        header,
-                        sentReportId,
-                        externalFileName,
-                        retryItems,
-                        context,
-                        actionHistory,
-                        reportEventService,
-                        workflowEngine.reportService
-                    )
-                    if (nextRetry != null) {
-                        nextRetryItems += nextRetry
-                    }
+                val retryItems = retryToken?.items
+                val transport = getTransport(receiver.transportType)
+                val nextRetry = transport.send(
+                    receiver.transportType,
+                    header,
+                    sentReportId,
+                    externalFileName,
+                    retryItems,
+                    context,
+                    actionHistory,
+                    reportEventService,
+                    workflowEngine.reportService
+                )
+                if (nextRetry != null) {
+                    nextRetryItems += nextRetry
                 }
+
                 logger.info("For $inputReportId:  finished send().  Checking to see if a retry is needed.")
                 handleRetry(
                     nextRetryItems,
@@ -154,7 +150,9 @@ class SendFunction(
         }
     }
 
-    private fun getTransport(transportType: TransportType): ITransport? {
+    private fun getTransport(transportType: TransportType): ITransport {
+        // IntelliJ complains about this when, but there's a ticket in for it https://youtrack.jetbrains.com/issue/KTIJ-21016
+        // It should still compile, unless a TransportType was added without adding it here
         return when (transportType) {
             is SFTPTransportType -> workflowEngine.sftpTransport
             is BlobStoreTransportType -> workflowEngine.blobStoreTransport
@@ -162,8 +160,8 @@ class SendFunction(
             is SoapTransportType -> workflowEngine.soapTransport
             is GAENTransportType -> workflowEngine.gaenTransport
             is RESTTransportType -> workflowEngine.restTransport
-            is NullTransportType -> NullTransport()
-            else -> null
+            is NullTransportType -> workflowEngine.nullTransport
+            is EmailTransportType -> workflowEngine.emailTransport
         }
     }
 
@@ -230,8 +228,12 @@ class SendFunction(
                     val randomSeconds = Random.nextInt(ditherRetriesInSec * -1, ditherRetriesInSec)
                     val nextRetryTime = OffsetDateTime.now().plusSeconds(waitMinutes * 60 + randomSeconds)
                     val nextRetryToken = RetryToken(nextRetryCount, nextRetryItems)
+                    val submittedReportIds = workflowEngine.reportService.getRootReports(report.reportId).map {
+                        it.reportId
+                    }
                     val msg = "Send Failed.  Will retry sending report: $report.reportId to ${receiver.fullName}" +
-                        " in $waitMinutes minutes and $randomSeconds seconds at $nextRetryTime"
+                        " in $waitMinutes minutes and $randomSeconds seconds at $nextRetryTime." +
+                        " Corresponding submitted ReportIds: $submittedReportIds"
                     logger.warn(msg)
                     actionHistory.setActionType(TaskAction.send_warning)
                     actionHistory.trackActionResult(msg)

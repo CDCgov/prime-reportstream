@@ -7,6 +7,7 @@ on:
 env:
   ALERT_THRESHOLD: 60
   GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  AZURE_CREDENTIALS: '{"clientId":"${{ secrets.REPO_AZURE_CLIENT_ID }}","clientSecret":"${{ secrets.AZURE_CLIENT_SECRET }}","subscriptionId":"${{ secrets.REPO_AZURE_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.REPO_AZURE_TENANT_ID }}"}'
 
 jobs:
   alert_costs:
@@ -23,7 +24,7 @@ jobs:
       - name: Login into Azure
         uses: ./.github/actions/vpn-azure
         with:
-          sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
+          sp-creds: ${{ env.AZURE_CREDENTIALS }}
 
       - name: Run Az Cost CLI
         id: az-cost
@@ -59,12 +60,13 @@ jobs:
           message: |
             Resource Group \`${{ matrix.rg }}\` is exceeding the cost threshold and is ${{ steps.env-age.outputs.age_in_days }} days old.
             If still running and no longer needed, please [destroy](https://github.com/CDCgov/prime-reportstream/actions/workflows/destroy_demo_environment.yml).
-            
+
             * **Cost per day: 💲${{ steps.az-cost.outputs.result }}**
             * **Provisioned by: \`${{ steps.last-pusher.outputs.username }}\`**
             * **Last Change Date: \`${{ steps.last-pusher.outputs.last_change_date }}\`**
           icon-emoji: ':money_with_wings:'
-          channel: prime-reportstream-engineering
-          webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
+          channel: cdc-reportstream-devsecops-new
+  # Updated channel
+          webhook-url: ${{ secrets.SLACK_NOTIFICATIONS_WEBHOOK_URL }}  # Updated webhook secret
           color: failure
           slackify-markdown: true

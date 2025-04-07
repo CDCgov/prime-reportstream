@@ -4,7 +4,7 @@ import {
     FALLBACK_FROM_DATE_STRING,
     FALLBACK_TO_DATE_STRING,
 } from "../../../../src/hooks/filters/UseDateRange/UseDateRange";
-import { tableColumnDateTimeInRange, tableDataCellValue, TEST_ORG_IGNORE } from "../../../helpers/utils";
+import { noData, tableDataCellValue, TEST_ORG_IGNORE } from "../../../helpers/utils";
 import { endDate, setDate, startDate } from "../../../pages/authenticated/daily-data";
 import * as submissionHistory from "../../../pages/authenticated/submission-history";
 import {
@@ -118,15 +118,18 @@ test.describe(
                         });
                     });
 
-                    test.describe("on 'Filter'", () => {
-                        /**
-                         *  TODO: Fix. From/To fields appear to reset (and table data is unchanged)
-                         *  after clicking filter
-                         */
-                        // eslint-disable-next-line playwright/no-skipped-test
-                        test.skip("with 'From' date, 'To' date", async ({ submissionHistoryPage }) => {
-                            const fromDate = await setDate(submissionHistoryPage.page, "#start-date", 7);
-                            const toDate = await setDate(submissionHistoryPage.page, "#end-date", 0);
+                    test.describe("on 'Filter to incorrect date'", () => {
+                        test("with 'From' date, 'To' date", async ({ submissionHistoryPage, isMockDisabled }) => {
+                            test.skip(
+                                !isMockDisabled,
+                                "Mocks are ENABLED, skipping 'on 'Filter to incorrect date' test",
+                            );
+                            const earliestDate = new Date(FALLBACK_FROM_DATE_STRING);
+                            const currentDate = new Date();
+                            const diffInTime = currentDate.getTime() - earliestDate.getTime();
+                            const diffInDays = Math.floor(diffInTime / (1000 * 60 * 60 * 24));
+                            await setDate(submissionHistoryPage.page, "#start-date", diffInDays);
+                            await setDate(submissionHistoryPage.page, "#end-date", diffInDays - 1);
 
                             // Apply button is enabled
                             await submissionHistoryPage.filterButton.click();
@@ -135,16 +138,7 @@ test.describe(
                             );
 
                             if (responsePromise) {
-                                // Check that table data contains the dates/times that were selected
-                                const areDatesInRange = await tableColumnDateTimeInRange(
-                                    submissionHistoryPage.page,
-                                    1,
-                                    fromDate,
-                                    toDate,
-                                );
-
-                                // eslint-disable-next-line playwright/no-conditional-expect
-                                expect(areDatesInRange).toBe(true);
+                                await expect(noData(submissionHistoryPage.page)).toBeAttached();
                             } else {
                                 console.error("Request not received within the timeout period");
                             }

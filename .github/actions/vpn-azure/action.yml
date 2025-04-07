@@ -40,7 +40,7 @@ runs:
         sed -i "s/\(dhcp-option DNS \).*/\1${{ inputs.dns-ip }}/" .github/vpn/${{ inputs.env-name }}.ovpn
       shell: bash
 
-    - uses: josiahsiegel/action-connect-ovpn@794339aff94452216c97f609476c367a43a31295
+    - uses: ./.github/actions/connect-ovpn
       if: inputs.env-name && inputs.ca-cert != 'false'
       id: connect_vpn
       with:
@@ -59,11 +59,13 @@ runs:
           echo "## ✅ VPN connected: \`${{ steps.connect_vpn.outputs.STATUS }}\` ✅" >> $GITHUB_STEP_SUMMARY
         else
           echo "## ❌ VPN connected: \`${{ steps.connect_vpn.outputs.STATUS }}\` ❌" >> $GITHUB_STEP_SUMMARY
+          echo "VPN log:"
+          cat /tmp/openvpn-debug.log
           exit 1
         fi
       shell: bash
 
-    - uses: azure/login@a65d910e8af852a8061c627c456678983e180302
+    - uses: azure/login@v2
       if: inputs.sp-creds
       with:
         creds: ${{ inputs.sp-creds }}
@@ -79,7 +81,7 @@ runs:
         $env:ARM_CLIENT_SECRET = $servicePrincipal.clientSecret
         $env:ARM_SUBSCRIPTION_ID = $servicePrincipal.subscriptionId
         $env:ARM_TENANT_ID = $servicePrincipal.tenantId
-          
+
         # Save environment variable setup for subsequent steps
         Get-ChildItem -Path Env: -Recurse -Include ARM_* | ForEach-Object {Write-Output "$($_.Name)=$($_.Value)"} >> $env:GITHUB_ENV
       shell: pwsh

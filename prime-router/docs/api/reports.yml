@@ -118,6 +118,51 @@ paths:
                   $ref: '#/components/schemas/Report'
         '500':
           description: Internal Server Error
+  /reports/testing/test:
+    post:
+      summary: Evaluates a message based off of the receiver settings specified. Returns any errors, filtering, or the message.
+      security:
+        - OAuth2: [ system_admin ]
+      parameters:
+        - in: query
+          name: receiverName
+          description: The name of the receiver to look for in the current environment's settings
+          schema:
+            type: string
+          required: true
+          example: full-elr
+        - in: query
+          name: organizationName
+          description: The name of the organization to look for the receiver in the current environment's settings
+          required: true
+          schema:
+            type: string
+          example: me-phd
+        - in: query
+          name: senderSchema
+          description: The path to the sender schema
+          required: false
+          schema:
+            type: string
+          example: classpath:/metadata/fhir_transforms/senders/SimpleReport/simple-report-sender-transform.yml
+      requestBody:
+        description: The message to process
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Report'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Report'
+        '400':
+          description: Error with one or more filters or finding the receiver.
+        '500':
+          description: Internal Server Error
   /reports/download:
     get:
       summary: Downloads a message based on the report id
@@ -237,4 +282,4 @@ components:
 
   securitySchemes:
     ApiKeyAuth:
-      $ref: 'https://raw.githubusercontent.com/CDCgov/prime-reportstream/master/prime-router/docs/api/components/security_schemes.yml#/ApiKeyAuth'
+      $ref: 'https://raw.githubusercontent.com/CDCgov/prime-reportstream/main/prime-router/docs/api/components/security_schemes.yml#/ApiKeyAuth'

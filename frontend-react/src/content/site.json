@@ -1,57 +1,75 @@
 {
-    "imgPath": "/assets/",
-    "pdfPath": "/assets/pdf/",
-    "documentationPath": "/documentation/",
-    "orgs": {
-        "CDC": {
-            "name": "Centers for Disease Control and Prevention",
-            "url": "https://cdc.gov",
-            "email": "no-reply@cdc.gov"
-        },
-        "PRIME": {
-            "name": "Pandemic Ready Interoperability Modernization Effort",
-            "email": "usds@cdc.gov",
-            "url": "https://www.cdc.gov/surveillance/projects/pandemic-ready-it-systems.html"
-        },
-        "RS": {
-            "name": "ReportStream",
-            "url": "https://reportstream.cdc.gov",
-            "email": "reportstream@cdc.gov"
-        },
-        "SR": {
-            "name": "SimpleReport",
-            "url": "https://simplereport.gov",
-            "email": "support@simplereport.gov"
-        },
-        "USDS": {
-            "name": "U.S. Digital Service",
-            "url": "https://usds.gov",
-            "email": "USDS@omb.eop.gov"
-        }
+  "imgPath": "/assets/",
+  "pdfPath": "/assets/pdf/",
+  "documentationPath": "/documentation/",
+  "orgs": {
+    "CDC": {
+      "name": "Centers for Disease Control and Prevention",
+      "url": "https://cdc.gov",
+      "email": "no-reply@cdc.gov"
     },
-    "forms": {
-        "intakeElr": {
-            "name": "ELR intake form",
-            "url": "https://app.smartsheetgov.com/b/form/b0935d5d1e924c57b2d293b4ed0f2cd5"
-        },
-        "connectWithRS": {
-            "name": "Connect with ReportStream",
-            "url": "https://app.smartsheetgov.com/b/form/48f580abb9b440549b1a9cf996ba6957"
-        },
-        "contactUs": {
-            "name": "Contact us",
-            "url": "https://app.smartsheetgov.com/b/form/da894779659b45768079200609b3a599"
-        }
+    "PRIME": {
+      "name": "Pandemic Ready Interoperability Modernization Effort",
+      "email": "usds@cdc.gov",
+      "url": "https://www.cdc.gov/surveillance/projects/pandemic-ready-it-systems.html"
     },
-    "assets": {
-        "standardCsv": {
-            "path": "/assets/csv/ReportStream-StandardCSV-ExampleData-20220509.csv"
-        },
-        "programmersGuidePdf": {
-            "path": "/assets/pdf/ReportStream-Programmers-Guide-v4.6.pdf"
-        },
-        "exampleHl7": {
-            "path": "/assets/hl7/Example-hl7-file.hl7"
-        }
+    "RS": {
+      "name": "ReportStream",
+      "url": "https://reportstream.cdc.gov",
+      "email": "reportstream@cdc.gov"
+    },
+    "SR": {
+      "name": "SimpleReport",
+      "url": "https://simplereport.gov",
+      "email": "support@simplereport.gov"
+    },
+    "USDS": {
+      "name": "U.S. Digital Service",
+      "url": "https://usds.gov",
+      "email": "USDS@omb.eop.gov"
     }
+  },
+  "forms": {
+    "intakeElr": {
+      "name": "ELR intake form",
+      "url": "https://app.smartsheetgov.com/b/form/b0935d5d1e924c57b2d293b4ed0f2cd5"
+    },
+    "connectWithRS": {
+      "name": "Connect with ReportStream",
+      "url": "https://app.smartsheetgov.com/b/form/48f580abb9b440549b1a9cf996ba6957"
+    },
+    "contactUs": {
+      "name": "Contact us",
+      "url": "https://app.smartsheetgov.com/b/form/95d2f16b772c42d8aaa0ef5db28a6838"
+    },
+    "healthcareOrganizationInterest": {
+      "name": "Healthcare Organization Interest Form",
+      "url": "https://app.smartsheetgov.com/b/form/8c71931f25e64e42bf1fef32900bdecd"
+    }
+  },
+  "assets": {
+    "standardCsv": {
+      "path": "/assets/csv/ReportStream-StandardCSV-ExampleData-20220509.csv"
+    },
+    "programmersGuidePdf": {
+      "path": "/assets/pdf/ReportStream-Programmers-Guide-v4.7.pdf"
+    },
+    "exampleHl7": {
+      "path": "/assets/hl7/Example-hl7-file.hl7"
+    },
+    "onePager": {
+      "path": "/assets/pdf/ReportStream_Onepager_20240605.pdf"
+    },
+    "codeMapTemplate": {
+      "path": "/assets/xlsm/20241204_ReportStream-Mapping-Template.xlsm"
+    }
+  },
+  "external": {
+    "nistValidationSuite": {
+      "url": "https://hl7v2-elr-testing.nist.gov/mu-elr/"
+    },
+    "nistGeneralValidationTool": {
+      "url": "https://hl7v2-gvt.nist.gov/gvt/#/home"
+    }
+  }
 }

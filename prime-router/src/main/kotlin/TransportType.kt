@@ -19,7 +19,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo
     JsonSubTypes.Type(GAENTransportType::class, name = "GAEN"),
     JsonSubTypes.Type(RESTTransportType::class, name = "REST")
 )
-abstract class TransportType(val type: String)
+sealed class TransportType(val type: String)
 
 data class SFTPTransportType
 @JsonCreator constructor(
@@ -27,22 +27,19 @@ data class SFTPTransportType
     val port: String,
     val filePath: String,
     val credentialName: String? = null,
-) :
-    TransportType("SFTP")
+) : TransportType("SFTP")
 
 data class EmailTransportType
 @JsonCreator constructor(
     val addresses: List<String>,
     val from: String = "qtv1@cdc.gov", // TODO: default to a better choice
-) :
-    TransportType("EMAIL")
+) : TransportType("EMAIL")
 
 data class BlobStoreTransportType
 @JsonCreator constructor(
     val storageName: String, // this looks for an env var with this name. env var value is the connection string.
     val containerName: String, // eg, hhsprotect
-) :
-    TransportType("BLOBSTORE")
+) : TransportType("BLOBSTORE")
 
 data class AS2TransportType
 @JsonCreator constructor(
@@ -52,8 +49,7 @@ data class AS2TransportType
     val senderEmail: String = "reportstream@cdc.gov", // Default,
     val mimeType: String = "application/hl7-v2",
     val contentDescription: String = "SARS-CoV-2 Electronic Lab Results",
-) :
-    TransportType("AS2")
+) : TransportType("AS2")
 
 /**
  * The GAEN UUID Format instructs how the UUID field of the GAEN payload is built
@@ -83,9 +79,7 @@ data class GAENTransportType
 }
 
 data class NullTransportType
-@JsonCreator constructor(
-    val dummy: String? = null,
-) : TransportType("NULL")
+@JsonCreator constructor(val dummy: String? = null) : TransportType("NULL")
 
 /**
  * Holds the [gov.cdc.prime.router.transport.SoapTransport] parameters

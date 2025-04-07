@@ -21,6 +21,7 @@ import gov.cdc.prime.router.ReportStreamFilterResult
 import gov.cdc.prime.router.ReportStreamFilterType
 import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.db.enums.TaskAction
+import gov.cdc.prime.router.fhirengine.engine.FHIRReceiverFilter
 import java.time.OffsetDateTime
 import java.util.UUID
 import kotlin.test.Test
@@ -28,12 +29,10 @@ import kotlin.test.Test
 class SubmissionHistoryTests {
     @Test
     fun `tests consolidation of logs`() {
-        fun createLogs(logs: List<DetailedActionLog>): DetailedSubmissionHistory {
-            return DetailedSubmissionHistory(
+        fun createLogs(logs: List<DetailedActionLog>): DetailedSubmissionHistory = DetailedSubmissionHistory(
                 1, TaskAction.receive, OffsetDateTime.now(),
                 null, mutableListOf(), logs
             )
-        }
 
         val messageM = "message 1"
         val messageA = "A message 2"
@@ -542,7 +541,7 @@ class SubmissionHistoryTests {
                         "QUALITY_PASS"
                     ),
                     "802798",
-                    ReportStreamFilterType.QUALITY_FILTER
+                    ReportStreamFilterType.QUALITY_FILTER.name
                 )
             ),
         )
@@ -1132,6 +1131,81 @@ class SubmissionHistoryTests {
         testWaitingToDeliver.enrichWithSummary()
         testWaitingToDeliver.run {
             assertThat(overallStatus).isEqualTo(DetailedSubmissionHistory.Status.WAITING_TO_DELIVER)
+        }
+    }
+
+    @Test
+    fun `test DetailedSubmissionHistory (verify filtered rows or filtered items in destination)`() {
+        val reports = listOf(
+            DetailedReport(
+                UUID.fromString("e88ff2ba-0fea-4ce7-9bc2-0febb06a029d"),
+                "recvOrg1",
+                "recvSvc1",
+                null,
+                null,
+                Topic.FULL_ELR,
+                "externalName1",
+                null,
+                null,
+                1,
+                null,
+                true,
+                null,
+                null,
+                null
+            ),
+            DetailedReport(
+                UUID.fromString("e959a724-234d-4d2f-850f-a931813dff62"),
+                "recvOrg1",
+                "recvSvc1",
+                null,
+                null,
+                Topic.FULL_ELR,
+                "externalName1",
+                null,
+                null,
+                0,
+                null,
+                true,
+                null,
+                null,
+                null
+            ),
+        ).toMutableList()
+        val filterResult = ReportStreamFilterResult(
+            receiverName = "recvOrg1",
+            originalCount = 1,
+            filterName = "filterName",
+            filterArgs = emptyList(),
+            filteredTrackingElement = "filterTrackingElement",
+            filterType = "QUALITY_FILTER",
+            filteredObservationDetails = null,
+            scope = ActionLogScope.report,
+        )
+        val logDetail = FHIRReceiverFilter.ReceiverItemFilteredActionLogDetail(
+            filter = "filter",
+            filterType = "QUALITY_FILTER",
+            receiverOrg = "recvOrg1",
+            receiverName = "recvSvc1",
+        )
+        val logs = listOf(
+            DetailedActionLog(
+                ActionLogScope.report, UUID.fromString("e959a724-234d-4d2f-850f-a931813dff62"), null, null,
+                ActionLogLevel.filter, filterResult
+            ),
+            DetailedActionLog(
+                ActionLogScope.item, null, null, null,
+                ActionLogLevel.warning, logDetail
+            ),
+        ).toMutableList()
+        val testFiltersInDestinations = DetailedSubmissionHistory(
+            1, TaskAction.receive, OffsetDateTime.now(),
+            HttpStatus.OK.value(), reports, logs
+        )
+        testFiltersInDestinations.run {
+            assertThat(destinations.count()).isEqualTo(1)
+            assertThat(destinations[0].filteredReportRows?.count()).isEqualTo(1)
+            assertThat(destinations[0].filteredReportItems?.count()).isEqualTo(1)
         }
     }
 }

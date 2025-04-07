@@ -2,7 +2,6 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { RSOrganizationSettings } from "../../../config/endpoints/settings";
 import useSessionContext from "../../../contexts/Session/useSessionContext";
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface RSReportHistorySearchParams {}
 
 export interface RSReportAction {

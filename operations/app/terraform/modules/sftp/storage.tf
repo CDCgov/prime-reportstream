@@ -7,6 +7,7 @@ resource "azurerm_storage_account" "sftp" {
   account_replication_type        = "GRS"
   min_tls_version                 = "TLS1_2"
   allow_nested_items_to_be_public = false
+  large_file_share_enabled        = false
 
   network_rules {
     default_action = "Allow"
@@ -19,6 +20,13 @@ resource "azurerm_storage_account" "sftp" {
   tags = {
     environment = var.environment
   }
+
+  timeouts {
+    create = var.timeout_create
+    read   = var.timeout_read
+    delete = var.timeout_delete
+    update = var.timeout_update
+  }
 }
 
 # SSH host keys share
@@ -26,6 +34,13 @@ resource "azurerm_storage_share" "sftp_admin" {
   name                 = "${var.resource_prefix}-sftp-admin-share"
   storage_account_name = azurerm_storage_account.sftp.name
   quota                = 1
+
+  timeouts {
+    create = var.timeout_create
+    read   = var.timeout_read
+    delete = var.timeout_delete
+    update = var.timeout_update
+  }
 }
 
 # SFTP startup scripts share
@@ -33,6 +48,13 @@ resource "azurerm_storage_share" "sftp_scripts" {
   name                 = "${var.resource_prefix}-sftp-scripts-share"
   storage_account_name = azurerm_storage_account.sftp.name
   quota                = 1
+
+  timeouts {
+    create = var.timeout_create
+    read   = var.timeout_read
+    delete = var.timeout_delete
+    update = var.timeout_update
+  }
 }
 
 # SFTP startup script

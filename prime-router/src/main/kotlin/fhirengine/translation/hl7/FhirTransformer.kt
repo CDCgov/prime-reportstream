@@ -24,7 +24,14 @@ import org.hl7.fhir.r4.model.Property
  */
 class FhirTransformer(
     private val schemaRef: FhirTransformSchema,
-) : ConfigSchemaProcessor<Bundle, Bundle, FhirTransformSchema, FhirTransformSchemaElement>(schemaRef) {
+    errors: MutableList<String> = mutableListOf(),
+    warnings: MutableList<String> = mutableListOf(),
+) : ConfigSchemaProcessor<
+        Bundle,
+        Bundle,
+        FhirTransformSchema,
+        FhirTransformSchemaElement
+    >(schemaRef, errors, warnings) {
     private val extensionRegex = """^extension\(["'](?<extensionUrl>[^'"]+)["']\)""".toRegex()
     private val valueXRegex = Regex("""value[A-Z][a-z]*""")
     private val indexRegex = Regex("""(?<child>.*)\[%?(?<indexVar>[0-9A-Za-z]*)\]""")
@@ -38,8 +45,12 @@ class FhirTransformer(
             "metadata",
             Environment.get().storageEnvVar
         ),
+        errors: MutableList<String> = mutableListOf(),
+        warnings: MutableList<String> = mutableListOf(),
     ) : this(
         schemaRef = fhirTransformSchemaFromFile(schema, blobConnectionInfo),
+        errors = errors,
+        warnings = warnings
     )
 
     /**
@@ -51,9 +62,10 @@ class FhirTransformer(
         return input
     }
 
-    override fun checkForEquality(converted: Bundle, expectedOutput: Bundle): Boolean {
-        return converted.equalsDeep(expectedOutput)
-    }
+    class BundleWithMessages(var bundle: Bundle, val warnings: MutableList<String>, val errors: MutableList<String>)
+
+    override fun checkForEquality(converted: Bundle, expectedOutput: Bundle): Boolean =
+        converted.equalsDeep(expectedOutput)
 
     /**
      * Transform the [bundle] using the elements in the given [schema] using [context] starting at the
@@ -107,6 +119,7 @@ class FhirTransformer(
             debugMsg += "resource: NONE"
         }
 
+        val warnings = mutableListOf<String>()
         val eligibleFocusResources =
             focusResources.filter { canEvaluate(element, bundle, it, focusResource, elementContext) }
         when (element.action) {
@@ -140,6 +153,10 @@ class FhirTransformer(
                         logger.warn(
                             "Element ${element.name} is updating a bundle property," +
                                 " but did not specify a value or function"
+                        )
+                        warnings.add(
+                            "Element ${element.name} is updating a bundle property, " +
+                            "but did not specify a value"
                         )
                     }
                     debugMsg += "condition: true, resourceType: ${singleFocusResource.fhirType()}, " +
@@ -237,13 +254,9 @@ class FhirTransformer(
         val extensionUrl: String?,
         val index: Int?,
     ) {
-        fun isExtension(): Boolean {
-            return propertyString == "extension"
-        }
+        fun isExtension(): Boolean = propertyString == "extension"
 
-        fun isValue(): Boolean {
-            return propertyString == "value"
-        }
+        fun isValue(): Boolean = propertyString == "value"
     }
 
     /**

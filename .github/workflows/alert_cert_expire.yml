@@ -5,6 +5,9 @@ on:
     # The workflow runs every day at 8:07am
     - cron: "7 13 * * *"  #UTC-5
 
+env:
+  AZURE_CREDENTIALS: '{"clientId":"${{ secrets.REPO_AZURE_CLIENT_ID }}","clientSecret":"${{ secrets.AZURE_CLIENT_SECRET }}","subscriptionId":"${{ secrets.REPO_AZURE_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.REPO_AZURE_TENANT_ID }}"}'
+
 jobs:
   check-certificates:
     runs-on: ubuntu-latest
@@ -23,7 +26,7 @@ jobs:
           ca-cert: ${{ secrets.CA_CRT}}
           user-crt: ${{ secrets.USER_CRT }}
           user-key: ${{ secrets.USER_KEY }}
-          sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
+          sp-creds: ${{ env.AZURE_CREDENTIALS }}
 
       - name: Add Runner IP to Key Vault Firewall
         run: |
@@ -48,7 +51,7 @@ jobs:
           echo "LIST<<$EOF" >> $GITHUB_OUTPUT
           cat certificates.json >> $GITHUB_OUTPUT
           echo "$EOF" >> $GITHUB_OUTPUT
-      
+
       - name: Slack Notification
         if: ${{ steps.format_out.outputs.LIST  != '' }}
         uses: ./.github/actions/notifications
@@ -58,8 +61,8 @@ jobs:
           message: |
             ${{ steps.format_out.outputs.LIST }}
           icon-emoji: ':bell:'
-          channel: pagerduty-alert-dump
-          webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
+          channel: cdc-reportstream-devsecops-new
+          webhook-url: ${{ secrets.SLACK_NOTIFICATIONS_WEBHOOK_URL }}  # Updated webhook secret
           color: warning
 
       - name: Remove Runner IP from the KeyVault Firewalls

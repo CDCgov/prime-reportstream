@@ -53,7 +53,7 @@ export const ReportStreamFooter = () => {
                             navProps={{ "aria-label": "Important links" }}
                         >
                             <IdentifierLinkItem>
-                                <IdentifierLink href="https://www.cdc.gov/about/default.htm">
+                                <IdentifierLink href="https://www.cdc.gov/about/cdc/index.html">
                                     About CDC
                                 </IdentifierLink>
                             </IdentifierLinkItem>
@@ -68,7 +68,7 @@ export const ReportStreamFooter = () => {
                                 </IdentifierLink>
                             </IdentifierLinkItem>
                             <IdentifierLinkItem>
-                                <IdentifierLink href="https://www.cdc.gov/od/foia">
+                                <IdentifierLink href="https://www.cdc.gov/foia/">
                                     FOIA requests
                                 </IdentifierLink>
                             </IdentifierLinkItem>

@@ -8,9 +8,12 @@ on:
       - "operations/slack-boltjs-app"
   pull_request:
     branches:
-      - master
+      - main
     paths:
       - "operations/slack-boltjs-app"
+
+env:
+  AZURE_CREDENTIALS: '{"clientId":"${{ secrets.REPO_AZURE_CLIENT_ID }}","clientSecret":"${{ secrets.AZURE_CLIENT_SECRET }}","subscriptionId":"${{ secrets.REPO_AZURE_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.REPO_AZURE_TENANT_ID }}"}'
 
 jobs:
   pre_job:
@@ -40,9 +43,9 @@ jobs:
         with:
           submodules: true
 
-      - uses: azure/login@a65d910e8af852a8061c627c456678983e180302
+      - uses: azure/login@v2
         with:
-          creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
+          creds: ${{ env.AZURE_CREDENTIALS }}
 
       - name: Set environment variables
         shell: bash

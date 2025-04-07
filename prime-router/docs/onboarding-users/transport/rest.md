@@ -1,6 +1,6 @@
 # REST Transport
 ## Introduction
-ReportStream supports four popular transport protocols:  Resource State Transfer (REST), [Simple Object Access Protocol (SOAP)](https://github.com/CDCgov/prime-reportstream/blob/master/prime-router/docs/onboarding-users/transport/soap.md), [Secure File Transfer Protocol (SFTP)](https://github.com/CDCgov/prime-reportstream/blob/master/prime-router/docs/onboarding-users/transport/sftp.md), and [Azure Blob](https://github.com/CDCgov/prime-reportstream/blob/master/prime-router/docs/onboarding-users/transport/blob.md). The goal of this document is to explain how to configure REST Transport for STLTs (a/k/a receivers). As well as provide guidance on how: 
+ReportStream supports four popular transport protocols:  Resource State Transfer (REST), [Simple Object Access Protocol (SOAP)](https://github.com/CDCgov/prime-reportstream/blob/main/prime-router/docs/onboarding-users/transport/soap.md), [Secure File Transfer Protocol (SFTP)](https://github.com/CDCgov/prime-reportstream/blob/main/prime-router/docs/onboarding-users/transport/sftp.md), and [Azure Blob](https://github.com/CDCgov/prime-reportstream/blob/main/prime-router/docs/onboarding-users/transport/blob.md). The goal of this document is to explain how to configure REST Transport for STLTs (a/k/a receivers). As well as provide guidance on how: 
 1) ReportStream REST Transport works 
 2) Prepare a key for authentication
 3) Configure receiver's REST transport

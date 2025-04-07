@@ -2,7 +2,7 @@ name: Chromatic Main Branch
 
 on:
   push:
-    branches: [master]
+    branches: [main]
     paths:
       - "frontend-react/**"
 

@@ -20,9 +20,9 @@ interface AzureEventService {
 /**
  * Default implementation
  */
-class AzureEventServiceImpl(
-    private val telemetryClient: TelemetryClient = TelemetryClient(),
-) : AzureEventService, Logging {
+class AzureEventServiceImpl(private val telemetryClient: TelemetryClient = TelemetryClient()) :
+    AzureEventService,
+    Logging {
 
     /**
      * Send event to Azure AppInsights using the Azure TelemetryClient
@@ -39,27 +39,24 @@ class AzureEventServiceImpl(
     }
 }
 
-// TODO: https://github.com/CDCgov/prime-reportstream/issues/15337
-/**
- * Local storage of azure events (only used for testing)
- */
-class LocalAzureEventServiceImpl(
-    val events: MutableList<AzureCustomEvent> = mutableListOf(),
-    val reportStreamEvents: MutableMap<ReportStreamEventName, MutableList<AzureCustomEvent>> = mutableMapOf(),
-) : AzureEventService, Logging {
+class InMemoryAzureEventService :
+    AzureEventService,
+    Logging {
 
-    /**
-     * Send event to Azure AppInsights using the Azure TelemetryClient
-     */
+    val events: MutableList<AzureCustomEvent> = mutableListOf()
+    val reportStreamEvents = mutableMapOf<ReportStreamEventName, MutableList<AzureCustomEvent>>()
+
     override fun trackEvent(event: AzureCustomEvent) {
         val name = event.javaClass.simpleName
-        logger.debug("Recording'$name' event in memory.")
+        logger.debug("Recording '$name' event in memory.")
         events.add(event)
     }
 
     override fun trackEvent(eventName: ReportStreamEventName, event: AzureCustomEvent) {
+        logger.debug("Recording '$eventName' event in memory.")
         reportStreamEvents.getOrPut(eventName) {
-         mutableListOf()
+            mutableListOf()
         }.add(event)
+        events.add(event)
     }
 }

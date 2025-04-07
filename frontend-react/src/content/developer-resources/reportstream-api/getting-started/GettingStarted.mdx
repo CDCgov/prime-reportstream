@@ -8,11 +8,16 @@ meta:
             altText: "A collection of lines extend out from a central point. Each line ends in a circle of square, some green and some white."
 ---
 
-import Step1 from "./Step1.mdx";
-import Step2 from "./Step2.mdx";
-import Step3 from "./Step3.mdx";
-import Step4 from "./Step4.mdx";
+import Step2_1 from "./Step2_1.mdx";
+import Step2_2 from "./Step2_2.mdx";
+import Step2_3 from "./Step2_3.mdx";
+import Step2_4 from "./Step2_4.mdx";
+import Step3_1 from "./Step3_1.mdx";
+import Step3_2 from "./Step3_2.mdx";
+import Step3_3 from "./Step3_3.mdx";
+import Step3_4 from "./Step3_4.mdx";
 import Sidenav from "../Sidenav.mdx";
+import site from "../../../site.json";
 
 <LayoutSidenav><Sidenav /></LayoutSidenav>
 
@@ -24,7 +29,7 @@ import Sidenav from "../Sidenav.mdx";
 Examples in this guide use curl commands for simplicity with the assumption you’ll be coding these calls into your sending system.
 You can also use a program like Postman to test submissions.
 
-<p className="text-base">**Last updated:** 9/9/24</p>
+<p className="text-base">**Last updated:** 12/17/24</p>
 
 ***
 
@@ -32,16 +37,49 @@ You can also use a program like Postman to test submissions.
 
 To prepare your file for testing, set up a sample file with fake data (artificially created, non-PII data).
 
-Currently, ReportStream can accept either HL7 or FHIR data. 
-We can send you a file with fake data to review that will always successfully validate against the NIST HL7v2 validator. 
-Note that because the data in those files are computer-generated, it may not feel realistic in some places.
+Currently, ReportStream can accept either HL7 or FHIR data. We can provide a sample HL7 file with fake data 
+to review <A href={site.forms.contactUs.url}>upon request</A>.
 
 <Alert type="tip">For this step, you can refer to formatting requirements for 
 [HL7v2.5.1 ORU-R01](https://www.hl7.org/implement/standards/product_brief.cfm?product_id=185) or 
 [RADxMARS](https://www.nibib.nih.gov/covid-19/radx-tech-program/mars/hl7v2-getting-started) for OTC (over the counter) test data.</Alert>
 
-When you’ve formatted your fake (non-PII) data file, test your data model using using the 
-[NIST General Validation Tool](https://hl7v2-gvt.nist.gov/gvt/#/home), and correct any errors you receive. 
+When you’ve formatted your fake (non-PII) data file, test your data model using the
+<A href={site.external.nistValidationSuite.url}>NIST Electronic Lab Reporting (ELR) Validation Suite</A>. 
+Note: If you’re testing OTC data, use the <A href={site.external.nistGeneralValidationTool.url}>NIST HL7 General Validation Tool</A> and 
+select **RADx MARS HL7v2** from the **Tool Scopes** dropdown. Navigate to the **Context-free** tab and select the **Onboarding** profile group.
+Correct any errors you receive.
+
+<h2 className="rs-numbered">Map your codes</h2>
+
+We will ensure that all potential codes you might send to ReportStream are mapped in our system as part of your onboarding. First, format your result and organism codes in a CSV file using our <A href={site.assets.codeMapTemplate.path}>template</A>. Then, send the completed CSV to your onboarding engineer or <A href={site.orgs.RS.email}>reportstream@cdc.gov</A>. We will review your codes and provide next steps to continue your onboarding.
+
+<Accordion bordered multiselectable items={[
+    {
+        headingLevel: "h3",
+        title: "Step 2.1: Set up your file",
+        content: <Step2_1 />,
+        id: "2_1"
+    },
+    {
+        headingLevel: "h3",
+        title: "Step 2.2: Input all result codes",
+        content: <Step2_2 />,
+        id: "2_2"
+    },
+    {
+        headingLevel: "h3",
+        title: "Step 2.3: Input all organism codes (if applicable)",
+        content: <Step2_3 />,
+        id: "2_3"
+    },
+    {
+        headingLevel: "h3",
+        title: "Step 2.4: Upload your file",
+        content: <Step2_4 />,
+        id: "2_4"
+    },
+]} />
 
 <h2 className="rs-numbered">Set up authentication and test your API connection</h2>
 
@@ -65,27 +103,27 @@ The data submitted are sent as the payload of the POST, as is, with no changes.
 <Accordion bordered multiselectable items={[
     {
         headingLevel: "h3",
-        title: "Step 1: Prior to submission, send your public key to ReportStream.",
-        content: <Step1 />,
-        id: 1
+        title: "Step 3.1: Prior to submission, send your public key to ReportStream.",
+        content: <Step3_1 />,
+        id: "3_1"
     },
     {
         headingLevel: "h3",
-        title: "Step 2: At the time of submission, generate a signed JWT using your private key",
-        content: <Step2 />,
-        id: 2
+        title: "Step 3.2: At the time of submission, generate a signed JWT using your private key",
+        content: <Step3_2 />,
+        id: "3_2"
     },
     {
         headingLevel: "h3",
-        title: "Step 3: Send the signed JWT to ReportStream to get a temporary bearer token",
-        content: <Step3 />,
-        id: 3
+        title: "Step 3.3: Send the signed JWT to ReportStream to get a temporary bearer token",
+        content: <Step3_3 />,
+        id: "3_3"
     },
     {
         headingLevel: "h3",
-        title: "Step 4: Submit data to ReportStream using the bearer token",
-        content: <Step4 />,
-        id: 4
+        title: "Step 3.4: Submit data to ReportStream using the bearer token",
+        content: <Step3_4 />,
+        id: "3_4"
     },
 ]} />
 

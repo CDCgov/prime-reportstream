@@ -8,12 +8,13 @@ import org.springframework.web.bind.annotation.RestController
 import kotlin.time.TimeSource
 
 @RestController
-class HealthController(
-    timeSource: TimeSource,
-) {
+class HealthController(timeSource: TimeSource) {
 
     private val applicationStart = timeSource.markNow()
 
+    /**
+     * Simple endpoint that returns a healthcheck with uptime
+     */
     @GetMapping(
         AuthApplicationConstants.Endpoints.HEALTHCHECK_ENDPOINT_V1,
         produces = [MediaType.APPLICATION_JSON_VALUE]

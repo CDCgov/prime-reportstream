@@ -193,8 +193,8 @@ class FhirPathUtilsTests {
 
         verify {
             mockedLogger.error(
-                "org.hl7.fhir.r4.fhirpath.FHIRLexer\$FHIRLexerException: " +
-                    "Syntax error in FHIR Path Bundle.#*(\$&id.exists()."
+                "FHIRLexerException: Error in ?? at 1, 1: Found # expecting a token name. " +
+                    "Trying to evaluate: Bundle.#*(\$&id.exists()."
             )
         }
     }

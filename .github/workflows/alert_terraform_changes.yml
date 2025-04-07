@@ -4,6 +4,10 @@ on:
   schedule:
     # The workflow runs every day at 8:20am
     - cron: "7 13 * * *"  #UTC-5
+
+env:
+  AZURE_CREDENTIALS: '{"clientId":"${{ secrets.REPO_AZURE_CLIENT_ID }}","clientSecret":"${{ secrets.AZURE_CLIENT_SECRET }}","subscriptionId":"${{ secrets.REPO_AZURE_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.REPO_AZURE_TENANT_ID }}"}'
+
 jobs:
   alert_tf_changes:
     name: Check Terraform plan for ${{ matrix.env }}
@@ -24,11 +28,13 @@ jobs:
           ca-cert: ${{ secrets.CA_CRT}}
           user-crt: ${{ secrets.USER_CRT }}
           user-key: ${{ secrets.USER_KEY }}
-          sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
+          sp-creds: ${{ env.AZURE_CREDENTIALS }}
           tf-auth: true
-          
+
       - name: Collect Terraform stats
         uses: josiahsiegel/terraform-stats@68b8cbe42c494333fbf6f8d90ac86da1fb69dcc2
+        ## DevSecOps - Aquia (Replace) - uses: ./.github/actions/terraform-stats
+
         id: stats1
         with:
           terraform-directory: operations/app/terraform/vars/${{ matrix.env }}
@@ -46,7 +52,7 @@ jobs:
           echo "resource-drifts=$(echo '${{ steps.stats1.outputs.resource-drifts }}' \
             | sed 's/\"/\\\"/g' | sed 's/\\\\\"/\\\\\\"/g')" >> $GITHUB_OUTPUT
           echo "$EOF" >> $GITHUB_OUTPUT
-          
+
       - name: Slack Notification
         if: ${{ steps.format_out.outputs.CHANGES  != '' }}
         uses: ./.github/actions/notifications
@@ -57,9 +63,8 @@ jobs:
             "change-count": "${{ steps.stats1.outputs.change-count }}"
             "drift-count": "${{ steps.stats1.outputs.drift-count }}"
             "resource-drifts": "${{ env.resource-drifts }}"
-          
+
           icon-emoji: ':bell:'
-          channel: pagerduty-alert-dump
-          webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
+          channel: cdc-reportstream-devsecops-new
+          webhook-url: ${{ secrets.SLACK_NOTIFICATIONS_WEBHOOK_URL }}
           color: warning
-          

@@ -119,7 +119,7 @@ test.describe("Evaluate links on public facing pages", { tag: "@warning" }, () =
                     }
 
                     return { url, status: 200 };
-                } catch (error) {
+                } catch (_error) {
                     warnings.push({ url, message: "Internal link: Page error" });
                     return { url, status: 400 };
                 } finally {

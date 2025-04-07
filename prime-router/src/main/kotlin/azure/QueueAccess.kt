@@ -56,7 +56,7 @@ object QueueAccess {
         queueName: String,
         message: String,
         invisibleDuration: Duration = Duration.ZERO,
-    ) {
+    ): String {
         // Bug:  event.at is calculated before the call to workflowengine.recordHistory
         // In cases of very large datasets, that db write can take a very long time, pushing
         // the current time past event.at.  This causes negative durations.  Hence this:
@@ -66,13 +66,14 @@ object QueueAccess {
             invisibleDuration
         }
         val timeToLive = invisibleDuration.plusDays(timeToLiveDays)
-        createQueueClient(queueName).sendMessageWithResponse(
+        val response = createQueueClient(queueName).sendMessageWithResponse(
             message,
             duration,
             timeToLive,
             null,
             null
         )
+        return response.value.messageId
     }
 
     fun receiveMessage(queueName: String): Event {
@@ -85,8 +86,7 @@ object QueueAccess {
      * Creates the queue client for the given queue [name] or reuses an existing one.
      * @return the queue client
      */
-    private fun createQueueClient(name: String): QueueClient {
-        return if (clients.containsKey(name)) {
+    private fun createQueueClient(name: String): QueueClient = if (clients.containsKey(name)) {
             clients[name]!!
         } else {
             clients[name] = QueueServiceClientBuilder()
@@ -95,5 +95,4 @@ object QueueAccess {
                 .createQueue(name)
             clients[name]!!
         }
-    }
 }

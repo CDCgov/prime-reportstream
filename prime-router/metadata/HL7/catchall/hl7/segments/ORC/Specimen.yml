@@ -12,26 +12,27 @@ type:
   specs: OBR.15.1
 
 container:
-  condition: $obr152
+  condition: $obr152 NOT_NULL
   expressionType: nested
   generateList: true
   vars:
     obr152: OBR.15.2
   expressionsMap:
     additiveCodeableConcept:
-      expressionType: nested
-      expressions:
-        - expressionType: nested
-          expressionsMap:
-            text:
-              type: STRING
-              valueOf: OBR.15.2
-              expressionType: HL7Spec
+      valueOf: datatypes/CWE/CodeableConcept
+      expressionType: resource
+      specs: OBR.15.2
 
 collection:
-  condition: $spm7 NOT_NULL
+  condition: $obr7 NOT_NULL || $obr8 NOT_NULL || $obr9 NOT_NULL || $obr10 NOT_NULL || $obr15 NOT_NULL
   expressionType: nested
   generateList: true
+  vars:
+    obr7: OBR.7
+    obr8: OBR.8
+    obr9: OBR.9
+    obr10: OBR.10
+    obr15: OBR.15
   expressionsMap:
     bodySite:
       valueOf: datatypes/CWE/CodeableConcept
@@ -62,6 +63,24 @@ collection:
           type: STRING
           valueOf: "GeneralUtils.dateTimeWithZoneId(dateTimeIn,ZONEID)"
           expressionType: JEXL
+    _collectedDateTime:
+      condition: $dateTimeIn NOT_NULL && $end NULL
+      expressionType: nested
+      vars:
+        dateTimeIn: OBR.7
+        end: OBR.8
+      expressionsMap:
+        extension_1:
+          generateList: true
+          expressionType: nested
+          expressionsMap:
+            url:
+              type: SYSTEM_URL
+              value: hl7v2-date-time
+            valueString:
+              type: STRING
+              valueOf: $dateTimeIn
+              expressionType: HL7Spec
     collector:
       condition: $obr10 NOT_NULL
       vars:
@@ -87,10 +106,10 @@ note_specimen-source:
       expressionsMap:
         url:
           type: SYSTEM_URL
-          value: hl7v2Name
+          value: hl7v2Component
         valueString:
           type: STRING
-          valueOf: specimen-source
+          valueOf: OBR.15.3
 
 note_collectors-comment:
   condition: $obr39 NOT_NULL

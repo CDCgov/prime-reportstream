@@ -1,0 +1,10 @@
+# $schema: ../../../../../../../metadata/json_schema/fhir/fhir-to-fhir-transform.json
+# Sender transform for CDPH NBS results
+elements:
+
+  # REGEX removes leading zeroes from left of decimal point unless there is only a single zero
+  - name: remove-leading-zeros-from-nm-data-type
+    resource: 'Bundle.entry.resource.ofType(Observation).value.ofType(Quantity)'
+    condition: '%resource.value.toString().matches("^0\\d+(\\.\\d+)?$")'
+    bundleProperty: '%resource.value'
+    value: [ '%resource.value.toString().replaceMatches("^0+(\\d*|0)(\\.\\d+)?$", "$1$2")' ]

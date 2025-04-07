@@ -1,29 +1,34 @@
 package gov.cdc.prime.router.azure
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.databind.json.JsonMapper
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
+import com.github.ajalt.clikt.core.CliktError
 import com.google.common.net.HttpHeaders
 import com.microsoft.azure.functions.HttpMethod
 import com.microsoft.azure.functions.HttpRequestMessage
 import com.microsoft.azure.functions.HttpResponseMessage
 import com.microsoft.azure.functions.HttpStatus
 import com.microsoft.azure.functions.annotation.AuthorizationLevel
+import com.microsoft.azure.functions.annotation.BindingName
+import com.microsoft.azure.functions.annotation.BlobTrigger
 import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.HttpTrigger
 import com.microsoft.azure.functions.annotation.StorageAccount
 import gov.cdc.prime.router.ActionError
 import gov.cdc.prime.router.ActionLog
 import gov.cdc.prime.router.ActionLogLevel
+import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.InvalidParamMessage
 import gov.cdc.prime.router.InvalidReportMessage
+import gov.cdc.prime.router.MimeFormat
 import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.Sender.ProcessingType
 import gov.cdc.prime.router.SubmissionReceiver
 import gov.cdc.prime.router.UniversalPipelineReceiver
-import gov.cdc.prime.router.azure.BlobAccess.Companion.defaultBlobMetadata
 import gov.cdc.prime.router.azure.BlobAccess.Companion.getBlobContainer
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
@@ -31,10 +36,11 @@ import gov.cdc.prime.router.azure.observability.event.IReportStreamEventService
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventName
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventProperties
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventService
+import gov.cdc.prime.router.azure.service.SubmissionResponseBuilder
 import gov.cdc.prime.router.cli.PIIRemovalCommands
+import gov.cdc.prime.router.cli.ProcessFhirCommands
 import gov.cdc.prime.router.common.AzureHttpUtils.getSenderIP
 import gov.cdc.prime.router.common.Environment
-import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.history.azure.SubmissionsFacade
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
@@ -43,8 +49,10 @@ import gov.cdc.prime.router.tokens.authenticationFailure
 import gov.cdc.prime.router.tokens.authorizationFailure
 import kotlinx.serialization.json.Json
 import org.apache.logging.log4j.kotlin.Logging
+import java.io.File
 import java.nio.charset.StandardCharsets
 import java.util.UUID
+import kotlin.io.path.Path
 
 private const val PROCESSING_TYPE_PARAMETER = "processing"
 
@@ -60,8 +68,14 @@ class ReportFunction(
         workflowEngine.azureEventService,
         workflowEngine.reportService
     ),
+    private val submissionResponseBuilder: SubmissionResponseBuilder = SubmissionResponseBuilder(),
 ) : RequestFunction(workflowEngine),
     Logging {
+
+    enum class IngestionMethod {
+        SFTP,
+        REST,
+    }
 
     /**
      * POST a report to the router
@@ -121,14 +135,115 @@ class ReportFunction(
     }
 
     /**
+     * Run a message through the fhirdata cli
+     *
+     * @see ../../../docs/api/reports.yml
+     */
+    @FunctionName("processFhirDataRequest")
+    fun processFhirDataRequest(
+        @HttpTrigger(
+            name = "processFhirDataRequest",
+            methods = [HttpMethod.POST],
+            authLevel = AuthorizationLevel.ANONYMOUS,
+            route = "reports/testing/test"
+        ) request: HttpRequestMessage<String?>,
+    ): HttpResponseMessage {
+        val claims = AuthenticatedClaims.authenticate(request)
+        val caseInsensitiveHeaders = request.headers.mapKeys { it.key.lowercase() }
+        val accessToken = caseInsensitiveHeaders[HttpHeaders.AUTHORIZATION.lowercase()]
+        if (claims != null && claims.authorized(setOf(Scope.primeAdminScope))) {
+            val receiverName = request.queryParameters["receiverName"]
+            val organizationName = request.queryParameters["organizationName"]
+            val senderSchema = request.queryParameters["senderSchema"]
+            if (receiverName.isNullOrBlank()) {
+                return HttpUtilities.badRequestResponse(
+                    request,
+                    "The receiver name is required"
+                )
+            }
+            if (organizationName.isNullOrBlank()) {
+                return HttpUtilities.badRequestResponse(
+                    request,
+                    "The organization name is required"
+                )
+            }
+            if (request.body.isNullOrBlank()) {
+                return HttpUtilities.badRequestResponse(
+                    request,
+                    "A message to process must be included in the body"
+                )
+            }
+            val file = File("filename.fhir")
+            file.createNewFile()
+            file.bufferedWriter().use { out ->
+                out.write(request.body)
+            }
+
+            try {
+                val result = ProcessFhirCommands().processFhirDataRequest(
+                    file,
+                    Environment.get(),
+                    receiverName,
+                    organizationName,
+                    senderSchema,
+                    false,
+                    accessToken!!
+                )
+                file.delete()
+                val message = if (result.message != null) {
+                    result.message.toString()
+                } else {
+                    null
+                }
+                val bundle = if (result.bundle != null) {
+                    FhirTranscoder.encode(result.bundle!!)
+                } else {
+                    null
+                }
+                return HttpUtilities.okResponse(
+                    request,
+                    ObjectMapper().configure(SerializationFeature.FAIL_ON_SELF_REFERENCES, false).writeValueAsString(
+                        MessageOrBundleStringified(
+                            message,
+                            bundle,
+                            result.senderTransformErrors,
+                            result.senderTransformWarnings,
+                            result.enrichmentSchemaErrors,
+                            result.senderTransformWarnings,
+                            result.receiverTransformErrors,
+                            result.receiverTransformWarnings,
+                            result.filterErrors,
+                        )
+                    )
+                )
+            } catch (exception: CliktError) {
+                file.delete()
+                return HttpUtilities.badRequestResponse(request, "${exception.message}")
+            }
+        }
+        return HttpUtilities.unauthorizedResponse(request)
+    }
+
+    class MessageOrBundleStringified(
+        var message: String? = null,
+        var bundle: String? = null,
+        override var senderTransformErrors: MutableList<String> = mutableListOf(),
+        override var senderTransformWarnings: MutableList<String> = mutableListOf(),
+        override var enrichmentSchemaErrors: MutableList<String> = mutableListOf(),
+        override var enrichmentSchemaWarnings: MutableList<String> = mutableListOf(),
+        override var receiverTransformErrors: MutableList<String> = mutableListOf(),
+        override var receiverTransformWarnings: MutableList<String> = mutableListOf(),
+        override var filterErrors: MutableList<ProcessFhirCommands.FilterError> = mutableListOf(),
+    ) : ProcessFhirCommands.MessageOrBundleParent()
+
+    /**
      * Moved the logic to a separate function for testing purposes
      */
     fun processGetMessageFromTestBankRequest(
         request: HttpRequestMessage<String?>,
         blobAccess: BlobAccess.Companion = BlobAccess,
         defaultBlobMetadata: BlobAccess.BlobContainerMetadata = BlobAccess.defaultBlobMetadata,
-    ): HttpResponseMessage {
-        return try {
+    ): HttpResponseMessage = try {
             val updatedBlobMetadata = defaultBlobMetadata.copy(containerName = "test-bank")
             val results = blobAccess.listBlobs("", updatedBlobMetadata)
             val reports = mutableListOf<TestReportInfo>()
@@ -155,13 +270,8 @@ class ReportFunction(
             logger.error("Unable to fetch messages from test bank", e)
             HttpUtilities.internalErrorResponse(request)
         }
-    }
 
-    class TestReportInfo(
-        var dateCreated: String,
-        var fileName: String,
-        var reportBody: String,
-    )
+    class TestReportInfo(var dateCreated: String, var fileName: String, var reportBody: String)
 
     /**
      * GET report to download
@@ -227,6 +337,96 @@ class ReportFunction(
         } else {
             HttpUtilities.badRequestResponse(request, "The requested report is not fhir.")
         }
+    }
+
+    class SftpSubmissionException(override val message: String) : RuntimeException(message)
+
+    @FunctionName("submitSFTP")
+    fun submitViaSftp(
+        @BlobTrigger(
+            name = "report",
+            dataType = "string",
+            path = "sftp-submissions/{name}.{extension}",
+            connection = "SftpStorage"
+        ) content: String,
+        @BindingName("name") name: String,
+        @BindingName("extension") extension: String,
+    ) {
+        val format = try {
+            MimeFormat.valueOfFromExt(extension)
+        } catch (ex: IllegalArgumentException) {
+            throw SftpSubmissionException("$extension is not valid.")
+        }
+
+        val filename = "$name.$extension"
+
+        val senderId = getSenderIdFromFilePath(filename)
+        val sender = workflowEngine.settings.findSender(senderId)
+            ?: throw SftpSubmissionException("No sender found for $senderId, parsed from $filename")
+
+        if (sender.customerStatus == CustomerStatus.INACTIVE) {
+            logger.info("Sender is disabled, not processing the report")
+            // TODO https://github.com/CDCgov/prime-reportstream/issues/16260
+            return
+        }
+
+        val payloadName = extractPayloadNameFromFilePath(filename)
+        actionHistory.trackActionSenderInfo(sender.fullName, payloadName)
+
+        try {
+            val receiver = SubmissionReceiver.getSubmissionReceiver(sender, workflowEngine, actionHistory)
+            val rawBody = content.toByteArray()
+            val report = receiver.validateAndMoveToProcessing(
+                sender,
+                content,
+                emptyMap(),
+                Options.None,
+                emptyList(),
+                isAsync = true,
+                allowDuplicates = true,
+                rawBody = rawBody,
+                payloadName = payloadName
+            )
+
+            reportEventService.sendReportEvent(
+                eventName = ReportStreamEventName.REPORT_RECEIVED,
+                childReport = report,
+                pipelineStepName = TaskAction.receive
+            ) {
+                params(
+                    listOfNotNull(
+                        ReportStreamEventProperties.SENDER_NAME to sender.fullName,
+                        ReportStreamEventProperties.INGESTION_TYPE to IngestionMethod.SFTP,
+                        ReportStreamEventProperties.ITEM_FORMAT to format
+                    ).toMap()
+                )
+            }
+        } catch (e: ActionError) {
+            actionHistory.trackLogs(e.details)
+            throw e
+        } catch (e: IllegalArgumentException) {
+            actionHistory.trackLogs(
+                ActionLog(InvalidReportMessage(e.message ?: "Invalid request."), type = ActionLogLevel.error)
+            )
+            throw e
+        } catch (e: IllegalStateException) {
+            actionHistory.trackLogs(
+                ActionLog(InvalidReportMessage(e.message ?: "Invalid request."), type = ActionLogLevel.error)
+            )
+            throw e
+        }
+
+        actionHistory.trackActionResult(HttpStatus.OK)
+        workflowEngine.recordAction(actionHistory)
+        // queue messages here after all task / action records are in
+        actionHistory.queueMessages(workflowEngine)
+    }
+
+    private fun extractPayloadNameFromFilePath(filename: String): String = Path(filename).fileName.toString()
+
+    private fun getSenderIdFromFilePath(filename: String): String {
+        val path = Path(filename)
+        return path.parent.toString().split("/").joinToString(".")
     }
 
     /**
@@ -346,6 +546,7 @@ class ReportFunction(
                     ) {
                         params(
                             listOfNotNull(
+                                ReportStreamEventProperties.INGESTION_TYPE to IngestionMethod.REST,
                                 ReportStreamEventProperties.REQUEST_PARAMETERS
                                     to actionHistory.filterParameters(request),
                                 ReportStreamEventProperties.SENDER_NAME to sender.fullName,
@@ -388,19 +589,12 @@ class ReportFunction(
             SubmissionsFacade.instance.findDetailedSubmissionHistory(txn, null, actionHistory.action)
         }
 
-        val response = request.createResponseBuilder(httpStatus)
-            .header(HttpHeaders.CONTENT_TYPE, "application/json")
-            .body(
-                JacksonMapperUtilities.allowUnknownsMapper
-                    .writeValueAsString(submission)
-            )
-            .header(
-                HttpHeaders.LOCATION,
-                request.uri.resolve(
-                    "/api/waters/report/${submission?.reportId}/history"
-                ).toString()
-            )
-            .build()
+        val response = submissionResponseBuilder.buildResponse(
+            sender,
+            httpStatus,
+            request,
+            submission
+        )
 
         // queue messages here after all task / action records are in
         actionHistory.queueMessages(workflowEngine)

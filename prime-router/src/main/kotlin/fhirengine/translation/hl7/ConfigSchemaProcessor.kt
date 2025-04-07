@@ -16,8 +16,9 @@ abstract class ConfigSchemaProcessor<
     SchemaElement : ConfigSchemaElement<Original, Converted, SchemaElement, Schema>,
     >(
     val schema: Schema,
-) :
-    Logging {
+    val errors: MutableList<String>,
+    val warnings: MutableList<String>,
+) : Logging {
 
     /**
      * Validates the schema the processor will use is valid given a sample input and output
@@ -40,7 +41,9 @@ abstract class ConfigSchemaProcessor<
      * @property input the value to apply the schema to
      * @return The value after applying the schema to [input]
      */
-    abstract fun process(input: Original): Converted
+    abstract fun process(
+        input: Original,
+    ): Converted
 
     /**
      * Get the first valid value from the list of values specified in the schema for a given [element] using
@@ -115,8 +118,7 @@ abstract class ConfigSchemaProcessor<
         focusResource: Base,
         schemaResource: Base,
         context: CustomContext,
-    ): Boolean {
-        return element.condition?.let {
+    ): Boolean = element.condition?.let {
             try {
                 FhirPathUtils.evaluateCondition(context, focusResource, schemaResource, bundle, it)
             } catch (e: SchemaException) {
@@ -127,5 +129,4 @@ abstract class ConfigSchemaProcessor<
                 false
             }
         } ?: true
-    }
 }

@@ -1,0 +1,53 @@
+- name: "hhsprotect"
+  description: "HHSProtect"
+  jurisdiction: "FEDERAL"
+  stateCode: null
+  countyName: null
+  filters: null
+  featureFlags: null
+  keys: null
+  senders: [ ]
+  receivers:
+    - name: "mars-otc-elr"
+      organizationName: "hhsprotect"
+      topic: "mars-otc-elr"
+      customerStatus: "active"
+      translation:
+        schemaName: "azure:/hl7_mapping/ORU_R01/ORU_R01-deidentified.yml"
+        format: "HL7"
+        useBatching: false
+        defaults: { }
+        nameFormat: "STANDARD"
+        receivingOrganization: null
+        type: "CUSTOM"
+      jurisdictionalFilter:
+        - "true"
+      qualityFilter: [ ]
+      routingFilter:
+        - "Bundle.entry.resource.ofType(MessageHeader).extension('https://reportstream.cdc.gov/fhir/StructureDefinition/sender-id').where(value = 'c2sense' or 'mmtc').exists()"
+      processingModeFilter: [ ]
+      reverseTheQualityFilter: false
+      conditionFilter: [ ]
+      mappedConditionFilter: [ ]
+      deidentify: true
+      deidentifiedValue: "<DEIDENTIFIED>"
+      timing:
+        operation: "MERGE"
+        numberPerDay: 1440
+        initialTime: "00:02"
+        timeZone: "EASTERN"
+        maxReportCount: 1000
+        whenEmpty:
+          action: "NONE"
+          onlyOncePerDay: false
+      description: ""
+      transport:
+        host: "sftp"
+        port: "22"
+        filePath: "./upload"
+        credentialName: "DEFAULT-SFTP"
+        type: "SFTP"
+      externalName: null
+      enrichmentSchemaNames: [ ]
+      timeZone: null
+      dateTimeFormat: "OFFSET"

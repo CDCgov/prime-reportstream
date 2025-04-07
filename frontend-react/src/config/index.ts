@@ -1,19 +1,10 @@
-import {
-    IConfig,
-    IConfiguration,
-    SeverityLevel,
-} from "@microsoft/applicationinsights-web";
-import {
-    AccessToken,
-    AuthState,
-    IDToken,
-    OktaAuthOptions,
-    RefreshToken,
-} from "@okta/okta-auth-js";
+import { IConfig, IConfiguration, SeverityLevel } from "@microsoft/applicationinsights-web";
+import { AccessToken, AuthState, IDToken, OktaAuthOptions, RefreshToken } from "@okta/okta-auth-js";
 import { WidgetOptions } from "@okta/okta-signin-widget";
 import type { Feature } from "@okta/okta-signin-widget";
 import type { IIdleTimerProps } from "react-idle-timer";
 
+import site from "../content/site.json";
 import type { ConsoleLevel } from "../utils/rsConsole/rsConsole";
 
 const envVars = {
@@ -23,9 +14,7 @@ const envVars = {
     MODE: import.meta.env.MODE,
 };
 
-const DEFAULT_FEATURE_FLAGS = import.meta.env.VITE_FEATURE_FLAGS
-    ? import.meta.env.VITE_FEATURE_FLAGS.split(",")
-    : [];
+const DEFAULT_FEATURE_FLAGS = import.meta.env.VITE_FEATURE_FLAGS ? import.meta.env.VITE_FEATURE_FLAGS.split(",") : [];
 
 const OKTA_ISSUER = `${envVars.OKTA_URL}/oauth2/default`;
 
@@ -41,9 +30,7 @@ const config = {
     IS_PREVIEW: envVars.MODE !== "production",
     API_ROOT: `${envVars.RS_API_URL}/api`,
     APPLICATION_INSIGHTS: {
-        connectionString:
-            import.meta.env.VITE_APPLICATIONINSIGHTS_CONNECTION_STRING ??
-            "instrumentationKey=test",
+        connectionString: import.meta.env.VITE_APPLICATIONINSIGHTS_CONNECTION_STRING ?? "instrumentationKey=test",
         loggingLevelConsole: import.meta.env.NODE_ENV === "development" ? 2 : 0,
         disableFetchTracking: false,
         enableAutoRouteTracking: true,
@@ -54,19 +41,12 @@ const config = {
         enableCorsCorrelation: true,
         enableRequestHeaderTracking: true,
         enableResponseHeaderTracking: true,
-        disableTelemetry: !import.meta.env
-            .VITE_APPLICATIONINSIGHTS_CONNECTION_STRING,
+        disableTelemetry: !import.meta.env.VITE_APPLICATIONINSIGHTS_CONNECTION_STRING,
         excludeRequestFromAutoTrackingPatterns: ["google-analytics.com"],
     } as const satisfies IConfiguration & IConfig,
     RSCONSOLE: {
         // Debug ignored by default
-        reportableLevels: [
-            "assert",
-            "error",
-            "info",
-            "trace",
-            "warn",
-        ] as ConsoleLevel[],
+        reportableLevels: ["assert", "error", "info", "trace", "warn"] as ConsoleLevel[],
         severityLevels: {
             info: SeverityLevel.Information,
             warn: SeverityLevel.Warning,
@@ -96,17 +76,16 @@ const config = {
         },
         async transformAuthState(oktaAuth, authState) {
             let finalAuthState: AuthState = structuredClone(authState);
-            const tokens = [
-                authState.accessToken,
-                authState.idToken,
-                authState.refreshToken,
-            ].filter(Boolean) as (AccessToken | IDToken | RefreshToken)[];
+            const tokens = [authState.accessToken, authState.idToken, authState.refreshToken].filter(Boolean) as (
+                | AccessToken
+                | IDToken
+                | RefreshToken
+            )[];
             // Prevent pulling incorrect token from a different okta environment
             if (
                 tokens.find(
                     (t) =>
-                        ("issuer" in t && t.issuer !== OKTA_ISSUER) ||
-                        ("claims" in t && t.claims.iss !== OKTA_ISSUER),
+                        ("issuer" in t && t.issuer !== OKTA_ISSUER) || ("claims" in t && t.claims.iss !== OKTA_ISSUER),
                 )
             ) {
                 oktaAuth.clearStorage();
@@ -140,7 +119,7 @@ const config = {
         } satisfies Partial<Record<Feature, boolean>>,
         useClassicEngine: false,
         helpLinks: {
-            help: "https://app.smartsheetgov.com/b/form/da894779659b45768079200609b3a599",
+            help: site.forms.contactUs.url,
         },
         i18n: {
             // Overriding English properties
@@ -155,8 +134,7 @@ const config = {
                 "error.username.required":
                     "Please enter a username. Your username should be the email address you registered with. Check your activation email.",
                 "password.reset": "Reset password",
-                "password.forgot.question.title":
-                    "Answer forgotten password challenge",
+                "password.forgot.question.title": "Answer forgotten password challenge",
                 "password.forgot.question.submit": "Reset password",
                 "password.forgot.emailSent.title": "Email sent",
                 "password.forgot.emailSent.desc":
@@ -172,8 +150,7 @@ const config = {
                     "Your account is locked because of too many failed attempts. Check your email for next steps to unlock.",
                 "errors.E0000004":
                     "Unable to sign in.  Check your username and password. Your account will be locked after 5 failed attempts.",
-                "account.unlock.email.or.username.placeholder":
-                    "Username or email",
+                "account.unlock.email.or.username.placeholder": "Username or email",
                 "account.unlock.email.or.username.tooltip": "Username or email",
             },
         },
@@ -185,8 +162,7 @@ const config = {
             openGraph: {
                 image: {
                     src: import.meta.env.VITE_OPENGRAPH_DEFAULT_IMAGE_SRC,
-                    altText: import.meta.env
-                        .VITE_OPENGRAPH_DEFAULT_IMAGE_ALTTEXT,
+                    altText: import.meta.env.VITE_OPENGRAPH_DEFAULT_IMAGE_ALTTEXT,
                 },
             },
         },

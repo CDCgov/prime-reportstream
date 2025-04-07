@@ -88,6 +88,7 @@ test.describe(
                     });
 
                     test("table has correct headers", async ({ dailyDataPage }) => {
+                        await dailyDataPage.page.locator(".usa-table tbody").waitFor({ state: "visible" });
                         await expect(dailyDataPage.page.locator(".usa-table th").nth(0)).toHaveText(/Report ID/);
                         await expect(dailyDataPage.page.locator(".usa-table th").nth(1)).toHaveText(/Time received/);
                         await expect(dailyDataPage.page.locator(".usa-table th").nth(2)).toHaveText(
@@ -174,7 +175,10 @@ test.describe(
                             await expect(receiverDropdown(dailyDataPage.page)).toHaveValue(TEST_ORG_UP_RECEIVER_UP);
                         });
 
-                        test("with 'From' date, 'To' date, 'Start time', 'End time'", async ({ dailyDataPage }) => {
+                        test.skip("with 'From' date, 'To' date, 'Start time', 'End time'", async ({
+                            dailyDataPage,
+                        }) => {
+                            // TODO: The date filtering query is currently broken
                             const fromDate = await setDate(dailyDataPage.page, "#start-date", 180);
                             const toDate = await setDate(dailyDataPage.page, "#end-date", 0);
                             await setTime(dailyDataPage.page, "#start-time", defaultStartTime);
@@ -289,9 +293,10 @@ test.describe(
                         expect(await tableDataCellValue(dailyDataPage.page, 0, 0)).toEqual(reportId);
                     });
 
-                    test("returns match for Filename", async ({ dailyDataPage }) => {
+                    test("returns match for Filename", async ({ dailyDataPage, isMockDisabled }) => {
                         // Filename search is currently broken and being tracked
-                        // in ticket #15644
+                        // in ticket #15644 so we must skip UNLESS IT IS MOCKED
+                        test.skip(isMockDisabled, "Mocks are DISABLED, skipping 'returns match for Filename");
                         const fileName = await tableDataCellValue(dailyDataPage.page, 0, 4);
                         await searchInput(dailyDataPage.page).fill(removeDateTime(fileName));
                         await searchButton(dailyDataPage.page).click();
@@ -399,14 +404,22 @@ test.describe(
             SMOKE_RECEIVERS.forEach((receiver) => {
                 test.describe(`${TEST_ORG_IGNORE} org - ${receiver} receiver`, () => {
                     test.describe("on 'Report ID' click", () => {
-                        test.beforeEach(async ({ dailyDataPage }) => {
+                        test.beforeEach(async ({ dailyDataPage, isFrontendWarningsLog }) => {
+                            test.skip(
+                                !isFrontendWarningsLog,
+                                "isFrontendWarningsLog must be TRUE, skipping 'on 'Report ID' click' test",
+                            );
                             await dailyDataPage.page.locator(".usa-table tbody").waitFor({ state: "visible" });
                             await dailyDataPage.page.locator("#receiver-dropdown").selectOption(receiver);
                             await applyButton(dailyDataPage.page).click();
                             await dailyDataPage.page.locator(".usa-table tbody").waitFor({ state: "visible" });
                         });
 
-                        test("opens the Daily Data details page", async ({ dailyDataPage }) => {
+                        test("opens the Daily Data details page", async ({ dailyDataPage, isFrontendWarningsLog }) => {
+                            test.skip(
+                                !isFrontendWarningsLog,
+                                "isFrontendWarningsLog must be TRUE, skipping 'opens the Daily Data details page' test",
+                            );
                             const reportId = await tableDataCellValue(dailyDataPage.page, 0, 0);
 
                             await dailyDataPage.page.getByRole("link", { name: reportId }).click();

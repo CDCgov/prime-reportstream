@@ -1,7 +1,7 @@
 ---
-name: UP Migrate Receiver - Move to Production
+name: UP Migrate Receiver - Move to Production and Monitor
 about: This is the third and final step in migrating a STLT to the UP 
-title: "[name of STLT] - UP Migration - Move to Production"
+title: "[name of STLT] - UP Migration - Move to Production and Monitor"
 labels: onboarding-ops, receiver
 assignees: ''
 

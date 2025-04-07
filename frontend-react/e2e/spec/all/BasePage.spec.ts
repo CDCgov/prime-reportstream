@@ -6,6 +6,7 @@ export interface MockPageFixtures {
 }
 
 class MockPage extends BasePage {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     data?: any;
 
     constructor(testArgs: BasePageTestArgs) {
@@ -20,6 +21,7 @@ class MockPage extends BasePage {
             [
                 "fake",
                 async (res) => {
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
                     this.data = await res.json();
                 },
             ],
@@ -30,9 +32,7 @@ class MockPage extends BasePage {
         if (this.isMocked) {
             this.addMockRouteHandlers([["/fake", { json: { foo: "bar" } }]]);
         } else {
-            const [url, handler] = this.createRouteHandlers([
-                ["/fake", { json: { bar: "foo" } }],
-            ])[0];
+            const [url, handler] = this.createRouteHandlers([["/fake", { json: { bar: "foo" } }]])[0];
             this.routeHandlers.set(url, handler);
         }
 

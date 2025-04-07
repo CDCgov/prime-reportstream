@@ -66,10 +66,7 @@ export interface FileHandlerAction {
     payload?: FileHandlerActionPayload; // reset actions will have no payload
 }
 
-type FileHandlerReducer = (
-    state: FileHandlerState,
-    action: FileHandlerAction,
-) => FileHandlerState;
+type FileHandlerReducer = (state: FileHandlerState, action: FileHandlerAction) => FileHandlerState;
 
 export const INITIAL_STATE = {
     fileInputResetValue: 0,
@@ -109,10 +106,7 @@ function getPreSubmitState(): Partial<FileHandlerState> {
 }
 
 // update state when file is selected in form
-function calculateFileSelectedState(
-    state: FileHandlerState,
-    payload: FileSelectedPayload,
-): Partial<FileHandlerState> {
+function calculateFileSelectedState(state: FileHandlerState, payload: FileSelectedPayload): Partial<FileHandlerState> {
     const { file, fileContent } = payload;
     let uploadType;
     if (file.type) {
@@ -124,11 +118,7 @@ function calculateFileSelectedState(
         uploadType = fileNameArray[fileNameArray.length - 1];
     }
 
-    if (
-        uploadType !== "text/csv" &&
-        uploadType !== "csv" &&
-        uploadType !== "hl7"
-    ) {
+    if (uploadType !== "text/csv" && uploadType !== "csv" && uploadType !== "hl7") {
         return {
             ...state,
             localError: "The file type must be .csv or .hl7",
@@ -145,12 +135,9 @@ function calculateFileSelectedState(
     // previously loading file contents here
     // since this is an async action we'll do this in the calling component
     // prior to dispatching into the reducer, and handle the file content in local state
-    const contentType =
-        uploadType === "csv" || uploadType === "text/csv"
-            ? ContentType.CSV
-            : ContentType.HL7;
+    const contentType = uploadType === "csv" || uploadType === "text/csv" ? ContentType.CSV : ContentType.HL7;
 
-    const fileType = uploadType.match("hl7") ? FileType.HL7 : FileType.CSV;
+    const fileType = /hl7/.exec(uploadType) ? FileType.HL7 : FileType.CSV;
     return {
         ...state,
         file,
@@ -168,20 +155,10 @@ export function calculateRequestCompleteState(
     payload: RequestCompletePayload,
 ): Partial<FileHandlerState> {
     const {
-        response: {
-            destinations,
-            id,
-            timestamp,
-            errors,
-            status,
-            warnings,
-            overallStatus,
-        },
+        response: { destinations, id, timestamp, errors, status, warnings, overallStatus },
     } = payload;
 
-    const destinationList = destinations?.length
-        ? destinations.map((d: Destination) => d.organization).join(", ")
-        : "";
+    const destinationList = destinations?.length ? destinations.map((d: Destination) => d.organization).join(", ") : "";
 
     return {
         destinations: destinationList,
@@ -198,10 +175,7 @@ export function calculateRequestCompleteState(
     };
 }
 
-function reducer(
-    state: FileHandlerState,
-    action: FileHandlerAction,
-): FileHandlerState {
+function reducer(state: FileHandlerState, action: FileHandlerAction): FileHandlerState {
     const { type, payload } = action;
     switch (type) {
         case FileHandlerActionType.RESET:
@@ -214,17 +188,11 @@ function reducer(
             return { ...state, ...preSubmitState };
         }
         case FileHandlerActionType.FILE_SELECTED: {
-            const fileSelectedState = calculateFileSelectedState(
-                state,
-                payload as FileSelectedPayload,
-            );
+            const fileSelectedState = calculateFileSelectedState(state, payload as FileSelectedPayload);
             return { ...state, ...fileSelectedState };
         }
         case FileHandlerActionType.REQUEST_COMPLETE: {
-            const requestCompleteState = calculateRequestCompleteState(
-                state,
-                payload as RequestCompletePayload,
-            );
+            const requestCompleteState = calculateRequestCompleteState(state, payload as RequestCompletePayload);
             return { ...state, ...requestCompleteState };
         }
         case FileHandlerActionType.SCHEMA_SELECTED: {
@@ -262,10 +230,7 @@ export interface UseFileHandlerHookResult {
 // the pattern laid down in UsePagination for now, in case we need to make this more
 // complex later - DWS
 export default function useFileHandler(): UseFileHandlerHookResult {
-    const [state, dispatch] = useReducer<FileHandlerReducer>(
-        reducer,
-        getInitialState(),
-    );
+    const [state, dispatch] = useReducer<FileHandlerReducer>(reducer, getInitialState());
 
     /* TODO: possible future refactors:
       - we could abstract over the dispatch function as UsePagination does and expose individual

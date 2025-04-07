@@ -15,10 +15,7 @@ vi.mock("react-helmet-async", () => {
 
 describe("lazyRouteMarkdown", () => {
     test("works with react-router", async () => {
-        const Component = lazy(
-            // eslint-disable-next-line import/no-unresolved
-            lazyRouteMarkdown(() => Promise.resolve(md)),
-        );
+        const Component = lazy(lazyRouteMarkdown(() => Promise.resolve(md)));
         const router = createMemoryRouter([
             {
                 path: "/",

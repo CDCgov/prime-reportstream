@@ -14,12 +14,24 @@ elements:
     value: [ '%resource.system.getCodingSystemMapping()' ]
     hl7Spec: [ '%{PID}-10-3' ]
 
+  - name: mo-sending-facility-namespace-id
+    value: [ '"CDC Prime"' ]
+    hl7Spec: [ 'MSH-4-1' ]
+
+  - name: mo-sending-application-universal-id
+    value: [ '"11D2030855"' ]
+    hl7Spec: [ 'MSH-4-2' ]
+
+  - name: mo-sending-application-universal-id-type
+    value: [ '"CLIA"' ]
+    hl7Spec: [ 'MSH-4-3' ]
+
   - name: mo-sender-facility-namespace-Id
     value: [ '"MOELR"' ]
     hl7Spec: [ 'MSH-5-1' ]
 
   - name: mo-sender-facility-universal-Id
-    value: [ '"2.16.840.1.114222.4.3.3.36"' ]
+    value: [ '"2.16.840.1.114222.4.3.3.10.1.1"' ]
     hl7Spec: [ 'MSH-5-2' ]
 
   - name: mo-sender-facility-universal-id-type
@@ -40,4 +52,10 @@ elements:
 
   - name: mo-unwanted-fields
     value: [ '""' ]
-    hl7Spec: [ 'MSH-19-3', '%{PID}-13-12', '%{PID}-15-3', '%{ORC}-14-1', '%{OBR}-17-1' ]
+    hl7Spec: [ 'MSH-19-3', '%{PID}-15-3', '%{ORC}-14-1', '%{OBR}-17-1' ]
+
+  - name: mo-observation
+    resource: 'Bundle.entry.resource.ofType(Observation)'
+    schema: classpath:/metadata/hl7_mapping/receivers/Common/observation-fields/observation-fields.yml
+    resourceIndex: resultIndex
+

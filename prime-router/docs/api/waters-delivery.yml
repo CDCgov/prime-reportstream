@@ -9,7 +9,7 @@ info:
     email: usds@cdc.gov
   license:
     name: Creative Commons Zero v1.0 Universal
-    url: https://github.com/CDCgov/prime-reportstream/blob/master/LICENSE
+    url: https://github.com/CDCgov/prime-reportstream/blob/main/LICENSE
 servers:
   - url: https://prime.cdc.gov/api
     description: Production server (uses live data)
@@ -50,12 +50,12 @@ paths:
               - ACTIVE
               - INACTIVE
               - TESTING
-        - $ref: 'https://raw.githubusercontent.com/CDCgov/prime-reportstream/master/prime-router/docs/api/components/sort_and_filter.yml#/sortDir'
-        - $ref: 'https://raw.githubusercontent.com/CDCgov/prime-reportstream/master/prime-router/docs/api/components/sort_and_filter.yml#/sortCol'
-        - $ref: 'https://raw.githubusercontent.com/CDCgov/prime-reportstream/master/prime-router/docs/api/components/sort_and_filter.yml#/cursor'
-        - $ref: 'https://raw.githubusercontent.com/CDCgov/prime-reportstream/master/prime-router/docs/api/components/sort_and_filter.yml#/since'
-        - $ref: 'https://raw.githubusercontent.com/CDCgov/prime-reportstream/master/prime-router/docs/api/components/sort_and_filter.yml#/until'
-        - $ref: 'https://raw.githubusercontent.com/CDCgov/prime-reportstream/master/prime-router/docs/api/components/sort_and_filter.yml#/pagesize'
+        - $ref: 'https://raw.githubusercontent.com/CDCgov/prime-reportstream/main/prime-router/docs/api/components/sort_and_filter.yml#/sortDir'
+        - $ref: 'https://raw.githubusercontent.com/CDCgov/prime-reportstream/main/prime-router/docs/api/components/sort_and_filter.yml#/sortCol'
+        - $ref: 'https://raw.githubusercontent.com/CDCgov/prime-reportstream/main/prime-router/docs/api/components/sort_and_filter.yml#/cursor'
+        - $ref: 'https://raw.githubusercontent.com/CDCgov/prime-reportstream/main/prime-router/docs/api/components/sort_and_filter.yml#/since'
+        - $ref: 'https://raw.githubusercontent.com/CDCgov/prime-reportstream/main/prime-router/docs/api/components/sort_and_filter.yml#/until'
+        - $ref: 'https://raw.githubusercontent.com/CDCgov/prime-reportstream/main/prime-router/docs/api/components/sort_and_filter.yml#/pagesize'
       responses:
         '200':
           description: a list of AvailableReport objects
@@ -164,12 +164,12 @@ paths:
               - ACTIVE
               - INACTIVE
               - TESTING
-        - $ref: 'https://raw.githubusercontent.com/CDCgov/prime-reportstream/master/prime-router/docs/api/components/sort_and_filter.yml#/sortDir'
-        - $ref: 'https://raw.githubusercontent.com/CDCgov/prime-reportstream/master/prime-router/docs/api/components/sort_and_filter.yml#/sortCol'
-        - $ref: 'https://raw.githubusercontent.com/CDCgov/prime-reportstream/master/prime-router/docs/api/components/sort_and_filter.yml#/cursor'
-        - $ref: 'https://raw.githubusercontent.com/CDCgov/prime-reportstream/master/prime-router/docs/api/components/sort_and_filter.yml#/since'
-        - $ref: 'https://raw.githubusercontent.com/CDCgov/prime-reportstream/master/prime-router/docs/api/components/sort_and_filter.yml#/until'
-        - $ref: 'https://raw.githubusercontent.com/CDCgov/prime-reportstream/master/prime-router/docs/api/components/sort_and_filter.yml#/pagesize'
+        - $ref: 'https://raw.githubusercontent.com/CDCgov/prime-reportstream/main/prime-router/docs/api/components/sort_and_filter.yml#/sortDir'
+        - $ref: 'https://raw.githubusercontent.com/CDCgov/prime-reportstream/main/prime-router/docs/api/components/sort_and_filter.yml#/sortCol'
+        - $ref: 'https://raw.githubusercontent.com/CDCgov/prime-reportstream/main/prime-router/docs/api/components/sort_and_filter.yml#/cursor'
+        - $ref: 'https://raw.githubusercontent.com/CDCgov/prime-reportstream/main/prime-router/docs/api/components/sort_and_filter.yml#/since'
+        - $ref: 'https://raw.githubusercontent.com/CDCgov/prime-reportstream/main/prime-router/docs/api/components/sort_and_filter.yml#/until'
+        - $ref: 'https://raw.githubusercontent.com/CDCgov/prime-reportstream/main/prime-router/docs/api/components/sort_and_filter.yml#/pagesize'
       responses:
         '200':
           description: a list of AvailableReport objects
@@ -228,8 +228,8 @@ paths:
           schema:
             type: string
             format: uuid or int
-        - $ref: 'https://raw.githubusercontent.com/CDCgov/prime-reportstream/master/prime-router/docs/api/components/sort_and_filter.yml#/sortDir'
-        - $ref: 'https://raw.githubusercontent.com/CDCgov/prime-reportstream/master/prime-router/docs/api/components/sort_and_filter.yml#/sortCol'
+        - $ref: 'https://raw.githubusercontent.com/CDCgov/prime-reportstream/main/prime-router/docs/api/components/sort_and_filter.yml#/sortDir'
+        - $ref: 'https://raw.githubusercontent.com/CDCgov/prime-reportstream/main/prime-router/docs/api/components/sort_and_filter.yml#/sortCol'
           enum: [ NAME, CITY, STATE, CLIA, POSITIVE, TOTAL ]
       responses:
         '200':
@@ -247,9 +247,9 @@ paths:
 components:
   securitySchemes:
     OAuth2:
-      $ref: 'https://raw.githubusercontent.com/CDCgov/prime-reportstream/master/prime-router/docs/api/components/security_schemes.yml#/OAuth2'
+      $ref: 'https://raw.githubusercontent.com/CDCgov/prime-reportstream/main/prime-router/docs/api/components/security_schemes.yml#/OAuth2'
     Server2Server:
-      $ref: 'https://raw.githubusercontent.com/CDCgov/prime-reportstream/master/prime-router/docs/api/components/security_schemes.yml#/Server2Server'
+      $ref: 'https://raw.githubusercontent.com/CDCgov/prime-reportstream/main/prime-router/docs/api/components/security_schemes.yml#/Server2Server'
   schemas:
     GetDeliveriesResponse:
       type: array

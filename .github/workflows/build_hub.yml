@@ -3,15 +3,15 @@ name: Build Hub
 on:
   pull_request:
     branches:
-      - master
+      - main
   push:
     branches:
-      - master
+      - main
   merge_group:
     types:
       - checks_requested
     branches:
-      - master
+      - main
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
@@ -21,6 +21,7 @@ env:
   # These are for CI and not credentials of any system
   DB_USER: prime
   DB_PASSWORD: changeIT!
+  AZURE_CREDENTIALS: '{"clientId":"${{ secrets.REPO_AZURE_CLIENT_ID }}","clientSecret":"${{ secrets.AZURE_CLIENT_SECRET }}","subscriptionId":"${{ secrets.REPO_AZURE_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.REPO_AZURE_TENANT_ID }}"}'
 
 jobs:
   pre_job:
@@ -30,7 +31,7 @@ jobs:
       has_router_change: ${{ steps.build_vars.outputs.has_router_change }}
     steps:
       - name: "Check out changes"
-        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938
+        uses: actions/checkout@v4
       - name: Build vars
         id: build_vars
         uses: ./.github/actions/build-vars
@@ -64,7 +65,7 @@ jobs:
           version: ${{ github.run_id }}
           upload-build: false
           run-integration-tests: true
-          sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
+          sp-creds: ${{ env.AZURE_CREDENTIALS }}
 
       - name: Generate New Schema Docs
         working-directory: ./
@@ -125,3 +126,4 @@ jobs:
         if: ${{ steps.check_changes.outcome == 'failure' }}
         run: |
           false
+

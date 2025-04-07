@@ -3,45 +3,36 @@ title = "PRIME ReportStream Gitleaks Configuration"
 # Global allowlist
 [allowlist]
     description = "Allow-list for files and paths"
-    files = [
-        '(.*?)(bin|doc|gif|iml|jar|jp(e)?g|pdf|png|xlsx)$',
-        '^\.?gitleaks-config.toml$',
-        '^\.?gitleaks.report.json$',
-        '^package-lock\.json$',
-        'cleanslate.sh.log',
-        'yarn\.lock$',
-    ]
     paths = [
-        '.environment/sftp-conf',
-        '.environment/soap_service/',
-        '.github/scripts/stale_items_report/',
-        '.idea/',
-        '.terraform/providers/',
-        'frontend/dist',
-        'frontend/node_modules/',
-        'frontend/src/assets',
-        'frontend-react/build/',
-        'frontend-react/node_modules/',
-        'frontend-react/src/components/ReportStreamHeader.tsx',
-        'prime-router/.gradle/',
-        'prime-router/.vault/env/',
-        'prime-router/build/',
-        'prime-router/build.gradle.kts',
-        'prime-router/docs/dependency-graph-full/dependency-graph-full.txt',
-        'prime-router/docs/schema_documentation/',
-        'prime-router/docs/design/design/auth/auth-design.md',
-        'prime-router/docs/getting_started.md',
-        'prime-router/frontend/src/assets/fonts',
-        'prime-router/frontend/src/assets/img',
-        'prime-router/frontend/src/assets/pdf',
-        'prime-router/frontend/src/assets/webfonts',
-        'prime-router/src/main/kotlin/cli/tests/TestKeys.kt',
-        'prime-router/src/test/csv_test_files/input/',
-        'prime-router/src/test/kotlin/credentials/CredentialTests',
-        'prime-router/src/test/',
-        'prime-router/src/main/resources/metadata',
-        '.environment/gitleaks/gitleaks-config.toml',
-        'exp/as2/keystore_steps.md',
+        # package manager files
+        'package-lock\.json$',
+        'yarn\.lock$',
+        # ide
+        '\.idea\/',
+        # misc
+        '(.*?)(bin|doc|gif|iml|jar|jp(e)?g|pdf|png|xlsx)$',
+        # devops
+        '\.terraform\/providers\/',
+        '^\.environment\/gitleaks\/gitleaks-config\.toml$',
+        '^\.environment\/sftp-conf\/',
+        '^\.environment\/soap_service\/',
+        '^\.github\/scripts\/stale_items_report\/',
+        # backend
+        '^prime-router\/\.gradle\/',
+        '^prime-router\/.vault\/env\/',
+        '^prime-router\/build\/',
+        '^prime-router\/build\.gradle\.kts',
+        '^prime-router\/docs\/dependency-graph-full/dependency-graph-full\.txt',
+        '^prime-router\/docs\/schema_documentation/',
+        '^prime-router\/docs\/design/design/auth/auth-design\.md',
+        '^prime-router\/docs\/getting_started\.md',
+        '^prime-router\/src\/main\/kotlin\/cli\/tests\/TestKeys\.kt',
+        '^prime-router\/src\/test\/csv_test_files\/input\/',
+        '^prime-router\/src\/test\/kotlin\/credentials\/CredentialTests',
+        '^prime-router\/src\/test\/',
+        '^prime-router\/src\/main\/resources\/metadata',
+        # frontend
+        '^frontend-react\/public\/assets\/',
     ]
 
 [[rules]]

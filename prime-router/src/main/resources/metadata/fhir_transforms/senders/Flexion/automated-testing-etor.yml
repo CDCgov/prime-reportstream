@@ -1,0 +1,15 @@
+# $schema: ../../../../../../../metadata/json_schema/fhir/fhir-to-fhir-transform.json
+# Sender transform for ETOR simulated-sender automated testing. Will be used only for automated tests in staging environment to apply any sender transforms for ETOR-NBS senders.
+constants:
+  cdphSender: 'Bundle.entry.resource.ofType(MessageHeader).source.name = "SISGDSP"'
+
+elements:
+
+  # REGEX removes leading zeroes from left of decimal point unless there is only a single zero
+  - name: remove-leading-zeros-from-nm-data-type
+    resource: 'Bundle.entry.resource.ofType(Observation).value.ofType(Quantity)'
+    condition: >
+      %resource.value.toString().matches("^0\\d+(\\.\\d+)?$") and 
+      %cdphSender
+    bundleProperty: '%resource.value'
+    value: [ '%resource.value.toString().replaceMatches("^0+(\\d*|0)(\\.\\d+)?$", "$1$2")' ]

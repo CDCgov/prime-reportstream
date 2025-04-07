@@ -299,12 +299,10 @@ class SubmissionReceiverTests {
         "42&ISO||445297001^Swab of internal nose^SCT^^^^2.67||||53342003^Internal nose structure (body structure)^" +
         "SCT^^^^2020-09-01|||||||||202108020000-0500|20210802000006.0000-0500"
 
-    private fun makeEngine(metadata: Metadata, settings: SettingsProvider): WorkflowEngine {
-        return spyk(
+    private fun makeEngine(metadata: Metadata, settings: SettingsProvider): WorkflowEngine = spyk(
             WorkflowEngine.Builder().metadata(metadata).settingsProvider(settings).databaseAccess(accessSpy)
                 .blobAccess(blobMock).queueAccess(queueMock).build()
         )
-    }
 
     @BeforeEach
     fun reset() {
@@ -787,7 +785,7 @@ class SubmissionReceiverTests {
         every { engine.routeReport(any(), any(), any(), any(), any()) } returns routeResult
         every { SubmissionReceiver.doDuplicateDetection(any(), any(), any()) } returns Unit
         every { engine.insertProcessTask(any(), any(), any(), any()) } returns Unit
-        every { queueMock.sendMessage(QueueMessage.elrConvertQueueName, any()) } returns Unit
+        every { queueMock.sendMessage(QueueMessage.elrConvertQueueName, any()) } returns ""
 
         // act
         receiver.validateAndMoveToProcessing(
@@ -870,7 +868,7 @@ class SubmissionReceiverTests {
         every { engine.routeReport(any(), any(), any(), any(), any()) } returns routeResult
         every { SubmissionReceiver.doDuplicateDetection(any(), any(), any()) } returns Unit
         every { engine.insertProcessTask(any(), any(), any(), any()) } returns Unit
-        every { queueMock.sendMessage(QueueMessage.elrConvertQueueName, any()) } returns Unit
+        every { queueMock.sendMessage(QueueMessage.elrConvertQueueName, any()) } returns ""
 
         // act
         receiver.validateAndMoveToProcessing(
@@ -941,7 +939,7 @@ class SubmissionReceiverTests {
         every { engine.routeReport(any(), any(), any(), any(), any()) } returns routeResult
         every { SubmissionReceiver.doDuplicateDetection(any(), any(), any()) } returns Unit
         every { engine.insertProcessTask(any(), any(), any(), any()) } returns Unit
-        every { queueMock.sendMessage(QueueMessage.elrConvertQueueName, any()) } returns Unit
+        every { queueMock.sendMessage(QueueMessage.elrConvertQueueName, any()) } returns ""
 
         // act
         receiver.validateAndMoveToProcessing(
@@ -1011,7 +1009,7 @@ class SubmissionReceiverTests {
         every { engine.routeReport(any(), any(), any(), any(), any()) } returns routeResult
         every { SubmissionReceiver.doDuplicateDetection(any(), any(), any()) } returns Unit
         every { engine.insertProcessTask(any(), any(), any(), any()) } returns Unit
-        every { queueMock.sendMessage(QueueMessage.elrConvertQueueName, any()) } returns Unit
+        every { queueMock.sendMessage(QueueMessage.elrConvertQueueName, any()) } returns ""
 
         // act
         receiver.validateAndMoveToProcessing(
@@ -1080,7 +1078,7 @@ class SubmissionReceiverTests {
         every { engine.recordReceivedReport(any(), any(), any(), any(), any()) } returns blobInfo
         every { engine.routeReport(any(), any(), any(), any(), any()) } returns routeResult
         every { engine.insertProcessTask(any(), any(), any(), any()) } returns Unit
-        every { queueMock.sendMessage(QueueMessage.elrConvertQueueName, any()) } returns Unit
+        every { queueMock.sendMessage(QueueMessage.elrConvertQueueName, any()) } returns ""
 
         // act
         var exceptionThrown = false
@@ -1153,7 +1151,7 @@ class SubmissionReceiverTests {
         every { engine.recordReceivedReport(any(), any(), any(), any(), any()) } returns blobInfo
         every { engine.routeReport(any(), any(), any(), any(), any()) } returns routeResult
         every { engine.insertProcessTask(any(), any(), any(), any()) } returns Unit
-        every { queueMock.sendMessage(QueueMessage.elrConvertQueueName, any()) } returns Unit
+        every { queueMock.sendMessage(QueueMessage.elrConvertQueueName, any()) } returns ""
 
         // act / assert
         assertFailure {

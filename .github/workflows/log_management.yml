@@ -12,7 +12,9 @@ jobs:
     steps:
       - uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938
       - name: Workflow Housekeeper - workflows NOT in default branch
-        uses: JosiahSiegel/workflow-housekeeper@731cc20bb613208b34efb6ac74aab4ba147abb50
+
+        uses: ./.github/actions/workflow-housekeeper
+
         env:
           GITHUB_TOKEN: ${{ secrets.LOG_MANAGEMENT_TOKEN }}
         with:
@@ -21,7 +23,9 @@ jobs:
           retain-run-count: 0
           dry-run: false
       - name: Workflow Housekeeper - workflows in default branch
-        uses: JosiahSiegel/workflow-housekeeper@731cc20bb613208b34efb6ac74aab4ba147abb50
+
+        uses: ./.github/actions/workflow-housekeeper
+
         env:
           GITHUB_TOKEN: ${{ secrets.LOG_MANAGEMENT_TOKEN }}
         with:

@@ -11,6 +11,7 @@ import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DataAccessTransaction
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.Event
+import gov.cdc.prime.router.azure.SubmissionTableService
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.observability.event.AzureEventService
 import gov.cdc.prime.router.azure.observability.event.AzureEventServiceImpl
@@ -39,11 +40,7 @@ abstract class FHIREngine(
     val blob: BlobAccess = BlobAccess(),
     val azureEventService: AzureEventService = AzureEventServiceImpl(),
     val reportService: ReportService = ReportService(ReportGraph(db), db),
-    val reportEventService: IReportStreamEventService = ReportStreamEventService(
-        db,
-        azureEventService,
-        reportService
-    ),
+    val reportEventService: IReportStreamEventService,
 ) : BaseEngine() {
 
     /**
@@ -65,6 +62,7 @@ abstract class FHIREngine(
         var azureEventService: AzureEventService? = null,
         var reportService: ReportService? = null,
         var reportEventService: IReportStreamEventService? = null,
+        var submissionTableService: SubmissionTableService? = null,
     ) {
         /**
          * Set the metadata instance.
@@ -110,6 +108,10 @@ abstract class FHIREngine(
             this.reportEventService = reportEventService
         }
 
+        fun submissionTableService(submissionTableService: SubmissionTableService) = apply {
+            this.submissionTableService = submissionTableService
+        }
+
         /**
          * Build the fhir engine instance.
          * @return the fhir engine instance
@@ -123,21 +125,18 @@ abstract class FHIREngine(
 
             // create the correct FHIREngine type for the action being taken
             return when (taskAction) {
-                TaskAction.receive -> FHIRReceiver(
-                    metadata ?: Metadata.getInstance(),
-                    settingsProvider!!,
-                    databaseAccess ?: databaseAccessSingleton,
-                    blobAccess ?: BlobAccess(),
-                    azureEventService ?: AzureEventServiceImpl(),
-                    reportService ?: ReportService(),
-                )
                 TaskAction.process -> FHIRConverter(
                     metadata ?: Metadata.getInstance(),
                     settingsProvider!!,
                     databaseAccess ?: databaseAccessSingleton,
                     blobAccess ?: BlobAccess(),
                     azureEventService ?: AzureEventServiceImpl(),
-                    reportService ?: ReportService()
+                    reportService ?: ReportService(),
+                    ReportStreamEventService(
+                        databaseAccess ?: databaseAccessSingleton,
+                        azureEventService ?: AzureEventServiceImpl(),
+                        reportService ?: ReportService()
+                    )
                 )
                 TaskAction.destination_filter -> FHIRDestinationFilter(
                     metadata ?: Metadata.getInstance(),
@@ -145,7 +144,25 @@ abstract class FHIREngine(
                     databaseAccess ?: databaseAccessSingleton,
                     blobAccess ?: BlobAccess(),
                     azureEventService ?: AzureEventServiceImpl(),
-                    reportService ?: ReportService()
+                    reportService ?: ReportService(),
+                    ReportStreamEventService(
+                        databaseAccess ?: databaseAccessSingleton,
+                        azureEventService ?: AzureEventServiceImpl(),
+                        reportService ?: ReportService()
+                    )
+                )
+                TaskAction.receiver_enrichment -> FHIRReceiverEnrichment(
+                    metadata ?: Metadata.getInstance(),
+                    settingsProvider!!,
+                    databaseAccess ?: databaseAccessSingleton,
+                    blobAccess ?: BlobAccess(),
+                    azureEventService ?: AzureEventServiceImpl(),
+                    reportService ?: ReportService(),
+                    ReportStreamEventService(
+                        databaseAccess ?: databaseAccessSingleton,
+                        azureEventService ?: AzureEventServiceImpl(),
+                        reportService ?: ReportService()
+                    )
                 )
                 TaskAction.receiver_filter -> FHIRReceiverFilter(
                     metadata ?: Metadata.getInstance(),
@@ -154,13 +171,24 @@ abstract class FHIREngine(
                     blobAccess ?: BlobAccess(),
                     azureEventService ?: AzureEventServiceImpl(),
                     reportService ?: ReportService(),
+                    ReportStreamEventService(
+                        databaseAccess ?: databaseAccessSingleton,
+                        azureEventService ?: AzureEventServiceImpl(),
+                        reportService ?: ReportService()
+                    )
                 )
                 TaskAction.translate -> FHIRTranslator(
                     metadata ?: Metadata.getInstance(),
                     settingsProvider!!,
                     databaseAccess ?: databaseAccessSingleton,
                     blobAccess ?: BlobAccess(),
-                    azureEventService ?: AzureEventServiceImpl()
+                    azureEventService ?: AzureEventServiceImpl(),
+                    reportService ?: ReportService(),
+                    reportEventService ?: ReportStreamEventService(
+                        databaseAccess ?: databaseAccessSingleton,
+                        azureEventService ?: AzureEventServiceImpl(),
+                        reportService ?: ReportService()
+                    )
                 )
                 else -> throw NotImplementedError("Invalid action type for FHIR engine")
             }
@@ -187,6 +215,11 @@ abstract class FHIREngine(
      * The type of work the engine is performing
      */
     abstract val engineType: String
+
+    /**
+     * The task action associated with the engine
+     */
+    abstract val taskAction: TaskAction
 
     /**
      * Result class that is returned as part of completing the work on a message
@@ -248,59 +281,6 @@ abstract class FHIREngine(
             actionLogger.error(InvalidReportMessage(ex.message ?: ""))
             // The error gets logged but rethrown so that the passed in transaction can get rolled back
             throw ex
-        }
-    }
-
-    /**
-     * The name of the lookup table to load the shorthand replacement key/value pairs from
-     */
-    private val fhirPathFilterShorthandTableName = "fhirpath_filter_shorthand"
-
-    /**
-     * The name of the column in the shorthand replacement lookup table that will be used as the key.
-     */
-    private val fhirPathFilterShorthandTableKeyColumnName = "variable"
-
-    /**
-     * The name of the column in the shorthand replacement lookup table that will be used as the value.
-     */
-    private val fhirPathFilterShorthandTableValueColumnName = "fhirPath"
-
-    /**
-     * Lookup table `fhirpath_filter_shorthand` containing all the shorthand fhirpath replacements for filtering.
-     */
-    protected val shorthandLookupTable by lazy { loadFhirPathShorthandLookupTable() }
-
-    /**
-     * Load the fhirpath_filter_shorthand lookup table into a map if it can be found and has the expected columns,
-     * otherwise log warnings and return an empty lookup table with the correct columns. This is valid since having
-     * a populated lookup table is not required to run the universal pipeline routing
-     *
-     * @returns Map containing all the values in the fhirpath_filter_shorthand lookup table. Empty map if the
-     * lookup table was not found, or it does not contain the expected columns. If an empty map is returned, a
-     * warning indicating why will be logged.
-     */
-    internal fun loadFhirPathShorthandLookupTable(): MutableMap<String, String> {
-        val lookup = metadata.findLookupTable(fhirPathFilterShorthandTableName)
-        // log a warning and return an empty table if either lookup table is missing or has incorrect columns
-        return if (lookup != null &&
-            lookup.hasColumn(fhirPathFilterShorthandTableKeyColumnName) &&
-            lookup.hasColumn(fhirPathFilterShorthandTableValueColumnName)
-        ) {
-            lookup.table.associate {
-                it.getString(fhirPathFilterShorthandTableKeyColumnName) to
-                    it.getString(fhirPathFilterShorthandTableValueColumnName)
-            }.toMutableMap()
-        } else {
-            if (lookup == null) {
-                logger.warn("Unable to find $fhirPathFilterShorthandTableName lookup table")
-            } else {
-                logger.warn(
-                    "$fhirPathFilterShorthandTableName does not contain " +
-                        "expected columns 'variable' and 'fhirPath'"
-                )
-            }
-            emptyMap<String, String>().toMutableMap()
         }
     }
 }

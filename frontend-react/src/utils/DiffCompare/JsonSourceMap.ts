@@ -80,7 +80,7 @@ export const jsonSourceMap = (jsonD: unknown, spaces = 2): SourceMapResult => {
 
     function isValidType(data: any) {
         const VALID_TYPES = ["number", "bigint", "boolean", "string", "object"];
-        return VALID_TYPES.indexOf(typeof data) >= 0;
+        return VALID_TYPES.includes(typeof data);
     }
 
     function quote(str: string) {

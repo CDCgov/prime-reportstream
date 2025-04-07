@@ -17,23 +17,25 @@ import site from "../../content/site.json"
 <Sidenav />
 </LayoutSidenav>
 
-<p className="usa-timestamp">Last updated: October 07, 2024</p>
+<p className="usa-timestamp">Last updated: January 28, 2025</p>
 
-## Objectives for FY24
-Learn about our goals and how we are measuring success for this fiscal year (FY), which runs from October 2023 through September 2024.
+## Objectives for FY25
+Learn about our goals and how we are measuring success for this fiscal year (FY), which runs from October 2024 through September 2025.
 
 <hr className="rs-hr--base-lighter-alternate" />
 
 ### Support public health entities with time-sensitive, reportable condition electronic laboratory reporting (ELR) data and broader response readiness.
 * 100% of the 64 <A href="https://www.cdc.gov/epidemiology-laboratory-capacity/php/about/" target="_blank">ELC-funded</A> state, tribal, local, or territorial public health agencies (STLTs) are connected to ReportStream.
-* At least 15 <A href="https://www.cdc.gov/epidemiology-laboratory-capacity/php/about/" target="_blank">ELC-funded</A> STLTs receive live data for two or more reportable conditions from ReportStream via ELR.
-* Complete connection updates for all STLTs currently receiving COVID data so they are able to receive more conditions.
-* Begin updating the connection of organizations sending COVID data so they are able to send additional conditions through ReportStream.
-* Identify one or more new health care organizations, labs, or testing facilities for collaboration on their data reporting needs.
+* Connect at least 5 new healthcare organizations to ReportStream for sending all of their reportable conditions. 
+* Route lab data for at least 15 reportable conditions. 
+* Complete connection updates for all healthcare organizations and STLTs currently receiving COVID data so they are able to send or receive data for more conditions.  
+* Build basic functionality to allow ReportStream to ingest CSV via an API for conditions beyond COVID. 
 
-### Pilot faster, simpler electronic test orders and results (ETOR) data transfer with federal and state public health labs.
-* Complete successful test delivery of ELR from CDC’s infectious disease labs to STLTs.
-* Support pilots for newborn screening ETOR with one or more hospital systems and state public health labs.
+### Facilitate simple, efficient reporting for additional core public health data sources and public health systems.
+* Connect ReportStream to one federal healthcare system outside of the CDC. 
+* Participate in CDC <A href="https://www.cdc.gov/one-health/index.html">One Health</A> activities and/or CDC <A href="https://emergency.cdc.gov/lrn/">Laboratory Response Network</A>. 
+* Connect ReportStream to three third-party standards/services. 
+* Meet the needs of senders and STLTs by routing data in accordance with the HL7 LRI/LOI spec. 
 
 ## Roadmap
 <hr className="rs-hr--base-lighter-alternate" />
@@ -42,11 +44,19 @@ Learn about our goals and how we are measuring success for this fiscal year (FY)
     isDivided={false}
     sections={[
         {
-            title: "Enable STLTs to use ReportStream for conditions beyond COVID and mpox.",
+            title: "Strengthen response readiness by enabling healthcare organizations and STLTs to use ReportStream for conditions beyond COVID and mpox.",
             tag: "recently-completed",
             body: (
                 <p>
-                    Arkansas, Florida, Guam, Idaho, Illinois, Louisiana, Maine, Massachusetts, Minnesota, and Oklahoma are able to receive flu and RSV data from ReportStream.
+                    Delaware, New Jersey, Ohio, Pennsylvania, and Washington are able to receive flu and RSV data from ReportStream. 
+                </p>
+            ),
+        },
+        {
+            tag: "recently-completed",
+            body: (
+                <p>
+                    Carbon Health onboarded to ReportStream to send COVID, flu, and RSV.
                 </p>
             ),
         },
@@ -54,85 +64,80 @@ Learn about our goals and how we are measuring success for this fiscal year (FY)
             tag: "working-on-now",
             body: (
                 <p>
-                    Onboard or update connections for Alabama, Connecticut, Delaware, Indiana, Iowa, Kentucky, Michigan, Mississippi, Missouri, Montana, New Hampshire, New Jersey, New Mexico, Ohio, Pennsylvania, Puerto Rico, Republic of Marshall Islands, South Dakota, Tennessee, Vermont, Virginia, Washington, Washington D.C., and Wyoming.
+                    Onboard or update current connections for Indiana, New Mexico, Republic of Marshall Islands, Utah, Wisconsin, and Wyoming.
                 </p>
             ),
         },
         {
-            tag: "next",
-            body: (
-                <p>Support remaining STLTs to connect or update their connections to be able to receive additional conditions.</p>
-            ),
-        },
-        {
-            title:<p>Partner with <A href="https://www.simplereport.gov/">SimpleReport</A> to help nontraditional and lower-resourced testing sites and facilities report test results and send data to STLTs and the CDC.</p>,
-            tag: "recently-completed",
-            body: (
-                <p>Contacted nontraditional and lower-resourced HIV senders in Texas as part of targeted health equity improvement work.</p>
-            ),
-        },
-        {
-            tag: "recently-completed",
+            tag: "working-on-now",
             body: (
                 <p>
-                    Alaska, Arizona, California, Colorado, Florida, Hawaii, Idaho, Illinois, Louisiana, Massachusetts, Minnesota, Nevada, New York, and Rhode Island are receiving flu A/B or RSV data.
+                    Onboard C2Sense and CVS to ReportStream to send their ELR reportable conditions.
                 </p>
             ),
         },
         {
-            tag: "working-on-now",
+            tag: "next",
             body: (
-                <p>Transmit HIV test results to Los Angeles County and Texas.</p>
-            ),
-        },
-        {
-            tag: "working-on-now",
-            body: (
-                <p>Add support for hepatitis C and other STI reporting through SimpleReport.</p>
+                <p>Onboard or update connections for American Samoa, Connecticut, Kentucky, Federated States of Micronesia, Georgia, Michigan, Mississippi, Nebraska, New Hampshire, North Carolina, Northern Mariana Islands, Palau, Puerto Rico, Tennessee, Vermont, Virginia, West Virginia, and Washington D.C.</p>
             ),
         },
         {
             tag: "next",
             body: (
-                <p>Add support for more conditions reporting through SimpleReport.</p>
+                <p>Route STI conditions (HIV, hepatitis, syphilis, gonorrhea, and chlamydia) from SimpleReport through ReportStream to public health departments. </p>
             ),
         },
         {
-            title:<p>Help at-home test takers and test manufacturers easily report results to STLTs and CDC.</p>,
+            title:<p>Develop onboarding resources for healthcare organizations to utilize as they connect to ReportStream.</p>,
+            tag: "working-on-now",
+            body: (
+                <p>Design and develop a tool for healthcare organizations to map their local codes to standard coding systems, streamlining a manual step of the onboarding process.</p>
+            ),
+        },
+        {
+            tag: "next",
+            body: (
+                <p>Update and publish documentation for ReportStream’s Submission History API that healthcare organizations to reference as they interpret the status of their messages.</p>
+            ),
+        },
+        {
+            title:<p>Connect ReportStream to one federal healthcare system outside of the CDC.</p>,
             tag: "recently-completed",
             body: (
-                <p>Route test results from <A href="https://learn.makemytestcount.org/" target="_blank">MakeMyTestCount.org</A> to one STLT in test environment.</p>
+                <p>Route test results from MakeMyTestCount.org to the One CDC Data Platform (1CDP) in production.</p>
             ),
         },
         {
             tag: "working-on-now",
             body: (
-                <p>Route test results from <A href="https://learn.makemytestcount.org/" target="_blank">MakeMyTestCount.org</A> to one STLT in production.</p>
+                <p>Route test results from MakeMyTestCount.org to one STLT in production.</p>
             ),
         },
         {
-            tag: "next",
-            body: (
-                <p>Route test results from another OTC testing (point-of-care) sender to one STLT in production.</p>
-            ),
-        },
-        {
-            title: "Facilitate electronic laboratory reporting (ELR) for the CDC infectious disease labs and transmit to STLTs. ",
+            title:<p>Participate in the public health community by partnering with other CDC organizations and engaging with third-party health IT standards/services.</p>,
             tag: "recently-completed",
             body: (
-                <p>Complete final internal review of test result data transfer before moving to production.</p>
+                <p>Develop opportunity brief to identify next steps for ReportStream to participate in TEFCA.</p>
             ),
         },
         {
-            tag: "next",
+            tag: "working-on-now",
             body: (
-                <p>Execute go-live plan with state public health agencies receiving test results.</p>
+                <p>Monitor emerging opportunities for ReportStream to integrate with TEFCA, lab data-enabled RCKMS, and standard vocabulary service(s). </p>
             ),
         },
         {
-            tag: "next",
+            title:<p>Meet the needs of healthcare organizations and STLTs by routing data in accordance with the HL7 LRI/LOI spec.</p>,
+            tag: "recently-completed",
             body: (
-                <p>Develop product requirements for handling test orders from STLTs to the CDC infectious disease labs.</p>
+                <p>Implement Basic Synchronous Accept ACKs in Submission API per LRI/LOI spec. </p>
+            ),
+        },
+        {
+            tag: "working-on-now",
+            body: (
+                <p>Identify the immediate needs of users for ACKs that meet the LOI spec in ReportStream.</p>
             ),
         },
     ]}

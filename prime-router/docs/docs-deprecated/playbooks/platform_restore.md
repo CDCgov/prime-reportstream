@@ -19,7 +19,7 @@ to:
 location = "westus"
 ```
 
-1. Follow the directions in the [operations README](https://github.com/CDCgov/prime-reportstream/tree/master/operations)
+1. Follow the directions in the [operations README](https://github.com/CDCgov/prime-reportstream/tree/main/operations)
    to prepare the region for use by Terraform. This may include creating a storage account, populating Key Vaults, and
    other actions.
 2. Update the relevant environment's module as specified above in the Terraform configuration to deploy to the desired

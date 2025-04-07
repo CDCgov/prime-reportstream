@@ -19,6 +19,10 @@ updates:
     directory: "/.environment/docker/docker-compose"
     schedule:
       interval: "weekly"
+  - package-ecosystem: "docker"
+    directory: "/frontend-react"
+    schedule:
+      interval: "weekly"
 
   # slack-boltjs-app (chatops)
   - package-ecosystem: "gitsubmodule"
@@ -120,6 +124,16 @@ updates:
     schedule:
       interval: "daily"
 
+  - package-ecosystem: "github-actions"
+    directory: "/.github/actions/connect-ovpn"
+    schedule:
+      interval: "daily"
+
+  - package-ecosystem: "github-actions"
+    directory: "/.github/actions/checksum-validate"
+    schedule:
+      interval: "daily"
+
   # Frontend
   - package-ecosystem: "npm"
     directory: "/frontend-react"
@@ -130,65 +144,169 @@ updates:
       time: "00:17"
       timezone: "US/Eastern"
     rebase-strategy: "disabled"
+    # Remove ignore entries when frontend is manually migrated for these libraries
+    ignore:
+      - dependency-name: "react"
+        update-types:
+          - version-update:semver-major
+      - dependency-name: "react-dom"
+        update-types:
+          - version-update:semver-major
+      - dependency-name: "@types/react"
+        update-types:
+          - version-update:semver-major
+      - dependency-name: "@types/react-dom"
+        update-types:
+          - version-update:semver-major
+      - dependency-name: "react-router"
+        update-types:
+          - version-update:semver-major
+      - dependency-name: "react-router-dom"
+        update-types:
+          - version-update:semver-major
+      - dependency-name: "undici"
+        update-types:
+          - version-update:semver-major
     groups:
-      mdx:
+      project:
         patterns:
-          - "*mdx*"
-      storybook:
-        patterns:
-          - "*storybook*"
-      testing-library:
-        patterns:
-          - "*testing-library/*"
-      eslint:
-        patterns:
-          - "eslint*"
-        exclude-patterns:
-          - "*prettier"
-          - "*vitest*"
-          - "*storybook"
-          - "*testing-library"
-          - "*playwright*"
-      vitest:
-        patterns:
-          - "*vitest*"
-      msw:
-        patterns:
-          - "*msw*"
-      prettier:
-        patterns:
-          - "*prettier*"
+          - "husky"
+          - "lint-staged"
+          - "dotenv-flow"
+          - "@types/dotenv-flow"
+          - "cross-env"
+          - "browserslist*"
+          - "@types/node"
+          - "npm-run-all"
+          - "patch-package"
       typescript:
         patterns:
-          - "typescript"
+          - "*typescript*"
           - "tslib"
           - "ts-node"
-          - "@typescript-eslint*"
+          - "tsx"
+      typescript-types:
+        patterns:
+          - "@types/*"
+        exclude-patterns:
+          - "*dotenv-flow"
+          - "*node"
+          - "*eslint__js"
+          - "*mdx"
+          - "@types/react"
+          - "@types/react-dom"
+          - "*react-router*"
+          - "*html-to-text"
+          - "*lodash"
+          - "*dompurify"
+          - "*sanitize-html"
+          - "*react-scroll-sync"
+          - "*downloadjs"
       react:
         patterns:
           - "react"
           - "react-dom"
-      react-router:
+          - "@types/react"
+          - "@types/react-dom"
+          - "eslint-plugin-react"
+          - "eslint-plugin-react-hooks"
+          - "eslint-plugin-react-refresh"
+      ui:
         patterns:
-          - "*react-router*"
-      playwright:
+          - "@uswds/*"
+          - "@trussworks/react-uswds"
+          - "react-loader-spinner"
+          - "react-toastify"
+          - "react-scroll-sync"
+          - "@types/react-scroll-sync"
+          - "focus-trap-react"
+          - "react-error-boundary"
+      utils:
+       patterns:
+         - "*lodash*"
+         - "use-deep-compare-effect"
+         - "uuid"
+         - "p-limit"
+         - "history"
+         - "date-fns*"
+         - "export-to-csv-fix-source-map"
+         - "classnames"
+      sanitizers:
+        patterns:
+         - "*sanitize-html"
+         - "*html-to-text"
+         - "*dompurify"
+      bundler:
+        patterns:
+          - "vite"
+          - "vite-plugin-*"
+          - "@vitejs/*"
+      linting-and-formatting:
+        patterns:
+          - "@eslint/*"
+          - "@types/eslint__js"
+          - "eslint"
+          - "*prettier*"
+      lint-plugins:
+        patterns:
+          - "eslint-*"
+        exclude-patterns:
+          - "*-plugin-jest-dom"
+          - "*-plugin-playwright"
+          - "*-plugin-react"
+          - "*-plugin-react-hooks"
+          - "*-plugin-react-refresh"
+          - "*-plugin-storybook"
+          - "*-plugin-testing-library"
+          - "*-plugin-vitest"
+      mocking:
+       patterns:
+          - "mockdate"
+          - "*msw*"
+      unit-testing:
+        patterns:
+          - "*vitest*"
+          - "eslint-plugin-jest-dom"
+          - "jsdom"
+          - "*testing-library/*"
+          - "undici"
+          - "globals"
+      e2e-testing:
         patterns:
           - "*playwright*"
-      vite:
+          - "otpauth"
+      storybook:
         patterns:
-          - "vite*"
-          - "@vitejs*"
-        exclude-patterns:
-          - "@storybook*"
-          - "vitest*"
-      okta:
-        patterns:
-          - "@okta*"
-      applicationinsights:
+          - "chromatic"
+          - "storybook"
+          - "@storybook/*"
+          - "eslint-plugin-storybook"
+      css:
+       patterns:
+         - "sass"
+         - "postcss"
+         - "autoprefixer"
+      analytics:
         patterns:
           - "@microsoft/applicationinsights*"
-      react-query:
+          - "web-vitals"
+      markdown:
         patterns:
+          - "@mdx-js/*"
+          - "@types/mdx"
+          - "remark-*"
+          - "rehype-*"
+          - "react-markdown"
+      router:
+        patterns:
+          - "*react-router*"
+      auth:
+        patterns:
+          - "@okta/*"
+      fetching:
+        patterns:
+          - "*downloadjs"
+          - "axios"
           - "*react-query*"
 
   # IAC
@@ -334,7 +452,7 @@ updates:
       time: "04:17"
       timezone: "US/Eastern"
     rebase-strategy: "disabled"
-    
+
   # Backend
   - package-ecosystem: "gradle"
     directory: "/prime-router"

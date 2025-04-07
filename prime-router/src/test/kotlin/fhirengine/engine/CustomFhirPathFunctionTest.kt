@@ -2,6 +2,7 @@ package gov.cdc.prime.router.fhirengine.engine
 
 import assertk.assertFailure
 import assertk.assertThat
+import assertk.assertions.contains
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
@@ -322,5 +323,86 @@ class CustomFhirPathFunctionTest {
         assertThat(
             (result[0] as StringType).value
         ).isEqualTo("Shasta")
+    }
+
+    @Test
+    fun `test getting state from zip code - one state`() {
+        val testTable = Table.create(
+            "zip-code-data",
+            StringColumn.create("state_fips", "40", "48", "6"),
+            StringColumn.create("state", "Oklahoma", "Texas", "California"),
+            StringColumn.create("state_abbr", "OK", "TX", "CA"),
+            StringColumn.create("zipcode", "73949", "73949", "92356"),
+            StringColumn.create("county", "Texas", "Sherman", "San Bernardino"),
+            StringColumn.create("city", "Texhoma", "", "Lucerne valley")
+
+        )
+        val testLookupTable = LookupTable(name = "zip-code-data", table = testTable)
+
+        mockkConstructor(Metadata::class)
+        every { anyConstructed<Metadata>().findLookupTable("zip-code-data") } returns testLookupTable
+        mockkObject(Metadata)
+        every { Metadata.getInstance() } returns UnitTestUtils.simpleMetadata
+
+        val result = CustomFhirPathFunctions().getStateFromZipCode(mutableListOf(StringType("92356-7678")))
+
+        assertThat(
+            (result[0] as StringType).value
+        ).isEqualTo("CA")
+    }
+
+    @Test
+    fun `test getting state from zip code - multiple states`() {
+        val testTable = Table.create(
+            "zip-code-data",
+            StringColumn.create("state_fips", "40", "48", "6"),
+            StringColumn.create("state", "Oklahoma", "Texas", "California"),
+            StringColumn.create("state_abbr", "OK", "TX", "CA"),
+            StringColumn.create("zipcode", "73949", "73949", "92356"),
+            StringColumn.create("county", "Texas", "Sherman", "San Bernardino"),
+            StringColumn.create("city", "Texhoma", "", "Lucerne valley")
+
+        )
+        val testLookupTable = LookupTable(name = "zip-code-data", table = testTable)
+
+        mockkConstructor(Metadata::class)
+        every { anyConstructed<Metadata>().findLookupTable("zip-code-data") } returns testLookupTable
+        mockkObject(Metadata)
+        every { Metadata.getInstance() } returns UnitTestUtils.simpleMetadata
+
+        val result = CustomFhirPathFunctions().getStateFromZipCode(mutableListOf(StringType("73949")))
+
+        assertThat(
+            (result[0] as StringType).value
+        ).contains("OK")
+        assertThat(
+            (result[0] as StringType).value
+        ).contains("TX")
+    }
+
+    @Test
+    fun `test getting state from zip code - no matching state found`() {
+        val testTable = Table.create(
+            "zip-code-data",
+            StringColumn.create("state_fips", "40", "48", "6"),
+            StringColumn.create("state", "Oklahoma", "Texas", "California"),
+            StringColumn.create("state_abbr", "OK", "TX", "CA"),
+            StringColumn.create("zipcode", "73949", "73949", "92356"),
+            StringColumn.create("county", "Texas", "Sherman", "San Bernardino"),
+            StringColumn.create("city", "Texhoma", "", "Lucerne valley")
+
+        )
+        val testLookupTable = LookupTable(name = "zip-code-data", table = testTable)
+
+        mockkConstructor(Metadata::class)
+        every { anyConstructed<Metadata>().findLookupTable("zip-code-data") } returns testLookupTable
+        mockkObject(Metadata)
+        every { Metadata.getInstance() } returns UnitTestUtils.simpleMetadata
+
+        val result = CustomFhirPathFunctions().getStateFromZipCode(mutableListOf(StringType("79902")))
+
+        assertThat(
+            (result[0] as StringType).value
+        ).isEqualTo("")
     }
 }

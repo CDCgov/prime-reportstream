@@ -5,12 +5,9 @@ import { HTMLAttributes, PropsWithChildren, useEffect, useRef } from "react";
 import "@okta/okta-signin-widget/css/okta-sign-in.min.css";
 import "./OktaSignInWidget.scss";
 
-export interface OktaSigninWidgetProps
-    extends PropsWithChildren<HTMLAttributes<HTMLElement>> {
+export interface OktaSigninWidgetProps extends Omit<PropsWithChildren<HTMLAttributes<HTMLElement>>, "onError"> {
     config: WidgetOptions;
-    onSuccess: (
-        value: Tokens,
-    ) => Tokens | PromiseLike<Tokens> | void | Promise<void>;
+    onSuccess: (value: Tokens) => Tokens | PromiseLike<Tokens> | void | Promise<void>;
     onError: (reason: any) => PromiseLike<void> | void | Promise<void>;
 }
 

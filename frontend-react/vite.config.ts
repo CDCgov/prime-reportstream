@@ -63,6 +63,7 @@ export default defineConfig(async ({ mode }) => {
     const port = getPort(mode);
     const backendUrl = env.VITE_BACKEND_URL ?? createBackendUrl(mode);
     const proxyUrl = env.PROXY_URL ?? createProxyUrl(mode);
+    const disableOverlays = !!process.env.DISABLE_OVERLAYS;
 
     return {
         define: {
@@ -81,9 +82,11 @@ export default defineConfig(async ({ mode }) => {
             }),
             svgr(),
             checker({
+                overlay: !disableOverlays,
                 typescript: true,
                 eslint: {
                     lintCommand: 'eslint "./src/**/*[!.test][!.stories].{ts,tsx}"',
+                    useFlatConfig: true,
                 },
             }),
         ],
@@ -146,7 +149,7 @@ export default defineConfig(async ({ mode }) => {
         css: {
             preprocessorOptions: {
                 scss: {
-                    includePaths: ["node_modules/@uswds/uswds/packages"],
+                    loadPaths: ["node_modules/@uswds/uswds/packages"],
                 },
             },
             devSourcemap: true,

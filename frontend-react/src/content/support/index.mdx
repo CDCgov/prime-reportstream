@@ -69,7 +69,7 @@ import site from "../../content/site.json";
         <Grid col className="usa-prose rs-text-align-center">
             ## Support request
 
-            <p className="usa-intro">For issues with an existing connection, [submit a ticket](https://app.smartsheetgov.com/b/form/da894779659b45768079200609b3a599).<br/>
+            <p className="usa-intro">For issues with an existing connection, <A href={site.forms.contactUs.url}>submit a ticket</A>.<br/>
             Our support team will respond as soon as possible to keep your data flowing.</p>
         </Grid>
     </GridContainer>
@@ -183,7 +183,7 @@ import site from "../../content/site.json";
                         title: "How do I register for a ReportStream account?",
                         content: (<ol>
                             <li><strong>Request an account.</strong> <br/>
-                            Submit a <A href="https://app.smartsheetgov.com/b/form/da894779659b45768079200609b3a599">service request</A> with information about your organization and explaining that you would like a ReportStream account.</li>
+                            Submit a <A href={site.forms.contactUs.url}>service request</A> with information about your organization and explaining that you would like a ReportStream account.</li>
                             <li><strong>Accept the terms of service.</strong> <br/>
                             A ReportStream team member will process your request and confirm that you accept our <A href="/terms-of-service">terms of service</A>.</li>
                             <li><strong>Activate your account</strong>. <br/>
@@ -243,8 +243,7 @@ import site from "../../content/site.json";
                         title: "How do I map to the LIVD table?",
                         content: (<>
                             <p>
-                                LOINC In Vitro Diagnostic (LIVD) mapping provides several <A href="/developer-resources/api/documentation/data-model">data elements</A>
-                                {" "} you’ll need for your ReportStream <A href="/developer-resources/api/getting-started">test file</A>. Including:
+                                LOINC In Vitro Diagnostic (LIVD) mapping provides several data elements you’ll need for your ReportStream <A href="/developer-resources/api/getting-started">test file</A>. Including:
                             </p>
 
                             <ul>
@@ -259,7 +258,6 @@ import site from "../../content/site.json";
                                 When you know the devices you are reporting for, you can use the LIVD mapping table to
                                 identify the device identifier code. The code is in <A href="https://www.cdc.gov/csels/dls/livd-codes.html">column F</A>,
                                 labeled Test Performed LOINC Code.
-                                Then, you can use that code as described in our <A href="/developer-resources/api/documentation/data-model">data model</A>.
                             </p>
                         </>)
                     },
@@ -304,7 +302,7 @@ import site from "../../content/site.json";
                         title: "How can I start sending or receiving more conditions?",
                         content: (<>
                         <p>
-                            If you are interested in additional conditions, <A href="https://app.smartsheetgov.com/b/form/48f580abb9b440549b1a9cf996ba6957">let us know</A> more about your needs. Our team will work with you on a plan based on your needs and capacity. Your connection may need some initial updates to be able to support the new conditions. 
+                            If you are interested in additional conditions, <A href={site.forms.connectWithRS.url}>let us know</A> more about your needs. Our team will work with you on a plan based on your needs and capacity. Your connection may need some initial updates to be able to support the new conditions. 
                         </p>
                         <p>
                             We test the messages based on the requirements of public health entities receiving the data. No data will go live until those testing requirements are met.
@@ -369,7 +367,7 @@ import site from "../../content/site.json";
                         headingLevel: "h4",
                         title: "How do I manage team member accounts?",
                         content: (<p>
-                            ReportStream manually manages user accounts for your team. To add or remove team members, <A href="https://app.smartsheetgov.com/b/form/da894779659b45768079200609b3a599">contact us</A>.
+                            ReportStream manually manages user accounts for your team. To add or remove team members, <A href={site.forms.contactUs.url}>contact us</A>.
                         </p>)
                     },
                 ]} />

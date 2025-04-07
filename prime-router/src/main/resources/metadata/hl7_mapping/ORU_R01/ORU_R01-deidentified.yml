@@ -8,86 +8,134 @@ constants:
 elements:
   # PID 3.1
   - name: deidentified-patient-identifier
-    condition: '%patientPath.identifier[0].extension(%`rsext-cx-identifier`).extension.where(url = "CX.5").value != "PI"'
-    value: ['"<deidentified>"']
+    condition: '%patientPath.identifier[0].extension(%`rsext-cx-identifier`).extension.where(url = "CX.5").value !=
+     "PI" and %patientPath.identifier[0].extension(%`rsext-cx-identifier`).extension.where(url = "CX.5").value != 
+     "PT" and %patientPath.identifier[0].extension(%`rsext-cx-identifier`).extension.where(url = "CX.5").value != "SID"'
+    value: ['""']
     hl7Spec: [/PATIENT_RESULT/PATIENT/PID-3-1]
 
   # PID 5.1
   - name: patient-last-name
     condition: '%patientPath.name[0].family.empty().not()'
-    value: ['"<deidentified>"']
+    value: ['"Deidentified"']
     hl7Spec: [/PATIENT_RESULT/PATIENT/PID-5-1]
 
   # PID 5.2
   - name: patient-first-name
     condition: '%patientPath.name[0].extension(%`rsext-xpn-human-name`).extension.where(url="XPN.2").value.empty().not()'
-    value: ['"<deidentified>"']
+    value: ['"Deidentified"']
     hl7Spec: [/PATIENT_RESULT/PATIENT/PID-5-2]
 
   # PID 5.3
   - name: patient-middle-name
     condition: '%patientPath.name[0].extension(%`rsext-xpn-human-name`).extension.where(url="XPN.3").value.empty().not()'
-    value: ['"<deidentified>"']
+    value: ['"Deidentified"']
     hl7Spec: [/PATIENT_RESULT/PATIENT/PID-5-3]
+
+  # PID 5.4
+  - name: patient-suffix
+    value: [ '""' ]
+    hl7Spec: [ /PATIENT_RESULT/PATIENT/PID-5-4 ]
+
+  # PID 5.7
+  - name: patient-type-code
+    value: [ '""' ]
+    hl7Spec: [ /PATIENT_RESULT/PATIENT/PID-5-7 ]
 
   #  # PID 7.1
   - name: deidentified-patient-dob
     condition: '%patientPath.birthDate.empty().not()'
-    value: ['"<deidentified>"']
+    value: ['"Deidentified"']
     hl7Spec: [/PATIENT_RESULT/PATIENT/PID-7-1]
 
   # PID 11.1
   - name: patient-address1
     condition: '%patientPath.address[0].extension(%`rsext-xad-address`).extension.where(url = %`rsext-sad-address-line`).extension.where(url = "SAD.1").value.empty().not()'
-    value: ['"<deidentified>"']
+    value: ['"Deidentified"']
     hl7Spec: [/PATIENT_RESULT/PATIENT/PID-11-1]
 
   # PID 11.2
   - name: patient-address2
     condition: '%patientPath.address[0].extension(%`rsext-xad-address`).extension.where(url = "XAD.2").value.empty().not()'
-    value: ['"<deidentified>"']
+    value: ['"Deidentified"']
     hl7Spec: [/PATIENT_RESULT/PATIENT/PID-11-2]
 
   # PID 11.3
   - name: patient-city
     condition: '%patientPath.address[0].city.empty().not()'
-    value: ['"<deidentified>"']
+    value: ['"Deidentified"']
     hl7Spec: [/PATIENT_RESULT/PATIENT/PID-11-3]
-
-  # PID 11.5
-  - name: patient-postal-code
-    condition: '%patientPath.address[0].postalCode.empty().not()'
-    value: [ '"<deidentified>"' ]
-    hl7Spec: [ /PATIENT_RESULT/PATIENT/PID-11-5 ]
 
   # PID 13.4
   - name: patient-email
     condition: "%patientPath.telecom[0].where((use = 'home' or use = 'mobile')).extension(%`rsext-xtn-contact-point`).extension('XTN.4').value.empty().not()"
-    value: ['"<deidentified>"']
+    value: ['"Deidentified"']
     hl7Spec: [/PATIENT_RESULT/PATIENT/PID-13-4]
 
   # PID 13.6
   - name: patient-phone-area-code
-    condition: "%patientPath.telecom[0].where((use = 'home' or use = 'mobile')).extension(%`ext-contactpoint-area`).value.empty().not()"
-    value: ['"<deidentified>"']
+    condition: "%patientPath.telecom[0].where((use = 'home' or use = 'mobile')).extension(%`ext-contactpoint-area`).value.empty().not() and %patientPath.telecom[0].where((use = 'home' or use = 'mobile')).extension(%`ext-contactpoint-area`).value != '111'"
+    value: ['"Deidentified"']
     hl7Spec: [/PATIENT_RESULT/PATIENT/PID-13-6]
 
   # PID 13.7
   - name: patient-local-phone
-    condition: "%patientPath.telecom[0].where((use = 'home' or use = 'mobile')).extension(%`rsext-xtn-contact-point`).extension('XTN.7').value.empty().not()"
-    value: ['"<deidentified>"']
+    condition: "%patientPath.telecom[0].where((use = 'home' or use = 'mobile')).extension(%`rsext-xtn-contact-point`).extension('XTN.7').value.empty().not() and %patientPath.telecom[0].where((use = 'home' or use = 'mobile')).extension(%`rsext-xtn-contact-point`).extension('XTN.7').value != '1111111'"
+    value: ['"Deidentified"']
     hl7Spec: [/PATIENT_RESULT/PATIENT/PID-13-7]
-
-  # PID 13.12
-  - name: patient-unformatted-phone
-    condition: "%patientPath.telecom[0].where((use = 'home' or use = 'mobile')).extension(%`rsext-xtn-contact-point`).extension('XTN.12').value.empty().not()"
-    value: ['"<deidentified>"']
-    hl7Spec: [/PATIENT_RESULT/PATIENT/PID-13-12]
 
   # ORC 3.1
   - name: orc-filler-order-number
     value: ['""']
     hl7Spec: [/PATIENT_RESULT/ORDER_OBSERVATION/ORC-3-1]
+
+  # ORC 1
+  - name: order-control
+    value: [ '""' ]
+    hl7Spec: [ /PATIENT_RESULT/ORDER_OBSERVATION/ORC-1 ]
+
+  # ORC 2
+  - name: placer-order-number-orc-2
+    value: [ '""' ]
+    hl7Spec: [ /PATIENT_RESULT/ORDER_OBSERVATION/ORC-2 ]
+
+  # ORC 3.1
+  - name: filler-order-number-orc-3-1
+    value: [ '""' ]
+    hl7Spec: [ /PATIENT_RESULT/ORDER_OBSERVATION/ORC-3 ]
+
+  # ORC 3.2
+  - name: orc-3-2
+    value: [ '""' ]
+    hl7Spec: [ /PATIENT_RESULT/ORDER_OBSERVATION/ORC-3-2 ]
+
+  # ORC 3.3
+  - name: orc-3-3
+    value: [ '""' ]
+    hl7Spec: [ /PATIENT_RESULT/ORDER_OBSERVATION/ORC-3-3 ]
+
+  # ORC 3.4
+  - name: orc-3-4
+    value: [ '""' ]
+    hl7Spec: [ /PATIENT_RESULT/ORDER_OBSERVATION/ORC-3-4 ]
+
+  # ORC 4
+  - name: placer-group-number-orc-4
+    value: [ '""' ]
+    hl7Spec: [ /PATIENT_RESULT/ORDER_OBSERVATION/ORC-4 ]
+
+  # ORC 9
+  - name: datetime-of-order-event
+    value: [ '""' ]
+    hl7Spec: [ /PATIENT_RESULT/ORDER_OBSERVATION/ORC-9 ]
+
+  # ORC 12
+  - name: ordering-provider-from-practitioner
+    condition: 'false'
+
+  # ORC 12
+  - name: ordering-provider-from-practitioner-role
+    condition: 'false'
 
   # ORC 12.1
   - name: orc-ordering-provider-id
@@ -103,6 +151,16 @@ elements:
   - name: orc-ordering-provider-first-name
     value: ['""']
     hl7Spec: [/PATIENT_RESULT/ORDER_OBSERVATION/ORC-12-3]
+
+  # ORC 14
+  - name: call-back-phone-number-ocr-14
+    value: [ '""' ]
+    hl7Spec: [ /PATIENT_RESULT/ORDER_OBSERVATION/ORC-14 ]
+
+  # ORC 21
+  - name: ordering-facility-name-orc-21
+    value: [ '""' ]
+    hl7Spec: [ /PATIENT_RESULT/ORDER_OBSERVATION/ORC-21-1 ]
 
   # ORC 22.1
   - name: ordering-facility-street1
@@ -169,6 +227,14 @@ elements:
     value: ['""']
     hl7Spec: [/PATIENT_RESULT/ORDER_OBSERVATION/ORC-24-4]
 
+  # ORC 24
+  - name: ordering-provider-address-from-practitioner
+    condition: 'false'
+
+  # ORC 24
+  - name: ordering-provider-address-from-practitioner-role
+    condition: 'false'
+
   # ORC 24.5
   - name: ordering-provider-zip
     value: ['""']
@@ -179,15 +245,34 @@ elements:
     value: ['""']
     hl7Spec: [/PATIENT_RESULT/ORDER_OBSERVATION/ORC-24-9]
 
+  # ORC 25
+  - name: order-status-modifier-orc-25
+    value: [ '""' ]
+    hl7Spec: [ /PATIENT_RESULT/ORDER_OBSERVATION/ORC-25 ]
+
+  # ORC 29
+  - name: order-type-orc-29
+    value: [ '""' ]
+    hl7Spec: [ /PATIENT_RESULT/ORDER_OBSERVATION/ORC-29 ]
+
+  # ORC 33
+  - name: alternate-placer-order-number-orc-33
+    value: [ '""' ]
+    hl7Spec: [ /PATIENT_RESULT/ORDER_OBSERVATION/ORC-33 ]
+
+  # ORC ext
+  - name: orc-extension
+    condition: 'false'
+
+  # OBR 2.1
+  - name: placer-order-number-obr-2-1
+    value: [ '""' ]
+    hl7Spec: [ /PATIENT_RESULT/ORDER_OBSERVATION/OBR-2-1 ]
+
   # OBR 3.1
   - name: obr-filler-order-number
     value: ['""']
     hl7Spec: [/PATIENT_RESULT/ORDER_OBSERVATION/OBR-3-1]
-
-  # OBR 7.1
-  - name: observation-result-date
-    value: ['""']
-    hl7Spec: [/PATIENT_RESULT/ORDER_OBSERVATION/OBR-7-1]
 
   # OBR 16.1
   - name: obr-ordering-provider-id
@@ -204,10 +289,38 @@ elements:
     value: ['""']
     hl7Spec: [/PATIENT_RESULT/ORDER_OBSERVATION/OBR-16-3]
 
-  # OBR 22.1
-  - name: results-change-date
-    value: ['""']
-    hl7Spec: [/PATIENT_RESULT/ORDER_OBSERVATION/OBR-22-1]
+  # OBR 17.2
+  - name: obr-order-callback-telecom-use-code
+    value: [ '""' ]
+    hl7Spec: [ /PATIENT_RESULT/ORDER_OBSERVATION/OBR-17-2 ]
+
+  # OBR 17.3
+  - name: obr-order-callback-telecom-equipment-type
+    value: [ '""' ]
+    hl7Spec: [ /PATIENT_RESULT/ORDER_OBSERVATION/OBR-17-3 ]
+
+  # OBR 17.4
+  - name: obr-order-callback-email
+    value: [ '""' ]
+    hl7Spec: [ /PATIENT_RESULT/ORDER_OBSERVATION/OBR-17-4 ]
+
+  # OBR 17.6
+  - name: obr-order-callback-phone-area-code
+    value: [ '""' ]
+    hl7Spec: [ /PATIENT_RESULT/ORDER_OBSERVATION/OBR-17-6 ]
+
+  # OBR 17.7
+  - name: obr-order-callback-local-phone
+    value: [ '""' ]
+    hl7Spec: [ /PATIENT_RESULT/ORDER_OBSERVATION/OBR-17-7 ]
+
+
+
+  - name: obx-deidentified
+    resource: 'Bundle.entry.resource.ofType(Observation)'
+    condition: '%resource.count() > 0'
+    schema: classpath:/metadata/hl7_mapping/ORU_R01/OBX-deidentified.yml
+    resourceIndex: resultIndex
 
   # Suppress all notes as they may contain PII data
   - name: patient-note
@@ -218,3 +331,5 @@ elements:
 
   - name: order-note
     condition: 'false'
+
+

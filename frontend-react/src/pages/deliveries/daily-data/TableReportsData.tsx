@@ -21,25 +21,14 @@ function TableReportsData(props: Props) {
             {props.reports.map((report, idx) => (
                 <tr key={idx}>
                     <th scope="row">
-                        <USLink
-                            href={"/report-details?reportId=" + report.reportId}
-                            key="daily"
-                        >
+                        <USLink href={"/report-details?reportId=" + report.reportId} key="daily">
                             {report.reportId}
                         </USLink>
                     </th>
+                    <th scope="row">{format(parseISO(report.sent.toString()), "yyyy-MM-dd HH:mm")}</th>
                     <th scope="row">
-                        {format(
-                            parseISO(report.sent.toString()),
-                            "yyyy-MM-dd HH:mm",
-                        )}
-                    </th>
-                    <th scope="row">
-                        {/* eslint-disable-next-line import/no-named-as-default-member */}
-                        {format(
-                            parseISO(report.expires.toString()),
-                            "yyyy-MM-dd HH:mm",
-                        )}
+                        {}
+                        {format(parseISO(report.expires.toString()), "yyyy-MM-dd HH:mm")}
                     </th>
                     <th scope="row">{report.total}</th>
                     <th scope="row">

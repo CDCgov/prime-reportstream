@@ -48,7 +48,7 @@ A few things to note here:
 
 ### Set up a New Schema
 
-**You should only create new schemas when an existing master schema will not fit your use case. Please ensure that an 
+**You should only create new schemas when an existing main schema will not fit your use case. Please ensure that an 
 existing schema cannot be used prior to creating a new schema.**
 
 Once you've added the sender to the `organizations.yml` file you next need to create a schema file.
@@ -271,7 +271,7 @@ If there are any exceptions, you will see them output in the console for Azure.
 A sender will first utilize the validation tool
 - https://staging.reportstream.cdc.gov/file-handler/validate
 
-to validate against one of the three existing master schemas. In order to validate against a custom schema in the 
+to validate against one of the three existing main schemas. In order to validate against a custom schema in the 
 validation tool, that organization will need to be given an Okta login and their organization and sender settings need 
 to be updated in the staging and production databases.
 
@@ -341,7 +341,7 @@ submitted by the sender.
 ### Testing in Production
 
 Testing in production should be done with real patient data and the sender in “testing” mode. Testing mode means that 
-the Customer Status is set to “testing” if using one of the three master schemas or the schema is defaulting a 
+the Customer Status is set to “testing” if using one of the three main schemas or the schema is defaulting a 
 processing mode code of “T”. This ensures that files sent to the ReportStream production endpoint will not move into a 
 STLT production system. Working with the identified receiver send the production testing files to their preferred 
 environment. Once the receiver has validated the testing files, the sender can be moved to full production mode.

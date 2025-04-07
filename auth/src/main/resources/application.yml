@@ -2,28 +2,51 @@ spring:
   application:
     name: "auth"
   profiles:
-    active: local
+    active: "local"
   security:
     oauth2:
       resourceserver:
         opaquetoken: # Set client secret in SPRING_SECURITY_OAUTH2_RESOURCESERVER_OPAQUETOKEN_CLIENT_SECRET env variable
-          client-id: 0oaek8tip2lhrhHce1d7
+          client-id: 0oak8tcr0z6h2RC671d7
           introspection-uri: https://reportstream.oktapreview.com/oauth2/ausekaai7gUuUtHda1d7/v1/introspect
   cloud:
     gateway:
-      proxy:
-        sensitive: [] # pass authorization and cookie headers downstream (filtered by default)
+      routes:
+        - id: reports_route
+          uri: http://localhost:8880
+          predicates:
+            - Path=/api/v1/reports
+          filters:
+            - AppendOktaGroups
 
 server.port: 9000
 
-proxy.pathMappings:
-  - pathPrefix: /reportstream
-    baseUrl: http://localhost:7071
-  - pathPrefix: /submissions
-    baseUrl: http://localhost:8880
+app:
+  environment: local
+
+okta:
+  adminClient:
+    orgUrl: https://reportstream.oktapreview.com
+    clientId: 0oak8383risyLJY9W1d7
+    requiredScopes:
+      - okta.apps.read
+    # set base 64 encoded pem string in OKTA_ADMIN_CLIENT_API_ENCODED_PRIVATE_KEY env variable
+  jwt:
+    nbf: 5s
+    ttl: 5m
+    issuer: http://localhost:9000
+    jwtEncodedPrivateKeyJWK: eyJwIjoieC1yaFlLVVM2TnpRd0FCYjVmakNEMGl1NlM0MFAySUtQd3pnaUJqU3VjTDZ3VFpoYU4tbTBfZHBEdGhwMHZVQjQyR01LQ2ZHNklWNlFHSV91eF80c3I1QTBRSF9sY09jNC1DbTBWal9Udy1DcFRYbnRaVlJSSDlSN00tdDJ1WXNvT1ZyaXJsUUwxdW1ybThPdjkzVnBUWnJ4QlB6UXBlejZvVGJxZUQ0WF9jIiwia3R5IjoiUlNBIiwicSI6InlYYlhQamJHRmo0cUN3RWJqSUpMQ3hQS1FkTnduX2MtQ0M0ZVBma3UyNTR2VW1jeE1IQ1Q0UGtmQ3ZiTXlKU2plWUxzRFZwY0M1eThqeGJwLXpVMUF3WDJvZk15ZEhJa0RfSW51cjVXM1J2U1ZGUFFqR01YVk5Qc09LU1hxRUUzb3BfSU9QZEtUcXhBR3NZMkhYVEZDYVJSU25SdHMwQnV4ZS10SlZjbnpHcyIsImQiOiJQdmk3YnpOZy1ZekZQcWxsRlNHdXk0UnV5cGE0SDctN1lIZnZEb1pKVktqZFZIcHBqVHNsbjRmZWxicEYxQWJ1c2R2blJnU2QzSHVWQWVTTi1rT2dRbDR6SlNJLThvdDhSd29EQU4wSXNadGg0UDhSbTMwa0JFcFdMR0xPb3Q3ZkFWRDRMSzJFTjVEUlU5dWVVWmNoaFpmcDJwaGl2cHJ4TVluTnlhMzNXSm1oTHdSUFRRVjBIY3JmYk9kVG82a2FHUllfZkpCdHRjd2QzWlQ0dzljOXd6ZzFJT0t6Ul96S2g5VkR1b2Y3SWF0ekNab0ZzeUZ5ZHgwbHZxalZjRXAxSllQMTFBY0VOaUdYOHBSTXpzVktmaUhuNlBET2ZoSXBTU1lBd21wYWI3WGF6V2ZWbEZyam5VQXlpN2wyZV90U1lwMGc1RnpZcjB6NDZrTWo1YnBsIiwiZSI6IkFRQUIiLCJxaSI6IkdWbTR6WllDeTNVNEF6TmhSdE5FWFhzVl9ZYm9CZXR5SS1FRjhhcHNsUGc4YTBhMElzXzFZTTZndTQ4ZlNndVE1WFRpN2RVMURJLTZaR2JSbmVvMXVGb0R1M2RsVGR1dXdrcWx6XzJIREphY1dWZjFWQkRSNkdBSjJ3eWNXckdMM0VkM0k4eGtBeHUzMnlYUGJ0YjlpUy1pRF9WQmo1LVJoSktIUXhHbGNSTSIsImRwIjoid0p5V1JHMEd5UUJteDNZUkZJTVZSWEI3eFFIVktQUW1keFRMQjVVVEFoTFBVWFE1YWJlQm5sdVRCdENQTk1jRjZMTkZQRE1HdTJST290V0dIWjN5R1JTZ2tqN2dwc1J1MWtiTnNvbVNnZk9wcGM5SHpYVnRkUmRPTVdEdVdpYkZfTWJOVkR5eS1zM015LWNJU09kTVBmOHUyUjEzbEVOZ19xUy1sdS1fbllVIiwiZHEiOiJyRXd2MzJ4VzB4VU5QZVlQbW9hZ0NYUS1hVGVjdmFKazhmZ0hNemRXUk1zdmE0a0hmNGI0WWRLTkl3Slp0ejJ2NWE3N2xKdnYxcHFRaE11ekJuM0Z2YlV1N2VpaEFRZlJJYllYRmxYTTBrTUdDY3E0dENmV18xeFRUVW91emQ0ZzU3dEJNTDhGVk8xcDBid3M4ZG80M1hzamJzck9PeHhpNEhPUG9EeS1zOHMiLCJuIjoiblZRNVQ1MFk3Q3NBZkhfWllzQjBhRVFHYnlYcklQdDU1dG5OTGZNSWQwbWJYM1ljdVB6cVVQbVJzYlhiNmNPYmlXT1k1Znk2UGxfaEZDeUs2em9qU1JxaFdCd2dMcHo2NUg3NVJ2bVk5Y2FQbndLSXdPOWhpS2ZHTW5DMkdvS3U2S1otcFFLNXlHaUUwRGhVRGE0Q3gxa0h4NlJUUzVoSXlHZHRFOXk5eGlCU0RJODI0eXVwZ1Z5SkYtU1cteHBINVFYdy1saUxGdVBwSFpnWnQyNEhVRlBPM1JqcXJXTmNkWUZ0S00tZGhzWkxMQXp0cEZSMGlqY3M1SEdjbUVlWnRpaVBJYzFpUF9NWlZGSV9SbnVQdzBxbENFRDF4UGdqeXhzT3ZScDlIdU85NDVfenlib2tyYzlVbTljZnpTTEd3WmdJSW9HZVdtc2VRYWR0Zy1ud1BRIn0=
+
+# Ensure these are disabled in production
+springdoc:
+  swagger-ui:
+    path: /swagger/ui.html
+  api-docs:
+    path: /swagger/api-docs
 
 #Uncomment for verbose logging
 #logging:
 #  level:
 #    web: debug
 #    org.springframework.web: debug
+#    com.okta: debug

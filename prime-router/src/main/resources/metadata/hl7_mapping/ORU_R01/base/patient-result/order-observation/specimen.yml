@@ -7,7 +7,7 @@ elements:
 
   - name: specimen
     resource: '%resource'
-    resourceIndex: specimenIndex
+    resourceIndex: resultIndex
     schema: classpath:/metadata/hl7_mapping/resources/Specimen/SPM.yml
   #    constants:
   #      performerOrganization: '%resource.basedOn.resolve().performer.resolve()'

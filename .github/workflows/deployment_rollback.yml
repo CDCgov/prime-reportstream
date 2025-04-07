@@ -11,23 +11,27 @@ on:
         - staging
         - test
         type: choice
+
+env:
+  AZURE_CREDENTIALS: '{"clientId":"${{ secrets.REPO_AZURE_CLIENT_ID }}","clientSecret":"${{ secrets.AZURE_CLIENT_SECRET }}","subscriptionId":"${{ secrets.REPO_AZURE_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.REPO_AZURE_TENANT_ID }}"}'
+
 jobs:
   DeployToCandidateSlot:
     runs-on: ubuntu-latest
     env:
-      ALLOWED_USERS: "lucasdze,jeremy-page,JosiahSiegel,snesm,supriyaaddagada"
+      ALLOWED_USERS: "devopsmatt,emvaldes,scott-aquia,bethbeza"
 
     steps:
       - name: Check if actor is allowed to run the workflow
         if: ${{ contains(env.ALLOWED_USERS, github.actor) }}
         run: echo "The user is allowed to run the workflow."
-      
+
       - name: Check if actor is NOT allowed to run the workflow
         if: ${{ !contains(env.ALLOWED_USERS, github.actor) }}
         run: |
           echo "This user is not allowed to run the workflow."
           exit 1
-          
+
       - name: "Check out changes"
         uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938
 
@@ -45,7 +49,7 @@ jobs:
           ca-cert: ${{ secrets.CA_CRT}}
           user-crt: ${{ secrets.USER_CRT }}
           user-key: ${{ secrets.USER_KEY }}
-          sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
+          sp-creds: ${{ env.AZURE_CREDENTIALS }}
 
       - name: Add runner IP to Function App firewall
         run: |
@@ -63,11 +67,11 @@ jobs:
       - name: Swap Slots
         run: |
           az functionapp deployment slot swap --name pdh${{ env.ENV }}-functionapp --resource-group prime-data-hub-${{ env.ENV }} --slot candidate --target-slot production
-      
+
       - name: Verify the Running Container
         run: |
-          az webapp config container show --name pdh${{ env.ENV }}-functionapp --resource-group prime-data-hub-${{ env.ENV }} 
+          az webapp config container show --name pdh${{ env.ENV }}-functionapp --resource-group prime-data-hub-${{ env.ENV }}
 
       - name: Remove runner IP from Function App firewall
         run: |
-          az functionapp config access-restriction remove --name pdh${{ env.ENV }}-functionapp --resource-group prime-data-hub-${{ env.ENV }} --ip-address ${{ steps.runner_ip.outputs.ip-address }} 
+          az functionapp config access-restriction remove --name pdh${{ env.ENV }}-functionapp --resource-group prime-data-hub-${{ env.ENV }} --ip-address ${{ steps.runner_ip.outputs.ip-address }}

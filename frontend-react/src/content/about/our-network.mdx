@@ -12,6 +12,7 @@ backToTop: true
 ---
 import Sidenav from "./sidenav.mdx"
 import usamapsvg from "../usa_w_territories.svg"; // in /content dir to get unique filename per build
+import site from "../site.json"
 
 <LayoutSidenav>
 <Sidenav />
@@ -22,7 +23,7 @@ import usamapsvg from "../usa_w_territories.svg"; // in /content dir to get uniq
 
 State, local, and territorial agencies across the United States rely on ReportStream to make accurate, timely public health responses.
 
-Don't see your state or territory? [Connect with us](https://app.smartsheetgov.com/b/form/48f580abb9b440549b1a9cf996ba6957).
+Don't see your state or territory? <A href={site.forms.connectWithRS.url}>Connect with us</A>.
 
 <figure>
     <img src={usamapsvg} alt="Map of states using ReportStream" />
@@ -58,6 +59,7 @@ ReportStream has established connections to report public health data for each o
 - Iowa
 - Kansas
 - Louisiana
+- Maine
 - Marshall Islands
 - Maryland
 - Massachusetts
@@ -100,6 +102,7 @@ Labs, testing facilities, and other healthcare organizations throughout the coun
 - ARCpoint Labs
 - BASE10 Genetics
 - BZD Labs
+- Carbon Health
 - CLX Health
 - Color
 - CovX Labs
@@ -113,6 +116,7 @@ Labs, testing facilities, and other healthcare organizations throughout the coun
 - Innolitics
 - Intrivo
 - LIMSABC
+- MakeMyTestCount.org
 - Mayo Clinic
 - MedArbor Diagnostics
 - Medical Network Solutions

@@ -28,11 +28,13 @@ import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.observability.bundleDigest.BundleDigestLabResult
 import gov.cdc.prime.router.azure.observability.event.AzureEventService
 import gov.cdc.prime.router.azure.observability.event.AzureEventUtils
+import gov.cdc.prime.router.azure.observability.event.InMemoryAzureEventService
 import gov.cdc.prime.router.azure.observability.event.ItemEventData
-import gov.cdc.prime.router.azure.observability.event.LocalAzureEventServiceImpl
+import gov.cdc.prime.router.azure.observability.event.OrderingFacilitySummary
 import gov.cdc.prime.router.azure.observability.event.ReportEventData
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventName
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventProperties
+import gov.cdc.prime.router.azure.observability.event.ReportStreamEventService
 import gov.cdc.prime.router.azure.observability.event.ReportStreamItemEvent
 import gov.cdc.prime.router.common.TestcontainersUtils
 import gov.cdc.prime.router.common.UniversalPipelineTestUtils
@@ -41,7 +43,7 @@ import gov.cdc.prime.router.common.validFHIRRecord1
 import gov.cdc.prime.router.db.ReportStreamTestDatabaseContainer
 import gov.cdc.prime.router.db.ReportStreamTestDatabaseSetupExtension
 import gov.cdc.prime.router.fhirengine.engine.FHIRDestinationFilter
-import gov.cdc.prime.router.fhirengine.engine.FhirReceiverFilterQueueMessage
+import gov.cdc.prime.router.fhirengine.engine.FhirReceiverEnrichmentQueueMessage
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.history.db.ReportGraph
 import gov.cdc.prime.router.metadata.LookupTable
@@ -84,7 +86,7 @@ class FHIRDestinationFilterIntegrationTests : Logging {
         )
     )
 
-    val azureEventsService = LocalAzureEventServiceImpl()
+    val azureEventsService = InMemoryAzureEventService()
 
     @BeforeEach
     fun beforeEach() {
@@ -92,7 +94,7 @@ class FHIRDestinationFilterIntegrationTests : Logging {
         mockkObject(BlobAccess)
         mockkObject(BlobAccess.BlobContainerMetadata)
 
-        every { QueueAccess.sendMessage(any(), any()) } returns Unit
+        every { QueueAccess.sendMessage(any(), any()) } returns ""
         every { BlobAccess getProperty "defaultBlobMetadata" } returns UniversalPipelineTestUtils
             .getBlobContainerMetadata(azuriteContainer)
         every { BlobAccess.BlobContainerMetadata.build(any(), any()) } returns
@@ -120,12 +122,18 @@ class FHIRDestinationFilterIntegrationTests : Logging {
             settings,
             db = ReportStreamTestDatabaseContainer.testDatabaseAccess,
             reportService = ReportService(ReportGraph(ReportStreamTestDatabaseContainer.testDatabaseAccess)),
-            azureEventService = azureEventService
+            azureEventService = azureEventService,
+            reportStreamEventService = ReportStreamEventService(
+                ReportStreamTestDatabaseContainer.testDatabaseAccess, azureEventService,
+                    ReportService(
+                    ReportGraph(ReportStreamTestDatabaseContainer.testDatabaseAccess),
+                    ReportStreamTestDatabaseContainer.testDatabaseAccess
+                )
+            )
         )
     }
 
-    fun generateQueueMessage(action: TaskAction, report: Report, blobContents: String, sender: Sender): String {
-        return """
+    fun generateQueueMessage(action: TaskAction, report: Report, blobContents: String, sender: Sender): String = """
             {
                 "type": "${action.literal}",
                 "reportId": "${report.id}",
@@ -136,7 +144,6 @@ class FHIRDestinationFilterIntegrationTests : Logging {
                 "schemaName": "${sender.schemaName}" 
             }
         """.trimIndent()
-    }
 
     @Test
     fun `should send valid FHIR report only to receivers listening to full-elr`() {
@@ -196,7 +203,7 @@ class FHIRDestinationFilterIntegrationTests : Logging {
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
             val routedReports = fetchChildReports(report, txn, 2, 2)
             with(routedReports.first()) {
-                assertThat(this.nextAction).isEqualTo(TaskAction.receiver_filter)
+                assertThat(this.nextAction).isEqualTo(TaskAction.receiver_enrichment)
                 assertThat(this.receivingOrg).isEqualTo("phd")
                 assertThat(this.receivingOrgSvc).isEqualTo("x")
                 assertThat(this.schemaName).isEqualTo("None")
@@ -204,7 +211,7 @@ class FHIRDestinationFilterIntegrationTests : Logging {
                 assertThat(this.bodyFormat).isEqualTo("FHIR")
             }
             with(routedReports.last()) {
-                assertThat(this.nextAction).isEqualTo(TaskAction.receiver_filter)
+                assertThat(this.nextAction).isEqualTo(TaskAction.receiver_enrichment)
                 assertThat(this.receivingOrg).isEqualTo("phd")
                 assertThat(this.receivingOrgSvc).isEqualTo("y")
                 assertThat(this.schemaName).isEqualTo("None")
@@ -225,7 +232,7 @@ class FHIRDestinationFilterIntegrationTests : Logging {
             // check queue message
             val expectedRouteQueueMessages = routedReports.flatMap { report ->
                 listOf(
-                    FhirReceiverFilterQueueMessage(
+                    FhirReceiverEnrichmentQueueMessage(
                         report.reportId,
                         report.bodyUrl,
                         BlobUtils.digestToString(report.blobDigest),
@@ -233,7 +240,7 @@ class FHIRDestinationFilterIntegrationTests : Logging {
                         UniversalPipelineTestUtils.fhirSenderWithNoTransform.topic,
                         "phd.x"
                     ),
-                    FhirReceiverFilterQueueMessage(
+                    FhirReceiverEnrichmentQueueMessage(
                         report.reportId,
                         report.bodyUrl,
                         BlobUtils.digestToString(report.blobDigest),
@@ -248,7 +255,7 @@ class FHIRDestinationFilterIntegrationTests : Logging {
 
             verify(exactly = 2) {
                 QueueAccess.sendMessage(
-                    QueueMessage.elrReceiverFilterQueueName,
+                    QueueMessage.elrReceiverEnrichmentQueueName,
                     match {
                         expectedRouteQueueMessages.contains(it)
                     }
@@ -301,7 +308,7 @@ class FHIRDestinationFilterIntegrationTests : Logging {
         // check results
         ReportStreamTestDatabaseContainer.testDatabaseAccess.transact { txn ->
             val routedReport = fetchChildReports(report, txn, 1).single()
-            assertThat(routedReport.nextAction).isEqualTo(TaskAction.receiver_filter)
+            assertThat(routedReport.nextAction).isEqualTo(TaskAction.receiver_enrichment)
             assertThat(routedReport.receivingOrg).isEqualTo("phd")
             assertThat(routedReport.receivingOrgSvc).isEqualTo("x")
             assertThat(routedReport.schemaName).isEqualTo("None")
@@ -316,7 +323,7 @@ class FHIRDestinationFilterIntegrationTests : Logging {
             assertThat(reportContents).isEqualTo(routedBundle)
 
             // check queue message
-            val expectedQueueMessage = FhirReceiverFilterQueueMessage(
+            val expectedQueueMessage = FhirReceiverEnrichmentQueueMessage(
                 routedReport.reportId,
                 routedReport.bodyUrl,
                 BlobUtils.digestToString(routedReport.blobDigest),
@@ -328,7 +335,7 @@ class FHIRDestinationFilterIntegrationTests : Logging {
             // filter should permit message and should not mangle message
             verify(exactly = 1) {
                 QueueAccess.sendMessage(
-                    QueueMessage.elrReceiverFilterQueueName,
+                    QueueMessage.elrReceiverEnrichmentQueueName,
                     expectedQueueMessage.serialize()
                 )
             }
@@ -371,8 +378,13 @@ class FHIRDestinationFilterIntegrationTests : Logging {
                         observationSummaries = AzureEventUtils.getObservationSummaries(bundle),
                         eventType = "ORU/ACK - Unsolicited transmission of an observation message",
                         patientState = listOf("CO"),
-                        performerState = emptyList(),
-                        orderingFacilityState = listOf("CO")
+                        performerSummaries = emptyList(),
+                        orderingFacilitySummaries = listOf(
+                            OrderingFacilitySummary(
+                                orderingFacilityName = "******************************",
+                                orderingFacilityState = "CO"
+                            )
+                        )
                     )
                 )
             )
@@ -473,8 +485,13 @@ class FHIRDestinationFilterIntegrationTests : Logging {
                 observationSummaries = AzureEventUtils.getObservationSummaries(bundle),
                 eventType = "ORU/ACK - Unsolicited transmission of an observation message",
                 patientState = listOf("CO"),
-                performerState = emptyList(),
-                orderingFacilityState = listOf("CO")
+                performerSummaries = emptyList(),
+                orderingFacilitySummaries = listOf(
+                    OrderingFacilitySummary(
+                        orderingFacilityName = "******************************",
+                        orderingFacilityState = "CO"
+                    )
+                )
             )
         )
         )

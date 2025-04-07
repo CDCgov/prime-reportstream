@@ -18,7 +18,7 @@ resourceType: Patient
 #    to Patient.link which includes a reference to RelatedPerson
 
 
-#  - PD1.4 Deprecated in NIST, set to NullDT in HAPI. Field not mapped
+#  - PD1.4 Backwards compatible in NIST. Needed for ETOR NBS use case. Mapped to Patient.generalPractitioner.
 
 id:
   type: STRING
@@ -91,9 +91,15 @@ contact:
           vars:
             nk141: STRING, NK1.41
     relationship:
-      valueOf: datatypes/CWE/CodeableConcept
-      expressionType: resource
-      specs: NK1.7
+      generateList: true
+      expressionType: nested
+      expressions:
+      - valueOf: datatypes/CWE/CodeableConcept
+        expressionType: resource
+        specs: NK1.3
+      - valueOf: datatypes/CWE/CodeableConcept
+        expressionType: resource
+        specs: NK1.7
     period:
       vars:
         startDate: NK1.8
@@ -417,14 +423,23 @@ meta:
           expressionType: reference
           specs: PID.34
 
-generalPractitioner_Organization:
-  condition: $pd13 NOT_NULL
+generalPractitioner:
+  expressionType: nested
   generateList: true
-  specs: PD1.3 *
   vars:
     pd13: STRING_ALL, PD1.3
-  valueOf: datatypes/XON/Organization
-  expressionType: reference
+    pd14: STRING_ALL, PD1.4
+  expressions:
+    - condition: $pd13 NOT_NULL
+      valueOf: datatypes/XON/Organization
+      expressionType: reference
+      specs: PD1.3 *
+      generateList: true
+    - condition: $pd14 NOT_NULL
+      valueOf: datatypes/XCN/Practitioner
+      expressionType: reference
+      specs: PD1.4 *
+      generateList: true
 
 extension:
   expressionType: nested

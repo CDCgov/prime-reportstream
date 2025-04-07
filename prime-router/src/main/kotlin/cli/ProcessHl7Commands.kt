@@ -1,18 +1,19 @@
 package gov.cdc.prime.router.cli
 
+import ca.uhn.hl7v2.util.Hl7InputStreamMessageStringIterator
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.CliktError
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.types.file
-import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.cli.helpers.HL7DiffHelper
 import gov.cdc.prime.router.fhirengine.utils.HL7Reader
 
 /**
  * Compare Hl7 files
  */
-class ProcessHl7Commands : CliktCommand(
+class ProcessHl7Commands :
+    CliktCommand(
     name = "hl7data",
     help = "Compare HL7 Fields. This is the structure used for the segment numbering in th output: " +
         "https://hl7-definition.caristix.com/v2/HL7v2.5.1/TriggerEvents/ORU_R01."
@@ -45,9 +46,14 @@ class ProcessHl7Commands : CliktCommand(
         val comparisonFile = comparisonFile.inputStream().readBytes().toString(Charsets.UTF_8)
         if (comparisonFile.isBlank()) throw CliktError("File ${this.comparisonFile.absolutePath} is empty.")
 
-        val actionLogger = ActionLogger()
-        val starterMessages = HL7Reader(actionLogger).getMessages(starterFile)
-        val comparisonMessages = HL7Reader(actionLogger).getMessages(comparisonFile)
+        val starterMessages = Hl7InputStreamMessageStringIterator(starterFile.byteInputStream()).asSequence()
+            .map { rawItem ->
+                HL7Reader.parseHL7Message(rawItem)
+            }.toList()
+        val comparisonMessages = Hl7InputStreamMessageStringIterator(comparisonFile.byteInputStream()).asSequence()
+            .map { rawItem ->
+                HL7Reader.parseHL7Message(rawItem)
+            }.toList()
 
         starterMessages.forEachIndexed { counter, message ->
             val differences = hl7DiffHelper.diffHl7(message, comparisonMessages[counter])

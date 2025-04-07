@@ -12,6 +12,9 @@ defaults:
   run:
     working-directory: prime-router
 
+env:
+  AZURE_CREDENTIALS: '{"clientId":"${{ secrets.REPO_AZURE_CLIENT_ID }}","clientSecret":"${{ secrets.AZURE_CLIENT_SECRET }}","subscriptionId":"${{ secrets.REPO_AZURE_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.REPO_AZURE_TENANT_ID }}"}'
+
 jobs:
   pre_job:
     name: "Set Build Environment"
@@ -76,7 +79,7 @@ jobs:
           ca-cert: ${{ secrets.CA_CRT}}
           user-crt: ${{ secrets.USER_CRT }}
           user-key: ${{ secrets.USER_KEY }}
-          sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
+          sp-creds: ${{ env.AZURE_CREDENTIALS }}
 
       - name: Deploy frontend
         uses: ./.github/actions/deploy-frontend

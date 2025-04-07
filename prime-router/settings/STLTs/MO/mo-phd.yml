@@ -33,7 +33,6 @@
         replaceUnicodeWithAscii: false
         useBlankInsteadOfUnknown: null
         truncateHDNamespaceIds: true
-        truncateHl7Fields: "MSH-3-1, PID-3-3, PID-3-6-1, ORC-2-2, ORC-7-10-5, OBR-2-2, OBR-3-2, SPM-2-1-2, SPM-2-2-2, ORC-21-1, OBX-23-1, OBX-15-1, OBX-23-10 "
         usePid14ForPatientEmail: false
         convertTimestampToDateTime: null
         cliaForOutOfStateTesting: null
@@ -86,8 +85,8 @@
       processingModeFilter: []
       reverseTheQualityFilter: false
       conditionFilter:
-        # Accept COVID only
-        - "(%resource.code.coding.extension('https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code').value.where(code  in ('840539006')).exists())"
+         # Positive COVID (840539006), Positive COVID-antibody (895448002) Positive MPOX (414015000)
+        - "%resource.where(interpretation.coding.code = 'A').code.coding.extension('https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code').value.where(code in ('840539006'|'895448002'|'414015000')).exists()"
       mappedConditionFilter: []
       deidentify: false
       deidentifiedValue: ""

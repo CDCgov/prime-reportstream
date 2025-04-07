@@ -26,6 +26,7 @@ import gov.cdc.prime.router.azure.observability.context.MDCUtils
 import gov.cdc.prime.router.azure.observability.context.withLoggingContext
 import gov.cdc.prime.router.azure.observability.event.AzureEventService
 import gov.cdc.prime.router.azure.observability.event.AzureEventServiceImpl
+import gov.cdc.prime.router.azure.observability.event.IReportStreamEventService
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventName
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventProperties
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
@@ -50,10 +51,12 @@ class FHIRDestinationFilter(
     blob: BlobAccess = BlobAccess(),
     azureEventService: AzureEventService = AzureEventServiceImpl(),
     reportService: ReportService = ReportService(),
-) : FHIREngine(metadata, settings, db, blob, azureEventService, reportService) {
+    reportStreamEventService: IReportStreamEventService,
+) : FHIREngine(metadata, settings, db, blob, azureEventService, reportService, reportStreamEventService) {
     override val finishedField: Field<OffsetDateTime> = Tables.TASK.DESTINATION_FILTERED_AT
 
     override val engineType: String = "DestinationFilter"
+    override val taskAction: TaskAction = TaskAction.destination_filter
 
     internal fun findTopicReceivers(topic: Topic): List<Receiver> =
         settings.receivers.filter { it.customerStatus != CustomerStatus.INACTIVE && it.topic == topic }
@@ -68,8 +71,7 @@ class FHIRDestinationFilter(
         message: T,
         actionLogger: ActionLogger,
         actionHistory: ActionHistory,
-    ): List<FHIREngineRunResult> {
-        return when (message) {
+    ): List<FHIREngineRunResult> = when (message) {
             is FhirDestinationFilterQueueMessage -> {
                 check(message.topic.isUniversalPipeline) {
                     "Unexpected topic $message.topic in the Universal Pipeline routing step."
@@ -83,7 +85,6 @@ class FHIRDestinationFilter(
                 )
             }
         }
-    }
 
     /**
      * Process a [queueMessage] off of the raw-elr azure queue, convert it into FHIR, and store for next step.
@@ -117,7 +118,7 @@ class FHIRDestinationFilter(
             val receivers = findTopicReceivers(queueMessage.topic).filter { receiver ->
                 receiver.jurisdictionalFilter.all { filter ->
                     FhirPathUtils.evaluateCondition(
-                        CustomContext(bundle, bundle, shorthandLookupTable, CustomFhirPathFunctions()),
+                        CustomContext(bundle, bundle, mutableMapOf(), CustomFhirPathFunctions()),
                         bundle,
                         bundle,
                         bundle,
@@ -137,7 +138,7 @@ class FHIRDestinationFilter(
                         metadata = this.metadata,
                         topic = queueMessage.topic,
                         destination = receiver,
-                        nextAction = TaskAction.receiver_filter
+                        nextAction = TaskAction.receiver_enrichment
                     )
 
                     // create item lineage
@@ -156,7 +157,7 @@ class FHIRDestinationFilter(
                     )
 
                     val nextEvent = ProcessEvent(
-                        Event.EventAction.RECEIVER_FILTER,
+                        Event.EventAction.RECEIVER_ENRICHMENT,
                         report.id,
                         Options.None,
                         emptyMap(),
@@ -206,7 +207,7 @@ class FHIRDestinationFilter(
                             nextEvent,
                             report,
                             blobInfo.blobUrl,
-                            FhirReceiverFilterQueueMessage(
+                            FhirReceiverEnrichmentQueueMessage(
                                 report.id,
                                 blobInfo.blobUrl,
                                 BlobUtils.digestToString(blobInfo.digest),

@@ -348,6 +348,27 @@ subject:
   expressionType: resource
   specs: $Patient
 
+specimen:
+  generateList: true
+  expressionType: nested
+  expressions:
+    - valueOf: datatype/Reference
+      generateList: true
+      expressionType: resource
+      specs: $OMLSpecimen
+      useGroup: true
+    - valueOf: datatype/Reference
+      expressionType: resource
+      specs: $OMLSpecimenSource
+      useGroup: true
+
+supportingInfo:
+  generateList: true
+  valueOf: datatype/Reference
+  expressionType: resource
+  specs: $OrderObservation
+  useGroup: true
+
 note:
   valueOf: segments/NTE/Annotation
   expressionType: resource

@@ -23,6 +23,7 @@ import gov.cdc.prime.router.azure.ApiSearchResult
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.MockHttpRequestMessage
 import gov.cdc.prime.router.azure.MockSettings
+import gov.cdc.prime.router.azure.SubmissionTableService
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
@@ -87,17 +88,12 @@ class DeliveryFunctionTests : Logging {
     private val oktaClaimsOrganizationName = "DHSender_$organizationName"
     private val otherOrganizationName = "test-lab-2"
 
-    private fun buildClaimsMap(organizationName: String): Map<String, Any> {
-        return mapOf(
+    private fun buildClaimsMap(organizationName: String): Map<String, Any> = mapOf(
             "sub" to "test",
             "organization" to listOf(organizationName)
         )
-    }
 
-    data class ExpectedAPIResponse(
-        val status: HttpStatus,
-        val body: List<ExpectedDelivery>? = null,
-    )
+    data class ExpectedAPIResponse(val status: HttpStatus, val body: List<ExpectedDelivery>? = null)
 
     data class DeliveryUnitTestCase(
         val headers: Map<String, String>,
@@ -460,6 +456,12 @@ class DeliveryFunctionTests : Logging {
         mockkObject(AuthenticatedClaims.Companion)
         every { AuthenticatedClaims.authenticate(any()) } returns
             AuthenticatedClaims.generateTestClaims()
+
+        val submissionTableService = mockk<SubmissionTableService>()
+        every { submissionTableService.getSubmission(any(), any()) } returns null
+
+        mockkObject(SubmissionTableService.Companion)
+        every { SubmissionTableService.getInstance() } returns submissionTableService
 
         // Invalid id:  not a UUID nor a Long
         var response = function.getDeliveryDetails(mockRequest, "bad")

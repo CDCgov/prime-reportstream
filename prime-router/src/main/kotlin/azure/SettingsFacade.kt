@@ -32,10 +32,9 @@ import java.time.OffsetDateTime
  * Settings for Organization, Receivers, and Senders from the Azure Database.
  * Contains all business logic regarding settings as well as JSON serialization.
  */
-class SettingsFacade(
-    private val metadata: Metadata,
-    private val db: DatabaseAccess = DatabaseAccess(),
-) : SettingsProvider, Logging {
+class SettingsFacade(private val metadata: Metadata, private val db: DatabaseAccess = DatabaseAccess()) :
+    SettingsProvider,
+    Logging {
     enum class AccessResult {
         SUCCESS,
         CREATED,
@@ -60,9 +59,7 @@ class SettingsFacade(
     override val receivers: Collection<Receiver>
         get() = findSettings(ReceiverAPI::class.java)
 
-    override fun findOrganization(name: String): Organization? {
-        return findSetting(name, OrganizationAPI::class.java)
-    }
+    override fun findOrganization(name: String): Organization? = findSetting(name, OrganizationAPI::class.java)
 
     override fun findReceiver(fullName: String): Receiver? {
         try {
@@ -84,9 +81,8 @@ class SettingsFacade(
         }
     }
 
-    override fun findOrganizationAndReceiver(fullName: String): Pair<Organization, Receiver>? {
-        return findOrganizationAndReceiver(fullName, null)
-    }
+    override fun findOrganizationAndReceiver(fullName: String): Pair<Organization, Receiver>? =
+        findOrganizationAndReceiver(fullName, null)
 
     fun <T : SettingAPI> findSettingAsJson(
         name: String,
@@ -97,9 +93,7 @@ class SettingsFacade(
         return mapper.writeValueAsString(result)
     }
 
-    fun getLastModified(): OffsetDateTime? {
-        return db.fetchLastModified()
-    }
+    fun getLastModified(): OffsetDateTime? = db.fetchLastModified()
 
     private fun <T : SettingAPI> findSetting(
         name: String,
@@ -308,18 +302,14 @@ class SettingsFacade(
             SettingsFacade(Metadata.getInstance(), DatabaseAccess())
         }
 
-        private fun settingTypeFromClass(className: String): SettingType {
-            return when (className) {
+        private fun settingTypeFromClass(className: String): SettingType = when (className) {
                 OrganizationAPI::class.qualifiedName -> SettingType.ORGANIZATION
                 ReceiverAPI::class.qualifiedName -> SettingType.RECEIVER
                 Sender::class.qualifiedName -> SettingType.SENDER
                 else -> error("Internal Error: Unknown classname: $className")
             }
-        }
 
-        private fun errorJson(message: String): String {
-            return """{"error": "$message"}"""
-        }
+        private fun errorJson(message: String): String = """{"error": "$message"}"""
     }
 }
 
@@ -361,9 +351,7 @@ class OrganizationAPI
     SettingAPI {
     @get:JsonIgnore
     override val organizationName: String? = null
-    override fun consistencyErrorMessage(metadata: Metadata): String? {
-        return this.consistencyErrorMessage()
-    }
+    override fun consistencyErrorMessage(metadata: Metadata): String? = this.consistencyErrorMessage()
 }
 
 @JsonIgnoreProperties(ignoreUnknown = true)

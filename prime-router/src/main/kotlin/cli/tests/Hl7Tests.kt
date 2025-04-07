@@ -62,8 +62,9 @@ class Hl7Ingest : CoolTest() {
 
                 val processResults = pollForStepResult(internalReportId, TaskAction.process)
                 // verify each result is valid
-                for (result in processResults.values)
+                for (result in processResults.values) {
                     passed = passed && examineProcessResponse(result)
+                }
                 if (!passed) {
                     bad("***$name FAILED***: Process result invalid")
                 }

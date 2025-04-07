@@ -34,9 +34,10 @@
         schemaName: "classpath:/metadata/hl7_mapping/ORU_R01/ORU_R01-base.yml"
         useBatchHeaders: false
       jurisdictionalFilter:
-        - "Bundle.entry.resource.ofType(MessageHeader).event.code = 'R01'"  # ORU_R01
-        - "Bundle.entry.resource.ofType(MessageHeader).meta.tag.where(system = 'http://localcodes.org/ETOR').code = 'ETOR'"  # required to avoid looping issue with TI
-        - "Bundle.entry.resource.ofType(MessageHeader).destination.receiver.resolve().identifier.where(extension.value = 'HD.2,HD.3').value = '1.2.840.114350.1.13.286.2.7.2.695071'"  # receiver routing filter (MSH-6.2)
+        - "Bundle.entry.resource.ofType(MessageHeader).event.code = 'R01'" # ORU_R01
+        - "Bundle.entry.resource.ofType(MessageHeader).meta.tag.where(system = 'http://localcodes.org/ETOR').code = 'ETOR'" # required to avoid looping issue with TI
+        - "Bundle.entry.resource.ofType(MessageHeader).meta.tag.where(system = 'http://terminology.hl7.org/CodeSystem/v2-0103').code in ('T' | 'P')" # partner processing ids (MSH-11)
+        - "Bundle.entry.resource.ofType(MessageHeader).destination.extension.where(url = 'https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id').value = '1.2.840.114350.1.13.286.2.7.2.695071'" # receiver routing filter (MSH-5.2)
       qualityFilter:
         - "true"
       timing:

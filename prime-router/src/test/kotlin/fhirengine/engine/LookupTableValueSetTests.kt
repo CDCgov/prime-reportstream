@@ -125,7 +125,7 @@ class LookupTableValueSetTests {
 
         val schema = FhirTransformSchema(elements = mutableListOf(elemA))
 
-        FhirTransformer(schema).process(bundle)
+        FhirTransformer(schema, mutableListOf(), mutableListOf()).process(bundle)
 
         assertThat(resource.name[0].text).isEqualTo("ghi789")
         assertThat(resource.telecom[0].value).isEqualTo("ijk012")

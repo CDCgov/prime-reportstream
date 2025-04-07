@@ -2,14 +2,8 @@ import { fireEvent, screen, waitFor } from "@testing-library/react";
 import { userEvent } from "@testing-library/user-event";
 import { Suspense } from "react";
 
-import FileHandlerFileUploadStep, {
-    getClientHeader,
-} from "./FileHandlerFileUploadStep";
-import {
-    fakeFile,
-    mockSendFileWithErrors,
-    mockSendValidFile,
-} from "../../__mocks__/validation";
+import FileHandlerFileUploadStep from "./FileHandlerFileUploadStep";
+import { fakeFile, mockSendFileWithErrors, mockSendValidFile } from "../../__mocks__/validation";
 import { sendersGenerator } from "../../__mockServers__/OrganizationMockServer";
 import { RSSender } from "../../config/endpoints/settings";
 import { UseSenderResourceHookResult } from "../../hooks/api/organizations/UseOrganizationSender/UseOrganizationSender";
@@ -19,11 +13,8 @@ import useAppInsightsContext from "../../hooks/UseAppInsightsContext/UseAppInsig
 import { INITIAL_STATE } from "../../hooks/UseFileHandler/UseFileHandler";
 import { renderApp } from "../../utils/CustomRenderUtils";
 import { MembershipSettings, MemberType } from "../../utils/OrganizationUtils";
-import {
-    CustomerStatus,
-    FileType,
-    Format,
-} from "../../utils/TemporarySettingsAPITypes";
+import { getClientHeader } from "../../utils/SessionStorageTools";
+import { CustomerStatus, FileType, Format } from "../../utils/TemporarySettingsAPITypes";
 
 const { mockSessionContentReturnValue } = await vi.importMock<
     typeof import("../../contexts/Session/__mocks__/useSessionContext")
@@ -42,9 +33,7 @@ describe("FileHandlerFileUploadStep", () => {
     };
     const DEFAULT_SENDERS: RSSender[] = sendersGenerator(2);
 
-    function mockUseSenderResource(
-        result: Partial<UseSenderResourceHookResult> = {},
-    ) {
+    function mockUseSenderResource(result: Partial<UseSenderResourceHookResult> = {}) {
         vi.spyOn(useSenderResourceExports, "default").mockReturnValue({
             isInitialLoading: false,
             isLoading: false,
@@ -80,14 +69,8 @@ describe("FileHandlerFileUploadStep", () => {
 
             test("renders the CSV-specific text", async () => {
                 setup();
-                await waitFor(() =>
-                    expect(screen.getByText("Upload CSV file")).toBeVisible(),
-                );
-                expect(
-                    screen.getByText(
-                        "Make sure your file has a .csv extension",
-                    ),
-                ).toBeVisible();
+                await waitFor(() => expect(screen.getByText("Upload CSV file")).toBeVisible());
+                expect(screen.getByText("Make sure your file has a .csv extension")).toBeVisible();
             });
         });
 
@@ -109,16 +92,8 @@ describe("FileHandlerFileUploadStep", () => {
 
             test("renders the HL7-specific text", async () => {
                 setup();
-                await waitFor(() =>
-                    expect(
-                        screen.getByText("Upload HL7 v2.5.1 file"),
-                    ).toBeVisible(),
-                );
-                expect(
-                    screen.getByText(
-                        "Make sure your file has a .hl7 extension",
-                    ),
-                ).toBeVisible();
+                await waitFor(() => expect(screen.getByText("Upload HL7 v2.5.1 file")).toBeVisible());
+                expect(screen.getByText("Make sure your file has a .hl7 extension")).toBeVisible();
             });
         });
 
@@ -140,20 +115,14 @@ describe("FileHandlerFileUploadStep", () => {
                 );
 
                 await waitFor(async () => {
-                    await userEvent.upload(
-                        screen.getByTestId("file-input-input"),
-                        fakeFile,
-                    );
+                    await userEvent.upload(screen.getByTestId("file-input-input"), fakeFile);
                     await new Promise((res) => setTimeout(res, 100));
                 });
             }
 
             test("calls onFileChange with the file and content", async () => {
                 await setup();
-                expect(onFileChangeSpy).toHaveBeenCalledWith(
-                    fakeFile,
-                    "foo,bar\r\nbar,foo",
-                );
+                expect(onFileChangeSpy).toHaveBeenCalledWith(fakeFile, "foo,bar\r\nbar,foo");
             });
         });
 
@@ -198,8 +167,7 @@ describe("FileHandlerFileUploadStep", () => {
                 vi.spyOn(useWatersUploaderExports, "default").mockReturnValue({
                     isPending: false,
                     error: null,
-                    mutateAsync: async () =>
-                        await Promise.resolve(mockSendValidFile),
+                    mutateAsync: async () => await Promise.resolve(mockSendValidFile),
                 } as any);
 
                 renderApp(
@@ -214,12 +182,7 @@ describe("FileHandlerFileUploadStep", () => {
                             }}
                             fileContent="whatever"
                             fileName="whatever.csv"
-                            file={
-                                new File(
-                                    [new Blob(["whatever"])],
-                                    "whatever.csv",
-                                )
-                            }
+                            file={new File([new Blob(["whatever"])], "whatever.csv")}
                             onFileSubmitSuccess={onFileSubmitSuccessSpy}
                             onNextStepClick={onNextStepClickSpy}
                         />
@@ -234,9 +197,7 @@ describe("FileHandlerFileUploadStep", () => {
                     // eslint-disable-next-line testing-library/no-wait-for-side-effects
                     fireEvent.submit(form);
                 });
-                await waitFor(() =>
-                    expect(onFileSubmitSuccessSpy).toHaveBeenCalled(),
-                );
+                await waitFor(() => expect(onFileSubmitSuccessSpy).toHaveBeenCalled());
             }
 
             afterEach(() => {
@@ -245,9 +206,7 @@ describe("FileHandlerFileUploadStep", () => {
 
             test("it calls onFileSubmitSuccess with the response", async () => {
                 await setup();
-                expect(onFileSubmitSuccessSpy).toHaveBeenCalledWith(
-                    mockSendValidFile,
-                );
+                expect(onFileSubmitSuccessSpy).toHaveBeenCalledWith(mockSendValidFile);
             });
 
             test("it calls onNextStepClick", async () => {
@@ -280,6 +239,7 @@ describe("FileHandlerFileUploadStep", () => {
                     isPending: false,
                     error: null,
                     mutateAsync: async () =>
+                        // eslint-disable-next-line @typescript-eslint/prefer-promise-reject-errors
                         await Promise.reject({
                             data: mockSendFileWithErrors,
                         }),
@@ -296,12 +256,7 @@ describe("FileHandlerFileUploadStep", () => {
                             }}
                             fileContent="whatever"
                             fileName="whatever.csv"
-                            file={
-                                new File(
-                                    [new Blob(["whatever"])],
-                                    "whatever.csv",
-                                )
-                            }
+                            file={new File([new Blob(["whatever"])], "whatever.csv")}
                             onFileSubmitError={onFileSubmitErrorSpy}
                         />
                     </Suspense>,
@@ -315,9 +270,7 @@ describe("FileHandlerFileUploadStep", () => {
                     // eslint-disable-next-line testing-library/no-wait-for-side-effects
                     fireEvent.submit(form);
                 });
-                await waitFor(() =>
-                    expect(onFileSubmitErrorSpy).toHaveBeenCalled(),
-                );
+                await waitFor(() => expect(onFileSubmitErrorSpy).toHaveBeenCalled());
             }
 
             afterEach(() => {
@@ -373,47 +326,27 @@ describe("getClientHeader", () => {
 
     describe("when selectedSchemaName is falsy", () => {
         test("returns an empty string", () => {
-            expect(
-                getClientHeader(
-                    undefined,
-                    DEFAULT_ACTIVE_MEMBERSHIP,
-                    DEFAULT_SENDER,
-                ),
-            ).toEqual("");
+            expect(getClientHeader(undefined, DEFAULT_ACTIVE_MEMBERSHIP, DEFAULT_SENDER)).toEqual("");
         });
     });
 
     describe("when activeMembership is falsy", () => {
         test("returns an empty string", () => {
-            expect(
-                getClientHeader(DEFAULT_SCHEMA_NAME, undefined, DEFAULT_SENDER),
-            ).toEqual("");
-            expect(
-                getClientHeader(DEFAULT_SCHEMA_NAME, null, DEFAULT_SENDER),
-            ).toEqual("");
+            expect(getClientHeader(DEFAULT_SCHEMA_NAME, undefined, DEFAULT_SENDER)).toEqual("");
+            expect(getClientHeader(DEFAULT_SCHEMA_NAME, null, DEFAULT_SENDER)).toEqual("");
         });
     });
 
     describe("when sender is falsy", () => {
         test("returns an empty string", () => {
-            expect(
-                getClientHeader(
-                    DEFAULT_SCHEMA_NAME,
-                    DEFAULT_ACTIVE_MEMBERSHIP,
-                    undefined,
-                ),
-            ).toEqual("");
+            expect(getClientHeader(DEFAULT_SCHEMA_NAME, DEFAULT_ACTIVE_MEMBERSHIP, undefined)).toEqual("");
         });
     });
 
     describe("when activeMembership.parsedName is falsy", () => {
         test("returns an empty string", () => {
             expect(
-                getClientHeader(
-                    DEFAULT_SCHEMA_NAME,
-                    { ...DEFAULT_ACTIVE_MEMBERSHIP, parsedName: "" },
-                    DEFAULT_SENDER,
-                ),
+                getClientHeader(DEFAULT_SCHEMA_NAME, { ...DEFAULT_ACTIVE_MEMBERSHIP, parsedName: "" }, DEFAULT_SENDER),
             ).toEqual("");
         });
     });
@@ -421,36 +354,22 @@ describe("getClientHeader", () => {
     describe("when activeMembership.service is falsy", () => {
         test("returns an empty string", () => {
             expect(
-                getClientHeader(
-                    DEFAULT_SCHEMA_NAME,
-                    { ...DEFAULT_ACTIVE_MEMBERSHIP, service: "" },
-                    DEFAULT_SENDER,
-                ),
+                getClientHeader(DEFAULT_SCHEMA_NAME, { ...DEFAULT_ACTIVE_MEMBERSHIP, service: "" }, DEFAULT_SENDER),
             ).toEqual("");
         });
     });
 
     describe("when selected schema value matches sender's schema", () => {
         test("returns the client value from the organization's parsed name and service", () => {
-            expect(
-                getClientHeader(
-                    DEFAULT_SCHEMA_NAME,
-                    DEFAULT_ACTIVE_MEMBERSHIP,
-                    DEFAULT_SENDER,
-                ),
-            ).toEqual("orgName.serviceName");
+            expect(getClientHeader(DEFAULT_SCHEMA_NAME, DEFAULT_ACTIVE_MEMBERSHIP, DEFAULT_SENDER)).toEqual(
+                "orgName.serviceName",
+            );
         });
     });
 
     describe("when selected schema value does not match the sender's schema", () => {
         test("returns an empty string", () => {
-            expect(
-                getClientHeader(
-                    "bogus-schema",
-                    DEFAULT_ACTIVE_MEMBERSHIP,
-                    DEFAULT_SENDER,
-                ),
-            ).toEqual("");
+            expect(getClientHeader("bogus-schema", DEFAULT_ACTIVE_MEMBERSHIP, DEFAULT_SENDER)).toEqual("");
         });
     });
 });
