@@ -23,10 +23,10 @@ data class CodeSummary(
                 ?.primitiveValue()
 
             return CodeSummary(
-                system = coding.system ?: "",
-                code = coding.code ?: "",
-                display = coding.display ?: "",
-                memberOid = memberOid ?: ""
+                system = coding.system ?: UNKNOWN,
+                code = coding.code ?: UNKNOWN,
+                display = coding.display ?: UNKNOWN,
+                memberOid = memberOid ?: UNKNOWN
             )
         }
     }
