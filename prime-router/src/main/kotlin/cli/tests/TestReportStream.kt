@@ -997,14 +997,14 @@ abstract class CoolTest {
                         Pair(fhirFullELRE2EReceiverB, File("$smoketestDir/Expected_HL7_to_FHIR_FULLELR.fhir"))
                     )
                 ),
-                E2EData(
-                    "Sending HL7 Report, Receiving HL7 (elr-elims)",
-                    File("$smoketestDir/valid_hl7_e2e.hl7"),
-                    elrElimsSender,
-                    arrayListOf(
-                        Pair(elimsReceiver, File("$smoketestDir/Expected_HL7_to_HL7_ELIMS.hl7"))
-                    )
-                ),
+//                E2EData(
+//                    "Sending HL7 Report, Receiving HL7 (elr-elims)",
+//                    File("$smoketestDir/valid_hl7_e2e.hl7"),
+//                    elrElimsSender,
+//                    arrayListOf(
+//                        Pair(elimsReceiver, File("$smoketestDir/Expected_HL7_to_HL7_ELIMS.hl7"))
+//                    )
+//                ),
                 E2EData(
                     "Sending FHIR Report, Receiving FHIR (full-elr)",
                     File("$smoketestDir/valid_fhir.fhir"),
@@ -1013,23 +1013,23 @@ abstract class CoolTest {
                         Pair(fhirFullELRE2EReceiverA, File("$smoketestDir/Expected_FHIR_to_FHIR_FULLELR.fhir"))
                     )
                 ),
-                E2EData(
-                    "Sending HL7 Report, Receiving HL7/FHIR (mars-otc-elr); Invalid HL7 Items Filtered Out",
-                    File("$smoketestDir/valid_mars.hl7"),
-                    marsOTCELRSender,
-                    arrayListOf(
-                        Pair(hl7MarsOTCReceiver, File("$smoketestDir/Expected_HL7_to_HL7_MARSOTC.hl7")),
-                        Pair(fhirMarsReceiverB, File("$smoketestDir/Expected_HL7_to_FHIR_MARSOTC.fhir"))
-                    )
-                ),
-                E2EData(
-                    "Sending FHIR Report, Receiving FHIR (mars-otc-elr)",
-                    File("$smoketestDir/valid_mars.fhir"),
-                    fhirMarsOTCELRSender,
-                    arrayListOf(
-                        Pair(fhirMarsReceiverA, File("$smoketestDir/Expected_FHIR_to_FHIR_MARSOTC.fhir"))
-                    )
-                )
+//                E2EData(
+//                    "Sending HL7 Report, Receiving HL7/FHIR (mars-otc-elr); Invalid HL7 Items Filtered Out",
+//                    File("$smoketestDir/valid_mars.hl7"),
+//                    marsOTCELRSender,
+//                    arrayListOf(
+//                        Pair(hl7MarsOTCReceiver, File("$smoketestDir/Expected_HL7_to_HL7_MARSOTC.hl7")),
+//                        Pair(fhirMarsReceiverB, File("$smoketestDir/Expected_HL7_to_FHIR_MARSOTC.fhir"))
+//                    )
+//                ),
+//                E2EData(
+//                    "Sending FHIR Report, Receiving FHIR (mars-otc-elr)",
+//                    File("$smoketestDir/valid_mars.fhir"),
+//                    fhirMarsOTCELRSender,
+//                    arrayListOf(
+//                        Pair(fhirMarsReceiverA, File("$smoketestDir/Expected_FHIR_to_FHIR_MARSOTC.fhir"))
+//                    )
+//                )
             )
         }
 

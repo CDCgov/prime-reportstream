@@ -48,15 +48,15 @@ const val defaultMaxDurationValue = 120L
 // This is +/- around the actual retry, so they are spread out by up to 2x the value
 // It should always be > than the first entry of the retryDurationInMin above
 const val initialRetryInMin = 10
-const val ditherRetriesInSec = (initialRetryInMin / 2 * 60)
+const val ditherRetriesInSec = (initialRetryInMin / 2)
 
 // Note: failure point is the SUM of all retry delays.
 val retryDurationInMin = mapOf(
     1 to (initialRetryInMin * 1L), // dither might subtract half from this value
-    2 to 60L, // 1hr10m later
-    3 to (4 * 60L), // 5hr 10m since submission
-    4 to (12 * 60L), // 17hr 10m since submission
-    5 to (24 * 60L) //  1d 17r 10m since submission
+    2 to 60L,
+    3 to (4),
+    4 to (12),
+    5 to (24)
 )
 
 // Use this for testing retries:
@@ -207,7 +207,8 @@ class SendFunction(
                     // report as an output for this event so the childReport is the input to the send step and the
                     // parent report is the input to the batch step
                     // TODO: https://github.com/CDCgov/prime-reportstream/issues/15369
-                    val parentReport = workflowEngine.db.fetchParentReport(report.reportId)
+//                    val parentReport = workflowEngine.db.fetchParentReport(report.reportId)
+                    val parentReport = report
                     reportEventService.sendReportEvent(
                         eventName = ReportStreamEventName.REPORT_LAST_MILE_FAILURE,
                         childReport = report,
@@ -246,7 +247,7 @@ class SendFunction(
                     // retry using a back-off strategy
                     val waitMinutes = retryDurationInMin.getOrDefault(nextRetryCount, defaultMaxDurationValue)
                     val randomSeconds = Random.nextInt(ditherRetriesInSec * -1, ditherRetriesInSec)
-                    val nextRetryTime = OffsetDateTime.now().plusSeconds(waitMinutes * 60 + randomSeconds)
+                    val nextRetryTime = OffsetDateTime.now().plusSeconds(waitMinutes)
                     val nextRetryToken = RetryToken(nextRetryCount, nextRetryItems)
                     val submittedReportIds = workflowEngine.reportService.getRootReports(report.reportId).map {
                         it.reportId
