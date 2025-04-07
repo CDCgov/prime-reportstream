@@ -200,6 +200,24 @@ We have several viable approaches to handling updates to senders:
 It is possible for both solutions to be done in tandem, either as part of the permanent design or as a stopgap if a 
 partial cutover to microservices is desired and additional development time for the frontend/CLI is needed.
 
+Building the API endpoints to process Okta event hooks would be the simplest and fastest path forward. An RS specific
+API to create senders can follow if desired, but all the necessary configuration is possible via the Okta admin console.
+The API needed to process event hooks:
+
+| Method | Path              | Description                 |
+|--------|-------------------|-----------------------------|
+| GET    | /api/v1/oktaevent | Okta verification challenge |
+| POST   | /api/v1/oktaevent | Okta event endpoint         |
+
+It is only strictly necessary to retrieve the ID of the application user from the Okta event payload. We could then
+read that application user's group memberships and store them to the profile. While the Okta event contains the group
+that was modified, retrieving the groups directly from the Okta API would reduce the possibility of desync and increases
+the security of the process.
+
+The Okta event hook will only attempt a single retry for specific error codes or a timeout. It is possible for an event
+to be missed if for some reason the API to receive the event was not available. For this reason, we would want to have
+a secondary process to initiate an update of an application user's profile (discussed above).
+
 Sample endpoints for a proposed sender setup API:
 
 | Method | Path                              | Description                     |

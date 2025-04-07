@@ -5,21 +5,29 @@ This document will detail the steps needed to successfully transition from the c
 * Implement profile groups (API > ReportStream API > Claims > sender_name)
 * API changes for new auth flow
   * Need to decide if cutting over or maintaining both APIs - see analysis in Questions section 
-* Consider design for when auth service updates sender profiles (must be done via API)
-  * Should sender groups be stored as Okta groups or solely as profile attributes? 
+* Should sender groups be stored as Okta groups or solely as profile attributes? 
+  * Utilizing groups permits onboarding via Okta admin console, but the group memberships are redundant as it is only
+    the profile attributes that are actively used during the authz process
+  * Storing solely as profile attributes would require the sender management APIs to be built before transition to the
+    auth service can occur
+  * We can change this strategy at any time
 * Create test workflow in staging representative of production environment
   * Update workflow documentation to create new sender
 * Add auth/submissions endpoints to deployment and CI processes
   * auth and submissions projects currently ignored
   * end2end testing for endpoints should be created
     * Consider how developer environment setup needs to change 
+  * Dependabot already hooked, but need to verify configuration and confirm what other integrations are needed (DevOps)
 * Create Okta applications/APIs in production Okta (API, groups)
   * Consider how to run a test in production 
 * Add integration/smoke tests to include end to end test of auth/submissions
   * New tests alongside existing tests for original report API until it is removed?
 * Migrate internal functions utilizing deprecated authentication
-  * `prime login` uses Okta user login flow; need application user flow to allow machine to machine authentication (CI runners can log in)
-  * Smoke tests against staging additionally rely on an Azure functions key and an authorization key stored in Environment variables
+  * `prime login` uses Okta user login flow; need application user flow to allow machine to machine authentication (CI
+    runners can log in - the ultimate goal should be allowing smoke tests to run without needing a user web login)
+  * Smoke tests against staging additionally rely on an Azure functions key and an authorization key stored in
+    Environment variables
+* Which Azure functions require authorization processes?
 
 
 # Migration Strategy #
@@ -45,7 +53,7 @@ Should we maintain old and new auth/report endpoints simultaneously?
 
 * Cons:
   * Transparent cutover not an option; new API must have different path
-  * Will require tests for both APIs to be maintained simultaneously
+  * Will require implementation and tests for both APIs to be maintained simultaneously
   * Will likely require some level of reonboarding for all users of RS
   * Can both APIs coexist on the same listening port? Would this require the functionapp to act as a passthrough?
 
