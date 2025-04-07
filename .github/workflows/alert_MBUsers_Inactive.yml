@@ -48,7 +48,8 @@ jobs:
           message: |
             ${{ steps.users_out.outputs.MESSAGE_RESPONSE }}
           icon-emoji: ':hourglass_flowing_sand:'
-          channel: cdc-reportstream-devsecops-new
+          channel: cdc-reportstream-bot-notifications
+
   # Updated channel in slack
           webhook-url: ${{ secrets.SLACK_NOTIFICATIONS_WEBHOOK_URL }}  # Updated webhook secret
           color: warning

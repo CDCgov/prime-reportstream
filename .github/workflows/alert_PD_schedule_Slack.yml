@@ -5,7 +5,8 @@ on:
     - cron: "7 13 * * Mon"  #UTC-5
 
 env:
-  channel: cdc-reportstream-devsecops-new
+  channel: cdc-reportstream-bot-notifications
+
 jobs:
   pre_job:
     name: Pre Job

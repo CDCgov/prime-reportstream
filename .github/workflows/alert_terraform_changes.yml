@@ -65,6 +65,7 @@ jobs:
             "resource-drifts": "${{ env.resource-drifts }}"
 
           icon-emoji: ':bell:'
-          channel: cdc-reportstream-devsecops-new
+          channel: cdc-reportstream-bot-notifications
+
           webhook-url: ${{ secrets.SLACK_NOTIFICATIONS_WEBHOOK_URL }}
           color: warning
