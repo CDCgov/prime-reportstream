@@ -682,6 +682,108 @@ class ActionHistory(
         reportsOut[reportFile.reportId] = reportFile
     }
 
+    fun trackSendFailedReport(
+        receiver: Receiver,
+        sentReportId: ReportId,
+        filename: String?,
+        params: String,
+        result: String,
+        header: WorkflowEngine.Header,
+        reportEventService: IReportStreamEventService,
+        reportService: ReportService,
+        transportType: String,
+    ) {
+        if (isReportAlreadyTracked(sentReportId)) {
+            error(
+                "Bug:  attempt to track history of a report ($sentReportId) " +
+                    "we've already associated with this action"
+            )
+        }
+
+        if (header.content == null) {
+            error("Bug: attempt to track sent report with no contents")
+        }
+
+        val blobInfo = BlobAccess.uploadBody(
+            receiver.format,
+            header.content,
+            sentReportId.toString(),
+            receiver.fullName,
+            Event.EventAction.NONE
+        )
+
+        val reportFile = ReportFile()
+        reportFile.reportId = sentReportId
+        reportFile.receivingOrg = receiver.organizationName
+        reportFile.receivingOrgSvc = receiver.name
+        reportFile.schemaName = trimSchemaNameToMaxLength(receiver.schemaName)
+        reportFile.schemaTopic = receiver.topic
+        reportFile.externalName = filename
+        action.externalName = filename
+        reportFile.transportParams = params
+        reportFile.transportResult = result
+        reportFile.bodyFormat = receiver.format.toString()
+        reportFile.itemCount = header.reportFile.itemCount
+        reportFile.blobDigest = blobInfo.digest
+        reportFile.bodyUrl = blobInfo.blobUrl
+
+        reportEventService.sendReportEvent(
+            childReport = reportFile,
+            eventName = ReportStreamEventName.REPORT_SENT,
+            pipelineStepName = TaskAction.send
+        ) {
+            parentReportId(header.reportFile.reportId)
+            params(
+                listOfNotNull(
+                    ReportStreamEventProperties.TRANSPORT_TYPE to transportType,
+                    ReportStreamEventProperties.RECEIVER_NAME to receiver.fullName,
+                    filename?.let { ReportStreamEventProperties.FILENAME to it }
+                ).toMap()
+            )
+        }
+
+        val lineages = Report.createItemLineagesFromDb(header, sentReportId)
+        lineages?.forEach { itemLineage ->
+            val receiverFilterReportFile = reportService.getReportForItemAtTask(
+                itemLineage.parentReportId,
+                itemLineage.parentIndex,
+                TaskAction.receiver_filter
+            )
+            if (receiverFilterReportFile != null) {
+                val blob = BlobAccess.downloadBlob(
+                    receiverFilterReportFile.bodyUrl,
+                    BlobUtils.digestToString(receiverFilterReportFile.blobDigest)
+                )
+                val bundle = FhirTranscoder.decode(blob)
+                val bundleDigestExtractor = BundleDigestExtractor(
+                    FhirPathBundleDigestLabResultExtractorStrategy(
+                        CustomContext(
+                            bundle,
+                            bundle,
+                            mutableMapOf(),
+                            CustomFhirPathFunctions()
+                        )
+                    )
+                )
+                reportEventService.sendItemEvent(ReportStreamEventName.ITEM_SENT, reportFile, TaskAction.send) {
+                    trackingId(bundle)
+                    parentReportId(header.reportFile.reportId)
+                    childItemIndex(itemLineage.childIndex)
+                    params(
+                        mapOf(
+                            ReportStreamEventProperties.BUNDLE_DIGEST
+                                to bundleDigestExtractor.generateDigest(bundle),
+                            ReportStreamEventProperties.RECEIVER_NAME to receiver.fullName,
+                        )
+                    )
+                }
+            } else {
+                logger.error("No translate report found for sent item.")
+            }
+        }
+        reportsOut[reportFile.reportId] = reportFile
+    }
+
     /**
      * Note that confusingly the downloadedReportId is NOT the UUID of the blob that got downloaded.
      * Its a brand new UUID, that artificially represents the copy of the report that is now outside

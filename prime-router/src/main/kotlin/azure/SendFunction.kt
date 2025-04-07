@@ -226,7 +226,8 @@ class SendFunction(
                     // retry using a back-off strategy
                     val waitMinutes = retryDurationInMin.getOrDefault(nextRetryCount, defaultMaxDurationValue)
                     val randomSeconds = Random.nextInt(ditherRetriesInSec * -1, ditherRetriesInSec)
-                    val nextRetryTime = OffsetDateTime.now().plusSeconds(waitMinutes * 60 + randomSeconds)
+//                    val nextRetryTime = OffsetDateTime.now().plusSeconds(waitMinutes * 60 + randomSeconds)
+                    val nextRetryTime = OffsetDateTime.now().plusSeconds(15) //TODO: Don't forget to switch this back
                     val nextRetryToken = RetryToken(nextRetryCount, nextRetryItems)
                     val submittedReportIds = workflowEngine.reportService.getRootReports(report.reportId).map {
                         it.reportId
@@ -237,7 +238,17 @@ class SendFunction(
                     logger.warn(msg)
                     actionHistory.setActionType(TaskAction.send_warning)
                     actionHistory.trackActionResult(msg)
-                    ReportEvent(Event.EventAction.SEND, report.reportId, isEmptyBatch, nextRetryTime, nextRetryToken)
+                    val (newReport, sendEvent, blobInfo) = Report.generateReportAndUploadBlob(
+                        Event.EventAction.SEND,
+                        content ?: ByteArray(0),
+                        submittedReportIds,
+                        receiver,
+                        workflowEngine.metadata,
+                        actionHistory,
+                        topic = receiver.topic,
+                    )
+
+                    ReportEvent(Event.EventAction.SEND, newReport.id, isEmptyBatch, nextRetryTime, nextRetryToken)
                 }
             }
         }
