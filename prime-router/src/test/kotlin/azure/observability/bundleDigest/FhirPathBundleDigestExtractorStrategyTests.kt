@@ -55,7 +55,12 @@ class FhirPathBundleDigestExtractorStrategyTests {
                             testSummary = listOf(
                                 TestSummary(
                                     conditions = listOf(
-                                        CodeSummary(system = "Unknown", code = "Unknown", display = "Unknown", memberOid = "Unknown")
+                                        CodeSummary(
+                                            system = "Unknown",
+                                            code = "Unknown",
+                                            display = "Unknown",
+                                            memberOid = "Unknown"
+                                        )
                                     )
                                 )
                             ),
