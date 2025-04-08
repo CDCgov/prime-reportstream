@@ -1,0 +1,22 @@
+name: "Snyk Container Scan"
+description: "Scans Docker images using Snyk with severity threshold set to High, ignoring unfixed vulnerabilities"
+
+inputs:
+  image:
+    description: "Docker image name to scan (e.g., my-app:latest)"
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Build Docker image
+      run: docker build -t ${{ inputs.image }} .
+      shell: bash
+
+    - name: Run Snyk container scan
+      uses: snyk/actions/docker@master
+      with:
+        image: ${{ inputs.image }}
+        args: --severity-threshold=high --ignore-unfixed
+      env:
+        SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
