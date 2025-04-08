@@ -1,0 +1,174 @@
+---
+title: API onboarding guide
+subtitle: This programmer's guide helps you, the technical user at the testing facility, learn how to send data using the ReportStream Restful (REST) API.
+meta:
+    title: ReportStream developer resources | API onboarding guide
+    description: Technical documentation for establishing a connection and learning more about how ReportStream works
+    openGraph:
+        image:
+            src: /assets/img/opengraph/reportstream-tagline.png
+            altText: "ReportStream's mission is to provide a free data transfer platform that public health entities and healthcare organizations can rely on to meet all reporting needs."
+---
+
+import Sidenav from "../Sidenav.mdx";
+import Step3_1 from "./Step3_1.mdx";
+import Step3_2 from "./Step3_2.mdx";
+import Step3_3 from "./Step3_3.mdx";
+import Step3_4 from "./Step3_4.mdx";
+import Step4_1 from "./Step4_1.mdx";
+import Step4_2 from "./Step4_2.mdx";
+import Step4_3 from "./Step4_3.mdx";
+import Step4_4 from "./Step4_4.mdx";
+import site from "../../../site.json";
+
+<LayoutSidenav><Sidenav /></LayoutSidenav>
+
+<LayoutMain>
+
+    <p>Examples in this guide use curl commands for simplicity with the assumption you'll be coding these calls into your sending system. You can also use a program like Postman to test submissions.</p>
+
+    <p>On this page:</p>
+    <ol>
+        <li>[Create user account(s)](#create-user-accounts)</li>
+        <li>[Format and validate a fake data file](#format-and-validate-a-fake-data-file)</li>
+        <li>[Map your codes](#map-your-codes)</li>
+        <li>[Set up authentication and test your API connection](#set-up-authentication-and-test-your-api-connection)</li>
+        <li>[Test fake data in staging ](#test-fake-data-in-staging )</li>
+        <li>[Start sending data in production](#start-sending-data-in-production)</li>
+    </ol>
+
+    <p className="text-base">Last updated: 3/31/25</p>
+
+    <h2 id="create-user-accounts" className="rs-numbered">Create user account(s)</h2>
+
+    Before onboarding, you need to establish a ReportStream account. A ReportStream account will grant your organization access to a suite of tools used throughout the onboarding process and after go-live.
+
+    First, identify what member(s) of your organization will need logins. We recommend starting with the technical team and/or those who will require access to records of your past submissions to ReportStream. You can request additional members be added in the future.
+
+    Once your team members are identified, [contact our team](https://app.smartsheetgov.com/b/form/95d2f16b772c42d8aaa0ef5db28a6838) and provide their names and emails. We will set up logins accordingly. After your request is submitted, proceed to step 2.
+
+    <h2 id="format-and-validate-a-fake-data-file" className="rs-numbered">Format and validate a fake data file</h2>
+
+    Currently, ReportStream can accept either HL7 or FHIR data. We can provide a sample HL7 file with fake data to review <A href={site.forms.contactUs.url}>upon request</A>.
+
+    <Alert type="tip">For this step, you can refer to formatting requirements for 
+    [HL7v2.5.1 ORU-R01](https://www.hl7.org/implement/standards/product_brief.cfm?product_id=185) or 
+    [RADxMARS](https://www.nibib.nih.gov/covid-19/radx-tech-program/mars/hl7v2-getting-started) for OTC (over the counter) test data.</Alert>
+
+    When you've formatted your fake (non-PII) data file, test your data model using the
+    <A href={site.external.nistValidationSuite.url}>NIST Electronic Lab Reporting (ELR) Validation Suite</A>. 
+    Note: If you're testing OTC data, use the <A href={site.external.nistGeneralValidationTool.url}>NIST HL7 General Validation Tool</A> and 
+    select **RADx MARS HL7v2** from the **Tool Scopes** dropdown. Navigate to the **Context-free** tab and select the **Onboarding** profile group.
+    Correct any errors you receive.
+
+    <h2 id="map-your-codes" className="rs-numbered">Map your codes</h2>
+    We will ensure that all potential codes you might send to ReportStream are mapped in our system as part of your onboarding. First, format your result and organism codes in a CSV file using our <A href={site.assets.codeMapTemplate.path}>template</A>. Then, upload the CSV to our [code mapping tool <Icon name='Lock' className="text-ttop text-primary" />](https://reportstream.cdc.gov/onboarding/code-mapping). Correct any errors and send the results to your onboarding engineer. 
+    <Accordion bordered multiselectable items={[
+        {
+            headingLevel: "h3",
+            title: "Step 3.1: Set up your mapping file",
+            content: <Step3_1 />,
+            id: "3_1"
+        },
+        {
+            headingLevel: "h3",
+            title: "Step 3.2: Input all result codes",
+            content: <Step3_2 />,
+            id: "3_2"
+        },
+        {
+            headingLevel: "h3",
+            title: "Step 3.3: Input all organism codes (if applicable)",
+            content: <Step3_3 />,
+            id: "3_3"
+        },
+        {
+            headingLevel: "h3",
+            title: "Step 3.4: Upload your mapping file",
+            content: <Step3_4 />,
+            id: "3_4"
+        },
+    ]} />
+
+    <h2 id="set-up-authentication-and-test-your-api-connection" className="rs-numbered">Set up authentication and test your API connection</h2>
+
+    After you have finalized the formatting of your data, the ReportStream team will begin onboarding you to our staging environment.
+
+    As part of the onboarding process, the ReportStream team will assign your unique client-id and set up your ReportStream account 
+    with the type of data you will be submitting. ReportStream will use the client-id to look up the associated data model and format 
+    (FHIR or HL7) and validate the attached payload. 
+
+    Your first step in this phase is to set up your authentication.
+
+    ### Set up authentication with a public/private key pair
+
+    ReportStream uses token-based authentication with a public/private key pair.
+
+    The example below uses the fake `client-id healthy-labs` that you will change for your submissions. 
+    The examples submit the payload contained in the file `./healthy-labs-nonPII-data.hl7`. 
+    In the examples, data are submitted via an HTTP POST to the ReportStream staging system `reports` endpoint. 
+    The data submitted are sent as the payload of the POST, as is, with no changes. 
+
+    <Accordion bordered multiselectable items={[
+        {
+            headingLevel: "h3",
+            title: "Step 4.1: Prior to submission, send your public key to ReportStream.",
+            content: <Step4_1 />,
+            id: "4_1"
+        },
+        {
+            headingLevel: "h3",
+            title: "Step 4.2: At the time of submission, generate a signed JWT using your private key",
+            content: <Step4_2 />,
+            id: "4_2"
+        },
+        {
+            headingLevel: "h3",
+            title: "Step 4.3: Send the signed JWT to ReportStream to get a temporary bearer token",
+            content: <Step4_3 />,
+            id: "4_3"
+        },
+        {
+            headingLevel: "h3",
+            title: "Step 4.4: Submit data to ReportStream using the bearer token",
+            content: <Step4_4 />,
+            id: "4_4"
+        },
+    ]} />
+
+    ### Test your automation
+
+    Once authentication is complete, you can test your automation code as well as your code that handles responses using the staging API. 
+    Data is sent in the HTTP payload, either in FHIR or HL7 2.5.1 format. 
+    You can use curl commands, Postman, or another method of your choosing to post test submissions to the staging environment. 
+
+    <Alert type="tip">**Note:** Do not send any PII or PHI to the staging system — only fake (dummy, example, synthetic) data is acceptable.</Alert>
+
+    Let us know when you send submissions to the staging environment. We'll review that data and work with you to correct any issues. You may send as many fake data submissions to staging as is helpful.
+
+    For troubleshooting on your own, here is the complete endpoint input and response [OpenAPI specification](https://github.com/CDCgov/prime-reportstream/blob/master/prime-router/docs/api).
+
+    <h2 id="test-fake-data-in-staging" className="rs-numbered">Test fake data in staging</h2>
+
+    The ReportStream team will onboard you to the production system in training mode (staging). In staging, you will test your connection with ReportStream and send fake data. Utilize ReportStream's [History API](https://github.com/CDCgov/prime-reportstream/blob/main/prime-router/docs/universal-pipeline/submission-history.md) to obtain the status of your submission and any errors or warnings associated with it.
+
+    <h2 id="start-sending-data-in-production" className="rs-numbered">Start sending data in production</h2>
+
+    When you are ready, the ReportStream team will move you out of training mode and enable full production mode.
+
+    Once in production, data will automatically flow to appropriate state, local, and federal jurisdictional systems. You can view the record of your data and its status on the Submission History dashboard.
+
+    {
+    <Alert type="tip">
+        <span className="text-bold">Note:</span> Some jurisdictions require additional validation before sending data to their systems. If this affects your data submission, the ReportStream team will assist you in the process. Currently, the following states require additional validation:
+        <ul>
+            <li>California</li>
+            <li>Illinois</li>
+            <li>Washington</li>
+        </ul>
+    </Alert>
+    }
+
+    <LayoutBackToTop></LayoutBackToTop>
+
+</LayoutMain>
