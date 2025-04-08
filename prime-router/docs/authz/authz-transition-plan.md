@@ -32,6 +32,27 @@ This document will detail the steps needed to successfully transition from the c
 
 # Migration Strategy #
 
+### Build Okta related endpoints and application profile update function ###
+Microservices should be updated to provide the endpoints for Okta event hooks to push events to as well as the endpoint
+for application users to acquire bearer tokens via Okta. The ability to update application user profiles should also be
+built at this time, and hooked in to the Okta event hook API. We should also allow application user profile updates via 
+CLI.
+
+### Integrate auth and submissions microservices to CI processes ###
+We should begin including the microservices projects in our continuous integration builds, set up the API endpoints in
+the staging environment, and make sure the microservices are executed. This will also require setting up environment-
+specific secrets for connecting with Okta and ensuring we have set up permanent application users for the microservices.
+
+### Update end to end testing and development environments to include auth and submissions ###
+We should build a new test based on `end2end_up` that performs submission through the microservices instead of the
+functionapp. We will need to determine if this test should integrate with Okta or if Okta connections should be mocked
+in the absence of an offline test container.
+
+### Create application users for senders and begin migration outreach ###
+Senders are represented as application users. Creating the application user will produce a client ID and a private key
+that the sender will use to authenticate to the microservices. Begin outreach to at least one sender to have them begin
+using the microservices to submit instead of the functionapp.
+
 ## Migration of senders and website users ##
 * Migrate all senders in staging
   * Can existing public/private keys be transferred to Okta, or will all senders have to be fully reonboarded?
@@ -46,8 +67,9 @@ This document will detail the steps needed to successfully transition from the c
 
 Should we maintain old and new auth/report endpoints simultaneously?
 
-* Pros:
+* Pros for maintaining separate endpoints:
   * Flexible timeline for transitioning senders; no hard cutoff date, don't have to migrate all at once
+    * Coordinating a cutover date with external partners may not be feasible
   * Can designate a pilot partner before initiating a larger migration
     * Good idea to have a pilot partner even if not preserving separate endpoints for new API 
 
