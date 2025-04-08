@@ -1004,13 +1004,13 @@ Example Output Resource with no match found in observation mapping table:
     }
 }
 ```
-The condition and member IOD information will need to be appended to the FHIR bundle prior to the Universal Pipeline's Route step as the condition or member IOD information will be used to determine whether a particular diagnostic report will qualify to route to a particular receiver. In the universal pipeline we currently utilize functions called FHIR Bundle Helpers to modify existing FHIR bundles. In order to map the incoming LOINC/SNOMED code to condition or member IOD during the convert step we will need to add a new FHIRBundleHelper function. This function needs to add the condition amd member IOD code values found in the observation-mapping table to a condition code extension on the internal standardized FHIR bundle created from a translated and transformed HL7 v2 message or a transformed FHIR message received from a sender.
+The condition and member OID information will need to be appended to the FHIR bundle prior to the Universal Pipeline's Route step as the condition or member OID information will be used to determine whether a particular diagnostic report will qualify to route to a particular receiver. In the universal pipeline we currently utilize functions called FHIR Bundle Helpers to modify existing FHIR bundles. In order to map the incoming LOINC/SNOMED code to condition or member OID during the convert step we will need to add a new FHIRBundleHelper function. This function needs to add the condition amd member OID code values found in the observation-mapping table to a condition code extension on the internal standardized FHIR bundle created from a translated and transformed HL7 v2 message or a transformed FHIR message received from a sender.
 
 ![New Helper Function Location](C:\Users\James.Gilmore\Documents\GitHub\PRIME\prime-reportstream\prime-router\docs\design\proposals\0023-condition-to-code-mapping\New-helper-function-location.png)
 
 New FHIR Bundle Helper function logic requirements:
 
-The new FHIR bundle helper function needs to follow certain logic requirements in order to find correct condition and member IOD codes mappings and avoid unnecessary false action log entries for missing mappings. As mentioned above, the values used to map to reportable condition information can be represented in multiple possible places in the observation resource. These values need to be compared against rows in the observation-mapping table using the "code" column and the value(s) from the "condition code" or "member IOD" column of that table returned. The first and most likely place that will return a match is the value in Observation.code.coding.code. The value in this location will either be a LOINC or local code representing a performed test or a LOINC or local code representing a specific Ask-at-Order-Entry Question. If a match is not found from this value, it is possible the condition is represented by a SNOMED code in Observation.ValueCodeableConcept.Coding.Code. If a match is still not found we need to log an event in the action log that identifies the fhir bundle and which values a match was not found for.
+The new FHIR bundle helper function needs to follow certain logic requirements in order to find correct condition and member OID codes mappings and avoid unnecessary false action log entries for missing mappings. As mentioned above, the values used to map to reportable condition information can be represented in multiple possible places in the observation resource. These values need to be compared against rows in the observation-mapping table using the "code" column and the value(s) from the "condition code" or "member OID" column of that table returned. The first and most likely place that will return a match is the value in Observation.code.coding.code. The value in this location will either be a LOINC or local code representing a performed test or a LOINC or local code representing a specific Ask-at-Order-Entry Question. If a match is not found from this value, it is possible the condition is represented by a SNOMED code in Observation.ValueCodeableConcept.Coding.Code. If a match is still not found we need to log an event in the action log that identifies the fhir bundle and which values a match was not found for.
 
 ![New Helper Function Logic](C:\Users\James.Gilmore\Documents\GitHub\PRIME\prime-reportstream\prime-router\docs\design\proposals\0023-condition-to-code-mapping\New-helper-function-logic.png)
 
@@ -1103,8 +1103,8 @@ Criteria: <br>
 1.) Must be able to filter out observations that represent reportable conditions or information that is unwanted by STLTs. <br>
 2.) Must be able to be expressed with fhirpath in condition filter. <br>
 
-We only want to send observations to STLTs that match reportable conditions for their jurisdiction. These reportable conditions are usually published on the jurisdiction's website and can be represented with condition codes or member IOD values found in the observation-mapping table. These condition codes and member OID values will exist on the fhir bundles in the new condition code extension created as part of this work. These condition codes will get added to the bundles prior by the new fhir bundle helper function created as part of this work.
-In order to eliminate unwanted observations we can utilize fhirpath in the condition filter to list out which condition codes or member IOD values present in the new condition code extension should qualify to send to the jurisdiction.
+We only want to send observations to STLTs that match reportable conditions for their jurisdiction. These reportable conditions are usually published on the jurisdiction's website and can be represented with condition codes or member OID values found in the observation-mapping table. These condition codes and member OID values will exist on the fhir bundles in the new condition code extension created as part of this work. These condition codes will get added to the bundles prior by the new fhir bundle helper function created as part of this work.
+In order to eliminate unwanted observations we can utilize fhirpath in the condition filter to list out which condition codes or member OID values present in the new condition code extension should qualify to send to the jurisdiction.
 
 Example condition logic of filtering using condition codes:
 ```yaml
@@ -1123,7 +1123,7 @@ Example condition logic of filtering using condition codes:
         numberPerDay: 1440 # Every minute
         initialTime: 00:00
 ```
-Example condition logic of filtering using member IOD:
+Example condition logic of filtering using member OID:
 ```yaml
     - name: TEST-RECEIVER
       externalName: TEST
