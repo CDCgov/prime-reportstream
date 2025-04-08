@@ -27,6 +27,11 @@ const GettingStartedReceivingData = lazy(
 const ReportStreamApiIndex = lazy(
     lazyRouteMarkdown(() => import("./content/developer-resources/reportstream-api/ReportStreamApi.mdx")),
 );
+const ApiOnboardingGuide = lazy(
+    lazyRouteMarkdown(
+        () => import("./content/developer-resources/reportstream-api/api-onboarding-guide/ApiOnboardingGuide.mdx"),
+    ),
+);
 const DeveloperResourcesIndex = lazy(lazyRouteMarkdown(() => import("./content/developer-resources/index-page.mdx")));
 const ReportStreamApiGettingStarted = lazy(
     lazyRouteMarkdown(
@@ -243,6 +248,14 @@ export const appRoutes: RouteObject[] = [
                                 path: "",
                                 index: true,
                                 element: <ReportStreamApiIndex />,
+                                handle: {
+                                    isContentPage: true,
+                                },
+                            },
+                            {
+                                path: "api-onboarding-guide",
+                                index: true,
+                                element: <ApiOnboardingGuide />,
                                 handle: {
                                     isContentPage: true,
                                 },
