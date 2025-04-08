@@ -46,12 +46,29 @@ specific secrets for connecting with Okta and ensuring we have set up permanent 
 ### Update end to end testing and development environments to include auth and submissions ###
 We should build a new test based on `end2end_up` that performs submission through the microservices instead of the
 functionapp. We will need to determine if this test should integrate with Okta or if Okta connections should be mocked
-in the absence of an offline test container.
+in the absence of an offline test container. We should also aim for the new smoke test to be performed by a GitHub
+action rather than be executed from a developer machine; this will require storing secrets for this purpose.
 
 ### Create application users for senders and begin migration outreach ###
 Senders are represented as application users. Creating the application user will produce a client ID and a private key
 that the sender will use to authenticate to the microservices. Begin outreach to at least one sender to have them begin
 using the microservices to submit instead of the functionapp.
+
+### Add group and scope assignments to existing Okta users ###
+Existing Okta users can be assigned to groups and scopes within Okta without affecting their current authentication.
+Therefore, we should begin to make these changes in advance of altering the frontend to use the new claims structure.
+For example, an existing user with organization scope `DHmd-phdAdmins` would be added to the `md-phd` group and assigned
+the `admin` scope. New users created after beginning this effort will need to be onboarded with both the new and 
+deprecated scopes.
+
+### Update frontend claims authorization handling and API connections ###
+The frontend is changed to process user authorization based on the claim structure outlined in the design. After this is
+accomplished, the deprecated organization scopes can be retired. All references to the RS API are changed to be directed
+to the auth microservice. 
+
+### Retire API access to the functionapp ###
+Once all senders and users have been provisioned in Okta using the updated structures we can remove network access to
+the functionapp. All communication from senders or the frontend should occur through the auth microservice.
 
 ## Migration of senders and website users ##
 * Migrate all senders in staging
