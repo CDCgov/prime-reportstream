@@ -151,179 +151,250 @@ The resulting row is then mapped to the appropriate columns in the lookup table 
   | Condition Code System Version | Condition Code System Version     |                                |                                            |
 
 
-- One way to automate this process is to import the following macro and run it
+- One way to automate this process is to import the following Apps Script macro and run it in Google Sheets. (can also be converted to VBA macro to run in Excel)
   - Extensions > Import Macro (If "Import Macros" and "Manage Macros" options are disabled, record a Macro and the options will enable.)
     <details>
-    <summary>Macro</summary>
+        <summary>Macro</summary>
 
     ```Java
     function formatToRSTable() {
-      var spreadsheet = SpreadsheetApp.getActive();
-      spreadsheet.getRange('A1:G1').activate();
-      spreadsheet.insertSheet(6);
-      spreadsheet.getRange('A1').activate();
-      spreadsheet.getCurrentCell().setValue('Sheet Name')
-      spreadsheet.getRange('A2').activate();
-      spreadsheet.getCurrentCell().setRichTextValue(SpreadsheetApp.newRichTextValue()
-      .setText('Grouping List Row Num')
-      .setTextStyle(0, 20, SpreadsheetApp.newTextStyle()
-      .setFontFamily('Arial')
-      .build())
-      .build());
-      spreadsheet.getRange('A3').activate();
-      spreadsheet.getCurrentCell().setRichTextValue(SpreadsheetApp.newRichTextValue()
-      .setText('Expansion List Row Num')
-      .setTextStyle(0, 21, SpreadsheetApp.newTextStyle()
-      .setFontFamily('Arial')
-      .build())
-      .build());
-      spreadsheet.getRange('A4').activate();
-      spreadsheet.getCurrentCell().setFormula('=Match("Code", INDIRECT("\'"&$B$1&"\'!"&B3 +1&":"&B3 + 1),0)');
-      spreadsheet.getRange('A5').activate();
-      spreadsheet.getCurrentCell().setFormula('=SUBSTITUTE(ADDRESS(1, A4, 4), "1", "")');
-      spreadsheet.getRange('A6').activate();
-      spreadsheet.getCurrentCell().setRichTextValue(SpreadsheetApp.newRichTextValue()
-      .setText('OID column in grouping list')
-      .setTextStyle(0, 26, SpreadsheetApp.newTextStyle()
-      .setFontFamily('Arial')
-      .build())
-      .build());
-      spreadsheet.getRange('A7').activate();
-      spreadsheet.getCurrentCell().setRichTextValue(SpreadsheetApp.newRichTextValue()
-      .setText('OID column name')
-      .setTextStyle(0, 14, SpreadsheetApp.newTextStyle()
-      .setFontFamily('Arial')
-      .build())
-      .build());
-      spreadsheet.getRange('A8').activate();
-      spreadsheet.getCurrentCell().setFormula('=split("Code,Name,Status,Version,Created At,Descriptor,Member OID,Code System,Value Source,condition_code,condition_name,Condition Code System,Condition Code System Version",",")');
-      spreadsheet.getRange('A9').activate();
-      spreadsheet.getCurrentCell().setFormula('=INDIRECT("\'"&$B$1&"\'!"&ADDRESS($B$3+2,A4)&":"&A5)');
-      spreadsheet.getRange('B2').activate();
-      spreadsheet.getCurrentCell().setFormula('=Match("Grouping List", indirect("\'"&$B$1&"\'!A:A"),0)');
-      spreadsheet.getRange('B3').activate();
-      spreadsheet.getCurrentCell().setFormula('=Match("Expansion List", indirect("\'"&$B$1&"\'!A:A"),0)');
-      spreadsheet.getRange('B4').activate();
-      spreadsheet.getCurrentCell().setFormula('=Match("Name", INDIRECT("\'"&$B$1&"\'!"&B2 +1&":"&B2 + 1),0)');
-      spreadsheet.getRange('B5').activate();
-      spreadsheet.getCurrentCell().setFormula('=SUBSTITUTE(ADDRESS(1, B4, 4), "1", "")');
-      spreadsheet.getRange('B6').activate();
-      spreadsheet.getCurrentCell().setFormula('=Match("OID", INDIRECT("\'"&$B$1&"\'!"&B2 +1&":"&B2 + 1),0)');
-      spreadsheet.getRange('B7').activate();
-      spreadsheet.getCurrentCell().setFormula('=SUBSTITUTE(ADDRESS(1, B6, 4), "1", "")');
-      spreadsheet.getRange('C4').activate();
-      spreadsheet.getCurrentCell().setFormula('=Match("Status", INDIRECT("\'"&$B$1&"\'!"&B3 +1&":"&B3 + 1),0)');
-      spreadsheet.getRange('D4').activate();
-      spreadsheet.getCurrentCell().setFormula('=Match("Version", INDIRECT("\'"&$B$1&"\'!"&B3 +1&":"&B3 + 1),0)');
-      spreadsheet.getRange('E4').activate();
-      spreadsheet.getCurrentCell().setRichTextValue(SpreadsheetApp.newRichTextValue()
-      .setText('Create Date')
-      .setTextStyle(0, 10, SpreadsheetApp.newTextStyle()
-      .setFontFamily('Arial')
-      .build())
-      .build());
-      spreadsheet.getRange('F4').activate();
-      spreadsheet.getCurrentCell().setFormula('=Match("Descriptor", INDIRECT("\'"&$B$1&"\'!"&B3 +1&":"&B3 + 1),0)');
-      spreadsheet.getRange('G4').activate();
-      spreadsheet.getCurrentCell().setFormula('=Match("Member OID", INDIRECT("\'"&$B$1&"\'!"&B3 +1&":"&B3 + 1),0)');
-      spreadsheet.getRange('H4').activate();
-      spreadsheet.getCurrentCell().setFormula('=Match("Code System", INDIRECT("\'"&$B$1&"\'!"&B3 +1&":"&B3 + 1),0)');
-      spreadsheet.getRange('I4').activate();
-      spreadsheet.getCurrentCell().setRichTextValue(SpreadsheetApp.newRichTextValue()
-      .setText('RCTC')
-      .setTextStyle(0, 3, SpreadsheetApp.newTextStyle()
-      .setFontFamily('Arial')
-      .build())
-      .build());
-      spreadsheet.getRange('J4').activate();
-      spreadsheet.getCurrentCell().setFormula('=Match("Condition Code", INDIRECT("\'"&$B$1&"\'!"&B2 +1&":"&B2 + 1),0)');
-      spreadsheet.getRange('K4').activate();
-      spreadsheet.getCurrentCell().setFormula('=Match("Condition Name", INDIRECT("\'"&$B$1&"\'!"&B2 +1&":"&B2 + 1),0)');
-      spreadsheet.getRange('L4').activate();
-      spreadsheet.getCurrentCell().setFormula('=Match("Condition Code System", INDIRECT("\'"&$B$1&"\'!"&B2 +1&":"&B2 + 1),0)');
-      spreadsheet.getRange('M4').activate();
-      spreadsheet.getCurrentCell().setFormula('=Match("Condition Code System Version", INDIRECT("\'"&$B$1&"\'!"&B2 +1&":"&B2 + 1),0)');
-      spreadsheet.getRange('C5').activate();
-      spreadsheet.getCurrentCell().setFormula('=SUBSTITUTE(ADDRESS(1, C4, 4), "1", "")');
-      spreadsheet.getRange('D5').activate();
-      spreadsheet.getCurrentCell().setFormula('=SUBSTITUTE(ADDRESS(1, D4, 4), "1", "")');
-      spreadsheet.getRange('F5').activate();
-      spreadsheet.getCurrentCell().setFormula('=SUBSTITUTE(ADDRESS(1, F4, 4), "1", "")');
-      spreadsheet.getRange('G5').activate();
-      spreadsheet.getCurrentCell().setFormula('=SUBSTITUTE(ADDRESS(1, G4, 4), "1", "")');
-      spreadsheet.getRange('H5').activate();
-      spreadsheet.getCurrentCell().setFormula('=SUBSTITUTE(ADDRESS(1, H4, 4), "1", "")');
-      spreadsheet.getRange('J5').activate();
-      spreadsheet.getCurrentCell().setFormula('=SUBSTITUTE(ADDRESS(1, J4, 4), "1", "")');
-      spreadsheet.getRange('K5').activate();
-      spreadsheet.getCurrentCell().setFormula('=SUBSTITUTE(ADDRESS(1, K4, 4), "1", "")');
-      spreadsheet.getRange('L5').activate();
-      spreadsheet.getCurrentCell().setFormula('=SUBSTITUTE(ADDRESS(1, L4, 4), "1", "")');
-      spreadsheet.getRange('M5').activate();
-      spreadsheet.getCurrentCell().setFormula('=SUBSTITUTE(ADDRESS(1, M4, 4), "1", "")');
-      spreadsheet.getRange('B9').activate();
-      spreadsheet.getCurrentCell().setFormula('=Index(INDIRECT("\'"&$B$1&"\'!"&ADDRESS($B$2+2,1)&":"&$B$3),MATCH($G9,INDIRECT("\'"&$B$1&"\'!"&ADDRESS($B$2+2,$B$6)&":"&$B$7&$B$3),0),B$4)');
-      spreadsheet.getRange('C9').activate();
-      spreadsheet.getCurrentCell().setFormula('=INDIRECT("\'"&$B$1&"\'!"&ADDRESS($B$3+2,C4)&":"&(SUBSTITUTE(ADDRESS(1, C4, 4), "1", "")))');
-      spreadsheet.getRange('D9').activate();
-      spreadsheet.getCurrentCell().setFormula('=INDIRECT("\'"&$B$1&"\'!"&ADDRESS($B$3+2,D4)&":"&(SUBSTITUTE(ADDRESS(1, D4, 4), "1", "")))');
-      spreadsheet.getRange('F9').activate();
-      spreadsheet.getCurrentCell().setFormula('=INDIRECT("\'"&$B$1&"\'!"&ADDRESS($B$3+2,F4)&":"&(SUBSTITUTE(ADDRESS(1, F4, 4), "1", "")))');
-      spreadsheet.getRange('G9').activate();
-      spreadsheet.getCurrentCell().setFormula('=INDIRECT("\'"&$B$1&"\'!"&ADDRESS($B$3+2,G4)&":"&(SUBSTITUTE(ADDRESS(1, G4, 4), "1", "")))');
-      spreadsheet.getRange('H9').activate();
-      spreadsheet.getCurrentCell().setFormula('=INDIRECT("\'"&$B$1&"\'!"&ADDRESS($B$3+2,H4)&":"&(SUBSTITUTE(ADDRESS(1, H4, 4), "1", "")))');
-      spreadsheet.getRange('I9').activate();
-      spreadsheet.getCurrentCell().setRichTextValue(SpreadsheetApp.newRichTextValue()
-      .setText('RCTC')
-      .setTextStyle(0, 4, SpreadsheetApp.newTextStyle()
-      .setFontFamily('Arial')
-      .build())
-      .build());
-      spreadsheet.getRange('J9').activate();
-      spreadsheet.getCurrentCell().setFormula('=Index(INDIRECT("\'"&$B$1&"\'!"&ADDRESS($B$2+2,1)&":"&$B$3),MATCH($G9,INDIRECT("\'"&$B$1&"\'!"&ADDRESS($B$2+2,$B$6)&":"&$B$7&$B$3),0),J$4)');
-      spreadsheet.getRange('K9').activate();
-      spreadsheet.getCurrentCell().setFormula('=Index(INDIRECT("\'"&$B$1&"\'!"&ADDRESS($B$2+2,1)&":"&$B$3),MATCH($G9,INDIRECT("\'"&$B$1&"\'!"&ADDRESS($B$2+2,$B$6)&":"&$B$7&$B$3),0),K$4)');
-      spreadsheet.getRange('L9').activate();
-      spreadsheet.getCurrentCell().setFormula('=Index(INDIRECT("\'"&$B$1&"\'!"&ADDRESS($B$2+2,1)&":"&$B$3),MATCH($G9,INDIRECT("\'"&$B$1&"\'!"&ADDRESS($B$2+2,$B$6)&":"&$B$7&$B$3),0),L$4)');
-      spreadsheet.getRange('M9').activate();
-      spreadsheet.getCurrentCell().setFormula('=Index(INDIRECT("\'"&$B$1&"\'!"&ADDRESS($B$2+2,1)&":"&$B$3),MATCH($G9,INDIRECT("\'"&$B$1&"\'!"&ADDRESS($B$2+2,$B$6)&":"&$B$7&$B$3),0),M$4)');
-      spreadsheet.getRange('B2').activate();
-      spreadsheet.getRange('B9').activate();
-      spreadsheet.getActiveRange().autoFillToNeighbor(SpreadsheetApp.AutoFillSeries.DEFAULT_SERIES);
-      spreadsheet.getRange('I9').activate();
-      spreadsheet.getActiveRange().autoFillToNeighbor(SpreadsheetApp.AutoFillSeries.DEFAULT_SERIES);
-      spreadsheet.getRange('J9').activate();
-      spreadsheet.getActiveRange().autoFillToNeighbor(SpreadsheetApp.AutoFillSeries.DEFAULT_SERIES);
-      spreadsheet.getRange('K9').activate();
-      spreadsheet.getActiveRange().autoFillToNeighbor(SpreadsheetApp.AutoFillSeries.DEFAULT_SERIES);
-      spreadsheet.getRange('L9').activate();
-      spreadsheet.getActiveRange().autoFillToNeighbor(SpreadsheetApp.AutoFillSeries.DEFAULT_SERIES);
-      spreadsheet.getRange('M9').activate();
-      spreadsheet.getActiveRange().autoFillToNeighbor(SpreadsheetApp.AutoFillSeries.DEFAULT_SERIES);
-      spreadsheet.getRange('A8:M8').activate();
-      spreadsheet.getActiveRangeList().setBackground('#cccccc');
-      spreadsheet.getRange('A9').activate();
-      spreadsheet.getActiveSheet().autoResizeColumns(1, 1);
-      spreadsheet.getActiveSheet().autoResizeColumns(2, 1);
-      spreadsheet.getActiveSheet().autoResizeColumns(6, 1);
-      spreadsheet.getActiveSheet().autoResizeColumns(7, 1);
-      spreadsheet.getActiveSheet().autoResizeColumns(11, 1);
-      spreadsheet.getActiveSheet().autoResizeColumns(13, 1);
-      spreadsheet.getRange('8:8').activate();
-      spreadsheet.getActiveSheet().setFrozenRows(8);
-      spreadsheet.getRange('B1').activate();
-      spreadsheet.getActiveRangeList().setBackground('#fff2cc');
-      spreadsheet.getRange('F1').activate();
-      spreadsheet.getCurrentCell().setRichTextValue(SpreadsheetApp.newRichTextValue()
-      .setText('Note: Change the sheet name to grab values from another sheet. Rows 1-7 are used to facilitate formulas, delete if exporting to update the observation mapping table.')
-      .setTextStyle(0, 99, SpreadsheetApp.newTextStyle()
-      .setFontFamily('Arial')
-      .build())
-      .build());
-      spreadsheet.getRange('F2').activate();
-    };
-    
+        var spreadsheet = SpreadsheetApp.getActive();
+        spreadsheet.getRange('A1:G1').activate();
+        // Create New Sheet
+        spreadsheet.insertSheet(6);
+        
+        // add Sheet Name cell, ready for user's input in cell B1 which is then used for all formulas
+        spreadsheet.getRange('A1').activate();
+        spreadsheet.getCurrentCell().setValue('Sheet Name');
+        
+        // Grouping List Table
+        // Grouping List Row Num label
+        spreadsheet.getRange('A2').activate();
+        spreadsheet.getCurrentCell().setRichTextValue(SpreadsheetApp.newRichTextValue()
+        .setText('Grouping List Row Num')
+        .setTextStyle(0, 20, SpreadsheetApp.newTextStyle()
+        .setFontFamily('Arial')
+        .build())
+        .build());
+        // Find the cell that contains "Grouping List" in first column of sheet - returns row num
+        spreadsheet.getRange('B2').activate();
+        spreadsheet.getCurrentCell().setFormula('=Match("Grouping List", indirect("\'"&$B$1&"\'!A:A"),0)');
+        
+        // Expansion List Table
+        // Expansion List Row Num label
+        spreadsheet.getRange('A3').activate();
+        spreadsheet.getCurrentCell().setRichTextValue(SpreadsheetApp.newRichTextValue()
+        .setText('Expansion List Row Num')
+        .setTextStyle(0, 21, SpreadsheetApp.newTextStyle()
+        .setFontFamily('Arial')
+        .build())
+        .build());
+        // Find the cell that contains "Expansion List" in first column of sheet - returns row num
+        spreadsheet.getRange('B3').activate();
+        spreadsheet.getCurrentCell().setFormula('=Match("Expansion List", indirect("\'"&$B$1&"\'!A:A"),0)');
+        
+        // OID column in grouping list which is used to map to OIDs in expansion list
+        // OID column in grouping list label
+        spreadsheet.getRange('A6').activate();
+        spreadsheet.getCurrentCell().setRichTextValue(SpreadsheetApp.newRichTextValue()
+        .setText('OID column in grouping list')
+        .setTextStyle(0, 26, SpreadsheetApp.newTextStyle()
+        .setFontFamily('Arial')
+        .build())
+        .build());
+        // Find the "OID" column in the Grouping List Table which starts in row num specified in B2 - returns column number
+        spreadsheet.getRange('B6').activate();
+        spreadsheet.getCurrentCell().setFormula('=Match("OID", INDIRECT("\'"&$B$1&"\'!"&B2 +1&":"&B2 + 1),0)');
+        // OID column name label
+        spreadsheet.getRange('A7').activate();
+        spreadsheet.getCurrentCell().setRichTextValue(SpreadsheetApp.newRichTextValue()
+        .setText('OID column name')
+        .setTextStyle(0, 14, SpreadsheetApp.newTextStyle()
+        .setFontFamily('Arial')
+        .build())
+        .build());
+        // Column name of "OID" column
+        spreadsheet.getRange('B7').activate();
+        spreadsheet.getCurrentCell().setFormula('=SUBSTITUTE(ADDRESS(1, B6, 4), "1", "")');
+        
+        // Rows 4 and 5 correspond to the column headers in row 8. These formulas search the sheet for the columns we need from each of the tables (Grouping and Expansion). 
+        // The columns we need are: "Code, Name, Status, Version, Descriptor, Member OID, Code System, Condition Code, Condition Name, Condition Code System, Condition Code System Version"
+        // We hard-code these values as the first parameter of the MATCH function and use them to get the column number (1,2,3...) and corresponding column name (A,B,C...) where they are found.
+        // For example, the formulas for A4 and A5 below would return 2 and B respectively. This means that the "Code" column is the second column (or column B) in the expansion list table headers (B3). 
+        // We need both the column number and column name to construct different formulas in other cells.
+        //
+        // Find the "Code" column in the Expansion List Table which starts in row num specified in B3 - returns column number
+        spreadsheet.getRange('A4').activate();
+        spreadsheet.getCurrentCell().setFormula('=Match("Code", INDIRECT("\'"&$B$1&"\'!"&B3 +1&":"&B3 + 1),0)');
+        // Column name of "Code" column
+        spreadsheet.getRange('A5').activate();
+        spreadsheet.getCurrentCell().setFormula('=SUBSTITUTE(ADDRESS(1, A4, 4), "1", "")');
+        // Find the "Name" column in the Grouping List Table which starts in row num specified in B2 - returns column number
+        spreadsheet.getRange('B4').activate();
+        spreadsheet.getCurrentCell().setFormula('=Match("Name", INDIRECT("\'"&$B$1&"\'!"&B2 +1&":"&B2 + 1),0)');
+        // Column name of "Name" column
+        spreadsheet.getRange('B5').activate();
+        spreadsheet.getCurrentCell().setFormula('=SUBSTITUTE(ADDRESS(1, B4, 4), "1", "")');
+        // Find the "Status" column in the Expansion List Table which starts in row num specified in B3 - returns column number
+        spreadsheet.getRange('C4').activate();
+        spreadsheet.getCurrentCell().setFormula('=Match("Status", INDIRECT("\'"&$B$1&"\'!"&B3 +1&":"&B3 + 1),0)');
+        // Column name of "Status" column
+        spreadsheet.getRange('C5').activate();
+        spreadsheet.getCurrentCell().setFormula('=SUBSTITUTE(ADDRESS(1, C4, 4), "1", "")');
+        // Find the "Version" column in the Expansion List Table which starts in row num specified in B3 - returns column number
+        spreadsheet.getRange('D4').activate();
+        spreadsheet.getCurrentCell().setFormula('=Match("Version", INDIRECT("\'"&$B$1&"\'!"&B3 +1&":"&B3 + 1),0)');
+        // Column name of "Version" column
+        spreadsheet.getRange('D5').activate();
+        spreadsheet.getCurrentCell().setFormula('=SUBSTITUTE(ADDRESS(1, D4, 4), "1", "")');
+        // Create Date label - no formulas needed for this column
+        spreadsheet.getRange('E4').activate();
+        spreadsheet.getCurrentCell().setRichTextValue(SpreadsheetApp.newRichTextValue()
+        .setText('Create Date')
+        .setTextStyle(0, 10, SpreadsheetApp.newTextStyle()
+        .setFontFamily('Arial')
+        .build())
+        .build());
+        // Find the "Descriptor" column in the Expansion List Table which starts in row num specified in B3 - returns column number
+        spreadsheet.getRange('F4').activate();
+        spreadsheet.getCurrentCell().setFormula('=Match("Descriptor", INDIRECT("\'"&$B$1&"\'!"&B3 +1&":"&B3 + 1),0)');
+        // Column name of "Descriptor" column
+        spreadsheet.getRange('F5').activate();
+        spreadsheet.getCurrentCell().setFormula('=SUBSTITUTE(ADDRESS(1, F4, 4), "1", "")');
+        // Find the "Member OID" column in the Expansion List Table which starts in row num specified in B3 - returns column number
+        spreadsheet.getRange('G4').activate();
+        spreadsheet.getCurrentCell().setFormula('=Match("Member OID", INDIRECT("\'"&$B$1&"\'!"&B3 +1&":"&B3 + 1),0)');
+        // Column name of "Member OID" column
+        spreadsheet.getRange('G5').activate();
+        spreadsheet.getCurrentCell().setFormula('=SUBSTITUTE(ADDRESS(1, G4, 4), "1", "")');
+        // Find the "Code System" column in the Expansion List Table which starts in row num specified in B3 - returns column number
+        spreadsheet.getRange('H4').activate();
+        spreadsheet.getCurrentCell().setFormula('=Match("Code System", INDIRECT("\'"&$B$1&"\'!"&B3 +1&":"&B3 + 1),0)');
+        // Column name of "Code System" column
+        spreadsheet.getRange('H5').activate();
+        spreadsheet.getCurrentCell().setFormula('=SUBSTITUTE(ADDRESS(1, H4, 4), "1", "")');
+        // RCTC label - no formulas needed for this column
+        spreadsheet.getRange('I4').activate();
+        spreadsheet.getCurrentCell().setRichTextValue(SpreadsheetApp.newRichTextValue()
+        .setText('RCTC')
+        .setTextStyle(0, 3, SpreadsheetApp.newTextStyle()
+        .setFontFamily('Arial')
+        .build())
+        .build());
+        // Find the "Condition Code" column in the Grouping List Table which starts in row num specified in B2 - returns column number
+        spreadsheet.getRange('J4').activate();
+        spreadsheet.getCurrentCell().setFormula('=Match("Condition Code", INDIRECT("\'"&$B$1&"\'!"&B2 +1&":"&B2 + 1),0)');
+        // Column name of "Condition Code" column
+        spreadsheet.getRange('J5').activate();
+        spreadsheet.getCurrentCell().setFormula('=SUBSTITUTE(ADDRESS(1, J4, 4), "1", "")');
+        // Find the "Condition Name" column in the Grouping List Table which starts in row num specified in B2 - returns column number
+        spreadsheet.getRange('K4').activate();
+        spreadsheet.getCurrentCell().setFormula('=Match("Condition Name", INDIRECT("\'"&$B$1&"\'!"&B2 +1&":"&B2 + 1),0)');
+        // Column name of "Condition Name" column
+        spreadsheet.getRange('K5').activate();
+        spreadsheet.getCurrentCell().setFormula('=SUBSTITUTE(ADDRESS(1, K4, 4), "1", "")');
+        // Find the "Condition Code System" column in the Grouping List Table which starts in row num specified in B2 - returns column number
+        spreadsheet.getRange('L4').activate();
+        spreadsheet.getCurrentCell().setFormula('=Match("Condition Code System", INDIRECT("\'"&$B$1&"\'!"&B2 +1&":"&B2 + 1),0)');
+        // Column name of "Condition Code System" column
+        spreadsheet.getRange('L5').activate();
+        spreadsheet.getCurrentCell().setFormula('=SUBSTITUTE(ADDRESS(1, L4, 4), "1", "")');
+        // Find the "Condition Code System Version" column in the Grouping List Table which starts in row num specified in B2 - returns column number
+        spreadsheet.getRange('M4').activate();
+        spreadsheet.getCurrentCell().setFormula('=Match("Condition Code System Version", INDIRECT("\'"&$B$1&"\'!"&B2 +1&":"&B2 + 1),0)');
+        // Column name of "Condition Code System Version" column
+        spreadsheet.getRange('M5').activate();
+        spreadsheet.getCurrentCell().setFormula('=SUBSTITUTE(ADDRESS(1, M4, 4), "1", "")');
+        
+        
+        // Row 8 : Set current ReportStream observation-mapping table headers
+        spreadsheet.getRange('A8').activate();
+        spreadsheet.getCurrentCell().setFormula('=split("Code,Name,Status,Version,Created At,Descriptor,Member OID,Code System,Value Source,condition_code,condition_name,Condition Code System,Condition Code System Version",",")');
+        
+        // The following formulas use the Expansion List
+        // Grab all values in the OID column in the expansion list
+        spreadsheet.getRange('A9').activate();
+        spreadsheet.getCurrentCell().setFormula('=INDIRECT("\'"&$B$1&"\'!"&ADDRESS($B$3+2,A4)&":"&A5)');
+        // Grab all values of "Status" column in Expansion List - column num specified in C4
+        spreadsheet.getRange('C9').activate();
+        spreadsheet.getCurrentCell().setFormula('=INDIRECT("\'"&$B$1&"\'!"&ADDRESS($B$3+2,C4)&":"&(SUBSTITUTE(ADDRESS(1, C4, 4), "1", "")))');
+        // Grab all values of "Version" column in Expansion List - column num specified in D4
+        spreadsheet.getRange('D9').activate();
+        spreadsheet.getCurrentCell().setFormula('=INDIRECT("\'"&$B$1&"\'!"&ADDRESS($B$3+2,D4)&":"&(SUBSTITUTE(ADDRESS(1, D4, 4), "1", "")))');
+        // Grab all values of "Descriptor" column in Expansion List - column num specified in F4
+        spreadsheet.getRange('F9').activate();
+        spreadsheet.getCurrentCell().setFormula('=INDIRECT("\'"&$B$1&"\'!"&ADDRESS($B$3+2,F4)&":"&(SUBSTITUTE(ADDRESS(1, F4, 4), "1", "")))');
+        // Grab all values of "Member OID" column in Expansion List - column num specified in G4 - used for MATCH parameter to map to Grouping List
+        spreadsheet.getRange('G9').activate();
+        spreadsheet.getCurrentCell().setFormula('=INDIRECT("\'"&$B$1&"\'!"&ADDRESS($B$3+2,G4)&":"&(SUBSTITUTE(ADDRESS(1, G4, 4), "1", "")))');
+        // Grab all values of "Code System" column in Expansion List - column num specified in H4
+        spreadsheet.getRange('H9').activate();
+        spreadsheet.getCurrentCell().setFormula('=INDIRECT("\'"&$B$1&"\'!"&ADDRESS($B$3+2,H4)&":"&(SUBSTITUTE(ADDRESS(1, H4, 4), "1", "")))');
+        // Hard-code RCTC value
+        spreadsheet.getRange('I9').activate();
+        spreadsheet.getCurrentCell().setRichTextValue(SpreadsheetApp.newRichTextValue()
+        .setText('RCTC')
+        .setTextStyle(0, 4, SpreadsheetApp.newTextStyle()
+        .setFontFamily('Arial')
+        .build())
+        .build());
+        
+        // The following formulas use the OID in the current row to match to an OID in the Grouping List
+        // Find row with the same OID in Grouping List table and grab "Name" value
+        spreadsheet.getRange('B9').activate();
+        spreadsheet.getCurrentCell().setFormula('=Index(INDIRECT("\'"&$B$1&"\'!"&ADDRESS($B$2+2,1)&":"&$B$3),MATCH($G9,INDIRECT("\'"&$B$1&"\'!"&ADDRESS($B$2+2,$B$6)&":"&$B$7&$B$3),0),B$4)');
+        // Find row with the same OID in Grouping List table and grab "Condition Code" value
+        spreadsheet.getRange('J9').activate();
+        spreadsheet.getCurrentCell().setFormula('=Index(INDIRECT("\'"&$B$1&"\'!"&ADDRESS($B$2+2,1)&":"&$B$3),MATCH($G9,INDIRECT("\'"&$B$1&"\'!"&ADDRESS($B$2+2,$B$6)&":"&$B$7&$B$3),0),J$4)');
+        // Find row with the same OID in Grouping List table and grab "Condition Name" value
+        spreadsheet.getRange('K9').activate();
+        spreadsheet.getCurrentCell().setFormula('=Index(INDIRECT("\'"&$B$1&"\'!"&ADDRESS($B$2+2,1)&":"&$B$3),MATCH($G9,INDIRECT("\'"&$B$1&"\'!"&ADDRESS($B$2+2,$B$6)&":"&$B$7&$B$3),0),K$4)');
+        // Find row with the same OID in Grouping List table and grab "Condition Code System" value
+        spreadsheet.getRange('L9').activate();
+        spreadsheet.getCurrentCell().setFormula('=Index(INDIRECT("\'"&$B$1&"\'!"&ADDRESS($B$2+2,1)&":"&$B$3),MATCH($G9,INDIRECT("\'"&$B$1&"\'!"&ADDRESS($B$2+2,$B$6)&":"&$B$7&$B$3),0),L$4)');
+        // Find row with the same OID in Grouping List table and grab "Condition Code System Version" value
+        spreadsheet.getRange('M9').activate();
+        spreadsheet.getCurrentCell().setFormula('=Index(INDIRECT("\'"&$B$1&"\'!"&ADDRESS($B$2+2,1)&":"&$B$3),MATCH($G9,INDIRECT("\'"&$B$1&"\'!"&ADDRESS($B$2+2,$B$6)&":"&$B$7&$B$3),0),M$4)');
+        spreadsheet.getRange('B2').activate();
+        
+        // Expand functions to all rows
+        spreadsheet.getRange('B9').activate();
+        spreadsheet.getActiveRange().autoFillToNeighbor(SpreadsheetApp.AutoFillSeries.DEFAULT_SERIES);
+        spreadsheet.getRange('I9').activate();
+        spreadsheet.getActiveRange().autoFillToNeighbor(SpreadsheetApp.AutoFillSeries.DEFAULT_SERIES);
+        spreadsheet.getRange('J9').activate();
+        spreadsheet.getActiveRange().autoFillToNeighbor(SpreadsheetApp.AutoFillSeries.DEFAULT_SERIES);
+        spreadsheet.getRange('K9').activate();
+        spreadsheet.getActiveRange().autoFillToNeighbor(SpreadsheetApp.AutoFillSeries.DEFAULT_SERIES);
+        spreadsheet.getRange('L9').activate();
+        spreadsheet.getActiveRange().autoFillToNeighbor(SpreadsheetApp.AutoFillSeries.DEFAULT_SERIES);
+        spreadsheet.getRange('M9').activate();
+        spreadsheet.getActiveRange().autoFillToNeighbor(SpreadsheetApp.AutoFillSeries.DEFAULT_SERIES);
+        
+        // formatting: (set background color for observation-mapping table headers and auto-resize columns)
+        spreadsheet.getRange('A8:M8').activate();
+        spreadsheet.getActiveRangeList().setBackground('#cccccc');
+        spreadsheet.getRange('A9').activate();
+        spreadsheet.getActiveSheet().autoResizeColumns(1, 1);
+        spreadsheet.getActiveSheet().autoResizeColumns(2, 1);
+        spreadsheet.getActiveSheet().autoResizeColumns(6, 1);
+        spreadsheet.getActiveSheet().autoResizeColumns(7, 1);
+        spreadsheet.getActiveSheet().autoResizeColumns(11, 1);
+        spreadsheet.getActiveSheet().autoResizeColumns(13, 1);
+        spreadsheet.getRange('8:8').activate();
+        spreadsheet.getActiveSheet().setFrozenRows(8);
+        // set B1 background to yellow to indicate as input field
+        spreadsheet.getRange('B1').activate();
+        spreadsheet.getActiveRangeList().setBackground('#fff2cc');
+        spreadsheet.getRange('F1').activate();
+        spreadsheet.getCurrentCell().setRichTextValue(SpreadsheetApp.newRichTextValue()
+        .setText('Note: Change the sheet name to grab values from another sheet. Rows 1-7 are used to facilitate formulas, delete if exporting to update the observation mapping table.')
+        .setTextStyle(0, 99, SpreadsheetApp.newTextStyle()
+        .setFontFamily('Arial')
+        .build())
+        .build());
+        spreadsheet.getRange('F2').activate();
+    }
     ```
     </details>
 
