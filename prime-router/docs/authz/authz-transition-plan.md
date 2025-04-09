@@ -1,34 +1,12 @@
-This document will detail the steps needed to successfully transition from the current RS auth to the auth microservice.
+This document details the steps needed to successfully transition from the current RS auth to the auth microservice.
 
-# Preparation #
+Please consult [this Lucidchart](http://lucidgov.app/lucidchart/1ad27194-a283-4a38-85e4-132d7e9cf5e3/edit?page=~G0RZ44nv8oX) 
+for a visualization of the intended connectivity strategy. 
 
-* Implement profile groups (API > ReportStream API > Claims > sender_name)
-* API changes for new auth flow
-  * Need to decide if cutting over or maintaining both APIs - see analysis in Questions section 
-* Should sender groups be stored as Okta groups or solely as profile attributes? 
-  * Utilizing groups permits onboarding via Okta admin console, but the group memberships are redundant as it is only
-    the profile attributes that are actively used during the authz process
-  * Storing solely as profile attributes would require the sender management APIs to be built before transition to the
-    auth service can occur
-  * We can change this strategy at any time
-* Create test workflow in staging representative of production environment
-  * Update workflow documentation to create new sender
-* Add auth/submissions endpoints to deployment and CI processes
-  * auth and submissions projects currently ignored
-  * end2end testing for endpoints should be created
-    * Consider how developer environment setup needs to change 
-  * Dependabot already hooked, but need to verify configuration and confirm what other integrations are needed (DevOps)
-* Create Okta applications/APIs in production Okta (API, groups)
-  * Consider how to run a test in production 
-* Add integration/smoke tests to include end to end test of auth/submissions
-  * New tests alongside existing tests for original report API until it is removed?
-* Migrate internal functions utilizing deprecated authentication
-  * `prime login` uses Okta user login flow; need application user flow to allow machine to machine authentication (CI
-    runners can log in - the ultimate goal should be allowing smoke tests to run without needing a user web login)
-  * Smoke tests against staging additionally rely on an Azure functions key and an authorization key stored in
-    Environment variables
-* Which Azure functions require authorization processes?
-
+Migrating to microservices will be performed in two stages. During the intermediate stage, all endpoints handled by the
+functionapp will remain as they are while the microservices are prepared; both endpoints will be supported at once. 
+After we have completed architectural changes and successfully migrated all senders we will reach the final stage, where
+all communication is through the auth microservice and the functionapp will no longer be accessed publicly.
 
 # Migration Strategy #
 
@@ -40,8 +18,11 @@ CLI.
 
 ### Integrate auth and submissions microservices to CI processes ###
 We should begin including the microservices projects in our continuous integration builds, set up the API endpoints in
-the staging environment, and make sure the microservices are executed. This will also require setting up environment-
-specific secrets for connecting with Okta and ensuring we have set up permanent application users for the microservices.
+the staging and production environments, and make sure the microservices are executed. This will also require setting up
+environment-specific secrets for connecting with Okta and ensuring we have set up permanent application users for the 
+microservices. By the end of this work both staging and production Okta should have their final access applications; the 
+names of the application and the method by which the secrets are passed to the microservices should be documented at \
+this point.
 
 ### Update end to end testing and development environments to include auth and submissions ###
 We should build a new test based on `end2end_up` that performs submission through the microservices instead of the
@@ -70,15 +51,51 @@ to the auth microservice.
 Once all senders and users have been provisioned in Okta using the updated structures we can remove network access to
 the functionapp. All communication from senders or the frontend should occur through the auth microservice.
 
-## Migration of senders and website users ##
+### Implement sender setup API and frontend (tentative) ###
+A proposed API for creating senders entirely within RS is included in the design. All configurations needed for senders
+can be performed from the Okta admin console, so this is not strictly necessary for migration. If desired, the 
+implementation of this API and the related frontend can occur in parallel to the other migration tasks.
+
+# Dev notes #
+These are miscellaneous dev notes that should be considered during the implementation process.
+
 * Migrate all senders in staging
-  * Can existing public/private keys be transferred to Okta, or will all senders have to be fully reonboarded?
-  * Do we intend to run both auth systems simultaneously?
-    * Document differences between RS auth and proposed Okta auth (endpoints used, etc.) 
+    * Can existing public/private keys be transferred to Okta, or will all senders have to be fully reonboarded?
+    * Do we intend to run both auth systems simultaneously?
+        * Document differences between RS auth and proposed Okta auth (endpoints used, etc.)
+
+* Do sender and user migrations need to be performed simultaneously?
+
+
+* Implement profile groups (API > ReportStream API > Claims > sender_name)
+* API changes for new auth flow
+    * Need to decide if cutting over or maintaining both APIs - see analysis in Questions section
+* Should sender groups be stored as Okta groups or solely as profile attributes?
+    * Utilizing groups permits onboarding via Okta admin console, but the group memberships are redundant as it is only
+      the profile attributes that are actively used during the authz process
+    * Storing solely as profile attributes would require the sender management APIs to be built before transition to the
+      auth service can occur
+    * We can change this strategy at any time
+* Create test workflow in staging representative of production environment
+    * Update workflow documentation to create new sender
+* Add auth/submissions endpoints to deployment and CI processes
+    * auth and submissions projects currently ignored
+    * end2end testing for endpoints should be created
+        * Consider how developer environment setup needs to change
+    * Dependabot already hooked, but need to verify configuration and confirm what other integrations are needed (DevOps)
+* Create Okta applications/APIs in production Okta (API, groups)
+    * Consider how to run a test in production
+* Add integration/smoke tests to include end to end test of auth/submissions
+    * New tests alongside existing tests for original report API until it is removed?
+* Migrate internal functions utilizing deprecated authentication
+    * `prime login` uses Okta user login flow; need application user flow to allow machine to machine authentication (CI
+      runners can log in - the ultimate goal should be allowing smoke tests to run without needing a user web login)
+    * Smoke tests against staging additionally rely on an Azure functions key and an authorization key stored in
+      Environment variables
+* Which Azure functions require authorization processes?
 * Users: Process to migrate existing user authorizations
     * Map existing RS scopes to Okta scopes
     * How to restrict users to information related to their organization
-* Do sender and user migrations need to be performed simultaneously?
 
 ## Other Questions ##
 
