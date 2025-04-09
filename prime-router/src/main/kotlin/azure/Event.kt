@@ -30,7 +30,7 @@ abstract class Event(val eventAction: EventAction, val at: OffsetDateTime?) {
         RECEIVER_ENRICHMENT,
         RECEIVER_FILTER,
         RECEIVE,
-        CONVERT, // for universal pipeline converting to FHIR
+        ELR_FHIR_CONVERT, // for universal pipeline converting to FHIR
         ROUTE, // Deprecated (has become DESTINATION_FILTER->RECEIVER_FILTER)
         TRANSLATE,
         BATCH,
@@ -53,7 +53,7 @@ abstract class Event(val eventAction: EventAction, val at: OffsetDateTime?) {
                 RECEIVER_ENRICHMENT -> TaskAction.receiver_enrichment
                 RECEIVER_FILTER -> TaskAction.receiver_filter
                 RECEIVE -> TaskAction.receive
-                CONVERT -> TaskAction.convert
+                ELR_FHIR_CONVERT -> TaskAction.convert
                 ROUTE -> TaskAction.route
                 TRANSLATE -> TaskAction.translate
                 BATCH -> TaskAction.batch
@@ -71,6 +71,7 @@ abstract class Event(val eventAction: EventAction, val at: OffsetDateTime?) {
 
         fun toQueueName(): String? = when (this) {
                 PROCESS,
+                ELR_FHIR_CONVERT,
                 TRANSLATE,
                 BATCH,
                 SEND,
@@ -83,6 +84,7 @@ abstract class Event(val eventAction: EventAction, val at: OffsetDateTime?) {
             fun parseQueueMessage(action: String): EventAction = when (action.lowercase()) {
                     "process" -> PROCESS
                     "receive" -> RECEIVE
+                    "elr_fhir_convert" -> ELR_FHIR_CONVERT
                     "translate" -> TRANSLATE
                     "batch" -> BATCH
                     "send" -> SEND

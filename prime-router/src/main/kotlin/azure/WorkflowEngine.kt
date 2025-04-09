@@ -882,7 +882,7 @@ class WorkflowEngine(
                 Event.EventAction.PROCESS -> Tables.TASK.PROCESSED_AT
                 // we don't really use these  *_AT columns for anything at this point, and 'convert' is another name
                 //  for 'process' ... but 'process' is just too vague
-                Event.EventAction.CONVERT -> Tables.TASK.PROCESSED_AT
+                Event.EventAction.ELR_FHIR_CONVERT -> Tables.TASK.PROCESSED_AT
                 Event.EventAction.ROUTE -> Tables.TASK.ROUTED_AT
                 Event.EventAction.DESTINATION_FILTER -> Tables.TASK.DESTINATION_FILTERED_AT
                 Event.EventAction.RECEIVER_ENRICHMENT -> Tables.TASK.RECEIVER_ENRICHED_AT

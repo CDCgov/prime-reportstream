@@ -136,7 +136,7 @@ class ActionHistory(
     }
 
     /** Adds a queue event to the messages property to be added to the queue later */
-    private fun trackEvent(event: Event) {
+    fun trackEvent(event: Event) {
         messages.add(event)
     }
 
