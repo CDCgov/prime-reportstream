@@ -283,6 +283,8 @@ class DetailedSubmissionHistory(
                         )
                     )
                 } else {
+                    existingDestination.filteredReportRows?.addAll(filteredReportRows)
+                    existingDestination.filteredReportItems?.addAll(filteredReportItems)
                     existingDestination.sentReports.addAll(sentReports)
                     existingDestination.downloadedReports.addAll(downloadedReports)
                     if (report.nextActionAt != null) {
