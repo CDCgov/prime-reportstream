@@ -272,7 +272,7 @@ class FHIRConverterIntegrationTests {
                 format.toString().lowercase(),
                 report.bodyURL,
                 nextAction = ProcessEvent(
-                    Event.EventAction.ELR_FHIR_CONVERT,
+                    Event.EventAction.CONVERT,
                     report.id,
                     Options.None,
                     emptyMap(),

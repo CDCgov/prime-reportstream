@@ -598,6 +598,7 @@ class ReportFunction(
 
         // queue messages here after all task / action records are in
         actionHistory.queueMessages(workflowEngine)
+        actionHistory.queueFhirMessages(workflowEngine)
 
         return response
     }

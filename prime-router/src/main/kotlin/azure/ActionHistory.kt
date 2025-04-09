@@ -34,6 +34,7 @@ import gov.cdc.prime.router.azure.observability.event.ReportStreamEventName
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventProperties
 import gov.cdc.prime.router.common.AzureHttpUtils.getSenderIP
 import gov.cdc.prime.router.common.JacksonMapperUtilities
+import gov.cdc.prime.router.fhirengine.engine.FhirConvertQueueMessage
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.report.ReportService
@@ -113,6 +114,8 @@ class ActionHistory(
      */
     val messages = mutableListOf<Event>()
 
+    val fhirMessages = mutableListOf<FhirConvertQueueMessage>()
+
     /**
      *
      * Collection of all the parent-child report relationships created by this action.
@@ -136,8 +139,12 @@ class ActionHistory(
     }
 
     /** Adds a queue event to the messages property to be added to the queue later */
-    fun trackEvent(event: Event) {
+    private fun trackEvent(event: Event) {
         messages.add(event)
+    }
+
+    fun trackFhirMessage(message: FhirConvertQueueMessage) {
+        fhirMessages.add(message)
     }
 
     /**
@@ -767,6 +774,12 @@ class ActionHistory(
         messages.forEach { event ->
             workflowEngine.queue.sendMessage(event)
             logger.debug("Queued event: ${event.toQueueMessage()}")
+        }
+    }
+
+    fun queueFhirMessages(workflowEngine: WorkflowEngine) {
+        fhirMessages.forEach { message ->
+            workflowEngine.queue.sendMessage(message.messageQueueName, message.serialize())
         }
     }
 

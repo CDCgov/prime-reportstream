@@ -156,7 +156,7 @@ class FHIRTranslatorIntegrationTests : Logging {
         val receiveReport = UniversalPipelineTestUtils.createReport(
             reportContents,
             TaskAction.receive,
-            Event.EventAction.ELR_FHIR_CONVERT,
+            Event.EventAction.CONVERT,
             azuriteContainer
         )
 
@@ -266,7 +266,7 @@ class FHIRTranslatorIntegrationTests : Logging {
         val receiveReport = UniversalPipelineTestUtils.createReport(
             reportContents,
             TaskAction.receive,
-            Event.EventAction.ELR_FHIR_CONVERT,
+            Event.EventAction.CONVERT,
             azuriteContainer
         )
         val queueMessage = generateQueueMessage(
@@ -366,7 +366,7 @@ class FHIRTranslatorIntegrationTests : Logging {
         val receiveReport = UniversalPipelineTestUtils.createReport(
             reportContents,
             TaskAction.receive,
-            Event.EventAction.ELR_FHIR_CONVERT,
+            Event.EventAction.CONVERT,
             azuriteContainer
         )
         val queueMessage = generateQueueMessage(
@@ -465,7 +465,7 @@ class FHIRTranslatorIntegrationTests : Logging {
         val receiveReport = UniversalPipelineTestUtils.createReport(
             reportContents,
             TaskAction.receive,
-            Event.EventAction.ELR_FHIR_CONVERT,
+            Event.EventAction.CONVERT,
             azuriteContainer,
             fileName = "originalhl7.hl7"
         )
@@ -545,7 +545,7 @@ class FHIRTranslatorIntegrationTests : Logging {
         val receiveReport = UniversalPipelineTestUtils.createReport(
             reportContents,
             TaskAction.receive,
-            Event.EventAction.ELR_FHIR_CONVERT,
+            Event.EventAction.CONVERT,
             azuriteContainer,
             fileName = "originalhl7.hl7"
         )
@@ -625,7 +625,7 @@ class FHIRTranslatorIntegrationTests : Logging {
         val receiveReport = UniversalPipelineTestUtils.createReport(
             reportContents,
             TaskAction.receive,
-            Event.EventAction.ELR_FHIR_CONVERT,
+            Event.EventAction.CONVERT,
             azuriteContainer
         )
 

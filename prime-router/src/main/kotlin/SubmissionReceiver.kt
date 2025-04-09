@@ -1,11 +1,13 @@
 package gov.cdc.prime.router
 
+import gov.cdc.prime.reportstream.shared.BlobUtils
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.Event
 import gov.cdc.prime.router.azure.ProcessEvent
 import gov.cdc.prime.router.azure.ReportWriter
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
+import gov.cdc.prime.router.fhirengine.engine.FhirConvertQueueMessage
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.fhirengine.utils.HL7MessageHelpers
 import gov.cdc.prime.router.fhirengine.utils.HL7Reader
@@ -321,7 +323,7 @@ class UniversalPipelineReceiver : SubmissionReceiver {
             report.nextAction = TaskAction.none
             Event.EventAction.NONE
         } else {
-            Event.EventAction.ELR_FHIR_CONVERT
+            Event.EventAction.CONVERT
         }
 
         // record that the submission was received
@@ -343,7 +345,16 @@ class UniversalPipelineReceiver : SubmissionReceiver {
 
         // Only track and add to queue if the sender/ is enabled
         if (sender.customerStatus != CustomerStatus.INACTIVE) {
-            actionHistory.trackEvent(processEvent)
+            actionHistory.trackFhirMessage(
+                FhirConvertQueueMessage(
+                report.id,
+                blobInfo.blobUrl,
+                BlobUtils.digestToString(blobInfo.digest),
+                sender.fullName,
+                sender.topic,
+                sender.schemaName
+            )
+            )
         }
 
         return report

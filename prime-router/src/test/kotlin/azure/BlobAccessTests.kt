@@ -577,7 +577,7 @@ class BlobAccessTests {
             Event.EventAction.RECEIVER_FILTER,
             Event.EventAction.TRANSLATE,
             Event.EventAction.NONE,
-            Event.EventAction.ELR_FHIR_CONVERT,
+            Event.EventAction.CONVERT,
             null
         )
 
@@ -591,7 +591,7 @@ class BlobAccessTests {
             val result = when (it) {
                 null -> BlobAccess.uploadBody(testFormat, testBytes, testid, "")
                 // testing with and without reportName passed in to improve code coverage
-                Event.EventAction.ELR_FHIR_CONVERT -> BlobAccess.uploadBody(testFormat, testBytes, testid, action = it)
+                Event.EventAction.CONVERT -> BlobAccess.uploadBody(testFormat, testBytes, testid, action = it)
                 else -> BlobAccess.uploadBody(testFormat, testBytes, testid, testFolder, it)
             }
 
