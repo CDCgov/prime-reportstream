@@ -1123,7 +1123,17 @@ Example condition logic of filtering using condition codes:
         numberPerDay: 1440 # Every minute
         initialTime: 00:00
 ```
-Example condition logic of filtering using member OID:
+Some STLTs only want to receive test results as specific test type such as Antigen, Culture, Nucleic acid, and/or Genomic substance.  Or, they want to exclude specific test type such as Antigen.  We can manually search the observation-mapping table to filter out the unwanted test type.  In this case, we can't use the condition code for condition filter setting since there are some overlapping codes.  Therefore, we must use the member OID values to include in the condition filter.  To manually filtering out the unwanted test type, we can use the Microsoft Excel as example given below: <br><br>
+Example of using Microsoft Excel to filter out COVID-19 Antigen test type: <br>
+1. Open the observation-mapping.csv with Microsoft Excel
+2. Filter the unwanted COVID-19 Antigen test type follow steps/clicks given.<br><br>
+   ![Filtering steps](https://github.com/CDCgov/prime-reportstream/blob/main/prime-router/docs/design/proposals/0023-condition-to-code-mapping/observation-mapping-selections.PNG)<br><br>
+   ![Filtering test type](https://github.com/CDCgov/prime-reportstream/blob/main/prime-router/docs/design/proposals/0023-condition-to-code-mapping/observation-mapping-filter-step2.PNG)<br><br>
+   ![Filtering test type check](https://github.com/CDCgov/prime-reportstream/blob/main/prime-router/docs/design/proposals/0023-condition-to-code-mapping/observation-mapping-filter-step3.PNG)<br><br>
+3. Select member OIDs (in Column G) to include into the setting condition filter.<br><br>
+   ![Select member OID values](https://github.com/CDCgov/prime-reportstream/blob/main/prime-router/docs/design/proposals/0023-condition-to-code-mapping/observation-mapping-select-memberOID.PNG)<br>
+
+Example condition logic of filtering using member OID: <br>
 ```yaml
     - name: TEST-RECEIVER
       externalName: TEST
