@@ -878,7 +878,7 @@ dependencies {
         exclude(group = "com.azure", module = "azure-core")
         exclude(group = "com.azure", module = "azure-core-http-netty")
     }
-    implementation("com.nimbusds:nimbus-jose-jwt:9.47")
+    implementation("com.nimbusds:nimbus-jose-jwt:10.1")
     implementation("org.apache.logging.log4j:log4j-api:2.24.0")
     implementation("org.apache.logging.log4j:log4j-core:2.24.0")
     implementation("org.apache.logging.log4j:log4j-slf4j2-impl:2.24.0")
