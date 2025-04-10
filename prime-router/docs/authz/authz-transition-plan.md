@@ -74,7 +74,7 @@ These are miscellaneous dev notes that should be considered during the implement
 * Do sender and user migrations need to be performed simultaneously?
 
 
-* Implement profile groups (API > ReportStream API > Claims > sender_name)
+* Implement sending profile attributes in claims (API > ReportStream API > Claims > create `appSubmit` claim)
 * API changes for new auth flow
     * Need to decide if cutting over or maintaining both APIs - see analysis in Questions section
 * Should sender groups be stored as Okta groups or solely as profile attributes?
@@ -119,7 +119,6 @@ consider what would be required to do this:
 * Cons:
   * Transparent cutover not an option; new API must have different path
   * Will require implementation and tests for both APIs to be maintained simultaneously
-  * Will likely require some level of reonboarding for all users of RS
   * Can both APIs coexist on the same listening port? Would this require the functionapp to act as a passthrough?
 
 

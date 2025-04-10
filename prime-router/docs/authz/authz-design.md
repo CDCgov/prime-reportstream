@@ -54,7 +54,7 @@ within a single claim. This is why there are multiple claims as defined below:
 | userSubmit | user.submit        |
 | appSubmit  | app.profile.submit |
 
-Unfortunately the claim names have to separated due to different expressions required to access user profile and
+Unfortunately the claim names have to be separated due to different expressions required to access user profile and
 application user profiles.
 
 Claim value examples:
