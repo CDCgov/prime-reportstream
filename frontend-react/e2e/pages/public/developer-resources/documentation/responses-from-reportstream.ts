@@ -4,7 +4,7 @@ export class ResponsesFromReportStreamPage extends BasePage {
     constructor(testArgs: BasePageTestArgs) {
         super(
             {
-                url: "/developer-resources/api/documentation/responses-from-reportstream",
+                url: "/developer-resources/documentation/responses-from-reportstream",
                 title: "API responses from ReportStream",
                 heading: testArgs.page.getByRole("heading", {
                     name: "Responses from ReportStream",

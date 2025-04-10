@@ -7,17 +7,12 @@ export default function ManagePublicKeyUploadSuccess() {
     return (
         <div>
             <div className="margin-bottom-4">
-                <StaticAlert
-                    type={[StaticAlertType.Success]}
-                    heading={heading}
-                />
+                <StaticAlert type={[StaticAlertType.Success]} heading={heading} />
             </div>
-            <div className="margin-bottom-4">
-                You can now submit data to ReportStream.
-            </div>
+            <div className="margin-bottom-4">You can now submit data to ReportStream.</div>
             <p>
                 Read more about{" "}
-                <USLink href="/developer-resources/api/getting-started#set-up-authentication">
+                <USLink href="/developer-resources/api-onboarding-guide#set-up-authentication-and-test-your-api-connection">
                     your next steps for setting up authentication
                 </USLink>
                 .
