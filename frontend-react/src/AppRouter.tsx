@@ -285,7 +285,7 @@ export const appRoutes: RouteObject[] = [
             {
                 path: "/file-handler/validate",
                 loader: () => {
-                    return redirect("/developer-resources/api/getting-started");
+                    return redirect("/developer-resources/api-onboarding-guide");
                 },
             },
             {

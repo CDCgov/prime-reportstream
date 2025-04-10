@@ -36,11 +36,7 @@ export function ManagePublicKeyPage() {
     const { activeMembership } = useSessionContext();
     const { data: senders } = useOrganizationSenders();
     const { data: orgPublicKeys } = useOrganizationPublicKeys();
-    const {
-        mutateAsync,
-        isSuccess,
-        isPending: isUploading,
-    } = useCreateOrganizationPublicKey();
+    const { mutateAsync, isSuccess, isPending: isUploading } = useCreateOrganizationPublicKey();
 
     const featureEvent = `${FeatureName.PUBLIC_KEY}`;
 
@@ -131,13 +127,9 @@ export function ManagePublicKeyPage() {
         }
     }, [orgPublicKeys, sender, activeMembership?.parsedName, senders]);
 
-    const showPublicKeyConfigured =
-        sender && hasPublicKey && !uploadNewPublicKey && !fileSubmitted;
-    const showUploadMsg =
-        (sender && !fileSubmitted && !hasPublicKey) ||
-        (!uploadNewPublicKey && !sender);
-    const isUploadEnabled =
-        (sender && !fileSubmitted && !hasPublicKey) || uploadNewPublicKey;
+    const showPublicKeyConfigured = sender && hasPublicKey && !uploadNewPublicKey && !fileSubmitted;
+    const showUploadMsg = (sender && !fileSubmitted && !hasPublicKey) || (!uploadNewPublicKey && !sender);
+    const isUploadEnabled = (sender && !fileSubmitted && !hasPublicKey) || uploadNewPublicKey;
     const hasUploadError = fileSubmitted && !isUploading && !isSuccess;
 
     if (isSuccess) {
@@ -159,35 +151,21 @@ export function ManagePublicKeyPage() {
         <>
             <Helmet>
                 <title>ReportStream API - Manage public key</title>
-                <meta
-                    name="description"
-                    content="Send your public key to begin the REST API authentication process."
-                />
-                <meta
-                    property="og:image"
-                    content="/assets/img/opengraph/howwehelpyou-3.png"
-                />
-                <meta
-                    property="og:image:alt"
-                    content="An abstract illustration of screens and a document."
-                />
+                <meta name="description" content="Send your public key to begin the REST API authentication process." />
+                <meta property="og:image" content="/assets/img/opengraph/howwehelpyou-3.png" />
+                <meta property="og:image:alt" content="An abstract illustration of screens and a document." />
             </Helmet>
             <GridContainer className="manage-public-key padding-bottom-5 tablet:padding-top-6">
-                {!isUploading && (
-                    <h1 className="margin-top-0 margin-bottom-5">
-                        Manage public key
-                    </h1>
-                )}
+                {!isUploading && <h1 className="margin-top-0 margin-bottom-5">Manage public key</h1>}
                 {showUploadMsg && (
                     <>
                         <p className="font-sans-md">
-                            Send your public key to begin the REST API
-                            authentication process.
+                            Send your public key to begin the REST API authentication process.
                         </p>
                         <Alert type="tip" className="margin-bottom-6">
                             <span className="padding-left-1">
                                 Learn more about{" "}
-                                <USLink href="/developer-resources/api/getting-started#set-up-authentication">
+                                <USLink href="/developer-resources/api-onboarding-guide#set-up-authentication-and-test-your-api-connection">
                                     generating your public key
                                 </USLink>{" "}
                                 and setting up authentication.
@@ -195,18 +173,11 @@ export function ManagePublicKeyPage() {
                         </Alert>
                     </>
                 )}
-                {!sender && (
-                    <ManagePublicKeyChooseSender
-                        senders={senders ?? []}
-                        onSenderSelect={handleSenderSelect}
-                    />
-                )}
+                {!sender && <ManagePublicKeyChooseSender senders={senders ?? []} onSenderSelect={handleSenderSelect} />}
                 {showPublicKeyConfigured && <ManagePublicKeyConfigured />}
                 {isUploadEnabled && (
                     <ManagePublicKeyUpload
-                        onPublicKeySubmit={(ev) =>
-                            void handlePublicKeySubmit(ev)
-                        }
+                        onPublicKeySubmit={(ev) => void handlePublicKeySubmit(ev)}
                         onFileChange={(ev) => void handleFileChange(ev)}
                         onBack={handleOnBack}
                         hasBack={hasBack}
@@ -216,11 +187,7 @@ export function ManagePublicKeyPage() {
                 )}
                 {isUploading && <Spinner />}
                 {isSuccess && <ManagePublicKeyUploadSuccess />}
-                {hasUploadError && (
-                    <ManagePublicKeyUploadError
-                        onTryAgain={() => setFileSubmitted(false)}
-                    />
-                )}
+                {hasUploadError && <ManagePublicKeyUploadError onTryAgain={() => setFileSubmitted(false)} />}
             </GridContainer>
         </>
     );
