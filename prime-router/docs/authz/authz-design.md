@@ -54,8 +54,8 @@ within a single claim. This is why there are multiple claims as defined below:
 | userSubmit | user.submit        |
 | appSubmit  | app.profile.submit |
 
-Unfortunately the claim names have to seperated as to access the user profile and application user profile 
-require different expressions.
+Unfortunately the claim names have to be separated due to different expressions required to access user profile and
+application user profiles.
 
 Claim value examples:
 ```
@@ -74,7 +74,7 @@ Claim value examples:
 <br><br>
 
 
-### Claims example
+### User claims example
 
 Given the following token claims scenario:
 ```json
@@ -149,11 +149,11 @@ the specific senders. For users this can be done in the Okta UI.
 Senders are set up as application users within Okta to allow the machine-to-machine client credentials OAuth 2.0 flow. The 
 difficulty arises because while Okta allows you to add application users to groups, it does not allow you to easily add 
 those groups to the generated access token JWT. The workaround there is adding the necessary information to the Okta 
-application user's profile. This can only be done via API at the moment though.
+application user's profile. This can only be done via Okta's APIs at the moment though.
 
 My suggestion is having a sender setup API and CLI that when given the appropriate values, will set them in the profile.
 
-Here is some psudeocode on what that might look like using the Okta admin SDK. Given this would happen in the `auth` 
+Here is some pseudocode on what that might look like using the Okta admin SDK. Given this would happen in the `auth` 
 project we could easily authorize that the user kicking off this job only be a superadmin.
 ```kotlin
 fun setApplicationProfile(
@@ -168,13 +168,76 @@ fun setApplicationProfile(
 }
 ```
 
-We could go even further and write various APIs (and potentially CLI calls) that will set up an application user from 
-scratch. This would dramatically simplify the process of setting up a sender since we would not need to handle going
-back and forth between API and Okta Admin UI and could provide the necessary values needed for a new sender.
-We could also reuse our existing authentication and authorization within the project to ensure only specific people are able to 
-hit these endpoints.
+We have several viable approaches to handling updates to senders:
+* Build a process within the auth project to retrieve an application user's group memberships and update their profile
+  accordingly. 
+  * This allows group management to occur within the Okta Admin Console, but a trigger to perform this step is needed.
+    * We can build a API call (triggerable via frontend and/or CLI) that takes a client ID of a sender as input and does
+      the needed profile updates on demand.
+    * We can configure a schedule trigger to scan all application users and update their profiles based on their Okta
+      group memberships periodically. This removes the potential for group memberships and sender profiles to fall out
+      of sync, but the refresh will happen on a delay and this would require the microservice to perform more work on an
+      ongoing basis.
+    * Using Okta event hooks to send a POST request to the auth microservice whenever an application's group membership
+      changes. The relevant events:
+      * Add assigned application to group.
+      * Update assigned application in group.
+      * Remove assigned application from group.
+      
+      Whenever group membership is changed, a notification will be sent via an API on the auth microservice, which will
+      make profile updates accordingly. The request will identify the application being updated (`data.events[0].target[1].id`)
+      as well as the group (`data.events[0].target[0].displayName`). We can either define separate event hooks for each of 
+      the event types, or have all three configured for the same endpoint and parse `data.events[0].eventType` to
+      determine which event occurred. We should also plan to have one of the other methods available in case of dropped
+      events due to network or application issues. Event hooks are documented [here](https://developer.okta.com/docs/guides/event-hook-implementation/nodejs/main/).
+* Build out APIs within the auth project to manage application users within the RS frontend, forgoing the Okta Admin
+  Console.
+  * This would require adding CLI calls or frontend development work to be a viable solution.
+  * This has the advantage of sender setup not requiring use of both the Okta Admin Console and RS functions. 
+  * We could also reuse our existing authentication and authorization within the project to ensure only specific people 
+    are able to hit these endpoints.
 
-Sample endpoints:
+It is possible for both solutions to be done in tandem, either as part of the permanent design or as a stopgap if a 
+partial cutover to microservices is desired and additional development time for the frontend/CLI is needed.
+
+Building the API endpoints to process Okta event hooks would be the simplest and fastest path forward. An RS specific
+API to create senders can follow if desired, but all the necessary configuration is possible via the Okta admin console.
+The API needed to process event hooks:
+
+| Method | Path              | Description                 |
+|--------|-------------------|-----------------------------|
+| GET    | /api/v1/oktaevent | Okta verification challenge |
+| POST   | /api/v1/oktaevent | Okta event endpoint         |
+
+It is only strictly necessary to retrieve the ID of the application user from the Okta event payload. We could then
+read that application user's group memberships and store them to the profile. While the Okta event contains the group
+that was modified, retrieving the groups directly from the Okta API would reduce the possibility of desync and increases
+the security of the process.
+
+The Okta event hook will only attempt a single retry for specific error codes or a timeout. It is possible for an event
+to be missed if for some reason the API to receive the event was not available. For this reason, we would want to have
+a secondary process to initiate an update of an application user's profile (discussed above).
+
+#### How to set up event hooks ####
+In the Okta Admin console, go to Workflow > Event Hooks. Select the button to create a new event hook.
+
+Enter the details for the new event hook - endpoint URL, authorization, and events.
+<img src="img/event-hook.png" width="600"/>
+
+Add filters to event hook (only applicable if we intend to have multiple uses for Okta groups)
+<img src="img/event-hook-filters.png" width="600"/>
+
+Check the preview of the API; select an event type and see the body of the POST request.
+
+Perform verification - Okta does a one time verification of each event hook endpoint before the event hook is active.
+
+The event hook is created after the first step, and any of these options can be revisited at any time.
+
+
+### Sample endpoints for a proposed sender setup API: ###
+
+If we intend to set up creating new senders from within the RS frontend, we could have it backed by the following API
+endpoints:
 
 | Method | Path                              | Description                     |
 |--------|-----------------------------------|---------------------------------|
@@ -188,6 +251,25 @@ An admin UI could be designed that is powered by the endpoints above as well. Th
 further by being able to visualize the changes needed to be made.
 
 Okta application API documentation can be found [here](https://developer.okta.com/docs/api/openapi/okta-management/management/tag/Application/#tag/Application/operation/createApplication).
+
+### Sender claims example
+
+Given the following token claims scenario:
+```json
+{
+  "scp": [
+    "sender"
+  ],
+  "appSubmit": [
+    "DHSender_md-phd",
+    "DHSender_ca-phd"  
+  ]  
+}
+```
+
+This particular sender would be able to submit reports as `md-phd` or `ca-phd`. Other IDs would be rejected, unless the
+sender is a member of an Admin group within Okta.
+
 
 ## Authorization check
 

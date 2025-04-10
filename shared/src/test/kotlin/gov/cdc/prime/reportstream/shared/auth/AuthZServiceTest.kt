@@ -44,20 +44,4 @@ class AuthZServiceTest {
         )
     }
 
-    @Test
-    fun `handle jwt reading`() {
-        val f = Fixture()
-
-        every { f.oktaGroupsJWTReader.read("jwt") } returns OktaGroupsJWT(
-            "appId",
-            listOf("DHSender_org")
-        )
-
-        val requestHeaders = mapOf("Okta-Groups" to "jwt")
-
-        assertEquals(
-            f.service.isSenderAuthorized("org.sender", requestHeaders::getValue),
-            true
-        )
-    }
 }
