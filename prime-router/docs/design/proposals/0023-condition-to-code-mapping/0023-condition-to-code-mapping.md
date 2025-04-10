@@ -1125,7 +1125,7 @@ Example condition logic of filtering using condition codes:
 ```
 Some STLTs may only want to receive test results for specific test types, such as Antigen, Culture, Nucleic Acid, or Genomic Substance or they may want to exclude certain types, like Antigen. In this case, we cannot rely on condition codes within the condition filter settings, as some codes may overlap between test types. Instead, we must use the member OID values associated with each test type to build the appropriate condition filter.<br>
 To accommodate for this, we can manually filter the observation-mapping.csv file to identify and exclude the undesired test types. We can use Microsoft Excel, Numbers, or Google sheets to find the member oids. Example using Excel given below: <br><br>
-Example of using Microsoft Excel to filter out COVID-19 Antigen test type: <br>
+Example using Microsoft Excel to filter out COVID-19 Antigen test type: <br>
 1. Open the observation-mapping.csv with Microsoft Excel
 2. Filter the unwanted COVID-19 Antigen test type follow steps/clicks given.<br><br>
    ![Filtering steps](https://github.com/CDCgov/prime-reportstream/blob/main/prime-router/docs/design/proposals/0023-condition-to-code-mapping/observation-mapping-selections.PNG)<br><br>
