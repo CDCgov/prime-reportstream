@@ -1127,7 +1127,7 @@ Some STLTs may only want to receive test results for specific test types, such a
 To accommodate for this, we can manually filter the observation-mapping.csv file to identify and exclude the undesired test types. We can use Microsoft Excel, Numbers, or Google sheets to find the member oids. Example using Excel given below: <br><br>
 Example using Microsoft Excel to filter out COVID-19 Antigen test type: <br>
 1. Open the observation-mapping.csv with Microsoft Excel
-2. Filter the unwanted COVID-19 Antigen test type follow steps/clicks given.<br><br>
+2. Filter the unwanted COVID-19 Antigen test type following the steps below.<br><br>
    ![Filtering steps](https://github.com/CDCgov/prime-reportstream/blob/main/prime-router/docs/design/proposals/0023-condition-to-code-mapping/observation-mapping-selections.PNG)<br><br>
    ![Filtering test type](https://github.com/CDCgov/prime-reportstream/blob/main/prime-router/docs/design/proposals/0023-condition-to-code-mapping/observation-mapping-filter-step2.PNG)<br><br>
    ![Filtering test type check](https://github.com/CDCgov/prime-reportstream/blob/main/prime-router/docs/design/proposals/0023-condition-to-code-mapping/observation-mapping-filter-step3.PNG)<br><br>
