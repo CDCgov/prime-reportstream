@@ -806,7 +806,7 @@ class SubmissionReceiverTests {
             // SubmissionReceiver.doDuplicateDetection(any(), any(), any())
             actionHistory.trackLogs(emptyList())
             engine.insertProcessTask(any(), any(), any(), any())
-            actionHistory.trackEvent(any())
+            actionHistory.trackFhirMessage(any())
         }
     }
 
@@ -890,7 +890,7 @@ class SubmissionReceiverTests {
             engine.insertProcessTask(any(), format.toString(), any(), any())
         }
         verify(exactly = 0) {
-            actionHistory.trackEvent(any())
+            actionHistory.trackFhirMessage(any())
         }
     }
 
@@ -958,7 +958,7 @@ class SubmissionReceiverTests {
             engine.insertProcessTask(any(), any(), any(), any())
         }
         verify(exactly = 0) {
-            actionHistory.trackEvent(any())
+            actionHistory.trackFhirMessage(any())
             SubmissionReceiver.doDuplicateDetection(any(), any(), any())
         }
     }
@@ -1027,7 +1027,7 @@ class SubmissionReceiverTests {
             engine.insertProcessTask(any(), any(), any(), any())
         }
         verify(exactly = 0) {
-            actionHistory.trackEvent(any())
+            actionHistory.trackFhirMessage(any())
             SubmissionReceiver.doDuplicateDetection(any(), any(), any())
         }
     }
@@ -1100,7 +1100,7 @@ class SubmissionReceiverTests {
             engine.recordReceivedReport(any(), any(), any(), any(), any())
             actionHistory.trackLogs(emptyList())
             engine.insertProcessTask(any(), any(), any(), any())
-            actionHistory.trackEvent(any())
+            actionHistory.trackFhirMessage(any())
         }
     }
 
@@ -1166,7 +1166,7 @@ class SubmissionReceiverTests {
             engine.recordReceivedReport(any(), any(), any(), any(), any())
             actionHistory.trackLogs(emptyList())
             engine.insertProcessTask(any(), any(), any(), any())
-            actionHistory.trackEvent(any())
+            actionHistory.trackFhirMessage(any())
         }
     }
 
@@ -1225,7 +1225,7 @@ class SubmissionReceiverTests {
             engine.recordReceivedReport(any(), any(), any(), any(), any())
             actionHistory.trackLogs(emptyList())
             engine.insertProcessTask(any(), any(), any(), any())
-            actionHistory.trackEvent(any())
+            actionHistory.trackFhirMessage(any())
         }
     }
 
@@ -1283,7 +1283,7 @@ class SubmissionReceiverTests {
         verify(exactly = 0) {
             engine.recordReceivedReport(any(), any(), any(), any(), any())
             engine.insertProcessTask(any(), any(), any(), any())
-            actionHistory.trackEvent(any())
+            actionHistory.trackFhirMessage(any())
         }
     }
 
@@ -1339,7 +1339,7 @@ class SubmissionReceiverTests {
         verify(exactly = 0) {
             engine.recordReceivedReport(any(), any(), any(), any(), any())
             engine.insertProcessTask(any(), any(), any(), any())
-            actionHistory.trackEvent(any())
+            actionHistory.trackFhirMessage(any())
         }
     }
 

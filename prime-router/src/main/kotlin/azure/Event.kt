@@ -1,7 +1,6 @@
 package gov.cdc.prime.router.azure
 
 import com.fasterxml.jackson.module.kotlin.readValue
-import gov.cdc.prime.reportstream.shared.QueueMessage
 import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.common.JacksonMapperUtilities
@@ -77,7 +76,6 @@ abstract class Event(val eventAction: EventAction, val at: OffsetDateTime?) {
                 SEND,
                 WIPE,
                 -> this.toString().lowercase()
-                CONVERT -> QueueMessage.elrConvertQueueName
                 else -> null
             }
 

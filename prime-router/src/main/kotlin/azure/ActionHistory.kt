@@ -114,7 +114,10 @@ class ActionHistory(
      */
     val messages = mutableListOf<Event>()
 
-    val fhirMessages = mutableListOf<FhirConvertQueueMessage>()
+    /**
+     * FHIR Messages to be queued in an azure queue as part of the result of this action.
+     */
+    private val fhirMessages = mutableListOf<FhirConvertQueueMessage>()
 
     /**
      *
@@ -143,6 +146,7 @@ class ActionHistory(
         messages.add(event)
     }
 
+    /** Adds a fhir queue message to the fhirMessages property to be added to the queue later */
     fun trackFhirMessage(message: FhirConvertQueueMessage) {
         fhirMessages.add(message)
     }
@@ -780,6 +784,7 @@ class ActionHistory(
     fun queueFhirMessages(workflowEngine: WorkflowEngine) {
         fhirMessages.forEach { message ->
             workflowEngine.queue.sendMessage(message.messageQueueName, message.serialize())
+            logger.debug("FHIR Message queued: $message")
         }
     }
 
