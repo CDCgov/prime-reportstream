@@ -8,6 +8,7 @@ import com.microsoft.azure.functions.HttpStatusType
 import com.networknt.org.apache.commons.validator.routines.InetAddressValidator
 import fhirengine.engine.CustomFhirPathFunctions
 import gov.cdc.prime.reportstream.shared.BlobUtils
+import gov.cdc.prime.reportstream.shared.QueueMessage
 import gov.cdc.prime.router.ActionLog
 import gov.cdc.prime.router.ActionLogLevel
 import gov.cdc.prime.router.ClientSource
@@ -34,7 +35,6 @@ import gov.cdc.prime.router.azure.observability.event.ReportStreamEventName
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventProperties
 import gov.cdc.prime.router.common.AzureHttpUtils.getSenderIP
 import gov.cdc.prime.router.common.JacksonMapperUtilities
-import gov.cdc.prime.router.fhirengine.engine.FhirConvertQueueMessage
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.report.ReportService
@@ -115,9 +115,9 @@ class ActionHistory(
     val messages = mutableListOf<Event>()
 
     /**
-     * FHIR Messages to be queued in an azure queue as part of the result of this action.
+     * FHIR Queue Messages to be queued in an azure queue as part of the result of this action.
      */
-    private val fhirMessages = mutableListOf<FhirConvertQueueMessage>()
+    private val fhirQueueMessages = mutableListOf<QueueMessage>()
 
     /**
      *
@@ -146,9 +146,9 @@ class ActionHistory(
         messages.add(event)
     }
 
-    /** Adds a fhir queue message to the fhirMessages property to be added to the queue later */
-    fun trackFhirMessage(message: FhirConvertQueueMessage) {
-        fhirMessages.add(message)
+    /** Adds a FHIR queue message to the fhirQueueMessages list to be added to the queue later */
+    fun trackFhirMessage(message: QueueMessage) {
+        fhirQueueMessages.add(message)
     }
 
     /**
@@ -781,8 +781,11 @@ class ActionHistory(
         }
     }
 
+    /**
+     *  Sends any FHIR queue messages to the appropriate queue
+     */
     fun queueFhirMessages(workflowEngine: WorkflowEngine) {
-        fhirMessages.forEach { message ->
+        fhirQueueMessages.forEach { message ->
             workflowEngine.queue.sendMessage(message.messageQueueName, message.serialize())
             logger.debug("FHIR Message queued: $message")
         }
