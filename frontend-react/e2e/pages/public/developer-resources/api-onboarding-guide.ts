@@ -5,7 +5,7 @@ export class DeveloperResourcesApiPage extends BasePage {
         super(
             {
                 url: "/developer-resources/api-onboarding-guide",
-                title: "API onboarding guide",
+                title: "ReportStream developer resources | API onboarding guide",
                 heading: testArgs.page.getByRole("heading", {
                     name: "API onboarding guide",
                     exact: true,
