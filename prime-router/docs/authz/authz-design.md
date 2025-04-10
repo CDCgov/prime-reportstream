@@ -218,7 +218,26 @@ The Okta event hook will only attempt a single retry for specific error codes or
 to be missed if for some reason the API to receive the event was not available. For this reason, we would want to have
 a secondary process to initiate an update of an application user's profile (discussed above).
 
-Sample endpoints for a proposed sender setup API:
+#### How to set up event hooks ####
+In the Okta Admin console, go to Workflow > Event Hooks. Select the button to create a new event hook.
+
+Enter the details for the new event hook - endpoint URL, authorization, and events.
+<img src="img/event-hook.png" width="600"/>
+
+Add filters to event hook (only applicable if we intend to have multiple uses for Okta groups)
+<img src="img/event-hook-filters.png" width="600"/>
+
+Check the preview of the API; select an event type and see the body of the POST request.
+
+Perform verification - Okta does a one time verification of each event hook endpoint before the event hook is active.
+
+The event hook is created after the first step, and any of these options can be revisited at any time.
+
+
+### Sample endpoints for a proposed sender setup API: ###
+
+If we intend to set up creating new senders from within the RS frontend, we could have it backed by the following API
+endpoints:
 
 | Method | Path                              | Description                     |
 |--------|-----------------------------------|---------------------------------|

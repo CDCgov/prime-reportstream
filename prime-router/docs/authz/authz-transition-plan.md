@@ -16,12 +16,19 @@ for application users to acquire bearer tokens via Okta. The ability to update a
 built at this time, and hooked in to the Okta event hook API. We should also allow application user profile updates via 
 CLI.
 
+### Build passthrough API for functionapp APIs via auth microservice ###
+Calls to the APIs served via the functionapp (reports/waters) should be able to pass through the auth microservice so it
+is no longer necessary to expose the functionapp to the network. In the process we should evaluate the authorization
+requirements of the APIs so that unauthorized requests are immediately rejected rather than passed through. This will be
+needed particularly for endpoints intended for sender use; authorization for this needs to be handled by the
+microservice. See [deprecated auth documentation](authz-deprecated-implementation.md) for a list of endpoints.
+
 ### Integrate auth and submissions microservices to CI processes ###
 We should begin including the microservices projects in our continuous integration builds, set up the API endpoints in
 the staging and production environments, and make sure the microservices are executed. This will also require setting up
 environment-specific secrets for connecting with Okta and ensuring we have set up permanent application users for the 
 microservices. By the end of this work both staging and production Okta should have their final access applications; the 
-names of the application and the method by which the secrets are passed to the microservices should be documented at \
+names of the application and the method by which the secrets are passed to the microservices should be documented at 
 this point.
 
 ### Update end to end testing and development environments to include auth and submissions ###
@@ -99,7 +106,9 @@ These are miscellaneous dev notes that should be considered during the implement
 
 ## Other Questions ##
 
-Should we maintain old and new auth/report endpoints simultaneously?
+A phased cutover during which both old and new endpoints are available was determined to be the only practical option,
+as a hard cutover would require a level of coordination with external partners that is not feasible. Still, we needed to
+consider what would be required to do this:
 
 * Pros for maintaining separate endpoints:
   * Flexible timeline for transitioning senders; no hard cutoff date, don't have to migrate all at once
@@ -113,6 +122,11 @@ Should we maintain old and new auth/report endpoints simultaneously?
   * Will likely require some level of reonboarding for all users of RS
   * Can both APIs coexist on the same listening port? Would this require the functionapp to act as a passthrough?
 
+
+What is the extent to which handling of receivers needs to change, if at all?
+* Receiver API keys are currently stored in the database
+* REST Transport uses a self-contained own OAuth implementation
+* Complication is mostly in setting up web users and authorization for sender specific API calls
 
 Should support for SMART on FHIR be considered?
 * Further reading: https://www.okta.com/resources/whitepaper/smart-on-fhir-with-okta/
