@@ -36,7 +36,7 @@ const CodeMappingForm = (props: CodeMappingFormProps) => {
                 your data
             </p>
             <p>
-                Follow <a href="/developer-resources/api-onboarding-guide#3_4">these instructions</a> and use{" "}
+                Follow <a href={`${site.developerResources.apiOnboardingGuide.url}#3_4`}>these instructions</a> and use{" "}
                 <a href={site.assets.codeMapTemplate.path}>our template</a> to format your result and organism codes to
                 LOINC or SNOMED. Note: Local codes cannot be automatically mapped.
             </p>
