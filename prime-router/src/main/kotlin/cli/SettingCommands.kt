@@ -1101,6 +1101,7 @@ class GetMultipleSettings :
                         localTransport,
                         it.externalName,
                         it.enrichmentSchemaNames,
+                        it.routingFilters,
                         it.timeZone,
                         it.dateTimeFormat
                     )
