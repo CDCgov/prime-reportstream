@@ -879,7 +879,7 @@ class ActionHistoryTests {
     }
 
     @Test
-    fun `trackActionParams the azure client ip`() {
+    fun `test trackActionParams the azure client ip`() {
         val actionHistory = ActionHistory(TaskAction.receive)
 
         val mockHttpRequestMessage = MockHttpRequestMessage()
@@ -890,7 +890,7 @@ class ActionHistoryTests {
     }
 
     @Test
-    fun `trackActionParams correctly filters headers and query params`() {
+    fun `test trackActionParams correctly filters headers and query params`() {
         val actionHistory = ActionHistory(TaskAction.receive)
 
         val mockHttpRequestMessage = MockHttpRequestMessage(method = HttpMethod.POST)
@@ -916,7 +916,7 @@ class ActionHistoryTests {
     }
 
     @Test
-    fun `queueFhirMessages properly add a fhir messages to be tracked`() {
+    fun `test queueFhirMessages properly add a fhir messages to be tracked`() {
         val actionHistory = ActionHistory(TaskAction.receive)
 
         val queueMessage = FhirConvertQueueMessage(
@@ -933,7 +933,7 @@ class ActionHistoryTests {
     }
 
     @Test
-    fun `queueFhirMessages properly adds mmultiple fhir messages to be tracked`() {
+    fun `test queueFhirMessages properly adds multiple fhir messages to be tracked`() {
         val actionHistory = ActionHistory(TaskAction.receive)
 
         actionHistory.trackFhirMessage(
@@ -962,7 +962,7 @@ class ActionHistoryTests {
     }
 
     @Test
-    fun `queueFhirMessages properly tracks and queues a fhir messages`() {
+    fun `test queueFhirMessages properly tracks and queues a fhir messages`() {
         val metadata = UnitTestUtils.simpleMetadata
         val actionHistory = spyk(ActionHistory(TaskAction.receive))
         val workflowEngine = mockkClass(WorkflowEngine::class)
@@ -997,7 +997,7 @@ class ActionHistoryTests {
     }
 
     @Test
-    fun `queueFhirMessages properly tracks and queues multiple messages`() {
+    fun `test queueFhirMessages properly tracks and queues multiple messages`() {
         val metadata = UnitTestUtils.simpleMetadata
         val actionHistory = spyk(ActionHistory(TaskAction.receive))
         val workflowEngine = mockkClass(WorkflowEngine::class)
