@@ -1,55 +1,44 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { useCallback, useState } from "react";
 import { ConditionCodeData, conditionCodeEndpoints } from "../../../config/endpoints/conditionCode";
 import useSessionContext from "../../../contexts/Session/useSessionContext";
 
 const { mapSenderCode } = conditionCodeEndpoints;
 
-const useCodeMappingFormSubmit = () => {
-    const { activeMembership, authorizedFetch } = useSessionContext();
-    const [requestBody, setRequestBody] = useState<string | null>(null);
+interface CodeMappingVariables {
+    file: string;
+    client: string;
+}
+
+function useCodeMappingFormSubmit() {
+    const { authorizedFetch } = useSessionContext();
     const [client, setClient] = useState("");
 
-    const fetchData = useCallback(async () => {
-        try {
-            const result = await authorizedFetch<ConditionCodeData[]>(
+    const mutationFn = useCallback(
+        async ({ file, client }: CodeMappingVariables) => {
+            return authorizedFetch<ConditionCodeData[]>(
                 {
-                    data: requestBody,
+                    data: file,
                     headers: {
                         "Content-Type": "text/csv",
-                        client: client,
+                        client,
                     },
                 },
                 mapSenderCode,
             );
+        },
+        [authorizedFetch],
+    );
 
-            return result;
-        } catch (err) {
-            // Ensure we're rejecting with an actual Error object
-            if (err instanceof Error) {
-                return Promise.reject(err);
-            } else {
-                return Promise.reject(new Error(String(err)));
-            }
-        }
-    }, [authorizedFetch, client, requestBody]);
-
-    const useQueryResult = useQuery<ConditionCodeData[], Error>({
-        queryKey: [mapSenderCode.queryKey, activeMembership, requestBody],
-        queryFn: fetchData,
-        enabled: Boolean(requestBody),
-        staleTime: 0,
-        gcTime: 0,
+    const mutation = useMutation<ConditionCodeData[], Error, CodeMappingVariables>({
+        mutationFn,
     });
 
-    const { data } = useQueryResult;
-
     return {
-        ...useQueryResult,
-        data: data ?? [],
-        setRequestBody,
+        ...mutation,
+        client,
         setClient,
     };
-};
+}
 
 export default useCodeMappingFormSubmit;
