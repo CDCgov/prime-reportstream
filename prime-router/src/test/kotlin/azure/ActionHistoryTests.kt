@@ -4,12 +4,14 @@ import assertk.assertFailure
 import assertk.assertThat
 import assertk.assertions.containsOnly
 import assertk.assertions.extracting
+import assertk.assertions.hasSize
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
 import assertk.assertions.isTrue
 import com.microsoft.azure.functions.HttpMethod
 import gov.cdc.prime.reportstream.shared.BlobUtils
+import gov.cdc.prime.reportstream.shared.QueueMessage
 import gov.cdc.prime.router.ActionLog
 import gov.cdc.prime.router.ActionLogLevel
 import gov.cdc.prime.router.ClientSource
@@ -31,6 +33,8 @@ import gov.cdc.prime.router.azure.observability.event.AzureEventService
 import gov.cdc.prime.router.azure.observability.event.ReportEventData
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventService
 import gov.cdc.prime.router.common.JacksonMapperUtilities
+import gov.cdc.prime.router.fhirengine.engine.FhirConvertQueueMessage
+import gov.cdc.prime.router.fhirengine.engine.FhirReceiverEnrichmentQueueMessage
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.report.ReportService
 import gov.cdc.prime.router.unittest.UnitTestUtils
@@ -39,6 +43,7 @@ import io.mockk.mockk
 import io.mockk.mockkClass
 import io.mockk.mockkConstructor
 import io.mockk.mockkObject
+import io.mockk.slot
 import io.mockk.spyk
 import io.mockk.unmockkAll
 import io.mockk.verify
@@ -48,6 +53,7 @@ import java.time.OffsetDateTime
 import java.util.UUID
 import kotlin.test.Test
 import kotlin.test.assertContains
+import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
 import kotlin.test.assertNotNull
 
@@ -907,5 +913,136 @@ class ActionHistoryTests {
                 )
             )
         )
+    }
+
+    @Test
+    fun `queueFhirMessages properly add a fhir messages to be tracked`() {
+        val actionHistory = ActionHistory(TaskAction.receive)
+
+        val queueMessage = FhirConvertQueueMessage(
+            UUID.randomUUID(),
+            "",
+            "",
+            "",
+            Topic.FULL_ELR,
+            ""
+        )
+
+        actionHistory.trackFhirMessage(queueMessage)
+        assertEquals(1, actionHistory.fhirQueueMessages.size)
+    }
+
+    @Test
+    fun `queueFhirMessages properly adds mmultiple fhir messages to be tracked`() {
+        val actionHistory = ActionHistory(TaskAction.receive)
+
+        actionHistory.trackFhirMessage(
+            FhirConvertQueueMessage(
+            UUID.randomUUID(),
+            "",
+            "",
+            "",
+            Topic.FULL_ELR,
+            ""
+        )
+        )
+
+        actionHistory.trackFhirMessage(
+            FhirReceiverEnrichmentQueueMessage(
+            UUID.randomUUID(),
+            "",
+            "",
+            "",
+            Topic.FULL_ELR,
+            ""
+        )
+        )
+
+        assertEquals(2, actionHistory.fhirQueueMessages.size)
+    }
+
+    @Test
+    fun `queueFhirMessages properly tracks and queues a fhir messages`() {
+        val metadata = UnitTestUtils.simpleMetadata
+        val actionHistory = spyk(ActionHistory(TaskAction.receive))
+        val workflowEngine = mockkClass(WorkflowEngine::class)
+        val messageQueue = mockk<QueueAccess>()
+
+        every { workflowEngine.metadata } returns metadata
+        every { workflowEngine.queue } returns messageQueue
+
+        val queueNameSlot = slot<String>()
+        val messageSlot = slot<String>()
+
+        every { messageQueue.sendMessage(capture(queueNameSlot), capture(messageSlot), any()) } returns "some-id"
+
+        val queueMessage = FhirConvertQueueMessage(
+            UUID.randomUUID(),
+            "",
+            "",
+            "",
+            Topic.FULL_ELR,
+            ""
+        )
+
+        actionHistory.trackFhirMessage(queueMessage)
+        actionHistory.queueFhirMessages(workflowEngine)
+
+        verify(exactly = 1) {
+            messageQueue.sendMessage(any(), any(), any())
+        }
+
+        assertEquals(queueNameSlot.captured, QueueMessage.elrConvertQueueName)
+        assertEquals(messageSlot.captured, queueMessage.serialize())
+    }
+
+    @Test
+    fun `queueFhirMessages properly tracks and queues multiple messages`() {
+        val metadata = UnitTestUtils.simpleMetadata
+        val actionHistory = spyk(ActionHistory(TaskAction.receive))
+        val workflowEngine = mockkClass(WorkflowEngine::class)
+        val messageQueue = mockk<QueueAccess>()
+
+        every { workflowEngine.metadata } returns metadata
+        every { workflowEngine.queue } returns messageQueue
+
+        val queueNames = mutableListOf<String>()
+        val messages = mutableListOf<String>()
+
+        every { messageQueue.sendMessage(capture(queueNames), capture(messages), any()) } returns "some-id"
+
+        val queueMessage = FhirConvertQueueMessage(
+            UUID.randomUUID(),
+            "",
+            "",
+            "",
+            Topic.FULL_ELR,
+            ""
+        )
+
+        val secondQueueMessage = FhirReceiverEnrichmentQueueMessage(
+            UUID.randomUUID(),
+            "",
+            "",
+            "",
+            Topic.FULL_ELR,
+            ""
+        )
+
+        actionHistory.trackFhirMessage(queueMessage)
+        actionHistory.trackFhirMessage(secondQueueMessage)
+        actionHistory.queueFhirMessages(workflowEngine)
+
+        verify(exactly = 2) {
+            messageQueue.sendMessage(any(), any(), any())
+        }
+
+        assertThat(queueNames).hasSize(2)
+        assertThat(queueNames[0], QueueMessage.elrConvertQueueName)
+        assertEquals(queueNames[1], QueueMessage.elrReceiverEnrichmentQueueName)
+
+        assertThat(messages).hasSize(2)
+        assertThat(messages[0], queueMessage.serialize())
+        assertEquals(messages[1], secondQueueMessage.serialize())
     }
 }

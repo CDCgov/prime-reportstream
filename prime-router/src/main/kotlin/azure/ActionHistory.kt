@@ -117,7 +117,7 @@ class ActionHistory(
     /**
      * FHIR Queue Messages to be queued in an azure queue as part of the result of this action.
      */
-    private val fhirQueueMessages = mutableListOf<QueueMessage>()
+    val fhirQueueMessages = mutableListOf<QueueMessage>()
 
     /**
      *
