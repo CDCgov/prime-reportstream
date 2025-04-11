@@ -11,7 +11,6 @@ data class ObservationSummary(
 ) {
 
     companion object {
-        val EMPTY = ObservationSummary(emptyList())
         fun fromObservation(observation: Observation): ObservationSummary {
             val summaries = mutableListOf<TestSummary>()
             val interpretations = mutableListOf<CodeSummary>()
