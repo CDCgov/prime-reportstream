@@ -8,6 +8,7 @@ import ManagePublicKeyUpload from "./ManagePublicKeyUpload";
 import ManagePublicKeyUploadError from "./ManagePublicKeyUploadError";
 import ManagePublicKeyUploadSuccess from "./ManagePublicKeyUploadSuccess";
 import { ApiKey } from "../../config/endpoints/settings";
+import site from "../../content/site.json";
 import useSessionContext from "../../contexts/Session/useSessionContext";
 import { showToast } from "../../contexts/Toast";
 import useCreateOrganizationPublicKey from "../../hooks/api/organizations/UseCreateOrganizationPublicKey/UseCreateOrganizationPublicKey";
@@ -165,7 +166,9 @@ export function ManagePublicKeyPage() {
                         <Alert type="tip" className="margin-bottom-6">
                             <span className="padding-left-1">
                                 Learn more about{" "}
-                                <USLink href="/developer-resources/api-onboarding-guide#set-up-authentication-and-test-your-api-connection">
+                                <USLink
+                                    href={`${site.developerResources.apiOnboardingGuide.url}#set-up-authentication-and-test-your-api-connection`}
+                                >
                                     generating your public key
                                 </USLink>{" "}
                                 and setting up authentication.

@@ -45,15 +45,15 @@ import site from "../../../site.json";
 
     First, identify what member(s) of your organization will need logins. We recommend starting with the technical team and/or those who will require access to records of your past submissions to ReportStream. You can request additional members be added in the future.
 
-    Once your team members are identified, [contact our team](https://app.smartsheetgov.com/b/form/95d2f16b772c42d8aaa0ef5db28a6838) and provide their names and emails. We will set up logins accordingly. After your request is submitted, proceed to step 2.
+    Once your team members are identified, <A href={site.forms.contactUs.url}>contact our team</A> and provide their names and emails. We will set up logins accordingly. After your request is submitted, proceed to step 2.
 
     <h2 id="format-and-validate-a-fake-data-file" className="rs-numbered">Format and validate a fake data file</h2>
 
     Currently, ReportStream can accept either HL7 or FHIR data. We can provide a sample HL7 file with fake data to review <A href={site.forms.contactUs.url}>upon request</A>.
 
     <Alert type="tip">For this step, you can refer to formatting requirements for 
-    [HL7v2.5.1 ORU-R01](https://www.hl7.org/implement/standards/product_brief.cfm?product_id=185) or 
-    [RADxMARS](https://www.nibib.nih.gov/covid-19/radx-tech-program/mars/hl7v2-getting-started) for OTC (over the counter) test data.</Alert>
+    <A href={site.external.hl7.url}>HL7v2.5.1 ORU-R01</A> or 
+    <A href={site.external.radxmars.url}>RADxMARS</A> for OTC (over the counter) test data.</Alert>
 
     When you've formatted your fake (non-PII) data file, test your data model using the
     <A href={site.external.nistValidationSuite.url}>NIST Electronic Lab Reporting (ELR) Validation Suite</A>. 
@@ -146,11 +146,11 @@ import site from "../../../site.json";
 
     Let us know when you send submissions to the staging environment. We'll review that data and work with you to correct any issues. You may send as many fake data submissions to staging as is helpful.
 
-    For troubleshooting on your own, here is the complete endpoint input and response [OpenAPI specification](https://github.com/CDCgov/prime-reportstream/blob/master/prime-router/docs/api).
+    For troubleshooting on your own, here is the complete endpoint input and response <A href={site.external.github.reportstream.url}>OpenAPI specification</A>.
 
     <h2 id="test-fake-data-in-staging" className="rs-numbered">Test fake data in staging</h2>
 
-    The ReportStream team will onboard you to the production system in training mode (staging). In staging, you will test your connection with ReportStream and send fake data. Utilize ReportStream's [History API](https://github.com/CDCgov/prime-reportstream/blob/main/prime-router/docs/universal-pipeline/submission-history.md) to obtain the status of your submission and any errors or warnings associated with it.
+    The ReportStream team will onboard you to the production system in training mode (staging). In staging, you will test your connection with ReportStream and send fake data. Utilize ReportStream's <A href={site.external.github.historyApi.url}>History API</A> to obtain the status of your submission and any errors or warnings associated with it.
 
     <h2 id="start-sending-data-in-production" className="rs-numbered">Start sending data in production</h2>
 
