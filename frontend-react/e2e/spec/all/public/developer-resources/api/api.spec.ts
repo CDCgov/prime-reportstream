@@ -1,5 +1,5 @@
 import { developerResourcesApiSideNav } from "../../../../../helpers/internal-links";
-import { DeveloperResourcesApiPage } from "../../../../../pages/public/developer-resources/api/api";
+import { DeveloperResourcesApiPage } from "../../../../../pages/public/developer-resources/api-onboarding-guide";
 import { test as baseTest } from "../../../../../test.js";
 
 export interface Fixtures {
