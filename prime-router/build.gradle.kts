@@ -42,7 +42,7 @@ plugins {
     id("com.microsoft.azure.azurefunctions") version "1.16.1"
     id("com.adarshr.test-logger") version "4.0.0"
     id("jacoco")
-    id("org.jetbrains.dokka") version "1.8.20"
+    id("org.jetbrains.dokka") version "2.0.0"
     id("com.avast.gradle.docker-compose") version "0.17.10"
     id("org.jetbrains.kotlin.plugin.serialization") version "$kotlinVersion"
     id("com.nocwriter.runsql") version ("1.0.3")
@@ -840,7 +840,7 @@ buildscript {
     dependencies {
         // Now force the gradle build script to get the proper library for com.nimbusds:oauth2-oidc-sdk:9.15.  This
         // will need to be removed once this issue is resolved in Maven.
-        classpath("net.minidev:json-smart:2.5.1")
+        classpath("net.minidev:json-smart:2.5.2")
         // as per flyway v10 docs the postgres flyway module must be on the project buildpath
         classpath("org.flywaydb:flyway-database-postgresql:10.21.0")
     }
@@ -862,8 +862,8 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0")
     implementation("com.microsoft.azure.functions:azure-functions-java-library:3.1.0")
-    implementation("com.azure:azure-core:1.52.0")
-    implementation("com.azure:azure-core-http-netty:1.15.4")
+    implementation("com.azure:azure-core:1.55.3")
+    implementation("com.azure:azure-core-http-netty:1.15.11")
     implementation("com.azure:azure-storage-blob:12.27.0") {
         exclude(group = "com.azure", module = "azure-core")
     }
