@@ -29,7 +29,7 @@ dependencies {
     testImplementation("org.mockito.kotlin:mockito-kotlin:5.4.0")
     testImplementation("org.apache.commons:commons-compress:1.27.1")
     testImplementation("org.springframework.security:spring-security-test")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.9.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.10.2")
 }
 
 // There is a conflict in logging implementations. Excluded these in favor of using log4j-slf4j2-impl
