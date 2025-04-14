@@ -223,3 +223,8 @@ export const prettifyJSON = (str: string) => {
     }
     return prettyStr;
 };
+
+export const removeFileExtension = (filename: string) => {
+    // Replace the last dot and everything following it, if present, with ""
+    return filename.replace(/\.[^/.]+$/, "");
+};

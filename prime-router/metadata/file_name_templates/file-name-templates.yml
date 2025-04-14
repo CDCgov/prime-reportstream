@@ -127,3 +127,10 @@
 - name: uuid
   elements:
     - uuid()
+
+
+- name: nm-filename
+  lowerCase: true
+  elements:
+    - cdcprime_ELR_TEST_
+    - createdDate(MMddyyyy-HHmmss)

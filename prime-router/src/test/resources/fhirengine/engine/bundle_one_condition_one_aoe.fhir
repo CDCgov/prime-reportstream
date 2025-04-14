@@ -55,9 +55,6 @@
             "endpoint": "CDPH_CID"
           }
         ],
-        "sender": {
-          "reference": "Organization/1667861767851428000.4998bfc4-e2a0-4174-ab9a-ec1889429a64"
-        },
         "source": {
           "extension": [
             {

@@ -56,7 +56,10 @@ runs:
         echo "$SECRET" | base64 -d > secret.txt
 
         echo -e "sudo openvpn --config ${{ inputs.FILE_OVPN }} --daemon" ;
-        sudo openvpn --config ${{ inputs.FILE_OVPN }} --daemon
+        sudo openvpn --config ${{ inputs.FILE_OVPN }} \
+        --daemon \
+        --verb 6 \
+        --log /tmp/openvpn-debug.log
 
     - name: VPN Status
       id: vpn_status
@@ -65,6 +68,7 @@ runs:
       shell: bash
       run: |
         sleep 10
+        ip addr show tun0
         if ping -c 2 $PING_URL > /dev/null 2>&1; then
 
           # echo -e "\nPinging URL: ${{ inputs.PING_URL }}" ;

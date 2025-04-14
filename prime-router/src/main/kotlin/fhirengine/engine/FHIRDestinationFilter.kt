@@ -118,7 +118,7 @@ class FHIRDestinationFilter(
             val receivers = findTopicReceivers(queueMessage.topic).filter { receiver ->
                 receiver.jurisdictionalFilter.all { filter ->
                     FhirPathUtils.evaluateCondition(
-                        CustomContext(bundle, bundle, shorthandLookupTable, CustomFhirPathFunctions()),
+                        CustomContext(bundle, bundle, mutableMapOf(), CustomFhirPathFunctions()),
                         bundle,
                         bundle,
                         bundle,

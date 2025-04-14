@@ -2,7 +2,7 @@
 
 ## Overview
 
-> These pages are a work in progress, please see the [old pages](../docs-deprecated/getting-started/) if something is
+> These pages are a work in progress, please see the [old pages](../docs-deprecated/getting-started/getting-started.md) if something is
 > missing
 
 ## Table of contents
@@ -222,7 +222,7 @@ app__.
 - [About the azure environment](./azure.md)
 - [Working with Docker](./docker.md)
 - [Common database commands](./postgres-database.md)
-- [PrimeCLI](./prime-cli.md)
+- [PrimeCLI](../prime-cli/README.md)
 - [FHIR Functions](./fhir-functions.md)
 - [Gradle](./gradle.md)
 - [Metabase](./metabase.md)
