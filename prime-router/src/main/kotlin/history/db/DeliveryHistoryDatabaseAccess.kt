@@ -31,6 +31,7 @@ import java.time.OffsetDateTime
 import java.util.UUID
 
 private const val EXPIRATION_DAYS_OFFSET = 30L
+
 data class DeliveryHistory(
     val deliveryId: String?,
     val createdAt: OffsetDateTime,
@@ -79,14 +80,13 @@ class DeliveryHistoryTable : CustomTable<DeliveryHistoryRecord>(DSL.name("delive
     val BODY_URL = createField(DSL.name("body_url"), SQLDataType.VARCHAR)
     val SCHEMA_NAME = createField(DSL.name("schema_name"), SQLDataType.VARCHAR)
     val FILE_TYPE = createField(DSL.name("file_type"), SQLDataType.VARCHAR)
+    val FILE_NAME = createField(DSL.name("file_name"), SQLDataType.VARCHAR)
 
     companion object {
         val DELIVERY_HISTORY = DeliveryHistoryTable()
     }
 
-    override fun getRecordType(): Class<out DeliveryHistoryRecord> {
-        return DeliveryHistoryRecord::class.java
-    }
+    override fun getRecordType(): Class<out DeliveryHistoryRecord> = DeliveryHistoryRecord::class.java
 }
 
 class DeliveryHistoryRecord : CustomRecord<DeliveryHistoryRecord>(DeliveryHistoryTable.DELIVERY_HISTORY)
@@ -101,8 +101,7 @@ sealed class DeliveryHistoryApiSearchFilter<T> : ApiFilter<DeliveryHistoryRecord
      * Filters results to those where the created_at is greater than or equal to the passed in date
      * @param value the date that results will be greater than or equal to
      */
-    class Since(override val value: OffsetDateTime) :
-        DeliveryHistoryApiSearchFilter<OffsetDateTime>() {
+    class Since(override val value: OffsetDateTime) : DeliveryHistoryApiSearchFilter<OffsetDateTime>() {
         override val tableField: TableField<DeliveryHistoryRecord, OffsetDateTime> =
             DeliveryHistoryTable.DELIVERY_HISTORY.CREATED_AT
     }
@@ -111,8 +110,7 @@ sealed class DeliveryHistoryApiSearchFilter<T> : ApiFilter<DeliveryHistoryRecord
      * Filters results to those where the created_at is less than or equal to the passed in date
      * @param value the date that results will be less than or equal to
      */
-    class Until(override val value: OffsetDateTime) :
-        DeliveryHistoryApiSearchFilter<OffsetDateTime>() {
+    class Until(override val value: OffsetDateTime) : DeliveryHistoryApiSearchFilter<OffsetDateTime>() {
         override val tableField: TableField<DeliveryHistoryRecord, OffsetDateTime> =
             DeliveryHistoryTable.DELIVERY_HISTORY.CREATED_AT
     }
@@ -137,20 +135,14 @@ class DeliveryHistoryApiSearch(
     page,
     limit
 ) {
-    override fun getCondition(filter: DeliveryHistoryApiSearchFilter<*>): Condition {
-        return when (filter) {
-            is DeliveryHistoryApiSearchFilter.Since -> filter.tableField.ge(filter.value)
-            is DeliveryHistoryApiSearchFilter.Until -> filter.tableField.le(filter.value)
-        }
+    override fun getCondition(filter: DeliveryHistoryApiSearchFilter<*>): Condition = when (filter) {
+        is DeliveryHistoryApiSearchFilter.Since -> filter.tableField.ge(filter.value)
+        is DeliveryHistoryApiSearchFilter.Until -> filter.tableField.le(filter.value)
     }
 
-    override fun getSortColumn(): Field<*> {
-        return sortParameter ?: DeliveryHistoryTable.DELIVERY_HISTORY.CREATED_AT
-    }
+    override fun getSortColumn(): Field<*> = sortParameter ?: DeliveryHistoryTable.DELIVERY_HISTORY.CREATED_AT
 
-    override fun getPrimarySortColumn(): Field<*> {
-        return DeliveryHistoryTable.DELIVERY_HISTORY.REPORT_ID
-    }
+    override fun getPrimarySortColumn(): Field<*> = DeliveryHistoryTable.DELIVERY_HISTORY.REPORT_ID
 
     companion object :
         ApiSearchParser<
@@ -169,7 +161,7 @@ class DeliveryHistoryApiSearch(
             val filters = rawApiSearch.filters.mapNotNull { filter ->
                 when (
                     DeliveryHistoryApiSearchFilters.getTerm(
-                    DeliveryHistoryApiFilterNames.valueOf(filter.filterName)
+                        DeliveryHistoryApiFilterNames.valueOf(filter.filterName)
                     )
                 ) {
                     DeliveryHistoryApiSearchFilter.Since::class.java,
@@ -200,7 +192,7 @@ class DeliveryHistoryDatabaseAccess(
     internal val workflowEngine: WorkflowEngine,
 ) : Logging {
 
-   private val databaseDeliveryAccess: DatabaseDeliveryAccess = DatabaseDeliveryAccess()
+    private val databaseDeliveryAccess: DatabaseDeliveryAccess = DatabaseDeliveryAccess()
 
     fun getDeliveries(
         search: DeliveryHistoryApiSearch,
@@ -222,30 +214,31 @@ class DeliveryHistoryDatabaseAccess(
         }
 
         val whereClause = this.createWhereCondition(
-                organization, orgService, receivingOrgSvcStatus, reportId, fileName
-            )
+            organization, orgService, receivingOrgSvcStatus, reportId, fileName
+        )
 
         val deliveriesExpression = DSL.select(
-                Tables.REPORT_FILE.ACTION_ID.`as`(DeliveryHistoryTable.DELIVERY_HISTORY.DELIVERY_ID),
-                Tables.REPORT_FILE.CREATED_AT,
-                // Currently an open issue for doing this via the DSL
-                // https://github.com/jOOQ/jOOQ/issues/6723
-                DSL.field(
-                    "\"public\".\"report_file\".\"created_at\" + INTERVAL '$EXPIRATION_DAYS_OFFSET days'",
-                    SQLDataType.OFFSETDATETIME
-                )
-                .`as`(DeliveryHistoryTable.DELIVERY_HISTORY.EXPIRES_AT),
-                Tables.REPORT_FILE.RECEIVING_ORG,
-                Tables.REPORT_FILE.RECEIVING_ORG_SVC,
-                DSL.jsonbGetAttributeAsText(Tables.SETTING.VALUES, "customerStatus")
-                .`as`(DeliveryHistoryTable.DELIVERY_HISTORY.RECEIVING_ORG_SVC_STATUS),
-                Tables.REPORT_FILE.REPORT_ID,
-                Tables.REPORT_FILE.SCHEMA_TOPIC.`as`(DeliveryHistoryTable.DELIVERY_HISTORY.TOPIC),
-                Tables.REPORT_FILE.ITEM_COUNT.`as`(DeliveryHistoryTable.DELIVERY_HISTORY.REPORT_ITEM_COUNT),
-                Tables.REPORT_FILE.BODY_URL,
-                Tables.REPORT_FILE.SCHEMA_NAME,
-                Tables.REPORT_FILE.BODY_FORMAT.`as`(DeliveryHistoryTable.DELIVERY_HISTORY.FILE_TYPE)
+            Tables.REPORT_FILE.ACTION_ID.`as`(DeliveryHistoryTable.DELIVERY_HISTORY.DELIVERY_ID),
+            Tables.REPORT_FILE.CREATED_AT,
+            // Currently an open issue for doing this via the DSL
+            // https://github.com/jOOQ/jOOQ/issues/6723
+            DSL.field(
+                "\"public\".\"report_file\".\"created_at\" + INTERVAL '$EXPIRATION_DAYS_OFFSET days'",
+                SQLDataType.OFFSETDATETIME
             )
+                .`as`(DeliveryHistoryTable.DELIVERY_HISTORY.EXPIRES_AT),
+            Tables.REPORT_FILE.RECEIVING_ORG,
+            Tables.REPORT_FILE.RECEIVING_ORG_SVC,
+            DSL.jsonbGetAttributeAsText(Tables.SETTING.VALUES, "customerStatus")
+                .`as`(DeliveryHistoryTable.DELIVERY_HISTORY.RECEIVING_ORG_SVC_STATUS),
+            Tables.REPORT_FILE.REPORT_ID,
+            Tables.REPORT_FILE.SCHEMA_TOPIC.`as`(DeliveryHistoryTable.DELIVERY_HISTORY.TOPIC),
+            Tables.REPORT_FILE.ITEM_COUNT.`as`(DeliveryHistoryTable.DELIVERY_HISTORY.REPORT_ITEM_COUNT),
+            Tables.REPORT_FILE.BODY_URL,
+            Tables.REPORT_FILE.SCHEMA_NAME,
+            Tables.REPORT_FILE.BODY_FORMAT.`as`(DeliveryHistoryTable.DELIVERY_HISTORY.FILE_TYPE),
+            Tables.REPORT_FILE.EXTERNAL_NAME.`as`(DeliveryHistoryTable.DELIVERY_HISTORY.FILE_NAME)
+        )
             .from(
                 Tables.REPORT_FILE
                     .join(Tables.SETTING)
@@ -277,7 +270,7 @@ class DeliveryHistoryDatabaseAccess(
                     null
                 }
                 val report = reportFiles.find { it.reportId == UUID.fromString(history.reportId) }
-                if (report != null) {
+                if (history.fileName.isNullOrBlank() && report != null) {
                     history.copy(
                         fileName = Report.formExternalFilename(
                             report.reportId,
@@ -315,7 +308,7 @@ class DeliveryHistoryDatabaseAccess(
         reportId: UUID?,
         fileName: String?,
     ): Condition {
-        var filter = databaseDeliveryAccess.organizationFilter(organization, orgService)
+        var filter = databaseDeliveryAccess.deliveredReportsByOrgFilter(organization, orgService)
 
         if (receivingOrgSvcStatus != null) {
             val statusList = receivingOrgSvcStatus.map { it.name.lowercase() }

@@ -31,15 +31,13 @@ class GAENTransportIntegrationTests : TransportIntegrationTests() {
         url: String,
         status: HttpStatusCode,
         body: String,
-    ): GAENTransport {
-        return GAENTransport(
+    ): GAENTransport = GAENTransport(
             ApiMockEngineForIntegrationTests(
                 url,
                 status,
                 body
             ).client()
         )
-    }
 
     private val metadata = Metadata.getInstance()
     private val settings = FileSettings(FileSettings.defaultSettingsDirectory)
@@ -75,6 +73,7 @@ class GAENTransportIntegrationTests : TransportIntegrationTests() {
         1,
         "",
         "",
+        null,
         null,
         null,
         null,

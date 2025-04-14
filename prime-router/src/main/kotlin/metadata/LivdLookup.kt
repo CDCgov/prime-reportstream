@@ -136,9 +136,7 @@ object LivdLookup {
         tableColumn: String,
         value: String,
         filters: LookupTable.FilterBuilder,
-    ): String? {
-        return lookup(tableColumn, value, LivdTableColumns.EQUIPMENT_UID.colName, filters)
-    }
+    ): String? = lookup(tableColumn, value, LivdTableColumns.EQUIPMENT_UID.colName, filters)
 
     /**
      * Does a lookup in the LIVD table based on the test kit Id
@@ -190,9 +188,7 @@ object LivdLookup {
         lookup: String,
         onColumn: String,
         filters: LookupTable.FilterBuilder,
-    ): String? {
-        return filters.equalsIgnoreCase(onColumn, lookup).findSingleResult(lookupColumn)
-    }
+    ): String? = filters.equalsIgnoreCase(onColumn, lookup).findSingleResult(lookupColumn)
 
     /**
      * Does the lookup in the LIVD table based on the lookup type and the values passed in,
@@ -208,7 +204,5 @@ object LivdLookup {
         lookup: String,
         onColumn: String,
         filters: LookupTable.FilterBuilder,
-    ): String? {
-        return filters.startsWithIgnoreCase(onColumn, lookup).findSingleResult(lookupColumn)
-    }
+    ): String? = filters.startsWithIgnoreCase(onColumn, lookup).findSingleResult(lookupColumn)
 }

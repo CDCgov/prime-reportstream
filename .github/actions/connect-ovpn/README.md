@@ -41,7 +41,7 @@ example.
 
 ```yml
   connect-open-vpn:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
       - name: Install Open VPN

@@ -8,7 +8,7 @@ on:
 jobs:
   alert_stale_branches:
     name: Alert on Stale branches
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     steps:
       - name: Check Out Changes
         uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938
@@ -30,6 +30,6 @@ jobs:
             Merged ${{ steps.counts.outputs.MERGE_COUNT }}
             Not Merged ${{ steps.counts.outputs.NOT_MERGE_COUNT }}
           icon-emoji: ':bell:'
-          channel: temp_branch_dump
-          webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
+          channel: cdc-reportstream-bot-notifications
+          webhook-url: ${{ secrets.SLACK_WEBHOOK_URL_NAVA_BOT_NOTIFICATIONS_CHANNEL }}
           color: warning

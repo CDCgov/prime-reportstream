@@ -1,11 +1,9 @@
 package gov.cdc.prime.router.secrets
 
 // Option to access credential service by static class
-class SecretHelper() {
+class SecretHelper {
     companion object {
-        fun getSecretService(): SecretService {
-            return secretServiceForStorageMethod()
-        }
+        fun getSecretService(): SecretService = secretServiceForStorageMethod()
     }
 }
 
@@ -16,9 +14,7 @@ interface SecretManagement {
         get() = secretServiceForStorageMethod()
 }
 
-internal fun secretServiceForStorageMethod(): SecretService {
-    return when (System.getenv("SECRET_STORAGE_METHOD")) {
+internal fun secretServiceForStorageMethod(): SecretService = when (System.getenv("SECRET_STORAGE_METHOD")) {
         "AZURE" -> AzureSecretService
         else -> EnvVarSecretService
     }
-}

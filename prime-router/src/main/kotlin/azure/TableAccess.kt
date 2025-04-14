@@ -34,11 +34,9 @@ class TableAccess : Logging {
 
     private var tableServiceClient: TableServiceClient = buildClient()
 
-    private fun buildClient(): TableServiceClient {
-        return TableServiceClientBuilder()
+    private fun buildClient(): TableServiceClient = TableServiceClientBuilder()
             .connectionString(getConnectionString())
             .buildClient()
-    }
 
     fun reset() {
         tableServiceClient = buildClient()

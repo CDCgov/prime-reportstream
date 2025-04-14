@@ -50,9 +50,7 @@ class SubmitterTable : CustomTable<SubmitterRecord>(DSL.name("submitter")) {
         val SUBMITTER = SubmitterTable()
     }
 
-    override fun getRecordType(): Class<out SubmitterRecord> {
-        return SubmitterRecord::class.java
-    }
+    override fun getRecordType(): Class<out SubmitterRecord> = SubmitterRecord::class.java
 }
 
 /**
@@ -85,8 +83,7 @@ sealed class SubmitterApiSearchFilter<T> : ApiFilter<SubmitterRecord, T> {
      * Filters results to those where the created_at is greater than or equal to the passed in date
      * @param value the date that results will be greater than or equal to
      */
-    class Since(override val value: LocalDateTime) :
-        SubmitterApiSearchFilter<LocalDateTime>() {
+    class Since(override val value: LocalDateTime) : SubmitterApiSearchFilter<LocalDateTime>() {
         override val tableField: TableField<SubmitterRecord, LocalDateTime> = SubmitterTable.SUBMITTER.FIRST_REPORT_DATE
     }
 
@@ -124,20 +121,14 @@ class SubmitterApiSearch(
     page,
     limit
 ) {
-    override fun getCondition(filter: SubmitterApiSearchFilter<*>): Condition {
-        return when (filter) {
+    override fun getCondition(filter: SubmitterApiSearchFilter<*>): Condition = when (filter) {
             is SubmitterApiSearchFilter.Since -> filter.tableField.ge(filter.value)
             is SubmitterApiSearchFilter.Until -> filter.tableField.le(filter.value)
         }
-    }
 
-    override fun getSortColumn(): Field<*> {
-        return sortParameter ?: SubmitterTable.SUBMITTER.FIRST_REPORT_DATE
-    }
+    override fun getSortColumn(): Field<*> = sortParameter ?: SubmitterTable.SUBMITTER.FIRST_REPORT_DATE
 
-    override fun getPrimarySortColumn(): Field<*> {
-        return SubmitterTable.SUBMITTER.SORT_ID
-    }
+    override fun getPrimarySortColumn(): Field<*> = SubmitterTable.SUBMITTER.SORT_ID
 
     companion object :
         ApiSearchParser<Submitter, SubmitterApiSearch, SubmitterRecord, SubmitterApiSearchFilter<*>>(), Logging {

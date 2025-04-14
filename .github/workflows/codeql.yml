@@ -22,14 +22,12 @@ on:
       - "frontend-react/**"
       - "prime-router/src/scripts/**"
       - "/operations/app/functions/admin/**"
-  schedule:
-    - cron: '20 4 * * 1'
 
 jobs:
   analyze:
     name: Analyze
     if: github.actor != 'dependabot[bot]'
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     permissions:
       actions: read
       contents: read
