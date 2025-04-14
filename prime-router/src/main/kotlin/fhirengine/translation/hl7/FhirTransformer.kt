@@ -62,15 +62,10 @@ class FhirTransformer(
         return input
     }
 
-    class BundleWithMessages(
-        var bundle: Bundle,
-        val warnings: MutableList<String>,
-        val errors: MutableList<String>,
-    )
+    class BundleWithMessages(var bundle: Bundle, val warnings: MutableList<String>, val errors: MutableList<String>)
 
-    override fun checkForEquality(converted: Bundle, expectedOutput: Bundle): Boolean {
-        return converted.equalsDeep(expectedOutput)
-    }
+    override fun checkForEquality(converted: Bundle, expectedOutput: Bundle): Boolean =
+        converted.equalsDeep(expectedOutput)
 
     /**
      * Transform the [bundle] using the elements in the given [schema] using [context] starting at the
@@ -259,13 +254,9 @@ class FhirTransformer(
         val extensionUrl: String?,
         val index: Int?,
     ) {
-        fun isExtension(): Boolean {
-            return propertyString == "extension"
-        }
+        fun isExtension(): Boolean = propertyString == "extension"
 
-        fun isValue(): Boolean {
-            return propertyString == "value"
-        }
+        fun isValue(): Boolean = propertyString == "value"
     }
 
     /**

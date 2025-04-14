@@ -1,19 +1,21 @@
 import { Button, Textarea } from "@trussworks/react-uswds";
-import { ChangeEvent, Dispatch, SetStateAction, useState } from "react";
-import { RSMessage } from "../../../config/endpoints/settings";
+import { ChangeEvent, useState } from "react";
+import { RSMessage } from "../../../config/endpoints/reports";
 
-export const CustomMessage = ({
+export const MessageTestingCustomMessage = ({
     customMessageNumber,
     currentTestMessages,
     setCustomMessageNumber,
     setCurrentTestMessages,
     setOpenCustomMessage,
+    setSelectedOption,
 }: {
     customMessageNumber: number;
     currentTestMessages: { fileName: string; reportBody: string }[];
     setCustomMessageNumber: (value: number) => void;
-    setCurrentTestMessages: Dispatch<SetStateAction<RSMessage[] | null>>;
+    setCurrentTestMessages: (messages: RSMessage[]) => void;
     setOpenCustomMessage: (value: boolean) => void;
+    setSelectedOption: (message: RSMessage) => void;
 }) => {
     const [text, setText] = useState("");
     const handleTextareaChange = (event: ChangeEvent<HTMLTextAreaElement>) => {
@@ -21,16 +23,15 @@ export const CustomMessage = ({
     };
     const handleAddCustomMessage = () => {
         const dateCreated = new Date();
-        setCurrentTestMessages([
-            ...currentTestMessages,
-            {
-                dateCreated: dateCreated.toString(),
-                fileName: `Custom message ${customMessageNumber}`,
-                reportBody: text,
-            },
-        ]);
+        const customTestMessage = {
+            dateCreated: dateCreated.toString(),
+            fileName: `Custom message ${customMessageNumber}`,
+            reportBody: text,
+        };
+        setCurrentTestMessages([...currentTestMessages, customTestMessage]);
         setCustomMessageNumber(customMessageNumber + 1);
         setText("");
+        setSelectedOption(customTestMessage);
         setOpenCustomMessage(false);
     };
 
@@ -43,6 +44,7 @@ export const CustomMessage = ({
                 onChange={handleTextareaChange}
                 id="custom-message-text"
                 name="custom-message-text"
+                aria-label="Custom message text"
                 className="width-full maxw-full margin-bottom-205"
             />
             <div className="width-full text-right">

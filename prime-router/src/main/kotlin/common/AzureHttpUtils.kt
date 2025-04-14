@@ -16,14 +16,12 @@ object AzureHttpUtils {
      * @param request The HTTP request message from which to extract the sender's IP address.
      * @return The sender's IP address as a [String], or `null` if not found.
      */
-    fun getSenderIP(request: HttpRequestMessage<*>): String? {
-        return (
+    fun getSenderIP(request: HttpRequestMessage<*>): String? = (
             (
                 request.headers["x-forwarded-for"]?.split(",")
                     ?.firstOrNull()
                 )?.take(Tables.ACTION.SENDER_IP.dataType.length()) ?: request.headers["x-azure-clientip"]
             )
-    }
 
     /**
      * Retrieves the sender's IP address from a map of HTTP headers.
@@ -31,12 +29,10 @@ object AzureHttpUtils {
      * @param headers A map of HTTP headers from which to extract the sender's IP address.
      * @return The sender's IP address as a [String], or `null` if not found.
      */
-    fun getSenderIP(headers: Map<String, String>): String? {
-        return (
+    fun getSenderIP(headers: Map<String, String>): String? = (
             (
                 headers["x-forwarded-for"]?.split(",")
                     ?.firstOrNull()
                 )?.take(Tables.ACTION.SENDER_IP.dataType.length()) ?: headers["x-azure-clientip"]
             )
-    }
 }
