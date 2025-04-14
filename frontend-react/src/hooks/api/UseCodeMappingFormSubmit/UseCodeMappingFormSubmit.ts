@@ -1,43 +1,44 @@
 import { useMutation } from "@tanstack/react-query";
+import { useCallback, useState } from "react";
+import { ConditionCodeData, conditionCodeEndpoints } from "../../../config/endpoints/conditionCode";
+import useSessionContext from "../../../contexts/Session/useSessionContext";
 
-export interface CodeMapData {
-    "test code": string;
-    "test description": string;
-    "coding system": string;
-    mapped: string;
+const { mapSenderCode } = conditionCodeEndpoints;
+
+interface CodeMappingVariables {
+    file: string;
+    client: string;
 }
 
-export const sampArr = [
-    {
-        "test code": "97097-0",
-        "test description": "SARS-CoV-2 (COVID-19) Ag [Presence] in Upper respiratory specimen by Rapid  immunoassay",
-        "coding system": "LOINC",
-        mapped: "Y",
-    },
-    {
-        "test code": "80382-5",
-        "test description": "Influenza virus A Ag [Presence] in Upper respiratory specimen by Rapid immunoassay",
-        "coding system": "LOINC",
-        mapped: "Y",
-    },
-    {
-        "test code": "12345",
-        "test description": "Flu B",
-        "coding system": "LOCAL",
-        mapped: "N",
-    },
-];
+function useCodeMappingFormSubmit() {
+    const { authorizedFetch } = useSessionContext();
+    const [client, setClient] = useState("");
 
-const useCodeMappingFormSubmit = () => {
-    const fn = async () => {
-        // Simulate network request
-        await new Promise((resolve) => setTimeout(resolve, 2500));
+    const mutationFn = useCallback(
+        async ({ file, client }: CodeMappingVariables) => {
+            return authorizedFetch<ConditionCodeData[]>(
+                {
+                    data: file,
+                    headers: {
+                        "Content-Type": "text/csv",
+                        client,
+                    },
+                },
+                mapSenderCode,
+            );
+        },
+        [authorizedFetch],
+    );
 
-        // Return sample JSON
-        return sampArr;
+    const mutation = useMutation<ConditionCodeData[], Error, CodeMappingVariables>({
+        mutationFn,
+    });
+
+    return {
+        ...mutation,
+        client,
+        setClient,
     };
-
-    return useMutation({ mutationFn: fn });
-};
+}
 
 export default useCodeMappingFormSubmit;
