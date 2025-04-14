@@ -69,7 +69,7 @@ used as the schema name in the next step.
         receivingFacilityOID:
 ```
 * In the above example, the jurisdictional filter uses FHIR path to check if the patient or Test performer 
-are in the state of LT. `Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state` and `Bundle.entry.resource.ofType(Patient).address.state` are shorthand FHIR paths defined in `metadata/tables/local/fhirpath_filter_shorthand.csv`
+are in the state of LT.
 * Filters can be applied to the organization or receiver. For more information on filters see: 
 (https://github.com/CDCgov/prime-reportstream/blob/main/prime-router/docs/universal-pipeline/route.md)
 * In addition, there is the translation section, which specifies the output format that will be sent to the receiver. 

@@ -1,0 +1,84 @@
+extends: classpath:/metadata/fhir_transforms/senders/original-pipeline-transforms.yml
+
+elements:
+  - name: sender-identifier
+    resource: 'Bundle.entry.resource.ofType(MessageHeader)'
+    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/sender-id").value[x]'
+    value: [ '"cvs-health"' ]
+
+  - name: cvs-suppress-observations-without-code
+    resource: 'Bundle.entry.resource.ofType(Observation).where(code.coding.exists().not())'
+    condition: '%resource.exists()'
+    bundleProperty: '%resource.value[x]'
+    value: [ '""' ]
+    action: DELETE
+
+  - name: cvs-suppress-observations-without-code-extension
+    resource: 'Bundle.entry.resource.ofType(Observation).where(code.coding.where(extension("https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code").exists().not()))'
+    condition: '%resource.exists()'
+    bundleProperty: '%resource.value[x]'
+    value: [ '""' ]
+    action: DELETE
+
+  - name: cvs-obx-2-cwe
+    resource: 'Bundle.entry.resource.ofType(Observation)'
+    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/obx-observation").extension("OBX.2").value[x]'
+    value: [ '"CWE"' ]
+
+  - name: cvs-temp-extension-to-store-codeable-concept
+    resource: 'Bundle.entry.resource.ofType(Observation)'
+    value: [ '%resource.value' ]
+    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/obx-5-temp").valueCodeableConcept.coding.display'
+
+  - name: cvs-set-obx-5-to-temp-extension-value
+    resource: 'Bundle.entry.resource.ofType(Observation)'
+    condition: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/obx-5-temp").exists()'
+    bundleProperty: '%resource.value[x]'
+    value: ['%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/obx-5-temp").value']
+
+  - name: cvs-delete-temp-extension
+    resource: 'Bundle.entry.resource.ofType(Observation).extension("https://reportstream.cdc.gov/fhir/StructureDefinition/obx-5-temp")'
+    condition: '%resource.exists()'
+    bundleProperty: '%resource.value[x]'
+    value: [ '""' ]
+
+  - name: cvs-obx-5-coding
+    resource: 'Bundle.entry.resource.ofType(Observation).value.coding'
+    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding").value[x]'
+    value: [ '"coding"' ]
+
+  - name: cvs-obx-5-coding-system
+    resource: 'Bundle.entry.resource.ofType(Observation).value.coding'
+    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system").value[x]'
+    value: [ '"SCT"' ]
+
+  - name: cvs-obx-5-system-url
+    resource: 'Bundle.entry.resource.ofType(Observation)'
+    bundleProperty: '%resource.value.coding.system'
+    value: [ '"http://snomed.info/sct"' ]
+
+  - name: cvs-obx-5-display-to-snomed-code
+    resource: 'Bundle.entry.resource.ofType(Observation)'
+    condition: '%resource.value.coding.code.exists().not()'
+    value: [ '%resource.value.coding.display.upper().replace(" ","")' ]
+    bundleProperty: '%resource.value.coding.code'
+    valueSet:
+      values:
+        POSITIVE: 260373001
+        DETECTED: 260373001
+        NEGATIVE: 260415000
+        NOTDETECTED: 260415000
+        INVALID: 455371000124106
+        OTHER: 445297001
+
+  - name: cvs-spm-4-other-code
+    resource: 'Bundle.entry.resource.ofType(Specimen)'
+    condition: '%resource.type.exists() and %resource.type.coding.code.upper() = "OTHER"'
+    value: [ '"445297001"' ]
+    bundleProperty: '%resource.type.coding.code'
+
+  - name: cvs-spm-4-sct
+    resource: 'Bundle.entry.resource.ofType(Specimen).type.coding'
+    condition: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system").exists().not()'
+    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system").value[x]'
+    value: [ '"SCT"' ]

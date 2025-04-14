@@ -66,91 +66,68 @@ class RESTTransportIntegrationTests : TransportIntegrationTests() {
     private val settings = FileSettings(FileSettings.defaultSettingsDirectory)
     private val responseHeaders = headersOf("Content-Type" to listOf("application/json;charset=UTF-8"))
 
-    private fun mockClientStringTokenOk(): HttpClient {
-        return mockJsonResponseWithSuccess(
+    private fun mockClientStringTokenOk(): HttpClient = mockJsonResponseWithSuccess(
             "RjY2NjM5NzA2OWJjuE7c"
         )
-    }
 
-    private fun mockClientAuthOk(): HttpClient {
-        return mockJsonResponseWithSuccess(
+    private fun mockClientAuthOk(): HttpClient = mockJsonResponseWithSuccess(
             """{"access_token": "AYjcyMzY3ZDhiNmJkNTY", 
                         |"refresh_token": "RjY2NjM5NzA2OWJjuE7c", 
                         |"token_type": "Bearer", "expires_in": 3600}
             """
         )
-    }
 
-    private fun mockClientAuthIDTokenOk(): HttpClient {
-        return mockJsonResponseWithSuccess(
+    private fun mockClientAuthIDTokenOk(): HttpClient = mockJsonResponseWithSuccess(
             """{"email": "test-email@test.com",
                         "idToken": "AYjcyMzY3ZDhiNmJkNTY", 
                         |"expiresIn": 3600,
                         "refreshToken": "RjY2NjM5NzA2OWJjuE7c"}
             """
         )
-    }
 
-    private fun mockClientAuthError(): HttpClient {
-        return mockJsonResponseWithError(
+    private fun mockClientAuthError(): HttpClient = mockJsonResponseWithError(
             """{"error": {"code": 500,"message": "Mock internal server error."}}"""
         )
-    }
 
-    private fun mockClientUnauthorized(): HttpClient {
-        return mockJsonResponseWithUnauthorized(
+    private fun mockClientUnauthorized(): HttpClient = mockJsonResponseWithUnauthorized(
             """{"error": {"code": 401,"message": "Mock unauthorized error."}}"""
         )
-    }
-    private fun mockClientPostOk(): HttpClient {
-        return mockJsonResponseWithSuccess(
+    private fun mockClientPostOk(): HttpClient = mockJsonResponseWithSuccess(
             """{"status": "Success", 
                         |"statusDesc": "Received. LIN:4299844", 
                         |"respTrackingId": "UT-20211119-746000000-54"}
             """
         )
-    }
 
-    private fun mockClientPostError(): HttpClient {
-        return mockJsonResponseWithError(
+    private fun mockClientPostError(): HttpClient = mockJsonResponseWithError(
             """{"error": {"code": 500,"message": "Mock internal server error."}}"""
         )
-    }
 
-    private fun mockClientTooManyRequests(): HttpClient {
-        return mockJsonResponseWithTooManyRequests(
+    private fun mockClientTooManyRequests(): HttpClient = mockJsonResponseWithTooManyRequests(
             """{"error": {"code": 429,"message": "Mock too many requests error."}}"""
         )
-    }
 
-    private fun mockClientUnknownError(): HttpClient {
-        return mockJsonResponseWithUnknown(
+    private fun mockClientUnknownError(): HttpClient = mockJsonResponseWithUnknown(
             """{"error": {"code": 999,"message": "Mock internal server error."}}"""
         )
-    }
 
-    private fun mockJsonResponseWithSuccess(jsonResponse: String): HttpClient {
-        return mockJsonResponse(jsonResponse, HttpStatusCode.OK)
-    }
+    private fun mockJsonResponseWithSuccess(jsonResponse: String): HttpClient =
+        mockJsonResponse(jsonResponse, HttpStatusCode.OK)
 
-    private fun mockJsonResponseWithError(jsonResponse: String): HttpClient {
-        return mockJsonResponse(jsonResponse, HttpStatusCode.InternalServerError)
-    }
+    private fun mockJsonResponseWithError(jsonResponse: String): HttpClient =
+        mockJsonResponse(jsonResponse, HttpStatusCode.InternalServerError)
 
-    private fun mockJsonResponseWithUnauthorized(jsonResponse: String): HttpClient {
-        return mockJsonResponse(jsonResponse, HttpStatusCode.Unauthorized)
-    }
+    private fun mockJsonResponseWithUnauthorized(jsonResponse: String): HttpClient =
+        mockJsonResponse(jsonResponse, HttpStatusCode.Unauthorized)
 
-    private fun mockJsonResponseWithTooManyRequests(jsonResponse: String): HttpClient {
-        return mockJsonResponse(jsonResponse, HttpStatusCode.TooManyRequests)
-    }
+    private fun mockJsonResponseWithTooManyRequests(jsonResponse: String): HttpClient =
+        mockJsonResponse(jsonResponse, HttpStatusCode.TooManyRequests)
 
-    private fun mockJsonResponseWithUnknown(jsonResponse: String): HttpClient {
-        return mockJsonResponse(jsonResponse, HttpStatusCode(999, "Uknown Error"))
-    }
+    private fun mockJsonResponseWithUnknown(jsonResponse: String): HttpClient =
+        mockJsonResponse(jsonResponse, HttpStatusCode(999, "Uknown Error"))
 
-    private fun mockJsonResponse(jsonResponse: String, whatStatusCode: HttpStatusCode): HttpClient {
-        return HttpClient(MockEngine) {
+    private fun mockJsonResponse(jsonResponse: String, whatStatusCode: HttpStatusCode): HttpClient =
+        HttpClient(MockEngine) {
             engine {
                 addHandler {
                     respond(
@@ -162,7 +139,6 @@ class RESTTransportIntegrationTests : TransportIntegrationTests() {
             }
             install(ClientContentNegotiation) { json() }
         }
-    }
 
     private var actionHistory = ActionHistory(TaskAction.send)
     private val transportType = RESTTransportType(
@@ -239,6 +215,7 @@ hnm8COa8Kr+bnTqzScpQuOfujHcFEtfcYUGfSS6HusxidwXx+lYi1A==
         4,
         "",
         "",
+        null,
         null,
         null,
         null,

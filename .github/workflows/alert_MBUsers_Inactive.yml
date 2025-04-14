@@ -48,7 +48,7 @@ jobs:
           message: |
             ${{ steps.users_out.outputs.MESSAGE_RESPONSE }}
           icon-emoji: ':hourglass_flowing_sand:'
-          channel: temp-cdc-rs-notifications  # Updated channel
-          webhook-url: ${{ secrets.SLACK_NOTIFICATIONS_WEBHOOK_URL }}  # Updated webhook secret
+          channel: cdc-reportstream-bot-notifications
+          webhook-url: ${{ secrets.SLACK_WEBHOOK_URL_NAVA_BOT_NOTIFICATIONS_CHANNEL }}
           color: warning
           slackify-markdown: true

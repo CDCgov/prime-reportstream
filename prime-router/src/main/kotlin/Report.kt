@@ -132,7 +132,7 @@ data class ReportStreamFilterResult(
     val filterName: String,
     val filterArgs: List<String>,
     val filteredTrackingElement: String,
-    val filterType: ReportStreamFilterType?,
+    val filterType: String? = null,
     val filteredObservationDetails: String? = null,
     override val scope: ActionLogScope = ActionLogScope.translation,
 ) : ActionLogDetail {
@@ -568,7 +568,7 @@ class Report : Logging {
                             filterFn.name,
                             fnArgs,
                             trackingId,
-                            reportStreamFilterType
+                            reportStreamFilterType.name
                         )
                     )
                 }
