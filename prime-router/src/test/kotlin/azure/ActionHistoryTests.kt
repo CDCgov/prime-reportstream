@@ -10,6 +10,7 @@ import assertk.assertions.isNull
 import assertk.assertions.isTrue
 import com.microsoft.azure.functions.HttpMethod
 import gov.cdc.prime.reportstream.shared.BlobUtils
+import gov.cdc.prime.reportstream.shared.QueueMessage
 import gov.cdc.prime.router.ActionLog
 import gov.cdc.prime.router.ActionLogLevel
 import gov.cdc.prime.router.ClientSource
@@ -31,6 +32,7 @@ import gov.cdc.prime.router.azure.observability.event.AzureEventService
 import gov.cdc.prime.router.azure.observability.event.ReportEventData
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventService
 import gov.cdc.prime.router.common.JacksonMapperUtilities
+import gov.cdc.prime.router.fhirengine.engine.FhirConvertQueueMessage
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.report.ReportService
 import gov.cdc.prime.router.unittest.UnitTestUtils
@@ -39,6 +41,7 @@ import io.mockk.mockk
 import io.mockk.mockkClass
 import io.mockk.mockkConstructor
 import io.mockk.mockkObject
+import io.mockk.slot
 import io.mockk.spyk
 import io.mockk.unmockkAll
 import io.mockk.verify
@@ -48,6 +51,7 @@ import java.time.OffsetDateTime
 import java.util.UUID
 import kotlin.test.Test
 import kotlin.test.assertContains
+import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
 import kotlin.test.assertNotNull
 
@@ -873,7 +877,7 @@ class ActionHistoryTests {
     }
 
     @Test
-    fun `trackActionParams the azure client ip`() {
+    fun `test trackActionParams the azure client ip`() {
         val actionHistory = ActionHistory(TaskAction.receive)
 
         val mockHttpRequestMessage = MockHttpRequestMessage()
@@ -884,7 +888,7 @@ class ActionHistoryTests {
     }
 
     @Test
-    fun `trackActionParams correctly filters headers and query params`() {
+    fun `test trackActionParams correctly filters headers and query params`() {
         val actionHistory = ActionHistory(TaskAction.receive)
 
         val mockHttpRequestMessage = MockHttpRequestMessage(method = HttpMethod.POST)
@@ -907,5 +911,57 @@ class ActionHistoryTests {
                 )
             )
         )
+    }
+
+    @Test
+    fun `test queueFhirMessages properly add a fhir message to be tracked`() {
+        val actionHistory = ActionHistory(TaskAction.receive)
+
+        val queueMessage = FhirConvertQueueMessage(
+            UUID.randomUUID(),
+            "",
+            "",
+            "",
+            Topic.FULL_ELR,
+            ""
+        )
+
+        actionHistory.trackFhirMessage(queueMessage)
+        assertEquals(1, actionHistory.fhirQueueMessages.size)
+    }
+
+    @Test
+    fun `test queueFhirMessages properly tracks and queues a fhir message`() {
+        val metadata = UnitTestUtils.simpleMetadata
+        val actionHistory = spyk(ActionHistory(TaskAction.receive))
+        val workflowEngine = mockkClass(WorkflowEngine::class)
+        val messageQueue = mockk<QueueAccess>()
+
+        every { workflowEngine.metadata } returns metadata
+        every { workflowEngine.queue } returns messageQueue
+
+        val queueNameSlot = slot<String>()
+        val messageSlot = slot<String>()
+
+        every { messageQueue.sendMessage(capture(queueNameSlot), capture(messageSlot), any()) } returns "some-id"
+
+        val queueMessage = FhirConvertQueueMessage(
+            UUID.randomUUID(),
+            "",
+            "",
+            "",
+            Topic.FULL_ELR,
+            ""
+        )
+
+        actionHistory.trackFhirMessage(queueMessage)
+        actionHistory.queueFhirMessages(workflowEngine)
+
+        verify(exactly = 1) {
+            messageQueue.sendMessage(any(), any(), any())
+        }
+
+        assertEquals(queueNameSlot.captured, QueueMessage.elrConvertQueueName)
+        assertEquals(messageSlot.captured, queueMessage.serialize())
     }
 }

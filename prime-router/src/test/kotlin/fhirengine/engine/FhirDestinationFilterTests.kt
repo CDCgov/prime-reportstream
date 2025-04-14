@@ -366,7 +366,8 @@ class FhirDestinationFilterTests {
                                                 snomedSystem,
                                                 "840539006",
                                                 @Suppress("ktlint:standard:max-line-length")
-                                                "Disease caused by severe acute respiratory syndrome coronavirus 2 (disorder)"
+                                                "Disease caused by severe acute respiratory syndrome coronavirus 2 (disorder)",
+                                                "Unknown"
                                             )
                                         ),
                                         loincSystem,
@@ -377,7 +378,8 @@ class FhirDestinationFilterTests {
                                     CodeSummary(
                                         system = "http://terminology.hl7.org/CodeSystem/v2-0078",
                                         code = "N",
-                                        display = "Normal"
+                                        display = "Normal",
+                                        memberOid = "Unknown"
                                     )
                                 )
                             ),
@@ -541,7 +543,8 @@ class FhirDestinationFilterTests {
                                                     snomedSystem,
                                                     "840539006",
                                                     @Suppress("ktlint:standard:max-line-length")
-                                                    "Disease caused by severe acute respiratory syndrome coronavirus 2 (disorder)"
+                                                    "Disease caused by severe acute respiratory syndrome coronavirus 2 (disorder)",
+                                                    "Unknown"
                                                 )
                                             ),
                                             loincSystem,
@@ -552,7 +555,8 @@ class FhirDestinationFilterTests {
                                         CodeSummary(
                                             system = "http://terminology.hl7.org/CodeSystem/v2-0078",
                                             code = "N",
-                                            display = "Normal"
+                                            display = "Normal",
+                                            memberOid = "Unknown"
                                         )
                                     )
                                 ),
