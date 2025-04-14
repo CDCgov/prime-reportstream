@@ -13,27 +13,24 @@ import com.fasterxml.jackson.module.kotlin.KotlinModule
  * A simple user & password credential. Can be used for SFTP transports.
  */
 data class UserPassCredential(val user: String, val pass: String) :
-    Credential(), SftpCredential, SoapCredential, RestCredential
+    Credential(),
+    SftpCredential,
+    SoapCredential,
+    RestCredential
 
 /**
  * A PPK credential. Can be used for SFTP transports.
  */
-data class UserPpkCredential(
-    val user: String,
-    val key: String,
-    val keyPass: String,
-    val pass: String? = null,
-) : Credential(), SftpCredential
+data class UserPpkCredential(val user: String, val key: String, val keyPass: String, val pass: String? = null) :
+    Credential(),
+    SftpCredential
 
 /**
  * A PEM credential. Can be used for SFTP transports.
  */
-data class UserPemCredential(
-    val user: String,
-    val key: String,
-    val keyPass: String,
-    val pass: String? = null,
-) : Credential(), SftpCredential
+data class UserPemCredential(val user: String, val key: String, val keyPass: String, val pass: String? = null) :
+    Credential(),
+    SftpCredential
 
 /**
  * A credential that is saved in a Java Key Store (JKS)
@@ -63,7 +60,9 @@ data class UserJksCredential(
      * [trustAlias] is the alias for the trust/public certificate stored in the JKS
      */
     val trustAlias: String,
-) : Credential(), SoapCredential, RestCredential
+) : Credential(),
+    SoapCredential,
+    RestCredential
 
 /**
  * An API Key credential along with the user who stored it
@@ -77,7 +76,8 @@ data class UserApiKeyCredential(
      * [apiKey] is the api key
      */
     val apiKey: String,
-) : Credential(), RestCredential
+) : Credential(),
+    RestCredential
 
 /**
  * An Assertion credential
@@ -88,7 +88,8 @@ data class UserAssertionCredential(
      * [assertion] is the api key
      */
     val assertion: String,
-) : Credential(), RestCredential
+) : Credential(),
+    RestCredential
 
 /**
  * The credential base class for all other credentials to inherit from

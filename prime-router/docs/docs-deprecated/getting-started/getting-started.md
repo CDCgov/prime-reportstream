@@ -1,4 +1,4 @@
-# Developer Getting Started Guide
+# Developer Getting Started Guide (_Deprecated_)
 
 > Note: All information duplicated by the [Backend Setup](../../getting-started/README.md) has been removed.
 
@@ -306,6 +306,8 @@ PRIME_DATA_HUB_INSECURE_SSL=true docker compose build
 ```
 
 ## `ETOR_TI_baseurl` service setup
+
+> WARNING: This project has been paused. This documentation remains in case it is brought back.
 
 To run the service associated with this environment variable locally, please visit the instructions located 
 [at the intermediary project](https://github.com/CDCgov/trusted-intermediary/blob/main/README.md)

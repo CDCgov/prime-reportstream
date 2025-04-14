@@ -20,7 +20,5 @@ class MemoryJtiCache : JtiCache() {
         cache[jti] = expiresAt
     }
 
-    override fun isPresentInCache(jti: String): Boolean {
-        return cache[jti] != null
-    }
+    override fun isPresentInCache(jti: String): Boolean = cache[jti] != null
 }

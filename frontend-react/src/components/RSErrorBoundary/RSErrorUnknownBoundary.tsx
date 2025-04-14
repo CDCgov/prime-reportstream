@@ -7,14 +7,8 @@ export type RSErrorUnknownBoundaryProps = ErrorBoundaryProps & {
     rsConsole?: RSConsole;
 };
 
-function RSErrorUnknownBoundary({
-    rsConsole,
-    ...props
-}: RSErrorUnknownBoundaryProps) {
-    const errorHandler = useCallback(
-        () => createErrorLogger(rsConsole),
-        [rsConsole],
-    );
+function RSErrorUnknownBoundary({ rsConsole, ...props }: RSErrorUnknownBoundaryProps) {
+    const errorHandler = useCallback(() => createErrorLogger(rsConsole), [rsConsole]);
     return <ErrorBoundary onError={errorHandler} {...props} />;
 }
 

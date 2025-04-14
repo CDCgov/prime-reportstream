@@ -35,65 +35,57 @@ const val listBlobTimeoutSeconds: Long = 30
 /**
  * Accessor for Azure blob storage.
  */
-class BlobAccess() : Logging {
+class BlobAccess : Logging {
     /**
      * Contains basic info about a Report blob: format, url in Azure, and SHA256 hash
      */
-    data class BlobInfo(
-        val format: MimeFormat,
-        val blobUrl: String,
-        val digest: ByteArray,
-    ) {
+    data class BlobInfo(val format: MimeFormat, val blobUrl: String, val digest: ByteArray) {
         companion object {
             /**
              * Get the blob filename from a [blobUrl]
              * @return the blob filename
              */
-            fun getBlobFilename(blobUrl: String): String {
-                return if (blobUrl.isNotBlank()) {
+            fun getBlobFilename(blobUrl: String): String = if (blobUrl.isNotBlank()) {
                     FilenameUtils.getName(URL(URLDecoder.decode(blobUrl, Charset.defaultCharset())).path)
                 } else {
                     ""
                 }
-            }
 
             /**
              * Get a file extension from a [blobUrl]
              * @return the blob's file extension
              */
-            fun getBlobFileExtension(blobUrl: String): String {
-                return if (blobUrl.isNotBlank()) {
+            fun getBlobFileExtension(blobUrl: String): String = if (blobUrl.isNotBlank()) {
                     FilenameUtils.getExtension(URL(URLDecoder.decode(blobUrl, Charset.defaultCharset())).path)
                 } else {
                     ""
                 }
-            }
         }
     }
 
     /**
      * Data structure for configuring reusable blob store container access.
      */
-    data class BlobContainerMetadata(
-        val containerName: String,
-        val connectionString: String,
-    ) {
+    data class BlobContainerMetadata(val containerName: String, val connectionString: String) {
         companion object {
 
             /**
              * Builds a [BlobContainerMetadata] object. [envVar] will be resolved to the blobstore connection string.
              */
-            fun build(containerName: String, envVar: String): BlobContainerMetadata {
-                return BlobContainerMetadata(containerName, getBlobConnection(envVar))
-            }
+            fun build(
+                containerName: String,
+                envVar: String,
+            ): BlobContainerMetadata = BlobContainerMetadata(containerName, getBlobConnection(envVar))
 
             /**
              * Builds a [BlobContainerMetadata] object. [blobTransport].storageName will be resolved to the blobstore
              * connection string.
              */
-            fun build(blobTransport: BlobStoreTransportType): BlobContainerMetadata {
-                return BlobContainerMetadata(blobTransport.containerName, getBlobConnection(blobTransport.storageName))
-            }
+            fun build(
+                blobTransport: BlobStoreTransportType,
+            ): BlobContainerMetadata = BlobContainerMetadata(
+                blobTransport.containerName, getBlobConnection(blobTransport.storageName)
+            )
         }
 
         /**
@@ -129,9 +121,7 @@ class BlobAccess() : Logging {
         blobBytes: ByteArray,
         subfolderName: String? = null,
         action: Event.EventAction = Event.EventAction.NONE,
-    ): BlobInfo {
-        return uploadBody(report.bodyFormat, blobBytes, report.id.toString(), subfolderName, action)
-    }
+    ): BlobInfo = uploadBody(report.bodyFormat, blobBytes, report.id.toString(), subfolderName, action)
 
     companion object : Logging {
         private const val defaultBlobDownloadRetryVar = "AzureBlobDownloadRetryCount"
@@ -155,11 +145,12 @@ class BlobAccess() : Logging {
          */
         internal fun directoryForAction(action: Event.EventAction?): String =
 
-         when (action) {
+        when (action) {
             Event.EventAction.RECEIVE -> "receive"
             Event.EventAction.BATCH -> "batch"
             Event.EventAction.PROCESS -> "process"
             Event.EventAction.DESTINATION_FILTER -> "destination-filter"
+            Event.EventAction.RECEIVER_ENRICHMENT -> "receiver-enrichment"
             Event.EventAction.RECEIVER_FILTER -> "receiver-filter"
             Event.EventAction.ROUTE -> "route"
             Event.EventAction.TRANSLATE -> "translate"
@@ -192,9 +183,7 @@ class BlobAccess() : Logging {
         /**
          * Obtain the blob connection string for a given environment variable name.
          */
-        fun getBlobConnection(blobConnEnvVar: String = defaultEnvVar): String {
-            return System.getenv(blobConnEnvVar)
-        }
+        fun getBlobConnection(blobConnEnvVar: String = defaultEnvVar): String = System.getenv(blobConnEnvVar)
 
         /**
          * Obtain a client for interacting with the blob store.
@@ -202,9 +191,9 @@ class BlobAccess() : Logging {
         private fun getBlobClient(
             blobUrl: String,
             blobConnInfo: BlobContainerMetadata = defaultBlobMetadata,
-        ): BlobClient {
-            return BlobClientBuilder().connectionString(blobConnInfo.connectionString).endpoint(blobUrl).buildClient()
-        }
+        ): BlobClient = BlobClientBuilder()
+            .connectionString(blobConnInfo.connectionString)
+            .endpoint(blobUrl).buildClient()
 
         /**
          * Upload a raw blob [bytes] as [blobName]
@@ -226,9 +215,10 @@ class BlobAccess() : Logging {
         }
 
         /** Checks if a blob actually exists in the blobstore */
-        fun exists(blobUrl: String, blobConnInfo: BlobContainerMetadata = defaultBlobMetadata): Boolean {
-            return getBlobClient(blobUrl, blobConnInfo).exists()
-        }
+        fun exists(
+            blobUrl: String,
+            blobConnInfo: BlobContainerMetadata = defaultBlobMetadata,
+        ): Boolean = getBlobClient(blobUrl, blobConnInfo).exists()
 
         /**
          * Copies all blobs prefixed with the [directory] value from the soure to destination
@@ -402,19 +392,6 @@ class BlobAccess() : Logging {
         }
 
         /**
-         * Copy a blob at [fromBlobUrl] to a blob in [blobConnInfo]
-         */
-        fun copyBlob(fromBlobUrl: String, blobConnInfo: BlobContainerMetadata): String {
-            val fromBytes = downloadBlobAsByteArray(fromBlobUrl)
-            logger.info("Ready to copy ${fromBytes.size} bytes from $fromBlobUrl")
-            val toFilename = BlobInfo.getBlobFilename(fromBlobUrl)
-            logger.info("New blob filename will be $toFilename")
-            val toBlobUrl = uploadBlob(toFilename, fromBytes, blobConnInfo)
-            logger.info("New blob URL is $toBlobUrl")
-            return toBlobUrl
-        }
-
-        /**
          * Accepts a [BlobItemAndPreviousVersions] and grabs the most recent previous version and updates
          * the blob to it.
          *
@@ -498,8 +475,9 @@ class BlobAccess() : Logging {
          * If one exists for the container name and connection string, the existing one will be reused.
          * @return the blob container client
          */
-        internal fun getBlobContainer(blobConnInfo: BlobContainerMetadata): BlobContainerClient {
-            return blobContainerClients.getOrElse(blobConnInfo) {
+        internal fun getBlobContainer(
+            blobConnInfo: BlobContainerMetadata,
+        ): BlobContainerClient = blobContainerClients.getOrElse(blobConnInfo) {
                 val blobServiceClient = BlobServiceClientBuilder()
                     .connectionString(blobConnInfo.connectionString)
                     .buildClient()
@@ -518,6 +496,5 @@ class BlobAccess() : Logging {
                 }
                 containerClient
             }
-        }
     }
 }

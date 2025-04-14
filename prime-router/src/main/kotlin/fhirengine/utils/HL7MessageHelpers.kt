@@ -1,6 +1,8 @@
 package gov.cdc.prime.router.fhirengine.utils
 
+import ca.uhn.hl7v2.AbstractHL7Exception
 import ca.uhn.hl7v2.model.v251.datatype.DTM
+import ca.uhn.hl7v2.util.Hl7InputStreamMessageStringIterator
 import ca.uhn.hl7v2.util.Terser
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.Hl7Configuration
@@ -24,6 +26,8 @@ object HL7MessageHelpers : Logging {
      */
     const val hl7SegmentDelimiter = "\r"
 
+    val actionLogger = ActionLogger()
+
     /**
      * Generate a HL7 Batch file from the list of [hl7RawMsgs] for the given [receiver].  The [hl7RawMsgs] are expected
      * to be real HL7 messages at this point, so we will not validate their contents here for performance reasons.
@@ -34,12 +38,17 @@ object HL7MessageHelpers : Logging {
         val useBatchHeaders = receiver.translation.useBatchHeaders
         // Grab the first message to extract some data if not set in the settings
         val firstMessage = if (hl7RawMsgs.isNotEmpty()) {
-            val messages = HL7Reader(ActionLogger()).getMessages(hl7RawMsgs[0])
-            if (messages.isEmpty()) {
+            try {
+                val message = HL7Reader.parseHL7Message(hl7RawMsgs[0])
+                Terser(message)
+            } catch (exception: Hl7InputStreamMessageStringIterator.ParseFailureError) {
                 logger.warn("Unable to extract batch header values from HL7: ${hl7RawMsgs[0].take(80)} ...")
+                HL7Reader.logHL7ParseFailure(exception, actionLogger)
                 null
-            } else {
-                Terser(messages[0])
+            } catch (exception: AbstractHL7Exception) {
+                logger.warn("Unable to extract batch header values from HL7: ${hl7RawMsgs[0].take(80)} ...")
+                HL7Reader.recordError(exception, actionLogger)
+                null
             }
         } else {
             null
@@ -94,4 +103,7 @@ object HL7MessageHelpers : Logging {
 
         return builder.toString()
     }
+
+    fun messageCount(rawHl7: String): Int =
+        Hl7InputStreamMessageStringIterator(rawHl7.byteInputStream()).asSequence().count()
 }
