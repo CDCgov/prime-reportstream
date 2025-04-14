@@ -2,15 +2,16 @@ import { Document, Font, Page, StyleSheet, Text, View } from "@react-pdf/rendere
 import PublicSansBold from "@uswds/uswds/fonts/public-sans/PublicSans-Bold.ttf";
 import PublicSansRegular from "@uswds/uswds/fonts/public-sans/PublicSans-Regular.ttf";
 import language from "./language.json";
+import { RSFilterError } from "../../../config/endpoints/reports";
 import { prettifyJSON } from "../../../utils/misc";
 
 interface MessageTestingPDFProps {
     orgName: string;
     receiverName: string;
     testStatus: string;
-    filterFieldData: (string | boolean | undefined)[];
-    transformFieldData: (string | boolean | undefined)[];
-    warningFieldData: (string | boolean | undefined)[];
+    filterFieldData: RSFilterError[];
+    transformFieldData: string[];
+    warningFieldData: string[];
     testMessage: string;
     outputMessage: string;
     isPassed: boolean;
@@ -122,10 +123,12 @@ const MessageTestingPDF = ({
                 {filterFieldData.length && (
                     <View style={styles.section}>
                         <Text style={styles.sectionTitle}>Filters triggered</Text>
-                        {filterFieldData.map((line, index) => (
+                        {filterFieldData.map((data, index) => (
                             <View key={`filter-line-${index}`}>
                                 <View style={styles.codeBlock}>
-                                    <Text>{line}</Text>
+                                    <Text>
+                                        {data.filter}: {data.message}
+                                    </Text>
                                 </View>
                             </View>
                         ))}
