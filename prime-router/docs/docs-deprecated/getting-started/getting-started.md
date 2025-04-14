@@ -1,4 +1,4 @@
-# Developer Getting Started Guide
+# Developer Getting Started Guide (_Deprecated_)
 
 > Note: All information duplicated by the [Backend Setup](../../getting-started/README.md) has been removed.
 

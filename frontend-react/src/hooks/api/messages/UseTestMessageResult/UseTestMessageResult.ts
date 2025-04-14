@@ -58,6 +58,8 @@ const useTestMessageResult = () => {
         queryKey: [testResult.queryKey, activeMembership, receivername, requestBody],
         queryFn: fetchData,
         enabled: isAdmin && Boolean(requestBody),
+        staleTime: 0,
+        gcTime: 0,
     });
 
     const { data } = useQueryResult;
