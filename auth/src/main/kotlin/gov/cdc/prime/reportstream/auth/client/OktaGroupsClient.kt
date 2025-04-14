@@ -7,9 +7,7 @@ import org.apache.logging.log4j.kotlin.Logging
 import org.springframework.stereotype.Service
 
 @Service
-class OktaGroupsClient(
-    private val applicationGroupsApi: ApplicationGroupsApi,
-) : Logging {
+class OktaGroupsClient(private val applicationGroupsApi: ApplicationGroupsApi) : Logging {
 
     /**
      * Get all application groups from the Okta Admin API
@@ -18,8 +16,7 @@ class OktaGroupsClient(
      *
      * @see https://developer.okta.com/docs/api/openapi/okta-management/management/tag/ApplicationGroups/#tag/ApplicationGroups/operation/listApplicationGroupAssignments
      */
-    suspend fun getApplicationGroups(appId: String): List<String> {
-        return withContext(Dispatchers.IO) {
+    suspend fun getApplicationGroups(appId: String): List<String> = withContext(Dispatchers.IO) {
             try {
                 val groups = applicationGroupsApi
                     .listApplicationGroupAssignments(appId, null, null, null, "group")
@@ -33,5 +30,4 @@ class OktaGroupsClient(
                 throw ex
             }
         }
-    }
 }

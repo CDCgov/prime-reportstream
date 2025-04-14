@@ -39,15 +39,13 @@ class FakeDataService : Logging {
 
         // creates a fake name for a person based on the patient name
         // in the row context
-        fun createFakeName(element: Element): String {
-            return when {
+        fun createFakeName(element: Element): String = when {
                 element.nameContains("first") -> context.patientName.firstName()
                 element.nameContains("last") -> context.patientName.lastName()
                 element.nameContains("middle") -> context.patientName.firstName() // no middle name in faker
                 element.nameContains("suffix") -> randomChoice(context.patientName.suffix(), "")
                 else -> TODO()
             }
-        }
 
         // creates a fake date and formats it according to the element's
         // provided formatting string
@@ -85,9 +83,7 @@ class FakeDataService : Logging {
 
         // creates a fake email for the patient name that is part
         // of the row context
-        fun createFakeEmail(): String {
-            return "${context.patientName.username()}@email.com"
-        }
+        fun createFakeEmail(): String = "${context.patientName.username()}@email.com"
 
         // ID values typically come from valuesets, so we pass in the element
         // and then we examine both the alt values and the value set for the element
@@ -127,8 +123,7 @@ class FakeDataService : Logging {
         // and we then pull a random value from all the potential values available.
         // the rationale here is that if an element specifies alt values, they are preferred
         // to the values held in the value set collection, and so we use them first
-        fun createFakeCodeValue(element: Element): String {
-            return when (element.name) {
+        fun createFakeCodeValue(element: Element): String = when (element.name) {
                 "specimen_source_site_code" -> "71836000"
                 "test_result_status" -> randomChoice("F", "C")
                 "processing_mode_code" -> "P"
@@ -141,7 +136,6 @@ class FakeDataService : Logging {
                     createFakeValueFromValueSet(element)
                 }
             }
-        }
 
         // table values work in a similar fashion to the valuesets, but are
         // more flexible and allow for more filtering.
@@ -197,8 +191,7 @@ class FakeDataService : Logging {
         }
 
         // creates fake text data
-        fun createFakeText(element: Element): String {
-            return when {
+        fun createFakeText(element: Element): String = when {
                 element.nameContains("name_of_testing_lab") -> "Any lab USA"
                 element.nameContains("lab_name") -> "Any lab USA"
                 element.nameContains("sender_id") -> "${element.default}" // Allow the default to fill this in
@@ -308,7 +301,6 @@ class FakeDataService : Logging {
 
                 else -> faker.lorem().characters(5, 10)
             }
-        }
 
         // now that we've created all our functions, we can call them in our
         // when statement here, depending on the type of the element passed in.
@@ -436,9 +428,8 @@ class FakeReport(val metadata: Metadata, val locale: Locale? = null) {
         }
     }
 
-    internal fun buildColumn(element: Element, context: RowContext): String {
-        return fakeDataService.getFakeValueForElement(element, context)
-    }
+    internal fun buildColumn(element: Element, context: RowContext): String =
+        fakeDataService.getFakeValueForElement(element, context)
 
     // mapped columns often refer back to non-mapped columns in the schema. in the past, for faked
     // values we have just hard coded in the name of the element and let the faker process it,
@@ -565,12 +556,10 @@ class FakeReport(val metadata: Metadata, val locale: Locale? = null) {
             return list[next]
         }
 
-        fun getRandomSiteOfCare(): String {
-            return randomChoice(
+        fun getRandomSiteOfCare(): String = randomChoice(
                 "airport", "assisted_living", "camp", "correctional_facility", "employer", "fqhc",
                 "government_agency", "hospice", "hospital", "lab", "nursing_home", "other",
                 "pharmacy", "primary_care", "shelter", "treatment_center", "university", "urgent_care"
             )
-        }
     }
 }

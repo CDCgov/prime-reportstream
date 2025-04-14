@@ -25,15 +25,9 @@ class Translator(private val metadata: Metadata, private val settings: SettingsP
         val missing: Set<String>,
     )
 
-    data class RoutedReport(
-        val report: Report,
-        val receiver: Receiver,
-    )
+    data class RoutedReport(val report: Report, val receiver: Receiver)
 
-    data class RoutedReportsResult(
-        val reports: List<RoutedReport>,
-        val details: List<ActionLog>,
-    )
+    data class RoutedReportsResult(val reports: List<RoutedReport>, val details: List<ActionLog>)
 
     /**
      * Translate and filter by the list of receiver in metadata. Only return reports that have items.

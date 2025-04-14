@@ -13,12 +13,12 @@ defaults:
     working-directory: prime-router
 
 env:
-  AZURE_CREDENTIALS: '{"clientId":"${{ secrets.AZURE_CLIENT_ID }}","clientSecret":"${{ secrets.AZURE_CLIENT_SECRET }}","subscriptionId":"${{ secrets.AZURE_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.AZURE_TENANT_ID }}"}'
+  AZURE_CREDENTIALS: '{"clientId":"${{ secrets.REPO_AZURE_CLIENT_ID }}","clientSecret":"${{ secrets.REPO_AZURE_CLIENT_SECRET }}","subscriptionId":"${{ secrets.REPO_AZURE_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.REPO_AZURE_TENANT_ID }}"}'
 
 jobs:
   pre_job:
     name: "Set Build Environment"
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     outputs:
       env_name: ${{ steps.build_vars.outputs.env_name }}
       version: ${{ github.ref_name }}
@@ -34,7 +34,7 @@ jobs:
     name: "Release: Build Frontend (React)"
     needs:
       - pre_job
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: frontend-react
@@ -66,7 +66,7 @@ jobs:
       failure() != 'true'
     environment: staging
     concurrency: ${{ needs.pre_job.outputs.env_name }}
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     steps:
       - name: Check out changes
         uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938

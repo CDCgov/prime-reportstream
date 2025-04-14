@@ -29,9 +29,7 @@ class HL7ConverterSchema(
     extends = extends
 ) {
 
-    override fun toString(): String {
-        return "${if (extends != null) "$extends->" else ""}$name"
-    }
+    override fun toString(): String = "${if (extends != null) "$extends->" else ""}$name"
 
     override fun validate(isChildSchema: Boolean): List<String> {
         if (isChildSchema) {

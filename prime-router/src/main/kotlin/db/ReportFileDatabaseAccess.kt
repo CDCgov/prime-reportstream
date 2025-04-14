@@ -29,8 +29,7 @@ sealed class ReportFileApiFilter<T> : ApiFilter<ReportFileRecord, T> {
      * Filters results to those where the created_at is greater than or equal to the passed in date
      * @param value the date that results will be greater than or equal to
      */
-    class Since(override val value: OffsetDateTime) :
-        ReportFileApiFilter<OffsetDateTime>() {
+    class Since(override val value: OffsetDateTime) : ReportFileApiFilter<OffsetDateTime>() {
         override val tableField: TableField<ReportFileRecord, OffsetDateTime> = ReportFile.REPORT_FILE.CREATED_AT
     }
 
@@ -80,21 +79,15 @@ class ReportFileApiSearch internal constructor(
 ) {
 
     /** Converts a [ReportFileApiFilter] into a JOOQ condition */
-    override fun getCondition(filter: ReportFileApiFilter<*>): Condition {
-        return when (filter) {
+    override fun getCondition(filter: ReportFileApiFilter<*>): Condition = when (filter) {
             is ReportFileApiFilter.Since -> filter.tableField.ge(filter.value)
             is ReportFileApiFilter.Until -> filter.tableField.le(filter.value)
         }
-    }
 
     /** Defaults to [ReportFile.CREATED_AT] if no sort is set */
-    override fun getSortColumn(): Field<*> {
-        return sortParameter ?: ReportFile.REPORT_FILE.CREATED_AT
-    }
+    override fun getSortColumn(): Field<*> = sortParameter ?: ReportFile.REPORT_FILE.CREATED_AT
 
-    override fun getPrimarySortColumn(): Field<*> {
-        return ReportFile.REPORT_FILE.REPORT_ID
-    }
+    override fun getPrimarySortColumn(): Field<*> = ReportFile.REPORT_FILE.REPORT_ID
 
     /**
      * Companion object that implements [ApiSearchResult] and parses a value into [ReportFileApiSearch]
@@ -144,13 +137,11 @@ class ReportFileDatabaseAccess(val db: DatabaseAccess = BaseEngine.databaseAcces
      *
      * @param search the search configuration to apply to the query
      */
-    fun getReports(search: ReportFileApiSearch): ApiSearchResult<ReportFilePojo> {
-        return db.transactReturning { txn ->
+    fun getReports(search: ReportFileApiSearch): ApiSearchResult<ReportFilePojo> = db.transactReturning { txn ->
             search.fetchResults(
                 DSL.using(txn),
                 ReportFile.REPORT_FILE.asterisk(),
                 ReportFile.REPORT_FILE,
             )
         }
-    }
 }

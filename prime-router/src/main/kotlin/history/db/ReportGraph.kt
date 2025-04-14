@@ -54,9 +54,7 @@ class ItemGraphTable : CustomTable<ItemGraphRecord>(DSL.name("item_graph")) {
         val ITEM_GRAPH = ItemGraphTable()
     }
 
-    override fun getRecordType(): Class<out ItemGraphRecord> {
-        return ItemGraphRecord::class.java
-    }
+    override fun getRecordType(): Class<out ItemGraphRecord> = ItemGraphRecord::class.java
 }
 
 class ItemGraphRecord : CustomRecord<ItemGraphRecord>(ItemGraphTable.ITEM_GRAPH)
@@ -74,9 +72,7 @@ class ItemGraphRecord : CustomRecord<ItemGraphRecord>(ItemGraphTable.ITEM_GRAPH)
  *
  * @param db database access to run the generated queries against
  */
-class ReportGraph(
-    val db: DatabaseAccess = BaseEngine.databaseAccessSingleton,
-) : Logging {
+class ReportGraph(val db: DatabaseAccess = BaseEngine.databaseAccessSingleton) : Logging {
 
     /**
      *
@@ -88,8 +84,7 @@ class ReportGraph(
         receiver: Receiver,
         taskAction: TaskAction,
         dslContext: DSLContext,
-    ): List<UUID> {
-        return dslContext
+    ): List<UUID> = dslContext
             .select(REPORT_FILE.REPORT_ID)
             .from(REPORT_FILE)
             .join(Action.ACTION).on(Action.ACTION.ACTION_ID.eq(REPORT_FILE.ACTION_ID))
@@ -97,7 +92,6 @@ class ReportGraph(
             .and(Action.ACTION.RECEIVING_ORG_SVC.eq(receiver.name))
             .and(Action.ACTION.ACTION_NAME.eq(taskAction))
             .fetchInto(UUID::class.java)
-    }
 
     /**
      * Returns all the metadata for the items in the past in reports; will recursively walk up the report lineage
@@ -129,12 +123,10 @@ class ReportGraph(
      * This will return null if no report with action type "receive" is present or if
      * the root is passed in
      */
-    fun getRootReport(childReportId: UUID): ReportFile? {
-        return db.transactReturning { txn ->
+    fun getRootReport(childReportId: UUID): ReportFile? = db.transactReturning { txn ->
             val cte = reportAncestorGraphCommonTableExpression(listOf(childReportId))
             rootReportRecords(txn, cte).fetchOneInto(ReportFile::class.java)
         }
-    }
 
     /**
      * This data class captures the rough details that corresponds to an "item" which currently is not directly captured
@@ -144,12 +136,7 @@ class ReportGraph(
      * batch of several results.
      *
      */
-    data class Item(
-        val parentReportId: UUID,
-        val parentIndex: Int,
-        val childReportId: UUID,
-        val childIndex: Int,
-    )
+    data class Item(val parentReportId: UUID, val parentIndex: Int, val childReportId: UUID, val childIndex: Int)
 
     /**
      * Retrieves the root "item" by recursing up the item lineage
@@ -188,12 +175,10 @@ class ReportGraph(
      *
      * If the passed in report ID has multiple root reports, they will all be returned
      */
-    fun getRootReports(childReportId: UUID): List<ReportFile> {
-        return db.transactReturning { txn ->
+    fun getRootReports(childReportId: UUID): List<ReportFile> = db.transactReturning { txn ->
             val cte = reportAncestorGraphCommonTableExpression(listOf(childReportId))
             rootReportRecords(txn, cte).fetchInto(ReportFile::class.java)
         }
-    }
 
     /**
      * Recursively goes down the report_lineage table from any report until it reaches
@@ -239,8 +224,7 @@ class ReportGraph(
      */
     fun metadataCommonTableExpression(
         itemGraphRecords: CommonTableExpression<ItemGraphRecord>,
-    ): CommonTableExpression<CovidResultMetadataRecord> {
-        return DSL.name(METADATA_CTE).`as`(
+    ): CommonTableExpression<CovidResultMetadataRecord> = DSL.name(METADATA_CTE).`as`(
             selectDistinct(COVID_RESULT_METADATA.asterisk())
                 .from(COVID_RESULT_METADATA)
                 .where(
@@ -262,7 +246,6 @@ class ReportGraph(
                     )
                 ).coerce(COVID_RESULT_METADATA)
         )
-    }
 
     /**
      * Accepts a list of report ids and then finds all the items associated with that report
