@@ -84,6 +84,7 @@
 - name: ignore
   description: FOR TESTING ONLY
   jurisdiction: FEDERAL
+  featureFlags: ["ELIMS_DATA"]
   filters:
     - topic: covid-19
       jurisdictionalFilter: [ "matches(ordering_facility_state, IG)" ]
@@ -1335,3 +1336,7 @@
         filePath: ./upload
         credentialName: DEFAULT-SFTP
       enrichmentSchemaNames: ["classpath:/metadata/fhir_transforms/receivers/fhir-message-header-sample.yml"]
+      routingFilters:
+        - filterName: "routing"
+          filterDescription: "Doing fine things for great people."
+          filterExpressions: ["true"]

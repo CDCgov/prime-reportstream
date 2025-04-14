@@ -233,7 +233,7 @@ class ReportFunction(
         override var enrichmentSchemaWarnings: MutableList<String> = mutableListOf(),
         override var receiverTransformErrors: MutableList<String> = mutableListOf(),
         override var receiverTransformWarnings: MutableList<String> = mutableListOf(),
-        override var filterErrors: MutableList<String> = mutableListOf(),
+        override var filterErrors: MutableList<ProcessFhirCommands.FilterError> = mutableListOf(),
     ) : ProcessFhirCommands.MessageOrBundleParent()
 
     /**
@@ -596,8 +596,11 @@ class ReportFunction(
             submission
         )
 
-        // queue messages here after all task / action records are in
+        // queue events here after all task / action records are in
         actionHistory.queueMessages(workflowEngine)
+
+        // queue fhir messages after all tasks / action records are in
+        actionHistory.queueFhirMessages(workflowEngine)
 
         return response
     }
