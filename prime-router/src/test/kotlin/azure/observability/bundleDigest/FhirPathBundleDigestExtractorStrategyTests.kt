@@ -3,13 +3,16 @@ package gov.cdc.prime.router.azure.observability.bundleDigest
 import assertk.assertThat
 import assertk.assertions.isDataClassEqualTo
 import fhirengine.engine.CustomFhirPathFunctions
-import gov.cdc.prime.router.azure.ConditionStamper.Companion.conditionCodeExtensionURL
+import gov.cdc.prime.router.azure.ConditionStamper.Companion.CONDITION_CODE_EXTENSION_URL
 import gov.cdc.prime.router.azure.observability.event.CodeSummary
 import gov.cdc.prime.router.azure.observability.event.ObservationSummary
+import gov.cdc.prime.router.azure.observability.event.OrderingFacilitySummary
+import gov.cdc.prime.router.azure.observability.event.PerformerSummary
 import gov.cdc.prime.router.azure.observability.event.TestSummary
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import org.hl7.fhir.r4.model.Address
 import org.hl7.fhir.r4.model.Bundle
+import org.hl7.fhir.r4.model.CodeableConcept
 import org.hl7.fhir.r4.model.Coding
 import org.hl7.fhir.r4.model.Extension
 import org.hl7.fhir.r4.model.MessageHeader
@@ -27,10 +30,10 @@ class FhirPathBundleDigestExtractorStrategyTests {
     @Test
     fun `test extracts data from bundle correctly when all data is populated`() {
         val bundle = Bundle()
-        addMessageHeader(bundle)
         addPatient(bundle)
         addObservation(bundle)
         val performer = createPerformer(bundle)
+        addMessageHeader(bundle, performer)
         val orderingFacility = createOrganization(bundle)
         val orderingPractitionerRole = createPractiionerRole(orderingFacility, bundle)
         addServiceRequest(performer, orderingPractitionerRole, bundle)
@@ -51,14 +54,38 @@ class FhirPathBundleDigestExtractorStrategyTests {
                         ObservationSummary(
                             testSummary = listOf(
                                 TestSummary(
-                                conditions = listOf(
-                                    CodeSummary(system = "Unknown", code = "Unknown", display = "Unknown")
+                                    conditions = listOf(
+                                        CodeSummary(
+                                            system = "Unknown",
+                                            code = "Unknown",
+                                            display = "Unknown",
+                                            memberOid = "Unknown"
+                                        )
+                                    )
                                 )
-                            )
+                            ),
+                            interpretations = listOf(
+                                CodeSummary(
+                                    system = "http://snomed.info/sct",
+                                    code = "260385009",
+                                    display = "Negative",
+                                    memberOid = "Unknown"
+                                )
                             )
                         )
                     ),
-                                listOf("VA"), listOf("MD"), listOf("DC"), "ORU_R01"
+                                listOf("VA"),
+                                listOf(
+                                    PerformerSummary(
+                                        performerName = "Jane Roe",
+                                        performerState = "MD",
+                                        performerCLIA = "999999"
+                                    )
+                                ),
+                                listOf(
+                                    OrderingFacilitySummary(orderingFacilityState = "DC")
+                    ),
+                        "ORU_R01"
                 )
             )
     }
@@ -66,8 +93,8 @@ class FhirPathBundleDigestExtractorStrategyTests {
     @Test
     fun `test extracts data from bundle correctly when data is missing`() {
         val bundle = Bundle()
-        addMessageHeader(bundle)
         val performer = createPerformer(bundle)
+        addMessageHeader(bundle, performer)
         val orderingFacility = createOrganization(bundle)
         val orderingPractitionerRole = createPractiionerRole(orderingFacility, bundle)
         addServiceRequest(performer, orderingPractitionerRole, bundle)
@@ -83,7 +110,19 @@ class FhirPathBundleDigestExtractorStrategyTests {
 
         assertThat(digest)
             .isDataClassEqualTo(
-                BundleDigestLabResult(emptyList(), emptyList(), listOf("MD"), listOf("DC"), "ORU_R01")
+                BundleDigestLabResult(
+                    emptyList(),
+                    emptyList(),
+                    listOf(
+                        PerformerSummary(
+                            performerName = "Jane Roe",
+                            performerState = "MD",
+                            performerCLIA = "999999"
+                        )
+                    ),
+                    listOf(OrderingFacilitySummary(orderingFacilityState = "DC")),
+                    "ORU_R01"
+                )
             )
     }
 
@@ -133,18 +172,34 @@ class FhirPathBundleDigestExtractorStrategyTests {
     private fun createPerformer(bundle: Bundle): Practitioner {
         val performer = Practitioner()
         performer.id = "Performer/1"
-        val performerAddress = Address()
-        performerAddress.state = "MD"
-        performer.address = listOf(performerAddress)
+        performer.apply {
+            addName().apply {
+                family = "Roe"
+                given = listOf(org.hl7.fhir.r4.model.StringType("Jane"))
+            }
+            addAddress().apply {
+                state = "MD"
+            }
+            addIdentifier().apply {
+                type.addCoding().apply {
+                    code = "CLIA"
+                }
+                value = "999999"
+            }
+        }
         val performerEntry = bundle.addEntry()
         performerEntry.resource = performer
         performerEntry.fullUrl = performer.id
         return performer
     }
 
-    private fun addMessageHeader(bundle: Bundle) {
+    private fun addMessageHeader(bundle: Bundle, performer: Practitioner) {
         val messageHeader = MessageHeader()
         messageHeader.event = Coding("ORU", "R01", "ORU_R01")
+
+        val senderReference = Reference()
+        senderReference.reference = performer.id
+        messageHeader.sender = senderReference
         bundle.addEntry().resource = messageHeader
     }
 
@@ -152,10 +207,19 @@ class FhirPathBundleDigestExtractorStrategyTests {
         val observation = Observation()
         val coding = Coding()
         val extension = Extension()
-        extension.url = conditionCodeExtensionURL
+        extension.url = CONDITION_CODE_EXTENSION_URL
         extension.setValue(Coding())
         coding.extension = listOf(extension)
         observation.code.coding = listOf(coding)
+
+        val interpretation = CodeableConcept()
+        val interpretationCoding = Coding()
+        interpretationCoding.system = "http://snomed.info/sct"
+        interpretationCoding.code = "260385009"
+        interpretationCoding.display = "Negative"
+        interpretation.addCoding(interpretationCoding)
+        observation.interpretation = listOf(interpretation)
+
         bundle.addEntry().resource = observation
     }
 }

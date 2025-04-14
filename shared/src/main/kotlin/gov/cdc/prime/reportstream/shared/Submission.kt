@@ -32,15 +32,13 @@ data class Submission(
          * @param tableEntity The TableEntity to convert.
          * @return The corresponding SubmissionEntity.
          */
-        fun fromTableEntity(tableEntity: TableEntity): Submission {
-            return Submission(
+        fun fromTableEntity(tableEntity: TableEntity): Submission = Submission(
                 submissionId = tableEntity.partitionKey,
                 status = tableEntity.rowKey,
                 bodyURL = tableEntity.getProperty("body_url") as String,
                 detail = tableEntity.getProperty("detail") as String?,
                 timestamp = tableEntity.timestamp
             )
-        }
     }
 
     /**
@@ -50,13 +48,11 @@ data class Submission(
      *
      * @return A TableEntity object that can be inserted into an Azure Table.
      */
-    fun toTableEntity(): TableEntity {
-        return TableEntity(submissionId, status)
+    fun toTableEntity(): TableEntity = TableEntity(submissionId, status)
             .setProperties(
             mapOf(
                 "body_url" to bodyURL,
                 "detail" to detail.takeIf { it != null }
             )
         )
-    }
 }

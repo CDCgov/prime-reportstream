@@ -43,15 +43,13 @@ class CsvUtilities {
             return tableToString(mergedTable)
         }
 
-        private fun stringToTable(csvTable: String): List<List<String>> {
-            return csvReader {
+        private fun stringToTable(csvTable: String): List<List<String>> = csvReader {
                 quoteChar = '"'
                 delimiter = ','
                 skipEmptyLine = false
                 insufficientFieldsRowBehaviour = InsufficientFieldsRowBehaviour.ERROR
                 excessFieldsRowBehaviour = ExcessFieldsRowBehaviour.ERROR
             }.readAll(csvTable)
-        }
 
         private fun tableToString(table: List<List<String>>): String {
             val outputStream = ByteArrayOutputStream()

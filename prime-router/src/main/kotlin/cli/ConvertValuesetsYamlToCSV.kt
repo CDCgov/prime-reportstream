@@ -29,7 +29,8 @@ import java.io.FileOutputStream
  *  ./prime convert-valuesets-to-csv -i ./metadata/valuesets/sender-automation.valuesets
  *
  */
-class ConvertValuesetsYamlToCSV : CliktCommand(
+class ConvertValuesetsYamlToCSV :
+    CliktCommand(
     name = "convert-valuesets-to-csv",
     help = """
     This is a development tool that converts sender-automation.valuesets to two CSV files

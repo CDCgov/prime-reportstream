@@ -7,7 +7,7 @@ import gov.cdc.prime.router.ReportStreamConditionFilter
 import gov.cdc.prime.router.ReportStreamFilter
 import gov.cdc.prime.router.azure.ConditionStamper.Companion.BUNDLE_CODE_IDENTIFIER
 import gov.cdc.prime.router.azure.ConditionStamper.Companion.BUNDLE_VALUE_IDENTIFIER
-import gov.cdc.prime.router.azure.ConditionStamper.Companion.conditionCodeExtensionURL
+import gov.cdc.prime.router.azure.ConditionStamper.Companion.CONDITION_CODE_EXTENSION_URL
 import gov.cdc.prime.router.codes
 import gov.cdc.prime.router.fhirengine.engine.RSMessageType
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
@@ -61,12 +61,10 @@ fun Observation.getCodeSourcesMap(): Map<String, List<Coding>> {
 /**
  * Gets mapped condition extensions present on an [Observation]
  */
-fun Observation.getMappedConditionExtensions(): List<Extension> {
-    return this.getCodeSourcesMap()
+fun Observation.getMappedConditionExtensions(): List<Extension> = this.getCodeSourcesMap()
         .flatMap { it.value }
         .flatMap { it.extension }
-        .filter { it.url == conditionCodeExtensionURL }
-}
+        .filter { it.url == CONDITION_CODE_EXTENSION_URL }
 
 /**
  * Gets mapped conditions present on an [Observation]
@@ -77,9 +75,7 @@ fun Observation.getMappedConditions(): List<Coding> =
 /**
  * Gets mapped condition codes present on an [Observation]
  */
-fun Observation.getMappedConditionCodes(): List<String> {
-    return this.getMappedConditions().map { it.code }
-}
+fun Observation.getMappedConditionCodes(): List<String> = this.getMappedConditions().map { it.code }
 
 fun Bundle.getObservations() = this.entry.map { it.resource }.filterIsInstance<Observation>()
 
@@ -141,12 +137,10 @@ fun Bundle.isElr(): Boolean {
  *
  * @return RSMessageType of this Bundle.
  */
-fun Bundle.getRSMessageType(): RSMessageType {
-    return when {
+fun Bundle.getRSMessageType(): RSMessageType = when {
         isElr() -> RSMessageType.LAB_RESULT
         else -> RSMessageType.UNKNOWN
     }
-}
 
 /**
  * Gets all properties for a [Base] resource recursively and filters only its references
@@ -154,32 +148,29 @@ fun Bundle.getRSMessageType(): RSMessageType {
  * @return a list of reference identifiers for a [Base] resource
  *
  */
-fun Base.getResourceReferences(): List<String> {
-    return FHIRBundleHelpers.filterReferenceProperties(this.getResourceProperties())
-}
+fun Base.getResourceReferences(): List<String> =
+    FHIRBundleHelpers.filterReferenceProperties(this.getResourceProperties())
 
 /**
  * Gets all properties for a [Base] resource recursively
  *
  * @return a list of all [Property] for a [Base] resource
  */
-fun Base.getResourceProperties(): List<Property> {
-    return this.children().stream().flatMap { getChildProperties(it) }.collect(Collectors.toList())
-}
+fun Base.getResourceProperties(): List<Property> = this.children().stream().flatMap {
+    getChildProperties(it)
+}.collect(Collectors.toList())
 
 /**
  * Gets all diagnostic report that have no observations from a [bundle]
  *
  * @return a list of [Base] diagnostic reports that have no observations
  */
-fun Bundle.getDiagnosticReportNoObservations(): List<Base> {
-    return FhirPathUtils.evaluate(
+fun Bundle.getDiagnosticReportNoObservations(): List<Base> = FhirPathUtils.evaluate(
         null,
         this,
         this,
         "Bundle.entry.resource.ofType(DiagnosticReport).where(result.empty())"
     )
-}
 
 /**
  * Deletes a [resource] from a bundle, removes all references to the [resource] and any orphaned children.
@@ -308,17 +299,16 @@ internal fun Bundle.deleteChildlessResource(resource: Base) {
 
 /**
  * Gets the observation extensions for those observations that pass the condition filter for a [receiver]
- * The [fhirBundle] and [shortHandLookupTable] will be used to evaluate whether the observation passes the filter
+ * The [fhirBundle] will be used to evaluate whether the observation passes the filter
  *
  * @return is a list of extensions to add to the bundle
  */
 internal fun getObservationExtensions(
     fhirBundle: Bundle,
     receiver: Receiver,
-    shortHandLookupTable: MutableMap<String, String>,
 ): List<Extension> {
     val (observationsToKeep, allObservations) =
-        getFilteredObservations(fhirBundle, receiver.conditionFilter, shortHandLookupTable)
+        getFilteredObservations(fhirBundle, receiver.conditionFilter)
 
     val observationExtensionsToKeep = mutableListOf<Extension>()
     if (observationsToKeep.size < allObservations.size) {
@@ -331,17 +321,16 @@ internal fun getObservationExtensions(
 
 /**
  * Filter out observations that pass the condition filter for a [receiver]
- * The [bundle] and [shortHandLookupTable] will be used to evaluate whether
+ * The [bundle] will be used to evaluate whether
  * the observation passes the filter
  *
  * @return copy of the bundle with filtered observations removed
  */
 fun Bundle.filterObservations(
     conditionFilter: ReportStreamFilter,
-    shortHandLookupTable: MutableMap<String, String>,
-): Bundle {
+    ): Bundle {
     val (observationsToKeep, allObservations) =
-        getFilteredObservations(this, conditionFilter, shortHandLookupTable)
+        getFilteredObservations(this, conditionFilter)
     val filteredBundle = this.copy()
     val listToKeep = observationsToKeep.map { it.idBase }
     allObservations.forEach {
@@ -354,8 +343,7 @@ fun Bundle.filterObservations(
 
 /**
  * Filter out observations that pass the condition filter for a [receiver]
- * The [bundle] and [shortHandLookupTable] will be used to evaluate whether
- * the observation passes the filter
+ * The [bundle] will be used to evaluate whether the observation passes the filter
  *
  * @return a pair containing a list of the filtered ids and copy of the bundle with filtered observations removed
  */
@@ -381,11 +369,10 @@ fun Bundle.filterMappedObservations(
 private fun getFilteredObservations(
     fhirBundle: Bundle,
     conditionFilter: ReportStreamFilter,
-    shortHandLookupTable: MutableMap<String, String>,
 ): Pair<List<Base>, List<Base>> {
     val allObservationsExpression = "Bundle.entry.resource.ofType(DiagnosticReport).result.resolve()"
     val allObservations = FhirPathUtils.evaluate(
-        CustomContext(fhirBundle, fhirBundle, shortHandLookupTable, CustomFhirPathFunctions()),
+        CustomContext(fhirBundle, fhirBundle, mutableMapOf(), CustomFhirPathFunctions()),
         fhirBundle,
         fhirBundle,
         allObservationsExpression
@@ -395,7 +382,7 @@ private fun getFilteredObservations(
     allObservations.forEach { observation ->
         val passes = conditionFilter.any { conditionFilter ->
             FhirPathUtils.evaluateCondition(
-                CustomContext(fhirBundle, observation, shortHandLookupTable, CustomFhirPathFunctions()),
+                CustomContext(fhirBundle, observation, mutableMapOf(), CustomFhirPathFunctions()),
                 observation,
                 fhirBundle,
                 fhirBundle,
@@ -490,24 +477,20 @@ class FHIRBundleHelpers {
          *
          * @return a list containing only the references in [properties]
          */
-        fun filterReferenceProperties(properties: List<Property>): List<String> {
-            return properties
+        fun filterReferenceProperties(properties: List<Property>): List<String> = properties
                 .filter { it.hasValues() }
                 .flatMap { it.values }
                 .filterIsInstance<Reference>()
                 .map { it.reference }
-        }
 
         /**
          * Gets all child properties for a resource [property] recursively
          *
          * @return a flatmap stream of all child properties on a [property]
          */
-        fun getChildProperties(property: Property): Stream<Property> {
-            return Stream.concat(
+        fun getChildProperties(property: Property): Stream<Property> = Stream.concat(
                 Stream.of(property),
                 property.values.flatMap { it.children() }.stream().flatMap { getChildProperties(it) }
             )
-        }
     }
 }

@@ -50,3 +50,48 @@ Example:
 | 123456         | LDT Flu Test                                                                                                 | LOCAL         | N      |
 | 47457-7        | Influenza virus A H8 Ab [Titer] in Serum                                                                     | LOINC         | Y      |
 | 25141000087100 | Antigen of Bordetella pertussis fimbriae 2 (substance)                                                       | SNOMED        | Y      |
+
+### Comparing Using the API Endpoint
+
+An API endpoint also exists to achieve the same function as the CLI command. This endpoint
+can be utilized by sending a `POST` request to `/api/sender/conditionCode/comparison` with the
+compendium CSV as the body payload. The compendium should be in the exact CSV format as shown in
+previous sections.
+
+If a valid compendium is posted, the server will perform the same code to condition mapping as
+the CLI command. The result is returned in JSON format with the mapping results added to the 
+compendium data. The result of the mapping check will be added as the `mapped?` key for each entry.
+
+Example:
+
+Input compendium CSV as HTTP POST body:
+```csv
+test code,test description,coding system
+97097-0,SARS-CoV-2 (COVID-19) Ag [Presence] in Upper respiratory specimen by Rapid  immunoassay,LOINC
+80382-5,Influenza virus A Ag [Presence] in Upper respiratory specimen by Rapid immunoassay,LOINC
+12345,Flu B,LOCAL
+```
+
+Output JSON:
+```json
+[
+    {
+        "testCode": "97097-0",
+        "testDescription": "SARS-CoV-2 (COVID-19) Ag [Presence] in Upper respiratory specimen by Rapid  immunoassay",
+        "codingSystem": "LOINC",
+        "mapped": "Y"
+    },
+    {
+        "testCode": "80382-5",
+        "testDescription": "Influenza virus A Ag [Presence] in Upper respiratory specimen by Rapid immunoassay",
+        "codingSystem": "LOINC",
+        "mapped": "Y"
+    },
+    {
+        "testCode": "12345",
+        "testDescription": "Flu B",
+        "codingSystem": "LOCAL",
+        "mapped": "N"
+    }
+]
+```

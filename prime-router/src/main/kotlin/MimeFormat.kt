@@ -63,9 +63,7 @@ enum class MimeFormat(val ext: String, val mimeType: String, val isSingleItemFor
          * @return The corresponding MimeFormat.
          * @throws IllegalArgumentException If the MIME type does not match any known format.
          */
-        fun valueOfFromMimeType(mimeType: String): MimeFormat {
-            return entries.find { it.mimeType == mimeType }
+        fun valueOfFromMimeType(mimeType: String): MimeFormat = entries.find { it.mimeType == mimeType }
                 ?: throw IllegalArgumentException("Unexpected MIME type $mimeType.")
-        }
     }
 }

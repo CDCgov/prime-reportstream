@@ -42,19 +42,14 @@ class AppendOktaGroupsGatewayFilterFactoryTest @Autowired constructor(
 ) {
 
     @TestConfiguration
-    class Config(
-        @Value("\${wiremock.server.port}") val port: Int,
-    ) {
+    class Config(@Value("\${wiremock.server.port}") val port: Int) {
 
         @Bean
-        fun oktaGroupsService(): OktaGroupsService {
-            return mockk()
-        }
+        fun oktaGroupsService(): OktaGroupsService = mockk()
 
         @Bean
-        fun appendOktaGroupsGatewayFilterFactory(): AppendOktaGroupsGatewayFilterFactory {
-            return AppendOktaGroupsGatewayFilterFactory(oktaGroupsService())
-        }
+        fun appendOktaGroupsGatewayFilterFactory():
+            AppendOktaGroupsGatewayFilterFactory = AppendOktaGroupsGatewayFilterFactory(oktaGroupsService())
 
         @Bean
         fun testRouteLocator(builder: RouteLocatorBuilder): RouteLocator {

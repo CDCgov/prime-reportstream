@@ -34,9 +34,9 @@ class AdminApiFunctions(
      * level defaults to safe (admin)
      * @return the Okta authenticator
      */
-    private fun getOktaAuthenticator(level: PrincipalLevel = PrincipalLevel.SYSTEM_ADMIN): OktaAuthentication {
-        return oktaAuthentication ?: OktaAuthentication(level)
-    }
+    private fun getOktaAuthenticator(
+        level: PrincipalLevel = PrincipalLevel.SYSTEM_ADMIN,
+    ): OktaAuthentication = oktaAuthentication ?: OktaAuthentication(level)
 
     /**
      * Fetch the list of send_errors. Spans orgs, so should ONLY be done
