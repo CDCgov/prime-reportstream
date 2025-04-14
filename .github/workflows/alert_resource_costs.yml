@@ -7,7 +7,7 @@ on:
 env:
   ALERT_THRESHOLD: 60
   GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  AZURE_CREDENTIALS: '{"clientId":"${{ secrets.AZURE_CLIENT_ID }}","clientSecret":"${{ secrets.AZURE_CLIENT_SECRET }}","subscriptionId":"${{ secrets.AZURE_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.AZURE_TENANT_ID }}"}'
+  AZURE_CREDENTIALS: '{"clientId":"${{ secrets.REPO_AZURE_CLIENT_ID }}","clientSecret":"${{ secrets.REPO_AZURE_CLIENT_SECRET }}","subscriptionId":"${{ secrets.REPO_AZURE_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.REPO_AZURE_TENANT_ID }}"}'
 
 jobs:
   alert_costs:
@@ -66,7 +66,6 @@ jobs:
             * **Last Change Date: \`${{ steps.last-pusher.outputs.last_change_date }}\`**
           icon-emoji: ':money_with_wings:'
           channel: cdc-reportstream-bot-notifications
-  # Updated channel
-          webhook-url: ${{ secrets.SLACK_NOTIFICATIONS_WEBHOOK_URL }}  # Updated webhook secret
+          webhook-url: ${{ secrets.SLACK_WEBHOOK_URL_NAVA_BOT_NOTIFICATIONS_CHANNEL }}
           color: failure
           slackify-markdown: true

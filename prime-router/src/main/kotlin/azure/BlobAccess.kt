@@ -145,11 +145,12 @@ class BlobAccess : Logging {
          */
         internal fun directoryForAction(action: Event.EventAction?): String =
 
-         when (action) {
+        when (action) {
             Event.EventAction.RECEIVE -> "receive"
             Event.EventAction.BATCH -> "batch"
             Event.EventAction.PROCESS -> "process"
             Event.EventAction.DESTINATION_FILTER -> "destination-filter"
+            Event.EventAction.RECEIVER_ENRICHMENT -> "receiver-enrichment"
             Event.EventAction.RECEIVER_FILTER -> "receiver-filter"
             Event.EventAction.ROUTE -> "route"
             Event.EventAction.TRANSLATE -> "translate"
