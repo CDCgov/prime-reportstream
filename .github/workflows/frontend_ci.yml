@@ -50,7 +50,7 @@ jobs:
           cache: yarn
           cache-dependency-path: frontend-react/yarn.lock
       - name: Yarn install
-        run: yarn install --immutable
+        run: yarn install 
 
       - name: Run linting
         run: yarn run lint
@@ -70,7 +70,7 @@ jobs:
           cache: yarn
           cache-dependency-path: frontend-react/yarn.lock
       - name: Yarn install
-        run: yarn install --immutable
+        run: yarn install 
 
       - name: Run Frontend Server
         run: |
@@ -172,7 +172,7 @@ jobs:
           cache: yarn
           cache-dependency-path: frontend-react/yarn.lock
       - name: Yarn install
-        run: yarn install --immutable
+        run: yarn install 
 
       - name: Unit tests
         run: yarn run test:ci
@@ -209,7 +209,7 @@ jobs:
           cache: yarn
           cache-dependency-path: frontend-react/yarn.lock
       - name: Yarn install
-        run: yarn install --immutable
+        run: yarn install 
       - name: Install Playwright
         run: npx playwright install --with-deps
 
@@ -259,6 +259,8 @@ jobs:
           node-version-file: "frontend-react/.nvmrc"
           cache: yarn
           cache-dependency-path: frontend-react/yarn.lock
+      - name: Yarn install
+        run: yarn install
 
       - name: Download blob reports from GitHub Actions Artifacts
         uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16
@@ -346,7 +348,7 @@ jobs:
           cache: yarn
           cache-dependency-path: frontend-react/yarn.lock
       - name: Yarn install
-        run: yarn install --immutable
+        run: yarn install 
 
       - name: Run Chromatic
         id: chromatic
@@ -433,7 +435,7 @@ jobs:
   #         cache: yarn
   #         cache-dependency-path: frontend-react/yarn.lock
   #     - name: Yarn install
-  #       run: yarn install --immutable
+  #       run: yarn install 
 
   #     - name: Collect coverage
   #       run: yarn run test:ci
@@ -465,7 +467,7 @@ jobs:
   #         cache: yarn
   #         cache-dependency-path: frontend-react/yarn.lock
   #     - name: Yarn install
-  #       run: yarn install --immutable
+  #       run: yarn install 
 
   #     - name: Check for dependency vulnerabilities
   #       uses: snyk/actions/node@b98d498629f1c368650224d6d212bf7dfa89e4bf

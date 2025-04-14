@@ -5,7 +5,7 @@ on:
     - cron: "7 13 * * Mon"  #UTC-5
 
 env:
-  channel: cdc-reportstream-devsecops-new
+  channel: cdc-reportstream-engineering-new
 jobs:
   pre_job:
     name: Pre Job
@@ -13,7 +13,7 @@ jobs:
     outputs:
       IsMonday: ${{ steps.IsMonday.outputs.IsMonday }}
       WeekDay: ${{ steps.WeekDay.outputs.IsWeekDay }}
-      
+
     steps:
       - name: "Check out changes"
         uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938
@@ -22,67 +22,67 @@ jobs:
         if: github.event_name == 'schedule' && github.event.schedule == '7 13 * * Mon'
         shell: bash
         run: echo "IsMonday=true" >> $GITHUB_OUTPUT
-      
+
       - name: IsWeekDay
         id: WeekDay
         if: github.event_name == 'schedule' && github.event.schedule == '7 13 * * Tue-Fri'
         shell: bash
         run: echo "IsWeekDay=true" >> $GITHUB_OUTPUT
-  
+
   PDAlert_Monday:
     name: PD Alert for Monday
     needs: pre_job
     if: ${{ needs.pre_job.outputs.IsMonday == 'true' }}
     runs-on: ubuntu-latest
     steps:
-    - name: Check Out Changes
-      uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938
-      with:
-        fetch-depth: 0
-      
-    - name: Get PD oncall schedule
-      id: PD
-      shell: pwsh
-      run: |
-        ./.github/scripts/PagerDutyAlerts/TriggerPDApi.ps1 -PD_KEY "${{ secrets.PD_ROTATION_SLACK_NOTIFICATION }}" -ScheduleIds "${{ secrets.PD_ReportStream_ScheduleId }}"
-    
-    - name: Get PD onCall Details
-      id: PDOnCall
-      shell: pwsh
-      run: | 
-        echo  "${env:PDSchedules}" >> PDSchedules.json
+      - name: Check Out Changes
+        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938
+        with:
+          fetch-depth: 0
 
-    - name: JSON to variables
-      uses: antifree/json-to-variables@8de3c6b94715a24fe65f29640b4e292a4add22a3
-      with:
-        filename: 'PDSchedules.json'
-        prefix: Schedules  
+      - name: Get PD oncall schedule
+        id: PD
+        shell: pwsh
+        run: |
+          ./.github/scripts/PagerDutyAlerts/TriggerPDApi.ps1 -PD_KEY "${{ secrets.PD_ROTATION_SLACK_NOTIFICATION }}" -ScheduleIds "${{ secrets.PD_ReportStream_ScheduleId }}"
 
-    - name: Slack Notification
-      uses: ./.github/actions/notifications
-      with:
-        method: slack
-        title: Pagerduty On-Call
-        message: |
-          "${{ env.Schedules_oncallSchedule_0_ScheduleName }}"
-          ❗"Now": *"${{ env.Schedules_oncallSchedule_0_OnCallPersonName }}"* : _until_ \`"${{ env.Schedules_oncallSchedule_0_Until }}"\`
-          🔸"Next": *"${{ env.Schedules_oncallSchedule_0_NextPersonName }}"* : \`"${{ env.Schedules_oncallSchedule_0_NextFrom }}"\` _until_ \`"${{ env.Schedules_oncallSchedule_0_NextUntil }}"\`
-          
-          "${{ env.Schedules_oncallSchedule_1_ScheduleName }}"
-          ❗"Now": *"${{ env.Schedules_oncallSchedule_1_OnCallPersonName }}"* : _until_ \`"${{ env.Schedules_oncallSchedule_1_Until }}"\`
-          🔸"Next": *"${{ env.Schedules_oncallSchedule_1_NextPersonName }}"* : \`"${{ env.Schedules_oncallSchedule_1_NextFrom }}"\` _until_ \`"${{ env.Schedules_oncallSchedule_1_NextUntil }}"\`
-          
-          "${{ env.Schedules_oncallSchedule_2_ScheduleName }}"
-          ❗"Now": *"${{ env.Schedules_oncallSchedule_2_OnCallPersonName }}"* : _until_ \`"${{ env.Schedules_oncallSchedule_2_Until }}"\`
-          🔸"Next": *"${{ env.Schedules_oncallSchedule_2_NextPersonName }}"* : \`"${{ env.Schedules_oncallSchedule_2_NextFrom }}"\` _until_ \`"${{ env.Schedules_oncallSchedule_2_NextUntil }}"\`
-          
-          "${{ env.Schedules_oncallSchedule_3_ScheduleName }}"
-          ❗"Now": *"${{ env.Schedules_oncallSchedule_3_OnCallPersonName }}"* : _until_ \`"${{ env.Schedules_oncallSchedule_3_Until }}"\`
-          🔸"Next": *"${{ env.Schedules_oncallSchedule_3_NextPersonName }}"* : \`"${{ env.Schedules_oncallSchedule_3_NextFrom }}"\` _until_ \`"${{ env.Schedules_oncallSchedule_3_NextUntil }}"\`
-        icon-emoji: ':alarm_clock:'
-        channel:  ${{ env.channel }}
-        webhook-url: ${{ secrets.SLACK_NOTIFICATIONS_WEBHOOK_URL }}
-        color: good
+      - name: Get PD onCall Details
+        id: PDOnCall
+        shell: pwsh
+        run: |
+          echo  "${env:PDSchedules}" >> PDSchedules.json
+
+      - name: JSON to variables
+        uses: antifree/json-to-variables@8de3c6b94715a24fe65f29640b4e292a4add22a3
+        with:
+          filename: 'PDSchedules.json'
+          prefix: Schedules
+
+      - name: Slack Notification
+        uses: ./.github/actions/notifications
+        with:
+          method: slack
+          title: Pagerduty On-Call
+          message: |
+            "${{ env.Schedules_oncallSchedule_0_ScheduleName }}"
+            ❗"Now": *"${{ env.Schedules_oncallSchedule_0_OnCallPersonName }}"* : _until_ \`"${{ env.Schedules_oncallSchedule_0_Until }}"\`
+            🔸"Next": *"${{ env.Schedules_oncallSchedule_0_NextPersonName }}"* : \`"${{ env.Schedules_oncallSchedule_0_NextFrom }}"\` _until_ \`"${{ env.Schedules_oncallSchedule_0_NextUntil }}"\`
+            
+            "${{ env.Schedules_oncallSchedule_1_ScheduleName }}"
+            ❗"Now": *"${{ env.Schedules_oncallSchedule_1_OnCallPersonName }}"* : _until_ \`"${{ env.Schedules_oncallSchedule_1_Until }}"\`
+            🔸"Next": *"${{ env.Schedules_oncallSchedule_1_NextPersonName }}"* : \`"${{ env.Schedules_oncallSchedule_1_NextFrom }}"\` _until_ \`"${{ env.Schedules_oncallSchedule_1_NextUntil }}"\`
+            
+            "${{ env.Schedules_oncallSchedule_2_ScheduleName }}"
+            ❗"Now": *"${{ env.Schedules_oncallSchedule_2_OnCallPersonName }}"* : _until_ \`"${{ env.Schedules_oncallSchedule_2_Until }}"\`
+            🔸"Next": *"${{ env.Schedules_oncallSchedule_2_NextPersonName }}"* : \`"${{ env.Schedules_oncallSchedule_2_NextFrom }}"\` _until_ \`"${{ env.Schedules_oncallSchedule_2_NextUntil }}"\`
+            
+            "${{ env.Schedules_oncallSchedule_3_ScheduleName }}"
+            ❗"Now": *"${{ env.Schedules_oncallSchedule_3_OnCallPersonName }}"* : _until_ \`"${{ env.Schedules_oncallSchedule_3_Until }}"\`
+            🔸"Next": *"${{ env.Schedules_oncallSchedule_3_NextPersonName }}"* : \`"${{ env.Schedules_oncallSchedule_3_NextFrom }}"\` _until_ \`"${{ env.Schedules_oncallSchedule_3_NextUntil }}"\`
+          icon-emoji: ':alarm_clock:'
+          channel:  ${{ env.channel }}
+          webhook-url: ${{ secrets.SLACK_WEBHOOK_URL_NAVA_ENGINEERING_NEW_CHANNEL }}
+          color: good
 
   PDAlert_WeekDays:
     name: PD Alert for WeekDays
@@ -90,48 +90,47 @@ jobs:
     if: ${{ needs.pre_job.outputs.WeekDay == 'true' }}
     runs-on: ubuntu-latest
     steps:
-    - name: Check Out Changes
-      uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938
-      with:
-        fetch-depth: 0
-      
-    - name: Get PD oncall schedule
-      id: PD
-      shell: pwsh
-      run: |
-        ./.github/scripts/PagerDutyAlerts/TriggerPDApi.ps1 -PD_KEY "${{ secrets.PD_ROTATION_SLACK_NOTIFICATION }}" -ScheduleIds "${{ secrets.PD_ReportStream_ScheduleId }}"
-    
-    - name: Get PD onCall Details
-      id: PDOnCall
-      shell: pwsh
-      run: | 
-        echo  "${env:PDSchedules}" >> PDSchedules.json
+      - name: Check Out Changes
+        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938
+        with:
+          fetch-depth: 0
 
-    - name: JSON to variables
-      uses: antifree/json-to-variables@8de3c6b94715a24fe65f29640b4e292a4add22a3
-      with:
-        filename: 'PDSchedules.json'
-        prefix: Schedules  
+      - name: Get PD oncall schedule
+        id: PD
+        shell: pwsh
+        run: |
+          ./.github/scripts/PagerDutyAlerts/TriggerPDApi.ps1 -PD_KEY "${{ secrets.PD_ROTATION_SLACK_NOTIFICATION }}" -ScheduleIds "${{ secrets.PD_ReportStream_ScheduleId }}"
 
-    - name: Slack Notification
-      uses: ./.github/actions/notifications
-      with:
-        method: slack
-        title: PagerDuty On-Call
-        message: |
-          "${{ env.Schedules_oncallSchedule_0_ScheduleName }}"
-          ❗"Now": *"${{ env.Schedules_oncallSchedule_0_OnCallPersonName }}"*
+      - name: Get PD onCall Details
+        id: PDOnCall
+        shell: pwsh
+        run: |
+          echo  "${env:PDSchedules}" >> PDSchedules.json
 
-          "${{ env.Schedules_oncallSchedule_1_ScheduleName }}"
-          ❗"Now": *"${{ env.Schedules_oncallSchedule_1_OnCallPersonName }}"*
+      - name: JSON to variables
+        uses: antifree/json-to-variables@8de3c6b94715a24fe65f29640b4e292a4add22a3
+        with:
+          filename: 'PDSchedules.json'
+          prefix: Schedules
 
-          "${{ env.Schedules_oncallSchedule_2_ScheduleName }}"
-          ❗"Now": *"${{ env.Schedules_oncallSchedule_2_OnCallPersonName }}"*
-
-          "${{ env.Schedules_oncallSchedule_3_ScheduleName }}"
-          ❗"Now": *"${{ env.Schedules_oncallSchedule_3_OnCallPersonName }}"*
-        icon-emoji: ':alarm_clock:'
-        channel:  ${{ env.channel }}
-        webhook-url: ${{ secrets.SLACK_NOTIFICATIONS_WEBHOOK_URL }}
-        color: good
-
+      - name: Slack Notification
+        uses: ./.github/actions/notifications
+        with:
+          method: slack
+          title: PagerDuty On-Call
+          message: |
+            "${{ env.Schedules_oncallSchedule_0_ScheduleName }}"
+            ❗"Now": *"${{ env.Schedules_oncallSchedule_0_OnCallPersonName }}"*
+            
+            "${{ env.Schedules_oncallSchedule_1_ScheduleName }}"
+            ❗"Now": *"${{ env.Schedules_oncallSchedule_1_OnCallPersonName }}"*
+            
+            "${{ env.Schedules_oncallSchedule_2_ScheduleName }}"
+            ❗"Now": *"${{ env.Schedules_oncallSchedule_2_OnCallPersonName }}"*
+            
+            "${{ env.Schedules_oncallSchedule_3_ScheduleName }}"
+            ❗"Now": *"${{ env.Schedules_oncallSchedule_3_OnCallPersonName }}"*
+          icon-emoji: ':alarm_clock:'
+          channel:  ${{ env.channel }}
+          webhook-url: ${{ secrets.SLACK_WEBHOOK_URL_NAVA_ENGINEERING_NEW_CHANNEL }}
+          color: good

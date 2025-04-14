@@ -47,6 +47,22 @@ class SenderFunctionTest {
         "80382-5,Influenza virus A Ag [Presence] in Upper respiratory specimen by Rapid immunoassay,LOINC\n" +
         "12345,Flu B,LOCAL"
 
+    val REQ_BODY_TEST_CSV_EMPTY = ""
+
+    val REQ_BODY_TEST_CSV_HEADERS_ONLY = "test code,test description,coding system"
+
+    val REQ_BODY_TEST_CSV_MISSING_HEADER = "test code,test description,coding syste"
+
+    val REQ_BODY_TEST_CSV_MISSING_VALUE = "test code,test description,coding system\n" +
+        "97097-0,SARS-CoV-2 (COVID-19) Ag [Presence] in Upper respiratory specimen by Rapid  immunoassay,LOINC\n" +
+        "80382-5,Influenza virus A Ag [Presence] in Upper respiratory specimen by Rapid immunoassay,LOINC\n" +
+        "12345,Flu B"
+
+    val REQ_BODY_TEST_CSV_WITH_EMPTY_VALUE = "test code,test description,coding system\n" +
+        "97097-0,SARS-CoV-2 (COVID-19) Ag [Presence] in Upper respiratory specimen by Rapid  immunoassay,LOINC\n" +
+        "80382-5,Influenza virus A Ag [Presence] in Upper respiratory specimen by Rapid immunoassay,LOINC\n" +
+        "12345,,LOCAL"
+
     val testOrganization = DeepOrganization(
         "phd",
         "test",
@@ -150,6 +166,176 @@ class SenderFunctionTest {
         val response = senderFunction.conditionCodeComparisonPostRequest(testRequest)
 
         assertEquals(HttpStatus.OK, response.status)
+    }
+
+    @Test
+    fun `test SenderFunction conditionCodeComparisonPostRequest empty csv`() {
+        val metadata = UnitTestUtils.simpleMetadata
+        val settings = FileSettings().loadOrganizations(testOrganization)
+        val sender = UniversalPipelineSender(
+            name = "Test Sender",
+            organizationName = "testOrganization",
+            format = MimeFormat.HL7,
+            topic = Topic.FULL_ELR
+        )
+
+        val workflowEngine = makeEngine(metadata, settings)
+        val actionHistory = spyk(ActionHistory(TaskAction.receive))
+        val senderFunction = spyk(SenderFunction(workflowEngine, actionHistory))
+
+        val testRequest = MockHttpRequestMessage(REQ_BODY_TEST_CSV_EMPTY)
+
+        every { workflowEngine.settings.findSender("Test Sender") } returns sender
+
+        mockkObject(AuthenticatedClaims)
+        val mockClaims = mockk<AuthenticatedClaims>()
+        every { AuthenticatedClaims.authenticate(any()) } returns mockClaims
+        every { mockClaims.authorizedForSendOrReceive(any(), any()) } returns true
+
+        testRequest.httpHeaders += mapOf(
+            "client" to "Test Sender",
+            "content-length" to "4"
+        )
+
+        val response = senderFunction.conditionCodeComparisonPostRequest(testRequest)
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.status)
+    }
+
+    @Test
+    fun `test SenderFunction conditionCodeComparisonPostRequest csv headers only`() {
+        val metadata = UnitTestUtils.simpleMetadata
+        val settings = FileSettings().loadOrganizations(testOrganization)
+        val sender = UniversalPipelineSender(
+            name = "Test Sender",
+            organizationName = "testOrganization",
+            format = MimeFormat.HL7,
+            topic = Topic.FULL_ELR
+        )
+
+        val workflowEngine = makeEngine(metadata, settings)
+        val actionHistory = spyk(ActionHistory(TaskAction.receive))
+        val senderFunction = spyk(SenderFunction(workflowEngine, actionHistory))
+
+        val testRequest = MockHttpRequestMessage(REQ_BODY_TEST_CSV_HEADERS_ONLY)
+
+        every { workflowEngine.settings.findSender("Test Sender") } returns sender
+
+        mockkObject(AuthenticatedClaims)
+        val mockClaims = mockk<AuthenticatedClaims>()
+        every { AuthenticatedClaims.authenticate(any()) } returns mockClaims
+        every { mockClaims.authorizedForSendOrReceive(any(), any()) } returns true
+
+        testRequest.httpHeaders += mapOf(
+            "client" to "Test Sender",
+            "content-length" to "4"
+        )
+
+        val response = senderFunction.conditionCodeComparisonPostRequest(testRequest)
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.status)
+    }
+
+    @Test
+    fun `test SenderFunction conditionCodeComparisonPostRequest csv with missing header`() {
+        val metadata = UnitTestUtils.simpleMetadata
+        val settings = FileSettings().loadOrganizations(testOrganization)
+        val sender = UniversalPipelineSender(
+            name = "Test Sender",
+            organizationName = "testOrganization",
+            format = MimeFormat.HL7,
+            topic = Topic.FULL_ELR
+        )
+
+        val workflowEngine = makeEngine(metadata, settings)
+        val actionHistory = spyk(ActionHistory(TaskAction.receive))
+        val senderFunction = spyk(SenderFunction(workflowEngine, actionHistory))
+
+        val testRequest = MockHttpRequestMessage(REQ_BODY_TEST_CSV_MISSING_HEADER)
+
+        every { workflowEngine.settings.findSender("Test Sender") } returns sender
+
+        mockkObject(AuthenticatedClaims)
+        val mockClaims = mockk<AuthenticatedClaims>()
+        every { AuthenticatedClaims.authenticate(any()) } returns mockClaims
+        every { mockClaims.authorizedForSendOrReceive(any(), any()) } returns true
+
+        testRequest.httpHeaders += mapOf(
+            "client" to "Test Sender",
+            "content-length" to "4"
+        )
+
+        val response = senderFunction.conditionCodeComparisonPostRequest(testRequest)
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.status)
+    }
+
+    @Test
+    fun `test SenderFunction conditionCodeComparisonPostRequest csv with missing values`() {
+        val metadata = UnitTestUtils.simpleMetadata
+        val settings = FileSettings().loadOrganizations(testOrganization)
+        val sender = UniversalPipelineSender(
+            name = "Test Sender",
+            organizationName = "testOrganization",
+            format = MimeFormat.HL7,
+            topic = Topic.FULL_ELR
+        )
+
+        val workflowEngine = makeEngine(metadata, settings)
+        val actionHistory = spyk(ActionHistory(TaskAction.receive))
+        val senderFunction = spyk(SenderFunction(workflowEngine, actionHistory))
+
+        val testRequest = MockHttpRequestMessage(REQ_BODY_TEST_CSV_MISSING_VALUE)
+
+        every { workflowEngine.settings.findSender("Test Sender") } returns sender
+
+        mockkObject(AuthenticatedClaims)
+        val mockClaims = mockk<AuthenticatedClaims>()
+        every { AuthenticatedClaims.authenticate(any()) } returns mockClaims
+        every { mockClaims.authorizedForSendOrReceive(any(), any()) } returns true
+
+        testRequest.httpHeaders += mapOf(
+            "client" to "Test Sender",
+            "content-length" to "4"
+        )
+
+        val response = senderFunction.conditionCodeComparisonPostRequest(testRequest)
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.status)
+    }
+
+    @Test
+    fun `test SenderFunction conditionCodeComparisonPostRequest csv with empty values`() {
+        val metadata = UnitTestUtils.simpleMetadata
+        val settings = FileSettings().loadOrganizations(testOrganization)
+        val sender = UniversalPipelineSender(
+            name = "Test Sender",
+            organizationName = "testOrganization",
+            format = MimeFormat.HL7,
+            topic = Topic.FULL_ELR
+        )
+
+        val workflowEngine = makeEngine(metadata, settings)
+        val actionHistory = spyk(ActionHistory(TaskAction.receive))
+        val senderFunction = spyk(SenderFunction(workflowEngine, actionHistory))
+
+        val testRequest = MockHttpRequestMessage(REQ_BODY_TEST_CSV_WITH_EMPTY_VALUE)
+
+        every { workflowEngine.settings.findSender("Test Sender") } returns sender
+
+        mockkObject(AuthenticatedClaims)
+        val mockClaims = mockk<AuthenticatedClaims>()
+        every { AuthenticatedClaims.authenticate(any()) } returns mockClaims
+        every { mockClaims.authorizedForSendOrReceive(any(), any()) } returns true
+
+        testRequest.httpHeaders += mapOf(
+            "client" to "Test Sender",
+            "content-length" to "4"
+        )
+
+        val response = senderFunction.conditionCodeComparisonPostRequest(testRequest)
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.status)
     }
 
     @Test

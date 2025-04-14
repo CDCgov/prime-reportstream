@@ -299,17 +299,16 @@ internal fun Bundle.deleteChildlessResource(resource: Base) {
 
 /**
  * Gets the observation extensions for those observations that pass the condition filter for a [receiver]
- * The [fhirBundle] and [shortHandLookupTable] will be used to evaluate whether the observation passes the filter
+ * The [fhirBundle] will be used to evaluate whether the observation passes the filter
  *
  * @return is a list of extensions to add to the bundle
  */
 internal fun getObservationExtensions(
     fhirBundle: Bundle,
     receiver: Receiver,
-    shortHandLookupTable: MutableMap<String, String>,
 ): List<Extension> {
     val (observationsToKeep, allObservations) =
-        getFilteredObservations(fhirBundle, receiver.conditionFilter, shortHandLookupTable)
+        getFilteredObservations(fhirBundle, receiver.conditionFilter)
 
     val observationExtensionsToKeep = mutableListOf<Extension>()
     if (observationsToKeep.size < allObservations.size) {
@@ -322,17 +321,16 @@ internal fun getObservationExtensions(
 
 /**
  * Filter out observations that pass the condition filter for a [receiver]
- * The [bundle] and [shortHandLookupTable] will be used to evaluate whether
+ * The [bundle] will be used to evaluate whether
  * the observation passes the filter
  *
  * @return copy of the bundle with filtered observations removed
  */
 fun Bundle.filterObservations(
     conditionFilter: ReportStreamFilter,
-    shortHandLookupTable: MutableMap<String, String>,
-): Bundle {
+    ): Bundle {
     val (observationsToKeep, allObservations) =
-        getFilteredObservations(this, conditionFilter, shortHandLookupTable)
+        getFilteredObservations(this, conditionFilter)
     val filteredBundle = this.copy()
     val listToKeep = observationsToKeep.map { it.idBase }
     allObservations.forEach {
@@ -345,8 +343,7 @@ fun Bundle.filterObservations(
 
 /**
  * Filter out observations that pass the condition filter for a [receiver]
- * The [bundle] and [shortHandLookupTable] will be used to evaluate whether
- * the observation passes the filter
+ * The [bundle] will be used to evaluate whether the observation passes the filter
  *
  * @return a pair containing a list of the filtered ids and copy of the bundle with filtered observations removed
  */
@@ -372,11 +369,10 @@ fun Bundle.filterMappedObservations(
 private fun getFilteredObservations(
     fhirBundle: Bundle,
     conditionFilter: ReportStreamFilter,
-    shortHandLookupTable: MutableMap<String, String>,
 ): Pair<List<Base>, List<Base>> {
     val allObservationsExpression = "Bundle.entry.resource.ofType(DiagnosticReport).result.resolve()"
     val allObservations = FhirPathUtils.evaluate(
-        CustomContext(fhirBundle, fhirBundle, shortHandLookupTable, CustomFhirPathFunctions()),
+        CustomContext(fhirBundle, fhirBundle, mutableMapOf(), CustomFhirPathFunctions()),
         fhirBundle,
         fhirBundle,
         allObservationsExpression
@@ -386,7 +382,7 @@ private fun getFilteredObservations(
     allObservations.forEach { observation ->
         val passes = conditionFilter.any { conditionFilter ->
             FhirPathUtils.evaluateCondition(
-                CustomContext(fhirBundle, observation, shortHandLookupTable, CustomFhirPathFunctions()),
+                CustomContext(fhirBundle, observation, mutableMapOf(), CustomFhirPathFunctions()),
                 observation,
                 fhirBundle,
                 fhirBundle,
