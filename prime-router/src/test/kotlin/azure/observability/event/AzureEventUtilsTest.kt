@@ -27,12 +27,14 @@ class AzureEventUtilsTest {
                             CodeSummary(
                                 snomedSystem,
                                 "840539006",
-                                "Disease caused by severe acute respiratory syndrome coronavirus 2 (disorder)"
+                                "Disease caused by severe acute respiratory syndrome coronavirus 2 (disorder)",
+                                memberOid = "Unknown"
                             ),
                             CodeSummary(
                                 snomedSystem,
                                 "7180009",
-                                "Meningitis (disorder)"
+                                "Meningitis (disorder)",
+                                memberOid = "Unknown"
                             )
                         ),
                         loincSystem,
@@ -44,12 +46,14 @@ class AzureEventUtilsTest {
                             CodeSummary(
                                 snomedSystem,
                                 "840539006",
-                                "Disease caused by severe acute respiratory syndrome coronavirus 2 (disorder)"
+                                "Disease caused by severe acute respiratory syndrome coronavirus 2 (disorder)",
+                                memberOid = "Unknown"
                             ),
                             CodeSummary(
                                 snomedSystem,
                                 "7180009",
-                                "Meningitis (disorder)"
+                                "Meningitis (disorder)",
+                                memberOid = "Unknown"
                             )
                         ),
                         "Local",
@@ -57,7 +61,14 @@ class AzureEventUtilsTest {
                         "Covid 19 Test"
                     )
                 ),
-                listOf(CodeSummary(system = "http://terminology.hl7.org/CodeSystem/v2-0078", code = "N", display = "Normal"))
+                listOf(
+                    CodeSummary(
+                        system = "http://terminology.hl7.org/CodeSystem/v2-0078",
+                        code = "N",
+                        display = "Normal",
+                        memberOid = "Unknown"
+                    )
+                )
             ),
             ObservationSummary(
                 listOf(
