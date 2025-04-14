@@ -488,10 +488,7 @@ class TranslationTests {
             }
 
             if (!config.conditionFiler.isNullOrBlank()) {
-                fhirBundle = fhirBundle.filterObservations(
-                    listOf(config.conditionFiler),
-                    emptyMap<String, String>().toMutableMap()
-                )
+                fhirBundle = fhirBundle.filterObservations(listOf(config.conditionFiler))
             }
 
             val hl7 = FhirToHl7Converter(

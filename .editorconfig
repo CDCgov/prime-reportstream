@@ -71,3 +71,7 @@ indent_size = 2
 
 [{*.schema,*.valueset}]
 indent_size = 2
+
+[{*.tf}]
+tab_width = 2
+indent_size = 2

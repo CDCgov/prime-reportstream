@@ -20,12 +20,14 @@ import java.util.UUID
 class ReportGraphNode(val node: ReportFile) {
     val children: MutableList<ReportGraphNode> = mutableListOf()
 }
+
 class ReportGraphBuilder {
     private lateinit var theSubmission: ReportNodeBuilder
     private lateinit var theTopic: Topic
     private lateinit var theFormat: MimeFormat
     private lateinit var theSender: Sender
     private var theNextAction: TaskAction? = null
+    private lateinit var theExternalName: String
 
     fun topic(topic: Topic) {
         this.theTopic = topic
@@ -41,6 +43,10 @@ class ReportGraphBuilder {
 
     fun nextAction(nextAction: TaskAction) {
         this.theNextAction = nextAction
+    }
+
+    fun externalName(name: String) {
+        this.theExternalName = name
     }
 
     fun submission(initializer: ReportNodeBuilder.() -> Unit) {
@@ -87,6 +93,9 @@ class ReportGraphBuilder {
                 .setBodyUrl(theSubmission.theReportBlobUrl)
                 .setNextAction(theNextAction ?: theSubmission.reportGraphNodes.firstOrNull()?.theAction)
                 .setCreatedAt(OffsetDateTime.now())
+            if (action.actionName == TaskAction.send) {
+                reportFile.setTransportParams("{Some Transport Params}")
+            }
             dbAccess.insertReportFile(
                 reportFile, txn, action
             )
@@ -138,7 +147,9 @@ class ReportGraphBuilder {
             .setTransportResult(node.theTransportResult)
             .setNextAction(node.theNextAction ?: node.reportGraphNodes.firstOrNull()?.theAction)
             .setCreatedAt(graph.node.createdAt.plusMinutes(1))
-
+        if (childAction.actionName == TaskAction.send) {
+            childReportFile.setTransportParams("{Some Transport Params}")
+        }
         if (node.receiver != null) {
             childReportFile.setReceivingOrg(node.receiver!!.organizationName)
             childReportFile.setReceivingOrgSvc(node.receiver!!.name)
@@ -195,6 +206,7 @@ class ReportNodeBuilder {
             initializer: ReportGraphBuilder.() -> Unit,
         ): ReportGraphBuilder = ReportGraphBuilder().apply(initializer)
     }
+
     lateinit var theAction: TaskAction
     var theNextAction: TaskAction? = null
     var theReportBlobUrl: String = UUID.randomUUID().toString()
