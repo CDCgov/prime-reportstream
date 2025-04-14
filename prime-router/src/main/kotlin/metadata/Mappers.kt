@@ -82,10 +82,7 @@ interface Mapper {
     ): ElementResult
 }
 
-data class ElementAndValue(
-    val element: Element,
-    val value: String,
-)
+data class ElementAndValue(val element: Element, val value: String)
 
 class MiddleInitialMapper : Mapper {
     override val name = "middleInitial"
@@ -100,8 +97,7 @@ class MiddleInitialMapper : Mapper {
         args: List<String>,
         values: List<ElementAndValue>,
         sender: Sender?,
-    ): ElementResult {
-        return ElementResult(
+    ): ElementResult = ElementResult(
             if (values.isEmpty()) {
                 null
             } else {
@@ -114,7 +110,6 @@ class MiddleInitialMapper : Mapper {
                 }
             }
         )
-    }
 }
 
 /**
@@ -150,9 +145,10 @@ class IfThenElseMapper : Mapper {
      * @param mapperArg one of the arguments from a schema elements mapper property
      * @return Either a passed-in Elements .value or the mapper argument as a string literal
      */
-    internal fun decodeArg(values: List<ElementAndValue>, mapperArg: String): String {
-        return values.find { it.element.name.equals(mapperArg, ignoreCase = true) }?.value ?: mapperArg
-    }
+    internal fun decodeArg(
+        values: List<ElementAndValue>,
+        mapperArg: String,
+    ): String = values.find { it.element.name.equals(mapperArg, ignoreCase = true) }?.value ?: mapperArg
 
     /**
      * Compares two strings for equalities
@@ -201,8 +197,7 @@ class IfThenElseMapper : Mapper {
         args: List<String>,
         values: List<ElementAndValue>,
         sender: Sender?,
-    ): ElementResult {
-        return if (
+    ): ElementResult = if (
             comp(
                 decodeArg(values, args[0]),
                 decodeArg(values, args[1]),
@@ -213,7 +208,6 @@ class IfThenElseMapper : Mapper {
         } else {
             ElementResult(decodeArg(values, args[4])) // see decodeArg()
         }
-    }
 }
 
 /**
@@ -230,8 +224,7 @@ class UseMapper : Mapper {
         args: List<String>,
         values: List<ElementAndValue>,
         sender: Sender?,
-    ): ElementResult {
-        return ElementResult(
+    ): ElementResult = ElementResult(
             if (values.isEmpty()) {
                 null
             } else {
@@ -247,7 +240,6 @@ class UseMapper : Mapper {
                 }
             }
         )
-    }
 }
 
 /**
@@ -420,8 +412,7 @@ class ConcatenateMapper : Mapper {
         args: List<String>,
         values: List<ElementAndValue>,
         sender: Sender?,
-    ): ElementResult {
-        return ElementResult(
+    ): ElementResult = ElementResult(
             if (values.isEmpty()) {
                 null
             } else {
@@ -429,7 +420,6 @@ class ConcatenateMapper : Mapper {
                 values.joinToString(separator = element.delimiter ?: ", ") { it.value }
             }
         )
-    }
 }
 
 /**
@@ -449,15 +439,13 @@ class IfPresentMapper : Mapper {
         args: List<String>,
         values: List<ElementAndValue>,
         sender: Sender?,
-    ): ElementResult {
-        return ElementResult(
+    ): ElementResult = ElementResult(
             if (values.size == 1) {
                 args[1]
             } else {
                 null
             }
         )
-    }
 }
 
 /**
@@ -529,8 +517,7 @@ class IfNPIMapper : Mapper {
         args: List<String>,
         values: List<ElementAndValue>,
         sender: Sender?,
-    ): ElementResult {
-        return ElementResult(
+    ): ElementResult = ElementResult(
             if (values.size != 1) {
                 null
             } else if (NPIUtilities.isValidNPI(values[0].value)) {
@@ -541,7 +528,6 @@ class IfNPIMapper : Mapper {
                 null
             }
         )
-    }
 }
 
 /**
@@ -565,8 +551,7 @@ class LookupMapper : Mapper {
         args: List<String>,
         values: List<ElementAndValue>,
         sender: Sender?,
-    ): ElementResult {
-        return ElementResult(
+    ): ElementResult = ElementResult(
             // args should be twice size of values as it includes the index column names
             // ex: lookup(patient_state, $Column:State, patient_county, $Column:County)
             // there are four args two represent fields with values. Two are lookup table columns
@@ -591,7 +576,6 @@ class LookupMapper : Mapper {
                 tableFilter.findSingleResult(lookupColumn)
             }
         )
-    }
 }
 
 /**
@@ -606,9 +590,7 @@ class LookupMapper : Mapper {
 class LookupSenderAutomationValuesets : Mapper {
     override val name = "lookupSenderAutomationValuesets"
 
-    override fun valueNames(element: Element, args: List<String>): List<String> {
-        return args
-    }
+    override fun valueNames(element: Element, args: List<String>): List<String> = args
 
     override fun apply(
         element: Element,
@@ -750,17 +732,14 @@ class NpiLookupMapper : Mapper {
 class Obx8Mapper : Mapper {
     override val name = "obx8"
 
-    override fun valueNames(element: Element, args: List<String>): List<String> {
-        return listOf("test_result")
-    }
+    override fun valueNames(element: Element, args: List<String>): List<String> = listOf("test_result")
 
     override fun apply(
         element: Element,
         args: List<String>,
         values: List<ElementAndValue>,
         sender: Sender?,
-    ): ElementResult {
-        return ElementResult(
+    ): ElementResult = ElementResult(
             if (values.isEmpty() || values.size > 1) {
                 null
             } else {
@@ -789,15 +768,12 @@ class Obx8Mapper : Mapper {
                 }
             }
         )
-    }
 }
 
 class TimestampMapper : Mapper {
     override val name = "timestamp"
 
-    override fun valueNames(element: Element, args: List<String>): List<String> {
-        return emptyList()
-    }
+    override fun valueNames(element: Element, args: List<String>): List<String> = emptyList()
 
     override fun apply(
         element: Element,
@@ -827,9 +803,7 @@ class TimestampMapper : Mapper {
 class DateTimeOffsetMapper : Mapper {
     override val name = "offsetDateTime"
 
-    override fun valueNames(element: Element, args: List<String>): List<String> {
-        return listOf(args[0])
-    }
+    override fun valueNames(element: Element, args: List<String>): List<String> = listOf(args[0])
 
     override fun apply(
         element: Element,
@@ -837,13 +811,11 @@ class DateTimeOffsetMapper : Mapper {
         values: List<ElementAndValue>,
         sender: Sender?,
     ): ElementResult {
-        fun parseDateTime(value: String): OffsetDateTime {
-            return try {
+        fun parseDateTime(value: String): OffsetDateTime = try {
                 DateUtilities.parseDate(value.trim()).toOffsetDateTime()
             } catch (t: Throwable) {
                 error("Invalid date: '$value' for element '${element.name}'")
             }
-        }
         return ElementResult(
             if (values.isEmpty() || values.size > 1 || values[0].value.isBlank()) {
                 null
@@ -869,9 +841,7 @@ class DateTimeOffsetMapper : Mapper {
 class CoalesceMapper : Mapper {
     override val name = "coalesce"
 
-    override fun valueNames(element: Element, args: List<String>): List<String> {
-        return args
-    }
+    override fun valueNames(element: Element, args: List<String>): List<String> = args
 
     override fun apply(
         element: Element,
@@ -890,9 +860,7 @@ class CoalesceMapper : Mapper {
 class TrimBlanksMapper : Mapper {
     override val name = "trimBlanks"
 
-    override fun valueNames(element: Element, args: List<String>): List<String> {
-        return listOf(args[0])
-    }
+    override fun valueNames(element: Element, args: List<String>): List<String> = listOf(args[0])
 
     override fun apply(
         element: Element,
@@ -930,9 +898,7 @@ class StripPhoneFormattingMapper : Mapper {
 class StripNonNumericDataMapper : Mapper {
     override val name = "stripNonNumeric"
 
-    override fun valueNames(element: Element, args: List<String>): List<String> {
-        return args
-    }
+    override fun valueNames(element: Element, args: List<String>): List<String> = args
 
     override fun apply(
         element: Element,
@@ -950,9 +916,7 @@ class StripNonNumericDataMapper : Mapper {
 class StripNumericDataMapper : Mapper {
     override val name = "stripNumeric"
 
-    override fun valueNames(element: Element, args: List<String>): List<String> {
-        return args
-    }
+    override fun valueNames(element: Element, args: List<String>): List<String> = args
 
     override fun apply(
         element: Element,
@@ -970,9 +934,7 @@ class StripNumericDataMapper : Mapper {
 class SplitMapper : Mapper {
     override val name = "split"
 
-    override fun valueNames(element: Element, args: List<String>): List<String> {
-        return listOf(args[0])
-    }
+    override fun valueNames(element: Element, args: List<String>): List<String> = listOf(args[0])
 
     override fun apply(
         element: Element,
@@ -996,9 +958,7 @@ class SplitMapper : Mapper {
 class SplitByCommaMapper : Mapper {
     override val name = "splitByComma"
 
-    override fun valueNames(element: Element, args: List<String>): List<String> {
-        return listOf(args[0])
-    }
+    override fun valueNames(element: Element, args: List<String>): List<String> = listOf(args[0])
 
     override fun apply(
         element: Element,
@@ -1018,9 +978,7 @@ class SplitByCommaMapper : Mapper {
 class ZipCodeToCountyMapper : Mapper {
     override val name = "zipCodeToCounty"
 
-    override fun valueNames(element: Element, args: List<String>): List<String> {
-        return args
-    }
+    override fun valueNames(element: Element, args: List<String>): List<String> = args
 
     override fun apply(
         element: Element,
@@ -1050,9 +1008,7 @@ class ZipCodeToCountyMapper : Mapper {
 class ZipCodeToStateMapper : Mapper {
     override val name = "zipCodeToState"
 
-    override fun valueNames(element: Element, args: List<String>): List<String> {
-        return args
-    }
+    override fun valueNames(element: Element, args: List<String>): List<String> = args
 
     override fun apply(
         element: Element,
@@ -1092,9 +1048,7 @@ class ZipCodeToStateMapper : Mapper {
 class CountryMapper : Mapper {
     override val name = "countryMapper"
 
-    override fun valueNames(element: Element, args: List<String>): List<String> {
-        return args
-    }
+    override fun valueNames(element: Element, args: List<String>): List<String> = args
 
     override fun apply(
         element: Element,
@@ -1192,9 +1146,7 @@ class NullMapper : Mapper {
         args: List<String>,
         values: List<ElementAndValue>,
         sender: Sender?,
-    ): ElementResult {
-        return ElementResult(null)
-    }
+    ): ElementResult = ElementResult(null)
 }
 
 object Mappers {

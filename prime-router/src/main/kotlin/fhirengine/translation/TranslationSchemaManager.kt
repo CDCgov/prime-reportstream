@@ -68,11 +68,7 @@ class TranslationSchemaManager : Logging {
             }
         }
 
-        data class ValidationResult(
-            val path: String,
-            val passes: Boolean,
-            val didError: Boolean = false,
-        )
+        data class ValidationResult(val path: String, val passes: Boolean, val didError: Boolean = false)
 
         data class ValidationContainer(val input: String, val output: String, val schemaUri: String)
 
@@ -82,7 +78,7 @@ class TranslationSchemaManager : Logging {
         class TranslationSyncException(override val message: String, override val cause: Throwable? = null) :
             RuntimeException(cause)
 
-        class TranslationStateUninitalized() : RuntimeException() {
+        class TranslationStateUninitalized : RuntimeException() {
             override val message = "The azure account and container have not been initialized"
         }
 

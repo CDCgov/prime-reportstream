@@ -24,9 +24,7 @@ class SubmissionTableService private constructor() : Logging {
             SubmissionTableService()
         }
 
-        fun getInstance(): SubmissionTableService {
-            return singletonInstance
-        }
+        fun getInstance(): SubmissionTableService = singletonInstance
     }
 
     private val tableName = "submission"

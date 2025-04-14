@@ -57,29 +57,23 @@ data class ValueSet(
         val system: SetSystem? = null,
     )
 
-    fun toDisplayFromCode(code: String): String? {
-        return values.find { code.equals(it.code, ignoreCase = true) }?.display
-    }
+    fun toDisplayFromCode(code: String): String? = values.find { code.equals(it.code, ignoreCase = true) }?.display
 
     // set a version on the whole value set if you want, but you can still use
     // the value-specific version if you're adding something from a different version
-    fun toVersionFromCode(code: String): String? {
-        return values.find { code.equals(it.code, ignoreCase = true) }?.version
+    fun toVersionFromCode(code: String): String? = values.find { code.equals(it.code, ignoreCase = true) }?.version
             ?: this.version
-    }
 
-    fun toSystemFromCode(code: String): String? {
-        return values.find { code.equals(it.code, ignoreCase = true) }?.system?.toString()?.uppercase()
+    fun toSystemFromCode(code: String): String? = values.find {
+        code.equals(it.code, ignoreCase = true)
+    }?.system?.toString()?.uppercase()
             ?: this.systemCode
-    }
 
-    fun toCodeFromDisplay(display: String): String? {
-        return values.find { display.equals(it.display, ignoreCase = true) }?.code
-    }
+    fun toCodeFromDisplay(display: String): String? = values.find {
+        display.equals(it.display, ignoreCase = true)
+    }?.code
 
-    fun toNormalizedCode(code: String): String? {
-        return values.find { code.equals(it.code, ignoreCase = true) }?.code
-    }
+    fun toNormalizedCode(code: String): String? = values.find { code.equals(it.code, ignoreCase = true) }?.code
 
     fun mergeAltValues(altValues: List<Value>?): ValueSet {
         // if we have alt values then we need to merge them in

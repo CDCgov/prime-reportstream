@@ -13,9 +13,7 @@ import java.util.UUID
 /**
  * Helper class to generate HL7 ACK response
  */
-class HL7ACKUtils(
-    private val clock: Clock = Clock.systemUTC(),
-) {
+class HL7ACKUtils(private val clock: Clock = Clock.systemUTC()) {
 
     /**
      * Creates the output ACK message according to the spec defined in #16394

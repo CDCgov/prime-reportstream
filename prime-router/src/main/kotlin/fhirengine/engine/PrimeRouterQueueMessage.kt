@@ -18,6 +18,7 @@ import java.util.UUID
 @JsonSubTypes(
     JsonSubTypes.Type(FhirConvertQueueMessage::class, name = "convert"),
     JsonSubTypes.Type(FhirDestinationFilterQueueMessage::class, name = "destination-filter"),
+    JsonSubTypes.Type(FhirReceiverEnrichmentQueueMessage::class, name = "receiver-enrichment"),
     JsonSubTypes.Type(FhirReceiverFilterQueueMessage::class, name = "receiver-filter"),
     JsonSubTypes.Type(FhirTranslateQueueMessage::class, name = "translate"),
     JsonSubTypes.Type(BatchEventQueueMessage::class, name = "batch"),
@@ -33,8 +34,8 @@ abstract class PrimeRouterQueueMessage : QueueMessage {
 }
 
 abstract class ReportPipelineMessage :
-    QueueMessage.ReportInformation,
-    PrimeRouterQueueMessage()
+    PrimeRouterQueueMessage(),
+    QueueMessage.ReportInformation
 
 @JsonTypeName("receive")
 data class FhirConvertSubmissionQueueMessage(
@@ -43,7 +44,8 @@ data class FhirConvertSubmissionQueueMessage(
     override val digest: String,
     override val blobSubFolderName: String,
     override val headers: Map<String, String> = emptyMap(),
-) : ReportPipelineMessage(), QueueMessage.ReceiveInformation {
+) : ReportPipelineMessage(),
+    QueueMessage.ReceiveInformation {
     override val messageQueueName = QueueMessage.Companion.elrSubmissionConvertQueueName
 }
 
@@ -68,6 +70,18 @@ data class FhirDestinationFilterQueueMessage(
     val topic: Topic,
 ) : ReportPipelineMessage() {
     override val messageQueueName = QueueMessage.Companion.elrDestinationFilterQueueName
+}
+
+@JsonTypeName("receiver-enrichment")
+data class FhirReceiverEnrichmentQueueMessage(
+    override val reportId: ReportId,
+    override val blobURL: String,
+    override val digest: String,
+    override val blobSubFolderName: String,
+    val topic: Topic,
+    val receiverFullName: String,
+) : ReportPipelineMessage() {
+    override val messageQueueName = QueueMessage.Companion.elrReceiverEnrichmentQueueName
 }
 
 @JsonTypeName("receiver-filter")
@@ -135,6 +149,7 @@ fun registerPrimeRouterQueueMessageSubtypes() {
     QueueMessage.ObjectMapperProvider.registerSubtypes(
         FhirConvertQueueMessage::class.java,
         FhirDestinationFilterQueueMessage::class.java,
+        FhirReceiverEnrichmentQueueMessage::class.java,
         FhirReceiverFilterQueueMessage::class.java,
         FhirTranslateQueueMessage::class.java,
         BatchEventQueueMessage::class.java,

@@ -7,7 +7,6 @@ import { SenderType } from "./utils/DataDashboardUtils";
 import { lazyRouteMarkdown } from "./utils/LazyRouteMarkdown";
 import { PERMISSIONS } from "./utils/UsefulTypes";
 
-const ReportTestingPage = lazy(() => import("./components/Admin/MessageTesting/MessageTesting"));
 /* Content Pages */
 const Home = lazy(lazyRouteMarkdown(() => import("./content/home/index.mdx")));
 const About = lazy(lazyRouteMarkdown(() => import("./content/about/index.mdx")));
@@ -27,6 +26,11 @@ const GettingStartedReceivingData = lazy(
 );
 const ReportStreamApiIndex = lazy(
     lazyRouteMarkdown(() => import("./content/developer-resources/reportstream-api/ReportStreamApi.mdx")),
+);
+const ApiOnboardingGuide = lazy(
+    lazyRouteMarkdown(
+        () => import("./content/developer-resources/reportstream-api/api-onboarding-guide/ApiOnboardingGuide.mdx"),
+    ),
 );
 const DeveloperResourcesIndex = lazy(lazyRouteMarkdown(() => import("./content/developer-resources/index-page.mdx")));
 const ReportStreamApiGettingStarted = lazy(
@@ -63,6 +67,7 @@ const Login = lazy(() => import("./pages/Login"));
 const ErrorNoPage = lazy(() => import("./pages/error/legacy-content/ErrorNoPage"));
 
 /* Auth Pages */
+const AdminMessageTestingPage = lazy(() => import("./pages/admin/AdminMessageTestingPage/AdminMessageTestingPage"));
 const FeatureFlagsPage = lazy(() => import("./pages/misc/FeatureFlags"));
 const SubmissionDetailsPage = lazy(() => import("./pages/submissions/SubmissionDetails"));
 const SubmissionsPage = lazy(() => import("./pages/submissions/Submissions"));
@@ -92,6 +97,7 @@ const FacilityProviderSubmitterDetailsPage = lazy(
     () => import("./components/DataDashboard/FacilityProviderSubmitterDetails/FacilityProviderSubmitterDetails"),
 );
 const NewSettingPage = lazy(() => import("./components/Admin/NewSetting"));
+const CodeMappingPage = lazy(() => import("./pages/onboarding/CodeMappingPage"));
 
 const MainLayout = lazy(() => import("./layouts/Main/MainLayout"));
 
@@ -242,6 +248,14 @@ export const appRoutes: RouteObject[] = [
                                 path: "",
                                 index: true,
                                 element: <ReportStreamApiIndex />,
+                                handle: {
+                                    isContentPage: true,
+                                },
+                            },
+                            {
+                                path: "api-onboarding-guide",
+                                index: true,
+                                element: <ApiOnboardingGuide />,
                                 handle: {
                                     isContentPage: true,
                                 },
@@ -440,7 +454,7 @@ export const appRoutes: RouteObject[] = [
                     },
                     {
                         path: "orgreceiversettings/org/:orgname/receiver/:receivername/action/:action/message-testing",
-                        element: <ReportTestingPage />,
+                        element: <AdminMessageTestingPage />,
                     },
                     {
                         path: "orgsendersettings/org/:orgname/sender/:sendername/action/:action",
@@ -493,6 +507,20 @@ export const appRoutes: RouteObject[] = [
                         <MessageDetailsPage />
                     </RequireGate>
                 ),
+            },
+            {
+                path: "onboarding",
+                element: (
+                    <RequireGate auth>
+                        <Outlet />
+                    </RequireGate>
+                ),
+                children: [
+                    {
+                        path: "code-mapping",
+                        element: <CodeMappingPage />,
+                    },
+                ],
             },
             /* Handles any undefined route */
             {

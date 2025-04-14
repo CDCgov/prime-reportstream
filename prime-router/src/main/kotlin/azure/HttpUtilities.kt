@@ -40,70 +40,58 @@ class HttpUtilities {
         fun okResponse(
             request: HttpRequestMessage<String?>,
             responseBody: String,
-        ): HttpResponseMessage {
-            return request
+        ): HttpResponseMessage = request
                 .createResponseBuilder(HttpStatus.OK)
                 .body(responseBody)
                 .header(HttpHeaders.CONTENT_TYPE, jsonMediaType)
                 .build()
-        }
 
         fun okResponse(
             request: HttpRequestMessage<String?>,
             responseBody: String,
             lastModified: OffsetDateTime?,
-        ): HttpResponseMessage {
-            return request
+        ): HttpResponseMessage = request
                 .createResponseBuilder(HttpStatus.OK)
                 .body(responseBody)
                 .header(HttpHeaders.CONTENT_TYPE, jsonMediaType)
                 .also { addHeaderIfModified(it, lastModified) }
                 .build()
-        }
 
         fun okResponse(
             request: HttpRequestMessage<String?>,
             lastModified: OffsetDateTime?,
-        ): HttpResponseMessage {
-            return request
+        ): HttpResponseMessage = request
                 .createResponseBuilder(HttpStatus.OK)
                 .header(HttpHeaders.CONTENT_TYPE, jsonMediaType)
                 .also { addHeaderIfModified(it, lastModified) }
                 .build()
-        }
 
         fun <T> okJSONResponse(
             request: HttpRequestMessage<String?>,
             body: T,
-        ): HttpResponseMessage {
-            return request
+        ): HttpResponseMessage = request
                 .createResponseBuilder(HttpStatus.OK)
                 .header(HttpHeaders.CONTENT_TYPE, jsonMediaType)
                 .body(mapper.writeValueAsString(body))
                 .build()
-        }
 
         fun <T> okJSONResponse(
             request: HttpRequestMessage<String?>,
             body: ApiResponse<T>,
-        ): HttpResponseMessage {
-            return request
+        ): HttpResponseMessage = request
                 .createResponseBuilder(HttpStatus.OK)
                 .header(HttpHeaders.CONTENT_TYPE, jsonMediaType)
                 .body(mapper.writeValueAsString(body))
                 .build()
-        }
 
         fun createdResponse(
             request: HttpRequestMessage<String?>,
             responseBody: String,
-        ): HttpResponseMessage {
-            return request
+        ): HttpResponseMessage = request
                 .createResponseBuilder(HttpStatus.CREATED)
                 .body(responseBody)
                 .header(HttpHeaders.CONTENT_TYPE, jsonMediaType)
                 .build()
-        }
 
         /**
          * Allows the validator to figure out specific failure, and pass it in here.
@@ -115,32 +103,26 @@ class HttpUtilities {
             request: HttpRequestMessage<String?>,
             responseBody: String,
             httpStatus: HttpStatus,
-        ): HttpResponseMessage {
-            return request
+        ): HttpResponseMessage = request
                 .createResponseBuilder(httpStatus)
                 .body(responseBody)
                 .header(HttpHeaders.CONTENT_TYPE, jsonMediaType)
                 .build()
-        }
 
         fun badRequestResponse(
             request: HttpRequestMessage<String?>,
             responseBody: String,
-        ): HttpResponseMessage {
-            return request
+        ): HttpResponseMessage = request
                 .createResponseBuilder(HttpStatus.BAD_REQUEST)
                 .body(responseBody)
                 .header(HttpHeaders.CONTENT_TYPE, jsonMediaType)
                 .build()
-        }
 
         fun unauthorizedResponse(
             request: HttpRequestMessage<String?>,
-        ): HttpResponseMessage {
-            return request
+        ): HttpResponseMessage = request
                 .createResponseBuilder(HttpStatus.UNAUTHORIZED)
                 .build()
-        }
 
         /**
          * Builds an HttpResponseMessage with an unauthorized(422) status
@@ -149,22 +131,19 @@ class HttpUtilities {
         fun <T> unauthorizedResponse(
             request: HttpRequestMessage<String?>,
             responseBody: T,
-        ): HttpResponseMessage {
-            return request.createResponseBuilder(HttpStatus.UNAUTHORIZED).body(mapper.writeValueAsString(responseBody))
+        ): HttpResponseMessage = request.createResponseBuilder(HttpStatus.UNAUTHORIZED)
+                .body(mapper.writeValueAsString(responseBody))
                 .header(HttpHeaders.CONTENT_TYPE, jsonMediaType)
                 .build()
-        }
 
         fun unauthorizedResponse(
             request: HttpRequestMessage<String?>,
             responseBody: String,
-        ): HttpResponseMessage {
-            return request
+        ): HttpResponseMessage = request
                 .createResponseBuilder(HttpStatus.UNAUTHORIZED)
                 .body(responseBody)
                 .header(HttpHeaders.CONTENT_TYPE, jsonMediaType)
                 .build()
-        }
 
         fun notFoundResponse(
             request: HttpRequestMessage<String?>,
@@ -203,9 +182,7 @@ class HttpUtilities {
             return response.build()
         }
 
-        fun errorJson(message: String): String {
-            return """{"error": "$message"}"""
-        }
+        fun errorJson(message: String): String = """{"error": "$message"}"""
 
         private fun addHeaderIfModified(
             builder: HttpResponseMessage.Builder,
@@ -375,9 +352,11 @@ class HttpUtilities {
          * A generic function that posts data to a URL <address>.
          * Returns a Pair (HTTP response code, text of the response)
          */
-        fun postHttp(urlStr: String, bytes: ByteArray, headers: List<Pair<String, String>>? = null): Pair<Int, String> {
-            return httpRequest("POST", urlStr, bytes, headers)
-        }
+        fun postHttp(
+            urlStr: String,
+            bytes: ByteArray,
+            headers: List<Pair<String, String>>? = null,
+        ): Pair<Int, String> = httpRequest("POST", urlStr, bytes, headers)
 
         /**
          * A generic function for a GET to a URL <address>.
@@ -386,9 +365,7 @@ class HttpUtilities {
         fun getHttp(
             urlStr: String,
             headers: List<Pair<String, String>>? = null,
-        ): Pair<Int, String> {
-            return httpRequest("GET", urlStr, null, headers)
-        }
+        ): Pair<Int, String> = httpRequest("GET", urlStr, null, headers)
 
         /**
          * A generic function for a DELETE to a URL <address>.
@@ -398,9 +375,7 @@ class HttpUtilities {
             urlStr: String,
             bytes: ByteArray,
             headers: List<Pair<String, String>>? = null,
-        ): Pair<Int, String> {
-            return httpRequest("DELETE", urlStr, bytes, headers)
-        }
+        ): Pair<Int, String> = httpRequest("DELETE", urlStr, bytes, headers)
 
         /**
          * Private generic function for creating an http request

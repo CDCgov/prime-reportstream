@@ -29,9 +29,7 @@ const val REMOVE_PII = "removePII"
 /**
  * Base class for ReportFunction and ValidateFunction
  */
-abstract class RequestFunction(
-    private val workflowEngine: WorkflowEngine = WorkflowEngine(),
-) {
+abstract class RequestFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()) {
     /**
      * The data that wraps a request that we receive from a sender.
      */

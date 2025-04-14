@@ -11,9 +11,7 @@ import org.springframework.context.annotation.Configuration
  * our configured public key
  */
 @Configuration
-class AuthConfig(
-    private val jwtKeyConfig: JWTKeyConfig,
-) {
+class AuthConfig(private val jwtKeyConfig: JWTKeyConfig) {
 
     @Bean
     fun authZService(): AuthZService {
@@ -22,7 +20,5 @@ class AuthConfig(
     }
 
     @ConfigurationProperties(prefix = "auth")
-    data class JWTKeyConfig(
-        val jwtEncodedPublicKeyJWK: String,
-    )
+    data class JWTKeyConfig(val jwtEncodedPublicKeyJWK: String)
 }

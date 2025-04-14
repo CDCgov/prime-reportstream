@@ -99,8 +99,7 @@ class CustomTranslationFunctions(
         hl7FieldPath: String,
         terser: Terser,
         appContext: CustomContext?,
-    ): String {
-        return if (appContext?.config is HL7TranslationConfig) {
+    ): String = if (appContext?.config is HL7TranslationConfig) {
             val config = appContext.config
             val truncationConfig = config.truncationConfig
 
@@ -128,5 +127,4 @@ class CustomTranslationFunctions(
         } else {
             super.maybeTruncateHL7Field(value, hl7FieldPath, terser, appContext)
         }
-    }
 }

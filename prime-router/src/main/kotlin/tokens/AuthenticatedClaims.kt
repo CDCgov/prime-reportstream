@@ -96,9 +96,7 @@ class AuthenticatedClaims : Logging {
     fun authorizedForSendOrReceive(
         requiredSender: Sender,
         request: HttpRequestMessage<String?>,
-    ): Boolean {
-        return authorizedForSendOrReceive(requiredSender.organizationName, requiredSender.name, request)
-    }
+    ): Boolean = authorizedForSendOrReceive(requiredSender.organizationName, requiredSender.name, request)
 
     /**
      * Determine if these claims authorize access to submission related resources in the
@@ -151,9 +149,7 @@ class AuthenticatedClaims : Logging {
     /**
      * @return true if these claims authorize access to the [requiredScopes].  False if unauthorized.
      */
-    fun authorized(requiredScopes: Set<String>): Boolean {
-        return Scope.authorized(this.scopes, requiredScopes)
-    }
+    fun authorized(requiredScopes: Set<String>): Boolean = Scope.authorized(this.scopes, requiredScopes)
 
     companion object : Logging {
         /**
@@ -162,8 +158,7 @@ class AuthenticatedClaims : Logging {
          * Even if local, if the [accessToken] is there, then do real Okta auth.
          * @return true if we should do 'local' auth, false if we should do Okta auth.
          */
-        fun isLocal(accessToken: String?): Boolean {
-            return when {
+        fun isLocal(accessToken: String?): Boolean = when {
                 (!Environment.isLocal()) -> false
                 (accessToken != null && accessToken.split(".").size == 3) -> {
                     // For testing auth.  Running local, but test using the real production parser.
@@ -175,7 +170,6 @@ class AuthenticatedClaims : Logging {
 
                 else -> true
             }
-        }
 
         /**
          * Utility function to extract and @return the bearer access token from the [request] Authorization header,

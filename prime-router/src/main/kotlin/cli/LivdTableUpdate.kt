@@ -45,7 +45,8 @@ import java.net.URL
  *
  */
 
-class LivdTableUpdate : CliktCommand(
+class LivdTableUpdate :
+    CliktCommand(
     name = "livd-table-update",
     help = """
         This updates the LIVD lookup table with a new version.
@@ -169,7 +170,8 @@ class LivdTableUpdate : CliktCommand(
                                 if (cell.stringCellValue.last() == '*') stringValue = cell.stringCellValue.dropLast(1)
 
                                 // Add " to a string that contains quoted strings (i.e ""string"")
-                                if (stringValue.contains("\n") || stringValue.contains(",") ||
+                                if (stringValue.contains("\n") ||
+                                    stringValue.contains(",") ||
                                     (stringValue.contains("\""))
                                 ) {
                                     // String that contain special character(s)

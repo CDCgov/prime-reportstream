@@ -1,7 +1,6 @@
 package gov.cdc.prime.router
 
 import gov.cdc.prime.reportstream.shared.BlobUtils
-import gov.cdc.prime.reportstream.shared.QueueMessage
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.Event
 import gov.cdc.prime.router.azure.ProcessEvent
@@ -344,19 +343,17 @@ class UniversalPipelineReceiver : SubmissionReceiver {
         val processEvent = ProcessEvent(eventAction, report.id, options, defaults, routeTo)
         workflowEngine.insertProcessTask(report, report.bodyFormat.toString(), blobInfo.blobUrl, processEvent)
 
-        // Only add to queue if the sender/ is enabled
+        // Only track and add to queue if the sender/ is enabled
         if (sender.customerStatus != CustomerStatus.INACTIVE) {
-            // move to processing (send to <elrProcessQueueName> queue)
-            workflowEngine.queue.sendMessage(
-                QueueMessage.elrConvertQueueName,
+            actionHistory.trackFhirMessage(
                 FhirConvertQueueMessage(
-                    report.id,
-                    blobInfo.blobUrl,
-                    BlobUtils.digestToString(blobInfo.digest),
-                    sender.fullName,
-                    sender.topic,
-                    sender.schemaName
-                ).serialize()
+                report.id,
+                blobInfo.blobUrl,
+                BlobUtils.digestToString(blobInfo.digest),
+                sender.fullName,
+                sender.topic,
+                sender.schemaName
+            )
             )
         }
 

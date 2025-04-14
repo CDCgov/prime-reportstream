@@ -108,8 +108,7 @@ class HttpClientUtils {
             timeout: Long = REQUEST_TIMEOUT_MILLIS,
             queryParameters: Map<String, String>? = null,
             httpClient: HttpClient? = null,
-        ): HttpResponse {
-            return invoke(
+        ): HttpResponse = invoke(
                 HttpMethod.Get,
                 url = url,
                 accessToken = accessToken,
@@ -119,7 +118,6 @@ class HttpClientUtils {
                 queryParameters = queryParameters,
                 httpClient = httpClient
             )
-        }
 
         /**
          * PUT (modify resource) operation to the given endpoint resource [url]
@@ -184,8 +182,7 @@ class HttpClientUtils {
             queryParameters: Map<String, String>? = null,
             jsonPayload: String? = null,
             httpClient: HttpClient? = null,
-        ): HttpResponse {
-            return invoke(
+        ): HttpResponse = invoke(
                 method = HttpMethod.Put,
                 url = url,
                 accessToken = accessToken,
@@ -196,7 +193,6 @@ class HttpClientUtils {
                 jsonPayload = jsonPayload,
                 httpClient = httpClient
             )
-        }
 
         /**
          * POST (create resource) operation to the given endpoint resource [url]
@@ -260,8 +256,7 @@ class HttpClientUtils {
             queryParameters: Map<String, String>? = null,
             jsonPayload: String,
             httpClient: HttpClient? = null,
-        ): HttpResponse {
-            return invoke(
+        ): HttpResponse = invoke(
                 method = HttpMethod.Post,
                 url = url,
                 accessToken = accessToken,
@@ -272,7 +267,6 @@ class HttpClientUtils {
                 jsonPayload = jsonPayload,
                 httpClient = httpClient
             )
-        }
 
         /**
          * Submit form to the endpoint as indicated by [url]
@@ -294,8 +288,7 @@ class HttpClientUtils {
             timeout: Long = REQUEST_TIMEOUT_MILLIS,
             formParams: Map<String, String>? = null,
             httpClient: HttpClient? = null,
-        ): T {
-            return runBlocking {
+        ): T = runBlocking {
                 submitForm(
                     url = url,
                     accessToken = accessToken,
@@ -306,7 +299,6 @@ class HttpClientUtils {
                     httpClient = httpClient,
                 ).body()
             }
-        }
 
         /**
          * Submit form to the endpoint as indicated by [url]
@@ -328,8 +320,7 @@ class HttpClientUtils {
             timeout: Long = REQUEST_TIMEOUT_MILLIS,
             formParams: Map<String, String>? = null,
             httpClient: HttpClient? = null,
-        ): HttpResponse {
-            return runBlocking {
+        ): HttpResponse = runBlocking {
                 (httpClient ?: getDefaultHttpClient()).submitForm(
                     url,
                     formParameters = Parameters.build {
@@ -357,7 +348,6 @@ class HttpClientUtils {
                     accept(acceptedContent)
                 }
             }
-        }
 
         /**
          * HEAD operation to the given endpoint resource [url]
@@ -415,8 +405,7 @@ class HttpClientUtils {
             timeout: Long? = REQUEST_TIMEOUT_MILLIS,
             queryParameters: Map<String, String>? = null,
             httpClient: HttpClient? = null,
-        ): HttpResponse {
-            return invoke(
+        ): HttpResponse = invoke(
                 method = HttpMethod.Head,
                 url = url,
                 accessToken = accessToken,
@@ -426,7 +415,6 @@ class HttpClientUtils {
                 queryParameters = queryParameters,
                 httpClient = httpClient
             )
-        }
 
         /**
          * DELETE a resource by endpoint URL [url]
@@ -490,8 +478,7 @@ class HttpClientUtils {
             timeout: Long = REQUEST_TIMEOUT_MILLIS,
             queryParameters: Map<String, String>? = null,
             httpClient: HttpClient? = null,
-        ): HttpResponse {
-            return invoke(
+        ): HttpResponse = invoke(
                 method = HttpMethod.Delete,
                 url = url,
                 accessToken = accessToken,
@@ -501,7 +488,6 @@ class HttpClientUtils {
                 queryParameters = queryParameters,
                 httpClient = httpClient
             )
-        }
 
         /**
          * Common helper for external func
@@ -516,8 +502,7 @@ class HttpClientUtils {
             queryParameters: Map<String, String>? = null,
             jsonPayload: String? = null,
             httpClient: HttpClient? = null,
-        ): HttpResponse {
-            return runBlocking {
+        ): HttpResponse = runBlocking {
                 (httpClient ?: getDefaultHttpClient()).request(url) {
                     this.method = method
                     timeout {
@@ -549,7 +534,6 @@ class HttpClientUtils {
                     }
                 }
             }
-        }
 
         /**
          * Get a http client with sensible default settings
@@ -559,8 +543,6 @@ class HttpClientUtils {
          *
          * @return a HttpClient with all sensible defaults
          */
-        fun getDefaultHttpClient(): HttpClient {
-            return httpClient
-        }
+        fun getDefaultHttpClient(): HttpClient = httpClient
     }
 }

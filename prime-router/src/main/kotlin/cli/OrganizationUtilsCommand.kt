@@ -12,7 +12,8 @@ import gov.cdc.prime.router.tokens.JwkSet
 import gov.cdc.prime.router.tokens.Scope
 import java.io.File
 
-class AddPublicKey : SettingCommand(
+class AddPublicKey :
+    SettingCommand(
     name = "addkey",
     help = """
     Add a public key to an existing organization's setting
@@ -135,7 +136,8 @@ class AddPublicKey : SettingCommand(
     }
 }
 
-class RemoveKey : SettingCommand(
+class RemoveKey :
+    SettingCommand(
     name = "removekey",
     help = """
     Removes a public key from an existing organization's setting
@@ -227,7 +229,8 @@ class RemoveKey : SettingCommand(
     }
 }
 
-class TokenUrl : SettingCommand(
+class TokenUrl :
+    SettingCommand(
     name = "reqtoken",
     help = """
         Use my private key to request a token from ReportStream

@@ -36,16 +36,12 @@ interface ValueSetCollection {
 class InlineValueSet
     (@JsonProperty("values") private val values: SortedMap<String, String>) : ValueSetCollection {
 
-    override fun toSortedMap(): SortedMap<String, String> {
-        return values
-    }
+    override fun toSortedMap(): SortedMap<String, String> = values
 
     override fun getMappedValue(keyValue: String): String? {
         val lowerSet = values.mapKeys { it.key.lowercase() }
         return lowerSet[keyValue.lowercase()]
     }
 
-    override fun isNotEmpty(): Boolean {
-        return values.isNotEmpty()
-    }
+    override fun isNotEmpty(): Boolean = values.isNotEmpty()
 }

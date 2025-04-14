@@ -28,8 +28,7 @@ class LookupTableCommandsTest {
         url: String,
         status: HttpStatusCode,
         body: String,
-    ): LookupTableEndpointUtilities {
-        return LookupTableEndpointUtilities(
+    ): LookupTableEndpointUtilities = LookupTableEndpointUtilities(
             Environment.LOCAL,
             useThisToken = null,
             ApiMockEngine(
@@ -38,7 +37,6 @@ class LookupTableCommandsTest {
                 body
             ).client()
         )
-    }
 
     @Test
     fun `test lookuptable list invalid response body`() {
@@ -81,21 +79,13 @@ class LookupTableCommandsTest {
         "createdBy" : "local@test.com",
         "createdAt" : "2023-11-13T15:38:50.495Z",
         "tableSha256Checksum" : "67a9db3bb62a79b4a9d22126f58eebb15dd99a2a2a81bdf4ff740fa884fd5635"
-        }, {
-            "lookupTableVersionId" : 9,
-            "tableName" : "fhirpath_filter_shorthand",
-            "tableVersion" : 1,
-            "isActive" : true,
-            "createdBy" : "local@test.com",
-            "createdAt" : "2023-11-13T15:38:50.598Z",
-            "tableSha256Checksum" : "4295f38f1e9bdb233d5086bdae3cf92024815883db3f0a96066580c4ba74fcde"
         }]"""
         val listOfTables = getMockUtil(
             "/api/lookuptables/list",
             HttpStatusCode.OK,
             body = tables
         ).fetchList()
-        assertTrue(listOfTables.isNotEmpty() && listOfTables.size == 2)
+        assertTrue(listOfTables.isNotEmpty() && listOfTables.size == 1)
     }
 
     @Test

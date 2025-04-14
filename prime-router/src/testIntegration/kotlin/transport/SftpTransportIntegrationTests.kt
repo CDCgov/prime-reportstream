@@ -88,6 +88,7 @@ class SftpTransportIntegrationTests : TransportIntegrationTests() {
             null,
             null,
             null,
+            null,
             null
         )
         val contents = "HL7|Stuff"
