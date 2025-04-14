@@ -3,18 +3,22 @@ This document details the steps needed to successfully transition from the curre
 Please consult [this Lucidchart](http://lucidgov.app/lucidchart/1ad27194-a283-4a38-85e4-132d7e9cf5e3/edit?page=~G0RZ44nv8oX) 
 for a visualization of the intended connectivity strategy. 
 
-Migrating to microservices will be performed in two stages. During the intermediate stage, all endpoints handled by the
-functionapp will remain as they are while the microservices are prepared; both endpoints will be supported at once. 
+Migrating to microservices will be performed in two stages. During the intermediate (first) stage, all endpoints handled
+by the functionapp will remain as they are while the microservices are prepared; all existing endpoints will remain
+supported as well as the new endpoints provided by the auth microservice as it is developed. 
 After we have completed architectural changes and successfully migrated all senders we will reach the final stage, where
-all communication is through the auth microservice and the functionapp will no longer be accessed publicly.
+all public communication is handled through the auth microservice and the functionapp will no longer be accessed publicly.
 
 # Migration Strategy #
 
+The migration process can be divided to the following tasks. For the most part these tasks can be worked on in any order
+and could be worked on in parallel.
+
 ### Build Okta related endpoints and application profile update function ###
-Microservices should be updated to provide the endpoints for Okta event hooks to push events to as well as the endpoint
-for application users to acquire bearer tokens via Okta. The ability to update application user profiles should also be
-built at this time, and hooked in to the Okta event hook API. We should also allow application user profile updates via 
-CLI.
+The auth microservice should be updated to provide the endpoints for Okta event hooks to push events to as well as the
+endpoint for application users to acquire bearer tokens via Okta. The ability to update application user profiles should
+also be built at this time, and hooked in to the Okta event hook API. We should also allow application user profile
+updates via CLI.
 
 ### Build passthrough API for functionapp APIs via auth microservice ###
 Calls to the APIs served via the functionapp (reports/waters) should be able to pass through the auth microservice so it
@@ -29,7 +33,8 @@ the staging and production environments, and make sure the microservices are exe
 environment-specific secrets for connecting with Okta and ensuring we have set up permanent application users for the 
 microservices. By the end of this work both staging and production Okta should have their final access applications; the 
 names of the application and the method by which the secrets are passed to the microservices should be documented at 
-this point.
+this point. This work also requires any proof of concept code to be removed and any outstanding security concerns (e.g.
+CORS) addressed.
 
 ### Update end to end testing and development environments to include auth and submissions ###
 We should build a new test based on `end2end_up` that performs submission through the microservices instead of the
@@ -68,18 +73,19 @@ These are miscellaneous dev notes that should be considered during the implement
 
 * Migrate all senders in staging
     * Can existing public/private keys be transferred to Okta, or will all senders have to be fully reonboarded?
-    * Do we intend to run both auth systems simultaneously?
-        * Document differences between RS auth and proposed Okta auth (endpoints used, etc.)
-
-* Do sender and user migrations need to be performed simultaneously?
-
-
 * Implement sending profile attributes in claims (API > ReportStream API > Claims > create `appSubmit` claim)
 * API changes for new auth flow
-    * Need to decide if cutting over or maintaining both APIs - see analysis in Questions section
+  * Which Azure functions require authorization processes?
+  * Sender onboarded to use auth microservice will have significantly different authorization flow from original API -
+    need strategy for how authorization decisions are made when passing API calls from microservices to functionapp
+    * Could use some sort of translation function to bridge new authorization to old in order to support legacy
+      endpoint before all senders are reonboarded
+    * Alternative would be to handle all authorization on auth microservice and bypass authorization on functionapp
+      end when auth microservice is the caller 
 * Should sender groups be stored as Okta groups or solely as profile attributes?
     * Utilizing groups permits onboarding via Okta admin console, but the group memberships are redundant as it is only
       the profile attributes that are actively used during the authz process
+      * Event hook strategy should keep group memberships and profile attributes in sync without much upkeep 
     * Storing solely as profile attributes would require the sender management APIs to be built before transition to the
       auth service can occur
     * We can change this strategy at any time
@@ -99,7 +105,6 @@ These are miscellaneous dev notes that should be considered during the implement
       runners can log in - the ultimate goal should be allowing smoke tests to run without needing a user web login)
     * Smoke tests against staging additionally rely on an Azure functions key and an authorization key stored in
       Environment variables
-* Which Azure functions require authorization processes?
 * Users: Process to migrate existing user authorizations
     * Map existing RS scopes to Okta scopes
     * How to restrict users to information related to their organization
