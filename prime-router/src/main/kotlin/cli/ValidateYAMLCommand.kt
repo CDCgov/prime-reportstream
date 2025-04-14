@@ -15,7 +15,8 @@ import gov.cdc.prime.router.config.validation.ConfigurationValidationServiceImpl
 import org.apache.commons.io.FileUtils
 import java.io.File
 
-class ValidateYAMLCommand : CliktCommand(
+class ValidateYAMLCommand :
+    CliktCommand(
     name = "validate-yaml",
     help = """
             A CLI command to validate YAML files' structure and values.

@@ -6,8 +6,7 @@ The Destination Filter function’s evaluates a receiver's filters on a bundle a
 may include pruning of observations in the bundle. Each receiver connected with ReportStream has unique interests in 
 the data that flows through the pipeline. This step is designed to find the data that meet those interests.
 
-The function follows the [Destination Filter](destination-filter.md) function. These messages are passed to the FHIRi
-Receiver Filter which first decodes a FHIR Bundle. Then, quality, processing, routing, and condition filters are 
+The function follows the [Receiver Enrichment](receiver-enrichment.md) function. These messages are passed to the FHIR Receiver Filter which first decodes a FHIR Bundle. Then, quality, processing, routing, and condition filters are 
 evaluated to determine if the bundle should be sent and prune it of unneeded data. If the message passes, it is sent
 to the [Translate](translate.md) function where receiver specific work is done to prepare for batching and sending.
 

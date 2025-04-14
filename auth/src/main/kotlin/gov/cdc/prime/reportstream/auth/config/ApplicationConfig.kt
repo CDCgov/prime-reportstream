@@ -10,17 +10,11 @@ import kotlin.time.TimeSource
  * Simple class to automatically read configuration from application.yml (or environment variable overrides)
  */
 @ConfigurationProperties(prefix = "app")
-data class ApplicationConfig(
-    val environment: Environment,
-) {
+data class ApplicationConfig(val environment: Environment) {
 
     @Bean
-    fun timeSource(): TimeSource {
-        return TimeSource.Monotonic
-    }
+    fun timeSource(): TimeSource = TimeSource.Monotonic
 
     @Bean
-    fun clock(): Clock {
-        return Clock.systemUTC()
-    }
+    fun clock(): Clock = Clock.systemUTC()
 }

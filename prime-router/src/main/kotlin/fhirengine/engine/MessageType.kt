@@ -27,14 +27,12 @@ enum class MessageType {
          * @param type The string representation of the HL7 message type.
          * @return The corresponding MessageType instance, or null if the type is unsupported.
          */
-        private fun fromString(type: String): MessageType? {
-            return when (type) {
+        private fun fromString(type: String): MessageType? = when (type) {
                 "ORU_R01" -> ORU_R01
                 "ORM_O01" -> ORM_O01
                 "OML_O21" -> OML_O21
                 else -> null
             }
-        }
 
         /**
          * Validates the type of the given message.

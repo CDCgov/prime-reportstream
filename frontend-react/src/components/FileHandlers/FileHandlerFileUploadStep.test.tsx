@@ -2,7 +2,7 @@ import { fireEvent, screen, waitFor } from "@testing-library/react";
 import { userEvent } from "@testing-library/user-event";
 import { Suspense } from "react";
 
-import FileHandlerFileUploadStep, { getClientHeader } from "./FileHandlerFileUploadStep";
+import FileHandlerFileUploadStep from "./FileHandlerFileUploadStep";
 import { fakeFile, mockSendFileWithErrors, mockSendValidFile } from "../../__mocks__/validation";
 import { sendersGenerator } from "../../__mockServers__/OrganizationMockServer";
 import { RSSender } from "../../config/endpoints/settings";
@@ -13,6 +13,7 @@ import useAppInsightsContext from "../../hooks/UseAppInsightsContext/UseAppInsig
 import { INITIAL_STATE } from "../../hooks/UseFileHandler/UseFileHandler";
 import { renderApp } from "../../utils/CustomRenderUtils";
 import { MembershipSettings, MemberType } from "../../utils/OrganizationUtils";
+import { getClientHeader } from "../../utils/SessionStorageTools";
 import { CustomerStatus, FileType, Format } from "../../utils/TemporarySettingsAPITypes";
 
 const { mockSessionContentReturnValue } = await vi.importMock<

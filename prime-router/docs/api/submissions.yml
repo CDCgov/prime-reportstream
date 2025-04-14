@@ -168,6 +168,7 @@ paths:
           description: Internal Server Error
   /waters/report/{reportId}/history/etorMetadata:
     get:
+      deprecated: true
       summary: Retrieves ETOR metadata for a sender's report
       description: Fetches the ETOR intermediary's metadata given the sender's report ID.
       operationId: getEtorMetadataForHistory
