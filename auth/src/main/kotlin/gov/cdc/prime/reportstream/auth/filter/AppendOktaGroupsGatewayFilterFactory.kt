@@ -15,19 +15,15 @@ import reactor.core.publisher.Mono
  * defined in spring-cloud-gateway and is instantiated via configuration under a route's filters.
  */
 @Component
-class AppendOktaGroupsGatewayFilterFactory(
-    private val oktaGroupsService: OktaGroupsService,
-) : AbstractGatewayFilterFactory<Any>() {
+class AppendOktaGroupsGatewayFilterFactory(private val oktaGroupsService: OktaGroupsService) :
+    AbstractGatewayFilterFactory<Any>() {
 
     /**
      * function used only in testing to create our filter without any configuration
      */
-    fun apply(): GatewayFilter {
-        return apply { _: Any? -> }
-    }
+    fun apply(): GatewayFilter = apply { _: Any? -> }
 
-    override fun apply(config: Any?): GatewayFilter {
-        return GatewayFilter { exchange, chain ->
+    override fun apply(config: Any?): GatewayFilter = GatewayFilter { exchange, chain ->
             exchange
                 .getPrincipal<BearerTokenAuthentication>()
                 .flatMap { oktaAccessTokenJWT ->
@@ -57,5 +53,4 @@ class AppendOktaGroupsGatewayFilterFactory(
                     chain.filter(exchange.mutate().request(request).build())
                 }
         }
-    }
 }

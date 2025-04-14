@@ -21,6 +21,7 @@ import io.swagger.v3.plugins.gradle.tasks.ResolveTask
 import org.apache.commons.io.FileUtils
 import org.apache.commons.io.FilenameUtils
 import org.apache.tools.ant.filters.ReplaceTokens
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.jooq.meta.jaxb.ForcedType
 import java.io.ByteArrayOutputStream
@@ -66,8 +67,8 @@ val azureFunctionsDir = "azure-functions"
 val primeMainClass = "gov.cdc.prime.router.cli.MainKt"
 val defaultDuplicateStrategy = DuplicatesStrategy.WARN
 azurefunctions.appName = azureAppName
-val appJvmTarget = "17"
-val javaVersion = when (appJvmTarget) {
+val appJvmTarget = JvmTarget.JVM_17
+val javaVersion = when (appJvmTarget.target) {
     "17" -> JavaVersion.VERSION_17
     "19" -> JavaVersion.VERSION_19
     "21" -> JavaVersion.VERSION_21
@@ -273,7 +274,7 @@ sourceSets.create("testIntegration") {
 }
 
 val compileTestIntegrationKotlin: KotlinCompile by tasks
-compileTestIntegrationKotlin.kotlinOptions.jvmTarget = appJvmTarget
+compileTestIntegrationKotlin.compilerOptions.jvmTarget.set(appJvmTarget)
 
 val testIntegrationImplementation: Configuration by configurations.getting {
     extendsFrom(configurations["testImplementation"])
@@ -707,7 +708,8 @@ flyway {
 jooq {
     version.set("3.18.6")
     configurations {
-        create("main") { // name of the jOOQ configuration
+        create("main") {
+            // name of the jOOQ configuration
             jooqConfiguration.apply {
                 logging = org.jooq.meta.jaxb.Logging.INFO
                 jdbc.apply {
@@ -898,16 +900,13 @@ dependencies {
             branch = "master"
         }
     }
-    implementation("ca.uhn.hapi.fhir:hapi-fhir-structures-r4:7.4.5")
+    implementation("ca.uhn.hapi.fhir:hapi-fhir-structures-r4:7.6.1")
     // https://mvnrepository.com/artifact/ca.uhn.hapi.fhir/hapi-fhir-caching-caffeine
-    implementation("ca.uhn.hapi.fhir:hapi-fhir-caching-caffeine:7.4.5")
-    implementation("ca.uhn.hapi.fhir:hapi-fhir-client:7.4.5")
-    // pin
-    implementation("ca.uhn.hapi.fhir:org.hl7.fhir.utilities:6.4.0")
-    implementation("ca.uhn.hapi.fhir:org.hl7.fhir.r4:6.4.0")
-    implementation("ca.uhn.hapi:hapi-base:2.5.1")
-    implementation("ca.uhn.hapi:hapi-structures-v251:2.5.1")
-    implementation("ca.uhn.hapi:hapi-structures-v27:2.5.1")
+    implementation("ca.uhn.hapi.fhir:hapi-fhir-caching-caffeine:7.6.1")
+    implementation("ca.uhn.hapi.fhir:hapi-fhir-client:7.6.1")
+    implementation("ca.uhn.hapi:hapi-base:2.6.0")
+    implementation("ca.uhn.hapi:hapi-structures-v251:2.6.0")
+    implementation("ca.uhn.hapi:hapi-structures-v27:2.6.0")
     implementation("com.googlecode.libphonenumber:libphonenumber:8.13.50")
     implementation("org.thymeleaf:thymeleaf:3.1.2.RELEASE")
     implementation("com.sendgrid:sendgrid-java:4.10.3")

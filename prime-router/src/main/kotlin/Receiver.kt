@@ -37,6 +37,7 @@ import java.time.ZoneId
  * @param dateTimeFormat the format to use for date and datetime values, either Offset or Local
  * @param enrichmentSchemaNames the paths to schema(s) used to enrich the bundle before translating it to its final
  *  format
+ * @param routingFilters defines the filters that remove data based on FHIR expression
  */
 open class Receiver(
     val name: String,
@@ -58,6 +59,7 @@ open class Receiver(
     val transport: TransportType? = null,
     val externalName: String? = null,
     val enrichmentSchemaNames: List<String> = emptyList(),
+    val routingFilters: ReportStreamReceiverRoutingFilter = emptyList(),
     /**
      * The timezone for the receiver. This is different from the timezone in Timing, which controls the calculation of
      * when and how often to send reports to the receiver. They are distinct ideas. The timeZone for the receiver is
@@ -100,6 +102,7 @@ open class Receiver(
         mappedConditionFilter: ReportStreamConditionFilter = emptyList(),
         reverseTheQualityFilter: Boolean = false,
         enrichmentSchemaNames: List<String> = emptyList(),
+        routingFilters: ReportStreamReceiverRoutingFilter = emptyList(),
     ) : this(
         name,
         organizationName,
@@ -116,7 +119,8 @@ open class Receiver(
         timeZone = timeZone,
         dateTimeFormat = dateTimeFormat,
         reverseTheQualityFilter = reverseTheQualityFilter,
-        enrichmentSchemaNames = enrichmentSchemaNames
+        enrichmentSchemaNames = enrichmentSchemaNames,
+        routingFilters = routingFilters
     )
 
     /** A copy constructor for the receiver */
@@ -140,6 +144,7 @@ open class Receiver(
         copy.transport,
         copy.externalName,
         copy.enrichmentSchemaNames,
+        copy.routingFilters,
         copy.timeZone,
         copy.dateTimeFormat
     )
@@ -220,9 +225,7 @@ open class Receiver(
         }
 
         @JsonIgnore
-        fun isValid(): Boolean {
-            return numberPerDay in 1..(24 * 60)
-        }
+        fun isValid(): Boolean = numberPerDay in 1..(24 * 60)
     }
 
     enum class BatchOperation {
@@ -233,10 +236,7 @@ open class Receiver(
     /**
      * Options when a receiver's batch is scheduled to run but there are no records for the receiver
      */
-    data class WhenEmpty(
-        val action: EmptyOperation = EmptyOperation.NONE,
-        val onlyOncePerDay: Boolean = false,
-    )
+    data class WhenEmpty(val action: EmptyOperation = EmptyOperation.NONE, val onlyOncePerDay: Boolean = false)
 
     /**
      * When it is batch time and there are no records should the receiver get a file or not
@@ -286,9 +286,10 @@ open class Receiver(
         /** Global function to create receiver fullNames using
          * the [organizationName] and the [receiverName].
          */
-        fun createFullName(organizationName: String, receiverName: String): String {
-            return "$organizationName$fullNameSeparator$receiverName"
-        }
+        fun createFullName(
+            organizationName: String,
+            receiverName: String,
+        ): String = "$organizationName$fullNameSeparator$receiverName"
 
         fun parseFullName(fullName: String): Pair<String, String> {
             val splits = fullName.split(Sender.fullNameSeparator)

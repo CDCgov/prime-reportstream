@@ -465,8 +465,9 @@ class End2End : CoolTest() {
 
             val processResults = pollForStepResult(internalReportId, TaskAction.process)
             // verify each result is valid
-            for (result in processResults.values)
+            for (result in processResults.values) {
                 passed = passed && examineProcessResponse(result)
+            }
             if (!passed) {
                 bad("***async end2end FAILED***: Process result invalid")
             }
@@ -1029,10 +1030,11 @@ class QualityFilter : CoolTest() {
 
                 val processResults = pollForStepResult(internalReportId, TaskAction.process)
                 // verify each result is valid
-                for (result in processResults.values)
+                for (result in processResults.values) {
                     passed = passed &&
                         examineProcessResponse(result) &&
                         checkJsonItemCountForReceiver(qualityAllReceiver, expectItemCount, result!!)
+                }
             }
         } else {
             passed = passed && checkJsonItemCountForReceiver(qualityAllReceiver, expectItemCount, json)
@@ -1072,10 +1074,11 @@ class QualityFilter : CoolTest() {
 
                 val processResults2 = pollForStepResult(internalReportId2, TaskAction.process)
                 // verify each result is valid
-                for (result in processResults2.values)
+                for (result in processResults2.values) {
                     passed = passed &&
                         examineProcessResponse(result) &&
                         checkJsonItemCountForReceiver(qualityGoodReceiver, expectItemCount, result!!)
+                }
             }
         } else {
             passed = passed && checkJsonItemCountForReceiver(qualityGoodReceiver, expectItemCount, json2)
@@ -1115,10 +1118,11 @@ class QualityFilter : CoolTest() {
 
                 val processResults3 = pollForStepResult(internalReportId3, TaskAction.process)
                 // verify each result is valid
-                for (result in processResults3.values)
+                for (result in processResults3.values) {
                     passed = passed &&
                         examineProcessResponse(result) &&
                         checkJsonItemCountForReceiver(qualityFailReceiver, expectItemCount, result!!)
+                }
             }
         } else {
             passed = passed && checkJsonItemCountForReceiver(qualityFailReceiver, expectItemCount, json3)
@@ -1158,10 +1162,11 @@ class QualityFilter : CoolTest() {
 
                 val processResults4 = pollForStepResult(internalReportId4, TaskAction.process)
                 // verify each result is valid
-                for (result in processResults4.values)
+                for (result in processResults4.values) {
                     passed = passed &&
                         examineProcessResponse(result) &&
                         checkJsonItemCountForReceiver(qualityReversedReceiver, expectItemCount, result!!)
+                }
             }
         } else {
             passed = passed && checkJsonItemCountForReceiver(qualityReversedReceiver, expectItemCount, json4)
@@ -1482,9 +1487,7 @@ class SantaClaus : CoolTest() {
         return false
     }
 
-    private fun createBad(message: String): Boolean {
-        return bad("***$name Test FAILED***: $message")
-    }
+    private fun createBad(message: String): Boolean = bad("***$name Test FAILED***: $message")
 }
 
 class OtcProctored : CoolTest() {
@@ -1533,10 +1536,11 @@ class OtcProctored : CoolTest() {
 
                         val processResults = pollForStepResult(internalReportId, TaskAction.process)
                         // verify each result is valid
-                        for (result in processResults.values)
+                        for (result in processResults.values) {
                             if (!examineProcessResponse(result)) {
                                 bad("*** otcproctored FAILED***: Process result invalid")
                             }
+                        }
                     }
                 }
                 good("Test PASSED: ${pair.first}")
