@@ -53,18 +53,18 @@ class SoapTransportIntegrationTests : TransportIntegrationTests() {
             addHandler { _ ->
                 respond(
                     ByteReadChannel(
-                        "    <Body>" +
-                            "        <UploadFilesResponse>" +
-                            "            <UploadFilesResult>" +
-                            "                <ELRWcfReturnMessage>" +
-                            "                    <FileName>covid-19-75b69091-27de-4cbb-8b5d-c21e8ff64c01-20250308083510.hl7</FileName>" +
-                            "                    <Index>1</Index>" +
-                            "                    <Message>PS99:Unexpected error.</Message>" +
-                            "                    <Success>False</Success>" +
-                            "                </ELRWcfReturnMessage>" +
-                            "            </UploadFilesResult>" +
-                            "        </UploadFilesResponse>" +
-                            "    </Body>"
+                        "<Body>" +
+                            " <UploadFilesResponse>" +
+                            " <UploadFilesResult>" +
+                            " <ELRWcfReturnMessage>" +
+                            "  <FileName>covid-19-75b69091-27de-4cbb-8b5d-c21e8ff64c01-20250308083510.hl7</FileName>" +
+                            "  <Index>1</Index>" +
+                            "  <Message>PS99:Unexpected error.</Message>" +
+                            "  <Success>False</Success>" +
+                            "  </ELRWcfReturnMessage>" +
+                            "  </UploadFilesResult>" +
+                            "  </UploadFilesResponse>" +
+                            "  </Body>"
                     ),
                     HttpStatusCode.OK,
                     responseHeaders
