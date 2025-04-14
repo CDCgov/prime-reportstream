@@ -11,6 +11,17 @@ export interface RSMessage {
     reportBody: string;
 }
 
+export interface RSFilterError {
+    filter: string;
+    filterType:
+        | "JURISDICTIONAL_FILTER"
+        | "QUALITY_FILTER"
+        | "ROUTING_FILTER"
+        | "PROCESSING_MODE_FILTER"
+        | "CONDITION_FILTER";
+    message: string;
+}
+
 export interface RSMessageResult {
     message?: string;
     bundle?: string;
@@ -23,7 +34,7 @@ export interface RSMessageResult {
     receiverTransformPassed: boolean;
     receiverTransformErrors: string[];
     receiverTransformWarnings: string[];
-    filterErrors: string[];
+    filterErrors: RSFilterError[];
     filtersPassed: boolean;
 }
 

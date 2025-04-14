@@ -11,6 +11,7 @@ import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.CodeStringConditionFilter
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.DeepOrganization
+import gov.cdc.prime.router.FHIRExpressionFilter
 import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.MimeFormat
@@ -21,6 +22,7 @@ import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.ReportStreamConditionFilter
 import gov.cdc.prime.router.ReportStreamFilter
 import gov.cdc.prime.router.ReportStreamFilterType
+import gov.cdc.prime.router.ReportStreamReceiverRoutingFilter
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.TestSource
@@ -38,7 +40,6 @@ import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.fhirengine.utils.filterMappedObservations
 import gov.cdc.prime.router.fhirengine.utils.filterObservations
 import gov.cdc.prime.router.fhirengine.utils.getObservations
-import gov.cdc.prime.router.metadata.LookupTable
 import gov.cdc.prime.router.report.ReportService
 import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.mockk.clearAllMocks
@@ -57,7 +58,6 @@ import org.jooq.tools.jdbc.MockDataProvider
 import org.jooq.tools.jdbc.MockResult
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.TestInstance
-import java.io.ByteArrayInputStream
 import java.io.File
 import java.util.UUID
 import kotlin.test.Test
@@ -99,9 +99,8 @@ class FhirReceiverFilterTests {
             test'apostrophe,Bundle.test.apostrophe
     """.trimIndent()
 
-    private val shorthandTable = LookupTable.read(inputStream = ByteArrayInputStream(csv.toByteArray()))
     val one = Schema(name = "None", topic = Topic.FULL_ELR, elements = emptyList())
-    val metadata = Metadata(schema = one).loadLookupTable("fhirpath_filter_shorthand", shorthandTable)
+    val metadata = Metadata(schema = one)
     val report = Report(one, listOf(listOf("1", "2")), TestSource, metadata = UnitTestUtils.simpleMetadata)
 
     private var actionLogger = ActionLogger()
@@ -132,6 +131,7 @@ class FhirReceiverFilterTests {
         processingModeFilter: List<String> = emptyList(),
         conditionFilter: List<String> = emptyList(),
         mappedConditionFilter: ReportStreamConditionFilter = emptyList(),
+        routingFilters: ReportStreamReceiverRoutingFilter = emptyList(),
     ) = DeepOrganization(
         ORGANIZATION_NAME,
         "test",
@@ -148,7 +148,8 @@ class FhirReceiverFilterTests {
                 routingFilter = routingFilter,
                 processingModeFilter = processingModeFilter,
                 conditionFilter = conditionFilter,
-                mappedConditionFilter = mappedConditionFilter
+                mappedConditionFilter = mappedConditionFilter,
+                routingFilters = routingFilters
             ),
             Receiver(
                 "full-elr-hl7-2",
@@ -161,7 +162,8 @@ class FhirReceiverFilterTests {
                 routingFilter = routingFilter,
                 processingModeFilter = processingModeFilter,
                 conditionFilter = conditionFilter,
-                mappedConditionFilter = mappedConditionFilter
+                mappedConditionFilter = mappedConditionFilter,
+                routingFilters = routingFilters
             )
         )
     )
@@ -230,14 +232,79 @@ class FhirReceiverFilterTests {
                 .isInstanceOf<ReportStreamItemEvent>()
                 .matchesPredicate {
                     it.params[ReportStreamEventProperties.FAILING_FILTERS] == FILTER_FAIL &&
-                        it.params[ReportStreamEventProperties.FILTER_TYPE] == ReportStreamFilterType.QUALITY_FILTER
+                        it.params[ReportStreamEventProperties.FILTER_TYPE] == ReportStreamFilterType.QUALITY_FILTER.name
                 }
         }
         assertThat(actionLogger.logs).hasSize(2)
         actionLogger.logs.forEach {
             assertThat(it.detail)
                 .isInstanceOf<FHIRReceiverFilter.ReceiverItemFilteredActionLogDetail>()
-                .matchesPredicate { it.filterType == ReportStreamFilterType.QUALITY_FILTER }
+                .matchesPredicate { it.filterType == ReportStreamFilterType.QUALITY_FILTER.name }
+        }
+    }
+
+    @Test
+    fun `fail - receiver fhir routing filter fails`() {
+        // engine setup
+        val filter = FHIRExpressionFilter("name", "description", listOf("false"))
+        val filters = listOf(filter)
+        val settings = FileSettings().loadOrganizations(
+            createOrganizationWithFilteredReceivers(
+                routingFilters = filters
+            )
+        )
+        val engine = spyk(makeFhirEngine(metadata, settings) as FHIRReceiverFilter)
+        val messages = settings.receivers.map {
+            spyk(
+                FhirReceiverFilterQueueMessage(
+                    UUID.randomUUID(),
+                    BLOB_URL,
+                    "test",
+                    BLOB_SUB_FOLDER_NAME,
+                    topic = Topic.FULL_ELR,
+                    it.fullName
+                )
+            )
+        }
+
+        // data + mock setup
+        val fhirData = File(VALID_FHIR_FILEPATH).readText()
+        mockkObject(BlobAccess)
+        every { BlobAccess.uploadBlob(any(), any()) } returns "test"
+        every { accessSpy.insertTask(any(), MimeFormat.FHIR.toString(), BODY_URL, any()) }.returns(Unit)
+        every { accessSpy.fetchReportFile(any<ReportId>()) } answers {
+            val reportId = firstArg<ReportId>()
+            if (reportId in messages.map { it.reportId }) {
+                ReportFile().setReportId(reportId).setItemCount(1)
+            } else {
+                callOriginal()
+            }
+        }
+
+        // act on each message (with assert)
+        messages.forEach { message ->
+            every { BlobAccess.downloadBlob(any(), any()) }.returns(fhirData)
+            // act + assert
+            accessSpy.transact { txn ->
+                val results = engine.run(message, actionLogger, actionHistory, txn)
+                assertThat(results).isEmpty()
+            }
+        }
+
+        // assert
+        azureEventService.events.forEach { event ->
+            assertThat(event)
+                .isInstanceOf<ReportStreamItemEvent>()
+                .matchesPredicate {
+                    it.params[ReportStreamEventProperties.FAILING_FILTERS] == FILTER_FAIL &&
+                        it.params[ReportStreamEventProperties.FILTER_TYPE] == "name"
+                }
+        }
+        assertThat(actionLogger.logs).hasSize(2)
+        actionLogger.logs.forEach {
+            assertThat(it.detail)
+                .isInstanceOf<FHIRReceiverFilter.ReceiverItemFilteredActionLogDetail>()
+                .matchesPredicate { it.filterType == "name" }
         }
     }
 
@@ -289,7 +356,7 @@ class FhirReceiverFilterTests {
                 .isInstanceOf<ReportStreamItemEvent>()
                 .matchesPredicate {
                     it.params[ReportStreamEventProperties.FAILING_FILTERS] == FILTER_FAIL &&
-                        it.params[ReportStreamEventProperties.FILTER_TYPE] == ReportStreamFilterType.ROUTING_FILTER
+                        it.params[ReportStreamEventProperties.FILTER_TYPE] == ReportStreamFilterType.ROUTING_FILTER.name
                 }
         }
 
@@ -297,7 +364,7 @@ class FhirReceiverFilterTests {
         actionLogger.logs.forEach {
             assertThat(it.detail)
                 .isInstanceOf<FHIRReceiverFilter.ReceiverItemFilteredActionLogDetail>()
-                .matchesPredicate { it.filterType == ReportStreamFilterType.ROUTING_FILTER }
+                .matchesPredicate { it.filterType == ReportStreamFilterType.ROUTING_FILTER.name }
         }
     }
 
@@ -352,14 +419,14 @@ class FhirReceiverFilterTests {
                 .matchesPredicate {
                     it.params[ReportStreamEventProperties.FAILING_FILTERS] == FILTER_FAIL &&
                         it.params[ReportStreamEventProperties.FILTER_TYPE] ==
-                        ReportStreamFilterType.PROCESSING_MODE_FILTER
+                        ReportStreamFilterType.PROCESSING_MODE_FILTER.name
                 }
         }
         assertThat(actionLogger.logs).hasSize(2)
         actionLogger.logs.forEach {
             assertThat(it.detail)
                 .isInstanceOf<FHIRReceiverFilter.ReceiverItemFilteredActionLogDetail>()
-                .matchesPredicate { it.filterType == ReportStreamFilterType.PROCESSING_MODE_FILTER }
+                .matchesPredicate { it.filterType == ReportStreamFilterType.PROCESSING_MODE_FILTER.name }
         }
     }
 
@@ -413,14 +480,15 @@ class FhirReceiverFilterTests {
                 .isInstanceOf<ReportStreamItemEvent>()
                 .matchesPredicate {
                     it.params[ReportStreamEventProperties.FAILING_FILTERS] == FILTER_FAIL &&
-                        it.params[ReportStreamEventProperties.FILTER_TYPE] == ReportStreamFilterType.CONDITION_FILTER
+                        it.params[ReportStreamEventProperties.FILTER_TYPE] ==
+                        ReportStreamFilterType.CONDITION_FILTER.name
                 }
         }
         assertThat(actionLogger.logs).hasSize(2)
         actionLogger.logs.forEach {
             assertThat(it.detail)
                 .isInstanceOf<FHIRReceiverFilter.ReceiverItemFilteredActionLogDetail>()
-                .matchesPredicate { it.filterType == ReportStreamFilterType.CONDITION_FILTER }
+                .matchesPredicate { it.filterType == ReportStreamFilterType.CONDITION_FILTER.name }
         }
     }
 
@@ -470,14 +538,14 @@ class FhirReceiverFilterTests {
                         it.params[ReportStreamEventProperties.FAILING_FILTERS] ==
                             listOf(MAPPED_CONDITION_FILTER_FAIL.value) &&
                             it.params[ReportStreamEventProperties.FILTER_TYPE] ==
-                            ReportStreamFilterType.MAPPED_CONDITION_FILTER
+                            ReportStreamFilterType.MAPPED_CONDITION_FILTER.name
                     }
             }
 
             assertThat(actionLogger.logs).hasSize(1)
             assertThat(actionLogger.logs.first().detail)
                 .isInstanceOf<FHIRReceiverFilter.ReceiverItemFilteredActionLogDetail>()
-                .matchesPredicate { it.filterType == ReportStreamFilterType.MAPPED_CONDITION_FILTER }
+                .matchesPredicate { it.filterType == ReportStreamFilterType.MAPPED_CONDITION_FILTER.name }
         }
     }
 
@@ -537,16 +605,18 @@ class FhirReceiverFilterTests {
             assertThat(actionLogger.logs).hasSize(1)
             assertThat(actionLogger.logs.first().detail)
                 .isInstanceOf<FHIRReceiverFilter.ReceiverItemFilteredActionLogDetail>()
-                .matchesPredicate { it.filterType == ReportStreamFilterType.MAPPED_CONDITION_FILTER }
+                .matchesPredicate { it.filterType == ReportStreamFilterType.MAPPED_CONDITION_FILTER.name }
         }
     }
 
     @Test
     fun `success - jurisfilter, qualfilter, routing filter, proc mode passes, and condition filter passes`() {
         // engine setup
+        val filter = FHIRExpressionFilter("name", "description", listOf("true"))
+        val filters = listOf(filter)
         val settings = FileSettings().loadOrganizations(
             createOrganizationWithFilteredReceivers(
-                FILTER_PASS, FILTER_PASS, FILTER_PASS, FILTER_PASS, FILTER_PASS
+                FILTER_PASS, FILTER_PASS, FILTER_PASS, FILTER_PASS, FILTER_PASS, emptyList(), filters
             )
         )
         val engine = spyk(makeFhirEngine(metadata, settings) as FHIRReceiverFilter)
@@ -583,7 +653,7 @@ class FhirReceiverFilterTests {
         mockkStatic(Bundle::filterObservations)
         every { BlobAccess.uploadBlob(any(), any()) } returns "test"
         every { accessSpy.insertTask(any(), MimeFormat.FHIR.toString(), BODY_URL, any()) }.returns(Unit)
-        every { any<Bundle>().filterObservations(any(), any()) } returns bundle
+        every { any<Bundle>().filterObservations(any()) } returns bundle
 
         // act on each message (with assert)
         messages.forEachIndexed { i, message ->
@@ -631,7 +701,7 @@ class FhirReceiverFilterTests {
         val fhirData = File(VALID_FHIR_FILEPATH).readText()
         val originalBundle = FhirTranscoder.decode(fhirData)
         val expectedBundle = originalBundle
-            .filterObservations(listOf(CONDITION_FILTER), engine.loadFhirPathShorthandLookupTable())
+            .filterObservations(listOf(CONDITION_FILTER))
 
         // mock setup
         mockkObject(BlobAccess)
@@ -791,7 +861,7 @@ class FhirReceiverFilterTests {
                 callOriginal()
             }
         }
-        every { any<Bundle>().filterObservations(any(), any()) } returns FhirTranscoder.decode(fhirData)
+        every { any<Bundle>().filterObservations(any()) } returns FhirTranscoder.decode(fhirData)
 
         // act + assert
         accessSpy.transact { txn ->
@@ -803,7 +873,8 @@ class FhirReceiverFilterTests {
                     .isInstanceOf<ReportStreamItemEvent>()
                     .matchesPredicate {
                         it.params[ReportStreamEventProperties.FAILING_FILTERS] == FILTER_FAIL &&
-                            it.params[ReportStreamEventProperties.FILTER_TYPE] == ReportStreamFilterType.QUALITY_FILTER
+                            it.params[ReportStreamEventProperties.FILTER_TYPE] ==
+                            ReportStreamFilterType.QUALITY_FILTER.name
                     }
             }
         }
@@ -877,13 +948,13 @@ class FhirReceiverFilterTests {
                 .matchesPredicate {
                     it.params[ReportStreamEventProperties.FAILING_FILTERS] == listOf(mappedConditionFilter.value) &&
                         it.params[ReportStreamEventProperties.FILTER_TYPE] ==
-                        ReportStreamFilterType.MAPPED_CONDITION_FILTER
+                        ReportStreamFilterType.MAPPED_CONDITION_FILTER.name
                 }
         }
         assertThat(actionLogger.logs).hasSize(1)
         assertThat(actionLogger.logs.first().detail)
             .isInstanceOf<FHIRReceiverFilter.ReceiverItemFilteredActionLogDetail>()
-            .matchesPredicate { it.filterType == ReportStreamFilterType.MAPPED_CONDITION_FILTER }
+            .matchesPredicate { it.filterType == ReportStreamFilterType.MAPPED_CONDITION_FILTER.name }
     }
 
     @Test
@@ -925,7 +996,7 @@ class FhirReceiverFilterTests {
         assertThat(actionLogger.logs).hasSize(1)
         assertThat(actionLogger.logs.first().detail)
             .isInstanceOf<FHIRReceiverFilter.ReceiverItemFilteredActionLogDetail>()
-            .matchesPredicate { it.filterType == ReportStreamFilterType.CONDITION_FILTER }
+            .matchesPredicate { it.filterType == ReportStreamFilterType.CONDITION_FILTER.name }
     }
 
     @Test

@@ -42,7 +42,7 @@ const MessageTestingForm = ({
             <section className="bg-base-lightest padding-3">
                 {!currentTestMessages.length && <p>No test messages available</p>}
                 {!!currentTestMessages.length && (
-                    <form onSubmit={handleSubmit}>
+                    <form onSubmit={handleSubmit} aria-label="Test message form">
                         <fieldset className="usa-fieldset bg-base-lightest padding-3">
                             {currentTestMessages?.map((item, index) => (
                                 <MessageTestingRadioField
