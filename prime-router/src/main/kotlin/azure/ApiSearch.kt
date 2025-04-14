@@ -23,9 +23,9 @@ import org.jooq.impl.DSL
 import kotlin.time.ExperimentalTime
 
 data class ApiSearchResult<T>(val totalCount: Int, val filteredCount: Int, val results: List<T>) {
-    fun <MappedType> map(mappingFunction: (value: T) -> MappedType): ApiSearchResult<MappedType> {
-        return ApiSearchResult(totalCount, filteredCount, results.map { mappingFunction(it) })
-    }
+    fun <MappedType> map(
+        mappingFunction: (value: T) -> MappedType,
+    ): ApiSearchResult<MappedType> = ApiSearchResult(totalCount, filteredCount, results.map { mappingFunction(it) })
 }
 enum class SortDirection {
     ASC,
@@ -46,9 +46,7 @@ interface ApiFilterNames
 interface ApiFilters<RecordType : Record, ApiFilterType : ApiFilter<RecordType, *>, Names : ApiFilterNames> {
 
     val terms: Map<Names, Class<out ApiFilterType>>
-    fun getTerm(termName: Names): Class<out ApiFilterType>? {
-        return terms[termName]
-    }
+    fun getTerm(termName: Names): Class<out ApiFilterType>? = terms[termName]
 }
 
 interface ApiFilter<RecordType : Record, T> {
@@ -78,18 +76,16 @@ abstract class ApiSearchParser<
      *
      * @param query the query string
      */
-    private fun parseFromQueryString(query: String): RawApiSearch {
-        throw NotImplementedError(query)
-    }
+    private fun parseFromQueryString(query: String): RawApiSearch = throw NotImplementedError(query)
 
     /**
      * Converts a request body into a RawApiSearch
      *
      * @param body the request body
      */
-    private fun parseRawFromRequestBody(body: String): RawApiSearch {
-        return JacksonMapperUtilities.defaultMapper.readValue(body, RawApiSearch::class.java)
-    }
+    private fun parseRawFromRequestBody(
+        body: String,
+    ): RawApiSearch = JacksonMapperUtilities.defaultMapper.readValue(body, RawApiSearch::class.java)
 
     /**
      * Function that the subclass must implement to convert a RawApiSearch into the specific
@@ -299,7 +295,5 @@ abstract class ApiSearch<PojoType, RecordType : Record, ApiFilterType : ApiFilte
         }
 
     /** Converts the limit and page value into an offset */
-    private fun getOffset(): Int {
-        return limit * (page - 1)
-    }
+    private fun getOffset(): Int = limit * (page - 1)
 }

@@ -172,9 +172,7 @@ class Metadata : Logging {
         }
     }
 
-    fun loadSchemas(vararg schemas: Schema): Metadata {
-        return loadSchemaList(schemas.toList())
-    }
+    fun loadSchemas(vararg schemas: Schema): Metadata = loadSchemaList(schemas.toList())
 
     private fun loadSchemaList(schemas: List<Schema>): Metadata {
         val fixedUpSchemas = mutableMapOf<String, Schema>()
@@ -198,9 +196,7 @@ class Metadata : Logging {
         return this
     }
 
-    fun findSchema(name: String): Schema? {
-        return schemaStore[normalizeSchemaName(name)]
-    }
+    fun findSchema(name: String): Schema? = schemaStore[normalizeSchemaName(name)]
 
     private fun readAllSchemas(catalogDir: File, dirRelPath: String): List<Schema> {
         val outputSchemas = mutableListOf<Schema>()
@@ -251,9 +247,7 @@ class Metadata : Logging {
         return schema.copy(elements = schemaElements, basedOnRef = basedOnSchema, extendsRef = extendsSchema)
     }
 
-    private fun normalizeSchemaName(name: String): String {
-        return name.lowercase()
-    }
+    private fun normalizeSchemaName(name: String): String = name.lowercase()
 
     /**
      * The fixup process fills in references and inherited attributes.
@@ -295,16 +289,15 @@ class Metadata : Logging {
      * Mappers
      */
 
-    fun findMapper(name: String): Mapper? {
-        return mappers.find { it.name.equals(name, ignoreCase = true) }
-    }
+    fun findMapper(name: String): Mapper? = mappers.find { it.name.equals(name, ignoreCase = true) }
 
     /*
      * ReportStreamFilterDefinitions
      */
 
-    fun findReportStreamFilterDefinitions(name: String): ReportStreamFilterDefinition? {
-        return reportStreamFilterDefinitions.find { it.name.equals(name, ignoreCase = true) }
+    fun findReportStreamFilterDefinitions(name: String): ReportStreamFilterDefinition? =
+        reportStreamFilterDefinitions.find {
+            it.name.equals(name, ignoreCase = true)
     }
 
     /*
@@ -321,18 +314,14 @@ class Metadata : Logging {
         }
     }
 
-    fun loadValueSets(vararg sets: ValueSet): Metadata {
-        return loadValueSetList(sets.toList())
-    }
+    fun loadValueSets(vararg sets: ValueSet): Metadata = loadValueSetList(sets.toList())
 
     private fun loadValueSetList(sets: List<ValueSet>): Metadata {
         this.valueSets = sets.map { normalizeValueSetName(it.name) to it }.toMap()
         return this
     }
 
-    fun findValueSet(name: String): ValueSet? {
-        return valueSets[normalizeValueSetName(name)]
-    }
+    fun findValueSet(name: String): ValueSet? = valueSets[normalizeValueSetName(name)]
 
     private fun readAllValueSets(catalogDir: File): List<ValueSet> {
         // read the .valueset files in the director
@@ -349,9 +338,7 @@ class Metadata : Logging {
         }
     }
 
-    private fun normalizeValueSetName(name: String): String {
-        return name.lowercase()
-    }
+    private fun normalizeValueSetName(name: String): String = name.lowercase()
 
     /**
      * Lookup Tables
@@ -426,18 +413,14 @@ class Metadata : Logging {
         }
     }
 
-    fun findLookupTable(name: String): LookupTable? {
-        return lookupTableStore[name.lowercase()]
-    }
+    fun findLookupTable(name: String): LookupTable? = lookupTableStore[name.lowercase()]
 
     /*
         file name templates
      */
     val fileNameTemplates get() = fileNameTemplatesStore
 
-    fun findFileNameTemplate(name: String): FileNameTemplate? {
-        return fileNameTemplatesStore[name.lowercase()]
-    }
+    fun findFileNameTemplate(name: String): FileNameTemplate? = fileNameTemplatesStore[name.lowercase()]
 
     private fun loadFileNameTemplates(filePath: String): Metadata {
         val catalogDir = File(filePath)
@@ -496,9 +479,7 @@ class Metadata : Logging {
          * Get the singleton instance.
          * @return the metadata instance
          */
-        fun getInstance(): Metadata {
-            return singletonInstance
-        }
+        fun getInstance(): Metadata = singletonInstance
 
         /**
          * The amount of seconds to wait before tables are checked again for updates.

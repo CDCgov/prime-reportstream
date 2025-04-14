@@ -99,7 +99,5 @@ object HL7Constants {
         // Extend further here
     )
 
-    fun getHL7ComponentMaxLengthList(componentName: String): List<Int>? {
-        return hl7ComponentMaxLength[componentName]
-    }
+    fun getHL7ComponentMaxLengthList(componentName: String): List<Int>? = hl7ComponentMaxLength[componentName]
 }

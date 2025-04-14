@@ -61,10 +61,14 @@ class BatchDeciderTests {
         ),
     )
 
-    private fun makeEngine(settings: SettingsProvider): WorkflowEngine {
-        return WorkflowEngine.Builder().metadata(UnitTestUtils.simpleMetadata).settingsProvider(settings)
-            .databaseAccess(accessSpy).blobAccess(blobMock).queueAccess(queueMock).build()
-    }
+    private fun makeEngine(settings: SettingsProvider): WorkflowEngine =
+        WorkflowEngine.Builder()
+            .metadata(UnitTestUtils.simpleMetadata)
+            .settingsProvider(settings)
+            .databaseAccess(accessSpy)
+            .blobAccess(blobMock)
+            .queueAccess(queueMock)
+            .build()
 
     @BeforeTest
     fun reset() {

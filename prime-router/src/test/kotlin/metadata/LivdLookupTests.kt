@@ -430,9 +430,10 @@ class LivdLookupTests {
      * be used as input to a mapper.
      * @return the element value object with the data
      */
-    private fun createValue(element: Element, deviceindex: Int): ElementAndValue {
-        return ElementAndValue(element, getDeviceCol(deviceindex, element))
-    }
+    private fun createValue(
+        element: Element,
+        deviceindex: Int,
+    ): ElementAndValue = ElementAndValue(element, getDeviceCol(deviceindex, element))
 
     @Test
     fun `test LIVD apply mapper lookup logic`() {
