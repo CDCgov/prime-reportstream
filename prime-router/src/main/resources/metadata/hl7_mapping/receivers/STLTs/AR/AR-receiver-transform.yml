@@ -25,11 +25,11 @@ elements:
     hl7Spec: [ 'MSH-4-1' ]
 
   - name: ar-sending-application-universal-id
-    value: [ '"2.16.840.1.114222.4.1.237821"' ]
+    value: [ '"11D2030855"' ]
     hl7Spec: [ 'MSH-4-2' ]
 
   - name: ar-sending-application-universal-id-type
-    value: [ '"ISO"' ]
+    value: [ '"CLIA"' ]
     hl7Spec: [ 'MSH-4-3' ]
 
   - name: ar-receiving-application-namespace-id
