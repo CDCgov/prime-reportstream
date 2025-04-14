@@ -65,8 +65,11 @@ class CommandUtilities {
          * Checks if the API can be connected to.
          * @return true is the API is available, false otherwise
          */
-        private fun isEndpointAvailable(url: URL, accessToken: String, httpClient: HttpClient? = null): Boolean {
-            return runBlocking {
+        private fun isEndpointAvailable(
+            url: URL,
+            accessToken: String,
+            httpClient: HttpClient? = null,
+        ): Boolean = runBlocking {
                 val response = HttpClientUtils.head(
                     url.toString(),
                     accessToken = accessToken,
@@ -74,7 +77,6 @@ class CommandUtilities {
                 )
                 response.status == HttpStatusCode.OK
             }
-        }
 
         private val jsonMapper = jacksonObjectMapper
 
@@ -145,8 +147,6 @@ class CommandUtilities {
         /**
          * Nice way to abort a command
          */
-        fun abort(message: String): Nothing {
-            throw PrintMessage(message, printError = true)
-        }
+        fun abort(message: String): Nothing = throw PrintMessage(message, printError = true)
     }
 }

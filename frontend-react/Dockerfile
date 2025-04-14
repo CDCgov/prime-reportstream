@@ -53,4 +53,4 @@ FROM cgr.dev/chainguard/nginx AS server
 COPY nginx.conf /etc/nginx/nginx.conf
 COPY --from=builder /app/build /usr/share/nginx/html
 EXPOSE 8080
-CMD ["nginx", "-g", "daemon off;"]
+CMD ["-g", "daemon off;"]

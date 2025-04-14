@@ -3,16 +3,12 @@ package gov.cdc.prime.router
 import java.io.File
 
 data class HeaderComparison(val fileOneHeaders: Set<String>, val fileTwoHeaders: Set<String>) {
-    fun hasErrors(): Boolean {
-        return fileOneHeaders.isNotEmpty() || fileTwoHeaders.isNotEmpty()
-    }
+    fun hasErrors(): Boolean = fileOneHeaders.isNotEmpty() || fileTwoHeaders.isNotEmpty()
 
-    override fun toString(): String {
-        return """
+    override fun toString(): String = """
             There are keys in fileOne that are not in fileTwo: ${fileOneHeaders.joinToString { "," }}
             There are keys in fileTwo that are not in fileOne: ${fileTwoHeaders.joinToString { "," }}
         """.trimIndent()
-    }
 }
 
 data class CsvComparer(val fileOnePath: String, val fileTwoPath: String, val recordId: String = "Patient_Id") {

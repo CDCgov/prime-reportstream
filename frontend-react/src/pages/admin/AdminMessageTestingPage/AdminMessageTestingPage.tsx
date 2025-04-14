@@ -108,6 +108,8 @@ const AdminMessageTestingPage = () => {
                                         setCurrentMessageTestStep(MessageTestingSteps.StepOne);
                                     }}
                                     refetch={refetch}
+                                    orgname={orgname ?? "N/A"}
+                                    receivername={receivername ?? "N/A"}
                                 />
                             )}
                         </>
