@@ -47,6 +47,7 @@ export interface TableProps {
     sticky?: boolean;
     striped?: boolean;
     rowData: RowData[][];
+    gray?: boolean;
 }
 
 const TableHeader = ({ dataContent }: { dataContent: RowData["content"] }) => (
@@ -98,9 +99,7 @@ const SortableTableHeader = ({
                 onClick={handleHeaderClick}
             >
                 <div className="column-header--sortable">
-                    <p className="column-header-text">
-                        {columnHeaderData.columnHeader}
-                    </p>
+                    <p className="column-header-text">{columnHeaderData.columnHeader}</p>
                     {<SortIcon size={3} />}
                 </div>
             </button>
@@ -136,14 +135,9 @@ const CustomSortableTableHeader = ({
                 "column-header--sticky": sticky,
             })}
         >
-            <button
-                className="column-header-button"
-                onClick={handleHeaderClick}
-            >
+            <button className="column-header-button" onClick={handleHeaderClick}>
                 <div className="column-header--sortable">
-                    <p className="column-header-text">
-                        {columnHeaderData.columnHeader}
-                    </p>
+                    <p className="column-header-text">{columnHeaderData.columnHeader}</p>
                     {<SortIcon size={3} />}
                 </div>
             </button>
@@ -151,17 +145,11 @@ const CustomSortableTableHeader = ({
     );
 };
 
-function sortTableData(
-    activeColumn: string,
-    rowData: RowData[][],
-    sortOrder: FilterOptions,
-) {
+function sortTableData(activeColumn: string, rowData: RowData[][], sortOrder: FilterOptions) {
     return sortOrder !== FilterOptions.NONE && activeColumn
         ? rowData.sort((a, b): number => {
-              const contentColA =
-                  a.find((item) => item.columnKey === activeColumn) ?? "";
-              const contentColB =
-                  b.find((item) => item.columnKey === activeColumn) ?? "";
+              const contentColA = a.find((item) => item.columnKey === activeColumn) ?? "";
+              const contentColB = b.find((item) => item.columnKey === activeColumn) ?? "";
               if (sortOrder === FilterOptions.ASC) {
                   return contentColA < contentColB ? 1 : -1;
               } else {
@@ -191,12 +179,7 @@ const SortableTable = ({
                 <tr>
                     {columnHeaders.map((columnHeaderData, index) => {
                         if (apiSortable && !columnHeaderData.columnCustomSort) {
-                            return (
-                                <TableHeader
-                                    key={index}
-                                    dataContent={columnHeaderData.columnHeader}
-                                />
-                            );
+                            return <TableHeader key={index} dataContent={columnHeaderData.columnHeader} />;
                         } else if (
                             apiSortable &&
                             columnHeaderData.columnCustomSort &&
@@ -207,12 +190,8 @@ const SortableTable = ({
                                     key={index}
                                     columnHeaderData={columnHeaderData}
                                     sticky={sticky}
-                                    onColumnCustomSort={
-                                        columnHeaderData.columnCustomSort
-                                    }
-                                    columnCustomSortSettings={
-                                        columnHeaderData.columnCustomSortSettings
-                                    }
+                                    onColumnCustomSort={columnHeaderData.columnCustomSort}
+                                    columnCustomSortSettings={columnHeaderData.columnCustomSortSettings}
                                 />
                             );
                         }
@@ -235,8 +214,7 @@ const SortableTable = ({
                     return (
                         <tr key={index}>
                             {row.map((data, dataIndex) => {
-                                const isActive =
-                                    data.columnKey === activeColumn;
+                                const isActive = data.columnKey === activeColumn;
                                 return (
                                     <td
                                         key={dataIndex}
@@ -267,6 +245,7 @@ const Table = ({
     sticky,
     striped,
     rowData,
+    gray,
 }: TableProps) => {
     const classes = classnames("usa-table", {
         "usa-table--borderless": borderless,
@@ -275,29 +254,24 @@ const Table = ({
         "usa-table--stacked": stackedStyle === "default",
         "usa-table--stacked-header": stackedStyle === "headers",
         "usa-table--striped": striped,
+        "gray-table": gray,
     });
 
     const columnHeaders = rowData.flat().filter((rowItemFilter, pos, arr) => {
-        return (
-            arr
-                .map((rowItemMap) => rowItemMap.columnKey)
-                .indexOf(rowItemFilter.columnKey) === pos
-        );
+        return arr.map((rowItemMap) => rowItemMap.columnKey).indexOf(rowItemFilter.columnKey) === pos;
     });
 
     return (
         <div
             className={styles.Table}
             {...(scrollable && {
-                className: `usa-table-container--scrollable ${styles.Table} ${
-                    sticky && styles.Table__StickyHeader
-                }`,
+                className: `usa-table-container--scrollable ${styles.Table} ${sticky && styles.Table__StickyHeader}`,
                 tabIndex: 0,
             })}
         >
             {rowData.length ? (
                 <table className={classes}>
-                    {sortable ?? apiSortable ? (
+                    {(sortable ?? apiSortable) ? (
                         <SortableTable
                             sticky={sticky}
                             rowData={rowData}
@@ -312,17 +286,11 @@ const Table = ({
                                         return (
                                             <th
                                                 key={index}
-                                                className={classnames(
-                                                    "column-header",
-                                                    {
-                                                        "column-header--sticky":
-                                                            sticky,
-                                                    },
-                                                )}
+                                                className={classnames("column-header", {
+                                                    "column-header--sticky": sticky,
+                                                })}
                                             >
-                                                <p className="column-header-text">
-                                                    {header.columnHeader}
-                                                </p>
+                                                <p className="column-header-text">{header.columnHeader}</p>
                                             </th>
                                         );
                                     })}
