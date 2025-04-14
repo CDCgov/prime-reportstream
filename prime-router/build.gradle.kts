@@ -900,16 +900,13 @@ dependencies {
             branch = "master"
         }
     }
-    implementation("ca.uhn.hapi.fhir:hapi-fhir-structures-r4:7.4.5")
+    implementation("ca.uhn.hapi.fhir:hapi-fhir-structures-r4:7.6.1")
     // https://mvnrepository.com/artifact/ca.uhn.hapi.fhir/hapi-fhir-caching-caffeine
-    implementation("ca.uhn.hapi.fhir:hapi-fhir-caching-caffeine:7.4.5")
-    implementation("ca.uhn.hapi.fhir:hapi-fhir-client:7.4.5")
-    // pin
-    implementation("ca.uhn.hapi.fhir:org.hl7.fhir.utilities:6.4.0")
-    implementation("ca.uhn.hapi.fhir:org.hl7.fhir.r4:6.4.0")
-    implementation("ca.uhn.hapi:hapi-base:2.5.1")
-    implementation("ca.uhn.hapi:hapi-structures-v251:2.5.1")
-    implementation("ca.uhn.hapi:hapi-structures-v27:2.5.1")
+    implementation("ca.uhn.hapi.fhir:hapi-fhir-caching-caffeine:7.6.1")
+    implementation("ca.uhn.hapi.fhir:hapi-fhir-client:7.6.1")
+    implementation("ca.uhn.hapi:hapi-base:2.6.0")
+    implementation("ca.uhn.hapi:hapi-structures-v251:2.6.0")
+    implementation("ca.uhn.hapi:hapi-structures-v27:2.6.0")
     implementation("com.googlecode.libphonenumber:libphonenumber:8.13.50")
     implementation("org.thymeleaf:thymeleaf:3.1.3.RELEASE")
     implementation("com.sendgrid:sendgrid-java:4.10.3")
