@@ -74,7 +74,7 @@ val javaVersion = when (appJvmTarget.target) {
     "21" -> JavaVersion.VERSION_21
     else -> JavaVersion.VERSION_17
 }
-val ktorVersion = "2.3.12"
+val ktorVersion = "3.1.2"
 val kotlinVersion by System.getProperties()
 val jacksonVersion = "2.18.2"
 jacoco.toolVersion = "0.8.12"
@@ -874,7 +874,7 @@ dependencies {
         exclude(group = "com.azure", module = "azure-core")
         exclude(group = "com.azure", module = "azure-core-http-netty")
     }
-    implementation("com.azure:azure-identity:1.14.2") {
+    implementation("com.azure:azure-identity:1.15.4") {
         exclude(group = "com.azure", module = "azure-core")
         exclude(group = "com.azure", module = "azure-core-http-netty")
     }
@@ -915,7 +915,7 @@ dependencies {
     // DO NOT INCREMENT SSHJ to a newer version without first thoroughly testing it locally.
     implementation("com.hierynomus:sshj:0.39.0")
     implementation("com.jcraft:jsch:0.1.55")
-    implementation("org.apache.poi:poi:5.3.0")
+    implementation("org.apache.poi:poi:5.4.0")
     implementation("org.apache.commons:commons-csv:1.12.0")
     implementation("org.apache.commons:commons-lang3:3.15.0")
     implementation("org.apache.commons:commons-text:1.12.0")
@@ -947,8 +947,8 @@ dependencies {
     implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
     implementation("it.skrape:skrapeit-html-parser:1.3.0-alpha.2")
     implementation("it.skrape:skrapeit-http-fetcher:1.3.0-alpha.2")
-    implementation("org.apache.poi:poi:5.3.0")
-    implementation("org.apache.poi:poi-ooxml:5.3.0")
+    implementation("org.apache.poi:poi:5.4.0")
+    implementation("org.apache.poi:poi-ooxml:5.4.0")
     implementation("org.apache.commons:commons-compress:1.27.1")
     implementation("commons-io:commons-io:2.18.0")
     implementation("com.anyascii:anyascii:0.3.2")
