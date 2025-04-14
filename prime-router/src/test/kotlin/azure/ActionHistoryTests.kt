@@ -4,7 +4,6 @@ import assertk.assertFailure
 import assertk.assertThat
 import assertk.assertions.containsOnly
 import assertk.assertions.extracting
-import assertk.assertions.hasSize
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
@@ -34,7 +33,6 @@ import gov.cdc.prime.router.azure.observability.event.ReportEventData
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventService
 import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.fhirengine.engine.FhirConvertQueueMessage
-import gov.cdc.prime.router.fhirengine.engine.FhirReceiverEnrichmentQueueMessage
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.report.ReportService
 import gov.cdc.prime.router.unittest.UnitTestUtils
@@ -916,7 +914,7 @@ class ActionHistoryTests {
     }
 
     @Test
-    fun `test queueFhirMessages properly add a fhir messages to be tracked`() {
+    fun `test queueFhirMessages properly add a fhir message to be tracked`() {
         val actionHistory = ActionHistory(TaskAction.receive)
 
         val queueMessage = FhirConvertQueueMessage(
@@ -933,36 +931,7 @@ class ActionHistoryTests {
     }
 
     @Test
-    fun `test queueFhirMessages properly adds multiple fhir messages to be tracked`() {
-        val actionHistory = ActionHistory(TaskAction.receive)
-
-        actionHistory.trackFhirMessage(
-            FhirConvertQueueMessage(
-            UUID.randomUUID(),
-            "",
-            "",
-            "",
-            Topic.FULL_ELR,
-            ""
-        )
-        )
-
-        actionHistory.trackFhirMessage(
-            FhirReceiverEnrichmentQueueMessage(
-            UUID.randomUUID(),
-            "",
-            "",
-            "",
-            Topic.FULL_ELR,
-            ""
-        )
-        )
-
-        assertEquals(2, actionHistory.fhirQueueMessages.size)
-    }
-
-    @Test
-    fun `test queueFhirMessages properly tracks and queues a fhir messages`() {
+    fun `test queueFhirMessages properly tracks and queues a fhir message`() {
         val metadata = UnitTestUtils.simpleMetadata
         val actionHistory = spyk(ActionHistory(TaskAction.receive))
         val workflowEngine = mockkClass(WorkflowEngine::class)
@@ -994,55 +963,5 @@ class ActionHistoryTests {
 
         assertEquals(queueNameSlot.captured, QueueMessage.elrConvertQueueName)
         assertEquals(messageSlot.captured, queueMessage.serialize())
-    }
-
-    @Test
-    fun `test queueFhirMessages properly tracks and queues multiple messages`() {
-        val metadata = UnitTestUtils.simpleMetadata
-        val actionHistory = spyk(ActionHistory(TaskAction.receive))
-        val workflowEngine = mockkClass(WorkflowEngine::class)
-        val messageQueue = mockk<QueueAccess>()
-
-        every { workflowEngine.metadata } returns metadata
-        every { workflowEngine.queue } returns messageQueue
-
-        val queueNames = mutableListOf<String>()
-        val messages = mutableListOf<String>()
-
-        every { messageQueue.sendMessage(capture(queueNames), capture(messages), any()) } returns "some-id"
-
-        val queueMessage = FhirConvertQueueMessage(
-            UUID.randomUUID(),
-            "",
-            "",
-            "",
-            Topic.FULL_ELR,
-            ""
-        )
-
-        val secondQueueMessage = FhirReceiverEnrichmentQueueMessage(
-            UUID.randomUUID(),
-            "",
-            "",
-            "",
-            Topic.FULL_ELR,
-            ""
-        )
-
-        actionHistory.trackFhirMessage(queueMessage)
-        actionHistory.trackFhirMessage(secondQueueMessage)
-        actionHistory.queueFhirMessages(workflowEngine)
-
-        verify(exactly = 2) {
-            messageQueue.sendMessage(any(), any(), any())
-        }
-
-        assertThat(queueNames).hasSize(2)
-        assertThat(queueNames[0], QueueMessage.elrConvertQueueName)
-        assertEquals(queueNames[1], QueueMessage.elrReceiverEnrichmentQueueName)
-
-        assertThat(messages).hasSize(2)
-        assertThat(messages[0], queueMessage.serialize())
-        assertEquals(messages[1], secondQueueMessage.serialize())
     }
 }
