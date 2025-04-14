@@ -1,16 +1,8 @@
-import {
-    Button,
-    FileInput,
-    FileInputRef,
-    Form,
-    FormGroup,
-    Label,
-} from "@trussworks/react-uswds";
+import { Button, FileInput, FileInputRef, Form, FormGroup, Label } from "@trussworks/react-uswds";
 import { ChangeEvent, FormEvent, useRef } from "react";
 
 import { FileHandlerStepProps } from "./FileHandler";
 import FileHandlerPiiWarning from "./FileHandlerPiiWarning";
-import { RSSender } from "../../config/endpoints/settings";
 import { WatersResponse } from "../../config/endpoints/waters";
 import useSessionContext from "../../contexts/Session/useSessionContext";
 import { showToast } from "../../contexts/Toast";
@@ -20,7 +12,7 @@ import useWatersUploader from "../../hooks/api/UseWatersUploader/UseWatersUpload
 import useAppInsightsContext from "../../hooks/UseAppInsightsContext/UseAppInsightsContext";
 import { EventName } from "../../utils/AppInsights";
 import { parseCsvForError } from "../../utils/FileUtils";
-import { MembershipSettings } from "../../utils/OrganizationUtils";
+import { getClientHeader } from "../../utils/SessionStorageTools";
 import { FileType } from "../../utils/TemporarySettingsAPITypes";
 import Spinner from "../Spinner";
 
@@ -34,34 +26,6 @@ export const UPLOAD_PROMPT_DESCRIPTIONS = {
         subtitle: "Make sure your file has a .hl7 extension",
     },
 };
-
-/**
- * Given a user's membership settings and their Sender details,
- * return the client string to send to the validate endpoint
- *
- * Only send the client when the selected schema matches the Sender's schema --
- * this is to account for factoring in Sender settings into the validation
- * e.g., allowDuplicates in https://github.com/CDCgov/prime-reportstream/blob/master/prime-router/src/main/kotlin/azure/ValidateFunction.kt#L100
- *
- * @param selectedSchemaName { string | undefined }
- * @param activeMembership { MembershipSettings | undefined}
- * @param sender { RSSender | undefined }
- * @returns {string} The value sent as the client header (can be a blank string)
- */
-export function getClientHeader(
-    selectedSchemaName: string | undefined,
-    activeMembership: MembershipSettings | null | undefined,
-    sender: RSSender | undefined,
-) {
-    const parsedName = activeMembership?.parsedName;
-    const senderName = activeMembership?.service;
-
-    if (parsedName && senderName && sender?.schemaName === selectedSchemaName) {
-        return `${parsedName}.${senderName}`;
-    }
-
-    return "";
-}
 
 export interface FileHandlerFileUploadStepProps extends FileHandlerStepProps {
     onFileChange: (file: File, fileContent: string) => void;
@@ -90,12 +54,9 @@ export default function FileHandlerFileUploadStep({
     const { activeMembership, rsConsole } = useSessionContext();
     const fileInputRef = useRef<FileInputRef>(null);
     const { format } = selectedSchemaOption;
-    const accept = selectedSchemaOption
-        ? `.${format.toLowerCase()}`
-        : BASE_ACCEPT_VALUE;
+    const accept = selectedSchemaOption ? `.${format.toLowerCase()}` : BASE_ACCEPT_VALUE;
 
-    const { mutateAsync: sendFile, isPending: isUploading } =
-        useWatersUploader();
+    const { mutateAsync: sendFile, isPending: isUploading } = useWatersUploader();
 
     async function handleFileChange(event: ChangeEvent<HTMLInputElement>) {
         // TODO: consolidate with upcoming FileUtils generic function
@@ -108,10 +69,7 @@ export default function FileHandlerFileUploadStep({
         const selectedFileContent = await selectedFile.text();
 
         if (selectedFile.type === "csv" || selectedFile.type === "text/csv") {
-            const localCsvError = parseCsvForError(
-                selectedFile.name,
-                selectedFileContent,
-            );
+            const localCsvError = parseCsvForError(selectedFile.name, selectedFileContent);
             if (localCsvError) {
                 showToast(localCsvError, "error");
                 return;
@@ -135,11 +93,7 @@ export default function FileHandlerFileUploadStep({
                 contentType,
                 fileContent,
                 fileName: file.name,
-                client: getClientHeader(
-                    selectedSchemaOption.value,
-                    activeMembership,
-                    senderDetail ?? undefined,
-                ),
+                client: getClientHeader(selectedSchemaOption.value, activeMembership, senderDetail ?? undefined),
                 schema: selectedSchemaOption.value,
                 format: selectedSchemaOption.format,
             });
@@ -184,8 +138,7 @@ export default function FileHandlerFileUploadStep({
         }
     }
 
-    if (senderDetail == null)
-        rsConsole.error(new Error("Failed to fetch sender detail"));
+    if (senderDetail == null) rsConsole.error(new Error("Failed to fetch sender detail"));
 
     return (
         <div>
@@ -202,8 +155,7 @@ export default function FileHandlerFileUploadStep({
                             <div className="grid-row">
                                 <div className="margin-x-auto tablet:grid-col-5 line-height-sans-6">
                                     <p>
-                                        Checking your file for any errors that
-                                        will prevent your data from being
+                                        Checking your file for any errors that will prevent your data from being
                                         reported successfully...
                                     </p>
                                 </div>
@@ -215,23 +167,11 @@ export default function FileHandlerFileUploadStep({
                 const prompt = UPLOAD_PROMPT_DESCRIPTIONS[format];
 
                 return (
-                    <Form
-                        name="fileValidation"
-                        onSubmit={(ev) => void handleSubmit(ev)}
-                        className="rs-full-width-form"
-                    >
+                    <Form name="fileValidation" onSubmit={(ev) => void handleSubmit(ev)} className="rs-full-width-form">
                         <FormGroup className="margin-top-0">
-                            <Label
-                                className="font-sans-xs"
-                                id="upload-csv-input-label"
-                                htmlFor="upload-csv-input"
-                            >
-                                <span className="display-block">
-                                    {prompt.title}
-                                </span>
-                                <span className="display-block text-base">
-                                    {prompt.subtitle}
-                                </span>
+                            <Label className="font-sans-xs" id="upload-csv-input-label" htmlFor="upload-csv-input">
+                                <span className="display-block">{prompt.title}</span>
+                                <span className="display-block text-base">{prompt.subtitle}</span>
                             </Label>
                             <FileInput
                                 id="upload-csv-input"
@@ -253,11 +193,7 @@ export default function FileHandlerFileUploadStep({
                             >
                                 Back
                             </Button>
-                            <Button
-                                disabled={!isValid}
-                                className="usa-button"
-                                type="submit"
-                            >
+                            <Button disabled={!isValid} className="usa-button" type="submit">
                                 Submit
                             </Button>
                         </div>

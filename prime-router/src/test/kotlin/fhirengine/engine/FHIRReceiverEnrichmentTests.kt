@@ -27,7 +27,6 @@ import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.azure.observability.event.InMemoryAzureEventService
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
-import gov.cdc.prime.router.metadata.LookupTable
 import gov.cdc.prime.router.report.ReportService
 import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.mockk.clearAllMocks
@@ -44,7 +43,6 @@ import org.jooq.tools.jdbc.MockDataProvider
 import org.jooq.tools.jdbc.MockResult
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.TestInstance
-import java.io.ByteArrayInputStream
 import java.io.File
 import java.util.UUID
 import kotlin.test.Test
@@ -68,24 +66,8 @@ class FHIRReceiverEnrichmentTests {
     private val reportServiceMock = mockk<ReportService>()
     private val submittedId = UUID.randomUUID()
 
-    val csv = """
-            variable,fhirPath
-            processingId,Bundle.entry.resource.ofType(MessageHeader).meta.extension('https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id').value.coding.code
-            messageId,Bundle.entry.resource.ofType(MessageHeader).id
-            patient,Bundle.entry.resource.ofType(Patient)
-            performerState,Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state
-            patientState,Bundle.entry.resource.ofType(Patient).address.state
-            specimen,Bundle.entry.resource.ofType(Specimen)
-            serviceRequest,Bundle.entry.resource.ofType(ServiceRequest)
-            observation,Bundle.entry.resource.ofType(Observation)
-            test-dash,Bundle.test.dash
-            test_underscore,Bundle.test.underscore
-            test'apostrophe,Bundle.test.apostrophe
-    """.trimIndent()
-
-    private val shorthandTable = LookupTable.read(inputStream = ByteArrayInputStream(csv.toByteArray()))
     val one = Schema(name = "None", topic = Topic.FULL_ELR, elements = emptyList())
-    val metadata = Metadata(schema = one).loadLookupTable("fhirpath_filter_shorthand", shorthandTable)
+    val metadata = Metadata(schema = one)
     val report = Report(one, listOf(listOf("1", "2")), TestSource, metadata = UnitTestUtils.simpleMetadata)
 
     private var actionLogger = ActionLogger()

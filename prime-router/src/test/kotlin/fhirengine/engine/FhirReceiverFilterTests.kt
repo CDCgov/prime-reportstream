@@ -40,7 +40,6 @@ import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.fhirengine.utils.filterMappedObservations
 import gov.cdc.prime.router.fhirengine.utils.filterObservations
 import gov.cdc.prime.router.fhirengine.utils.getObservations
-import gov.cdc.prime.router.metadata.LookupTable
 import gov.cdc.prime.router.report.ReportService
 import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.mockk.clearAllMocks
@@ -59,7 +58,6 @@ import org.jooq.tools.jdbc.MockDataProvider
 import org.jooq.tools.jdbc.MockResult
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.TestInstance
-import java.io.ByteArrayInputStream
 import java.io.File
 import java.util.UUID
 import kotlin.test.Test
@@ -101,9 +99,8 @@ class FhirReceiverFilterTests {
             test'apostrophe,Bundle.test.apostrophe
     """.trimIndent()
 
-    private val shorthandTable = LookupTable.read(inputStream = ByteArrayInputStream(csv.toByteArray()))
     val one = Schema(name = "None", topic = Topic.FULL_ELR, elements = emptyList())
-    val metadata = Metadata(schema = one).loadLookupTable("fhirpath_filter_shorthand", shorthandTable)
+    val metadata = Metadata(schema = one)
     val report = Report(one, listOf(listOf("1", "2")), TestSource, metadata = UnitTestUtils.simpleMetadata)
 
     private var actionLogger = ActionLogger()
@@ -656,7 +653,7 @@ class FhirReceiverFilterTests {
         mockkStatic(Bundle::filterObservations)
         every { BlobAccess.uploadBlob(any(), any()) } returns "test"
         every { accessSpy.insertTask(any(), MimeFormat.FHIR.toString(), BODY_URL, any()) }.returns(Unit)
-        every { any<Bundle>().filterObservations(any(), any()) } returns bundle
+        every { any<Bundle>().filterObservations(any()) } returns bundle
 
         // act on each message (with assert)
         messages.forEachIndexed { i, message ->
@@ -704,7 +701,7 @@ class FhirReceiverFilterTests {
         val fhirData = File(VALID_FHIR_FILEPATH).readText()
         val originalBundle = FhirTranscoder.decode(fhirData)
         val expectedBundle = originalBundle
-            .filterObservations(listOf(CONDITION_FILTER), engine.loadFhirPathShorthandLookupTable())
+            .filterObservations(listOf(CONDITION_FILTER))
 
         // mock setup
         mockkObject(BlobAccess)
@@ -864,7 +861,7 @@ class FhirReceiverFilterTests {
                 callOriginal()
             }
         }
-        every { any<Bundle>().filterObservations(any(), any()) } returns FhirTranscoder.decode(fhirData)
+        every { any<Bundle>().filterObservations(any()) } returns FhirTranscoder.decode(fhirData)
 
         // act + assert
         accessSpy.transact { txn ->
