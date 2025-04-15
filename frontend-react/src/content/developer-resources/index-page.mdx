@@ -9,12 +9,15 @@ meta:
             src: /assets/img/opengraph/reportstream-tagline.png
             altText: "An abstract illustration of screens and a document."
 ---
+
+import site from "../../content/site.json";
+
 <HeroWrapper>
 <section className="usa-section grid-container">
 <CardGroup>
         <Card gridLayout={{tablet: {col: 4}}}>
             <CardHeader>
-                <h2 className="font-sans-lg">[API guide](/developer-resources/api)</h2>
+                <h2 className="font-sans-lg"><A href={ site.developerResources.apiOnboardingGuide.url }>API onboarding guide</A></h2>
             </CardHeader>
             <CardBody>
                 Learn about our API and how to set up your connection for reporting data to public health entities.
