@@ -7,7 +7,7 @@ spring:
     oauth2:
       resourceserver:
         opaquetoken: # Set client secret in SPRING_SECURITY_OAUTH2_RESOURCESERVER_OPAQUETOKEN_CLIENT_SECRET env variable
-          client-id: 0oaek8tip2lhrhHce1d7
+          client-id: 0oak8tcr0z6h2RC671d7
           introspection-uri: https://reportstream.oktapreview.com/oauth2/ausekaai7gUuUtHda1d7/v1/introspect
   cloud:
     gateway:
@@ -27,7 +27,7 @@ app:
 okta:
   adminClient:
     orgUrl: https://reportstream.oktapreview.com
-    clientId: 0oahfz3wazBEHJLEL1d7
+    clientId: 0oak8383risyLJY9W1d7
     requiredScopes:
       - okta.apps.read
     # set base 64 encoded pem string in OKTA_ADMIN_CLIENT_API_ENCODED_PRIVATE_KEY env variable
