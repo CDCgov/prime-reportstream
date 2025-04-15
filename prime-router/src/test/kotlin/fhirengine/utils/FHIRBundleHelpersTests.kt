@@ -78,7 +78,6 @@ class FHIRBundleHelpersTests {
     val accessSpy = spyk(DatabaseAccess(connection))
     val blobMock = mockkClass(BlobAccess::class)
     val metadata = Metadata(schema = Schema(name = "None", topic = Topic.FULL_ELR, elements = emptyList()))
-    private val shorthandLookupTable = emptyMap<String, String>().toMutableMap()
 
     private val defaultReceivers = listOf(
         Receiver(
@@ -254,7 +253,7 @@ class FHIRBundleHelpersTests {
         fhirBundle.type = Bundle.BundleType.MESSAGE
         val entry = Bundle.BundleEntryComponent()
         val messageHeader = MessageHeader()
-        var event = Coding()
+        val event = Coding()
         event.code = "R01"
         messageHeader.event = event
         entry.resource = messageHeader
@@ -552,9 +551,7 @@ class FHIRBundleHelpersTests {
 
         )
 
-        shorthandLookupTable["obsPerformedCodes"] = "%resource.code.coding.code"
-
-        val extensions = getObservationExtensions(messages[0], receiver, shorthandLookupTable)
+        val extensions = getObservationExtensions(messages[0], receiver)
         assertThat(extensions.size).isEqualTo(1)
         assertThat((extensions[0].value as Reference).reference)
             .isEqualTo("Observation/1667861767955966000.f3f94c27-e225-4aac-b6f5-2750f45dac4f")
@@ -563,17 +560,10 @@ class FHIRBundleHelpersTests {
     @Test
     fun `test filterObservations`() {
         val actionLogger = ActionLogger()
-        val fhirBundle = File(MULTIPLE_OBSERVATIONS_URL)
-            .readText()
+        val fhirBundle = File(MULTIPLE_OBSERVATIONS_URL).readText()
         val messages = FhirTranscoder.getBundles(fhirBundle, actionLogger)
-
-        val bundle = messages[0].filterObservations(
-            listOf(OBSERVATIONS_FILTER),
-            emptyMap<String, String>().toMutableMap()
-        )
-
+        val bundle = messages[0].filterObservations(listOf(OBSERVATIONS_FILTER))
         val observations = bundle.getObservations()
-
         assertThat(observations.size).isEqualTo(1)
         assertThat(observations[0].id).isEqualTo("Observation/1667861767955966000.f3f94c27-e225-4aac-b6f5-2750f45dac4f")
     }

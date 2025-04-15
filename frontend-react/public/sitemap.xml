@@ -49,19 +49,16 @@
         <loc>https://reportstream.cdc.gov/developer-resources</loc>
     </url>
     <url>
-        <loc>https://reportstream.cdc.gov/developer-resources/api</loc>
+        <loc>https://reportstream.cdc.gov/developer-resources/api-onboarding-guide</loc>
     </url>
     <url>
-        <loc>https://reportstream.cdc.gov/developer-resources/api/getting-started</loc>
+        <loc>https://reportstream.cdc.gov/developer-resources/documentation</loc>
     </url>
     <url>
-        <loc>https://reportstream.cdc.gov/developer-resources/api/documentation</loc>
+        <loc>https://reportstream.cdc.gov/developer-resources/documentation/data-model</loc>
     </url>
     <url>
-        <loc>https://reportstream.cdc.gov/developer-resources/api/documentation/data-model</loc>
-    </url>
-    <url>
-        <loc>https://reportstream.cdc.gov/developer-resources/api/documentation/responses-from-reportstream</loc>
+        <loc>https://reportstream.cdc.gov/developer-resources/documentation/responses-from-reportstream</loc>
     </url>
     <url>
         <loc>https://reportstream.cdc.gov/support</loc>
