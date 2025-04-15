@@ -59,19 +59,11 @@ export const gettingStartedSideNav = [
 
 export const developerResourcesApiSideNav = [
     {
-        name: "ReportStream API",
-        path: "/developer-resources/api",
-    },
-    {
-        name: "Getting started",
-        path: "/developer-resources/api/getting-started",
+        name: "API onboarding guide",
+        path: "/developer-resources/api-onboarding-guide",
     },
     {
         name: "Documentation",
-        path: "/developer-resources/api/documentation",
-    },
-    {
-        name: "Responses from ReportStream",
-        path: "/developer-resources/api/documentation/responses-from-reportstream",
+        path: "/developer-resources/documentation",
     },
 ];
