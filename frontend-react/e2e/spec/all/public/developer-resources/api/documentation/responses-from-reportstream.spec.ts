@@ -1,5 +1,5 @@
 import { developerResourcesApiSideNav } from "../../../../../../helpers/internal-links";
-import { ResponsesFromReportStreamPage } from "../../../../../../pages/public/developer-resources/api/documentation/responses-from-reportstream";
+import { ResponsesFromReportStreamPage } from "../../../../../../pages/public/developer-resources/documentation/responses-from-reportstream";
 import { test as baseTest } from "../../../../../../test";
 
 export interface SecurityPageFixtures {
