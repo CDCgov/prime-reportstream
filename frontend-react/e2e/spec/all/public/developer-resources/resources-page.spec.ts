@@ -36,7 +36,7 @@ const test = baseTest.extend<DeveloperResourcesPageFixtures>({
 
 const cards = [
     {
-        name: "API guide",
+        name: "API onboarding guide",
     },
     {
         name: "GitHub",
