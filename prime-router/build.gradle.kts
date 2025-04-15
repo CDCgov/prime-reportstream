@@ -42,7 +42,7 @@ plugins {
     id("com.microsoft.azure.azurefunctions") version "1.16.1"
     id("com.adarshr.test-logger") version "4.0.0"
     id("jacoco")
-    id("org.jetbrains.dokka") version "1.8.20"
+    id("org.jetbrains.dokka") version "2.0.0"
     id("com.avast.gradle.docker-compose") version "0.17.10"
     id("org.jetbrains.kotlin.plugin.serialization") version "$kotlinVersion"
     id("com.nocwriter.runsql") version ("1.0.3")
@@ -840,7 +840,7 @@ buildscript {
     dependencies {
         // Now force the gradle build script to get the proper library for com.nimbusds:oauth2-oidc-sdk:9.15.  This
         // will need to be removed once this issue is resolved in Maven.
-        classpath("net.minidev:json-smart:2.5.1")
+        classpath("net.minidev:json-smart:2.5.2")
         // as per flyway v10 docs the postgres flyway module must be on the project buildpath
         classpath("org.flywaydb:flyway-database-postgresql:10.21.0")
     }
@@ -862,8 +862,8 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0")
     implementation("com.microsoft.azure.functions:azure-functions-java-library:3.1.0")
-    implementation("com.azure:azure-core:1.52.0")
-    implementation("com.azure:azure-core-http-netty:1.15.4")
+    implementation("com.azure:azure-core:1.55.3")
+    implementation("com.azure:azure-core-http-netty:1.15.11")
     implementation("com.azure:azure-storage-blob:12.27.0") {
         exclude(group = "com.azure", module = "azure-core")
     }
@@ -874,7 +874,7 @@ dependencies {
         exclude(group = "com.azure", module = "azure-core")
         exclude(group = "com.azure", module = "azure-core-http-netty")
     }
-    implementation("com.azure:azure-identity:1.14.2") {
+    implementation("com.azure:azure-identity:1.15.4") {
         exclude(group = "com.azure", module = "azure-core")
         exclude(group = "com.azure", module = "azure-core-http-netty")
     }
@@ -915,7 +915,7 @@ dependencies {
     // DO NOT INCREMENT SSHJ to a newer version without first thoroughly testing it locally.
     implementation("com.hierynomus:sshj:0.39.0")
     implementation("com.jcraft:jsch:0.1.55")
-    implementation("org.apache.poi:poi:5.3.0")
+    implementation("org.apache.poi:poi:5.4.0")
     implementation("org.apache.commons:commons-csv:1.12.0")
     implementation("org.apache.commons:commons-lang3:3.15.0")
     implementation("org.apache.commons:commons-text:1.12.0")
@@ -947,8 +947,8 @@ dependencies {
     implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
     implementation("it.skrape:skrapeit-html-parser:1.3.0-alpha.2")
     implementation("it.skrape:skrapeit-http-fetcher:1.3.0-alpha.2")
-    implementation("org.apache.poi:poi:5.3.0")
-    implementation("org.apache.poi:poi-ooxml:5.3.0")
+    implementation("org.apache.poi:poi:5.4.0")
+    implementation("org.apache.poi:poi-ooxml:5.4.0")
     implementation("org.apache.commons:commons-compress:1.27.1")
     implementation("commons-io:commons-io:2.18.0")
     implementation("com.anyascii:anyascii:0.3.2")
