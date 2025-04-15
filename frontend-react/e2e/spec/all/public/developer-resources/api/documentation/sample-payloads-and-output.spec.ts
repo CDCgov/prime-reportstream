@@ -1,5 +1,5 @@
 import { developerResourcesApiSideNav } from "../../../../../../helpers/internal-links";
-import { SamplePayloadsAndOutputs } from "../../../../../../pages/public/developer-resources/api/documentation/sample-payloads-and-output";
+import { SamplePayloadsAndOutputs } from "../../../../../../pages/public/developer-resources/documentation/sample-payloads-and-output";
 import { test as baseTest } from "../../../../../../test";
 
 export interface SecurityPageFixtures {
