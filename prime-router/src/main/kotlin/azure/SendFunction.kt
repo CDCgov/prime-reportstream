@@ -205,6 +205,7 @@ class SendFunction(
                         eventName = ReportStreamEventName.REPORT_LAST_MILE_FAILURE,
                         childReport = report,
                         pipelineStepName = TaskAction.send,
+                        rootReports = listOf(report)
                     ) {
                         params(
                             mapOf(

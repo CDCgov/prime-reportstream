@@ -913,6 +913,7 @@ class NoopReportStreamEventService : IReportStreamEventService {
         eventName: ReportStreamEventName,
         childReport: Report,
         pipelineStepName: TaskAction,
+        rootReports: List<ReportFile>?,
         shouldQueue: Boolean,
         initializer: ReportStreamReportEventBuilder.() -> Unit,
     ): Unit = throw NotImplementedError()
@@ -921,6 +922,7 @@ class NoopReportStreamEventService : IReportStreamEventService {
         eventName: ReportStreamEventName,
         childReport: ReportFile,
         pipelineStepName: TaskAction,
+        rootReports: List<ReportFile>?,
         shouldQueue: Boolean,
         initializer: ReportStreamReportEventBuilder.() -> Unit,
     ): Unit = throw NotImplementedError()
@@ -929,6 +931,7 @@ class NoopReportStreamEventService : IReportStreamEventService {
         eventName: ReportStreamEventName,
         childReport: ReportFile,
         pipelineStepName: TaskAction,
+        rootReports: List<ReportFile>?,
         error: String,
         shouldQueue: Boolean,
         initializer: ReportStreamReportProcessingErrorEventBuilder.() -> Unit,
@@ -938,6 +941,7 @@ class NoopReportStreamEventService : IReportStreamEventService {
         eventName: ReportStreamEventName,
         childReport: Report,
         pipelineStepName: TaskAction,
+        rootReports: List<ReportFile>?,
         error: String,
         shouldQueue: Boolean,
         initializer: ReportStreamReportProcessingErrorEventBuilder.() -> Unit,
@@ -947,6 +951,7 @@ class NoopReportStreamEventService : IReportStreamEventService {
         eventName: ReportStreamEventName,
         childReport: Report,
         pipelineStepName: TaskAction,
+        rootReports: List<ReportFile>?,
         shouldQueue: Boolean,
         initializer: ReportStreamItemEventBuilder.() -> Unit,
     ): Unit = throw NotImplementedError()
@@ -955,6 +960,7 @@ class NoopReportStreamEventService : IReportStreamEventService {
         eventName: ReportStreamEventName,
         childReport: ReportFile,
         pipelineStepName: TaskAction,
+        rootReports: List<ReportFile>?,
         shouldQueue: Boolean,
         initializer: ReportStreamItemEventBuilder.() -> Unit,
     ): Unit = throw NotImplementedError()
@@ -963,6 +969,7 @@ class NoopReportStreamEventService : IReportStreamEventService {
         eventName: ReportStreamEventName,
         childReport: ReportFile,
         pipelineStepName: TaskAction,
+        rootReports: List<ReportFile>?,
         error: String,
         shouldQueue: Boolean,
         initializer: ReportStreamItemProcessingErrorEventBuilder.() -> Unit,
@@ -972,6 +979,7 @@ class NoopReportStreamEventService : IReportStreamEventService {
         eventName: ReportStreamEventName,
         childReport: Report,
         pipelineStepName: TaskAction,
+        rootReports: List<ReportFile>?,
         error: String,
         shouldQueue: Boolean,
         initializer: ReportStreamItemProcessingErrorEventBuilder.() -> Unit,
@@ -983,6 +991,7 @@ class NoopReportStreamEventService : IReportStreamEventService {
         parentReportId: UUID?,
         pipelineStepName: TaskAction,
         topic: Topic?,
+        rootReports: List<ReportFile>?,
     ): ReportEventData = throw NotImplementedError()
 
     override fun getItemEventData(
@@ -990,5 +999,6 @@ class NoopReportStreamEventService : IReportStreamEventService {
         parentReportId: UUID,
         parentItemIndex: Int,
         trackingId: String?,
+        rootReports: List<ReportFile>?,
     ): ItemEventData = throw NotImplementedError()
 }

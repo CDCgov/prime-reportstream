@@ -305,6 +305,7 @@ class FHIRConverter(
                                     ReportStreamEventName.ITEM_FAILED_VALIDATION,
                                     report,
                                     TaskAction.convert,
+                                    null,
                                     processedItem.validationError!!.message,
                                     shouldQueue = true
                                 ) {
@@ -424,6 +425,7 @@ class FHIRConverter(
                     ReportStreamEventName.REPORT_NOT_PROCESSABLE,
                     report,
                     TaskAction.convert,
+                    null,
                     "Submitted report was either empty or could not be parsed into HL7"
                 ) {
                     parentReportId(input.reportId)

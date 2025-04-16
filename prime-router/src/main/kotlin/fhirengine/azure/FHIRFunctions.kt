@@ -247,6 +247,7 @@ class FHIRFunctions(
                 ReportStreamEventName.PIPELINE_EXCEPTION,
                 report,
                 fhirEngine.taskAction,
+                null,
                 ex.message ?: ""
             ) {
                 params(mapOf(ReportStreamEventProperties.POISON_QUEUE_MESSAGE_ID to poisonQueueMessageId))
