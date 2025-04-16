@@ -655,8 +655,11 @@ class ReportFunction(
             submission
         )
 
-        // queue messages here after all task / action records are in
+        // queue events here after all task / action records are in
         actionHistory.queueMessages(workflowEngine)
+
+        // queue fhir messages after all tasks / action records are in
+        actionHistory.queueFhirMessages(workflowEngine)
 
         return response
     }

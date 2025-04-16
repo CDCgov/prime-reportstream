@@ -1,13 +1,13 @@
 import { BasePage, BasePageTestArgs } from "../../../BasePage";
 
-export class DeveloperResourcesApiPage extends BasePage {
+export class ResponsesFromReportStreamPage extends BasePage {
     constructor(testArgs: BasePageTestArgs) {
         super(
             {
-                url: "/developer-resources/api",
-                title: "Guide to connecting with ReportStream's API",
+                url: "/developer-resources/documentation/responses-from-reportstream",
+                title: "API responses from ReportStream",
                 heading: testArgs.page.getByRole("heading", {
-                    name: "ReportStream API",
+                    name: "Responses from ReportStream",
                     exact: true,
                 }),
             },
