@@ -29,6 +29,22 @@
       "email": "USDS@omb.eop.gov"
     }
   },
+  "developerResources": {
+    "name": "developer resources",
+    "url": "/developer-resources",
+    "apiOnboardingGuide": {
+      "name": "API onboarding guide",
+      "url": "/developer-resources/api-onboarding-guide"
+    },
+    "documentation": {
+      "name": "Documentation",
+      "url": "/developer-resources/documentation",
+      "responseFromReportStream": {
+        "name": "Responses from ReportStream",
+        "url": "/developer-resources/documentation/responses-from-reportstream"
+      }
+    }
+  },
   "forms": {
     "intakeElr": {
       "name": "ELR intake form",
@@ -70,6 +86,20 @@
     },
     "nistGeneralValidationTool": {
       "url": "https://hl7v2-gvt.nist.gov/gvt/#/home"
+    },
+    "hl7": {
+      "url": "https://www.hl7.org/implement/standards/product_brief.cfm?product_id=185"
+    },
+    "radxmars": {
+      "url": "https://www.nibib.nih.gov/covid-19/radx-tech-program/mars/hl7v2-getting-started"
+    },
+    "github": {
+      "reportstream": {
+        "url": "https://github.com/CDCgov/prime-reportstream/blob/master/prime-router/docs/api"
+      },
+      "historyApi": {
+        "url": "https://github.com/CDCgov/prime-reportstream/blob/main/prime-router/docs/universal-pipeline/submission-history.md"
+      }
     }
   }
 }

@@ -186,7 +186,7 @@ After the sender has been configured to send data in staging. The next step is t
 environment via our reports REST API. 
 In order to send to the staging environment, the sender will need to authenticate via either a bearer token obtained by 
 using a JWT in combination with a public/private keypair or a shared secret key. Details can be found in the 
-ReportStream Programmer’s Guide (https://staging.reportstream.cdc.gov/resources/programmers-guide).
+ReportStream Programmer’s Guide (https://staging.reportstream.cdc.gov/developer-resources/api-onboarding-guide).
 
 ### Authenticating to ReportStream’s REST API
 

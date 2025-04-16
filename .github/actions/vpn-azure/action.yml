@@ -60,7 +60,7 @@ runs:
         else
           echo "## ❌ VPN connected: \`${{ steps.connect_vpn.outputs.STATUS }}\` ❌" >> $GITHUB_STEP_SUMMARY
           echo "VPN log:"
-          cat /tmp/openvpn-debug.log
+          sudo cat /tmp/openvpn-debug.log
           exit 1
         fi
       shell: bash
