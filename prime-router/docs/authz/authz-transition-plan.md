@@ -1,13 +1,13 @@
 This document details the steps needed to successfully transition from the current RS auth to the auth microservice.
 
-Please consult [this Lucidchart](http://lucidgov.app/lucidchart/1ad27194-a283-4a38-85e4-132d7e9cf5e3/edit?page=~G0RZ44nv8oX) 
-for a visualization of the intended connectivity strategy. 
-
 Migrating to microservices will be performed in two stages. During the intermediate (first) stage, all endpoints handled
 by the functionapp will remain as they are while the microservices are prepared; all existing endpoints will remain
 supported as well as the new endpoints provided by the auth microservice as it is developed. 
 After we have completed architectural changes and successfully migrated all senders we will reach the final stage, where
 all public communication is handled through the auth microservice and the functionapp will no longer be accessed publicly.
+
+Please consult [this Lucidchart](http://lucidgov.app/lucidchart/1ad27194-a283-4a38-85e4-132d7e9cf5e3/edit?page=~G0RZ44nv8oX)
+for a visualization of the intended connectivity strategy for each stage.
 
 # Migration Strategy #
 
@@ -22,10 +22,8 @@ updates via CLI.
 
 ### Build passthrough API for functionapp APIs via auth microservice ###
 Calls to the APIs served via the functionapp (reports/waters) should be able to pass through the auth microservice so it
-is no longer necessary to expose the functionapp to the network. In the process we should evaluate the authorization
-requirements of the APIs so that unauthorized requests are immediately rejected rather than passed through. This will be
-needed particularly for endpoints intended for sender use; authorization for this needs to be handled by the
-microservice. See [deprecated auth documentation](authz-deprecated-implementation.md) for a list of endpoints.
+is no longer necessary to expose the functionapp to the network. Requests should be passed verbatim, including the
+bearer token received from the requestor.
 
 ### Integrate auth and submissions microservices to CI processes ###
 We should begin including the microservices projects in our continuous integration builds, set up the API endpoints in
@@ -38,9 +36,9 @@ CORS) addressed.
 
 ### Update end to end testing and development environments to include auth and submissions ###
 We should build a new test based on `end2end_up` that performs submission through the microservices instead of the
-functionapp. We will need to determine if this test should integrate with Okta or if Okta connections should be mocked
-in the absence of an offline test container. We should also aim for the new smoke test to be performed by a GitHub
-action rather than be executed from a developer machine; this will require storing secrets for this purpose.
+functionapp. We should also aim for the new smoke test to be performed by a GitHub action rather than be executed from a
+developer machine; this will require storing secrets for this purpose. Gradle tasks should be updated so that auth and 
+submissions are built and run in the development environment.
 
 ### Create application users for senders and begin migration outreach ###
 Senders are represented as application users. Creating the application user will produce a client ID and a private key
@@ -52,16 +50,24 @@ Existing Okta users can be assigned to groups and scopes within Okta without aff
 Therefore, we should begin to make these changes in advance of altering the frontend to use the new claims structure.
 For example, an existing user with organization scope `DHmd-phdAdmins` would be added to the `md-phd` group and assigned
 the `admin` scope. New users created after beginning this effort will need to be onboarded with both the new and 
-deprecated scopes.
+deprecated scopes. If there are a very large number of users we may want to consider building a script that retrieves 
+the users via the Okta API then programmatically derives and applies the equivalent scopes.
 
-### Update frontend claims authorization handling and API connections ###
-The frontend is changed to process user authorization based on the claim structure outlined in the design. After this is
-accomplished, the deprecated organization scopes can be retired. All references to the RS API are changed to be directed
-to the auth microservice. 
+### Update functionapp APIs to utilize new authorization and authentication ###
+All APIs in the functionapp should be updated to use the updated authentication and authorization design. In the process
+we should evaluate the authorization requirements for each endpoint. We should consider splitting this effort as there
+are as many as 58 endpoints to be evaluated and updated. This work will need to be performed in a feature branch in
+order to not introduce breaking changes before the frontend API connections are updated.
+
+### Update frontend API connections ###
+Once all Okta users and functionapp APIs have been updated as outlined above, all references to the RS API are changed
+to be directed to the auth microservice. This involves updating the Okta OAuth API to the new bearer token format.
 
 ### Retire API access to the functionapp ###
 Once all senders and users have been provisioned in Okta using the updated structures we can remove network access to
-the functionapp. All communication from senders or the frontend should occur through the auth microservice.
+the functionapp. All communication from senders or the frontend should occur through the auth microservice. We should
+also revisit integration and smoke tests at this point and ensure testing can be performed solely via calls to the auth
+microservice.
 
 ### Implement sender setup API and frontend (tentative) ###
 A proposed API for creating senders entirely within RS is included in the design. All configurations needed for senders
@@ -108,6 +114,14 @@ These are miscellaneous dev notes that should be considered during the implement
 * Users: Process to migrate existing user authorizations
     * Map existing RS scopes to Okta scopes
     * How to restrict users to information related to their organization
+* Frontend: We *could* hard cut APIs consumed by the frontend only - do not need to preserve current OktaAuthentication 
+  * Do we need to verify token with introspect endpoint? Access token verifier utilizes JWKS keys to verify token is valid
+  * Heavy lift is changing authorization - requires user scopes to be updated
+  * The http request is still available to AuthenticatedClaims so the jwt could be re-extracted
+  * Make claim strategy decision based on jwt content?
+  * Document what authorization each endpoint requires
+    * plan to split up work, there are 58 known endpoints
+  * Senders not affected as they are not currently using Okta auth, this is expected to only affect website users 
 
 ## Other Questions ##
 
@@ -129,7 +143,7 @@ consider what would be required to do this:
 
 What is the extent to which handling of receivers needs to change, if at all?
 * Receiver API keys are currently stored in the database
-* REST Transport uses a self-contained own OAuth implementation
+* REST Transport uses a self-contained OAuth implementation
 * Complication is mostly in setting up web users and authorization for sender specific API calls
 
 Should support for SMART on FHIR be considered?

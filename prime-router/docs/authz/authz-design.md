@@ -366,26 +366,88 @@ fun authorizeSubmit(
 
 ## Deprecated approach to passing groups downstream
 
-At the time of writing this section (2/5/25), code still exists which is doing the following:
+There used to be code that did the following:
 
 - Call out to Okta via the Okta Admin SDK to grab an application user's group memberships
 - Create a JWT with that information and set it in the `Okta-Groups` header
 - Pass it along downstream as a part of the request
 - Downstream endpoint reads the JWT found in the header, validates it, and checks the group membership against the `client` header
 
-This entire flow will be deprecated by this design document as groups should be a part of the token at all times. 
-You should be able to delete code related to it.
+This entire flow is deprecated by this design document as groups should be a part of the token at all times. 
+The relevant code has been deleted except for the OktaGroupsClient - which could be used for managing groups and 
+application user profiles, and AuthZService, which can contain the authorization logic to be utilized by the other projects.
 
 Code to look at:
 
-| Location                                                                                                                                             | Notes                                                               |
-|------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------|
-| [AppendOktaGroupsGatewayFilterFactory](../../../auth/src/main/kotlin/gov/cdc/prime/reportstream/auth/filter/AppendOktaGroupsGatewayFilterFactory.kt) | Defines how Okta group headers are created and added to the request |
-| [OktaGroupsClient](../../../auth/src/main/kotlin/gov/cdc/prime/reportstream/auth/client/OktaGroupsClient.kt)                                         | Client to grab Okta groups                                          |
-| [OktaGroupsJWTWriter](../../../auth/src/main/kotlin/gov/cdc/prime/reportstream/auth/service/OktaGroupsJWTWriter.kt)                                  | Writes the Okta groups JWT and signs it                             |
-| [OktaGroupsService](../../../auth/src/main/kotlin/gov/cdc/prime/reportstream/auth/service/OktaGroupsService.kt)                                      | Ties together client and JWT writing                                |
-| [application.yml](../../../auth/src/main/resources/application.yml)                                                                                  | look at okta.jwt.* configurations and appending header filter       |
-| [OktaGroupsJWT](../../../shared/src/main/kotlin/gov/cdc/prime/reportstream/shared/auth/jwt/OktaGroupsJWT.kt)                                         | Model for Okta groups JWT to parse into                             |
-| [OktaGroupsJWTConstants](../../../shared/src/main/kotlin/gov/cdc/prime/reportstream/shared/auth/jwt/OktaGroupsJWTConstants.kt)                       | Collection of constants                                             |
-| [OktaGroupsJWTReader](../../../shared/src/main/kotlin/gov/cdc/prime/reportstream/shared/auth/jwt/OktaGroupsJWTReader.kt)                             | Reads and validates Okta Groups JWT                                 |
-| [AuthZService](../../../shared/src/main/kotlin/gov/cdc/prime/reportstream/shared/auth/AuthZService.kt)                                               | Uses JWT to check group memebership and authorization               |
+| Location                                                                                                                                                 | Notes                                                                   |
+|----------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------|
+| ~~[AppendOktaGroupsGatewayFilterFactory](../../../auth/src/main/kotlin/gov/cdc/prime/reportstream/auth/filter/AppendOktaGroupsGatewayFilterFactory.kt)~~ | ~~Defines how Okta group headers are created and added to the request~~ |
+| [OktaGroupsClient](../../../auth/src/main/kotlin/gov/cdc/prime/reportstream/auth/client/OktaGroupsClient.kt)                                             | Client to grab Okta groups                                              |
+| ~~[OktaGroupsJWTWriter](../../../auth/src/main/kotlin/gov/cdc/prime/reportstream/auth/service/OktaGroupsJWTWriter.kt)~~                                  | ~~Writes the Okta groups JWT and signs it~~                             |
+| ~~[OktaGroupsService](../../../auth/src/main/kotlin/gov/cdc/prime/reportstream/auth/service/OktaGroupsService.kt)~~                                      | ~~Ties together client and JWT writing~~                                |
+| [application.yml](../../../auth/src/main/resources/application.yml)                                                                                      | look at okta.jwt.* configurations and appending header filter           |
+| ~~[OktaGroupsJWT](../../../shared/src/main/kotlin/gov/cdc/prime/reportstream/shared/auth/jwt/OktaGroupsJWT.kt)~~                                         | ~~Model for Okta groups JWT to parse into~~                             |
+| ~~[OktaGroupsJWTConstants](../../../shared/src/main/kotlin/gov/cdc/prime/reportstream/shared/auth/jwt/OktaGroupsJWTConstants.kt)~~                       | ~~Collection of constants~~                                             |
+| ~~[OktaGroupsJWTReader](../../../shared/src/main/kotlin/gov/cdc/prime/reportstream/shared/auth/jwt/OktaGroupsJWTReader.kt)~~                             | ~~Reads and validates Okta Groups JWT~~                                 |
+| [AuthZService](../../../shared/src/main/kotlin/gov/cdc/prime/reportstream/shared/auth/AuthZService.kt)                                                   | Uses JWT to check group membership and authorization                   |
+
+## Frontend authentication and authorization ##
+
+Currently, the frontend utilizes an Okta login widget which produces the bearer token which is then used to authenticate
+and authorize APIs currently provided by the functionapp. Okta is currently only utilized by frontend users and 
+developers. The claims included in the bearer token are determined by the configuration of the OAuth API. The bearer
+token is authenticated and processed within OktaAuthentication.kt utilizing an [AccessTokenVerifier](https://developer.okta.com/docs/guides/validate-access-tokens/java/main/)
+via the [OKTA JWT Verifier library](https://github.com/okta/okta-jwt-verifier-java). This library automatically caches
+the public keys (JWKS) used to validate the JWT at startup and when the keys are rotated.
+
+As part of migrating to a new auth design we will change the API calls requested by the frontend to route them through
+the auth microservice. The auth microservice will authenticate the request, then forward the request to the functionapp.
+The functionapp's handling of Okta authentication can be updated to conform to the new JWT claims design, and the 
+authorization can be switched to a new class processing the JWT claims instead of the current custom scope handling. 
+Note that the functionapp will have to remain available to the public internet until there are no more senders utilizing
+the current Server2Server authentication, and therefore will be required to authenticate the bearer token even if 
+authentication has already been performed at the microservice level. This flow can be simplified once the functionapp
+is no longer accessible publicly.
+
+As an example, one of the existing API endpoints follows this flow:
+```text
+Frontend calls functionapp v1/waters/org/{organization}/deliveries
+DeliveryFunction.getDeliveriesHistory
+Gets claim list:
+-> AuthenticatedClaims.authenticate
+  -> OktaAuthentication.authenticate
+    -> OktaAuthentication.decodeJwt
+       Uses https://developer.okta.com/docs/guides/validate-access-tokens/java/main/
+    -> AuthenticatedClaims (constructor)
+      -> Scope.mapOktaGroupsToScopes
+  If fails,
+  -> Server2ServerAuthentication.authenticate
+Authorizes:
+-> ReportFileFacade.checkAccessAuthorizationForOrg
+  -> AuthenticatedClaims.authorizedForSendOrReceive
+    -> AuthenticatedClaims.authorized
+      -> Scope.authorized
+```
+
+A possible updated flow:
+```text
+Frontend calls auth microservice v1/waters/org/{organization}/deliveries
+-> Authenticate bearer token
+-> Forward request to functionapp v1/waters/org/{organization}/deliveries
+DeliveryFunction.getDeliveriesHistory
+Gets claim list:
+-> OktaAuthentication.authenticate
+  -> OktaAuthentication.decodeJwt
+Authorizes:
+-> AuthZService.authorized (pass claim list and required scopes)
+```
+
+## Server to server authentication via Okta ##
+
+Senders currently connect to a token endpoint provided by the functionapp (which utilizes the database to store keys).
+Going forward, senders will need to access Okta (or the request can be forwarded through the auth microservice) to
+obtain their bearer token. See [get_client_access_token.py](../../../auth/src/scripts/get_client_access_token.py) for an
+example of the bearer token request senders will need to develop. From there, senders can submit reports to the auth
+microservice, from which the submission microservice will handle the request. The submission microservice will utilize
+the submission storage table in Azure rather than the database, then send a request to the `convert` queue to initiate
+processing the report (there will not be a `receive` step for submissions handled by the submissions microservice).
