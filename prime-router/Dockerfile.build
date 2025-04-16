@@ -43,8 +43,9 @@ RUN rm Azure.Functions.Cli.linux-x64.${AFCT_VERSION}.zip
 FROM ubuntu:24.04 AS builder
 ARG JAVA_VERSION=17
 
-# Latest patches
-RUN apt-get update && apt-get upgrade -y
+# Latest patches and security updates
+RUN apt-get update && apt-get upgrade -y && \
+    apt-get install -y perl=5.38.2-3.2ubuntu0.1 perl-base=5.38.2-3.2ubuntu0.1
 
 # Get the unpacked gradle binaries from the downloader stage
 RUN mkdir -p /opt/gradle

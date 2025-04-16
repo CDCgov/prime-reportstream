@@ -137,7 +137,7 @@ test.describe("About page", () => {
                 },
                 {
                     name: "ReportStream API",
-                    url: "/developer-resources/api",
+                    url: "/developer-resources/api-onboarding-guide",
                 },
             ];
 
