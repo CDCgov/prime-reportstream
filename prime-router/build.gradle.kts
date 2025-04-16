@@ -43,7 +43,7 @@ plugins {
     id("com.adarshr.test-logger") version "4.0.0"
     id("jacoco")
     id("org.jetbrains.dokka") version "2.0.0"
-    id("com.avast.gradle.docker-compose") version "0.17.10"
+    id("com.avast.gradle.docker-compose") version "0.17.12"
     id("org.jetbrains.kotlin.plugin.serialization") version "$kotlinVersion"
     id("com.nocwriter.runsql") version ("1.0.3")
     id("io.swagger.core.v3.swagger-gradle-plugin") version "2.2.23"
@@ -76,7 +76,7 @@ val javaVersion = when (appJvmTarget.target) {
 }
 val ktorVersion = "2.3.12"
 val kotlinVersion by System.getProperties()
-val jacksonVersion = "2.18.2"
+val jacksonVersion = "2.18.3"
 jacoco.toolVersion = "0.8.12"
 
 // Local database information, first one wins:
@@ -886,7 +886,7 @@ dependencies {
     implementation("org.apache.logging.log4j:log4j-api-kotlin:1.5.0")
     implementation("io.github.oshai:kotlin-logging-jvm:7.0.3")
     implementation("com.github.doyaaaaaken:kotlin-csv-jvm:1.10.0")
-    implementation("tech.tablesaw:tablesaw-core:0.43.1")
+    implementation("tech.tablesaw:tablesaw-core:0.44.1")
     implementation("com.github.ajalt.clikt:clikt-jvm:4.4.0")
 
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:$jacksonVersion")
@@ -894,7 +894,7 @@ dependencies {
     implementation("com.github.javafaker:javafaker:1.0.2") {
         exclude(group = "org.yaml", module = "snakeyaml")
     }
-    implementation("org.yaml:snakeyaml:2.3")
+    implementation("org.yaml:snakeyaml:2.4")
     implementation("io.github.linuxforhealth:hl7v2-fhir-converter") {
         version {
             branch = "master"
@@ -908,34 +908,34 @@ dependencies {
     implementation("ca.uhn.hapi:hapi-structures-v251:2.6.0")
     implementation("ca.uhn.hapi:hapi-structures-v27:2.6.0")
     implementation("com.googlecode.libphonenumber:libphonenumber:8.13.50")
-    implementation("org.thymeleaf:thymeleaf:3.1.2.RELEASE")
+    implementation("org.thymeleaf:thymeleaf:3.1.3.RELEASE")
     implementation("com.sendgrid:sendgrid-java:4.10.3")
     implementation("com.okta.jwt:okta-jwt-verifier:0.5.7")
-    implementation("org.json:json:20240303")
+    implementation("org.json:json:20250107")
     // DO NOT INCREMENT SSHJ to a newer version without first thoroughly testing it locally.
     implementation("com.hierynomus:sshj:0.39.0")
     implementation("com.jcraft:jsch:0.1.55")
     implementation("org.apache.poi:poi:5.4.0")
     implementation("org.apache.commons:commons-csv:1.12.0")
-    implementation("org.apache.commons:commons-lang3:3.15.0")
-    implementation("org.apache.commons:commons-text:1.12.0")
-    implementation("commons-codec:commons-codec:1.17.1")
+    implementation("org.apache.commons:commons-lang3:3.17.0")
+    implementation("org.apache.commons:commons-text:1.13.1")
+    implementation("commons-codec:commons-codec:1.18.0")
     implementation("commons-io:commons-io:2.18.0")
     implementation("org.postgresql:postgresql:42.7.4")
-    implementation("com.zaxxer:HikariCP:6.2.1")
+    implementation("com.zaxxer:HikariCP:6.3.0")
     implementation("org.flywaydb:flyway-core:10.21.0")
     implementation("org.flywaydb:flyway-database-postgresql:10.21.0")
     implementation("org.commonmark:commonmark:0.24.0")
-    implementation("com.google.guava:guava:33.3.1-jre")
-    implementation("com.helger.as2:as2-lib:5.1.2")
-    implementation("org.bouncycastle:bcprov-jdk15to18:1.79")
-    implementation("org.bouncycastle:bcprov-jdk18on:1.79")
-    implementation("org.bouncycastle:bcmail-jdk15to18:1.79")
+    implementation("com.google.guava:guava:33.4.0-jre")
+    implementation("com.helger.as2:as2-lib:5.1.4")
+    implementation("org.bouncycastle:bcprov-jdk15to18:1.80")
+    implementation("org.bouncycastle:bcprov-jdk18on:1.80")
+    implementation("org.bouncycastle:bcmail-jdk15to18:1.80")
 
     implementation("commons-net:commons-net:3.11.1")
     implementation("com.cronutils:cron-utils:9.2.1")
     implementation("io.jsonwebtoken:jjwt-api:0.11.5")
-    implementation("de.m3y.kformat:kformat:0.11")
+    implementation("de.m3y.kformat:kformat:0.12")
     implementation("io.github.java-diff-utils:java-diff-utils:4.15")
     implementation("io.ktor:ktor-client-core:$ktorVersion")
     implementation("io.ktor:ktor-client-cio:$ktorVersion")
@@ -953,9 +953,9 @@ dependencies {
     implementation("commons-io:commons-io:2.18.0")
     implementation("com.anyascii:anyascii:0.3.2")
     // force jsoup since skrapeit-html-parser@1.2.1+ has not updated
-    implementation("org.jsoup:jsoup:1.18.1")
+    implementation("org.jsoup:jsoup:1.19.1")
     // https://mvnrepository.com/artifact/io.swagger/swagger-annotations
-    implementation("io.swagger:swagger-annotations:1.6.14")
+    implementation("io.swagger:swagger-annotations:1.6.15")
     implementation("io.swagger.core.v3:swagger-jaxrs2:2.2.23")
     // https://mvnrepository.com/artifact/javax.ws.rs/javax.ws.rs-api
     implementation("javax.ws.rs:javax.ws.rs-api:2.1.1")
@@ -978,16 +978,16 @@ dependencies {
     implementation("xalan:xalan:2.7.3")
 
     // validations
-    implementation("com.networknt:json-schema-validator:1.5.4")
+    implementation("com.networknt:json-schema-validator:1.5.6")
     implementation("io.konform:konform-jvm:0.4.0")
 
     runtimeOnly("com.okta.jwt:okta-jwt-verifier-impl:0.5.7")
-    runtimeOnly("com.squareup.okio:okio:3.9.1")
+    runtimeOnly("com.squareup.okio:okio:3.10.2")
     runtimeOnly("io.jsonwebtoken:jjwt-impl:0.11.5")
     runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.11.5")
 
     testImplementation(kotlin("test-junit5"))
-    testImplementation("io.mockk:mockk:1.13.13")
+    testImplementation("io.mockk:mockk:1.13.16")
     testImplementation("io.ktor:ktor-client-mock:$ktorVersion")
 
     implementation(project(":shared"))
