@@ -29,6 +29,7 @@ import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.Sender.ProcessingType
 import gov.cdc.prime.router.SubmissionReceiver
 import gov.cdc.prime.router.UniversalPipelineReceiver
+import gov.cdc.prime.router.UniversalPipelineSender
 import gov.cdc.prime.router.azure.BlobAccess.Companion.getBlobContainer
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
@@ -41,6 +42,7 @@ import gov.cdc.prime.router.cli.PIIRemovalCommands
 import gov.cdc.prime.router.cli.ProcessFhirCommands
 import gov.cdc.prime.router.common.AzureHttpUtils.getSenderIP
 import gov.cdc.prime.router.common.Environment
+import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.history.azure.SubmissionsFacade
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
@@ -114,6 +116,41 @@ class ReportFunction(
     }
 
     /**
+     * GET list of senders
+     */
+    @FunctionName("getSendersForTesting")
+    fun getSenders(
+        @HttpTrigger(
+            name = "getSendersForTesting",
+            methods = [HttpMethod.GET],
+            authLevel = AuthorizationLevel.ANONYMOUS,
+            route = "reports/testing/senders"
+        ) request: HttpRequestMessage<String?>,
+    ): HttpResponseMessage {
+        val claims = AuthenticatedClaims.authenticate(request)
+        if (claims != null && claims.authorized(setOf(Scope.primeAdminScope))) {
+            try {
+                val senders = workflowEngine.settings.senders.filterIsInstance<UniversalPipelineSender>()
+                var sendersResponse = senders.map {
+                    SenderResponse("${it.organizationName}.${it.name}", it.format.name, it.schemaName)
+                }
+                sendersResponse = sendersResponse.plus(SenderResponse("None", null, null))
+                val jsonb = JacksonMapperUtilities.allowUnknownsMapper.writeValueAsString(sendersResponse)
+                return HttpUtilities.okResponse(request, jsonb ?: "[]")
+            } catch (e: Exception) {
+                logger.error(e)
+                HttpUtilities.badRequestResponse(
+                    request,
+                    "Unable to fetch senders."
+                )
+            }
+        }
+        return HttpUtilities.unauthorizedResponse(request)
+    }
+
+    class SenderResponse(var id: String? = null, var format: String? = null, var schemaName: String? = null)
+
+    /**
      * GET messages from test bank
      *
      * @see ../../../docs/api/reports.yml
@@ -154,7 +191,7 @@ class ReportFunction(
         if (claims != null && claims.authorized(setOf(Scope.primeAdminScope))) {
             val receiverName = request.queryParameters["receiverName"]
             val organizationName = request.queryParameters["organizationName"]
-            val senderSchema = request.queryParameters["senderSchema"]
+            val senderId = request.queryParameters["senderId"]
             if (receiverName.isNullOrBlank()) {
                 return HttpUtilities.badRequestResponse(
                     request,
@@ -173,10 +210,32 @@ class ReportFunction(
                     "A message to process must be included in the body"
                 )
             }
-            val file = File("filename.fhir")
+
+            val requestString = request.body.toString()
+            val file = if (requestString.contains("\"resourceType\"") && requestString.contains("\"Bundle\"")) {
+                File("testing.fhir")
+            } else {
+                File("testing.hl7")
+            }
             file.createNewFile()
             file.bufferedWriter().use { out ->
                 out.write(request.body)
+            }
+
+            var senderSchema: String? = null
+            if (!senderId.isNullOrBlank() && senderId != "None") {
+                val sender = workflowEngine.settings.findSender(senderId)
+                    ?: return HttpUtilities.badRequestResponse(
+                        request,
+                        "No sender found for $senderId"
+                    )
+                if (file.extension != sender.format.ext) {
+                    return HttpUtilities.badRequestResponse(
+                        request,
+                        "Expected ${sender.format.ext.uppercase()} input for sender."
+                    )
+                }
+                senderSchema = sender.schemaName
             }
 
             try {
