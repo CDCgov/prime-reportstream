@@ -8,6 +8,7 @@ import com.microsoft.azure.functions.HttpStatusType
 import com.networknt.org.apache.commons.validator.routines.InetAddressValidator
 import fhirengine.engine.CustomFhirPathFunctions
 import gov.cdc.prime.reportstream.shared.BlobUtils
+import gov.cdc.prime.reportstream.shared.QueueMessage
 import gov.cdc.prime.router.ActionLog
 import gov.cdc.prime.router.ActionLogLevel
 import gov.cdc.prime.router.ClientSource
@@ -116,6 +117,11 @@ class ActionHistory(
     val messages = mutableListOf<Event>()
 
     /**
+     * FHIR Queue Messages to be queued in an azure queue as part of the result of this action.
+     */
+    val fhirQueueMessages = mutableListOf<QueueMessage>()
+
+    /**
      *
      * Collection of all the parent-child report relationships created by this action.
      *
@@ -140,6 +146,11 @@ class ActionHistory(
     /** Adds a queue event to the messages property to be added to the queue later */
     private fun trackEvent(event: Event) {
         messages.add(event)
+    }
+
+    /** Adds a FHIR queue message to the fhirQueueMessages list to be added to the queue later */
+    fun trackFhirMessage(message: QueueMessage) {
+        fhirQueueMessages.add(message)
     }
 
     /**
@@ -807,6 +818,16 @@ class ActionHistory(
         messages.forEach { event ->
             workflowEngine.queue.sendMessage(event)
             logger.debug("Queued event: ${event.toQueueMessage()}")
+        }
+    }
+
+    /**
+     *  Sends any FHIR queue messages to the appropriate queue
+     */
+    fun queueFhirMessages(workflowEngine: WorkflowEngine) {
+        fhirQueueMessages.forEach { message ->
+            workflowEngine.queue.sendMessage(message.messageQueueName, message.serialize())
+            logger.debug("FHIR Message queued: $message")
         }
     }
 
