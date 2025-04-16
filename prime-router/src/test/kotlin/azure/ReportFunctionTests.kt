@@ -924,7 +924,7 @@ class ReportFunctionTests {
         every { BlobAccess.Companion.getBlobContainer(any()) } returns mockedBlobContainerClient
 
         val dateCreated = OffsetDateTime.now()
-        val fileName = UUID.randomUUID().toString() + ".fhir"
+        val fileName = "testOrg.default/" + UUID.randomUUID().toString() + ".fhir"
         val blob1 = BlobItem()
         blob1.name = fileName
         blob1.properties = BlobItemProperties()
@@ -956,7 +956,8 @@ class ReportFunctionTests {
             ReportFunction.TestReportInfo(
                 dateCreated.toString(),
                 fileName,
-                fhirReport
+                fhirReport,
+                "testOrg.default"
             )
         ) + "]"
         )
