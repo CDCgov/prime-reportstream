@@ -308,14 +308,17 @@ class ReportFunction(
             val reports = mutableListOf<TestReportInfo>()
             val sourceContainer = getBlobContainer(updatedBlobMetadata)
             results.forEach { currentResult ->
-                if (currentResult.currentBlobItem.name.endsWith(".fhir")) {
+                if (currentResult.currentBlobItem.name.endsWith(".fhir") ||
+                    currentResult.currentBlobItem.name.endsWith(".hl7")
+                ) {
                     val sourceBlobClient = sourceContainer.getBlobClient(currentResult.currentBlobItem.name)
                     val data = sourceBlobClient.downloadContent()
 
                     val currentTestReportInfo = TestReportInfo(
                         currentResult.currentBlobItem.properties.creationTime.toString(),
                         currentResult.currentBlobItem.name,
-                        data.toString()
+                        data.toString(),
+                        currentResult.currentBlobItem.name.substringBefore("/")
                     )
                     reports.add(currentTestReportInfo)
                 }
@@ -330,7 +333,7 @@ class ReportFunction(
             HttpUtilities.internalErrorResponse(request)
         }
 
-    class TestReportInfo(var dateCreated: String, var fileName: String, var reportBody: String)
+    class TestReportInfo(var dateCreated: String, var fileName: String, var reportBody: String, var senderId: String)
 
     /**
      * GET report to download
