@@ -6,6 +6,7 @@ import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.TransportType
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.WorkflowEngine
+import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
 import gov.cdc.prime.router.azure.observability.event.IReportStreamEventService
 import gov.cdc.prime.router.report.ReportService
 
@@ -23,6 +24,7 @@ class NullTransport : ITransport {
         actionHistory: ActionHistory,
         reportEventService: IReportStreamEventService,
         reportService: ReportService,
+        lineages: List<ItemLineage>?,
     ): RetryItems? {
         if (header.content == null) error("No content for report ${header.reportFile.reportId}")
         val receiver = header.receiver ?: error("No receiver defined for report ${header.reportFile.reportId}")
@@ -37,7 +39,8 @@ class NullTransport : ITransport {
             header,
             reportEventService,
             reportService,
-            this::class.java.simpleName
+            this::class.java.simpleName,
+            lineages
         )
         actionHistory.trackItemLineages(Report.createItemLineagesFromDb(header, sentReportId))
         return null
