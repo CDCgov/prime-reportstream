@@ -35,7 +35,6 @@ interface IReportStreamEventService {
      * @param eventName the business event value from [ReportStreamEventName]
      * @param childReport the report that is getting emitted from the pipeline step
      * @param pipelineStepName the pipeline step that is emitting the event
-     * @param rootReports the root reports of the event that is being emitted from the pipeline step
      * @param shouldQueue whether to send the event immediately or defer it to be sent later
      * @param initializer additional data to initialize the creation of the event. See [AbstractReportStreamEventBuilder]
      */
@@ -43,7 +42,6 @@ interface IReportStreamEventService {
         eventName: ReportStreamEventName,
         childReport: Report,
         pipelineStepName: TaskAction,
-        rootReports: List<ReportFile>? = null,
         shouldQueue: Boolean = false,
         initializer: ReportStreamReportEventBuilder.() -> Unit,
     )
@@ -54,7 +52,6 @@ interface IReportStreamEventService {
      * @param eventName the business event value from [ReportStreamEventName]
      * @param childReport the report that is getting emitted from the pipeline step
      * @param pipelineStepName the pipeline step that is emitting the event
-     * @param rootReports the root reports of the event that is being emitted from the pipeline step
      * @param shouldQueue whether to send the event immediately or defer it to be sent later
      * @param initializer additional data to initialize the creation of the event. See [AbstractReportStreamEventBuilder]
      */
@@ -62,7 +59,6 @@ interface IReportStreamEventService {
         eventName: ReportStreamEventName,
         childReport: ReportFile,
         pipelineStepName: TaskAction,
-        rootReports: List<ReportFile>? = null,
         shouldQueue: Boolean = false,
         initializer: ReportStreamReportEventBuilder.() -> Unit,
     )
@@ -73,7 +69,6 @@ interface IReportStreamEventService {
      * @param eventName the business event value from [ReportStreamEventName]
      * @param childReport the report that is getting emitted from the pipeline step
      * @param pipelineStepName the pipeline step that is emitting the event
-     * @param rootReports the root reports of the event that is being emitted from the pipeline step
      * @param error the error description
      * @param shouldQueue whether to send the event immediately or defer it to be sent later
      * @param initializer additional data to initialize the creation of the event. See [AbstractReportStreamEventBuilder]
@@ -82,7 +77,6 @@ interface IReportStreamEventService {
         eventName: ReportStreamEventName,
         childReport: ReportFile,
         pipelineStepName: TaskAction,
-        rootReports: List<ReportFile>?,
         error: String,
         shouldQueue: Boolean = false,
         initializer: ReportStreamReportProcessingErrorEventBuilder.() -> Unit,
@@ -94,7 +88,6 @@ interface IReportStreamEventService {
      * @param eventName the business event value from [ReportStreamEventName]
      * @param childReport the report that is getting emitted from the pipeline step
      * @param pipelineStepName the pipeline step that is emitting the event
-     * @param rootReports the root reports of the event that is being emitted from the pipeline step
      * @param error the error description
      * @param shouldQueue whether to send the event immediately or defer it to be sent later
      * @param initializer additional data to initialize the creation of the event. See [AbstractReportStreamEventBuilder]
@@ -103,7 +96,6 @@ interface IReportStreamEventService {
         eventName: ReportStreamEventName,
         childReport: Report,
         pipelineStepName: TaskAction,
-        rootReports: List<ReportFile>?,
         error: String,
         shouldQueue: Boolean = false,
         initializer: ReportStreamReportProcessingErrorEventBuilder.() -> Unit,
@@ -115,7 +107,6 @@ interface IReportStreamEventService {
      * @param eventName the business event value from [ReportStreamEventName]
      * @param childReport the report that is getting emitted from the pipeline step
      * @param pipelineStepName the pipeline step that is emitting the event
-     * @param rootReports the root reports of the event that is being emitted from the pipeline step
      * @param shouldQueue whether to send the event immediately or defer it to be sent later
      * @param initializer additional data to initialize the creation of the event. See [AbstractReportStreamEventBuilder]
      */
@@ -123,7 +114,6 @@ interface IReportStreamEventService {
         eventName: ReportStreamEventName,
         childReport: Report,
         pipelineStepName: TaskAction,
-        rootReports: List<ReportFile>? = null,
         shouldQueue: Boolean = false,
         initializer: ReportStreamItemEventBuilder.() -> Unit,
     )
@@ -134,7 +124,6 @@ interface IReportStreamEventService {
      * @param eventName the business event value from [ReportStreamEventName]
      * @param childReport the report that is getting emitted from the pipeline step
      * @param pipelineStepName the pipeline step that is emitting the event
-     * @param rootReports the root reports of the event that is being emitted from the pipeline step
      * @param shouldQueue whether to send the event immediately or defer it to be sent later
      * @param initializer additional data to initialize the creation of the event. See [AbstractReportStreamEventBuilder]
      */
@@ -142,7 +131,6 @@ interface IReportStreamEventService {
         eventName: ReportStreamEventName,
         childReport: ReportFile,
         pipelineStepName: TaskAction,
-        rootReports: List<ReportFile>? = null,
         shouldQueue: Boolean = false,
         initializer: ReportStreamItemEventBuilder.() -> Unit,
     )
@@ -153,7 +141,6 @@ interface IReportStreamEventService {
      * @param eventName the business event value from [ReportStreamEventName]
      * @param childReport the report that is getting emitted from the pipeline step
      * @param pipelineStepName the pipeline step that is emitting the event
-     * @param rootReports the root reports of the event that is being emitted from the pipeline step
      * @param error the error description
      * @param shouldQueue whether to send the event immediately or defer it to be sent later
      * @param initializer additional data to initialize the creation of the event. See [AbstractReportStreamEventBuilder]
@@ -162,7 +149,6 @@ interface IReportStreamEventService {
         eventName: ReportStreamEventName,
         childReport: ReportFile,
         pipelineStepName: TaskAction,
-        rootReports: List<ReportFile>? = null,
         error: String,
         shouldQueue: Boolean = false,
         initializer: ReportStreamItemProcessingErrorEventBuilder.() -> Unit,
@@ -174,7 +160,6 @@ interface IReportStreamEventService {
      * @param eventName the business event value from [ReportStreamEventName]
      * @param childReport the report that is getting emitted from the pipeline step
      * @param pipelineStepName the pipeline step that is emitting the event
-     * @param rootReports the root reports of the event that is being emitted from the pipeline step
      * @param error the error description
      * @param shouldQueue whether to send the event immediately or defer it to be sent later
      * @param initializer additional data to initialize the creation of the event. See [AbstractReportStreamEventBuilder]
@@ -183,7 +168,6 @@ interface IReportStreamEventService {
         eventName: ReportStreamEventName,
         childReport: Report,
         pipelineStepName: TaskAction,
-        rootReports: List<ReportFile>? = null,
         error: String,
         shouldQueue: Boolean = false,
         initializer: ReportStreamItemProcessingErrorEventBuilder.() -> Unit,
@@ -197,7 +181,6 @@ interface IReportStreamEventService {
      * @param parentReportId the optional parent report id.  A report outputted from the ReportFunction will not have a parent
      * @param pipelineStepName the pipeline step that is generated the child report
      * @param topic the [Topic] that the report is in
-     * @param rootReports the root reports of the event that is being emitted from the pipeline step
      * @return [ReportEventData]
      */
     fun getReportEventData(
@@ -206,7 +189,7 @@ interface IReportStreamEventService {
         parentReportId: UUID?,
         pipelineStepName: TaskAction,
         topic: Topic?,
-        rootReports: List<ReportFile>?,
+        rootReports: List<ReportFile>,
     ): ReportEventData
 
     /**
@@ -217,7 +200,6 @@ interface IReportStreamEventService {
      * @param parentReportId the parent report id
      * @param parentItemIndex the index of this item in the parent report
      * @param trackingId an optional value that is a unique value for the item as it is processed by the pipeline
-     * @param rootReports the root reports of the event that is being emitted from the pipeline step
      * @return [ItemEventData]
      */
     fun getItemEventData(
@@ -225,7 +207,7 @@ interface IReportStreamEventService {
         parentReportId: UUID,
         parentItemIndex: Int,
         trackingId: String?,
-        rootReports: List<ReportFile>?,
+        rootReport: ReportFile?,
     ): ItemEventData
 }
 
@@ -253,7 +235,6 @@ class ReportStreamEventService(
         eventName: ReportStreamEventName,
         childReport: Report,
         pipelineStepName: TaskAction,
-        rootReports: List<ReportFile>?,
         shouldQueue: Boolean,
         initializer: ReportStreamReportEventBuilder.() -> Unit,
     ) {
@@ -264,8 +245,7 @@ class ReportStreamEventService(
             childReport.id,
             childReport.bodyURL,
             childReport.schema.topic,
-            pipelineStepName,
-            rootReports
+            pipelineStepName
         ).apply(
             initializer
         )
@@ -280,7 +260,6 @@ class ReportStreamEventService(
         eventName: ReportStreamEventName,
         childReport: ReportFile,
         pipelineStepName: TaskAction,
-        rootReports: List<ReportFile>?,
         shouldQueue: Boolean,
         initializer: ReportStreamReportEventBuilder.() -> Unit,
     ) {
@@ -291,8 +270,7 @@ class ReportStreamEventService(
             childReport.reportId,
             childReport.bodyUrl,
             childReport.schemaTopic,
-            pipelineStepName,
-            rootReports
+            pipelineStepName
         ).apply(
             initializer
         )
@@ -308,7 +286,6 @@ class ReportStreamEventService(
         eventName: ReportStreamEventName,
         childReport: ReportFile,
         pipelineStepName: TaskAction,
-        rootReports: List<ReportFile>?,
         error: String,
         shouldQueue: Boolean,
         initializer: ReportStreamReportProcessingErrorEventBuilder.() -> Unit,
@@ -321,7 +298,6 @@ class ReportStreamEventService(
             childReport.bodyUrl,
             childReport.schemaTopic,
             pipelineStepName,
-            rootReports,
             error
         ).apply(
             initializer
@@ -338,7 +314,6 @@ class ReportStreamEventService(
         eventName: ReportStreamEventName,
         childReport: Report,
         pipelineStepName: TaskAction,
-        rootReports: List<ReportFile>?,
         error: String,
         shouldQueue: Boolean,
         initializer: ReportStreamReportProcessingErrorEventBuilder.() -> Unit,
@@ -351,7 +326,6 @@ class ReportStreamEventService(
             childReport.bodyURL,
             childReport.schema.topic,
             pipelineStepName,
-            rootReports,
             error
         ).apply(
             initializer
@@ -368,7 +342,6 @@ class ReportStreamEventService(
         eventName: ReportStreamEventName,
         childReport: Report,
         pipelineStepName: TaskAction,
-        rootReports: List<ReportFile>?,
         shouldQueue: Boolean,
         initializer: ReportStreamItemEventBuilder.() -> Unit,
     ) {
@@ -379,8 +352,7 @@ class ReportStreamEventService(
             childReport.id,
             childReport.bodyURL,
             childReport.schema.topic,
-            pipelineStepName,
-            rootReports
+            pipelineStepName
         ).apply(initializer)
 
         if (shouldQueue) {
@@ -394,7 +366,6 @@ class ReportStreamEventService(
         eventName: ReportStreamEventName,
         childReport: ReportFile,
         pipelineStepName: TaskAction,
-        rootReports: List<ReportFile>?,
         shouldQueue: Boolean,
         initializer: ReportStreamItemEventBuilder.() -> Unit,
     ) {
@@ -405,8 +376,7 @@ class ReportStreamEventService(
             childReport.reportId,
             childReport.bodyUrl,
             childReport.schemaTopic,
-            pipelineStepName,
-            rootReports
+            pipelineStepName
         ).apply(initializer)
 
         if (shouldQueue) {
@@ -420,7 +390,6 @@ class ReportStreamEventService(
         eventName: ReportStreamEventName,
         childReport: ReportFile,
         pipelineStepName: TaskAction,
-        rootReports: List<ReportFile>?,
         error: String,
         shouldQueue: Boolean,
         initializer: ReportStreamItemProcessingErrorEventBuilder.() -> Unit,
@@ -433,7 +402,6 @@ class ReportStreamEventService(
             childReport.bodyUrl,
             childReport.schemaTopic,
             pipelineStepName,
-            rootReports,
             error
         ).apply(initializer)
 
@@ -448,7 +416,6 @@ class ReportStreamEventService(
         eventName: ReportStreamEventName,
         childReport: Report,
         pipelineStepName: TaskAction,
-        rootReports: List<ReportFile>?,
         error: String,
         shouldQueue: Boolean,
         initializer: ReportStreamItemProcessingErrorEventBuilder.() -> Unit,
@@ -461,7 +428,6 @@ class ReportStreamEventService(
             childReport.bodyURL,
             childReport.schema.topic,
             pipelineStepName,
-            rootReports,
             error
         ).apply(initializer)
 
@@ -478,10 +444,10 @@ class ReportStreamEventService(
         parentReportId: UUID?,
         pipelineStepName: TaskAction,
         topic: Topic?,
-        rootReports: List<ReportFile>?,
+        rootReports: List<ReportFile>,
     ): ReportEventData {
         val submittedReportIds = rootReports
-            ?.takeIf { it.isNotEmpty() }
+            .takeIf { it.isNotEmpty() }
             ?.map { it.reportId }
             ?: if (parentReportId != null) {
             reportService.getRootReports(parentReportId)
@@ -506,12 +472,12 @@ class ReportStreamEventService(
         parentReportId: UUID,
         parentItemIndex: Int,
         trackingId: String?,
-        rootReports: List<ReportFile>?,
+        rootReport: ReportFile?,
     ): ItemEventData {
         val submittedIndex = reportService.getRootItemIndex(parentReportId, parentItemIndex) ?: parentItemIndex
 
         val resolvedRootReport =
-            rootReports?.firstOrNull() ?: reportService.getRootReports(parentReportId).firstOrNull()
+            rootReport ?: reportService.getRootReports(parentReportId).firstOrNull()
                 ?: dbAccess.fetchReportFile(parentReportId)
 
         return ItemEventData(

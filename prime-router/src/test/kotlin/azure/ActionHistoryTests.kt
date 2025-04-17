@@ -367,6 +367,7 @@ class ActionHistoryTests {
                 any(),
                 any(),
                 any(),
+                any(),
                 any()
             )
         } returns ReportEventData(
@@ -494,7 +495,8 @@ class ActionHistoryTests {
                 any(),
                 any(),
                 any(),
-                any()
+                any(),
+                any(),
             )
         } returns ReportEventData(
             UUID.randomUUID(),
@@ -759,6 +761,7 @@ class ActionHistoryTests {
         every {
             mockReportEventService.getReportEventData(
                 any<UUID>(),
+                any(),
                 any(),
                 any(),
                 any(),

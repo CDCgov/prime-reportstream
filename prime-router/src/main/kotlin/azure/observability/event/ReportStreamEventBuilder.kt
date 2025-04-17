@@ -35,7 +35,6 @@ abstract class AbstractReportStreamEventBuilder<T : AzureCustomEvent>(
     private val childBodyUrl: String,
     private val theTopic: Topic?,
     private val pipelineStepName: TaskAction,
-    protected val rootReports: List<ReportFile>?,
 ) : Logging {
 
     constructor(
@@ -44,7 +43,6 @@ abstract class AbstractReportStreamEventBuilder<T : AzureCustomEvent>(
         theName: ReportStreamEventName,
         report: ReportFile,
         pipelineStepName: TaskAction,
-        rootReports: List<ReportFile>?,
     ) : this(
         reportEventService,
         azureEventService,
@@ -53,7 +51,6 @@ abstract class AbstractReportStreamEventBuilder<T : AzureCustomEvent>(
         report.bodyUrl,
         report.schemaTopic,
         pipelineStepName,
-        rootReports
     )
 
     constructor(
@@ -62,7 +59,6 @@ abstract class AbstractReportStreamEventBuilder<T : AzureCustomEvent>(
         theName: ReportStreamEventName,
         report: Report,
         pipelineStepName: TaskAction,
-        rootReports: List<ReportFile>?,
     ) : this(
         reportEventService,
         azureEventService,
@@ -71,10 +67,10 @@ abstract class AbstractReportStreamEventBuilder<T : AzureCustomEvent>(
         report.bodyURL,
         report.schema.topic,
         pipelineStepName,
-        rootReports
     )
     var theParams: Map<ReportStreamEventProperties, Any> = emptyMap()
     var theParentReportId: UUID? = null
+    var rootReports: MutableList<ReportFile> = mutableListOf()
 
     fun parentReportId(parentReportId: UUID?) {
         theParentReportId = parentReportId
@@ -82,6 +78,10 @@ abstract class AbstractReportStreamEventBuilder<T : AzureCustomEvent>(
 
     fun params(params: Map<ReportStreamEventProperties, Any>) {
         theParams = params
+    }
+
+    fun addRootReport(reportFile: ReportFile) {
+        rootReports.add(reportFile)
     }
 
     abstract fun buildEvent(): T
@@ -125,7 +125,6 @@ open class ReportStreamReportEventBuilder(
     childBodyUrl: String,
     theTopic: Topic?,
     pipelineStepName: TaskAction,
-    rootReports: List<ReportFile>?,
 ) : AbstractReportStreamEventBuilder<ReportStreamReportEvent>(
     reportEventService,
     azureEventService,
@@ -133,8 +132,7 @@ open class ReportStreamReportEventBuilder(
     childReportId,
     childBodyUrl,
     theTopic,
-    pipelineStepName,
-    rootReports
+    pipelineStepName
 ) {
 
     override fun buildEvent(): ReportStreamReportEvent = ReportStreamReportEvent(
@@ -159,7 +157,6 @@ open class ReportStreamItemEventBuilder(
     childBodyUrl: String,
     theTopic: Topic,
     pipelineStepName: TaskAction,
-    rootReports: List<ReportFile>?,
 ) : AbstractReportStreamEventBuilder<ReportStreamItemEvent>(
     reportEventService,
     azureEventService,
@@ -167,8 +164,7 @@ open class ReportStreamItemEventBuilder(
     childReportId,
     childBodyUrl,
     theTopic,
-    pipelineStepName,
-    rootReports
+    pipelineStepName
 ) {
     private var theParentItemIndex = 1
     private var theChildIndex = 1
@@ -195,7 +191,7 @@ open class ReportStreamItemEventBuilder(
             theParentReportId!!,
             theParentItemIndex,
             theTrackingId,
-            rootReports
+            rootReports.firstOrNull()
         )
     }
 
@@ -217,7 +213,6 @@ class ReportStreamReportProcessingErrorEventBuilder(
     childBodyUrl: String,
     theTopic: Topic?,
     pipelineStepName: TaskAction,
-    rootReports: List<ReportFile>?,
     private val error: String,
 ) : ReportStreamReportEventBuilder(
     reportEventService,
@@ -226,8 +221,7 @@ class ReportStreamReportProcessingErrorEventBuilder(
     childReportId,
     childBodyUrl,
     theTopic,
-    pipelineStepName,
-    rootReports
+    pipelineStepName
 ) {
     override fun buildEvent(): ReportStreamReportEvent = ReportStreamReportEvent(
             getReportEventData(),
@@ -246,7 +240,6 @@ class ReportStreamItemProcessingErrorEventBuilder(
     childBodyUrl: String,
     theTopic: Topic,
     pipelineStepName: TaskAction,
-    rootReports: List<ReportFile>?,
     private val error: String,
 ) : ReportStreamItemEventBuilder(
     reportEventService,
@@ -255,8 +248,7 @@ class ReportStreamItemProcessingErrorEventBuilder(
     childReportId,
     childBodyUrl,
     theTopic,
-    pipelineStepName,
-    rootReports
+    pipelineStepName
 ) {
     override fun buildEvent(): ReportStreamItemEvent = ReportStreamItemEvent(
             getReportEventData(),

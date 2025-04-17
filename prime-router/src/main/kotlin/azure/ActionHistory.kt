@@ -636,13 +636,10 @@ class ActionHistory(
         reportFile.blobDigest = blobInfo.digest
         reportFile.bodyUrl = blobInfo.blobUrl
 
-        val rootReports = listOf(reportFile)
-
         reportEventService.sendReportEvent(
             childReport = reportFile,
             eventName = ReportStreamEventName.REPORT_SENT,
             pipelineStepName = TaskAction.send,
-            rootReports = rootReports
         ) {
             parentReportId(header.reportFile.reportId)
             params(
@@ -681,7 +678,6 @@ class ActionHistory(
                     ReportStreamEventName.ITEM_SENT,
                     reportFile,
                     TaskAction.send,
-                    rootReports
                 ) {
                     trackingId(bundle)
                     parentReportId(header.reportFile.reportId)
