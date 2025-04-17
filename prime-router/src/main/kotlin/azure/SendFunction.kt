@@ -18,6 +18,7 @@ import gov.cdc.prime.router.SFTPTransportType
 import gov.cdc.prime.router.SoapTransportType
 import gov.cdc.prime.router.TransportType
 import gov.cdc.prime.router.azure.db.enums.TaskAction
+import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.azure.observability.context.SendFunctionLoggingContext
 import gov.cdc.prime.router.azure.observability.context.withLoggingContext
@@ -105,6 +106,7 @@ class SendFunction(
                 val sentReportId = UUID.randomUUID() // each sent report gets its own UUID
                 val retryItems = retryToken?.items
                 val transport = getTransport(receiver.transportType)
+                val lineages = Report.createItemLineagesFromDb(header, sentReportId)
                 val nextRetry = transport.send(
                     receiver.transportType,
                     header,
@@ -114,7 +116,8 @@ class SendFunction(
                     context,
                     actionHistory,
                     reportEventService,
-                    workflowEngine.reportService
+                    workflowEngine.reportService,
+                    lineages
                 )
                 if (nextRetry != null) {
                     nextRetryItems += nextRetry
@@ -129,7 +132,9 @@ class SendFunction(
                     externalFileName,
                     retryToken,
                     actionHistory,
-                    event.isEmptyBatch
+                    event.isEmptyBatch,
+                    lineages,
+                    message
                 )
             }
         } catch (t: Throwable) {
@@ -174,6 +179,8 @@ class SendFunction(
         retryToken: RetryToken?,
         actionHistory: ActionHistory,
         isEmptyBatch: Boolean,
+        lineages: List<ItemLineage>?,
+        message: String,
     ): ReportEvent {
         withLoggingContext(SendFunctionLoggingContext(report.reportId, receiver.fullName)) {
             return if (nextRetryItems.isEmpty()) {
@@ -212,13 +219,26 @@ class SendFunction(
                                 ReportStreamEventProperties.RECEIVER_NAME to receiver.fullName,
                                 ReportStreamEventProperties.TRANSPORT_TYPE to receiver.transport.toString(),
                                 ReportStreamEventProperties.FILE_LENGTH to fileSize,
-                                ReportStreamEventProperties.FILENAME to externalFileName
+                                ReportStreamEventProperties.FILENAME to externalFileName,
+                                ReportStreamEventProperties.QUEUE_MESSAGE to message
                             )
                         )
                         if (parentReport != null) {
                             parentReportId(parentReport.reportId)
                         }
                     }
+
+                    actionHistory.trackItemSendState(
+                        ReportStreamEventName.ITEM_LAST_MILE_FAILURE,
+                        report,
+                        lineages,
+                        receiver,
+                        null,
+                        null,
+                        message,
+                        reportEventService,
+                        workflowEngine.reportService
+                    )
 
                     // required for pipeline processing
                     ReportEvent(Event.EventAction.SEND_ERROR, report.reportId, isEmptyBatch)
@@ -237,6 +257,19 @@ class SendFunction(
                     logger.warn(msg)
                     actionHistory.setActionType(TaskAction.send_warning)
                     actionHistory.trackActionResult(msg)
+
+                    actionHistory.trackItemSendState(
+                        ReportStreamEventName.ITEM_SEND_ATTEMPT_FAIL,
+                        report,
+                        lineages,
+                        receiver,
+                        nextRetryCount,
+                        nextRetryTime,
+                        message,
+                        reportEventService,
+                        workflowEngine.reportService
+                    )
+
                     ReportEvent(Event.EventAction.SEND, report.reportId, isEmptyBatch, nextRetryTime, nextRetryToken)
                 }
             }
