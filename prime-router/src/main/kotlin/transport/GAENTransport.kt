@@ -15,6 +15,7 @@ import gov.cdc.prime.router.TransportType
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
+import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
 import gov.cdc.prime.router.azure.observability.event.IReportStreamEventService
 import gov.cdc.prime.router.common.HttpClientUtils
 import gov.cdc.prime.router.credentials.CredentialHelper
@@ -82,6 +83,7 @@ class GAENTransport(val httpClient: HttpClient? = null) :
         actionHistory: ActionHistory,
         reportEventService: IReportStreamEventService,
         reportService: ReportService,
+        lineages: List<ItemLineage>?,
     ): RetryItems? {
         val gaenTransportInfo = transportType as GAENTransportType
         val reportId = header.reportFile.reportId
@@ -110,7 +112,7 @@ class GAENTransport(val httpClient: HttpClient? = null) :
 
             // Record the work in history and logs
             when (postResult) {
-                PostResult.SUCCESS -> recordFullSuccess(params, reportEventService, reportService)
+                PostResult.SUCCESS -> recordFullSuccess(params, reportEventService, reportService, lineages)
                 PostResult.RETRY -> recordFailureWithRetry(params)
                 PostResult.FAIL -> recordFailure(params)
             }
@@ -131,6 +133,7 @@ class GAENTransport(val httpClient: HttpClient? = null) :
         params: SendParams,
         reportEventService: IReportStreamEventService,
         reportService: ReportService,
+        lineages: List<ItemLineage>?,
     ) {
         val msg = "${params.receiver.fullName}: Successful exposure notifications of ${params.comboId}"
         val history = params.actionHistory
@@ -146,7 +149,8 @@ class GAENTransport(val httpClient: HttpClient? = null) :
             params.header,
             reportEventService,
             reportService,
-            this::class.java.simpleName
+            this::class.java.simpleName,
+            lineages
         )
         history.trackItemLineages(Report.createItemLineagesFromDb(params.header, params.sentReportId))
     }

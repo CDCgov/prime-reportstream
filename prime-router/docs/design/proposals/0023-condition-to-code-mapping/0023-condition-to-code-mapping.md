@@ -155,16 +155,16 @@ options:
 
 The output CSV file can then have the necessary values added and the new table uploaded following the steps from Creating Observation Mapping Table section above. 
 
-### Mapping LOINC/SNOMED codes in received message/bundle to condition code
+### Mapping LOINC/SNOMED codes and Member OID in received message/bundle to condition code
 
 Criteria
 
 1.) Mapping solution must work whether the input data is an HL7 V2 message or a FHIR bundle. <br>
 2.) Must be able to compare LOINC or SNOMED codes from both OBX-3-1/Observation.code.coding.code (LOINC) and OBX-5-1/Observation.ValueCodeableConcept.coding.code (SNOMED) as values in "code" column of the Observation Mapping table stored as JSON in the "data" column of the  "lookup_table_row" table in the Database.  and return value(s) from "condition code" column.<br>
-3.) Values from "Condition Code" column must be appended to FHIR bundle as an element that can be used in FHIRpath condition filter logic. <br>
+3.) Values from "Condition Code" and "Member OID" columns must be appended to FHIR bundle as an element that can be used in FHIRpath condition filter logic. <br>
 4.) Must be able to return multiple values from observation-mapping table if LOINC/SNOMED code maps to multiple condition codes <br>
-5.) If there are multiple condition codes returned from the table each must be able to be independently evaluated by the condition filter. <br>
-6.) If no condition code is returned from the observation mapping table, no element should be added to the observation resource and an entry should be added to the action log indicating no match was found with the code(s) that were unable to find a match.
+5.) If there are multiple condition codes or member OIDs returned from the table each must be able to be independently evaluated by the condition filter. <br>
+6.) If no condition code or member OID is returned from the observation mapping table, no element should be added to the observation resource and an entry should be added to the action log indicating no match was found with the code(s) that were unable to find a match.
 
 
 Information regarding which reportable condition(s) an HL7 V2 message or FHIR Diagnostic Report is representing is not stored in a single element but instead can be extrapolated from either a LOINC code identifying what test was performed (OBX-3 HL7 V2 or Observation.Code.Coding.Code) or in the case of microbacterial cultures a SNOMED code identifying what organism was found (OBX-5 HL7 V2 or Observation.ValueCodeableConcept.Coding.Code).
@@ -175,253 +175,758 @@ Reportable condition information is needed to determine whether a particular dia
 Example Input Observation Resource:
 ```json
 {
-    "fullUrl": "Observation/d683b42a-bf50-45e8-9fce-6c0531994f09",
-    "resource": {
-        "resourceType": "Observation",
-        "id": "d683b42a-bf50-45e8-9fce-6c0531994f09",
-        "status": "final",
-        "code": {
-            "coding": [
-                {
-                    "system": "http://loinc.org",
-                    "code": "80382-5"
-                }
-            ],
-            "text": "Flu A"
-        },
-        "subject": {
-            "reference": "Patient/9473889b-b2b9-45ac-a8d8-191f27132912"
-        },
-        "performer": [
+    "resourceType": "Observation",
+    "id": "fedec87f-2b1b-4e89-8255-518476ca2996",
+    "status": "final",
+    "code": {
+        "coding": [
             {
-                "reference": "Organization/1a0139b9-fc23-450b-9b6c-cd081e5cea9d"
+                "system": "http://loinc.org",
+                "code": "85477-8"
             }
         ],
-        "valueCodeableConcept": {
-            "coding": [
-                {
-                    "system": "http://snomed.info/sct",
-                    "code": "260373001",
-                    "display": "Detected"
-                }
-            ]
-        },
-        "interpretation": [
-            {
-                "coding": [
-                    {
-                        "system": "http://terminology.hl7.org/CodeSystem/v2-0078",
-                        "code": "A",
-                        "display": "Abnormal"
-                    }
-                ]
-            }
-        ],
-        "method": {
-            "extension": [
-                {
-                    "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/testkit-name-id",
-                    "valueCoding": {
-                        "code": "BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B_Becton, Dickinson and Company (BD)"
-                    }
-                },
-                {
-                    "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/equipment-uid",
-                    "valueCoding": {
-                        "code": "BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B_Becton, Dickinson and Company (BD)"
-                    }
-                }
-            ],
-            "coding": [
-                {
-                    "display": "BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B*"
-                }
-            ]
-        },
-        "specimen": {
-            "reference": "Specimen/52a582e4-d389-42d0-b738-bee51cf5244d"
-        },
-        "device": {
-            "reference": "Device/78dc4d98-2958-43a3-a445-76ceef8c0698"
+        "text": "Flu A"
+    },
+    "subject": {
+        "reference": "Patient/05615a49-80ab-4b24-b6c6-a0906e832aa5"
+    },
+    "issued": "2025-04-03T19:02:04.101Z",
+    "performer": [
+        {
+            "reference": "Organization/719ec8ad-cf59-405a-9832-c4065945c130"
         }
+    ],
+    "valueCodeableConcept": {
+        "coding": [
+            {
+                "system": "http://snomed.info/sct",
+                "code": "260373001",
+                "display": "Detected"
+            }
+        ]
+    },
+    "interpretation": [
+        {
+            "coding": [
+                {
+                    "system": "http://terminology.hl7.org/CodeSystem/v2-0078",
+                    "code": "A",
+                    "display": "Abnormal"
+                }
+            ]
+        }
+    ],
+    "method": {
+        "coding": [
+            {
+                "display": "SC2 Flu Real Time PCR Detection Kit"
+            }
+        ]
+    },
+    "specimen": {
+        "reference": "Specimen/dc7af370-fc07-4b00-abc7-9b5dd87cf4d2"
+    },
+    "device": {
+        "reference": "Device/5e307b25-eda1-43c2-af59-453b5a49f7cb"
     }
 }
 ```
 Example Output Resource with single condition code:
 ```json
 {
-    "fullUrl": "Observation/d683b42a-bf50-45e8-9fce-6c0531994f09",
-    "resource": {
-        "resourceType": "Observation",
-        "id": "d683b42a-bf50-45e8-9fce-6c0531994f09",
-        "extension": [
-            {
-                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code",
-                "coding":[
-                    {
-                        "code": "6142004"
-                    }
-                ]
-            },  
-        "status": "final",
-        "code": {
-            "coding": [
-                {
-                    "system": "http://loinc.org",
-                    "code": "80382-5"
-                }
-            ],
-            "text": "Flu A"
-        },
-        "subject": {
-            "reference": "Patient/9473889b-b2b9-45ac-a8d8-191f27132912"
-        },
-        "performer": [
-            {
-                "reference": "Organization/1a0139b9-fc23-450b-9b6c-cd081e5cea9d"
-            }
-        ],
-        "valueCodeableConcept": {
-            "coding": [
-                {
-                    "system": "http://snomed.info/sct",
-                    "code": "260373001",
-                    "display": "Detected"
-                }
-            ]
-        },
-        "interpretation": [
-            {
-                "coding": [
-                    {
-                        "system": "http://terminology.hl7.org/CodeSystem/v2-0078",
-                        "code": "A",
-                        "display": "Abnormal"
-                    }
-                ]
-            }
-        ],
-        "method": {
+    "resourceType": "Observation",
+    "id": "fedec87f-2b1b-4e89-8255-518476ca2996",
+    "extension": [
+        {
+            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/obx-observation",
             "extension": [
                 {
-                    "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/testkit-name-id",
-                    "valueCoding": {
-                        "code": "BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B_Becton, Dickinson and Company (BD)"
-                    }
+                    "url": "OBX.2",
+                    "valueString": "CWE"
                 },
                 {
-                    "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/equipment-uid",
-                    "valueCoding": {
-                        "code": "BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B_Becton, Dickinson and Company (BD)"
-                    }
-                }
-            ],
-            "coding": [
+                    "url": "OBX.11",
+                    "valueString": "F"
+                },
                 {
-                    "display": "BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B*"
+                    "url": "OBX.17",
+                    "valueCodeableConcept": {
+                        "coding": [
+                            {
+                                "display": "SC2 Flu Real Time PCR Detection Kit"
+                            }
+                        ]
+                    }
                 }
             ]
         },
-        "specimen": {
-            "reference": "Specimen/52a582e4-d389-42d0-b738-bee51cf5244d"
-        },
-        "device": {
-            "reference": "Device/78dc4d98-2958-43a3-a445-76ceef8c0698"
-        }                 
+        {
+            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/analysis-date-time",
+            "valueInstant": "2025-04-03T19:02:04.101Z",
+            "_valueInstant": {
+                "extension": [
+                    {
+                        "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+                        "valueInstant": "2025-04-03T19:02:04.101Z"
+                    }
+                ]
+            }
+        }
+    ],
+    "status": "final",
+    "code": {
+        "coding": [
+            {
+                "extension": [
+                    {
+                        "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code",
+                        "valueCoding": {
+                            "extension": [
+                                {
+                                    "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/test-performed-member-oid",
+                                    "valueString": "2.16.840.1.113762.1.4.1146.798"
+                                }
+                            ],
+                            "system": "SNOMEDCT",
+                            "code": "541131000124102",
+                            "display": "Infection caused by novel Influenza A virus variant (disorder)"
+                        }
+                    },
+                    {
+                        "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code",
+                        "valueCoding": {
+                            "extension": [
+                                {
+                                    "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/test-performed-member-oid",
+                                    "valueString": "2.16.840.1.113762.1.4.1146.798"
+                                }
+                            ],
+                            "system": "SNOMEDCT",
+                            "code": "541131000124102",
+                            "display": "Infection caused by novel Influenza A virus variant (disorder)"
+                        }
+                    },
+                    {
+                        "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code",
+                        "valueCoding": {
+                            "extension": [
+                                {
+                                    "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/test-performed-member-oid",
+                                    "valueString": "2.16.840.1.113762.1.4.1146.1565"
+                                }
+                            ],
+                            "system": "SNOMEDCT",
+                            "code": "7180009",
+                            "display": "Meningitis (disorder)"
+                        }
+                    },
+                    {
+                        "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                        "valueString": "coding"
+                    },
+                    {
+                        "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                        "valueString": "LN"
+                    }
+                ],
+                "system": "http://loinc.org",
+                "code": "85477-8",
+                "display": "Influenza virus A RNA [Presence] in Upper respiratory specimen by NAA with probe detection"
+            }
+        ],
+        "text": "Flu A"
+    },
+    "subject": {
+        "reference": "Patient/05615a49-80ab-4b24-b6c6-a0906e832aa5"
+    },
+    "effectiveDateTime": "2025-04-03T18:47:04+00:00",
+    "_effectiveDateTime": {
+        "extension": [
+            {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+                "valueDateTime": "2025-04-03T18:47:04+00:00"
+            }
+        ]
+    },
+    "issued": "2025-04-03T19:02:04.101Z",
+    "performer": [
+        {
+            "reference": "Organization/719ec8ad-cf59-405a-9832-c4065945c130"
+        }
+    ],
+    "valueCodeableConcept": {
+        "coding": [
+            {
+                "extension": [
+                    {
+                        "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                        "valueString": "coding"
+                    },
+                    {
+                        "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                        "valueString": "SCT"
+                    }
+                ],
+                "system": "http://snomed.info/sct",
+                "code": "260373001",
+                "display": "Detected"
+            }
+        ]
+    },
+    "interpretation": [
+        {
+            "coding": [
+                {
+                    "extension": [
+                        {
+                            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                            "valueString": "coding"
+                        },
+                        {
+                            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                            "valueString": "HL70078"
+                        }
+                    ],
+                    "system": "http://terminology.hl7.org/CodeSystem/v2-0078",
+                    "version": "2.7",
+                    "code": "A",
+                    "display": "Abnormal"
+                }
+            ]
+        }
+    ],
+    "method": {
+        "coding": [
+            {
+                "extension": [
+                    {
+                        "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                        "valueString": "coding"
+                    }
+                ],
+                "display": "SC2 Flu Real Time PCR Detection Kit"
+            }
+        ]
+    },
+    "specimen": {
+        "reference": "Specimen/dc7af370-fc07-4b00-abc7-9b5dd87cf4d2"
+    },
+    "device": {
+        "reference": "Device/5e307b25-eda1-43c2-af59-453b5a49f7cb"
     }
 }
 ```
-Example Output Resource with multiple condition codes:
+Example Output Resource with multiple condition codes (i.e Flu A, COVID-19, Flu B):
 ```json
 {
-    "fullUrl": "Observation/d683b42a-bf50-45e8-9fce-6c0531994f09",
-    "resource": {
-        "resourceType": "Observation",
-        "id": "d683b42a-bf50-45e8-9fce-6c0531994f09",
-        "extension": [
-            {
-                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code",
-                "coding":[
-                    {
-                        "code": "6142004"
-                    }
-                ]
-            },
-            {
-                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code",
-                "coding":[
-                    {
-                        "code": "541000000000000"
-                    }
-                ]
-            }
-        ], 
-        "status": "final",
-        "code": {
-            "coding": [
-                {
-                    "system": "http://loinc.org",
-                    "code": "80382-5"
-                }
-            ],
-            "text": "Flu A"
-        },
-        "subject": {
-            "reference": "Patient/9473889b-b2b9-45ac-a8d8-191f27132912"
-        },
-        "performer": [
-            {
-                "reference": "Organization/1a0139b9-fc23-450b-9b6c-cd081e5cea9d"
-            }
-        ],
-        "valueCodeableConcept": {
-            "coding": [
-                {
-                    "system": "http://snomed.info/sct",
-                    "code": "260373001",
-                    "display": "Detected"
-                }
-            ]
-        },
-        "interpretation": [
-            {
-                "coding": [
-                    {
-                        "system": "http://terminology.hl7.org/CodeSystem/v2-0078",
-                        "code": "A",
-                        "display": "Abnormal"
-                    }
-                ]
-            }
-        ],
-        "method": {
+    "resourceType": "Observation",
+    "id": "4d7df7f5-e307-46d0-b5d5-db797bfdd233",
+    "extension": [
+        {
+            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/obx-observation",
             "extension": [
                 {
-                    "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/testkit-name-id",
-                    "valueCoding": {
-                        "code": "BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B_Becton, Dickinson and Company (BD)"
-                    }
+                    "url": "OBX.2",
+                    "valueString": "CWE"
                 },
                 {
-                    "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/equipment-uid",
-                    "valueCoding": {
-                        "code": "BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B_Becton, Dickinson and Company (BD)"
-                    }
-                }
-            ],
-            "coding": [
+                    "url": "OBX.11",
+                    "valueString": "F"
+                },
                 {
-                    "display": "BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B*"
+                    "url": "OBX.17",
+                    "valueCodeableConcept": {
+                        "coding": [
+                            {
+                                "display": "BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B"
+                            }
+                        ]
+                    }
                 }
             ]
         },
-        "specimen": {
-            "reference": "Specimen/52a582e4-d389-42d0-b738-bee51cf5244d"
-        },
-        "device": {
-            "reference": "Device/78dc4d98-2958-43a3-a445-76ceef8c0698"
-        }                 
+        {
+            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/analysis-date-time",
+            "valueInstant": "2025-04-08T09:12:49.779Z",
+            "_valueInstant": {
+                "extension": [
+                    {
+                        "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+                        "valueDateTime": "2025-04-08T05:12:49.779-04:00"
+                    }
+                ]
+            }
+        }
+    ],
+    "status": "final",
+    "code": {
+        "coding": [
+            {
+                "extension": [
+                    {
+                        "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code",
+                        "valueCoding": {
+                            "extension": [
+                                {
+                                    "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/test-performed-member-oid",
+                                    "valueString": "2.16.840.1.113762.1.4.1146.337"
+                                }
+                            ],
+                            "system": "SNOMEDCT",
+                            "code": "6142004",
+                            "display": "Influenza (disorder)"
+                        }
+                    },
+                    {
+                        "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                        "valueString": "coding"
+                    },
+                    {
+                        "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                        "valueString": "LN"
+                    }
+                ],
+                "system": "http://loinc.org",
+                "code": "80383-3",
+                "display": "Influenza virus B Ag [Presence] in Upper respiratory specimen by Rapid immunoassay"
+            }
+        ],
+        "text": "Flu B"
+    },
+    "subject": {
+        "reference": "Patient/31382731-88cc-4ad6-8295-749b640576db"
+    },
+    "effectiveDateTime": "2025-04-08T08:57:49+00:00",
+    "_effectiveDateTime": {
+        "extension": [
+            {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+                "valueDateTime": "2025-04-08T04:57:49-04:00"
+            }
+        ]
+    },
+    "issued": "2025-04-08T09:12:49.779Z",
+    "performer": [
+        {
+            "reference": "Organization/719ec8ad-cf59-405a-9832-c4065945c130"
+        }
+    ],
+    "valueCodeableConcept": {
+        "coding": [
+            {
+                "extension": [
+                    {
+                        "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                        "valueString": "coding"
+                    },
+                    {
+                        "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                        "valueString": "SCT"
+                    }
+                ],
+                "system": "http://snomed.info/sct",
+                "code": "260373001",
+                "display": "Detected"
+            }
+        ]
+    },
+    "interpretation": [
+        {
+            "coding": [
+                {
+                    "extension": [
+                        {
+                            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                            "valueString": "coding"
+                        },
+                        {
+                            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                            "valueString": "HL70078"
+                        }
+                    ],
+                    "system": "http://terminology.hl7.org/CodeSystem/v2-0078",
+                    "version": "2.7",
+                    "code": "A",
+                    "display": "Abnormal"
+                }
+            ]
+        }
+    ],
+    "method": {
+        "extension": [
+            {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/testkit-name-id",
+                "valueCoding": {
+                    "code": "BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B_Becton, Dickinson and Company (BD)"
+                }
+            }
+        ],
+        "coding": [
+            {
+                "extension": [
+                    {
+                        "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                        "valueString": "coding"
+                    }
+                ],
+                "code": "BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B_Becton, Dickinson and Company (BD)",
+                "display": "BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B"
+            }
+        ],
+        "text": "BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B_Becton, Dickinson and Company (BD)"
+    },
+    "specimen": {
+        "reference": "Specimen/dc7af370-fc07-4b00-abc7-9b5dd87cf4d2"
+    },
+    "device": {
+        "reference": "Device/157d550a-a12a-4367-b80e-53d75ca29053"
     }
+}
+```
+```json
+{
+    "resourceType": "Observation",
+    "id": "ef58d851-5963-414b-89d1-8c41ccd6c622",
+    "extension": [
+        {
+            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/obx-observation",
+            "extension": [
+                {
+                    "url": "OBX.2",
+                    "valueString": "CWE"
+                },
+                {
+                    "url": "OBX.11",
+                    "valueString": "F"
+                },
+                {
+                    "url": "OBX.17",
+                    "valueCodeableConcept": {
+                        "coding": [
+                            {
+                                "display": "BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B"
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/analysis-date-time",
+            "valueInstant": "2025-04-08T09:12:49.779Z",
+            "_valueInstant": {
+                "extension": [
+                    {
+                        "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+                        "valueDateTime": "2025-04-08T05:12:49.779-04:00"
+                    }
+                ]
+            }
+        }
+    ],
+    "status": "final",
+    "code": {
+        "coding": [
+            {
+                "extension": [
+                    {
+                        "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code",
+                        "valueCoding": {
+                            "extension": [
+                                {
+                                    "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/test-performed-member-oid",
+                                    "valueString": "2.16.840.1.113762.1.4.1146.1158"
+                                }
+                            ],
+                            "system": "SNOMEDCT",
+                            "code": "840539006",
+                            "display": "Disease caused by severe acute respiratory syndrome coronavirus 2 (disorder)"
+                        }
+                    },
+                    {
+                        "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                        "valueString": "coding"
+                    },
+                    {
+                        "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                        "valueString": "LN"
+                    }
+                ],
+                "system": "http://loinc.org",
+                "code": "97097-0",
+                "display": "SARS-CoV-2 (COVID-19) Ag [Presence] in Upper respiratory specimen by Rapid immunoassay"
+            }
+        ],
+        "text": "COVID-19"
+    },
+    "subject": {
+        "reference": "Patient/31382731-88cc-4ad6-8295-749b640576db"
+    },
+    "effectiveDateTime": "2025-04-08T08:57:49+00:00",
+    "_effectiveDateTime": {
+        "extension": [
+            {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+                "valueDateTime": "2025-04-08T04:57:49-04:00"
+            }
+        ]
+    },
+    "issued": "2025-04-08T09:12:49.779Z",
+    "performer": [
+        {
+            "reference": "Organization/719ec8ad-cf59-405a-9832-c4065945c130"
+        }
+    ],
+    "valueCodeableConcept": {
+        "coding": [
+            {
+                "extension": [
+                    {
+                        "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                        "valueString": "coding"
+                    },
+                    {
+                        "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                        "valueString": "SCT"
+                    }
+                ],
+                "system": "http://snomed.info/sct",
+                "code": "260373001",
+                "display": "Detected"
+            }
+        ]
+    },
+    "interpretation": [
+        {
+            "coding": [
+                {
+                    "extension": [
+                        {
+                            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                            "valueString": "coding"
+                        },
+                        {
+                            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                            "valueString": "HL70078"
+                        }
+                    ],
+                    "system": "http://terminology.hl7.org/CodeSystem/v2-0078",
+                    "version": "2.7",
+                    "code": "A",
+                    "display": "Abnormal"
+                }
+            ]
+        }
+    ],
+    "method": {
+        "extension": [
+            {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/testkit-name-id",
+                "valueCoding": {
+                    "code": "BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B_Becton, Dickinson and Company (BD)"
+                }
+            }
+        ],
+        "coding": [
+            {
+                "extension": [
+                    {
+                        "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                        "valueString": "coding"
+                    }
+                ],
+                "code": "BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B_Becton, Dickinson and Company (BD)",
+                "display": "BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B"
+            }
+        ],
+        "text": "BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B_Becton, Dickinson and Company (BD)"
+    },
+    "specimen": {
+        "reference": "Specimen/dc7af370-fc07-4b00-abc7-9b5dd87cf4d2"
+    },
+    "device": {
+        "reference": "Device/157d550a-a12a-4367-b80e-53d75ca29053"
+    }
+}
+```
+```json
+{
+  "resourceType": "Observation",
+  "id": "08326bc3-b108-4303-9871-aaf7b7b95ee0",
+  "extension": [
+    {
+      "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/obx-observation",
+      "extension": [
+        {
+          "url": "OBX.2",
+          "valueString": "CWE"
+        },
+        {
+          "url": "OBX.11",
+          "valueString": "F"
+        },
+        {
+          "url": "OBX.17",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "display": "BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/analysis-date-time",
+      "valueInstant": "2025-04-08T09:12:49.779Z",
+      "_valueInstant": {
+        "extension": [
+          {
+            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+            "valueDateTime": "2025-04-08T05:12:49.779-04:00"
+          }
+        ]
+      }
+    }
+  ],
+  "status": "final",
+  "code": {
+    "coding": [
+      {
+        "extension": [
+          {
+            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code",
+            "valueCoding": {
+              "extension": [
+                {
+                  "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/test-performed-member-oid",
+                  "valueString": "2.16.840.1.113762.1.4.1146.337"
+                }
+              ],
+              "system": "SNOMEDCT",
+              "code": "6142004",
+              "display": "Influenza (disorder)"
+            }
+          },
+          {
+            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code",
+            "valueCoding": {
+              "extension": [
+                {
+                  "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/test-performed-member-oid",
+                  "valueString": "2.16.840.1.113762.1.4.1146.799"
+                }
+              ],
+              "system": "SNOMEDCT",
+              "code": "541131000124102",
+              "display": "Infection caused by novel Influenza A virus variant (disorder)"
+            }
+          },
+          {
+            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+            "valueString": "coding"
+          },
+          {
+            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+            "valueString": "LN"
+          }
+        ],
+        "system": "http://loinc.org",
+        "code": "80382-5",
+        "display": "Influenza virus A Ag [Presence] in Upper respiratory specimen by Rapid immunoassay"
+      }
+    ],
+    "text": "Flu A"
+  },
+  "subject": {
+    "reference": "Patient/31382731-88cc-4ad6-8295-749b640576db"
+  },
+  "effectiveDateTime": "2025-04-08T08:57:49+00:00",
+  "_effectiveDateTime": {
+    "extension": [
+      {
+        "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+        "valueDateTime": "2025-04-08T04:57:49-04:00"
+      }
+    ]
+  },
+  "issued": "2025-04-08T09:12:49.779Z",
+  "performer": [
+    {
+      "reference": "Organization/719ec8ad-cf59-405a-9832-c4065945c130"
+    }
+  ],
+  "valueCodeableConcept": {
+    "coding": [
+      {
+        "extension": [
+          {
+            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+            "valueString": "coding"
+          },
+          {
+            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+            "valueString": "SCT"
+          }
+        ],
+        "system": "http://snomed.info/sct",
+        "code": "260373001",
+        "display": "Detected"
+      }
+    ]
+  },
+  "interpretation": [
+    {
+      "coding": [
+        {
+          "extension": [
+            {
+              "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+              "valueString": "coding"
+            },
+            {
+              "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+              "valueString": "HL70078"
+            }
+          ],
+          "system": "http://terminology.hl7.org/CodeSystem/v2-0078",
+          "version": "2.7",
+          "code": "A",
+          "display": "Abnormal"
+        }
+      ]
+    }
+  ],
+  "method": {
+    "extension": [
+      {
+        "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/testkit-name-id",
+        "valueCoding": {
+          "code": "BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B_Becton, Dickinson and Company (BD)"
+        }
+      }
+    ],
+    "coding": [
+      {
+        "extension": [
+          {
+            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+            "valueString": "coding"
+          }
+        ],
+        "code": "BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B_Becton, Dickinson and Company (BD)",
+        "display": "BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B"
+      }
+    ],
+    "text": "BD Veritor System for Rapid Detection of SARS-CoV-2 & Flu A+B_Becton, Dickinson and Company (BD)"
+  },
+  "specimen": {
+    "reference": "Specimen/dc7af370-fc07-4b00-abc7-9b5dd87cf4d2"
+  },
+  "device": {
+    "reference": "Device/157d550a-a12a-4367-b80e-53d75ca29053"
+  }
 }
 ```
 Example Output Resource with no match found in observation mapping table:
@@ -499,13 +1004,13 @@ Example Output Resource with no match found in observation mapping table:
     }
 }
 ```
-The condition information will need to be appended to the FHIR bundle prior to the Universal Pipeline's Route step as the condition information will be used to determine whether a particular diagnostic report will qualify to route to a particular receiver. In the universal pipeline we currently utilize functions called FHIR Bundle Helpers to modify existing FHIR bundles. In order to map the code to condition during the convert step we will need to add a new FHIRBundleHelper function. This function needs to add the condition code values found in the observation-mapping table to a condition code extension on the internal standardized FHIR bundle created from a translated and transformed HL7 v2 message or a transformed FHIR message received from a sender.
+The condition and member OID information will need to be appended to the FHIR bundle prior to the Universal Pipeline's Route step as the condition or member OID information will be used to determine whether a particular diagnostic report will qualify to route to a particular receiver. In the universal pipeline we currently utilize functions called FHIR Bundle Helpers to modify existing FHIR bundles. In order to map the incoming LOINC/SNOMED code to condition or member OID during the convert step we will need to add a new FHIRBundleHelper function. This function needs to add the condition and member OID code values found in the observation-mapping table to a condition code extension on the internal standardized FHIR bundle created from a translated and transformed HL7 v2 message or a transformed FHIR message received from a sender.
 
 ![New Helper Function Location](C:\Users\James.Gilmore\Documents\GitHub\PRIME\prime-reportstream\prime-router\docs\design\proposals\0023-condition-to-code-mapping\New-helper-function-location.png)
 
 New FHIR Bundle Helper function logic requirements:
 
-The new FHIR bundle helper function needs to follow certain logic requirements in order to find correct condition code mappings and avoid unnecessary false action log entries for missing mappings. As mentioned above, the values used to map to reportable condition information can be represented in multiple possible places in the observation resource. These values need to be compared against rows in the observation-mapping table using the "code" column and the value(s) from the "condition code" column of that table returned. The first and most likely place that will return a match is the value in Observation.code.coding.code. The value in this location will either be a LOINC or local code representing a performed test or a LOINC or local code representing a specific Ask-at-Order-Entry Question. If a match is not found from this value, it is possible the condition is represented by a SNOMED code in Observation.ValueCodeableConcept.Coding.Code. If a match is still not found we need to log an event in the action log that identifies the fhir bundle and which values a match was not found for.
+The new FHIR bundle helper function needs to follow certain logic requirements in order to find correct condition and member OID codes mappings and avoid unnecessary false action log entries for missing mappings. As mentioned above, the values used to map to reportable condition information can be represented in multiple possible places in the observation resource. These values need to be compared against rows in the observation-mapping table using the "code" column and the value(s) from the "condition code" or "member OID" column of that table returned. The first and most likely place that will return a match is the value in Observation.code.coding.code. The value in this location will either be a LOINC or local code representing a performed test or a LOINC or local code representing a specific Ask-at-Order-Entry Question. If a match is not found from this value, it is possible the condition is represented by a SNOMED code in Observation.ValueCodeableConcept.Coding.Code. If a match is still not found we need to log an event in the action log that identifies the fhir bundle and which values a match was not found for.
 
 ![New Helper Function Logic](C:\Users\James.Gilmore\Documents\GitHub\PRIME\prime-reportstream\prime-router\docs\design\proposals\0023-condition-to-code-mapping\New-helper-function-logic.png)
 
@@ -598,10 +1103,10 @@ Criteria: <br>
 1.) Must be able to filter out observations that represent reportable conditions or information that is unwanted by STLTs. <br>
 2.) Must be able to be expressed with fhirpath in condition filter. <br>
 
-We only want to send observations to STLTs that match reportable conditions for their jurisdiction. These reportable conditions are usually published on the jurisdiction's website and can be represented with condition codes found on the observation-mapping table. These condition codes will exist on the fhir bundles in the new condition code extension created as part of this work. These condition codes will get added to the bundles prior by the new fhir bundle helper function created as part of this work.
-In order to eliminate unwanted observations we can utilize fhirpath in the condition filter to list out which condition codes present in the new condition code extension should qualify to send to the jurisdiction.
+We only want to send observations to STLTs that match reportable conditions for their jurisdiction. These reportable conditions are usually published on the jurisdiction's website and can be represented with condition codes or member OID values found in the observation-mapping table. These condition codes and member OID values will exist on the fhir bundles in the new condition code extension created as part of this work. These condition codes will get added to the bundles prior by the new fhir bundle helper function created as part of this work.
+In order to eliminate unwanted observations we can utilize fhirpath in the condition filter to list out which condition codes or member OID values present in the new condition code extension should qualify to send to the jurisdiction.
 
-Example condition logic:
+Example condition logic of filtering using condition codes:
 ```yaml
     - name: TEST-RECEIVER
       externalName: TEST
@@ -613,6 +1118,34 @@ Example condition logic:
       qualityFilter: []
       conditionFilter:
           - "%resource.where(newRSextension.coding.code in (398102009' |'13906002' |'409498004' |'40610006' |'21061004' |'75702008' |'359761005' |'414015000' |'840539006' |'416925005' |'83436008')).exists()"
+      timing:
+        operation: MERGE
+        numberPerDay: 1440 # Every minute
+        initialTime: 00:00
+```
+Some STLTs may only want to receive test results for specific test types, such as Antigen, Culture, Nucleic Acid, or Genomic Substance or they may want to exclude certain types, like Antigen. In this case, we cannot rely on condition codes within the condition filter settings, as some codes may overlap between test types. Instead, we must use the member OID values associated with each test type to build the appropriate condition filter.<br>
+To accommodate for this, we can manually filter the observation-mapping.csv file to identify and exclude the undesired test types. We can use Microsoft Excel, Numbers, or Google sheets to find the member oids. Example using Excel given below: <br><br>
+Example using Microsoft Excel to filter out COVID-19 Antigen test type: <br>
+1. Open the observation-mapping.csv with Microsoft Excel
+2. Filter the unwanted COVID-19 Antigen test type following the steps below.<br><br>
+   ![Filtering steps](https://github.com/CDCgov/prime-reportstream/blob/main/prime-router/docs/design/proposals/0023-condition-to-code-mapping/observation-mapping-selections.PNG)<br><br>
+   ![Filtering test type](https://github.com/CDCgov/prime-reportstream/blob/main/prime-router/docs/design/proposals/0023-condition-to-code-mapping/observation-mapping-filter-step2.PNG)<br><br>
+   ![Filtering test type check](https://github.com/CDCgov/prime-reportstream/blob/main/prime-router/docs/design/proposals/0023-condition-to-code-mapping/observation-mapping-filter-step3.PNG)<br><br>
+3. Select member OIDs (in Column G) to include into the setting condition filter.<br><br>
+   ![Select member OID values](https://github.com/CDCgov/prime-reportstream/blob/main/prime-router/docs/design/proposals/0023-condition-to-code-mapping/observation-mapping-select-memberOID.PNG)<br>
+
+Example condition logic of filtering using member OID: <br>
+```yaml
+    - name: TEST-RECEIVER
+      externalName: TEST
+      organizationName: TEST
+      topic: full-elr
+      customerStatus: active
+      jurisdictionalFilter:
+        - "(Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state.exists() and Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state = 'TEST') or (Bundle.entry.resource.ofType(Patient).address.state.exists() and Bundle.entry.resource.ofType(Patient).address.state = 'TEST')"
+      qualityFilter: []
+      conditionFilter:
+        - "%resource.code.coding.extension('https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code').value.extension('https://reportstream.cdc.gov/fhir/StructureDefinition/test-performed-member-oid').where(value in ('2.16.840.1.113762.1.4.1146.828'|'2.16.840.1.113762.1.4.1146.495'|'2.16.840.1.113762.1.4.1146.482'|'2.16.840.1.113762.1.4.1146.580'|'2.16.840.1.113762.1.4.1146.477'|'2.16.840.1.113762.1.4.1146.516'|'2.16.840.1.113762.1.4.1146.905'|'2.16.840.1.113762.1.4.1146.1386'|'2.16.840.1.113762.1.4.1146.1143'|'2.16.840.1.113762.1.4.1146.1191'|'2.16.840.1.113762.1.4.1146.1247')).exists()"
       timing:
         operation: MERGE
         numberPerDay: 1440 # Every minute
