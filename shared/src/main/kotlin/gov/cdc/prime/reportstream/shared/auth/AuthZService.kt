@@ -12,20 +12,6 @@ class AuthZService(private val oktaGroupsJWTReader: OktaGroupsJWTReader) {
     private val senderPrefix = "DHSender_"
 
     /**
-     * Is a sender authorized access given the client ID header?
-     *
-     * This function takes in a request headers function to be web framework agnostic. It will
-     * do the work of reading the Okta-Groups header, parsing the JWT, and checking the values within.
-     */
-    fun isSenderAuthorized(
-        clientId: String,
-        requestHeaderFn: (String) -> String?,
-    ): Boolean = requestHeaderFn(OktaGroupsJWTConstants.OKTA_GROUPS_HEADER)?.let { oktaGroupsHeader ->
-            val oktaGroupsJWT = oktaGroupsJWTReader.read(oktaGroupsHeader)
-            isSenderAuthorized(clientId, oktaGroupsJWT.groups)
-        } ?: false
-
-    /**
      * Simpler sender authorization check function that assumings you have the JWT parsing already completed
      */
     fun isSenderAuthorized(
