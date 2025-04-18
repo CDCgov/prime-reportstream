@@ -6,6 +6,11 @@ on:
       - main
       - production
 
+permissions:
+  checks: write
+  contents: read
+  pull-requests: write
+
 concurrency: ${{ github.ref }}-gh-release
 
 jobs:
