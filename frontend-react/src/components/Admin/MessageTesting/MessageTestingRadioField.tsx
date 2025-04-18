@@ -1,5 +1,6 @@
 import { Button, Icon, Radio } from "@trussworks/react-uswds";
 import { ChangeEvent } from "react";
+import { RSMessage } from "../../../config/endpoints/reports";
 import openAsBlob from "../../../utils/OpenAsBlob/OpenAsBlob";
 
 export const MessageTestingRadioField = ({
@@ -13,7 +14,7 @@ export const MessageTestingRadioField = ({
     body: string;
     index: number;
     handleSelect: (event: ChangeEvent<HTMLInputElement>) => void;
-    selectedOption: string | null;
+    selectedOption: RSMessage | null;
 }) => {
     return (
         <Radio
@@ -21,7 +22,7 @@ export const MessageTestingRadioField = ({
             name="message-test-form"
             value={body}
             onChange={handleSelect}
-            checked={selectedOption === body}
+            checked={selectedOption?.reportBody === body}
             className="usa-radio bg-base-lightest padding-2 border-bottom-1px border-gray-30"
             label={
                 <>

@@ -11,7 +11,7 @@ export const MessageTestingCustomMessage = ({
     setSelectedOption,
 }: {
     customMessageNumber: number;
-    currentTestMessages: { fileName: string; reportBody: string }[];
+    currentTestMessages: RSMessage[];
     setCustomMessageNumber: (value: number) => void;
     setCurrentTestMessages: (messages: RSMessage[]) => void;
     setOpenCustomMessage: (value: boolean) => void;
@@ -27,6 +27,7 @@ export const MessageTestingCustomMessage = ({
             dateCreated: dateCreated.toString(),
             fileName: `Custom message ${customMessageNumber}`,
             reportBody: text,
+            senderId: "None",
         };
         setCurrentTestMessages([...currentTestMessages, customTestMessage]);
         setCustomMessageNumber(customMessageNumber + 1);
