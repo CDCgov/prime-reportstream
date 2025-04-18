@@ -45,7 +45,11 @@ elements:
 
   - name: pa-unwanted-fields
     value: [ '""' ]
-    hl7Spec: [ '%{PID}-13-1', '%{ORC}-23-1', '%{OBR}-17-1']
+    hl7Spec: [ '%{PID}-13-1', '%{PID}-13-12', '%{ORC}-23-1', '%{ORC}-23-12', '%{OBR}-17-1', '%{OBR}-17-12']
+
+  - name: pa-adds-obr-14-from-spm-18-fields
+    value: [ 'Bundle.entry.resource.ofType(Specimen).receivedTime' ]
+    hl7Spec: [ '%{OBR}-14-1' ]
 
   - name: pa-org-name-type-code
     value: [ '"L"' ]
