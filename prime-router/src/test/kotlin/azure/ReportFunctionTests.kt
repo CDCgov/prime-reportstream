@@ -45,6 +45,7 @@ import gov.cdc.prime.router.azure.observability.event.ReportStreamEventService
 import gov.cdc.prime.router.cli.PIIRemovalCommands
 import gov.cdc.prime.router.cli.ProcessFhirCommands
 import gov.cdc.prime.router.common.Environment
+import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.history.DetailedSubmissionHistory
 import gov.cdc.prime.router.history.azure.SubmissionsFacade
 import gov.cdc.prime.router.serializers.Hl7Serializer
@@ -923,7 +924,7 @@ class ReportFunctionTests {
         every { BlobAccess.Companion.getBlobContainer(any()) } returns mockedBlobContainerClient
 
         val dateCreated = OffsetDateTime.now()
-        val fileName = UUID.randomUUID().toString() + ".fhir"
+        val fileName = "testOrg.default/" + UUID.randomUUID().toString() + ".fhir"
         val blob1 = BlobItem()
         blob1.name = fileName
         blob1.properties = BlobItemProperties()
@@ -955,10 +956,58 @@ class ReportFunctionTests {
             ReportFunction.TestReportInfo(
                 dateCreated.toString(),
                 fileName,
-                fhirReport
+                fhirReport,
+                "testOrg.default"
             )
         ) + "]"
         )
+    }
+
+    @Test
+    fun `Get list of senders for testing tool`() {
+        val sender = UniversalPipelineSender(
+            "full-elr",
+            "phd",
+            MimeFormat.HL7,
+            customerStatus = CustomerStatus.ACTIVE,
+            topic = Topic.FULL_ELR,
+            schemaName = "/testSchema.yml"
+        )
+        val senderOrg = DeepOrganization(
+            "phd",
+            "test",
+            Organization.Jurisdiction.FEDERAL,
+            senders = listOf(sender)
+        )
+
+        val metadata = UnitTestUtils.simpleMetadata
+        val settings = FileSettings().loadOrganizations(senderOrg)
+        val engine = makeEngine(metadata, settings)
+        val reportFunc = spyk(ReportFunction(engine))
+
+        val result = reportFunc.getSenders(MockHttpRequestMessage())
+
+        val senders = listOf(
+            ReportFunction.SenderResponse("phd.full-elr", "HL7", "/testSchema.yml"),
+            ReportFunction.SenderResponse("None", null, null)
+        )
+        val sendersString = JacksonMapperUtilities.allowUnknownsMapper.writeValueAsString(senders)
+
+        assert(result.status.value() == 200)
+        assert(result.body.toString() == sendersString)
+    }
+
+    @Test
+    fun `Get list of senders for testing tool - Unauthorized `() {
+        val metadata = UnitTestUtils.simpleMetadata
+        val settings = FileSettings().loadOrganizations(oneOrganization)
+        mockkObject(AuthenticatedClaims)
+        every { AuthenticatedClaims.authenticate(any()) } returns null
+
+        val result = ReportFunction(
+            makeEngine(metadata, settings),
+        ).getSenders(MockHttpRequestMessage())
+        assert(result.status == HttpStatus.UNAUTHORIZED)
     }
 
     @Test
