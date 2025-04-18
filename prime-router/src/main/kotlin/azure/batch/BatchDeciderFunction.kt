@@ -14,6 +14,7 @@ import org.apache.logging.log4j.kotlin.Logging
 import java.time.OffsetDateTime
 import kotlin.math.ceil
 import kotlin.math.roundToInt
+import kotlin.math.roundToLong
 
 const val batchDecider = "batchDecider"
 
@@ -41,22 +42,35 @@ class BatchDeciderFunction(private val workflowEngine: WorkflowEngine = Workflow
                 //  there is always the chance that something odd happens with the timing of Azure timed functions.
 
                 // find all receivers that should have batched within the last 60 seconds
-                workflowEngine.settings.receivers.filter { it.timing != null && it.timing.batchInPrevious60Seconds() }
-                    // any that should have batched in the last 60 seconds, get count of outstanding BATCH records
-                    //  (how many actions with BATCH for receiver
+                workflowEngine.settings.receivers
+                    // any that should have batched in the last 60 seconds, get count of outstanding BATCH record
+                    // (how many actions with BATCH for receiver
+                    .filter { it.timing != null && it.timing.batchInPrevious60Seconds() }
                     .forEach { rec ->
                         val (queueMessages, isEmpty) = determineQueueMessageCount(rec, txn)
 
-                        repeat(queueMessages) {
-                            // build 'batch' event
-                            val event = BatchEvent(Event.EventAction.BATCH, rec.fullName, isEmpty)
-                            val queueName = if (rec.topic.isUniversalPipeline) {
-                                BatchConstants.Queue.UNIVERSAL_BATCH_QUEUE
-                            } else {
-                                BatchConstants.Queue.COVID_BATCH_QUEUE
-                            }
+                        if (queueMessages > 0) {
+                            // calculate window and spacing between messages
+                            val periodSeconds = (24 * 60 * 60) / (rec.timing?.numberPerDay ?: 1)
+                            val spacingSeconds = (periodSeconds.toDouble() / queueMessages).roundToLong()
 
-                            workflowEngine.queue.sendMessageToQueue(event, queueName)
+                            repeat(queueMessages) { idx ->
+                                // build 'batch' event with scheduled 'at'
+                                val scheduledAt = OffsetDateTime.now().plusSeconds(spacingSeconds * idx)
+                                val event = BatchEvent(
+                                    Event.EventAction.BATCH,
+                                    rec.fullName,
+                                    isEmpty,
+                                    scheduledAt
+                                )
+                                val queueName = if (rec.topic.isUniversalPipeline) {
+                                    BatchConstants.Queue.UNIVERSAL_BATCH_QUEUE
+                                } else {
+                                    BatchConstants.Queue.COVID_BATCH_QUEUE
+                                }
+
+                                workflowEngine.queue.sendMessageToQueue(event, queueName)
+                            }
                         }
                     }
             }
