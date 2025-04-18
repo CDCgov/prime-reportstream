@@ -51,7 +51,7 @@ const MessageTestingForm = ({
                                     title={item.fileName}
                                     body={item.reportBody}
                                     handleSelect={() => handleSelect(item)}
-                                    selectedOption={selectedOption?.reportBody ? selectedOption.reportBody : null}
+                                    selectedOption={selectedOption ? selectedOption : null}
                                 />
                             ))}
                             {openCustomMessage && (

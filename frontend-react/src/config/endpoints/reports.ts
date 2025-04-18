@@ -10,6 +10,7 @@ export interface RSMessage {
     dateCreated?: string;
     fileName: string;
     reportBody: string;
+    senderId: string;
 }
 
 export interface RSMessageSender {

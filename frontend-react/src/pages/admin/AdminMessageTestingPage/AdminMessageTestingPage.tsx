@@ -53,12 +53,12 @@ const AdminMessageTestingPage = () => {
     // Sets the possible Senders to use in the custom message dropdown
     // TODO: INTEGRATE INTO CUSTOM MESSAGE
     // const { data: senderData } = useTestMessageSenders();
-    const { setRequestBody, isLoading, data: testResultData, refetch } = useTestMessageResult();
+    const { setTestMessage, isLoading, data: testResultData, refetch } = useTestMessageResult();
     const [selectedOption, setSelectedOption] = useState<RSMessage | null>(null);
     const [currentTestMessages, setCurrentTestMessages] = useState<RSMessage[]>(messageData);
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        setRequestBody(selectedOption?.reportBody ? selectedOption.reportBody : null);
+        setTestMessage(selectedOption);
         setCurrentMessageTestStep(MessageTestingSteps.StepTwo);
     };
 
@@ -109,7 +109,7 @@ const AdminMessageTestingPage = () => {
                                     resultData={testResultData as RSMessageResult}
                                     submittedMessage={selectedOption}
                                     handleGoBack={() => {
-                                        setRequestBody(null);
+                                        setTestMessage(null);
                                         setCurrentMessageTestStep(MessageTestingSteps.StepOne);
                                     }}
                                     refetch={refetch}
