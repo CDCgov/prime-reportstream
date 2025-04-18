@@ -9,6 +9,7 @@ on:
 permissions:
   checks: write
   contents: read
+  contents: write
   pull-requests: write
 
 concurrency: ${{ github.ref }}-gh-release
