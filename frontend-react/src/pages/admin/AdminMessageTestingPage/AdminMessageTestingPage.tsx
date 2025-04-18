@@ -12,6 +12,8 @@ import Title from "../../../components/Title";
 import { RSMessage, RSMessageResult } from "../../../config/endpoints/reports";
 import useTestMessageResult from "../../../hooks/api/messages/UseTestMessageResult/UseTestMessageResult";
 import useTestMessages from "../../../hooks/api/messages/UseTestMessages/UseTestMessages";
+// TODO: INTEGRATE INTO CUSTOM MESSAGE
+// import useTestMessageSenders from "../../../hooks/api/messages/UseTestMessageSenders/UseTestMessageSenders";
 import { FeatureName } from "../../../utils/FeatureName";
 
 export interface MessageTestingFormValuesInternal {
@@ -48,6 +50,9 @@ const AdminMessageTestingPage = () => {
 
     // Sets data required for the MessageTestingForm
     const { data: messageData } = useTestMessages();
+    // Sets the possible Senders to use in the custom message dropdown
+    // TODO: INTEGRATE INTO CUSTOM MESSAGE
+    // const { data: senderData } = useTestMessageSenders();
     const { setRequestBody, isLoading, data: testResultData, refetch } = useTestMessageResult();
     const [selectedOption, setSelectedOption] = useState<RSMessage | null>(null);
     const [currentTestMessages, setCurrentTestMessages] = useState<RSMessage[]>(messageData);
