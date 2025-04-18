@@ -134,7 +134,13 @@ test.describe("Evaluate links on public facing pages", { tag: "@warning" }, () =
         const results = [];
 
         for (const href of aggregateHref) {
-            const isReportstream = href.includes("https://reportstream.cdc.gov");
+            let isReportstream = false;
+            try {
+                const parsedUrl = new URL(href);
+                isReportstream = parsedUrl.host === "reportstream.cdc.gov";
+            } catch (error) {
+                console.warn(`Invalid URL encountered: ${href}`, error);
+            }
 
             // Normalize each href to just its pathname (like /onboarding/code-mapping)
             // then compare it directly to entries in urlPaths
