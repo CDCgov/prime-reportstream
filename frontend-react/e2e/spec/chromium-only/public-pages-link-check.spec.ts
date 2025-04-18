@@ -132,14 +132,22 @@ test.describe("Evaluate links on public facing pages", { tag: "@warning" }, () =
         const browser = await chromium.launch();
 
         const results = [];
-        const ignorePaths = ["/404", "/400", "/500"];
-        const ignoreUrlPaths = Object.keys(["https://reportstream.cdc.gov/onboarding/code-mapping"]).filter(
-            (path) => !ignorePaths.includes(path),
-        );
 
         for (const href of aggregateHref) {
             const isReportstream = href.includes("https://reportstream.cdc.gov");
-            const isAllowed = ignoreUrlPaths.some((path) => href.includes(path));
+
+            // Normalize each href to just its pathname (like /onboarding/code-mapping)
+            // then compare it directly to entries in urlPaths
+            let hrefPath = "";
+            try {
+                const parsed = new URL(href, baseURL);
+                hrefPath = parsed.pathname;
+            } catch (_) {
+                // fallback for relative URLs
+                hrefPath = href;
+            }
+
+            const isAllowed = urlPaths.includes(hrefPath);
 
             if (isReportstream && !isAllowed) {
                 // Skip this link
