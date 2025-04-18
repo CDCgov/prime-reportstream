@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useCallback, useState } from "react";
 import { useParams } from "react-router";
-import { reportsEndpoints, RSMessageResult } from "../../../../config/endpoints/reports";
+import { reportsEndpoints, RSMessage, RSMessageResult } from "../../../../config/endpoints/reports";
 import useSessionContext from "../../../../contexts/Session/useSessionContext";
 import { Organizations } from "../../../UseAdminSafeOrganizationName/UseAdminSafeOrganizationName";
 
@@ -25,8 +25,7 @@ const useTestMessageResult = () => {
     const parsedName = activeMembership?.parsedName;
     const isAdmin = Boolean(parsedName) && parsedName === Organizations.PRIMEADMINS;
 
-    const [requestBody, setRequestBody] = useState<string | null>(null);
-
+    const [testMessage, setTestMessage] = useState<RSMessage | null>(null);
     const fetchData = useCallback(async () => {
         try {
             // Attempt the fetch
@@ -35,8 +34,9 @@ const useTestMessageResult = () => {
                     params: {
                         receiverName: receivername,
                         organizationName: orgname,
+                        senderId: testMessage?.senderId,
                     },
-                    data: requestBody,
+                    data: testMessage?.reportBody,
                 },
                 testResult,
             );
@@ -50,14 +50,14 @@ const useTestMessageResult = () => {
                 return Promise.reject(new Error(String(err)));
             }
         }
-    }, [authorizedFetch, orgname, receivername, requestBody]);
+    }, [authorizedFetch, orgname, receivername, testMessage]);
 
     // Use 'enabled' to conditionally run the query whenever `requestBody` changes
     // and the user is an admin. If requestBody is empty or user isn't admin, no fetch is made.
     const useQueryResult = useQuery<RSMessageResult, Error>({
-        queryKey: [testResult.queryKey, activeMembership, receivername, requestBody],
+        queryKey: [testResult.queryKey, activeMembership, receivername, testMessage],
         queryFn: fetchData,
-        enabled: isAdmin && Boolean(requestBody),
+        enabled: isAdmin && Boolean(testMessage),
         staleTime: 0,
         gcTime: 0,
     });
@@ -67,7 +67,7 @@ const useTestMessageResult = () => {
     return {
         ...useQueryResult,
         data: data ?? [],
-        setRequestBody,
+        setTestMessage,
         isDisabled: !isAdmin,
     };
 };
