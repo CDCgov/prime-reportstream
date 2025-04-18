@@ -646,7 +646,7 @@ class ActionHistory(
         reportEventService.sendReportEvent(
             childReport = reportFile,
             eventName = ReportStreamEventName.REPORT_SENT,
-            pipelineStepName = TaskAction.send
+            pipelineStepName = TaskAction.send,
         ) {
             parentReportId(header.reportFile.reportId)
             params(

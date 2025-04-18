@@ -189,6 +189,7 @@ interface IReportStreamEventService {
         parentReportId: UUID?,
         pipelineStepName: TaskAction,
         topic: Topic?,
+        rootReports: List<ReportFile>,
     ): ReportEventData
 
     /**
@@ -206,12 +207,13 @@ interface IReportStreamEventService {
         parentReportId: UUID,
         parentItemIndex: Int,
         trackingId: String?,
+        rootReport: ReportFile?,
     ): ItemEventData
 }
 
 /**
  * Concrete implementation of [IReportStreamEventService].  This implementation is configured to send the event
- * to azure application insights as an event as well as logging the vent.
+ * to azure application insights as an event as well as logging the event.
  *
  */
 class ReportStreamEventService(
@@ -442,8 +444,12 @@ class ReportStreamEventService(
         parentReportId: UUID?,
         pipelineStepName: TaskAction,
         topic: Topic?,
+        rootReports: List<ReportFile>,
     ): ReportEventData {
-        val submittedReportIds = if (parentReportId != null) {
+        val submittedReportIds = rootReports
+            .takeIf { it.isNotEmpty() }
+            ?.map { it.reportId }
+            ?: if (parentReportId != null) {
             reportService.getRootReports(parentReportId)
         } else {
             emptyList()
@@ -466,18 +472,20 @@ class ReportStreamEventService(
         parentReportId: UUID,
         parentItemIndex: Int,
         trackingId: String?,
+        rootReport: ReportFile?,
     ): ItemEventData {
         val submittedIndex = reportService.getRootItemIndex(parentReportId, parentItemIndex) ?: parentItemIndex
 
-        val rootReport =
-                reportService.getRootReports(parentReportId).firstOrNull() ?: dbAccess.fetchReportFile(parentReportId)
+        val resolvedRootReport =
+            rootReport ?: reportService.getRootReports(parentReportId).firstOrNull()
+                ?: dbAccess.fetchReportFile(parentReportId)
 
         return ItemEventData(
             childItemIndex,
             parentItemIndex,
             submittedIndex,
             trackingId,
-            "${rootReport.sendingOrg}.${rootReport.sendingOrgClient}"
+            "${resolvedRootReport.sendingOrg}.${resolvedRootReport.sendingOrgClient}"
         )
     }
 }

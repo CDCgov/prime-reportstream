@@ -983,6 +983,7 @@ class NoopReportStreamEventService : IReportStreamEventService {
         parentReportId: UUID?,
         pipelineStepName: TaskAction,
         topic: Topic?,
+        rootReports: List<ReportFile>,
     ): ReportEventData = throw NotImplementedError()
 
     override fun getItemEventData(
@@ -990,5 +991,6 @@ class NoopReportStreamEventService : IReportStreamEventService {
         parentReportId: UUID,
         parentItemIndex: Int,
         trackingId: String?,
+        rootReport: ReportFile?,
     ): ItemEventData = throw NotImplementedError()
 }

@@ -50,7 +50,7 @@ abstract class AbstractReportStreamEventBuilder<T : AzureCustomEvent>(
         report.reportId,
         report.bodyUrl,
         report.schemaTopic,
-        pipelineStepName
+        pipelineStepName,
     )
 
     constructor(
@@ -66,10 +66,11 @@ abstract class AbstractReportStreamEventBuilder<T : AzureCustomEvent>(
         report.id,
         report.bodyURL,
         report.schema.topic,
-        pipelineStepName
+        pipelineStepName,
     )
     var theParams: Map<ReportStreamEventProperties, Any> = emptyMap()
     var theParentReportId: UUID? = null
+    var rootReports: MutableList<ReportFile> = mutableListOf()
 
     fun parentReportId(parentReportId: UUID?) {
         theParentReportId = parentReportId
@@ -79,6 +80,10 @@ abstract class AbstractReportStreamEventBuilder<T : AzureCustomEvent>(
         theParams = params
     }
 
+    fun addRootReport(reportFile: ReportFile) {
+        rootReports.add(reportFile)
+    }
+
     abstract fun buildEvent(): T
 
     fun getReportEventData(): ReportEventData = reportEventService.getReportEventData(
@@ -86,7 +91,8 @@ abstract class AbstractReportStreamEventBuilder<T : AzureCustomEvent>(
             childBodyUrl,
             theParentReportId,
             pipelineStepName,
-            theTopic
+            theTopic,
+            rootReports
         )
 
     fun send() {
@@ -184,7 +190,8 @@ open class ReportStreamItemEventBuilder(
             theChildIndex,
             theParentReportId!!,
             theParentItemIndex,
-            theTrackingId
+            theTrackingId,
+            rootReports.firstOrNull()
         )
     }
 
