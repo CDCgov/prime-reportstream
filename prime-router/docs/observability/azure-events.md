@@ -82,6 +82,9 @@ Additional Parameters
 + params.targetFormat
 + params.failingFilters
 + params.filterType
++ params.retryCount
++ params.nextRetryTime
++ params.queueMessage
 
 `BundleDigestLabResult` (for test results)
 + observationSummaries []
@@ -109,6 +112,8 @@ Additional Parameters
 | Batch | - |
 | Send | ITEM_SENT |
 | Send | REPORT_SENT |
+| Send | ITEM_SEND_ATTEMPT_FAIL |
+| Send | ITEM_LAST_MILE_FAILURE |
 | Send | REPORT_LAST_MILE_FAILURE |
 
 The PIPELINE_EXCEPTION event can be logged if any step within the pipeline fails or encounters a processing error.
