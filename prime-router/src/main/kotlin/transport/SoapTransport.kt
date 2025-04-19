@@ -38,6 +38,7 @@ import io.ktor.http.content.TextContent
 import io.ktor.http.withCharset
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import org.apache.http.client.HttpResponseException
 import java.io.InputStream
 import java.io.StringReader
 import java.io.StringWriter
@@ -203,23 +204,27 @@ class SoapTransport(private val httpClient: HttpClient? = null) : ITransport {
                         context,
                         httpClient ?: createDefaultHttpClient(jksCredential)
                     )
-                    // update the action history
-                    val msg = "Success: SOAP transport of $sentReportId to $soapTransportType:\n$responseBody"
-                    context.logger.info("Message successfully sent!")
-                    actionHistory.trackActionResult(msg)
-                    actionHistory.trackSentReport(
-                        receiver,
-                        sentReportId,
-                        externalFileName,
-                        soapTransportType.toString(),
-                        msg,
-                        header,
-                        reportEventService,
-                        reportService,
-                        this::class.java.simpleName,
-                        lineages
-                    )
-                    actionHistory.trackItemLineages(Report.createItemLineagesFromDb(header, sentReportId))
+
+                    if (responseBody.contains("<Success>False</Success>")) {
+                        throw HttpResponseException(500, "SOAP transport failed.")
+                    } else {
+                        // update the action history
+                        val msg = "Success: SOAP transport of $sentReportId to $soapTransportType:\n$responseBody"
+                        context.logger.info("Message successfully sent!")
+                        actionHistory.trackActionResult(msg)
+                        actionHistory.trackSentReport(
+                            receiver,
+                            sentReportId,
+                            externalFileName,
+                            soapTransportType.toString(),
+                            msg,
+                            header,
+                            reportEventService,
+                            reportService,
+                            this::class.java.simpleName
+                        )
+                        actionHistory.trackItemLineages(Report.createItemLineagesFromDb(header, sentReportId))
+                    }
                 }
             }
             // return null

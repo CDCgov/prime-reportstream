@@ -48,6 +48,30 @@ class SoapTransportIntegrationTests : TransportIntegrationTests() {
             }
         }
     }
+    private val mockClientOkWithFailureMessage = HttpClient(MockEngine) {
+        engine {
+            addHandler { _ ->
+                respond(
+                    ByteReadChannel(
+                        "<Body>" +
+                            " <UploadFilesResponse>" +
+                            " <UploadFilesResult>" +
+                            " <ELRWcfReturnMessage>" +
+                            "  <FileName>covid-19-75b69091-27de-4cbb-8b5d-c21e8ff64c01-20250308083510.hl7</FileName>" +
+                            "  <Index>1</Index>" +
+                            "  <Message>PS99:Unexpected error.</Message>" +
+                            "  <Success>False</Success>" +
+                            "  </ELRWcfReturnMessage>" +
+                            "  </UploadFilesResult>" +
+                            "  </UploadFilesResponse>" +
+                            "  </Body>"
+                    ),
+                    HttpStatusCode.OK,
+                    responseHeaders
+                )
+            }
+        }
+    }
     private val mockClientError = HttpClient(MockEngine) {
         engine {
             addHandler {
@@ -134,6 +158,20 @@ class SoapTransportIntegrationTests : TransportIntegrationTests() {
             listOf()
         )
         assertThat(retryItems).isNull()
+    }
+
+    @Test
+    fun `test connecting to mock service with failed error message`() {
+        val header = makeHeader()
+        val mockSoapTransport = spyk(SoapTransport(mockClientOkWithFailureMessage))
+        every { mockSoapTransport.lookupCredentials(any()) }.returns(
+            UserPassCredential(UUID.randomUUID().toString(), UUID.randomUUID().toString())
+        )
+        val retryItems = mockSoapTransport.send(
+            transportType, header, reportId, "test", null, context, actionHistory,
+            mockk<IReportStreamEventService>(relaxed = true), mockk<ReportService>(relaxed = true)
+        )
+        assertThat(retryItems).isNotNull()
     }
 
     @Test
