@@ -76,7 +76,7 @@ jobs:
         run: terraform validate
       - name: Terraform Plan 
         working-directory: operations/app/terraform/vars/${{ needs.pre_job.outputs.env_name }}
-        run: terraform plan -out=tf.plan -input=false -no-color -lock-timeout=600s
+        run: terraform plan -out=${{ needs.pre_job.outputs.env_name }}-tf.plan -input=false -no-color -lock-timeout=600s
       - name: Convert Plan to JSON
         working-directory: operations/app/terraform/vars/${{ needs.pre_job.outputs.env_name }}
         run: |
@@ -96,7 +96,7 @@ jobs:
       - name: Comment Plan on PR
         uses: blinqas/tf-plan-pr-comment@v1
         with:
-          output_file: operations/app/terraform/vars/${{ needs.pre_job.outputs.env_name }}/${{ needs.pre_job.outputs.env_name }}-plan.txt
+          plan_file: operations/app/terraform/vars/${{ needs.pre_job.outputs.env_name }}/${{ needs.pre_job.outputs.env_name }}-plan.txt
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
