@@ -81,6 +81,9 @@ jobs:
         run: terraform validate
       - name: Terraform Plan
         run: terraform plan -out=tf.plan -input=false -no-color -lock-timeout=600s
+      - name: Convert Plan to JSON
+        run: |
+          terraform show -json ${{ needs.pre_job.outputs.env_name }}-tf.plan > ${{ needs.pre_job.outputs.env_name }}-plan.json
       - name: Comment Plan on PR
         uses: blinqas/tf-plan-pr-comment@v1
         with:
@@ -147,7 +150,7 @@ jobs:
         run: |
           terraform plan -out ${{ needs.pre_job.outputs.env_name }}-tf.plan
       - name: Run TF Deprecations Check
-        run: python .github/scripts/tf-deprecations/check_deprecations.py ${{ needs.pre_job.outputs.env_name }}-tf.plan        
+        run: python ../../../../.github/scripts/tf-deprecations/check_deprecations.py ${{ needs.pre_job.outputs.env_name }}-plan.json
 
       # - name: Run Terraform Apply
       #   run: |
