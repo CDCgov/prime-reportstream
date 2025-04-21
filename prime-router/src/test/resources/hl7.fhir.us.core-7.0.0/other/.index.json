@@ -1,0 +1,10 @@
+{
+  "index-version" : 2,
+  "files" : [
+    {
+      "filename" : "validation-oo.json",
+      "resourceType" : "Bundle",
+      "type" : "collection"
+    }
+  ]
+}
