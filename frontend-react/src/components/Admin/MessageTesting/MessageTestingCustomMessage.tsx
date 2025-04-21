@@ -1,6 +1,6 @@
-import { Button, Textarea } from "@trussworks/react-uswds";
+import { Button, Select, Textarea } from "@trussworks/react-uswds";
 import { ChangeEvent, useState } from "react";
-import { RSMessage } from "../../../config/endpoints/reports";
+import { RSMessage, RSMessageSender } from "../../../config/endpoints/reports";
 
 export const MessageTestingCustomMessage = ({
     customMessageNumber,
@@ -9,6 +9,7 @@ export const MessageTestingCustomMessage = ({
     setCurrentTestMessages,
     setOpenCustomMessage,
     setSelectedOption,
+    senderData,
 }: {
     customMessageNumber: number;
     currentTestMessages: RSMessage[];
@@ -16,8 +17,10 @@ export const MessageTestingCustomMessage = ({
     setCurrentTestMessages: (messages: RSMessage[]) => void;
     setOpenCustomMessage: (value: boolean) => void;
     setSelectedOption: (message: RSMessage) => void;
+    senderData: RSMessageSender[];
 }) => {
     const [text, setText] = useState("");
+    const [senderId, setSenderId] = useState("");
     const handleTextareaChange = (event: ChangeEvent<HTMLTextAreaElement>) => {
         setText(event.target.value);
     };
@@ -27,7 +30,7 @@ export const MessageTestingCustomMessage = ({
             dateCreated: dateCreated.toString(),
             fileName: `Custom message ${customMessageNumber}`,
             reportBody: text,
-            senderId: "None",
+            senderId: senderId,
         };
         setCurrentTestMessages([...currentTestMessages, customTestMessage]);
         setCustomMessageNumber(customMessageNumber + 1);
@@ -38,7 +41,7 @@ export const MessageTestingCustomMessage = ({
 
     return (
         <div className="width-full">
-            <p className="text-bold">Enter custom message</p>
+            <p className="text-bold">Enter custom message (HL7 or FHIR)</p>
             <p>Custom messages do not save to the bank after you log out.</p>
             <Textarea
                 value={text}
@@ -48,7 +51,28 @@ export const MessageTestingCustomMessage = ({
                 aria-label="Custom message text"
                 className="width-full maxw-full margin-bottom-205"
             />
-            <div className="width-full text-right">
+            <p className="text-bold">Select sender</p>
+            <p>Selecting a sender will apply the sender’s transform</p>
+            {senderData ? (
+                <Select
+                    id="sender-dropdown"
+                    name="sender-dropdown"
+                    onChange={(e) => {
+                        setSenderId(e.target.value);
+                    }}
+                >
+                    <option hidden>-Select-</option>
+                    {senderData.map((item, index) => (
+                        <option key={index} value={item.id}>
+                            {item.id}
+                        </option>
+                    ))}
+                </Select>
+            ) : (
+                <p className="text-italic">Unable to load sender data</p>
+            )}
+
+            <div className="width-full margin-top-3">
                 <Button
                     type="button"
                     outline
@@ -58,8 +82,8 @@ export const MessageTestingCustomMessage = ({
                 >
                     Cancel
                 </Button>
-                <Button type="button" onClick={handleAddCustomMessage} disabled={text.length === 0}>
-                    Add
+                <Button type="button" onClick={handleAddCustomMessage} disabled={text.length === 0 || senderId === ""}>
+                    Add custom message
                 </Button>
             </div>
         </div>

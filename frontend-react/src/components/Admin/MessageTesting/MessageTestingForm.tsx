@@ -1,8 +1,8 @@
 import { Button } from "@trussworks/react-uswds";
-import { useState } from "react";
+import { MouseEventHandler, useState } from "react";
 import { MessageTestingCustomMessage } from "./MessageTestingCustomMessage";
 import { MessageTestingRadioField } from "./MessageTestingRadioField";
-import type { RSMessage } from "../../../config/endpoints/reports";
+import type { RSMessage, RSMessageSender } from "../../../config/endpoints/reports";
 
 export interface RSSubmittedMessage extends Omit<RSMessage, "dateCreated"> {
     dateCreated: Date;
@@ -11,9 +11,10 @@ export interface RSSubmittedMessage extends Omit<RSMessage, "dateCreated"> {
 interface MessageTestingFormProps {
     currentTestMessages: RSMessage[];
     setCurrentTestMessages: (messages: RSMessage[]) => void;
-    handleSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
+    handleSubmit: MouseEventHandler<HTMLButtonElement>;
     setSelectedOption: (message: RSMessage | null) => void;
     selectedOption: RSMessage | null;
+    senderData: RSMessageSender[];
 }
 
 const MessageTestingForm = ({
@@ -22,6 +23,7 @@ const MessageTestingForm = ({
     handleSubmit,
     setSelectedOption,
     selectedOption,
+    senderData,
 }: MessageTestingFormProps) => {
     const [openCustomMessage, setOpenCustomMessage] = useState(false);
 
@@ -42,7 +44,7 @@ const MessageTestingForm = ({
             <section className="bg-base-lightest padding-3">
                 {!currentTestMessages.length && <p>No test messages available</p>}
                 {!!currentTestMessages.length && (
-                    <form onSubmit={handleSubmit} aria-label="Test message form">
+                    <form aria-label="Test message form">
                         <fieldset className="usa-fieldset bg-base-lightest padding-3">
                             {currentTestMessages?.map((item, index) => (
                                 <MessageTestingRadioField
@@ -62,20 +64,23 @@ const MessageTestingForm = ({
                                     setCurrentTestMessages={setCurrentTestMessages}
                                     setOpenCustomMessage={setOpenCustomMessage}
                                     setSelectedOption={setSelectedOption}
+                                    senderData={senderData}
                                 />
                             )}
                         </fieldset>
                         <div className="padding-top-4">
-                            <Button type="button" outline onClick={handleAddCustomMessage}>
-                                Test custom message
-                            </Button>
-                            <Button disabled={!selectedOption} type="submit">
-                                Run test
-                            </Button>
+                            {!openCustomMessage && (
+                                <Button type="button" outline onClick={handleAddCustomMessage}>
+                                    Add custom message
+                                </Button>
+                            )}
                         </div>
                     </form>
                 )}
             </section>
+            <Button className="margin-top-4" disabled={!selectedOption} type="submit" onClick={handleSubmit}>
+                Run test
+            </Button>
         </>
     );
 };
