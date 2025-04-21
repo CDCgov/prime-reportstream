@@ -903,6 +903,7 @@ dependencies {
     implementation("ca.uhn.hapi.fhir:hapi-fhir-structures-r4:8.0.0")
     // https://mvnrepository.com/artifact/ca.uhn.hapi.fhir/hapi-fhir-caching-caffeine
     implementation("ca.uhn.hapi.fhir:hapi-fhir-caching-caffeine:8.0.0")
+    implementation("ca.uhn.hapi.fhir:hapi-fhir-validation:8.0.0")
     implementation("ca.uhn.hapi.fhir:hapi-fhir-client:8.0.0")
     implementation("ca.uhn.hapi:hapi-base:2.6.0")
     implementation("ca.uhn.hapi:hapi-structures-v251:2.6.0")

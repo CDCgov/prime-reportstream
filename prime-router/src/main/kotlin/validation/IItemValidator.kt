@@ -9,6 +9,7 @@ import gov.nist.validation.report.Entry
 import gov.nist.validation.report.Report
 import hl7.v2.validation.SyncHL7Validator
 import hl7.v2.validation.ValidationContextBuilder
+import org.hl7.fhir.instance.model.api.IBaseResource
 import org.hl7.fhir.r4.model.Bundle
 
 interface IItemValidator {
@@ -125,10 +126,10 @@ abstract class AbstractItemValidator : IItemValidator {
         return HL7ValidationResult(report)
     }
 
-    open fun validateFHIR(bundle: Bundle): IItemValidationResult {
+    open fun validateFHIR(resource: IBaseResource): IItemValidationResult {
         val ctx = FhirContext.forR4()
         val validator = ctx.newValidator()
-        val result = validator.validateWithResult(bundle)
+        val result = validator.validateWithResult(resource)
         return FHIRValidationResult(result)
     }
 }
