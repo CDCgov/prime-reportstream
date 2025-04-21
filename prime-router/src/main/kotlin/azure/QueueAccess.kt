@@ -33,6 +33,15 @@ object QueueAccess {
         sendMessageToQueue(event, queueName)
     }
 
+    fun sendMessageToQueue(
+        event: Event,
+        queueName: String,
+        invisibleDuration: Duration,
+    ) {
+        val base64Message = String(Base64.getEncoder().encode(event.toQueueMessage().toByteArray()))
+        sendMessage(queueName, base64Message, invisibleDuration)
+    }
+
     /**
      * Send a message to the queue based on the [event] with a provided queue name.
      *

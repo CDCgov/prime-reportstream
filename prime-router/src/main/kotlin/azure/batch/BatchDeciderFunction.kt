@@ -11,10 +11,10 @@ import gov.cdc.prime.router.azure.Event
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.common.BaseEngine
 import org.apache.logging.log4j.kotlin.Logging
+import java.time.Duration
 import java.time.OffsetDateTime
 import kotlin.math.ceil
 import kotlin.math.roundToInt
-import kotlin.math.roundToLong
 
 const val batchDecider = "batchDecider"
 
@@ -43,32 +43,59 @@ class BatchDeciderFunction(private val workflowEngine: WorkflowEngine = Workflow
 
                 // find all receivers that should have batched within the last 60 seconds
                 workflowEngine.settings.receivers
-                    // any that should have batched in the last 60 seconds, get count of outstanding BATCH record
-                    // (how many actions with BATCH for receiver
                     .filter { it.timing != null && it.timing.batchInPrevious60Seconds() }
+                    // any that should have batched in the last 60 seconds, get count of outstanding BATCH records
+                    //  (how many actions with BATCH for receiver)
                     .forEach { rec ->
                         val (queueMessages, isEmpty) = determineQueueMessageCount(rec, txn)
 
-                        if (queueMessages > 0) {
-                            // calculate window and spacing between messages
-                            val periodSeconds = (24 * 60 * 60) / (rec.timing?.numberPerDay ?: 1)
-                            val spacingSeconds = (periodSeconds.toDouble() / queueMessages).roundToLong()
+                        // compute total records since backstop to figure out each file’s size
+                        val backstopTime = OffsetDateTime.now().minusMinutes(
+                            BaseEngine.getBatchLookbackMins(
+                                rec.timing?.numberPerDay ?: 1,
+                                BatchConstants.NUM_BATCH_RETRIES
+                            )
+                        )
+                        val recordsToBatch = workflowEngine.db.fetchNumReportsNeedingBatch(
+                            rec.fullName, backstopTime, txn
+                        )
+                        val maxCount = rec.timing!!.maxReportCount
+                        val fullBatches = recordsToBatch / maxCount
+                        val remainder = recordsToBatch % maxCount
+                        val batchSizes = mutableListOf<Int>().apply {
+                            repeat(fullBatches) { add(maxCount) }
+                            if (remainder > 0) add(remainder)
+                        }
 
-                            repeat(queueMessages) { idx ->
-                                // build 'batch' event with scheduled 'at'
-                                val scheduledAt = OffsetDateTime.now().plusSeconds(spacingSeconds * idx)
-                                val event = BatchEvent(
-                                    Event.EventAction.BATCH,
-                                    rec.fullName,
-                                    isEmpty,
-                                    scheduledAt
-                                )
+                        // only CA receiver: delay the run *after* any batch > 400
+                        val isCA = rec.organizationName.equals("ca-dph", ignoreCase = true)
+                        if (isCA) {
+                            batchSizes.forEachIndexed { i, size ->
+                                // build 'batch' event
+                                val event = BatchEvent(Event.EventAction.BATCH, rec.fullName, isEmpty)
                                 val queueName = if (rec.topic.isUniversalPipeline) {
                                     BatchConstants.Queue.UNIVERSAL_BATCH_QUEUE
                                 } else {
                                     BatchConstants.Queue.COVID_BATCH_QUEUE
                                 }
-
+                                // delay by 10m iff the *previous* batch exceeded maxCount
+                                val invisible = if (i > 0 && batchSizes[i - 1] > maxCount) {
+                                    Duration.ofMinutes(10)
+                                } else {
+                                    Duration.ZERO
+                                }
+                                workflowEngine.queue.sendMessageToQueue(event, queueName, invisible)
+                            }
+                        } else {
+                            // old behavior for everyone else (and CA when only one batch)
+                            repeat(queueMessages) {
+                                // build 'batch' event
+                                val event = BatchEvent(Event.EventAction.BATCH, rec.fullName, isEmpty)
+                                val queueName = if (rec.topic.isUniversalPipeline) {
+                                    BatchConstants.Queue.UNIVERSAL_BATCH_QUEUE
+                                } else {
+                                    BatchConstants.Queue.COVID_BATCH_QUEUE
+                                }
                                 workflowEngine.queue.sendMessageToQueue(event, queueName)
                             }
                         }
@@ -125,7 +152,7 @@ class BatchDeciderFunction(private val workflowEngine: WorkflowEngine = Workflow
                 )
             }
             // determine if we need to send an 'empty' file. This is true if either we send an empty
-            //  file every time the batch runs for this receiver of if we have not had a SEND
+            //  file every time the batch runs for this receiver or if we have not had a SEND
             //  action within the last 24 hours
             if (!receiver.timing.whenEmpty.onlyOncePerDay || !sentInLastDay) {
                 queueMessages = 1
