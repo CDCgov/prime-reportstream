@@ -3,8 +3,8 @@ FROM ubuntu:24.04
 # Latest patches
 RUN apt-get update && apt-get upgrade -y
 
-# Install dnsmasq
-RUN apt-get install -y dnsmasq
+# Install dnsmasq and explicitly update perl to the patched version
+RUN apt-get install -y dnsmasq perl=5.38.2-3.2ubuntu0.1
 
 # Expose the DNS port
 EXPOSE 53/udp
