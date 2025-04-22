@@ -451,3 +451,17 @@ example of the bearer token request senders will need to develop. From there, se
 microservice, from which the submission microservice will handle the request. The submission microservice will utilize
 the submission storage table in Azure rather than the database, then send a request to the `convert` queue to initiate
 processing the report (there will not be a `receive` step for submissions handled by the submissions microservice).
+
+The auth microservice will pass other API requests (e.g. history) to the functionapp in much the same way requests are
+passed for website functions. It will be important to identify which endpoints are intended to be used in a server to
+server context, as the claims structure differs for senders and the authorization will need to be able to handle this.
+These endpoints will have to be able to support authorization for both the legacy claims structure and the updated
+one implemented in this design until all senders have been migrated to the new claims.
+
+### Difficulty with changing sender public keys ###
+
+It is currently possible for senders using server to server authentication to upload a new public key via the frontend.
+At the time of this writing, a means to support this function with the keys stored within Okta has not been found. A
+possible alternative is to use the Okta functionality to retrieve the public keys via URL so that the keys are not
+stored within Okta and are managed outside of the admin console (possibly continuing to utilize the sender to sender key 
+storage in the database).

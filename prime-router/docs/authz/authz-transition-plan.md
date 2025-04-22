@@ -21,9 +21,9 @@ also be built at this time, and hooked in to the Okta event hook API. We should 
 updates via CLI.
 
 ### Build passthrough API for functionapp APIs via auth microservice ###
-Calls to the APIs served via the functionapp (reports/waters) should be able to pass through the auth microservice so it
-is no longer necessary to expose the functionapp to the network. Requests should be passed verbatim, including the
-bearer token received from the requestor.
+Calls to the APIs served via the functionapp (reports/waters) should be able to pass through the auth microservice so 
+that it will no longer be necessary to expose the functionapp to the internet after migration tasks are completed. 
+Requests should be passed verbatim, including the bearer token received from the requester.
 
 ### Integrate auth and submissions microservices to CI processes ###
 We should begin including the microservices projects in our continuous integration builds, set up the API endpoints in
@@ -121,7 +121,9 @@ These are miscellaneous dev notes that should be considered during the implement
   * Make claim strategy decision based on jwt content?
   * Document what authorization each endpoint requires
     * plan to split up work, there are 58 known endpoints
-  * Senders not affected as they are not currently using Okta auth, this is expected to only affect website users 
+  * Senders not migrated are not affected as they are not currently using Okta auth
+    * Senders that migrate to Okta auth will have different claims structure - endpoints called in a server to server
+      context will require supporting both authorization schemes  
 
 ## Other Questions ##
 
