@@ -9,6 +9,7 @@ import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
+import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
 import gov.cdc.prime.router.azure.observability.event.IReportStreamEventService
 import gov.cdc.prime.router.report.ReportService
 
@@ -23,6 +24,7 @@ class BlobStoreTransport : ITransport {
         actionHistory: ActionHistory,
         reportEventService: IReportStreamEventService,
         reportService: ReportService,
+        lineages: List<ItemLineage>?,
     ): RetryItems? {
         val blobTransportType = transportType as BlobStoreTransportType
         val envVar: String = blobTransportType.containerName
@@ -48,7 +50,8 @@ class BlobStoreTransport : ITransport {
                 header,
                 reportEventService,
                 reportService,
-                this::class.java.simpleName
+                this::class.java.simpleName,
+                lineages,
             )
             actionHistory.trackItemLineages(Report.createItemLineagesFromDb(header, sentReportId))
             null
