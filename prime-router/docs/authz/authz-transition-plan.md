@@ -23,7 +23,15 @@ updates via CLI.
 ### Build passthrough API for functionapp APIs via auth microservice ###
 Calls to the APIs served via the functionapp (reports/waters) should be able to pass through the auth microservice so 
 that it will no longer be necessary to expose the functionapp to the internet after migration tasks are completed. 
-Requests should be passed verbatim, including the bearer token received from the requester.
+Requests should be passed verbatim, including the bearer token received from the requester. Direct public access of the 
+functionapp endpoints shall remain supported until all senders are migrated to the AuthN service.
+
+### Update end to end testing and development environments to include auth and submissions ###
+We should build a new test based on `end2end_up` that performs submission through the microservices instead of the
+functionapp. We should also aim for the new smoke test to be performed by a GitHub action rather than be executed from a
+developer machine; this will require storing secrets for this purpose. Gradle tasks and Dockerfiles should be updated
+so that auth and submissions are built and run in the development environment. Changes should be sufficiently documented
+for DevSecOps' use.
 
 ### Integrate auth and submissions microservices to CI processes ###
 We should begin including the microservices projects in our continuous integration builds, set up the API endpoints in
@@ -33,12 +41,6 @@ microservices. By the end of this work both staging and production Okta should h
 names of the application and the method by which the secrets are passed to the microservices should be documented at 
 this point. This work also requires any proof of concept code to be removed and any outstanding security concerns (e.g.
 CORS) addressed.
-
-### Update end to end testing and development environments to include auth and submissions ###
-We should build a new test based on `end2end_up` that performs submission through the microservices instead of the
-functionapp. We should also aim for the new smoke test to be performed by a GitHub action rather than be executed from a
-developer machine; this will require storing secrets for this purpose. Gradle tasks should be updated so that auth and 
-submissions are built and run in the development environment.
 
 ### Create application users for senders and begin migration outreach ###
 Senders are represented as application users. Creating the application user will produce a client ID and a private key
