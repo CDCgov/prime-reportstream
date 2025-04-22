@@ -1,7 +1,6 @@
 package gov.cdc.prime.router.azure
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.databind.json.JsonMapper
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.github.ajalt.clikt.core.CliktError
@@ -129,20 +128,20 @@ class ReportFunction(
     ): HttpResponseMessage {
         val claims = AuthenticatedClaims.authenticate(request)
         if (claims != null && claims.authorized(setOf(Scope.primeAdminScope))) {
+            var sendersResponse = listOf(SenderResponse("None", null, null))
             try {
                 val senders = workflowEngine.settings.senders.filterIsInstance<UniversalPipelineSender>()
-                var sendersResponse = senders.map {
+                sendersResponse = sendersResponse.plus(
+                    senders.map {
                     SenderResponse("${it.organizationName}.${it.name}", it.format.name, it.schemaName)
                 }
-                sendersResponse = sendersResponse.plus(SenderResponse("None", null, null))
+                )
                 val jsonb = JacksonMapperUtilities.allowUnknownsMapper.writeValueAsString(sendersResponse)
                 return HttpUtilities.okResponse(request, jsonb ?: "[]")
             } catch (e: Exception) {
                 logger.error(e)
-                HttpUtilities.badRequestResponse(
-                    request,
-                    "Unable to fetch senders."
-                )
+                val jsonb = JacksonMapperUtilities.allowUnknownsMapper.writeValueAsString(sendersResponse)
+                return HttpUtilities.okResponse(request, jsonb ?: "[]")
             }
         }
         return HttpUtilities.unauthorizedResponse(request)
@@ -188,11 +187,13 @@ class ReportFunction(
         val claims = AuthenticatedClaims.authenticate(request)
         val caseInsensitiveHeaders = request.headers.mapKeys { it.key.lowercase() }
         val accessToken = caseInsensitiveHeaders[HttpHeaders.AUTHORIZATION.lowercase()]
-        if (claims != null && claims.authorized(setOf(Scope.primeAdminScope))) {
+         if (claims != null && claims.authorized(setOf(Scope.primeAdminScope))) {
             val receiverName = request.queryParameters["receiverName"]
             val organizationName = request.queryParameters["organizationName"]
             val senderId = request.queryParameters["senderId"]
-            if (receiverName.isNullOrBlank()) {
+             var result = ProcessFhirCommands.MessageOrBundle()
+
+             if (receiverName.isNullOrBlank()) {
                 return HttpUtilities.badRequestResponse(
                     request,
                     "The receiver name is required"
@@ -205,41 +206,57 @@ class ReportFunction(
                 )
             }
             if (request.body.isNullOrBlank()) {
-                return HttpUtilities.badRequestResponse(
+                result.senderTransformErrors.add("Input message is blank.")
+                return HttpUtilities.okResponse(
                     request,
-                    "A message to process must be included in the body"
+                    result.toString()
                 )
             }
 
             val requestString = request.body.toString()
-            val file = if (requestString.contains("\"resourceType\"") && requestString.contains("\"Bundle\"")) {
-                File("testing.fhir")
+            val inputMessageFormat = if (requestString.contains("\"resourceType\"") &&
+                requestString.contains("\"Bundle\"")
+            ) {
+                "fhir"
+            } else if (requestString.contains("PID|1|")) {
+                "hl7"
             } else {
-                File("testing.hl7")
-            }
-            file.createNewFile()
-            file.bufferedWriter().use { out ->
-                out.write(request.body)
+                result.senderTransformErrors.add("Input not recognized as FHIR or HL7.")
+                return HttpUtilities.okResponse(
+                    request,
+                    result.toString()
+                )
             }
 
             var senderSchema: String? = null
             if (!senderId.isNullOrBlank() && senderId != "None") {
                 val sender = workflowEngine.settings.findSender(senderId)
-                    ?: return HttpUtilities.badRequestResponse(
-                        request,
-                        "No sender found for $senderId"
+                    ?: run {
+                        result.senderTransformErrors.add("No sender found for $senderId.")
+                        return HttpUtilities.okResponse(
+                            request,
+                            result.toString()
+                        )
+                    }
+                if (inputMessageFormat != sender.format.ext) {
+                    result.senderTransformErrors.add(
+                        "Expected ${sender.format.ext.uppercase()} input for selected sender."
                     )
-                if (file.extension != sender.format.ext) {
-                    return HttpUtilities.badRequestResponse(
+                    return HttpUtilities.okResponse(
                         request,
-                        "Expected ${sender.format.ext.uppercase()} input for sender."
+                        result.toString()
                     )
                 }
                 senderSchema = sender.schemaName
             }
+             val file = File("testing.$inputMessageFormat")
+             file.createNewFile()
+             file.bufferedWriter().use { out ->
+                 out.write(request.body)
+             }
 
             try {
-                val result = ProcessFhirCommands().processFhirDataRequest(
+                result = ProcessFhirCommands().processFhirDataRequest(
                     file,
                     Environment.get(),
                     receiverName,
@@ -249,31 +266,10 @@ class ReportFunction(
                     accessToken!!
                 )
                 file.delete()
-                val message = if (result.message != null) {
-                    result.message.toString()
-                } else {
-                    null
-                }
-                val bundle = if (result.bundle != null) {
-                    FhirTranscoder.encode(result.bundle!!)
-                } else {
-                    null
-                }
+
                 return HttpUtilities.okResponse(
                     request,
-                    ObjectMapper().configure(SerializationFeature.FAIL_ON_SELF_REFERENCES, false).writeValueAsString(
-                        MessageOrBundleStringified(
-                            message,
-                            bundle,
-                            result.senderTransformErrors,
-                            result.senderTransformWarnings,
-                            result.enrichmentSchemaErrors,
-                            result.senderTransformWarnings,
-                            result.receiverTransformErrors,
-                            result.receiverTransformWarnings,
-                            result.filterErrors,
-                        )
-                    )
+                    result.toString()
                 )
             } catch (exception: CliktError) {
                 file.delete()

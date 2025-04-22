@@ -5,6 +5,8 @@ import ca.uhn.fhir.fhirpath.FhirPathExecutionException
 import ca.uhn.hl7v2.model.Message
 import ca.uhn.hl7v2.model.Segment
 import ca.uhn.hl7v2.util.Terser
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.SerializationFeature
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.CliktError
 import com.github.ajalt.clikt.core.ProgramResult
@@ -27,6 +29,7 @@ import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.ConditionStamper
 import gov.cdc.prime.router.azure.LookupTableConditionMapper
+import gov.cdc.prime.router.azure.ReportFunction.MessageOrBundleStringified
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.azure.observability.event.IReportStreamEventService
@@ -467,7 +470,36 @@ class ProcessFhirCommands :
         override var receiverTransformErrors: MutableList<String> = mutableListOf(),
         override var receiverTransformWarnings: MutableList<String> = mutableListOf(),
         override var filterErrors: MutableList<FilterError> = mutableListOf(),
-    ) : MessageOrBundleParent()
+    ) : MessageOrBundleParent() {
+
+        override fun toString(): String {
+            val message = if (this.message != null) {
+                this.message.toString()
+            } else {
+                null
+            }
+
+            val bundle = if (this.bundle != null) {
+                FhirTranscoder.encode(this.bundle!!)
+            } else {
+                null
+            }
+
+            return ObjectMapper().configure(SerializationFeature.FAIL_ON_SELF_REFERENCES, false).writeValueAsString(
+                MessageOrBundleStringified(
+                    message,
+                    bundle,
+                    senderTransformErrors,
+                    senderTransformWarnings,
+                    enrichmentSchemaErrors,
+                    senderTransformWarnings,
+                    receiverTransformErrors,
+                    receiverTransformWarnings,
+                    filterErrors,
+                )
+            )
+        }
+    }
 
     private fun getReceiver(
         environment: Environment,
