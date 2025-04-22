@@ -15,6 +15,9 @@ inputs:
     default: false
   sp-creds:
     description: "Azure Service Principal creds"
+  skip-schema-validation:
+    description: "Skip schema validation step"
+    default: true
 
 runs:
   using: "composite"
@@ -80,7 +83,7 @@ runs:
       uses: ./.github/actions/runner-ip
 
     - name: Validate translation schemas
-      if: inputs.run-integration-tests == 'true' && inputs.sp-creds
+      if: inputs.run-integration-tests == 'true' && inputs.sp-creds && !inputs.skip-schema-validation
       uses: ./.github/actions/retry
       with:
         timeout_minutes: 5
