@@ -6,6 +6,7 @@ import gov.cdc.prime.router.common.DateUtilities
 import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Converter
 import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
+import java.time.Duration
 import java.time.LocalTime
 import java.time.OffsetDateTime
 import java.time.ZoneId
@@ -184,6 +185,7 @@ open class Receiver(
         val timeZone: USTimeZone = USTimeZone.EASTERN,
         val maxReportCount: Int = 100,
         val whenEmpty: WhenEmpty = WhenEmpty(),
+        val timeBetweenBatches: Duration = Duration.ZERO,
     ) {
         /**
          * Calculate the next event time.

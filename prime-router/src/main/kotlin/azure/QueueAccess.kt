@@ -36,10 +36,14 @@ object QueueAccess {
     fun sendMessageToQueue(
         event: Event,
         queueName: String,
-        invisibleDuration: Duration,
+        delay: Duration,
     ) {
-        val base64Message = String(Base64.getEncoder().encode(event.toQueueMessage().toByteArray()))
-        sendMessage(queueName, base64Message, invisibleDuration)
+        if (delay.isZero || delay.isNegative) {
+            return sendMessageToQueue(event, queueName)
+        }
+        val base64 = Base64.getEncoder()
+            .encodeToString(event.toQueueMessage().toByteArray())
+        sendMessage(queueName, base64, delay)
     }
 
     /**
