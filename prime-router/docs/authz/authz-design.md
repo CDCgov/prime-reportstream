@@ -40,6 +40,9 @@ Organizations are set up as groups within Okta and will be included in the token
 groups will allow us to make authorization decisions on most endpoints. Organizations are easily added to the token 
 for users via the UI. I will delve into how to set it up for senders later in the document.
 
+A prefix (e.g. `DH`) will be added to the group name to disambiguate groups representing organizations from other groups
+that exist within Okta. We should be able to remove the prefix when building the claims using Okta's expression language.
+
 <img src="img/groups-claim.png" width="600"/>
 
 ### Submit claim
@@ -261,8 +264,8 @@ Given the following token claims scenario:
     "sender"
   ],
   "appSubmit": [
-    "DHSender_md-phd",
-    "DHSender_ca-phd"  
+    "md-phd",
+    "ca-phd"  
   ]  
 }
 ```
