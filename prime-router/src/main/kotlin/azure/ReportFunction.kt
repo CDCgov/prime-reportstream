@@ -191,8 +191,6 @@ class ReportFunction(
             val receiverName = request.queryParameters["receiverName"]
             val organizationName = request.queryParameters["organizationName"]
             val senderId = request.queryParameters["senderId"]
-             var result = ProcessFhirCommands.MessageOrBundle()
-
              if (receiverName.isNullOrBlank()) {
                 return HttpUtilities.badRequestResponse(
                     request,
@@ -206,10 +204,9 @@ class ReportFunction(
                 )
             }
             if (request.body.isNullOrBlank()) {
-                result.senderTransformErrors.add("Input message is blank.")
-                return HttpUtilities.okResponse(
+                return HttpUtilities.badRequestResponse(
                     request,
-                    result.toString()
+                    "Input message is blank."
                 )
             }
 
@@ -221,10 +218,9 @@ class ReportFunction(
             } else if (requestString.contains("PID|1|")) {
                 "hl7"
             } else {
-                result.senderTransformErrors.add("Input not recognized as FHIR or HL7.")
-                return HttpUtilities.okResponse(
+                return HttpUtilities.badRequestResponse(
                     request,
-                    result.toString()
+                    "Input not recognized as FHIR or HL7."
                 )
             }
 
@@ -232,19 +228,15 @@ class ReportFunction(
             if (!senderId.isNullOrBlank() && senderId != "None") {
                 val sender = workflowEngine.settings.findSender(senderId)
                     ?: run {
-                        result.senderTransformErrors.add("No sender found for $senderId.")
-                        return HttpUtilities.okResponse(
+                        return HttpUtilities.badRequestResponse(
                             request,
-                            result.toString()
+                            "No sender found for $senderId."
                         )
                     }
                 if (inputMessageFormat != sender.format.ext) {
-                    result.senderTransformErrors.add(
-                        "Expected ${sender.format.ext.uppercase()} input for selected sender."
-                    )
-                    return HttpUtilities.okResponse(
+                    return HttpUtilities.badRequestResponse(
                         request,
-                        result.toString()
+                        "Expected ${sender.format.ext.uppercase()} input for selected sender."
                     )
                 }
                 senderSchema = sender.schemaName
@@ -256,7 +248,7 @@ class ReportFunction(
              }
 
             try {
-                result = ProcessFhirCommands().processFhirDataRequest(
+                val result = ProcessFhirCommands().processFhirDataRequest(
                     file,
                     Environment.get(),
                     receiverName,
