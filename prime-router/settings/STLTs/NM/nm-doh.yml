@@ -95,6 +95,8 @@
         filePath: ./upload
         credentialName: DEFAULT-SFTP
       externalName: null
-      enrichmentSchemaNames: []
+      enrichmentSchemaNames:
+        - "classpath:/metadata/fhir_transforms/common/use-county-lookup.yml"
+        - "classpath:/metadata/fhir_transforms/common/suppress-obx-18.yml"
       timeZone: null
       dateTimeFormat: "OFFSET"
