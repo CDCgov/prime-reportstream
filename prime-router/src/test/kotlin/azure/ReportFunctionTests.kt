@@ -1109,8 +1109,8 @@ class ReportFunctionTests {
                 makeEngine(metadata, settings),
             ).processFhirDataRequest(req)
 
-            assert(result.status == HttpStatus.OK)
-            assert(result.body.toString().contains("Input message is blank."))
+            assert(result.status == HttpStatus.BAD_REQUEST)
+            assert(result.body == "Input message is blank.")
         }
 
         @Test
@@ -1125,8 +1125,8 @@ class ReportFunctionTests {
 
             val result = ReportFunction(engine).processFhirDataRequest(req)
 
-            assert(result.status == HttpStatus.OK)
-            assert(result.body.toString().contains("Input not recognized as FHIR or HL7."))
+            assert(result.status == HttpStatus.BAD_REQUEST)
+            assert(result.body == "Input not recognized as FHIR or HL7.")
         }
 
         @Test
@@ -1143,8 +1143,8 @@ class ReportFunctionTests {
 
             val result = ReportFunction(engine).processFhirDataRequest(req)
 
-            assert(result.status == HttpStatus.OK)
-            assert(result.body.toString().contains("No sender found for $senderId."))
+            assert(result.status == HttpStatus.BAD_REQUEST)
+            assert(result.body == "No sender found for $senderId.")
         }
 
         @Test
@@ -1163,8 +1163,8 @@ class ReportFunctionTests {
 
             val result = ReportFunction(engine).processFhirDataRequest(req)
 
-            assert(result.status == HttpStatus.OK)
-            assert(result.body.toString().contains("Expected FHIR input for selected sender."))
+            assert(result.status == HttpStatus.BAD_REQUEST)
+            assert(result.body == "Expected FHIR input for selected sender.")
         }
 
         @Test
@@ -1183,8 +1183,8 @@ class ReportFunctionTests {
 
             val result = ReportFunction(engine).processFhirDataRequest(req)
 
-            assert(result.status == HttpStatus.OK)
-            assert(result.body.toString().contains("Expected HL7 input for selected sender."))
+            assert(result.status == HttpStatus.BAD_REQUEST)
+            assert(result.body == "Expected HL7 input for selected sender.")
         }
     }
 
