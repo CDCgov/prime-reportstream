@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { useCallback, useState } from "react";
 import { useParams } from "react-router";
 import { reportsEndpoints, RSMessage, RSMessageResult } from "../../../../config/endpoints/reports";
@@ -26,10 +26,9 @@ const useTestMessageResult = () => {
     const isAdmin = Boolean(parsedName) && parsedName === Organizations.PRIMEADMINS;
 
     const [testMessage, setTestMessage] = useState<RSMessage | null>(null);
-    const fetchData = useCallback(async () => {
-        try {
-            // Attempt the fetch
-            const result = await authorizedFetch<RSMessageResult>(
+    const mutationFn = useCallback(
+        async ({ testMessage }: RSMessage | null) => {
+            return await authorizedFetch<RSMessageResult>(
                 {
                     params: {
                         receiverName: receivername,
@@ -40,33 +39,25 @@ const useTestMessageResult = () => {
                 },
                 testResult,
             );
-
-            return result;
-        } catch (err) {
-            // Ensure we're rejecting with an actual Error object
-            if (err instanceof Error) {
-                return Promise.reject(err);
-            } else {
-                return Promise.reject(new Error(String(err)));
-            }
-        }
-    }, [authorizedFetch, orgname, receivername, testMessage]);
+        },
+        [authorizedFetch, orgname, receivername, testMessage],
+    );
 
     // Use 'enabled' to conditionally run the query whenever `requestBody` changes
     // and the user is an admin. If requestBody is empty or user isn't admin, no fetch is made.
-    const useQueryResult = useQuery<RSMessageResult, Error>({
-        queryKey: [testResult.queryKey, activeMembership, receivername, testMessage],
-        queryFn: fetchData,
-        enabled: isAdmin && Boolean(testMessage),
-        staleTime: 0,
-        gcTime: 0,
+    const mutation = useMutation<RSMessageResult, Error>({
+        mutationFn,
     });
-
-    const { data } = useQueryResult;
+    // const mutation = useMutation<RSMessageResult, Error>({
+    //     queryKey: [testResult.queryKey, activeMembership, receivername, testMessage],
+    //     queryFn: fetchData,
+    //     enabled: isAdmin && Boolean(testMessage),
+    //     staleTime: 0,
+    //     gcTime: 0,
+    // });
 
     return {
-        ...useQueryResult,
-        data: data ?? [],
+        ...mutation,
         setTestMessage,
         isDisabled: !isAdmin,
     };
