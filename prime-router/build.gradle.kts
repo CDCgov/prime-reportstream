@@ -884,7 +884,7 @@ dependencies {
     implementation("org.apache.logging.log4j:log4j-slf4j2-impl:2.24.3")
     implementation("org.apache.logging.log4j:log4j-layout-template-json:2.24.3")
     implementation("org.apache.logging.log4j:log4j-api-kotlin:1.5.0")
-    implementation("io.github.oshai:kotlin-logging-jvm:7.0.3")
+    implementation("io.github.oshai:kotlin-logging-jvm:7.0.7")
     implementation("com.github.doyaaaaaken:kotlin-csv-jvm:1.10.0")
     implementation("tech.tablesaw:tablesaw-core:0.44.1")
     implementation("com.github.ajalt.clikt:clikt-jvm:4.4.0")
