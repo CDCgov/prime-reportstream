@@ -907,7 +907,7 @@ dependencies {
     implementation("ca.uhn.hapi:hapi-base:2.6.0")
     implementation("ca.uhn.hapi:hapi-structures-v251:2.6.0")
     implementation("ca.uhn.hapi:hapi-structures-v27:2.6.0")
-    implementation("com.googlecode.libphonenumber:libphonenumber:8.13.50")
+    implementation("com.googlecode.libphonenumber:libphonenumber:9.0.4")
     implementation("org.thymeleaf:thymeleaf:3.1.3.RELEASE")
     implementation("com.sendgrid:sendgrid-java:4.10.3")
     implementation("com.okta.jwt:okta-jwt-verifier:0.5.7")
