@@ -1,5 +1,9 @@
-
 name: Release to Azure
+
+permissions:
+  checks: write
+  contents: read
+  pull-requests: write
 
 on:
   push:
