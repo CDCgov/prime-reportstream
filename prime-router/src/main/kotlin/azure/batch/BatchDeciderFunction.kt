@@ -46,8 +46,9 @@ class BatchDeciderFunction(private val workflowEngine: WorkflowEngine = Workflow
                     //  (how many actions with BATCH for receiver
                     .forEach { rec ->
                         val (queueMessages, isEmpty) = determineQueueMessageCount(rec, txn)
-
-                        repeat(queueMessages) {
+                        val interval = rec.timing!!.timeBetweenBatches
+                        repeat(queueMessages) { idx ->
+                            val delay = interval.multipliedBy(idx.toLong())
                             // build 'batch' event
                             val event = BatchEvent(Event.EventAction.BATCH, rec.fullName, isEmpty)
                             val queueName = if (rec.topic.isUniversalPipeline) {
@@ -56,12 +57,7 @@ class BatchDeciderFunction(private val workflowEngine: WorkflowEngine = Workflow
                                 BatchConstants.Queue.COVID_BATCH_QUEUE
                             }
 
-                            val delay = rec.timing!!.timeBetweenBatches
-                            if (delay.isZero) {
-                                workflowEngine.queue.sendMessageToQueue(event, queueName)
-                            } else {
-                                workflowEngine.queue.sendMessageToQueue(event, queueName, delay)
-                            }
+                            workflowEngine.queue.sendMessageToQueue(event, queueName, delay)
                         }
                     }
             }

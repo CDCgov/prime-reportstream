@@ -33,6 +33,18 @@ object QueueAccess {
         sendMessageToQueue(event, queueName)
     }
 
+    /**
+     * Sends the given [event] to the specified [queueName], applying an optional [delay].
+     *
+     * If [delay] is zero or negative, this overload delegates to
+     * [sendMessageToQueue(event, queueName)], which computes the invisibility period
+     * based on the event’s scheduled time (`event.at`).
+     *
+     * @param event The event to serialize and send as a queue message.
+     * @param queueName The name of the Azure Storage queue.
+     * @param delay The duration to delay before the message becomes visible, or
+     *              zero/negative to defer to the event’s own timestamp.
+     */
     fun sendMessageToQueue(
         event: Event,
         queueName: String,
