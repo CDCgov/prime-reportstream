@@ -1,13 +1,13 @@
 import { BasePage, BasePageTestArgs } from "../../../BasePage";
 
-export class ResponsesFromReportStreamPage extends BasePage {
+export class SubmissionStatusAndErrorsPage extends BasePage {
     constructor(testArgs: BasePageTestArgs) {
         super(
             {
-                url: "/developer-resources/documentation/responses-from-reportstream",
-                title: "API responses from ReportStream",
+                url: "/developer-resources/documentation/submission-status-and-errors",
+                title: "Submission status and errors",
                 heading: testArgs.page.getByRole("heading", {
-                    name: "Responses from ReportStream",
+                    name: "Submission status and errors",
                     exact: true,
                 }),
             },
