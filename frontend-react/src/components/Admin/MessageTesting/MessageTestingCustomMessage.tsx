@@ -28,7 +28,7 @@ export const MessageTestingCustomMessage = ({
         const dateCreated = new Date();
         const customTestMessage = {
             dateCreated: dateCreated.toString(),
-            fileName: `Custom message ${customMessageNumber}`,
+            fileName: `${senderId ? senderId + "/" : ""}Custom message ${customMessageNumber}`,
             reportBody: text,
             senderId: senderId,
         };
