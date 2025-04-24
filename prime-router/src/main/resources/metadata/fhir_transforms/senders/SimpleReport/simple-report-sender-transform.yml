@@ -708,6 +708,11 @@ elements:
     bundleProperty: '%resource.method.coding.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding").value[x]'
     value: [ '"coding"' ]
 
+  - name: sr-observation-analysis-datetime-aoe
+    resource: 'Bundle.entry.resource.ofType(Observation)'
+    bundleProperty: '%resource.issued'
+    value: [ 'Bundle.entry.resource.ofType(Observation).where(issued.exists()).issued' ]
+
   - name: sr-observation-analysis-datetime
     resource: 'Bundle.entry.resource.ofType(Observation)'
     bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/analysis-date-time").value[x]'
