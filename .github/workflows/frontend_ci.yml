@@ -92,7 +92,7 @@ jobs:
           # Runner likely has Chrome/Chromium. Pa11y/Puppeteer should find it or download its own.
           sudo apt-get update && sudo apt-get install -y jq
           echo "Installing Pa11y"
-          npm install pa11y@8.0.0 --no-save
+          npm install pa11y@8.0.0 --no-save --legacy-peer-deps
       
       - name: Run Pa11y Check # Pa11y is configured in frontend-react/.pa11yci
         run: |
