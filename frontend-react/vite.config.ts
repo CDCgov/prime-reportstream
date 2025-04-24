@@ -150,7 +150,6 @@ export default defineConfig(async ({ mode }) => {
             preprocessorOptions: {
                 scss: {
                     loadPaths: ["node_modules/@uswds/uswds/packages"],
-                    quietDeps: true,
                 },
             },
             devSourcemap: true,
