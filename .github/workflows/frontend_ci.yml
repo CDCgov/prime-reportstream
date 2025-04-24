@@ -85,13 +85,12 @@ jobs:
       - name: Install pa11y-ci 
         run: |
           echo "Install dependencies"
-          sudo apt-get update && sudo apt-get install -y jq # Keep jq if needed elsewhere, otherwise remove
-          # Optional CPU freq debug line - can be removed if not needed
-          sudo bash -c 'if [ -d /sys/bus/cpu/devices/cpu0/cpufreq ]; then for file in /sys/bus/cpu/devices/cpu0/cpufreq/*; do echo "$file: $(cat $file)"; done; else echo "cpufreq not found" && ls -al /sys/bus/cpu/devices/cpu0/; fi'
+          sudo apt-get update && sudo apt-get install -y jq
+
           # Install pa11y-ci instead of pa11y
           echo "Installing pa11y-ci locally"
           npm install pa11y-ci --no-save --legacy-peer-deps
-          npx pa11y-ci --version # Check version of pa11y-ci
+          npx pa11y-ci --version 
       - name: Run Pa11y Check using pa11y-ci 
         env:
           # attempt to force args via env var - most reliable method tried
@@ -99,7 +98,6 @@ jobs:
         run: |
           SITEMAP_URL="${{ env.LOCAL_SITEMAP_URL }}"
           echo "Local Sitemap URL: $SITEMAP_URL"
-
           echo "Checking pa11y-ci is installed and accessible"
           npx pa11y-ci --version
 
@@ -107,7 +105,7 @@ jobs:
             echo "❌ pa11y-ci installation failed"
             exit 1
           else
-            echo "✅ pa11y-ci installed.""
+            echo "✅ pa11y-ci installed."
             echo "Verifying PUPPETEER_LAUNCH_ARGS: [$PUPPETEER_LAUNCH_ARGS]"
             echo "Running pa11y-ci against sitemap $SITEMAP_URL"
 
