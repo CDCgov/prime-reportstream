@@ -1,5 +1,5 @@
-import { GridContainer } from "@trussworks/react-uswds";
-import { useState } from "react";
+import { Button, GridContainer } from "@trussworks/react-uswds";
+import { useRef, useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { useParams } from "react-router";
 import { AdminFormWrapper } from "../../../components/Admin/AdminFormWrapper";
@@ -13,6 +13,7 @@ import { RSMessage, RSMessageResult } from "../../../config/endpoints/reports";
 import useTestMessageResult from "../../../hooks/api/messages/UseTestMessageResult/UseTestMessageResult";
 import useTestMessages from "../../../hooks/api/messages/UseTestMessages/UseTestMessages";
 import useTestMessageSenders from "../../../hooks/api/messages/UseTestMessageSenders/UseTestMessageSenders";
+import { Alert } from "../../../shared";
 import { FeatureName } from "../../../utils/FeatureName";
 
 export interface MessageTestingFormValuesInternal {
@@ -28,9 +29,11 @@ export interface MessageTestingFormValues {
 enum MessageTestingSteps {
     StepOne = "MessageTestSelection",
     StepTwo = "MessageTestResults",
+    StepFail = "MessageTestFail",
 }
 
 const AdminMessageTestingPage = () => {
+    const lastBodyRef = useRef<string | null>(null);
     const { orgname, receivername } = useParams<EditReceiverSettingsParams>();
     const crumbProps: CrumbsProps = {
         crumbList: [
@@ -51,13 +54,24 @@ const AdminMessageTestingPage = () => {
     const { data: messageData } = useTestMessages();
     // Sets the possible Senders to use in the custom message dropdown
     const { data: senderData } = useTestMessageSenders();
-    const { setTestMessage, isLoading, data: testResultData, refetch } = useTestMessageResult();
+    const { mutate, isPending, data: testResultData, error: apiError } = useTestMessageResult();
     const [selectedOption, setSelectedOption] = useState<RSMessage | null>(null);
     const [currentTestMessages, setCurrentTestMessages] = useState<RSMessage[]>(messageData);
     const handleSubmit = () => {
-        setTestMessage(selectedOption);
-        setCurrentMessageTestStep(MessageTestingSteps.StepTwo);
+        const body = selectedOption ?? null;
+        lastBodyRef.current = body;
+        mutate(
+            { body: body },
+            {
+                onSuccess: () => setCurrentMessageTestStep(MessageTestingSteps.StepTwo),
+                onError: () => setCurrentMessageTestStep(MessageTestingSteps.StepFail),
+            },
+        );
     };
+
+    // Custom refetch method that uses the useRef reference of the previous
+    // state of the selectedOption and passes it to the useTestMessageResult hook
+    const refetch = () => (lastBodyRef.current !== null ? mutate({ body: lastBodyRef.current }) : undefined);
 
     return (
         <>
@@ -88,10 +102,23 @@ const AdminMessageTestingPage = () => {
                         results and output messages in separate tabs.
                     </p>
                     <hr />
-                    {isLoading ? (
+                    {isPending ? (
                         <Spinner />
                     ) : (
                         <>
+                            {currentMessageTestStep === MessageTestingSteps.StepFail && (
+                                <>
+                                    <Alert type="error" heading="Test message failed">
+                                        {apiError?.message ?? "An unknown error occurred while testing the message."}
+                                    </Alert>
+                                    <Button
+                                        type="button"
+                                        onClick={() => setCurrentMessageTestStep(MessageTestingSteps.StepOne)}
+                                    >
+                                        Try another message
+                                    </Button>
+                                </>
+                            )}
                             {currentMessageTestStep === MessageTestingSteps.StepOne && (
                                 <MessageTestingForm
                                     currentTestMessages={currentTestMessages}
@@ -102,12 +129,12 @@ const AdminMessageTestingPage = () => {
                                     senderData={senderData}
                                 />
                             )}
-                            {currentMessageTestStep === MessageTestingSteps.StepTwo && (
+                            {currentMessageTestStep === MessageTestingSteps.StepTwo && testResultData && (
                                 <MessageTestingResult
-                                    resultData={testResultData as RSMessageResult}
+                                    resultData={testResultData}
                                     submittedMessage={selectedOption}
                                     handleGoBack={() => {
-                                        setTestMessage(null);
+                                        setSelectedOption(null);
                                         setCurrentMessageTestStep(MessageTestingSteps.StepOne);
                                     }}
                                     refetch={refetch}
