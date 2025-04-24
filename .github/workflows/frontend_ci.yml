@@ -58,7 +58,7 @@ jobs:
   pa11y:
     name: Run Pa11y 508 Compliance Check
     needs: lint
-    runs-on: ubuntu-20.04 # pinned to this version due to: https://github.com/pa11y/pa11y-ci/issues/198
+    runs-on: ubuntu-latest
     
     steps:
       - name: Check out changes
