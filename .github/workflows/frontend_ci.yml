@@ -119,7 +119,9 @@ jobs:
 
             echo "Pa11y CI checks complete"
           fi
+          
       - name: Stop Frontend Server
+        # Stop the server and remove the PID file even if Pa11y fails
         if: ${{ always() }}
         run: |
           echo "Stopping Frontend Server"
