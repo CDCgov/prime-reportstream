@@ -1,0 +1,21 @@
+---
+elements:
+  ##OBX-18-1
+  - name: suppress-device-name
+    resource: 'Bundle.entry.resource.ofType(Device).identifier'
+    value: [ '""' ]
+    bundleProperty: '%resource.value'
+
+  ##OBX-18-2
+  - name: suppress-device-namespace_id
+    resource: 'Bundle.entry.resource.ofType(Device).identifier'
+    condition: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id").exists()'
+    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id").value[x]'
+    value: [ '""' ]
+
+  #OBX-18-3
+  - name: suppress-device-universal-id
+    resource: 'Bundle.entry.resource.ofType(Device).identifier'
+    condition: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id").exists()'
+    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id").value[x]'
+    value: [ '""' ]
