@@ -72,7 +72,7 @@ jobs:
       - name: Yarn install
         run: yarn install 
 
-      - name: Run Frontend Server
+      - name: Start Frontend Server
         run: |
           yarn run dev --host 0.0.0.0 --port 3000 &
           echo $! > server.pid
@@ -88,11 +88,12 @@ jobs:
 
       - name: Install Pa11y
         run: |
-          echo "Install dependencies for Pa11y"
+          echo "Install dependencies"
           # Runner likely has Chrome/Chromium. Pa11y/Puppeteer should find it or download its own.
           sudo apt-get update && sudo apt-get install -y jq
           echo "Installing Pa11y"
           npm install pa11y@8.0.0 --no-save --legacy-peer-deps
+          npx pa11y --version
       
       - name: Run Pa11y Check 
       env:
