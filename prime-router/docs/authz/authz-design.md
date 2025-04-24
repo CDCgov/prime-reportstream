@@ -40,6 +40,9 @@ Organizations are set up as groups within Okta and will be included in the token
 groups will allow us to make authorization decisions on most endpoints. Organizations are easily added to the token 
 for users via the UI. I will delve into how to set it up for senders later in the document.
 
+A prefix (e.g. `DH`) will be added to the group name to disambiguate groups representing organizations from other groups
+that exist within Okta. We should be able to remove the prefix when building the claims using Okta's expression language.
+
 <img src="img/groups-claim.png" width="600"/>
 
 ### Submit claim
@@ -54,8 +57,8 @@ within a single claim. This is why there are multiple claims as defined below:
 | userSubmit | user.submit        |
 | appSubmit  | app.profile.submit |
 
-Unfortunately the claim names have to seperated as to access the user profile and application user profile 
-require different expressions.
+Unfortunately the claim names have to be separated due to different expressions required to access user profile and
+application user profiles.
 
 Claim value examples:
 ```
@@ -74,7 +77,7 @@ Claim value examples:
 <br><br>
 
 
-### Claims example
+### User claims example
 
 Given the following token claims scenario:
 ```json
@@ -149,11 +152,11 @@ the specific senders. For users this can be done in the Okta UI.
 Senders are set up as application users within Okta to allow the machine-to-machine client credentials OAuth 2.0 flow. The 
 difficulty arises because while Okta allows you to add application users to groups, it does not allow you to easily add 
 those groups to the generated access token JWT. The workaround there is adding the necessary information to the Okta 
-application user's profile. This can only be done via API at the moment though.
+application user's profile. This can only be done via Okta's APIs at the moment though.
 
 My suggestion is having a sender setup API and CLI that when given the appropriate values, will set them in the profile.
 
-Here is some psudeocode on what that might look like using the Okta admin SDK. Given this would happen in the `auth` 
+Here is some pseudocode on what that might look like using the Okta admin SDK. Given this would happen in the `auth` 
 project we could easily authorize that the user kicking off this job only be a superadmin.
 ```kotlin
 fun setApplicationProfile(
@@ -168,13 +171,76 @@ fun setApplicationProfile(
 }
 ```
 
-We could go even further and write various APIs (and potentially CLI calls) that will set up an application user from 
-scratch. This would dramatically simplify the process of setting up a sender since we would not need to handle going
-back and forth between API and Okta Admin UI and could provide the necessary values needed for a new sender.
-We could also reuse our existing authentication and authorization within the project to ensure only specific people are able to 
-hit these endpoints.
+We have several viable approaches to handling updates to senders:
+* Build a process within the auth project to retrieve an application user's group memberships and update their profile
+  accordingly. 
+  * This allows group management to occur within the Okta Admin Console, but a trigger to perform this step is needed.
+    * We can build a API call (triggerable via frontend and/or CLI) that takes a client ID of a sender as input and does
+      the needed profile updates on demand.
+    * We can configure a schedule trigger to scan all application users and update their profiles based on their Okta
+      group memberships periodically. This removes the potential for group memberships and sender profiles to fall out
+      of sync, but the refresh will happen on a delay and this would require the microservice to perform more work on an
+      ongoing basis.
+    * Using Okta event hooks to send a POST request to the auth microservice whenever an application's group membership
+      changes. The relevant events:
+      * Add assigned application to group.
+      * Update assigned application in group.
+      * Remove assigned application from group.
+      
+      Whenever group membership is changed, a notification will be sent via an API on the auth microservice, which will
+      make profile updates accordingly. The request will identify the application being updated (`data.events[0].target[1].id`)
+      as well as the group (`data.events[0].target[0].displayName`). We can either define separate event hooks for each of 
+      the event types, or have all three configured for the same endpoint and parse `data.events[0].eventType` to
+      determine which event occurred. We should also plan to have one of the other methods available in case of dropped
+      events due to network or application issues. Event hooks are documented [here](https://developer.okta.com/docs/guides/event-hook-implementation/nodejs/main/).
+* Build out APIs within the auth project to manage application users within the RS frontend, forgoing the Okta Admin
+  Console.
+  * This would require adding CLI calls or frontend development work to be a viable solution.
+  * This has the advantage of sender setup not requiring use of both the Okta Admin Console and RS functions. 
+  * We could also reuse our existing authentication and authorization within the project to ensure only specific people 
+    are able to hit these endpoints.
 
-Sample endpoints:
+It is possible for both solutions to be done in tandem, either as part of the permanent design or as a stopgap if a 
+partial cutover to microservices is desired and additional development time for the frontend/CLI is needed.
+
+Building the API endpoints to process Okta event hooks would be the simplest and fastest path forward. An RS specific
+API to create senders can follow if desired, but all the necessary configuration is possible via the Okta admin console.
+The API needed to process event hooks:
+
+| Method | Path              | Description                 |
+|--------|-------------------|-----------------------------|
+| GET    | /api/v1/oktaevent | Okta verification challenge |
+| POST   | /api/v1/oktaevent | Okta event endpoint         |
+
+It is only strictly necessary to retrieve the ID of the application user from the Okta event payload. We could then
+read that application user's group memberships and store them to the profile. While the Okta event contains the group
+that was modified, retrieving the groups directly from the Okta API would reduce the possibility of desync and increases
+the security of the process.
+
+The Okta event hook will only attempt a single retry for specific error codes or a timeout. It is possible for an event
+to be missed if for some reason the API to receive the event was not available. For this reason, we would want to have
+a secondary process to initiate an update of an application user's profile (discussed above).
+
+#### How to set up event hooks ####
+In the Okta Admin console, go to Workflow > Event Hooks. Select the button to create a new event hook.
+
+Enter the details for the new event hook - endpoint URL, authorization, and events.
+<img src="img/event-hook.png" width="600"/>
+
+Add filters to event hook (only applicable if we intend to have multiple uses for Okta groups)
+<img src="img/event-hook-filters.png" width="600"/>
+
+Check the preview of the API; select an event type and see the body of the POST request.
+
+Perform verification - Okta does a one time verification of each event hook endpoint before the event hook is active.
+
+The event hook is created after the first step, and any of these options can be revisited at any time.
+
+
+### Sample endpoints for a proposed sender setup API: ###
+
+If we intend to set up creating new senders from within the RS frontend, we could have it backed by the following API
+endpoints:
 
 | Method | Path                              | Description                     |
 |--------|-----------------------------------|---------------------------------|
@@ -188,6 +254,25 @@ An admin UI could be designed that is powered by the endpoints above as well. Th
 further by being able to visualize the changes needed to be made.
 
 Okta application API documentation can be found [here](https://developer.okta.com/docs/api/openapi/okta-management/management/tag/Application/#tag/Application/operation/createApplication).
+
+### Sender claims example
+
+Given the following token claims scenario:
+```json
+{
+  "scp": [
+    "sender"
+  ],
+  "appSubmit": [
+    "md-phd",
+    "ca-phd"  
+  ]  
+}
+```
+
+This particular sender would be able to submit reports as `md-phd` or `ca-phd`. Other IDs would be rejected, unless the
+sender is a member of an Admin group within Okta.
+
 
 ## Authorization check
 
@@ -284,26 +369,102 @@ fun authorizeSubmit(
 
 ## Deprecated approach to passing groups downstream
 
-At the time of writing this section (2/5/25), code still exists which is doing the following:
+There used to be code that did the following:
 
 - Call out to Okta via the Okta Admin SDK to grab an application user's group memberships
 - Create a JWT with that information and set it in the `Okta-Groups` header
 - Pass it along downstream as a part of the request
 - Downstream endpoint reads the JWT found in the header, validates it, and checks the group membership against the `client` header
 
-This entire flow will be deprecated by this design document as groups should be a part of the token at all times. 
-You should be able to delete code related to it.
+This entire flow is deprecated by this design document as groups should be a part of the token at all times. 
+The relevant code has been deleted except for the OktaGroupsClient - which could be used for managing groups and 
+application user profiles, and AuthZService, which can contain the authorization logic to be utilized by the other projects.
 
 Code to look at:
 
-| Location                                                                                                                                             | Notes                                                               |
-|------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------|
-| [AppendOktaGroupsGatewayFilterFactory](../../../auth/src/main/kotlin/gov/cdc/prime/reportstream/auth/filter/AppendOktaGroupsGatewayFilterFactory.kt) | Defines how Okta group headers are created and added to the request |
-| [OktaGroupsClient](../../../auth/src/main/kotlin/gov/cdc/prime/reportstream/auth/client/OktaGroupsClient.kt)                                         | Client to grab Okta groups                                          |
-| [OktaGroupsJWTWriter](../../../auth/src/main/kotlin/gov/cdc/prime/reportstream/auth/service/OktaGroupsJWTWriter.kt)                                  | Writes the Okta groups JWT and signs it                             |
-| [OktaGroupsService](../../../auth/src/main/kotlin/gov/cdc/prime/reportstream/auth/service/OktaGroupsService.kt)                                      | Ties together client and JWT writing                                |
-| [application.yml](../../../auth/src/main/resources/application.yml)                                                                                  | look at okta.jwt.* configurations and appending header filter       |
-| [OktaGroupsJWT](../../../shared/src/main/kotlin/gov/cdc/prime/reportstream/shared/auth/jwt/OktaGroupsJWT.kt)                                         | Model for Okta groups JWT to parse into                             |
-| [OktaGroupsJWTConstants](../../../shared/src/main/kotlin/gov/cdc/prime/reportstream/shared/auth/jwt/OktaGroupsJWTConstants.kt)                       | Collection of constants                                             |
-| [OktaGroupsJWTReader](../../../shared/src/main/kotlin/gov/cdc/prime/reportstream/shared/auth/jwt/OktaGroupsJWTReader.kt)                             | Reads and validates Okta Groups JWT                                 |
-| [AuthZService](../../../shared/src/main/kotlin/gov/cdc/prime/reportstream/shared/auth/AuthZService.kt)                                               | Uses JWT to check group memebership and authorization               |
+| Location                                                                                                                                                 | Notes                                                                   |
+|----------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------|
+| ~~[AppendOktaGroupsGatewayFilterFactory](../../../auth/src/main/kotlin/gov/cdc/prime/reportstream/auth/filter/AppendOktaGroupsGatewayFilterFactory.kt)~~ | ~~Defines how Okta group headers are created and added to the request~~ |
+| [OktaGroupsClient](../../../auth/src/main/kotlin/gov/cdc/prime/reportstream/auth/client/OktaGroupsClient.kt)                                             | Client to grab Okta groups                                              |
+| ~~[OktaGroupsJWTWriter](../../../auth/src/main/kotlin/gov/cdc/prime/reportstream/auth/service/OktaGroupsJWTWriter.kt)~~                                  | ~~Writes the Okta groups JWT and signs it~~                             |
+| ~~[OktaGroupsService](../../../auth/src/main/kotlin/gov/cdc/prime/reportstream/auth/service/OktaGroupsService.kt)~~                                      | ~~Ties together client and JWT writing~~                                |
+| [application.yml](../../../auth/src/main/resources/application.yml)                                                                                      | look at okta.jwt.* configurations and appending header filter           |
+| ~~[OktaGroupsJWT](../../../shared/src/main/kotlin/gov/cdc/prime/reportstream/shared/auth/jwt/OktaGroupsJWT.kt)~~                                         | ~~Model for Okta groups JWT to parse into~~                             |
+| ~~[OktaGroupsJWTConstants](../../../shared/src/main/kotlin/gov/cdc/prime/reportstream/shared/auth/jwt/OktaGroupsJWTConstants.kt)~~                       | ~~Collection of constants~~                                             |
+| ~~[OktaGroupsJWTReader](../../../shared/src/main/kotlin/gov/cdc/prime/reportstream/shared/auth/jwt/OktaGroupsJWTReader.kt)~~                             | ~~Reads and validates Okta Groups JWT~~                                 |
+| [AuthZService](../../../shared/src/main/kotlin/gov/cdc/prime/reportstream/shared/auth/AuthZService.kt)                                                   | Uses JWT to check group membership and authorization                   |
+
+## Frontend authentication and authorization ##
+
+Currently, the frontend utilizes an Okta login widget which produces the bearer token which is then used to authenticate
+and authorize APIs currently provided by the functionapp. Okta is currently only utilized by frontend users and 
+developers. The claims included in the bearer token are determined by the configuration of the OAuth API. The bearer
+token is authenticated and processed within OktaAuthentication.kt utilizing an [AccessTokenVerifier](https://developer.okta.com/docs/guides/validate-access-tokens/java/main/)
+via the [OKTA JWT Verifier library](https://github.com/okta/okta-jwt-verifier-java). This library automatically caches
+the public keys (JWKS) used to validate the JWT at startup and when the keys are rotated.
+
+As part of migrating to a new auth design we will change the API calls requested by the frontend to route them through
+the auth microservice. The auth microservice will authenticate the request, then forward the request to the functionapp.
+The functionapp's handling of Okta authentication can be updated to conform to the new JWT claims design, and the 
+authorization can be switched to a new class processing the JWT claims instead of the current custom scope handling. 
+Note that the functionapp will have to remain available to the public internet until there are no more senders utilizing
+the current Server2Server authentication, and therefore will be required to authenticate the bearer token even if 
+authentication has already been performed at the microservice level. This flow can be simplified once the functionapp
+is no longer accessible publicly.
+
+As an example, one of the existing API endpoints follows this flow:
+```text
+Frontend calls functionapp v1/waters/org/{organization}/deliveries
+DeliveryFunction.getDeliveriesHistory
+Gets claim list:
+-> AuthenticatedClaims.authenticate
+  -> OktaAuthentication.authenticate
+    -> OktaAuthentication.decodeJwt
+       Uses https://developer.okta.com/docs/guides/validate-access-tokens/java/main/
+    -> AuthenticatedClaims (constructor)
+      -> Scope.mapOktaGroupsToScopes
+  If fails,
+  -> Server2ServerAuthentication.authenticate
+Authorizes:
+-> ReportFileFacade.checkAccessAuthorizationForOrg
+  -> AuthenticatedClaims.authorizedForSendOrReceive
+    -> AuthenticatedClaims.authorized
+      -> Scope.authorized
+```
+
+A possible updated flow:
+```text
+Frontend calls auth microservice v1/waters/org/{organization}/deliveries
+-> Authenticate bearer token
+-> Forward request to functionapp v1/waters/org/{organization}/deliveries
+DeliveryFunction.getDeliveriesHistory
+Gets claim list:
+-> OktaAuthentication.authenticate
+  -> OktaAuthentication.decodeJwt
+Authorizes:
+-> AuthZService.authorized (pass claim list and required scopes)
+```
+
+## Server to server authentication via Okta ##
+
+Senders currently connect to a token endpoint provided by the functionapp (which utilizes the database to store keys).
+Going forward, senders will need to access Okta (or the request can be forwarded through the auth microservice) to
+obtain their bearer token. See [get_client_access_token.py](../../../auth/src/scripts/get_client_access_token.py) for an
+example of the bearer token request senders will need to develop. From there, senders can submit reports to the auth
+microservice, from which the submission microservice will handle the request. The submission microservice will utilize
+the submission storage table in Azure rather than the database, then send a request to the `convert` queue to initiate
+processing the report (there will not be a `receive` step for submissions handled by the submissions microservice).
+
+The auth microservice will pass other API requests (e.g. history) to the functionapp in much the same way requests are
+passed for website functions. It will be important to identify which endpoints are intended to be used in a server to
+server context, as the claims structure differs for senders and the authorization will need to be able to handle this.
+These endpoints will have to be able to support authorization for both the legacy claims structure and the updated
+one implemented in this design until all senders have been migrated to the new claims.
+
+### Difficulty with changing sender public keys ###
+
+It is currently possible for senders using server to server authentication to upload a new public key via the frontend.
+At the time of this writing, a means to support this function with the keys stored within Okta has not been found. A
+possible alternative is to use the Okta functionality to retrieve the public keys via URL so that the keys are not
+stored within Okta and are managed outside of the admin console (possibly continuing to utilize the sender to sender key 
+storage in the database).
