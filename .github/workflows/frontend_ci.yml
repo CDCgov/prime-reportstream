@@ -94,7 +94,10 @@ jobs:
           echo "Installing Pa11y"
           npm install pa11y@8.0.0 --no-save --legacy-peer-deps
       
-      - name: Run Pa11y Check # Pa11y is configured in frontend-react/.pa11yci
+      - name: Run Pa11y Check 
+      env:
+        # tell Puppeteer to use these launch args
+        PUPPETEER_LAUNCH_ARGS: "--no-sandbox --disable-setuid-sandbox"
         run: |
           SITEMAP_URL="${{ env.LOCAL_SITEMAP_URL }}"
           echo "Local Sitemap URL: $SITEMAP_URL"
@@ -136,6 +139,7 @@ jobs:
                 echo "✅ URLs extracted successfully:"
                 cat sitemap_urls.txt
                 echo "Running Pa11y WCAG2AA checks on sitemap URLs in local context"
+                # npx will run local pa11y, which uses puppeteer, which should read PUPPETEER_LAUNCH_ARGS
                 for f in `cat sitemap_urls.txt`;do npx pa11y -c ./pa11y.json -e htmlcs -e axe -d -s WCAG2AA $f ;done
                 echo "Pa11y WCAG2AA checks complete"
               else
