@@ -88,24 +88,19 @@ jobs:
 
       - name: Install Pa11y
         run: |
-          # echo "Installing google-chrome-stable"
-          # sudo apt-get update && sudo apt-get install -y google-chrome-stable jq
+          echo "Install dependencies for Pa11y"
           # Runner likely has Chrome/Chromium. Pa11y/Puppeteer should find it or download its own.
           sudo apt-get update && sudo apt-get install -y jq
-          which google-chrome-stable || echo "google-chrome-stable not found"
           echo "Installing Pa11y"
-          npm install -g \
-            pa11y@8.0.0 --no-save
-            # puppeteer@22.8.2 \
-            # --no-save
-
+          npm install pa11y@8.0.0 --no-save
+      
       - name: Run Pa11y Check # Pa11y is configured in frontend-react/.pa11yci
         run: |
           SITEMAP_URL="${{ env.LOCAL_SITEMAP_URL }}"
           echo "Local Sitemap URL: $SITEMAP_URL"
 
           echo "Checking Pa11y is installed and accessible"
-          pa11y --version
+          npx pa11y --version
           
           if [ $? -ne 0 ]; then
             echo "❌ Pa11y installation failed"
@@ -140,8 +135,8 @@ jobs:
               if [ -s sitemap_urls.txt ]; then
                 echo "✅ URLs extracted successfully:"
                 cat sitemap_urls.txt
-                echo "Running Pa11y WCAG2AA checks on sitemap URLs"
-                for f in `cat sitemap_urls.txt`;do pa11y -c ./pa11y.json -e htmlcs -e axe -d -s WCAG2AA $f ;done
+                echo "Running Pa11y WCAG2AA checks on sitemap URLs in local context"
+                for f in `cat sitemap_urls.txt`;do npx pa11y -c ./pa11y.json -e htmlcs -e axe -d -s WCAG2AA $f ;done
                 echo "Pa11y WCAG2AA checks complete"
               else
                 echo "❌ No URLs found in sitemap.xml."
