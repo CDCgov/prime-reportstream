@@ -15,7 +15,7 @@ dependencies {
 
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.9.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.10.2")
 
     /**
      * Spring WebFlux was chosen for this project to be able to better handle periods of high traffic
@@ -28,7 +28,7 @@ dependencies {
 
     // okta
     implementation("com.okta.sdk:okta-sdk-api:22.0.0")
-    runtimeOnly("com.okta.sdk:okta-sdk-impl:20.0.0")
+    runtimeOnly("com.okta.sdk:okta-sdk-impl:22.0.0")
 
     // Swagger
     implementation("org.springdoc:springdoc-openapi-starter-webflux-ui:2.8.6")
@@ -49,7 +49,7 @@ configurations.all {
 dependencyManagement {
     imports {
         mavenBom("com.azure.spring:spring-cloud-azure-dependencies:5.22.0")
-        mavenBom("org.springframework.cloud:spring-cloud-dependencies:2024.0.0")
+        mavenBom("org.springframework.cloud:spring-cloud-dependencies:2024.0.1")
     }
 }
 
