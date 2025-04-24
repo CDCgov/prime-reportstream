@@ -9,7 +9,7 @@ import { Organizations } from "../../../UseAdminSafeOrganizationName/UseAdminSaf
 const { testResult } = reportsEndpoints;
 
 interface TestMessageVariables {
-    body: RSMessage | null;
+    testMessage: RSMessage | null;
 }
 
 function useSubmitTestMessage() {
@@ -19,7 +19,7 @@ function useSubmitTestMessage() {
     const isAdmin = Boolean(parsedName) && parsedName === Organizations.PRIMEADMINS;
 
     const mutationFn = useCallback(
-        async ({ body }: TestMessageVariables) => {
+        async ({ testMessage }: TestMessageVariables) => {
             /* Guard-rail so non-admin callers never hit the endpoint */
             if (!isAdmin) throw new Error("Not authorized to test messages");
 
@@ -28,8 +28,9 @@ function useSubmitTestMessage() {
                     params: {
                         receiverName: receivername,
                         organizationName: orgname,
+                        senderId: testMessage?.senderId,
                     },
-                    data: body,
+                    data: testMessage?.reportBody,
                 },
                 testResult,
             );

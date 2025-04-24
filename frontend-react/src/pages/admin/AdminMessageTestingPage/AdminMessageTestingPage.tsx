@@ -9,7 +9,7 @@ import MessageTestingResult from "../../../components/Admin/MessageTesting/Messa
 import Crumbs, { CrumbsProps } from "../../../components/Crumbs";
 import Spinner from "../../../components/Spinner";
 import Title from "../../../components/Title";
-import { RSMessage, RSMessageResult } from "../../../config/endpoints/reports";
+import { RSMessage } from "../../../config/endpoints/reports";
 import useTestMessageResult from "../../../hooks/api/messages/UseTestMessageResult/UseTestMessageResult";
 import useTestMessages from "../../../hooks/api/messages/UseTestMessages/UseTestMessages";
 import useTestMessageSenders from "../../../hooks/api/messages/UseTestMessageSenders/UseTestMessageSenders";
@@ -33,7 +33,7 @@ enum MessageTestingSteps {
 }
 
 const AdminMessageTestingPage = () => {
-    const lastBodyRef = useRef<string | null>(null);
+    const lastBodyRef = useRef<RSMessage | null>(null);
     const { orgname, receivername } = useParams<EditReceiverSettingsParams>();
     const crumbProps: CrumbsProps = {
         crumbList: [
@@ -58,10 +58,10 @@ const AdminMessageTestingPage = () => {
     const [selectedOption, setSelectedOption] = useState<RSMessage | null>(null);
     const [currentTestMessages, setCurrentTestMessages] = useState<RSMessage[]>(messageData);
     const handleSubmit = () => {
-        const body = selectedOption ?? null;
-        lastBodyRef.current = body;
+        const testMessage = selectedOption ?? null;
+        lastBodyRef.current = testMessage;
         mutate(
-            { body: body },
+            { testMessage: testMessage },
             {
                 onSuccess: () => setCurrentMessageTestStep(MessageTestingSteps.StepTwo),
                 onError: () => setCurrentMessageTestStep(MessageTestingSteps.StepFail),
@@ -71,7 +71,7 @@ const AdminMessageTestingPage = () => {
 
     // Custom refetch method that uses the useRef reference of the previous
     // state of the selectedOption and passes it to the useTestMessageResult hook
-    const refetch = () => (lastBodyRef.current !== null ? mutate({ body: lastBodyRef.current }) : undefined);
+    const refetch = () => (lastBodyRef.current !== null ? mutate({ testMessage: lastBodyRef.current }) : undefined);
 
     return (
         <>
@@ -108,7 +108,7 @@ const AdminMessageTestingPage = () => {
                         <>
                             {currentMessageTestStep === MessageTestingSteps.StepFail && (
                                 <>
-                                    <Alert type="error" heading="Test message failed">
+                                    <Alert type="error" className="margin-bottom-10" heading="Test message failed">
                                         {apiError?.message ?? "An unknown error occurred while testing the message."}
                                     </Alert>
                                     <Button
