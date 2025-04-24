@@ -1,7 +1,6 @@
 package gov.cdc.prime.router.azure
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.databind.json.JsonMapper
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.github.ajalt.clikt.core.CliktError
@@ -29,6 +28,7 @@ import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.Sender.ProcessingType
 import gov.cdc.prime.router.SubmissionReceiver
 import gov.cdc.prime.router.UniversalPipelineReceiver
+import gov.cdc.prime.router.UniversalPipelineSender
 import gov.cdc.prime.router.azure.BlobAccess.Companion.getBlobContainer
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
@@ -41,6 +41,7 @@ import gov.cdc.prime.router.cli.PIIRemovalCommands
 import gov.cdc.prime.router.cli.ProcessFhirCommands
 import gov.cdc.prime.router.common.AzureHttpUtils.getSenderIP
 import gov.cdc.prime.router.common.Environment
+import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.history.azure.SubmissionsFacade
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
@@ -114,6 +115,41 @@ class ReportFunction(
     }
 
     /**
+     * GET list of senders
+     */
+    @FunctionName("getSendersForTesting")
+    fun getSenders(
+        @HttpTrigger(
+            name = "getSendersForTesting",
+            methods = [HttpMethod.GET],
+            authLevel = AuthorizationLevel.ANONYMOUS,
+            route = "reports/testing/senders"
+        ) request: HttpRequestMessage<String?>,
+    ): HttpResponseMessage {
+        val claims = AuthenticatedClaims.authenticate(request)
+        if (claims != null && claims.authorized(setOf(Scope.primeAdminScope))) {
+            var sendersResponse = listOf(SenderResponse("None", null, null))
+            try {
+                val senders = workflowEngine.settings.senders.filterIsInstance<UniversalPipelineSender>()
+                sendersResponse = sendersResponse.plus(
+                    senders.map {
+                    SenderResponse("${it.organizationName}.${it.name}", it.format.name, it.schemaName)
+                }
+                )
+                val jsonb = JacksonMapperUtilities.allowUnknownsMapper.writeValueAsString(sendersResponse)
+                return HttpUtilities.okResponse(request, jsonb ?: "[]")
+            } catch (e: Exception) {
+                logger.error(e)
+                val jsonb = JacksonMapperUtilities.allowUnknownsMapper.writeValueAsString(sendersResponse)
+                return HttpUtilities.okResponse(request, jsonb ?: "[]")
+            }
+        }
+        return HttpUtilities.unauthorizedResponse(request)
+    }
+
+    class SenderResponse(var id: String? = null, var format: String? = null, var schemaName: String? = null)
+
+    /**
      * GET messages from test bank
      *
      * @see ../../../docs/api/reports.yml
@@ -151,11 +187,11 @@ class ReportFunction(
         val claims = AuthenticatedClaims.authenticate(request)
         val caseInsensitiveHeaders = request.headers.mapKeys { it.key.lowercase() }
         val accessToken = caseInsensitiveHeaders[HttpHeaders.AUTHORIZATION.lowercase()]
-        if (claims != null && claims.authorized(setOf(Scope.primeAdminScope))) {
+         if (claims != null && claims.authorized(setOf(Scope.primeAdminScope))) {
             val receiverName = request.queryParameters["receiverName"]
             val organizationName = request.queryParameters["organizationName"]
-            val senderSchema = request.queryParameters["senderSchema"]
-            if (receiverName.isNullOrBlank()) {
+            val senderId = request.queryParameters["senderId"]
+             if (receiverName.isNullOrBlank()) {
                 return HttpUtilities.badRequestResponse(
                     request,
                     "The receiver name is required"
@@ -170,14 +206,46 @@ class ReportFunction(
             if (request.body.isNullOrBlank()) {
                 return HttpUtilities.badRequestResponse(
                     request,
-                    "A message to process must be included in the body"
+                    "Input message is blank."
                 )
             }
-            val file = File("filename.fhir")
-            file.createNewFile()
-            file.bufferedWriter().use { out ->
-                out.write(request.body)
+
+            val requestString = request.body.toString()
+            val inputMessageFormat = if (requestString.contains("\"resourceType\"") &&
+                requestString.contains("\"Bundle\"")
+            ) {
+                "fhir"
+            } else if (requestString.contains("PID|1|")) {
+                "hl7"
+            } else {
+                return HttpUtilities.badRequestResponse(
+                    request,
+                    "Input not recognized as FHIR or HL7."
+                )
             }
+
+            var senderSchema: String? = null
+            if (!senderId.isNullOrBlank() && senderId != "None") {
+                val sender = workflowEngine.settings.findSender(senderId)
+                    ?: run {
+                        return HttpUtilities.badRequestResponse(
+                            request,
+                            "No sender found for $senderId."
+                        )
+                    }
+                if (inputMessageFormat != sender.format.ext) {
+                    return HttpUtilities.badRequestResponse(
+                        request,
+                        "Expected ${sender.format.ext.uppercase()} input for selected sender."
+                    )
+                }
+                senderSchema = sender.schemaName
+            }
+             val file = File("testing.$inputMessageFormat")
+             file.createNewFile()
+             file.bufferedWriter().use { out ->
+                 out.write(request.body)
+             }
 
             try {
                 val result = ProcessFhirCommands().processFhirDataRequest(
@@ -190,31 +258,10 @@ class ReportFunction(
                     accessToken!!
                 )
                 file.delete()
-                val message = if (result.message != null) {
-                    result.message.toString()
-                } else {
-                    null
-                }
-                val bundle = if (result.bundle != null) {
-                    FhirTranscoder.encode(result.bundle!!)
-                } else {
-                    null
-                }
+
                 return HttpUtilities.okResponse(
                     request,
-                    ObjectMapper().configure(SerializationFeature.FAIL_ON_SELF_REFERENCES, false).writeValueAsString(
-                        MessageOrBundleStringified(
-                            message,
-                            bundle,
-                            result.senderTransformErrors,
-                            result.senderTransformWarnings,
-                            result.enrichmentSchemaErrors,
-                            result.senderTransformWarnings,
-                            result.receiverTransformErrors,
-                            result.receiverTransformWarnings,
-                            result.filterErrors,
-                        )
-                    )
+                    result.toString()
                 )
             } catch (exception: CliktError) {
                 file.delete()
@@ -249,14 +296,17 @@ class ReportFunction(
             val reports = mutableListOf<TestReportInfo>()
             val sourceContainer = getBlobContainer(updatedBlobMetadata)
             results.forEach { currentResult ->
-                if (currentResult.currentBlobItem.name.endsWith(".fhir")) {
+                if (currentResult.currentBlobItem.name.endsWith(".fhir") ||
+                    currentResult.currentBlobItem.name.endsWith(".hl7")
+                ) {
                     val sourceBlobClient = sourceContainer.getBlobClient(currentResult.currentBlobItem.name)
                     val data = sourceBlobClient.downloadContent()
 
                     val currentTestReportInfo = TestReportInfo(
                         currentResult.currentBlobItem.properties.creationTime.toString(),
                         currentResult.currentBlobItem.name,
-                        data.toString()
+                        data.toString(),
+                        currentResult.currentBlobItem.name.substringBefore("/")
                     )
                     reports.add(currentTestReportInfo)
                 }
@@ -271,7 +321,7 @@ class ReportFunction(
             HttpUtilities.internalErrorResponse(request)
         }
 
-    class TestReportInfo(var dateCreated: String, var fileName: String, var reportBody: String)
+    class TestReportInfo(var dateCreated: String, var fileName: String, var reportBody: String, var senderId: String)
 
     /**
      * GET report to download
