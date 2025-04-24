@@ -1,7 +1,9 @@
 package gov.cdc.prime.reportstream.auth.client
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.okta.sdk.resource.api.ApplicationApi
 import com.okta.sdk.resource.api.ApplicationGroupsApi
+import com.okta.sdk.resource.model.Application
 import com.okta.sdk.resource.model.ApplicationGroupAssignment
 import io.mockk.every
 import io.mockk.mockk
@@ -61,7 +63,10 @@ class OktaGroupsClientTest {
             )
 
         val applicationGroupsApi: ApplicationGroupsApi = mockk()
-        val client = OktaGroupsClient(applicationGroupsApi)
+        val applicationApi: ApplicationApi = mockk()
+        val client = OktaGroupsClient(applicationGroupsApi, applicationApi)
+
+        val application: Application = mockk()
     }
 
     @Test
@@ -77,6 +82,17 @@ class OktaGroupsClientTest {
                 "group"
             )
         }.returns(f.parsedResponse)
+
+        // TODO remove this when removing test code
+        every {
+            f.applicationApi.getApplication(f.appId, null)
+        }.returns(f.application)
+        every {
+            f.application.putprofileItem("groups", any())
+        }.returns(f.application)
+        every {
+            f.applicationApi.replaceApplication(f.appId, f.application)
+        }.returns(f.application)
 
         assertEquals(
             runBlocking { f.client.getApplicationGroups(f.appId) },
