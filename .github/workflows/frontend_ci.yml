@@ -87,9 +87,9 @@ jobs:
           echo "Install dependencies"
           sudo apt-get update && sudo apt-get install -y jq # Keep jq if needed elsewhere, otherwise remove
           # Optional CPU freq debug line - can be removed if not needed
-          sudo if -d /sys/bus/cpu/devices/cpu0/cpufreq; then for file in /sys/bus/cpu/devices/cpu0/cpufreq/*; do echo "$file: $(cat $file)" ; done; else echo "cpufreq not found" && ls -al /sys/bus/cpu/devices/cpu0/
-          echo "Installing pa11y-ci locally"
+          sudo bash -c 'if [ -d /sys/bus/cpu/devices/cpu0/cpufreq ]; then for file in /sys/bus/cpu/devices/cpu0/cpufreq/*; do echo "$file: $(cat $file)"; done; else echo "cpufreq not found" && ls -al /sys/bus/cpu/devices/cpu0/; fi'
           # Install pa11y-ci instead of pa11y
+          echo "Installing pa11y-ci locally"
           npm install pa11y-ci --no-save --legacy-peer-deps
           npx pa11y-ci --version # Check version of pa11y-ci
       - name: Run Pa11y Check using pa11y-ci 
