@@ -72,7 +72,7 @@ export const MessageTestingCustomMessage = ({
                 <p className="text-italic">Unable to load sender data</p>
             )}
 
-            <div className="width-full margin-top-3">
+            <div className="width-full margin-top-3" data-testid="custom-message-cta">
                 <Button
                     type="button"
                     outline
