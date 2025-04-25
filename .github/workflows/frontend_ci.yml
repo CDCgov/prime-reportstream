@@ -113,13 +113,11 @@ jobs:
             npx pa11y-ci --sitemap "$SITEMAP_URL" \
               --sitemap-find "https://reportstream.cdc.gov" \
               --sitemap-replace "http://localhost:3000" \
-              --standard WCAG2AA \
-              --runners htmlcs,axe \
               --config ./.pa11yci
 
             echo "Pa11y CI checks complete"
           fi
-          
+
       - name: Stop Frontend Server
         # Stop the server and remove the PID file even if Pa11y fails
         if: ${{ always() }}
