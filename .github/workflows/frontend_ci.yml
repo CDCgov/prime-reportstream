@@ -89,7 +89,7 @@ jobs:
 
           # Install pa11y-ci instead of pa11y
           echo "Installing pa11y-ci locally"
-          npm install pa11y-ci --no-save --legacy-peer-deps
+          npm install pa11y-ci pa11y-ci-reporter-cli-summary --no-save --legacy-peer-deps
           npx pa11y-ci --version 
       - name: Run Pa11y Check using pa11y-ci 
         env:
