@@ -1,10 +1,6 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 
-import {
-    HTTPMethods,
-    RSApiEndpoints,
-    RSEndpoint,
-} from "../../../config/endpoints";
+import { HTTPMethods, RSApiEndpoints, RSEndpoint } from "../../../config/endpoints";
 import useSessionContext from "../../../contexts/Session/useSessionContext";
 
 /** shape of data returned **/
@@ -25,8 +21,7 @@ export interface RSSettingRevisionParams {
     settingType: "sender" | "receiver" | "organization";
 }
 
-export type RSSettingRevisionParamsRecord = RSSettingRevisionParams &
-    Record<string, string>;
+export type RSSettingRevisionParamsRecord = RSSettingRevisionParams & Record<string, string>;
 
 /** endpoint component used below - not exported **/
 const settingRevisionEndpoints: RSApiEndpoints = {

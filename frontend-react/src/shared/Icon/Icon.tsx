@@ -6,13 +6,7 @@ import { HTMLAttributes } from "react";
 
 import rsSprite from "./reportstream-sprite.svg?url";
 
-export type RSIconName =
-    | "rs-mpox"
-    | "rs-hl7"
-    | "rs-fhir"
-    | "rs-healthkit"
-    | "rs-covid"
-    | "rs-csv";
+export type RSIconName = "rs-mpox" | "rs-hl7" | "rs-fhir" | "rs-healthkit" | "rs-covid" | "rs-csv";
 
 export interface RSIconProps extends HTMLAttributes<SVGElement> {
     name: RSIconName;
@@ -20,11 +14,7 @@ export interface RSIconProps extends HTMLAttributes<SVGElement> {
 }
 
 export function RSIcon({ name, className, size, ...props }: RSIconProps) {
-    const classnames = classNames(
-        "usa-icon",
-        size && `usa-icon--size-${size}`,
-        className,
-    );
+    const classnames = classNames("usa-icon", size && `usa-icon--size-${size}`, className);
     return (
         <svg className={classnames} {...props}>
             <use href={`${rsSprite}#${name.replace("rs-", "")}`} />

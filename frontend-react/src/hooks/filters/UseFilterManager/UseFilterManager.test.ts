@@ -1,8 +1,4 @@
-import useFilterManager, {
-    cursorOrRange,
-    extractFiltersFromManager,
-    FilterManager,
-} from "./UseFilterManager";
+import useFilterManager, { cursorOrRange, extractFiltersFromManager, FilterManager } from "./UseFilterManager";
 import { renderHook } from "../../../utils/CustomRenderUtils";
 import { RangeField, RangeSettings } from "../UseDateRange/UseDateRange";
 import { PageSettings } from "../UsePages/UsePages";
@@ -86,30 +82,10 @@ describe("UseFilterManager", () => {
 
 describe("Helper functions", () => {
     test("cursorOrRange", () => {
-        const rangeAsStart = cursorOrRange(
-            "ASC",
-            RangeField.TO,
-            "cursor",
-            "range",
-        );
-        const cursorAsStart = cursorOrRange(
-            "DESC",
-            RangeField.TO,
-            "cursor",
-            "range",
-        );
-        const rangeAsEnd = cursorOrRange(
-            "DESC",
-            RangeField.FROM,
-            "cursor",
-            "range",
-        );
-        const cursorAsEnd = cursorOrRange(
-            "ASC",
-            RangeField.FROM,
-            "cursor",
-            "range",
-        );
+        const rangeAsStart = cursorOrRange("ASC", RangeField.TO, "cursor", "range");
+        const cursorAsStart = cursorOrRange("DESC", RangeField.TO, "cursor", "range");
+        const rangeAsEnd = cursorOrRange("DESC", RangeField.FROM, "cursor", "range");
+        const cursorAsEnd = cursorOrRange("ASC", RangeField.FROM, "cursor", "range");
 
         expect(rangeAsStart).toEqual("range");
         expect(rangeAsEnd).toEqual("range");
@@ -121,20 +97,9 @@ describe("Helper functions", () => {
 describe("extractFiltersFromManager", () => {
     test("gives only filters back", () => {
         const filters = extractFiltersFromManager(TEST_FILTER_MANAGER);
-        const {
-            to,
-            from,
-            currentPage,
-            size,
-            column,
-            locally,
-            order,
-            localOrder,
-        } = filters;
+        const { to, from, currentPage, size, column, locally, order, localOrder } = filters;
         expect({ to, from }).toEqual(mockRangeSettings);
         expect({ currentPage, size }).toEqual(mockPageSettings);
-        expect({ column, locally, order, localOrder }).toEqual(
-            mockSortSettings,
-        );
+        expect({ column, locally, order, localOrder }).toEqual(mockSortSettings);
     });
 });

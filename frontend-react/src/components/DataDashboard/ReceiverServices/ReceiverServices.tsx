@@ -33,10 +33,7 @@ function ReceiversDropdown(props: Props) {
                 onChange={(event) => props.chosenCallback(event.target.value)}
             >
                 {props.receiverServices.map((receiver, idx) => (
-                    <option
-                        key={`${receiver.name}.${idx}`}
-                        value={receiver.name}
-                    >
+                    <option key={`${receiver.name}.${idx}`} value={receiver.name}>
                         {receiver.name}
                     </option>
                 ))}
@@ -65,9 +62,7 @@ export default function ReceiverServices({
             ) : (
                 <p className="margin-bottom-0">
                     <strong>Receiver service: </strong>
-                    {(receiverServices?.length &&
-                        receiverServices[0].name.toUpperCase()) ||
-                        ""}
+                    {(receiverServices?.length && receiverServices[0].name.toUpperCase()) || ""}
                 </p>
             )}
         </div>

@@ -8,9 +8,5 @@ export default {
 };
 
 export const PaginationCmp = (): ReactElement => (
-    <Pagination
-        slots={[1, 2, 3]}
-        setSelectedPage={() => void 0}
-        currentPageNum={1}
-    />
+    <Pagination slots={[1, 2, 3]} setSelectedPage={() => void 0} currentPageNum={1} />
 );

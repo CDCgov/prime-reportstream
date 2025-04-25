@@ -108,17 +108,13 @@ const Table = ({
             switch (valueType) {
                 case "string": {
                     return config.rows.sort((a, b) =>
-                        localOrder === "ASC"
-                            ? a[column].localeCompare(b[column])
-                            : b[column].localeCompare(a[column]),
+                        localOrder === "ASC" ? a[column].localeCompare(b[column]) : b[column].localeCompare(a[column]),
                     );
                 }
                 case "bigint":
                 case "number": {
                     return config.rows.sort((a, b) =>
-                        localOrder === "ASC"
-                            ? a[column] - b[column]
-                            : b[column] - a[column],
+                        localOrder === "ASC" ? a[column] - b[column] : b[column] - a[column],
                     );
                 }
             }
@@ -146,12 +142,7 @@ const Table = ({
     }, [addRow, datasetAction]);
     return (
         <div className={wrapperClasses}>
-            <TableInfo
-                title={title}
-                legend={legend}
-                datasetAction={memoizedDatasetAction}
-                rowToEdit={rowToEdit}
-            />
+            <TableInfo title={title} legend={legend} datasetAction={memoizedDatasetAction} rowToEdit={rowToEdit} />
             <div>
                 <table className="usa-table usa-table--borderless usa-table--striped prime-table">
                     <TableHeaders

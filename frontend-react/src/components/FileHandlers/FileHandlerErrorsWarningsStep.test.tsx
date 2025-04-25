@@ -1,15 +1,10 @@
 import { screen } from "@testing-library/react";
 import { userEvent } from "@testing-library/user-event";
 
-import FileHandlerErrorsWarningsStep, {
-    FileHandlerErrorsWarningsStepProps,
-} from "./FileHandlerErrorsWarningsStep";
+import FileHandlerErrorsWarningsStep, { FileHandlerErrorsWarningsStepProps } from "./FileHandlerErrorsWarningsStep";
 import type { RequestLevel } from "./FileHandlerMessaging";
 import { INITIAL_STATE } from "../../hooks/UseFileHandler/UseFileHandler";
-import {
-    fakeError,
-    fakeWarning,
-} from "../../hooks/UseFileHandler/UseFileHandler.fixtures";
+import { fakeError, fakeWarning } from "../../hooks/UseFileHandler/UseFileHandler.fixtures";
 import { renderApp } from "../../utils/CustomRenderUtils";
 import { FileType } from "../../utils/TemporarySettingsAPITypes";
 
@@ -37,65 +32,39 @@ describe("FileHandlerErrorsWarningsStep", () => {
 
     describe("when there are only errors", () => {
         function setup() {
-            renderApp(
-                <FileHandlerErrorsWarningsStep
-                    {...DEFAULT_PROPS}
-                    errors={[fakeError]}
-                />,
-            );
+            renderApp(<FileHandlerErrorsWarningsStep {...DEFAULT_PROPS} errors={[fakeError]} />);
         }
 
         test("only renders the errors table", () => {
             setup();
-            expect(
-                screen.getByTestId("RequestedChangesDisplay--Errors"),
-            ).toBeVisible();
-            expect(
-                screen.queryByTestId("RequestedChangesDisplay--Warnings"),
-            ).not.toBeInTheDocument();
+            expect(screen.getByTestId("RequestedChangesDisplay--Errors")).toBeVisible();
+            expect(screen.queryByTestId("RequestedChangesDisplay--Warnings")).not.toBeInTheDocument();
         });
     });
 
     describe("when there are only warnings", () => {
         function setup() {
-            renderApp(
-                <FileHandlerErrorsWarningsStep
-                    {...DEFAULT_PROPS}
-                    warnings={[fakeWarning]}
-                />,
-            );
+            renderApp(<FileHandlerErrorsWarningsStep {...DEFAULT_PROPS} warnings={[fakeWarning]} />);
         }
 
         test("only renders the errors table", () => {
             setup();
-            expect(
-                screen.queryByTestId("RequestedChangesDisplay--Errors"),
-            ).not.toBeInTheDocument();
-            expect(
-                screen.getByTestId("RequestedChangesDisplay--Warnings"),
-            ).toBeVisible();
+            expect(screen.queryByTestId("RequestedChangesDisplay--Errors")).not.toBeInTheDocument();
+            expect(screen.getByTestId("RequestedChangesDisplay--Warnings")).toBeVisible();
         });
     });
 
     describe("when there are both errors and warnings", () => {
         function setup() {
             renderApp(
-                <FileHandlerErrorsWarningsStep
-                    {...DEFAULT_PROPS}
-                    errors={[fakeError]}
-                    warnings={[fakeWarning]}
-                />,
+                <FileHandlerErrorsWarningsStep {...DEFAULT_PROPS} errors={[fakeError]} warnings={[fakeWarning]} />,
             );
         }
 
         test("renders both the errors table and the warnings table", () => {
             setup();
-            expect(
-                screen.getByTestId("RequestedChangesDisplay--Errors"),
-            ).toBeVisible();
-            expect(
-                screen.getByTestId("RequestedChangesDisplay--Warnings"),
-            ).toBeVisible();
+            expect(screen.getByTestId("RequestedChangesDisplay--Errors")).toBeVisible();
+            expect(screen.getByTestId("RequestedChangesDisplay--Warnings")).toBeVisible();
         });
     });
 

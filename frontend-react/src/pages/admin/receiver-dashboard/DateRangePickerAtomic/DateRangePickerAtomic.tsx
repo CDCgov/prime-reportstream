@@ -1,16 +1,7 @@
-import {
-    Button,
-    DateRangePicker,
-    Modal,
-    ModalRef,
-    ModalToggleButton,
-} from "@trussworks/react-uswds";
+import { Button, DateRangePicker, Modal, ModalRef, ModalToggleButton } from "@trussworks/react-uswds";
 import { differenceInDays, endOfDay } from "date-fns";
 import { useCallback, useRef, useState } from "react";
-import {
-    StyleClass,
-    TableFilterDateLabel,
-} from "../../../../components/Table/TableFilters";
+import { StyleClass, TableFilterDateLabel } from "../../../../components/Table/TableFilters";
 import { MAX_DAYS_MS } from "../constants";
 
 export interface DateRangePickerAtomicProps {
@@ -26,11 +17,7 @@ export interface DateRangePickerAtomicProps {
  *  - We want start AND end picked before the expensive fetch.
  *  - Picker fields are LARGE and take up a bunch of space.
  */
-function DateRangePickerAtomic({
-    defaultEndDate,
-    defaultStartDate,
-    onChange,
-}: DateRangePickerAtomicProps) {
+function DateRangePickerAtomic({ defaultEndDate, defaultStartDate, onChange }: DateRangePickerAtomicProps) {
     const [startDate, setStartDate] = useState(defaultStartDate);
     const [endDate, setEndDate] = useState(defaultEndDate);
     const modalRef = useRef<ModalRef>(null);
@@ -47,11 +34,7 @@ function DateRangePickerAtomic({
                 {" — "}
                 {endDate.toLocaleDateString()}
             </span>
-            <ModalToggleButton
-                modalRef={modalRef}
-                opener
-                className="padding-1 margin-1 usa-button--outline"
-            >
+            <ModalToggleButton modalRef={modalRef} opener className="padding-1 margin-1 usa-button--outline">
                 Change...
             </ModalToggleButton>
             <Modal ref={modalRef} id={"date-range-picker"}>

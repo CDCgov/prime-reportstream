@@ -28,11 +28,7 @@ let handledRedirect = false;
  * once published.
  * @see https://github.com/okta/okta-react/pull/266
  */
-const LoginCallback: FC<LoginCallbackProps> = ({
-    errorComponent,
-    loadingElement = null,
-    onAuthResume,
-}) => {
+const LoginCallback: FC<LoginCallbackProps> = ({ errorComponent, loadingElement = null, onAuthResume }) => {
     const { oktaAuth, authState } = useSessionContext();
     const [callbackError, setCallbackError] = useState(null);
 
@@ -41,8 +37,7 @@ const LoginCallback: FC<LoginCallbackProps> = ({
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore OKTA-464505: backward compatibility support for auth-js@5
         const isInteractionRequired =
-            oktaAuth.idx.isInteractionRequired ||
-            (oktaAuth as any).isInteractionRequired?.bind(oktaAuth);
+            oktaAuth.idx.isInteractionRequired || (oktaAuth as any).isInteractionRequired?.bind(oktaAuth);
         if (onAuthResume && isInteractionRequired()) {
             onAuthResume();
             return;

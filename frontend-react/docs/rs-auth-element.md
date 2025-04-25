@@ -5,9 +5,9 @@ no longer supports custom route components, instead, we can use this middle laye
 to define authorized user types and required user flags. The component uses the session
 context to authorize a user. It checks:
 
--   Logged in status: if not logged in, it redirects to `/login`
--   Feature flag (optional): use `requiredFeatureFlag` prop to define the flag required
--   User type (optional): use `requiredUserType` prop to define one or many user types authorized
+- Logged in status: if not logged in, it redirects to `/login`
+- Feature flag (optional): use `requiredFeatureFlag` prop to define the flag required
+- User type (optional): use `requiredUserType` prop to define one or many user types authorized
 
 > `MemberType.PRIME_ADMIN` is always permitted
 

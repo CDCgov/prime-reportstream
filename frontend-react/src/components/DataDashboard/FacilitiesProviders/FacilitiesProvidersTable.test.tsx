@@ -2,10 +2,7 @@ import { screen } from "@testing-library/react";
 
 import FacilitiesProvidersTable from "./FacilitiesProvidersTable";
 import { makeRSReceiverSubmitterResponseFixture } from "../../../__mockServers__/DataDashboardMockServer";
-import {
-    orgServer,
-    receiversGenerator,
-} from "../../../__mockServers__/OrganizationMockServer";
+import { orgServer, receiversGenerator } from "../../../__mockServers__/OrganizationMockServer";
 import { FacilityResource } from "../../../config/endpoints/dataDashboard";
 import useReceiverSubmitter from "../../../hooks/api/deliveries/UseReceiverSubmitters/UseReceiverSubmitters";
 import useOrganizationReceivers from "../../../hooks/api/organizations/UseOrganizationReceivers/UseOrganizationReceivers";
@@ -13,12 +10,8 @@ import { filterManagerFixture } from "../../../hooks/filters/filters.fixtures";
 import { renderApp } from "../../../utils/CustomRenderUtils";
 import { MemberType } from "../../../utils/OrganizationUtils";
 
-vi.mock(
-    "../../../hooks/api/deliveries/UseReceiverSubmitters/UseReceiverSubmitters",
-);
-vi.mock(
-    "../../../hooks/api/organizations/UseOrganizationReceivers/UseOrganizationReceivers",
-);
+vi.mock("../../../hooks/api/deliveries/UseReceiverSubmitters/UseReceiverSubmitters");
+vi.mock("../../../hooks/api/organizations/UseOrganizationReceivers/UseOrganizationReceivers");
 
 const mockUseReceiverSubmitter = vi.mocked(useReceiverSubmitter);
 const mockUseOrganizationReceivers = vi.mocked(useOrganizationReceivers);
@@ -109,9 +102,7 @@ describe("useOrganizationReceiversFeed", () => {
                 filterManager: mockFilterManager,
                 isLoading: false,
             };
-            mockUseReceiverSubmitter.mockReturnValue(
-                mockUseReceiverSubmitterCallback as any,
-            );
+            mockUseReceiverSubmitter.mockReturnValue(mockUseReceiverSubmitterCallback as any);
 
             // Render the component
             renderApp(<FacilitiesProvidersTable />);
@@ -157,9 +148,7 @@ describe("FacilitiesProvidersTable", () => {
                 filterManager: mockFilterManager,
                 isLoading: false,
             };
-            mockUseReceiverSubmitter.mockReturnValue(
-                mockUseReceiverSubmitterCallback as any,
-            );
+            mockUseReceiverSubmitter.mockReturnValue(mockUseReceiverSubmitterCallback as any);
 
             // Render the component
             renderApp(<FacilitiesProvidersTable />);
@@ -171,9 +160,7 @@ describe("FacilitiesProvidersTable", () => {
             expect(screen.getByText("Name")).toBeInTheDocument();
             expect(screen.getByText("Location")).toBeInTheDocument();
             expect(screen.getByText("Facility type")).toBeInTheDocument();
-            expect(
-                screen.getByText("Most recent report date"),
-            ).toBeInTheDocument();
+            expect(screen.getByText("Most recent report date")).toBeInTheDocument();
         });
 
         test("renders Facility type column with transformed name", () => {

@@ -1,9 +1,6 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useCallback } from "react";
-import {
-    deliveriesEndpoints,
-    RSDelivery,
-} from "../../../../config/endpoints/deliveries";
+import { deliveriesEndpoints, RSDelivery } from "../../../../config/endpoints/deliveries";
 import useSessionContext from "../../../../contexts/Session/useSessionContext";
 
 const { getDeliveryDetails } = deliveriesEndpoints;

@@ -43,9 +43,7 @@ describe("Toast", () => {
             const {
                 result: { current: ctx },
             } = renderHook(() => useToast(), {
-                wrapper: ({ children }) => (
-                    <ToastProvider>{children}</ToastProvider>
-                ),
+                wrapper: ({ children }) => <ToastProvider>{children}</ToastProvider>,
             });
             expect(ctx).toBeDefined();
             expect(ctx.toast).toBeDefined();

@@ -37,11 +37,7 @@ function DashboardFilterAndTable({
         if (result) setActiveReceiver(result);
     };
 
-    const {
-        data: results,
-        filterManager,
-        isLoading,
-    } = useReceiverDeliveries(activeReceiver.name);
+    const { data: results, filterManager, isLoading } = useReceiverDeliveries(activeReceiver.name);
 
     if (isLoading || !results) return <Spinner />;
 
@@ -61,46 +57,35 @@ function DashboardFilterAndTable({
             columnKey: DeliveriesAttr.CREATED_AT,
             columnHeader: "Date sent to you",
             content: formatDateWithoutSeconds(dataRow.createdAt),
-            columnCustomSort: () =>
-                onColumnCustomSort(DeliveriesAttr.CREATED_AT),
+            columnCustomSort: () => onColumnCustomSort(DeliveriesAttr.CREATED_AT),
             columnCustomSortSettings: filterManager.sortSettings,
         },
         {
             columnKey: DeliveriesAttr.ORDERING_PROVIDER,
             columnHeader: "Ordering provider",
             content: dataRow.orderingProvider,
-            columnCustomSort: () =>
-                onColumnCustomSort(DeliveriesAttr.ORDERING_PROVIDER),
+            columnCustomSort: () => onColumnCustomSort(DeliveriesAttr.ORDERING_PROVIDER),
             columnCustomSortSettings: filterManager.sortSettings,
         },
         {
             columnKey: DeliveriesAttr.ORDERING_FACILITY,
             columnHeader: "Performing facility",
             content: dataRow.orderingFacility,
-            columnCustomSort: () =>
-                onColumnCustomSort(DeliveriesAttr.ORDERING_FACILITY),
+            columnCustomSort: () => onColumnCustomSort(DeliveriesAttr.ORDERING_FACILITY),
             columnCustomSortSettings: filterManager.sortSettings,
         },
         {
             columnKey: DeliveriesAttr.SUBMITTER,
             columnHeader: "Submitter",
             content: dataRow.submitter,
-            columnCustomSort: () =>
-                onColumnCustomSort(DeliveriesAttr.SUBMITTER),
+            columnCustomSort: () => onColumnCustomSort(DeliveriesAttr.SUBMITTER),
             columnCustomSortSettings: filterManager.sortSettings,
         },
         {
             columnKey: DeliveriesAttr.REPORT_ID,
             columnHeader: "Report ID",
-            content: (
-                <USLink
-                    href={`/data-dashboard/report-details/${dataRow.reportId}`}
-                >
-                    {dataRow.reportId}
-                </USLink>
-            ),
-            columnCustomSort: () =>
-                onColumnCustomSort(DeliveriesAttr.REPORT_ID),
+            content: <USLink href={`/data-dashboard/report-details/${dataRow.reportId}`}>{dataRow.reportId}</USLink>,
+            columnCustomSort: () => onColumnCustomSort(DeliveriesAttr.REPORT_ID),
             columnCustomSortSettings: filterManager.sortSettings,
         },
     ]);
@@ -109,9 +94,7 @@ function DashboardFilterAndTable({
 
     return (
         <>
-            <div className="text-bold font-sans-md">
-                Showing all results ({results?.meta.totalFilteredCount})
-            </div>
+            <div className="text-bold font-sans-md">Showing all results ({results?.meta.totalFilteredCount})</div>
             <div className="display-flex flex-row">
                 <ReceiverServices
                     receiverServices={receiverServices}
@@ -122,13 +105,7 @@ function DashboardFilterAndTable({
                     startDateLabel="From: (mm/dd/yyyy)"
                     endDateLabel="To: (mm/dd/yyyy)"
                     filterManager={filterManager}
-                    onFilterClick={({
-                        from,
-                        to,
-                    }: {
-                        from: string;
-                        to: string;
-                    }) => {
+                    onFilterClick={({ from, to }: { from: string; to: string }) => {
                         filterManager?.updatePage({
                             type: PageSettingsActionType.RESET,
                         });
@@ -148,9 +125,7 @@ function DashboardFilterAndTable({
                     currentPage={currentPageNum}
                     pathname=""
                     onClickPageNumber={(e) => {
-                        const pageNumValue = parseInt(
-                            (e.target as HTMLElement).innerText,
-                        );
+                        const pageNumValue = parseInt((e.target as HTMLElement).innerText);
                         filterManager.updatePage({
                             type: PageSettingsActionType.SET_PAGE,
                             payload: { page: pageNumValue },
@@ -176,8 +151,7 @@ function DashboardFilterAndTable({
 }
 
 export default function DataDashboardTable() {
-    const { isLoading, isDisabled, activeReceivers } =
-        useOrganizationReceivers();
+    const { isLoading, isDisabled, activeReceivers } = useOrganizationReceivers();
     const [activeReceiver, setActiveReceiver] = useState(activeReceivers?.[0]);
     if (isLoading) return <Spinner />;
 

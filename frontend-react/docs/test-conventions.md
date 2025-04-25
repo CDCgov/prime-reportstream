@@ -137,15 +137,11 @@ expect(sum(1, 2, 3)).toEqual(1 + 2 + 3);
 const arrayA = [1, 2, 3];
 const arrayB = [4, 5, 6];
 const arrayC = [7, 8, 9];
-expect(concatenate(arrayA, arrayB, arrayC)).toEqual(
-    [arrayA, arrayB, arrayC].flat(),
-);
+expect(concatenate(arrayA, arrayB, arrayC)).toEqual([arrayA, arrayB, arrayC].flat());
 
 // good
 expect(sum(1, 2, 3)).toEqual(6);
-expect(concatenate(arrayA, arrayB, arrayC)).toEqual([
-    1, 2, 3, 4, 5, 6, 7, 8, 9,
-]);
+expect(concatenate(arrayA, arrayB, arrayC)).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9]);
 ```
 
 > Why?
@@ -180,8 +176,8 @@ If the underlying `toSentence` function already has sufficient test cases (for e
 
 ### Tests should be independent of each other and (generally) deterministic
 
--   "Independent" means tests A and B should be able to be run 1) separately, 2) together, and 3) in different orders without affecting each other
--   "Generally deterministic" means that a single test should have the same predictable behavior given the same type and range of values. Randomized values are permitted (i.e., Faker.js), provided they're within the same expected types and ranges.
+- "Independent" means tests A and B should be able to be run 1) separately, 2) together, and 3) in different orders without affecting each other
+- "Generally deterministic" means that a single test should have the same predictable behavior given the same type and range of values. Randomized values are permitted (i.e., Faker.js), provided they're within the same expected types and ranges.
 
 ```tsx
 // bad - creation of user is handled in first test case,
@@ -331,9 +327,7 @@ describe("DynamicComponent", () => {
         });
 
         test("renders the fallback message", () => {
-            expect(
-                screen.getByText("This is a fallback message."),
-            ).toBeVisible();
+            expect(screen.getByText("This is a fallback message.")).toBeVisible();
         });
     });
 
@@ -347,9 +341,7 @@ describe("DynamicComponent", () => {
         });
 
         test("does not render the fallback message", () => {
-            expect(
-                screen.queryByText("This is a fallback message."),
-            ).toBeNull();
+            expect(screen.queryByText("This is a fallback message.")).toBeNull();
         });
     });
 });

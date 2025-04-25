@@ -3,10 +3,7 @@ import { FormEvent, useCallback, useRef, useState } from "react";
 
 import "./DataDashboardTableFilters.css";
 
-import {
-    CursorActionType,
-    CursorManager,
-} from "../../../../hooks/filters/UseCursorManager/UseCursorManager";
+import { CursorActionType, CursorManager } from "../../../../hooks/filters/UseCursorManager/UseCursorManager";
 import {
     FALLBACK_FROM_DATE_STRING,
     FALLBACK_FROM_STRING,
@@ -44,9 +41,7 @@ const DATE_RE = /^[0-9]{1,2}\/[0-9]{1,2}\/[0-9]{2,4}$/;
 
 export function isValidDateString(dateStr?: string) {
     // need to check for value format (mm/dd/yyyy) and date validity (no 99/99/9999)
-    return (
-        DATE_RE.test(dateStr ?? "") && !Number.isNaN(Date.parse(dateStr ?? ""))
-    );
+    return DATE_RE.test(dateStr ?? "") && !Number.isNaN(Date.parse(dateStr ?? ""));
 }
 
 /* This component contains the UI for selecting query parameters.
@@ -67,9 +62,7 @@ function DataDashboardTableFilters({
     // TODO: Remove FilterManager and CursorManager
     const [rangeFrom, setRangeFrom] = useState<string>(FALLBACK_FROM_STRING);
     const [rangeTo, setRangeTo] = useState<string>(FALLBACK_TO_STRING);
-    const isFilterEnabled = Boolean(
-        rangeFrom && rangeTo && rangeFrom < rangeTo,
-    );
+    const isFilterEnabled = Boolean(rangeFrom && rangeTo && rangeFrom < rangeTo);
     const formRef = useRef<HTMLFormElement>(null);
 
     const updateRange = useCallback(
@@ -80,8 +73,7 @@ function DataDashboardTableFilters({
             });
             cursorManager?.update({
                 type: CursorActionType.RESET,
-                payload:
-                    filterManager.sortSettings.order === "DESC" ? to : from,
+                payload: filterManager.sortSettings.order === "DESC" ? to : from,
             });
         },
         [cursorManager, filterManager],
@@ -111,12 +103,8 @@ function DataDashboardTableFilters({
                  * properly update internal state while we update the
                  * filtermanager with our manual reset values.
                  */
-                const startDateEle = formRef.current.elements.namedItem(
-                    "start-date",
-                ) as HTMLInputElement;
-                const endDateEle = formRef.current.elements.namedItem(
-                    "end-date",
-                ) as HTMLInputElement;
+                const startDateEle = formRef.current.elements.namedItem("start-date") as HTMLInputElement;
+                const endDateEle = formRef.current.elements.namedItem("end-date") as HTMLInputElement;
 
                 startDateEle.value = FALLBACK_FROM_DATE_STRING;
                 startDateEle.dispatchEvent(
@@ -176,9 +164,7 @@ function DataDashboardTableFilters({
                         name: "end-date-picker",
                         onChange: (val?: string) => {
                             if (isValidDateString(val)) {
-                                setRangeTo(
-                                    getEndOfDay(new Date(val!)).toISOString(),
-                                );
+                                setRangeTo(getEndOfDay(new Date(val!)).toISOString());
                             } else {
                                 setRangeTo("");
                             }

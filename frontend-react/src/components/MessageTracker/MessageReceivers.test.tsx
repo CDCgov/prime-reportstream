@@ -41,34 +41,22 @@ describe("MessageReceivers component", () => {
         expect(screen.getByText("Date")).toBeInTheDocument();
         expect(screen.getByText(/9\/28\/2022, 7:55:12 PM/)).toBeInTheDocument();
         expect(screen.getByText(/Report Id/)).toBeInTheDocument();
-        expect(
-            screen.getByText(/578eae4e-b24d-45aa-bc5c-4d96a0bfef96/),
-        ).toBeInTheDocument();
+        expect(screen.getByText(/578eae4e-b24d-45aa-bc5c-4d96a0bfef96/)).toBeInTheDocument();
         expect(screen.getByText(/Main/)).toBeInTheDocument();
         expect(screen.getAllByText(/BATCH/)[0]).toBeInTheDocument();
         expect(screen.getByText(/Sub/)).toBeInTheDocument();
         expect(screen.getByText(/ignore.HL7_NULL/)).toBeInTheDocument();
         expect(screen.getByText(/File Name/)).toBeInTheDocument();
         expect(
-            screen.getByText(
-                /tx-covid-19-4b3c73df-83b1-48f9-a5a2-ce0c38662f7c-20230203182255.internal.csv/,
-            ),
+            screen.getByText(/tx-covid-19-4b3c73df-83b1-48f9-a5a2-ce0c38662f7c-20230203182255.internal.csv/),
         ).toBeInTheDocument();
 
         expect(screen.getByText("Transport Results")).toBeInTheDocument();
         expect(screen.getByText(/Transport result/)).toBeInTheDocument();
-        expect(
-            screen
-                .getAllByRole("row")[1]
-                .getElementsByClassName("column-data")[0],
-        ).toHaveTextContent("md-phd");
+        expect(screen.getAllByRole("row")[1].getElementsByClassName("column-data")[0]).toHaveTextContent("md-phd");
 
         fireEvent.click(screen.getByText(/^Report Id$/));
 
-        expect(
-            screen
-                .getAllByRole("row")[1]
-                .getElementsByClassName("column-data")[0],
-        ).toHaveTextContent("ak-phd");
+        expect(screen.getAllByRole("row")[1].getElementsByClassName("column-data")[0]).toHaveTextContent("ak-phd");
     });
 });

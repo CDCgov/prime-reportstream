@@ -66,10 +66,7 @@ export const contextFixture = {
     authorizedFetch: () => void 0 as any,
 } satisfies RSSessionContext;
 
-(contextFixture as any).authorizedFetch = (
-    options: Partial<AxiosOptionsWithSegments>,
-    endpointConfig?: RSEndpoint,
-) => {
+(contextFixture as any).authorizedFetch = (options: Partial<AxiosOptionsWithSegments>, endpointConfig?: RSEndpoint) => {
     return staticAuthorizedFetch({
         apiUrl: configFixture.API_ROOT,
         options,

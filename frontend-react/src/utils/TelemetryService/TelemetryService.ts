@@ -21,9 +21,7 @@ export const PropertiesPluginIdentifier = "AppInsightsPropertiesPlugin";
 export class ReactPlugin extends _ReactPlugin {
     customProperties: Record<string, any> = {};
 
-    initialize(
-        ...args: Parameters<InstanceType<typeof _ReactPlugin>["initialize"]>
-    ): void {
+    initialize(...args: Parameters<InstanceType<typeof _ReactPlugin>["initialize"]>): void {
         super.initialize(...args);
         this.appInsights.addTelemetryInitializer((item) => {
             item.data = {
@@ -37,8 +35,7 @@ export class ReactPlugin extends _ReactPlugin {
         return super.getAppInsights() as unknown as ApplicationAnalytics;
     }
     get properties() {
-        return this.core.getPlugin<PropertiesPlugin>(PropertiesPluginIdentifier)
-            .plugin;
+        return this.core.getPlugin<PropertiesPlugin>(PropertiesPluginIdentifier).plugin;
     }
 }
 

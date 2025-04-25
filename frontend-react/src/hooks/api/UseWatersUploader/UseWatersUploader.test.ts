@@ -1,15 +1,9 @@
 import { act } from "@testing-library/react";
 
 import useWatersUploader from "./UseWatersUploader";
-import {
-    watersServer,
-    WatersTestHeaderValue,
-} from "../../../__mockServers__/WatersMockServer";
+import { watersServer, WatersTestHeaderValue } from "../../../__mockServers__/WatersMockServer";
 import { renderHook } from "../../../utils/CustomRenderUtils";
-import {
-    ContentType,
-    FileType,
-} from "../../../utils/TemporarySettingsAPITypes";
+import { ContentType, FileType } from "../../../utils/TemporarySettingsAPITypes";
 import { STANDARD_SCHEMA_OPTIONS } from "../../UseSenderSchemaOptions/UseSenderSchemaOptions";
 
 const mockCallbackFn = vi.fn();
@@ -18,8 +12,7 @@ describe("useWatersUploader", () => {
     beforeAll(() => watersServer.listen());
     afterEach(() => watersServer.resetHandlers());
     afterAll(() => watersServer.close());
-    const renderHookWithAppWrapper = () =>
-        renderHook(() => useWatersUploader(mockCallbackFn));
+    const renderHookWithAppWrapper = () => renderHook(() => useWatersUploader(mockCallbackFn));
     test("has default state", () => {
         const { result } = renderHookWithAppWrapper();
         expect(result.current.isPending).toEqual(false);

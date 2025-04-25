@@ -10,12 +10,7 @@ import {
 } from "@testing-library/react";
 import { ReactElement, ReactNode, Suspense } from "react";
 import { HelmetProvider } from "react-helmet-async";
-import {
-    createMemoryRouter,
-    Outlet,
-    RouteObject,
-    RouterProvider,
-} from "react-router-dom";
+import { createMemoryRouter, Outlet, RouteObject, RouterProvider } from "react-router-dom";
 import { CacheProvider } from "rest-hooks";
 
 import { appRoutes } from "../AppRouter";
@@ -34,24 +29,16 @@ function TestLayout() {
     return <Outlet />;
 }
 
-function createTestRoutes(
-    routes: RouteObject[],
-    element: ReactNode,
-): RouteObject[] {
+function createTestRoutes(routes: RouteObject[], element: ReactNode): RouteObject[] {
     return routes.map((r) => ({
         ...r,
         lazy: undefined,
         Component: undefined,
         element: r.path !== "/" ? element : <TestLayout />,
-        children: r.children
-            ? createTestRoutes(r.children, element)
-            : undefined,
+        children: r.children ? createTestRoutes(r.children, element) : undefined,
     })) as RouteObject[];
 }
-export const AppWrapper = ({
-    initialRouteEntries,
-    restHookFixtures,
-}: AppWrapperOptions = {}) => {
+export const AppWrapper = ({ initialRouteEntries, restHookFixtures }: AppWrapperOptions = {}) => {
     // FUTURE_TODO: Replace children with <AppRouter /> if initialRouteEntries after mocking okta users
     // in tests is made easier for better coverage as we'd be able to test through
     // any custom route wrappers.
@@ -63,12 +50,9 @@ export const AppWrapper = ({
          * FUTURE_TODO: Remove this once okta user/session mocking is easier
          * and use <AppRouter /> instead.
          */
-        const router = createMemoryRouter(
-            createTestRoutes(appRoutes, children),
-            {
-                initialEntries: initialRouteEntries,
-            },
-        );
+        const router = createMemoryRouter(createTestRoutes(appRoutes, children), {
+            initialEntries: initialRouteEntries,
+        });
         return (
             <Suspense>
                 <CacheProvider>
@@ -93,11 +77,7 @@ interface RenderAppOptions extends RenderOptions, AppWrapperOptions {}
 
 export const renderApp = (
     ui: ReactElement,
-    {
-        initialRouteEntries,
-        restHookFixtures,
-        ...options
-    }: Omit<RenderAppOptions, "wrapper"> = {},
+    { initialRouteEntries, restHookFixtures, ...options }: Omit<RenderAppOptions, "wrapper"> = {},
 ) => {
     return render(ui, {
         wrapper: AppWrapper({ initialRouteEntries, restHookFixtures }),
@@ -111,10 +91,7 @@ export function renderHook<
     Q extends Queries = typeof queries,
     Container extends Element | DocumentFragment = HTMLElement,
     BaseElement extends Element | DocumentFragment = Container,
->(
-    render: (initialProps: Props) => Result,
-    options?: RenderHookOptions<Props, Q, Container, BaseElement>,
-) {
+>(render: (initialProps: Props) => Result, options?: RenderHookOptions<Props, Q, Container, BaseElement>) {
     return renderHookOrig<Result, Props, Q, Container, BaseElement>(render, {
         wrapper: AppWrapper(),
         ...options,

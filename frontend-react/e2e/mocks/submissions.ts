@@ -7,8 +7,7 @@ export const MOCK_GET_SUBMISSIONS = [
         reportItemCount: 1,
         httpStatus: 201,
         sender: "ignore.ignore-elr-elims",
-        fileName:
-            "None-03c3b7ab-7c65-4174-bea7-9195cbb7ed01-20240314174050.hl7",
+        fileName: "None-03c3b7ab-7c65-4174-bea7-9195cbb7ed01-20240314174050.hl7",
         fileType: "HL7",
         externalName: "myfile.hl7",
     },
@@ -20,8 +19,7 @@ export const MOCK_GET_SUBMISSIONS = [
         reportItemCount: 1,
         httpStatus: 201,
         sender: "ignore.ignore-etor-ti",
-        fileName:
-            "None-03c3b7ab-7c65-4174-bea7-9195cbb7ed01-20240314174050.hl7",
+        fileName: "None-03c3b7ab-7c65-4174-bea7-9195cbb7ed01-20240314174050.hl7",
         fileType: "HL7",
     },
     {
@@ -32,8 +30,7 @@ export const MOCK_GET_SUBMISSIONS = [
         reportItemCount: 1,
         httpStatus: 201,
         sender: "ignore.ignore-full-elr",
-        fileName:
-            "None-03c3b7ab-7c65-4174-bea7-9195cbb7ed01-20240314174050.hl7",
+        fileName: "None-03c3b7ab-7c65-4174-bea7-9195cbb7ed01-20240314174050.hl7",
         fileType: "HL7",
     },
     {
@@ -44,8 +41,7 @@ export const MOCK_GET_SUBMISSIONS = [
         reportItemCount: 20,
         httpStatus: 201,
         sender: "ignore.ignore-simple-report",
-        fileName:
-            "None-03c3b7ab-7c65-4174-bea7-9195cbb7ed01-20240314174050.hl7",
+        fileName: "None-03c3b7ab-7c65-4174-bea7-9195cbb7ed01-20240314174050.hl7",
         fileType: "HL7",
     },
     {
@@ -56,8 +52,7 @@ export const MOCK_GET_SUBMISSIONS = [
         reportItemCount: 20,
         httpStatus: 201,
         sender: "ignore.ignore-simple-report",
-        fileName:
-            "None-03c3b7ab-7c65-4174-bea7-9195cbb7ed01-20240314174050.hl7",
+        fileName: "None-03c3b7ab-7c65-4174-bea7-9195cbb7ed01-20240314174050.hl7",
         fileType: "HL7",
     },
     {
@@ -68,8 +63,7 @@ export const MOCK_GET_SUBMISSIONS = [
         reportItemCount: 5,
         httpStatus: 201,
         sender: "ignore.ignore-empty",
-        fileName:
-            "None-03c3b7ab-7c65-4174-bea7-9195cbb7ed01-20240314174050.hl7",
+        fileName: "None-03c3b7ab-7c65-4174-bea7-9195cbb7ed01-20240314174050.hl7",
         fileType: "HL7",
     },
     {
@@ -80,8 +74,7 @@ export const MOCK_GET_SUBMISSIONS = [
         reportItemCount: 1,
         httpStatus: 201,
         sender: "ignore.ignore-waters",
-        fileName:
-            "None-03c3b7ab-7c65-4174-bea7-9195cbb7ed01-20240314174050.hl7",
+        fileName: "None-03c3b7ab-7c65-4174-bea7-9195cbb7ed01-20240314174050.hl7",
         fileType: "HL7",
     },
     {
@@ -92,8 +85,7 @@ export const MOCK_GET_SUBMISSIONS = [
         reportItemCount: 1,
         httpStatus: 201,
         sender: "ignore.ignore-waters",
-        fileName:
-            "None-03c3b7ab-7c65-4174-bea7-9195cbb7ed01-20240314174050.hl7",
+        fileName: "None-03c3b7ab-7c65-4174-bea7-9195cbb7ed01-20240314174050.hl7",
         fileType: "HL7",
     },
     {
@@ -104,8 +96,7 @@ export const MOCK_GET_SUBMISSIONS = [
         reportItemCount: 1,
         httpStatus: 201,
         sender: "ignore.ignore-waters",
-        fileName:
-            "None-03c3b7ab-7c65-4174-bea7-9195cbb7ed01-20240314174050.hl7",
+        fileName: "None-03c3b7ab-7c65-4174-bea7-9195cbb7ed01-20240314174050.hl7",
         fileType: "HL7",
     },
     {
@@ -116,8 +107,7 @@ export const MOCK_GET_SUBMISSIONS = [
         reportItemCount: 20,
         httpStatus: 201,
         sender: "ignore.ignore-hl7",
-        fileName:
-            "None-03c3b7ab-7c65-4174-bea7-9195cbb7ed01-20240314174050.hl7",
+        fileName: "None-03c3b7ab-7c65-4174-bea7-9195cbb7ed01-20240314174050.hl7",
         fileType: "HL7",
     },
     {
@@ -128,8 +118,7 @@ export const MOCK_GET_SUBMISSIONS = [
         reportItemCount: 5,
         httpStatus: 201,
         sender: "ignore.ignore-waters",
-        fileName:
-            "None-03c3b7ab-7c65-4174-bea7-9195cbb7ed01-20240314174050.hl7",
+        fileName: "None-03c3b7ab-7c65-4174-bea7-9195cbb7ed01-20240314174050.hl7",
         fileType: "HL7",
     },
     {
@@ -140,8 +129,7 @@ export const MOCK_GET_SUBMISSIONS = [
         reportItemCount: 20,
         httpStatus: 201,
         sender: "ignore.ignore-strac",
-        fileName:
-            "None-03c3b7ab-7c65-4174-bea7-9195cbb7ed01-20240314174050.hl7",
+        fileName: "None-03c3b7ab-7c65-4174-bea7-9195cbb7ed01-20240314174050.hl7",
         fileType: "HL7",
     },
 ];

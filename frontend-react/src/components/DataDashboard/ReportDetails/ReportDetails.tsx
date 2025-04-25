@@ -28,9 +28,7 @@ export function ReportDetailsPage() {
             <GridContainer className="rs-max-width-100-important">
                 <article>
                     <ReportDetailsSummary report={reportDetail} />
-                    {withCatchAndSuspense(
-                        <ReportDetailsTable reportId={reportId!} />,
-                    )}
+                    {withCatchAndSuspense(<ReportDetailsTable reportId={reportId!} />)}
                     <HipaaNotice />
                 </article>
             </GridContainer>

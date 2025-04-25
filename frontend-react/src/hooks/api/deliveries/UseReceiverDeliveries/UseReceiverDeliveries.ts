@@ -1,14 +1,9 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useCallback, useMemo } from "react";
 
-import {
-    dataDashboardEndpoints,
-    RSReceiverDeliveryResponse,
-} from "../../../../config/endpoints/dataDashboard";
+import { dataDashboardEndpoints, RSReceiverDeliveryResponse } from "../../../../config/endpoints/dataDashboard";
 import useSessionContext from "../../../../contexts/Session/useSessionContext";
-import useFilterManager, {
-    FilterManagerDefaults,
-} from "../../../filters/UseFilterManager/UseFilterManager";
+import useFilterManager, { FilterManagerDefaults } from "../../../filters/UseFilterManager/UseFilterManager";
 import useAdminSafeOrganizationName from "../../../UseAdminSafeOrganizationName/UseAdminSafeOrganizationName";
 
 const { receiverDeliveries } = dataDashboardEndpoints;
@@ -39,13 +34,8 @@ const filterManagerDefaults: FilterManagerDefaults = {
  * */
 export default function useReceiverDeliveries(serviceName?: string) {
     const { activeMembership, authorizedFetch } = useSessionContext();
-    const adminSafeOrgName = useAdminSafeOrganizationName(
-        activeMembership?.parsedName,
-    ); // "PrimeAdmins" -> "ignore"
-    const orgAndService = useMemo(
-        () => `${adminSafeOrgName}.${serviceName}`,
-        [adminSafeOrgName, serviceName],
-    );
+    const adminSafeOrgName = useAdminSafeOrganizationName(activeMembership?.parsedName); // "PrimeAdmins" -> "ignore"
+    const orgAndService = useMemo(() => `${adminSafeOrgName}.${serviceName}`, [adminSafeOrgName, serviceName]);
 
     // Pagination and filter props
     const filterManager = useFilterManager(filterManagerDefaults);
@@ -95,12 +85,7 @@ export default function useReceiverDeliveries(serviceName?: string) {
         sortDirection,
     ]);
     const { data } = useSuspenseQuery({
-        queryKey: [
-            receiverDeliveries.queryKey,
-            activeMembership,
-            orgAndService,
-            filterManager,
-        ],
+        queryKey: [receiverDeliveries.queryKey, activeMembership, orgAndService, filterManager],
         queryFn: memoizedDataFetch,
     });
 

@@ -9,12 +9,8 @@ import TableFilters, { TableFilterDateLabel } from "./TableFilters";
 import { DatasetAction } from "./TableInfo";
 import { TableRowData, TableRows } from "./TableRows";
 import { filterManagerFixture } from "../../hooks/filters/filters.fixtures";
-import useCursorManager, {
-    CursorActionType,
-} from "../../hooks/filters/UseCursorManager/UseCursorManager";
-import useFilterManager, {
-    FilterManager,
-} from "../../hooks/filters/UseFilterManager/UseFilterManager";
+import useCursorManager, { CursorActionType } from "../../hooks/filters/UseCursorManager/UseCursorManager";
+import useFilterManager, { FilterManager } from "../../hooks/filters/UseFilterManager/UseFilterManager";
 import { SortSettingsActionType } from "../../hooks/filters/UseSortOrder/UseSortOrder";
 import { renderApp } from "../../utils/CustomRenderUtils";
 import { selectDatesFromRange } from "../../utils/TestUtils";
@@ -86,9 +82,7 @@ const makeConfigs = (sampleRow: TableRowData): ColumnConfig[] => {
     return Object.keys(sampleRow).map((key) => {
         return {
             dataAttr: key,
-            columnHeader: `${key[0].toUpperCase()}${key
-                .slice(1)
-                .toLowerCase()}`,
+            columnHeader: `${key[0].toUpperCase()}${key.slice(1).toLowerCase()}`,
             feature: getFeatureParams(key),
             valueMap: key.includes("map") ? sampleMapper : undefined,
             transform: key.includes("transform") ? transformFunc : undefined,
@@ -141,9 +135,7 @@ const SimpleTableWithAction = () => (
     />
 );
 const FilteredTable = () => {
-    return (
-        <Table config={getTestConfig(10)} filterManager={mockFilterManager} />
-    );
+    return <Table config={getTestConfig(10)} filterManager={mockFilterManager} />;
 };
 
 const testDataRowOne = {
@@ -166,20 +158,9 @@ const sampleCallback = () => void 0;
 
 /* This component is specifically configured to help test the
  * Table component. Any  */
-const TestTable = ({
-    editable,
-    linkable = true,
-}: {
-    editable?: boolean;
-    linkable?: boolean;
-}) => {
+const TestTable = ({ editable, linkable = true }: { editable?: boolean; linkable?: boolean }) => {
     const filterManager = useFilterManager();
-    const {
-        cursors,
-        hasNext,
-        hasPrev,
-        update: updateCursors,
-    } = useCursorManager(filterManager.rangeSettings.to);
+    const { cursors, hasNext, hasPrev, update: updateCursors } = useCursorManager(filterManager.rangeSettings.to);
     const [_searchTerm, setSearchTerm] = useState("");
     /* Ensure there's at least 1 more cursor in the cursorMap
      * to test the Next/Prev buttons. In a real application
@@ -298,9 +279,7 @@ const TestTable = ({
                     hasPrev,
                     update: updateCursors,
                 }}
-                setSearchTerm={
-                    handleSearchTerm as Dispatch<SetStateAction<string>>
-                }
+                setSearchTerm={handleSearchTerm as Dispatch<SetStateAction<string>>}
                 setService={() => undefined}
                 searchTerm={""}
             />
@@ -355,16 +334,12 @@ describe("Table, basic tests", () => {
     test("Link columns are rendered as links", () => {
         renderApp(<SimpleTable />);
         const linkInCell = screen.getByText("UUID-1");
-        expect(linkInCell).toContainHTML(
-            '<a class="usa-link" href="/base/UUID-1">UUID-1</a>',
-        );
+        expect(linkInCell).toContainHTML('<a class="usa-link" href="/base/UUID-1">UUID-1</a>');
     });
 
     test("Action columns are rendered as actions", () => {
         renderApp(<SimpleTableWithAction />);
-        expect(
-            screen.getByText("Test Simple Table With Action"),
-        ).toBeInTheDocument();
+        expect(screen.getByText("Test Simple Table With Action")).toBeInTheDocument();
         const actionButtonCell = screen.getAllByText("actionButtonParam")[0];
         expect(actionButtonCell).toContainHTML("actionButtonParam</button>");
     });
@@ -443,17 +418,14 @@ describe(
         test("date range selection and clearing", async () => {
             setup();
             /* Workaround to assert changing state */
-            const defaultState =
-                "range: from 2000-01-01T00:00:00.000Z to 3000-01-01T00:00:00.000Z";
+            const defaultState = "range: from 2000-01-01T00:00:00.000Z to 3000-01-01T00:00:00.000Z";
             expect(screen.getByText(/range:/)).toHaveTextContent(defaultState);
 
             await selectDatesFromRange("20", "23");
             await clickFilterButton();
 
             /* Assert the value of state in string has changed */
-            expect(screen.getByText(/range:/)).not.toHaveTextContent(
-                defaultState,
-            );
+            expect(screen.getByText(/range:/)).not.toHaveTextContent(defaultState);
 
             const clearButton = screen.getAllByText("Reset");
             await userEvent.click(clearButton[0]);
@@ -462,20 +434,14 @@ describe(
         test("cursor sets properly according to sort order", async () => {
             setup();
             const defaultCursor = "cursor: 3000-01-01T00:00:00.000Z";
-            expect(screen.getByText(/cursor:/)).toHaveTextContent(
-                defaultCursor,
-            );
+            expect(screen.getByText(/cursor:/)).toHaveTextContent(defaultCursor);
 
             await selectDatesFromRange("10", "20");
             await clickFilterButton();
 
-            expect(screen.getByText(/cursor:/)).not.toHaveTextContent(
-                defaultCursor,
-            );
+            expect(screen.getByText(/cursor:/)).not.toHaveTextContent(defaultCursor);
             // Checking for inclusive date
-            expect(screen.getByText(/cursor:/)).toHaveTextContent(
-                /2024-03-20T23:59:00.000Z/,
-            );
+            expect(screen.getByText(/cursor:/)).toHaveTextContent(/2024-03-20T23:59:00.000Z/);
 
             // Change sort order and repeat
             await userEvent.click(screen.getByText("Column Two"));
@@ -636,8 +602,7 @@ describe("TableRows", () => {
 
         // update value
         // this assumes that an input is being rendered by `ColumnData`
-        const firstInput =
-            screen.getByLabelText<HTMLInputElement>("editableColumn-0");
+        const firstInput = screen.getByLabelText<HTMLInputElement>("editableColumn-0");
         const initialValue = firstInput.value;
         await userEvent.click(firstInput);
         await userEvent.keyboard("fakeItem");
@@ -679,18 +644,14 @@ describe("ColumnData", () => {
         );
 
         // update value
-        const firstInput =
-            screen.getByLabelText<HTMLInputElement>("editableColumn-0");
+        const firstInput = screen.getByLabelText<HTMLInputElement>("editableColumn-0");
         const initialValue = firstInput.value;
         await userEvent.click(firstInput);
         await userEvent.keyboard("fakeItem");
 
         // once for each character
         expect(fakeUpdate).toHaveBeenCalledTimes(8);
-        expect(fakeUpdate).toHaveBeenLastCalledWith(
-            `${initialValue}fakeItem`,
-            "editableColumn",
-        );
+        expect(fakeUpdate).toHaveBeenLastCalledWith(`${initialValue}fakeItem`, "editableColumn");
     });
 });
 

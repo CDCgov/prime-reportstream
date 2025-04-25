@@ -15,12 +15,7 @@ interface StaticAlertProps {
     children?: ReactNode;
 }
 
-export const StaticAlert = ({
-    type,
-    heading,
-    message,
-    children,
-}: StaticAlertProps) => {
+export const StaticAlert = ({ type, heading, message, children }: StaticAlertProps) => {
     type = Array.isArray(type) ? type : [type];
 
     const alertClasses = classNames({

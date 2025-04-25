@@ -1,11 +1,5 @@
 // AutoUpdateFileChromatic
-import {
-    Button,
-    CardBody,
-    CardFooter,
-    CardHeader,
-    CardMedia,
-} from "@trussworks/react-uswds";
+import { Button, CardBody, CardFooter, CardHeader, CardMedia } from "@trussworks/react-uswds";
 
 import Card from "./Card";
 
@@ -26,10 +20,7 @@ const CardComponent = () => (
             <img src={sparklerImage} alt="A placeholder" />
         </CardMedia>
         <CardBody>
-            <p>
-                This is a standard card with the header and media first and a
-                button in the footer.
-            </p>
+            <p>This is a standard card with the header and media first and a button in the footer.</p>
         </CardBody>
         <CardFooter>
             <Button type="button" className="usa-button">

@@ -19,10 +19,7 @@ import * as shared from "../../shared";
  * React components are functions that are pascal-cased so filtering is done
  * so.
  */
-function filterComponents<T extends object>(
-    obj: T,
-    include: (string & keyof T)[] = [],
-) {
+function filterComponents<T extends object>(obj: T, include: (string & keyof T)[] = []) {
     return Object.fromEntries(
         Object.entries(obj).filter(
             ([k, v]) =>
@@ -83,22 +80,8 @@ const MDXComponents = {
  * |                        |
  * +------------------------+
  */
-function MarkdownLayout({
-    children,
-    article,
-    mdx,
-    frontmatter = {},
-    toc: tocEntries,
-}: MarkdownLayoutProps) {
-    const {
-        title,
-        breadcrumbs,
-        subtitle,
-        callToAction,
-        lastUpdated,
-        toc,
-        backToTop,
-    } = frontmatter;
+function MarkdownLayout({ children, article, mdx, frontmatter = {}, toc: tocEntries }: MarkdownLayoutProps) {
+    const { title, breadcrumbs, subtitle, callToAction, lastUpdated, toc, backToTop } = frontmatter;
     const { config } = useSessionContext();
     const [sidenavContent, setSidenavContent] = useState<ReactNode>(undefined);
     const [mainContent, setMainContent] = useState<ReactNode>(undefined);
@@ -111,21 +94,12 @@ function MarkdownLayout({
         };
     }, [mainContent, sidenavContent]);
     const tocObj = toc ? (typeof toc === "object" ? toc : {}) : null;
-    const subtitleArr = Array.isArray(subtitle)
-        ? subtitle
-        : subtitle
-          ? [subtitle]
-          : [];
-    const isHeader = Boolean(
-        title ?? breadcrumbs ?? callToAction ?? lastUpdated ?? toc,
-    );
+    const subtitleArr = Array.isArray(subtitle) ? subtitle : subtitle ? [subtitle] : [];
+    const isHeader = Boolean(title ?? breadcrumbs ?? callToAction ?? lastUpdated ?? toc);
     const matches = useMatches() as RsRouteObject[];
     const { handle = {} } = matches.at(-1) ?? {};
     const { isFullWidth } = handle;
-    const meta = useMemo(
-        () => createMeta(config, frontmatter),
-        [config, frontmatter],
-    );
+    const meta = useMemo(() => createMeta(config, frontmatter), [config, frontmatter]);
 
     return (
         <MarkdownLayoutContext.Provider value={ctx}>
@@ -133,16 +107,10 @@ function MarkdownLayout({
                 <title>{meta.title}</title>
                 <meta name="description" content={meta.description} />
                 <meta property="og:image" content={meta.openGraph.image.src} />
-                <meta
-                    property="og:image:alt"
-                    content={meta.openGraph.image.altText}
-                />
+                <meta property="og:image:alt" content={meta.openGraph.image.altText} />
             </Helmet>
             {sidenavContent ? (
-                <nav
-                    aria-label="side-navigation"
-                    className={`${styles.sidenav} tablet:grid-col-3`}
-                >
+                <nav aria-label="side-navigation" className={`${styles.sidenav} tablet:grid-col-3`}>
                     <MDXProvider
                         {...mdx}
                         components={{
@@ -156,12 +124,7 @@ function MarkdownLayout({
             ) : null}
             {article ?? (
                 <article
-                    className={classNames(
-                        "usa-prose",
-                        sidenavContent
-                            ? "tablet:grid-col-9"
-                            : "tablet:grid-col-12",
-                    )}
+                    className={classNames("usa-prose", sidenavContent ? "tablet:grid-col-9" : "tablet:grid-col-12")}
                 >
                     {isHeader &&
                         (isFullWidth ? (

@@ -33,8 +33,6 @@ describe("useMessageDetails", () => {
         });
 
         const { result } = renderHook(() => useMessageDetails("11"));
-        await waitFor(() =>
-            expect(result.current.messageDetails?.id).toEqual(11),
-        );
+        await waitFor(() => expect(result.current.messageDetails?.id).toEqual(11));
     });
 });

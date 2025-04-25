@@ -4,7 +4,7 @@ import { formatDate } from "../../../../src/utils/misc";
 import {
     MOCK_GET_ORGANIZATION_IGNORE,
     MOCK_GET_RECEIVERS_IGNORE,
-    MOCK_GET_SENDERS_IGNORE
+    MOCK_GET_SENDERS_IGNORE,
 } from "../../../mocks/organizations";
 import { BasePage, BasePageTestArgs, type RouteHandlerFulfillEntry } from "../../BasePage";
 
@@ -19,7 +19,7 @@ export class OrganizationEditPage extends BasePage {
     readonly orgSenderNew: {
         cancel: Locator;
         save: Locator;
-    }
+    };
     readonly orgSenderEdit: {
         modal: Locator;
         cancelButton: Locator;
@@ -29,11 +29,11 @@ export class OrganizationEditPage extends BasePage {
             checkSyntax: Locator;
             back: Locator;
         };
-    }
+    };
     readonly orgReceiverNew: {
         cancel: Locator;
         save: Locator;
-    }
+    };
     readonly orgReceiverEdit: {
         modal: Locator;
         cancelButton: Locator;
@@ -43,7 +43,7 @@ export class OrganizationEditPage extends BasePage {
             checkSyntax: Locator;
             back: Locator;
         };
-    }
+    };
 
     constructor(testArgs: BasePageTestArgs) {
         super(
@@ -57,35 +57,35 @@ export class OrganizationEditPage extends BasePage {
         this._organizationSenders = [];
         this._organizationReceivers = [];
 
-        this.addMockRouteHandlers(
-            [this.createMockOrganizationIgnoreAPIHandler(),
+        this.addMockRouteHandlers([
+            this.createMockOrganizationIgnoreAPIHandler(),
             this.createMockOrganizationSenderAPIHandler(),
-            this.createMockOrganizationReceiverAPIHandler()]
-        );
+            this.createMockOrganizationReceiverAPIHandler(),
+        ]);
         this.orgSenderNew = {
             cancel: this.page.getByRole("button", {
-                    name: "Cancel",
-                }),
+                name: "Cancel",
+            }),
             save: this.page.getByRole("button", {
-                    name: "Save",
-                }),
-        }
+                name: "Save",
+            }),
+        };
         this.orgSenderEdit = {
             modal: this.page.getByTestId("modalWindow"),
             cancelButton: this.page.getByRole("button", {
-                    name: "Cancel",
-                }),
+                name: "Cancel",
+            }),
             editJsonButton: this.page.getByRole("button", {
-                    name: "Edit json and save...",
-                }),
+                name: "Edit json and save...",
+            }),
             editJsonModal: {
                 save: this.page.getByTestId("editCompareSaveButton"),
                 checkSyntax: this.page.getByTestId("editCheckSyntaxButton"),
                 back: this.page.getByRole("button", {
                     name: "Back",
                 }),
-            }
-        }
+            },
+        };
         this.orgReceiverNew = {
             cancel: this.page.getByRole("button", {
                 name: "Cancel",
@@ -93,24 +93,24 @@ export class OrganizationEditPage extends BasePage {
             save: this.page.getByRole("button", {
                 name: "Save",
             }),
-        }
+        };
 
         this.orgReceiverEdit = {
             modal: this.page.getByTestId("modalWindow"),
             cancelButton: this.page.getByRole("button", {
-                    name: "Cancel",
-                }),
+                name: "Cancel",
+            }),
             editJsonButton: this.page.getByRole("button", {
-                    name: "Edit json and save...",
-                }),
+                name: "Edit json and save...",
+            }),
             editJsonModal: {
                 save: this.page.getByTestId("editCompareSaveButton"),
                 checkSyntax: this.page.getByTestId("editCheckSyntaxButton"),
                 back: this.page.getByRole("button", {
                     name: "Back",
                 }),
-            }
-        }
+            },
+        };
     }
 
     get isPageLoadExpected() {
@@ -161,14 +161,12 @@ export class OrganizationEditPage extends BasePage {
         return true;
     }
 
-    getOrgMeta(metaData: any){
+    getOrgMeta(metaData: any) {
         const { version, createdAt, createdBy } = metaData;
 
         // handle cases where individual metadata are not available
         const versionDisplay = version || version === 0 ? `v${version} ` : "";
-        const createdAtDisplay = createdAt
-            ? `[${formatDate(metaData.createdAt)}] `
-            : "";
+        const createdAtDisplay = createdAt ? `[${formatDate(metaData.createdAt)}] ` : "";
         const createdByDisplay = createdBy ?? "";
 
         return `${versionDisplay}${createdAtDisplay}${createdByDisplay}`;

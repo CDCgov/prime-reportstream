@@ -5,19 +5,19 @@
  * with differing style expectations
  */
 .rs-hero-wrapper {
-    @include u-margin(0);
+  @include u-margin(0);
 
-    :global(.usa-section) {
-        @include u-padding-y(8);
-    }
+  :global(.usa-section) {
+    @include u-padding-y(8);
+  }
 
-    h1 {
-        @include u-font("sans", "3xl");
-    }
+  h1 {
+    @include u-font("sans", "3xl");
+  }
 }
 
 .rs-hero-wrapper--alternate {
-    :global {
-        @include u-rs-style-alternate-container;
-    }
+  :global {
+    @include u-rs-style-alternate-container;
+  }
 }

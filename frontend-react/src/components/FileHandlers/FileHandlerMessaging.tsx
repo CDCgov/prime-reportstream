@@ -10,8 +10,7 @@ import { FileType } from "../../utils/TemporarySettingsAPITypes";
 import { StaticAlert, StaticAlertType } from "../StaticAlert";
 import { USExtLink } from "../USLink";
 
-const HL7_PRODUCT_MATRIX_URL =
-    "https://www.hl7.org/implement/standards/product_brief.cfm";
+const HL7_PRODUCT_MATRIX_URL = "https://www.hl7.org/implement/standards/product_brief.cfm";
 const CDC_LIVD_CODES_URL = "https://www.cdc.gov/csels/dls/livd-codes.html";
 
 export enum RequestLevel {
@@ -34,10 +33,7 @@ interface RequestedChangesDisplayProps {
  * @param originalFileName
  * @param requestLevel
  */
-export function getSafeFileName(
-    originalFileName: string,
-    requestLevel: RequestLevel,
-) {
+export function getSafeFileName(originalFileName: string, requestLevel: RequestLevel) {
     const joinedStr = [originalFileName, requestLevel].join("-").toLowerCase();
 
     return joinedStr.replace(/[^a-z0-9]/gi, "-");
@@ -51,13 +47,9 @@ export const RequestedChangesDisplay = ({
     schemaColumnHeader,
     file,
 }: RequestedChangesDisplayProps) => {
-    const alertType =
-        title === RequestLevel.WARNING
-            ? StaticAlertType.Warning
-            : StaticAlertType.Error;
+    const alertType = title === RequestLevel.WARNING ? StaticAlertType.Warning : StaticAlertType.Error;
 
-    const showTable =
-        data?.length && data.some((responseItem) => responseItem.message);
+    const showTable = data?.length && data.some((responseItem) => responseItem.message);
 
     function handleSaveToCsvClick() {
         // Since the detailed error code messaging is stored on the client,
@@ -69,11 +61,7 @@ export const RequestedChangesDisplay = ({
                 ...item,
                 errorMessageDetails: removeHTMLFromString(
                     renderToString(
-                        <ValidationErrorMessage
-                            errorCode={item.errorCode}
-                            field={item.field}
-                            message={item.message}
-                        />,
+                        <ValidationErrorMessage errorCode={item.errorCode} field={item.field} message={item.message} />,
                     ),
                 ),
             };
@@ -97,33 +85,21 @@ export const RequestedChangesDisplay = ({
                             type="button"
                             onClick={handleSaveToCsvClick}
                         >
-                            Download edits as CSV{" "}
-                            <Icon.FileDownload
-                                className="margin-left-1"
-                                size={3}
-                            />
+                            Download edits as CSV <Icon.FileDownload className="margin-left-1" size={3} />
                         </Button>
                     </div>
 
                     <div className="padding-4 radius-md bg-base-lightest">
-                        <table
-                            className="usa-table usa-table--borderless"
-                            data-testid="error-table"
-                        >
+                        <table className="usa-table usa-table--borderless" data-testid="error-table">
                             <thead>
                                 <tr>
                                     <th className="rs-table-column-minwidth">
-                                        {title === RequestLevel.WARNING &&
-                                            "Recommended"}{" "}
-                                        {title === RequestLevel.ERROR &&
-                                            "Required"}{" "}
-                                        edit
+                                        {title === RequestLevel.WARNING && "Recommended"}{" "}
+                                        {title === RequestLevel.ERROR && "Required"} edit
                                     </th>
                                     <th className="rs-table-column-minwidth">
-                                        {schemaColumnHeader === FileType.CSV &&
-                                            "CSV row"}
-                                        {schemaColumnHeader === FileType.HL7 &&
-                                            "MSH 10"}
+                                        {schemaColumnHeader === FileType.CSV && "CSV row"}
+                                        {schemaColumnHeader === FileType.HL7 && "MSH 10"}
                                     </th>
                                 </tr>
                             </thead>
@@ -134,9 +110,7 @@ export const RequestedChangesDisplay = ({
                                             error={e}
                                             index={i}
                                             key={`error${i}`}
-                                            schemaColumnHeader={
-                                                schemaColumnHeader
-                                            }
+                                            schemaColumnHeader={schemaColumnHeader}
                                         />
                                     );
                                 })}
@@ -155,51 +129,29 @@ export interface ValidationErrorMessageProps {
     message?: string;
 }
 
-export function ValidationErrorMessage({
-    errorCode,
-    field,
-    message,
-}: ValidationErrorMessageProps) {
+export function ValidationErrorMessage({ errorCode, field, message }: ValidationErrorMessageProps) {
     let child: ReactNode;
 
     switch (errorCode) {
         case ErrorCode.INVALID_MSG_PARSE_BLANK:
-            child = (
-                <>
-                    Blank message(s) found within file. Blank messages cannot be
-                    processed.
-                </>
-            );
+            child = <>Blank message(s) found within file. Blank messages cannot be processed.</>;
             break;
         case ErrorCode.INVALID_HL7_MSG_TYPE_MISSING:
-            child = (
-                <>
-                    Missing required HL7 message type field MSH-9. Fill in the
-                    blank field before resubmitting.
-                </>
-            );
+            child = <>Missing required HL7 message type field MSH-9. Fill in the blank field before resubmitting.</>;
             break;
         case ErrorCode.INVALID_HL7_MSG_TYPE_UNSUPPORTED:
             child = (
                 <>
-                    We found an unsupported HL7 message type. Please reformat to
-                    ORU-RO1. Refer to{" "}
-                    <USExtLink href={HL7_PRODUCT_MATRIX_URL}>
-                        HL7 specification
-                    </USExtLink>{" "}
-                    for more details.
+                    We found an unsupported HL7 message type. Please reformat to ORU-RO1. Refer to{" "}
+                    <USExtLink href={HL7_PRODUCT_MATRIX_URL}>HL7 specification</USExtLink> for more details.
                 </>
             );
             break;
         case ErrorCode.INVALID_HL7_MSG_FORMAT_INVALID:
             child = (
                 <>
-                    Invalid HL7 message format. Check your formatting by
-                    referring to{" "}
-                    <USExtLink href={HL7_PRODUCT_MATRIX_URL}>
-                        HL7 specification
-                    </USExtLink>
-                    .
+                    Invalid HL7 message format. Check your formatting by referring to{" "}
+                    <USExtLink href={HL7_PRODUCT_MATRIX_URL}>HL7 specification</USExtLink>.
                 </>
             );
             break;
@@ -207,21 +159,12 @@ export function ValidationErrorMessage({
             child = <>Reformat {field} as YYYYMMDDHHMM[SS[.S[S[S[S]+/-ZZZZ.</>;
             break;
         case ErrorCode.INVALID_MSG_PARSE_TELEPHONE:
-            child = (
-                <>
-                    Reformat phone number to a 10-digit phone number (e.g. (555)
-                    555-5555).
-                </>
-            );
+            child = <>Reformat phone number to a 10-digit phone number (e.g. (555) 555-5555).</>;
             break;
         case ErrorCode.INVALID_HL7_MSG_VALIDATION:
             child = (
                 <>
-                    Reformat {field} to{" "}
-                    <USExtLink href={HL7_PRODUCT_MATRIX_URL}>
-                        HL7 specification
-                    </USExtLink>
-                    .
+                    Reformat {field} to <USExtLink href={HL7_PRODUCT_MATRIX_URL}>HL7 specification</USExtLink>.
                 </>
             );
             break;
@@ -232,10 +175,8 @@ export function ValidationErrorMessage({
             child = (
                 <>
                     Reformat field {field}. Refer to{" "}
-                    <USExtLink href={CDC_LIVD_CODES_URL}>
-                        CDC LIVD table LOINC mapping spreadsheet
-                    </USExtLink>{" "}
-                    for acceptable values.
+                    <USExtLink href={CDC_LIVD_CODES_URL}>CDC LIVD table LOINC mapping spreadsheet</USExtLink> for
+                    acceptable values.
                 </>
             );
             break;
@@ -262,23 +203,13 @@ const ErrorRow = ({ error, index, schemaColumnHeader }: ErrorRowProps) => {
     return (
         <tr key={"error_" + index}>
             <td>
-                <ValidationErrorMessage
-                    errorCode={errorCode}
-                    field={field}
-                    message={message}
-                />
+                <ValidationErrorMessage errorCode={errorCode} field={field} message={message} />
             </td>
 
             <td className="rs-table-column-minwidth">
-                {schemaColumnHeader === FileType.CSV && indices?.length && (
-                    <span>{indices.join(" + ")}</span>
-                )}
-                {schemaColumnHeader === FileType.HL7 && trackingIds?.length && (
-                    <span>{trackingIds.join(" + ")}</span>
-                )}
-                {!indices?.length && !trackingIds?.length && (
-                    <span>Not applicable</span>
-                )}
+                {schemaColumnHeader === FileType.CSV && indices?.length && <span>{indices.join(" + ")}</span>}
+                {schemaColumnHeader === FileType.HL7 && trackingIds?.length && <span>{trackingIds.join(" + ")}</span>}
+                {!indices?.length && !trackingIds?.length && <span>Not applicable</span>}
             </td>
         </tr>
     );
@@ -290,11 +221,7 @@ interface FileQualityFilterDisplayProps {
     heading: string;
 }
 
-export const FileQualityFilterDisplay = ({
-    destinations,
-    heading,
-    message,
-}: FileQualityFilterDisplayProps) => {
+export const FileQualityFilterDisplay = ({ destinations, heading, message }: FileQualityFilterDisplayProps) => {
     function handleJurisdictionSaveToCsvClick() {
         function reformatJurisdictionData() {
             for (const item of destinations ?? []) {
@@ -309,11 +236,7 @@ export const FileQualityFilterDisplay = ({
     }
     return (
         <>
-            <StaticAlert
-                type={StaticAlertType.Warning}
-                heading={heading}
-                message={message}
-            />
+            <StaticAlert type={StaticAlertType.Warning} heading={heading} message={message} />
 
             <div className="padding-y-4">
                 <div className="display-flex flex-justify flex-align-center">
@@ -324,26 +247,17 @@ export const FileQualityFilterDisplay = ({
                         type="button"
                         onClick={handleJurisdictionSaveToCsvClick}
                     >
-                        Download edits as CSV{" "}
-                        <Icon.FileDownload className="margin-left-1" size={3} />
+                        Download edits as CSV <Icon.FileDownload className="margin-left-1" size={3} />
                     </Button>
                 </div>
             </div>
 
             {destinations?.map((d, idx) => (
-                <div
-                    className="padding-4 radius-md bg-base-lightest margin-bottom-4"
-                    key={idx}
-                >
-                    <table
-                        className="usa-table usa-table--borderless"
-                        data-testid="error-table"
-                    >
+                <div className="padding-4 radius-md bg-base-lightest margin-bottom-4" key={idx}>
+                    <table className="usa-table usa-table--borderless" data-testid="error-table">
                         <thead>
                             <tr>
-                                <th className="rs-table-column-minwidth">
-                                    {d.organization}
-                                </th>
+                                <th className="rs-table-column-minwidth">{d.organization}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -351,10 +265,7 @@ export const FileQualityFilterDisplay = ({
                                 return (
                                     <tr key={i}>
                                         <td>
-                                            <p
-                                                className="margin-0"
-                                                data-testid="ValidationErrorMessage"
-                                            >
+                                            <p className="margin-0" data-testid="ValidationErrorMessage">
                                                 {e.message}
                                             </p>
                                         </td>

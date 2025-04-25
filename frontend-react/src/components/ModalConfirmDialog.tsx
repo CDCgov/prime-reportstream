@@ -66,8 +66,7 @@ export const ModalConfirmDialog = forwardRef(function ModalConfirmDialog(
     ref: Ref<ModalConfirmRef>,
 ) {
     const modalRef = useRef<ModalRef>(null);
-    const [modalState, setModalState] =
-        useState<ModalConfirmSettings>(blankSettings);
+    const [modalState, setModalState] = useState<ModalConfirmSettings>(blankSettings);
 
     // Functions that can be called on the instance
     useImperativeHandle(
@@ -106,10 +105,7 @@ export const ModalConfirmDialog = forwardRef(function ModalConfirmDialog(
                 aria-describedby={`${id}-description`}
                 isLarge={isLarge === true}
             >
-                <ModalHeading
-                    id={`${id}-heading`}
-                    data-testid={`${id}-heading`}
-                >
+                <ModalHeading id={`${id}-heading`} data-testid={`${id}-heading`}>
                     {modalState.title}
                 </ModalHeading>
                 <div className="usa-prose">

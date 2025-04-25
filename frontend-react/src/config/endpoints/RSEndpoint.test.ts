@@ -31,15 +31,11 @@ describe("RSEndpoint", () => {
         });
 
         test("returns url if no dynamic segments are present and no values are passed", () => {
-            expect(testEndpoint.toDynamicUrl()).toEqual(
-                `${config.API_ROOT}/path`,
-            );
+            expect(testEndpoint.toDynamicUrl()).toEqual(`${config.API_ROOT}/path`);
         });
 
         test("throws if not all dynamic segments are provided with values", () => {
-            expect(() =>
-                dynamicEndpoint.toDynamicUrl({ something: "else" }),
-            ).toThrow();
+            expect(() => dynamicEndpoint.toDynamicUrl({ something: "else" })).toThrow();
         });
 
         test("replaces all dynamic segments with provided values", () => {

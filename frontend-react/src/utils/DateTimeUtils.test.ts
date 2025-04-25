@@ -15,12 +15,8 @@ import { ResponseType, TestResponse } from "../resources/TestResponse";
 */
 describe("submission details date display", () => {
     test("SubmissionDates have valid format", () => {
-        const actionDetailsTestResource = new TestResponse(
-            ResponseType.ACTION_DETAIL,
-        ).data;
-        const submissionDate = generateDateTitles(
-            actionDetailsTestResource.timestamp,
-        );
+        const actionDetailsTestResource = new TestResponse(ResponseType.ACTION_DETAIL).data;
+        const submissionDate = generateDateTitles(actionDetailsTestResource.timestamp);
 
         // This will fail if you change the dummy object's dates!
         expect(submissionDate?.dateString).toBe("7 Apr 1970");
@@ -80,9 +76,7 @@ describe("formatDateWithoutSeconds", () => {
 
 describe("dateShortFormat", () => {
     test("as expected", () => {
-        expect(dateShortFormat(new Date("2022-07-11T08:09:22.748Z"))).toBe(
-            "Mon, 7/11/2022",
-        );
+        expect(dateShortFormat(new Date("2022-07-11T08:09:22.748Z"))).toBe("Mon, 7/11/2022");
     });
 });
 
@@ -90,11 +84,7 @@ describe("durationFormatShort", () => {
     test("as expected", () => {
         const now = new Date();
         const before = new Date(now);
-        before.setHours(
-            before.getHours() - 1,
-            before.getMinutes() - 2,
-            before.getSeconds() - 3,
-        );
+        before.setHours(before.getHours() - 1, before.getMinutes() - 2, before.getSeconds() - 3);
 
         const result1 = durationFormatShort(now, before);
         expect(result1).toBe("1h 02m 03s");

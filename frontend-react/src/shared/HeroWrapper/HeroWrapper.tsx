@@ -3,8 +3,7 @@ import { HTMLAttributes, PropsWithChildren } from "react";
 
 import styles from "./HeroWrapper.module.scss";
 
-export interface HeroWrapperProps
-    extends PropsWithChildren<HTMLAttributes<HTMLDivElement>> {
+export interface HeroWrapperProps extends PropsWithChildren<HTMLAttributes<HTMLDivElement>> {
     isAlternate?: boolean;
 }
 

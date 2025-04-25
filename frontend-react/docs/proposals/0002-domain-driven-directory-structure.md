@@ -1,10 +1,10 @@
 # 0002: Domain-Driven Directory Structure
 
--   Status: accepted
--   Authors: @stephenkao
--   Deciders: @jpandersen87, @etanb, @kevinhaube, @penny-lischer
--   Proposal date: 2023-01-12
--   Last updated: 2023-01-19
+- Status: accepted
+- Authors: @stephenkao
+- Deciders: @jpandersen87, @etanb, @kevinhaube, @penny-lischer
+- Proposal date: 2023-01-12
+- Last updated: 2023-01-19
 
 ## Problem Statement
 
@@ -12,9 +12,9 @@ Currently, the `frontend-react/` directory has a flat structure, meaning that we
 
 ## Decision Drivers
 
--   Lack of teamwide alignment on when we should create new files and where files should live
--   Consolidation of a component system for deviations from/customizations on top of USWDS
--   Desire for predictability, colocation, and ease of searching within directories
+- Lack of teamwide alignment on when we should create new files and where files should live
+- Consolidation of a component system for deviations from/customizations on top of USWDS
+- Desire for predictability, colocation, and ease of searching within directories
 
 ## Considered Options
 
@@ -45,16 +45,16 @@ src/
 
 #### Pros
 
--   No time or effort needed
--   No risk of file migration
+- No time or effort needed
+- No risk of file migration
 
 #### Cons
 
--   Harder to maintain
--   No consolidation on where files should live
--   Opaque colocation of related logic
--   Lack of consistency in naming, subdirectories
--   One broad top-level directory for each of components, hooks, styles, utilities, all of which are only similar in type, not purpose
+- Harder to maintain
+- No consolidation on where files should live
+- Opaque colocation of related logic
+- Lack of consistency in naming, subdirectories
+- One broad top-level directory for each of components, hooks, styles, utilities, all of which are only similar in type, not purpose
 
 ### Option 2: Introduce domain-driven directory structure
 
@@ -64,10 +64,10 @@ This option proposes we group our files by domain, and we define "domain" as an 
 
 Each domain would have the following directories, and each should be kept as flat as possible in order to maintain a deterministic paths for each of the contained files.
 
--   `components`: all domain-specific React component files, including component definitions, tests, colocated styles, and Storybook stories
--   `hooks`: all domain-specific React hooks and tests
--   `decorators`: all domain-specific React decorators
--   `utils`: all domain-specific utilities, tests, and endpoint resources
+- `components`: all domain-specific React component files, including component definitions, tests, colocated styles, and Storybook stories
+- `hooks`: all domain-specific React hooks and tests
+- `decorators`: all domain-specific React decorators
+- `utils`: all domain-specific utilities, tests, and endpoint resources
 
 Each distinct "entity" should have its own directory, but that directory should not contain other directories:
 
@@ -144,31 +144,31 @@ domainA/
 
 As part of this first wave of reorganization, we can include the following domains:
 
--   `auth`: functionality specific to user login and session
--   `admin`: functionality specific to admin usage
--   `organization`: functionality specific to non-admin Organizations
-    -   Can also split into `sender` and `receiver` domains
--   `common`: functionality that is atomic or shared between other domains
+- `auth`: functionality specific to user login and session
+- `admin`: functionality specific to admin usage
+- `organization`: functionality specific to non-admin Organizations
+    - Can also split into `sender` and `receiver` domains
+- `common`: functionality that is atomic or shared between other domains
 
 Tentatively proposed domains:
 
--   `styleguide`: functionality specific to Trussworks or USWDS overrides
-    -   Q: Should this exist in `common` or is it useful to split it out?
--   `analytics`: functionality specific to telemetry/Azure App Insights/event-tracking
-    -   Q: Should this exist in `common` or is it useful to split it out?
+- `styleguide`: functionality specific to Trussworks or USWDS overrides
+    - Q: Should this exist in `common` or is it useful to split it out?
+- `analytics`: functionality specific to telemetry/Azure App Insights/event-tracking
+    - Q: Should this exist in `common` or is it useful to split it out?
 
 #### Pros
 
--   Scalable, predictable pattern for future feature work
--   Helps to naturally reinforce separation of concerns between modules
--   Easier to find files
--   More implicit boundaries for lazy-loaded modules
+- Scalable, predictable pattern for future feature work
+- Helps to naturally reinforce separation of concerns between modules
+- Easier to find files
+- More implicit boundaries for lazy-loaded modules
 
 #### Cons
 
--   Initial cost of reorganization
--   Potential risk of reorganization/renaming issues
--   More work to split up domains into smaller domains going forward
+- Initial cost of reorganization
+- Potential risk of reorganization/renaming issues
+- More work to split up domains into smaller domains going forward
 
 ## Decision Outcome
 

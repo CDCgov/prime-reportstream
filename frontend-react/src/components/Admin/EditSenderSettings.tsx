@@ -3,17 +3,9 @@ import { useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useController, useResource } from "rest-hooks";
 
-import {
-    CheckboxComponent,
-    DropdownComponent,
-    TextAreaComponent,
-    TextInputComponent,
-} from "./AdminFormEdit";
+import { CheckboxComponent, DropdownComponent, TextAreaComponent, TextInputComponent } from "./AdminFormEdit";
 import { AdminFormWrapper } from "./AdminFormWrapper";
-import {
-    ConfirmSaveSettingModal,
-    ConfirmSaveSettingModalRef,
-} from "./CompareJsonModal";
+import { ConfirmSaveSettingModal, ConfirmSaveSettingModalRef } from "./CompareJsonModal";
 import Title from "../../components/Title";
 import config from "../../config";
 import useSessionContext from "../../contexts/Session/useSessionContext";
@@ -38,26 +30,20 @@ interface EditSenderSettingsFormProps {
     sendername: string;
     action: "edit" | "clone";
 }
-const EditSenderSettingsForm = ({
-    orgname,
-    sendername,
-    action,
-}: EditSenderSettingsFormProps) => {
+const EditSenderSettingsForm = ({ orgname, sendername, action }: EditSenderSettingsFormProps) => {
     const { toast: showAlertNotification } = useToast();
     const { properties } = useAppInsightsContext();
     const navigate = useNavigate();
     const confirmModalRef = useRef<ConfirmSaveSettingModalRef>(null);
     const { activeMembership, authState, rsConsole } = useSessionContext();
 
-    const orgSenderSettings: OrgSenderSettingsResource = useResource(
-        OrgSenderSettingsResource.detail(),
-        { orgname, sendername: sendername },
-    );
+    const orgSenderSettings: OrgSenderSettingsResource = useResource(OrgSenderSettingsResource.detail(), {
+        orgname,
+        sendername: sendername,
+    });
 
-    const [orgSenderSettingsOldJson, setOrgSenderSettingsOldJson] =
-        useState("");
-    const [orgSenderSettingsNewJson, setOrgSenderSettingsNewJson] =
-        useState("");
+    const [orgSenderSettingsOldJson, setOrgSenderSettingsOldJson] = useState("");
+    const [orgSenderSettingsNewJson, setOrgSenderSettingsNewJson] = useState("");
     const { fetch: fetchController } = useController();
     const { invalidate } = useController();
     const [loading, setLoading] = useState(false);
@@ -66,8 +52,7 @@ const EditSenderSettingsForm = ({
     const ShowDeleteConfirm = (deleteItemId: string) => {
         modalRef?.current?.showModal({
             title: "Confirm Delete",
-            message:
-                "Deleting a setting will only mark it deleted. It can be accessed via the revision history",
+            message: "Deleting a setting will only mark it deleted. It can be accessed via the revision history",
             okButtonText: "Delete",
             itemId: deleteItemId,
         });
@@ -79,10 +64,7 @@ const EditSenderSettingsForm = ({
                 sendername: deleteItemId,
             });
 
-            showAlertNotification(
-                `Item '${deleteItemId}' has been deleted`,
-                "success",
-            );
+            showAlertNotification(`Item '${deleteItemId}' has been deleted`, "success");
 
             // navigate back to list since this item was just deleted
             navigate(-1);
@@ -90,10 +72,7 @@ const EditSenderSettingsForm = ({
         } catch (e: any) {
             rsConsole.trace(e);
             showAlertNotification(
-                new Error(
-                    `Deleting item '${deleteItemId}' failed. ${e.toString()}`,
-                    { cause: e },
-                ),
+                new Error(`Deleting item '${deleteItemId}' failed. ${e.toString()}`, { cause: e }),
                 "error",
             );
             return false;
@@ -104,16 +83,13 @@ const EditSenderSettingsForm = ({
         const accessToken = authState.accessToken?.accessToken;
         const organization = activeMembership?.parsedName;
 
-        const response = await fetch(
-            `${RS_API_URL}/api/settings/organizations/${orgname}/senders/${sendername}`,
-            {
-                headers: {
-                    "x-ms-session-id": properties.context.getSessionId(),
-                    Authorization: `Bearer ${accessToken}`,
-                    Organization: organization!,
-                },
+        const response = await fetch(`${RS_API_URL}/api/settings/organizations/${orgname}/senders/${sendername}`, {
+            headers: {
+                "x-ms-session-id": properties.context.getSessionId(),
+                Authorization: `Bearer ${accessToken}`,
+                Organization: organization!,
             },
-        );
+        });
 
         return await response.json();
     }
@@ -123,34 +99,19 @@ const EditSenderSettingsForm = ({
             const { name } = orgSenderSettings;
 
             if (!isValidServiceName(name)) {
-                showAlertNotification(
-                    `${name} cannot contain special characters.`,
-                    "error",
-                );
+                showAlertNotification(`${name} cannot contain special characters.`, "error");
                 return false;
             }
 
             // fetch original version
             setLoading(true);
             const latestResponse = await getLatestSenderResponse();
-            setOrgSenderSettingsOldJson(
-                JSON.stringify(latestResponse, jsonSortReplacer, 2),
-            );
-            setOrgSenderSettingsNewJson(
-                JSON.stringify(orgSenderSettings, jsonSortReplacer, 2),
-            );
+            setOrgSenderSettingsOldJson(JSON.stringify(latestResponse, jsonSortReplacer, 2));
+            setOrgSenderSettingsNewJson(JSON.stringify(orgSenderSettings, jsonSortReplacer, 2));
 
-            if (
-                action === "edit" &&
-                latestResponse?.version !== orgSenderSettings?.version
-            ) {
-                showAlertNotification(
-                    getVersionWarning(VersionWarningType.POPUP),
-                    "error",
-                );
-                confirmModalRef?.current?.setWarning(
-                    getVersionWarning(VersionWarningType.FULL, latestResponse),
-                );
+            if (action === "edit" && latestResponse?.version !== orgSenderSettings?.version) {
+                showAlertNotification(getVersionWarning(VersionWarningType.POPUP), "error");
+                confirmModalRef?.current?.setWarning(getVersionWarning(VersionWarningType.FULL, latestResponse));
                 confirmModalRef?.current?.disableSave();
             }
 
@@ -161,10 +122,7 @@ const EditSenderSettingsForm = ({
             const errorDetail = await getErrorDetailFromResponse(e);
             rsConsole.trace(e, errorDetail);
             showAlertNotification(
-                new Error(
-                    `Reloading sender '${sendername}' failed with: ${errorDetail}`,
-                    { cause: e },
-                ),
+                new Error(`Reloading sender '${sendername}' failed with: ${errorDetail}`, { cause: e }),
                 "error",
             );
             return false;
@@ -186,24 +144,16 @@ const EditSenderSettingsForm = ({
             const latestResponse = await getLatestSenderResponse();
             if (latestResponse.version !== orgSenderSettings?.version) {
                 // refresh left-side panel in compare modal to make it obvious what has changed
-                setOrgSenderSettingsOldJson(
-                    JSON.stringify(latestResponse, jsonSortReplacer, 2),
-                );
-                showAlertNotification(
-                    getVersionWarning(VersionWarningType.POPUP),
-                    "error",
-                );
-                confirmModalRef?.current?.setWarning(
-                    getVersionWarning(VersionWarningType.FULL, latestResponse),
-                );
+                setOrgSenderSettingsOldJson(JSON.stringify(latestResponse, jsonSortReplacer, 2));
+                showAlertNotification(getVersionWarning(VersionWarningType.POPUP), "error");
+                confirmModalRef?.current?.setWarning(getVersionWarning(VersionWarningType.FULL, latestResponse));
                 confirmModalRef?.current?.disableSave();
                 return false;
             }
 
             const data = confirmModalRef?.current?.getEditedText();
 
-            const sendernamelocal =
-                action === "clone" ? orgSenderSettings.name : sendername;
+            const sendernamelocal = action === "clone" ? orgSenderSettings.name : sendername;
 
             await fetchController(
                 // NOTE: For 'clone' does not use the expected OrgSenderSettingsResource.create() method
@@ -213,10 +163,7 @@ const EditSenderSettingsForm = ({
                 data,
             );
 
-            showAlertNotification(
-                `Item '${sendernamelocal}' has been saved`,
-                "success",
-            );
+            showAlertNotification(`Item '${sendernamelocal}' has been saved`, "success");
             confirmModalRef?.current?.toggleModal(undefined, false);
             setLoading(false);
             navigate(-1);
@@ -225,10 +172,7 @@ const EditSenderSettingsForm = ({
             const errorDetail = await getErrorDetailFromResponse(e);
             rsConsole.trace(e, errorDetail);
             showAlertNotification(
-                new Error(
-                    `Updating sender '${sendername}' failed with: ${errorDetail}`,
-                    { cause: e },
-                ),
+                new Error(`Updating sender '${sendername}' failed with: ${errorDetail}`, { cause: e }),
                 "error",
             );
             return false;
@@ -242,9 +186,7 @@ const EditSenderSettingsForm = ({
                 <TextInputComponent
                     fieldname={"name"}
                     label={"Name"}
-                    defaultvalue={
-                        action === "edit" ? orgSenderSettings.name : ""
-                    }
+                    defaultvalue={action === "edit" ? orgSenderSettings.name : ""}
                     savefunc={(v) => (orgSenderSettings.name = v)}
                     disabled={action === "edit"}
                 />
@@ -309,12 +251,7 @@ const EditSenderSettingsForm = ({
                         ) : null}
                     </Grid>
                     <Grid col={6} className={"text-right"}>
-                        <Button
-                            type="button"
-                            onClick={() =>
-                                void resetSenderList().then(() => navigate(-1))
-                            }
-                        >
+                        <Button type="button" onClick={() => void resetSenderList().then(() => navigate(-1))}>
                             Cancel
                         </Button>
                         <Button
@@ -329,9 +266,7 @@ const EditSenderSettingsForm = ({
                     </Grid>
                 </Grid>
                 <ConfirmSaveSettingModal
-                    uniquid={
-                        action === "edit" ? sendername : orgSenderSettings.name
-                    }
+                    uniquid={action === "edit" ? sendername : orgSenderSettings.name}
                     onConfirm={() => void saveSenderData()}
                     ref={confirmModalRef}
                     oldjson={orgSenderSettingsOldJson}
@@ -355,23 +290,11 @@ export interface EditSenderSettingsProps {
 }
 
 export function EditSenderSettingsPage() {
-    const { orgname, sendername, action } =
-        useParams<EditSenderSettingsProps>();
+    const { orgname, sendername, action } = useParams<EditSenderSettingsProps>();
 
     return (
-        <AdminFormWrapper
-            header={
-                <Title
-                    preTitle={`Org name: ${orgname}`}
-                    title={`Sender name: ${sendername}`}
-                />
-            }
-        >
-            <EditSenderSettingsForm
-                orgname={orgname ?? ""}
-                sendername={sendername ?? ""}
-                action={action ?? "edit"}
-            />
+        <AdminFormWrapper header={<Title preTitle={`Org name: ${orgname}`} title={`Sender name: ${sendername}`} />}>
+            <EditSenderSettingsForm orgname={orgname ?? ""} sendername={sendername ?? ""} action={action ?? "edit"} />
         </AdminFormWrapper>
     );
 }

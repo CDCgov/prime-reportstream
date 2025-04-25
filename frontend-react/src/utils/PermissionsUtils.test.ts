@@ -22,24 +22,12 @@ const adminToken = mockAccessToken({
 describe("permissionCheck", () => {
     test("permission check is valid", () => {
         const trueSenderAuth = permissionCheck(PERMISSIONS.SENDER, senderToken);
-        const trueReceiverAuth = permissionCheck(
-            PERMISSIONS.RECEIVER,
-            receiverToken,
-        );
-        const trueAdminAuth = permissionCheck(
-            PERMISSIONS.PRIME_ADMIN,
-            adminToken,
-        );
+        const trueReceiverAuth = permissionCheck(PERMISSIONS.RECEIVER, receiverToken);
+        const trueAdminAuth = permissionCheck(PERMISSIONS.PRIME_ADMIN, adminToken);
 
         const falseSenderAuth = permissionCheck(PERMISSIONS.SENDER, adminToken);
-        const falseReceiverAuth = permissionCheck(
-            PERMISSIONS.RECEIVER,
-            senderToken,
-        );
-        const falseAdminAuth = permissionCheck(
-            PERMISSIONS.PRIME_ADMIN,
-            receiverToken,
-        );
+        const falseReceiverAuth = permissionCheck(PERMISSIONS.RECEIVER, senderToken);
+        const falseAdminAuth = permissionCheck(PERMISSIONS.PRIME_ADMIN, receiverToken);
 
         expect(trueSenderAuth).toEqual(true);
         expect(trueReceiverAuth).toEqual(true);

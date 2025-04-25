@@ -1,14 +1,7 @@
 import "@testing-library/jest-dom";
 import { cleanup } from "@testing-library/react";
 import { createMocks } from "react-idle-timer";
-import {
-    fetch,
-    FileReader,
-    FormData,
-    Headers,
-    Request,
-    Response,
-} from "undici";
+import { fetch, FileReader, FormData, Headers, Request, Response } from "undici";
 import { Blob, File } from "node:buffer";
 import { MessageChannel } from "worker_threads";
 

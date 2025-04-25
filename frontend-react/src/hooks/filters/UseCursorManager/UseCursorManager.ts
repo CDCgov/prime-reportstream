@@ -16,10 +16,7 @@ interface CursorAction {
     payload?: string;
 }
 
-type CursorReducer<Cursors, CursorAction> = (
-    cursors: Cursors,
-    action: CursorAction,
-) => Cursors;
+type CursorReducer<Cursors, CursorAction> = (cursors: Cursors, action: CursorAction) => Cursors;
 
 /** @deprecated CursorManager is replaced with PaginationProps*/
 interface CursorManager {
@@ -70,9 +67,7 @@ const cursorReducer = (state: Cursors, action: CursorAction): Cursors => {
 
 /** @deprecated Replace with usePagination for numbered pagination */
 const useCursorManager = (firstCursor?: string) => {
-    const [cursors, cursorDispatch] = useReducer<
-        CursorReducer<Cursors, CursorAction>
-    >(cursorReducer, {
+    const [cursors, cursorDispatch] = useReducer<CursorReducer<Cursors, CursorAction>>(cursorReducer, {
         current: firstCursor ?? "",
         next: "",
         history: [],

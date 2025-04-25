@@ -1,10 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 
-import {
-    LookupTable,
-    lookupTablesEndpoints,
-    ValueSetRow,
-} from "../../../../config/endpoints/lookupTables";
+import { LookupTable, lookupTablesEndpoints, ValueSetRow } from "../../../../config/endpoints/lookupTables";
 import useSessionContext from "../../../../contexts/Session/useSessionContext";
 import { RSNetworkError } from "../../../../utils/RSNetworkError";
 

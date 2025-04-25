@@ -7,8 +7,7 @@ import { renderApp } from "../../utils/CustomRenderUtils";
 
 describe("LayoutComponents", () => {
     function TestComponent(props: PropsWithChildren<object>) {
-        const [sidenavContent, setSidenavContent] =
-            useState<ReactNode>(undefined);
+        const [sidenavContent, setSidenavContent] = useState<ReactNode>(undefined);
         const [mainContent, setMainContent] = useState<ReactNode>(undefined);
         const ctx = useMemo(() => {
             return {
@@ -21,17 +20,9 @@ describe("LayoutComponents", () => {
 
         return (
             <MarkdownLayoutContext.Provider value={ctx}>
-                {ctx.sidenavContent ? (
-                    <section data-testid="sidenav">
-                        {ctx.sidenavContent}
-                    </section>
-                ) : null}
-                {ctx.mainContent ? (
-                    <section data-testid="main">{ctx.mainContent}</section>
-                ) : null}
-                {props.children ? (
-                    <section data-testid="children">{props.children}</section>
-                ) : null}
+                {ctx.sidenavContent ? <section data-testid="sidenav">{ctx.sidenavContent}</section> : null}
+                {ctx.mainContent ? <section data-testid="main">{ctx.mainContent}</section> : null}
+                {props.children ? <section data-testid="children">{props.children}</section> : null}
             </MarkdownLayoutContext.Provider>
         );
     }
@@ -43,9 +34,7 @@ describe("LayoutComponents", () => {
             </TestComponent>,
         );
         expect(screen.getByTestId("sidenav")).toHaveTextContent("Test Sidenav");
-        expect(screen.getByTestId("children")).not.toHaveTextContent(
-            "Test Sidenav",
-        );
+        expect(screen.getByTestId("children")).not.toHaveTextContent("Test Sidenav");
     });
 
     test("LayoutMain", () => {
@@ -55,8 +44,6 @@ describe("LayoutComponents", () => {
             </TestComponent>,
         );
         expect(screen.getByTestId("main")).toHaveTextContent("Test Main");
-        expect(screen.getByTestId("children")).not.toHaveTextContent(
-            "Test Main",
-        );
+        expect(screen.getByTestId("children")).not.toHaveTextContent("Test Main");
     });
 });

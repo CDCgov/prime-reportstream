@@ -17,32 +17,24 @@ export const StaticCompare = (props: StaticCompareProps): ReactElement => {
     const [rightHighlightHtml, setRightHighlightHtml] = useState("");
     const [syncEnabled, setSyncEnabled] = useState(true);
 
-    const refreshHighlights = useCallback(
-        (leftText: string, rightText: string, jsonDiffMode: boolean) => {
-            if (leftText.length === 0 || rightText.length === 0) {
-                // just clear the hightlighting for both sides and don't bother comparing
-                setLeftHighlightHtml(leftText);
-                setRightHighlightHtml(rightText);
-                return;
-            }
-            const result = jsonDiffMode
-                ? jsonDifferMarkup(JSON.parse(leftText), JSON.parse(rightText))
-                : textDifferMarkup(leftText, rightText);
+    const refreshHighlights = useCallback((leftText: string, rightText: string, jsonDiffMode: boolean) => {
+        if (leftText.length === 0 || rightText.length === 0) {
+            // just clear the hightlighting for both sides and don't bother comparing
+            setLeftHighlightHtml(leftText);
+            setRightHighlightHtml(rightText);
+            return;
+        }
+        const result = jsonDiffMode
+            ? jsonDifferMarkup(JSON.parse(leftText), JSON.parse(rightText))
+            : textDifferMarkup(leftText, rightText);
 
-            setLeftHighlightHtml(result.left.markupText);
-            setRightHighlightHtml(result.right.markupText);
-        },
-        [],
-    );
+        setLeftHighlightHtml(result.left.markupText);
+        setRightHighlightHtml(result.right.markupText);
+    }, []);
 
     useEffect(() => {
         refreshHighlights(props.leftText, props.rightText, props.jsonDiffMode);
-    }, [
-        props.leftText,
-        props.rightText,
-        props.jsonDiffMode,
-        refreshHighlights,
-    ]);
+    }, [props.leftText, props.rightText, props.jsonDiffMode, refreshHighlights]);
 
     return (
         <>
@@ -54,9 +46,7 @@ export const StaticCompare = (props: StaticCompareProps): ReactElement => {
                                 className="rs-static-compare-base rs-editable-compare-static"
                                 data-testid={"left-compare-text"}
                                 dangerouslySetInnerHTML={{
-                                    __html: DOMPurify.sanitize(
-                                        leftHighlightHtml,
-                                    ),
+                                    __html: DOMPurify.sanitize(leftHighlightHtml),
                                 }}
                             />
                         </ScrollSyncPane>
@@ -67,9 +57,7 @@ export const StaticCompare = (props: StaticCompareProps): ReactElement => {
                                 className="rs-static-compare-base rs-editable-compare-static"
                                 data-testid={"right-compare-text"}
                                 dangerouslySetInnerHTML={{
-                                    __html: DOMPurify.sanitize(
-                                        rightHighlightHtml,
-                                    ),
+                                    __html: DOMPurify.sanitize(rightHighlightHtml),
                                 }}
                             />
                         </ScrollSyncPane>

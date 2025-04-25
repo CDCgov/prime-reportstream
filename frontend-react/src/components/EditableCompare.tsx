@@ -1,14 +1,5 @@
 import DOMPurify from "dompurify";
-import {
-    forwardRef,
-    ReactElement,
-    Ref,
-    useCallback,
-    useEffect,
-    useImperativeHandle,
-    useRef,
-    useState,
-} from "react";
+import { forwardRef, ReactElement, Ref, useCallback, useEffect, useImperativeHandle, useRef, useState } from "react";
 import { ScrollSync, ScrollSyncPane } from "react-scroll-sync";
 
 import { showToast } from "../contexts/Toast";
@@ -58,10 +49,8 @@ export const EditableCompare = forwardRef(
 
         const [textAreaContent, setTextAreaContent] = useState("");
 
-        const [leftHandSideHighlightHtml, setLeftHandSideHighlightHtml] =
-            useState("");
-        const [rightHandSideHighlightHtml, setRightHandSideHighlightHtml] =
-            useState("");
+        const [leftHandSideHighlightHtml, setLeftHandSideHighlightHtml] = useState("");
+        const [rightHandSideHighlightHtml, setRightHandSideHighlightHtml] = useState("");
 
         // the API call into this forwardRef well say if json is valid (to enable save button)
         const [isValidSyntax, setIsValidSyntax] = useState(true);
@@ -91,10 +80,7 @@ export const EditableCompare = forwardRef(
                 }
 
                 const result = jsonDiffMode
-                    ? jsonDifferMarkup(
-                          JSON.parse(originalText),
-                          JSON.parse(modifiedText),
-                      )
+                    ? jsonDifferMarkup(JSON.parse(originalText), JSON.parse(modifiedText))
                     : textDifferMarkup(originalText, modifiedText);
 
                 // now stick it back into the edit boxes.
@@ -107,11 +93,7 @@ export const EditableCompare = forwardRef(
                     setRightHandSideHighlightHtml(result.right.markupText);
                 }
             },
-            [
-                leftHandSideHighlightHtml,
-                rightHandSideHighlightHtml,
-                jsonDiffMode,
-            ],
+            [leftHandSideHighlightHtml, rightHandSideHighlightHtml, jsonDiffMode],
         );
 
         // force an update of the content
@@ -122,17 +104,10 @@ export const EditableCompare = forwardRef(
                 const { valid, errorMsg } = checkJson(formattedText);
 
                 if (valid) {
-                    formattedText = JSON.stringify(
-                        JSON.parse(formattedText),
-                        null,
-                        2,
-                    );
+                    formattedText = JSON.stringify(JSON.parse(formattedText), null, 2);
                     setTextAreaContent(formattedText);
                 } else {
-                    showToast(
-                        `JSON data generated an error "${errorMsg}"`,
-                        "error",
-                    );
+                    showToast(`JSON data generated an error "${errorMsg}"`, "error");
                 }
 
                 setIsValidSyntax(valid);
@@ -197,9 +172,7 @@ export const EditableCompare = forwardRef(
                                 ref={editDiffBackgroundRef}
                                 className="rs-editable-compare-base rs-editable-compare-background"
                                 dangerouslySetInnerHTML={{
-                                    __html: DOMPurify.sanitize(
-                                        leftHandSideHighlightHtml,
-                                    ),
+                                    __html: DOMPurify.sanitize(leftHandSideHighlightHtml),
                                 }}
                             />
                         </ScrollSyncPane>
@@ -225,9 +198,7 @@ export const EditableCompare = forwardRef(
                                 dangerouslySetInnerHTML={{
                                     // the extra `<br/>` is required for some odd reason.
                                     // It's in the shadowdom of the textarea.
-                                    __html: `${DOMPurify.sanitize(
-                                        rightHandSideHighlightHtml,
-                                    )}<br/>`,
+                                    __html: `${DOMPurify.sanitize(rightHandSideHighlightHtml)}<br/>`,
                                 }}
                             />
                         </ScrollSyncPane>

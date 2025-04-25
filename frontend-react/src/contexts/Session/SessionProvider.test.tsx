@@ -35,8 +35,7 @@ describe("SessionContext", () => {
         const TestComponent = () => {
             const { activeMembership } = useContext(SessionContext);
             // Conditions to fail
-            if (activeMembership?.memberType !== MemberType.PRIME_ADMIN)
-                return <>failed</>;
+            if (activeMembership?.memberType !== MemberType.PRIME_ADMIN) return <>failed</>;
             return <>passed</>;
         };
         test("admin hard check is true when user is admin member type", () => {
@@ -49,11 +48,7 @@ describe("SessionContext", () => {
                 },
             } as any);
             render(
-                <SessionProvider
-                    key={1}
-                    config={{ ...configFixture }}
-                    rsConsole={{} as any}
-                >
+                <SessionProvider key={1} config={{ ...configFixture }} rsConsole={{} as any}>
                     <TestComponent key={1} />
                 </SessionProvider>,
             );
@@ -70,11 +65,7 @@ describe("SessionContext", () => {
             } as any);
             render(
                 <div>
-                    <SessionProvider
-                        key={2}
-                        config={{ ...configFixture }}
-                        rsConsole={{} as any}
-                    >
+                    <SessionProvider key={2} config={{ ...configFixture }} rsConsole={{} as any}>
                         <TestComponent key={2} />
                     </SessionProvider>
                 </div>,
@@ -86,10 +77,7 @@ describe("SessionContext", () => {
     describe("idle timer", () => {
         function setup() {
             render(
-                <SessionProvider
-                    config={{ ...configFixture }}
-                    rsConsole={{} as any}
-                >
+                <SessionProvider config={{ ...configFixture }} rsConsole={{} as any}>
                     Test
                 </SessionProvider>,
             );
@@ -133,10 +121,7 @@ describe("SessionContext", () => {
         function setup(isUseragentPreferred = true) {
             mockIsUseragentPreferred.mockReturnValue(isUseragentPreferred);
             render(
-                <SessionProvider
-                    config={{ ...configFixture }}
-                    rsConsole={{} as any}
-                >
+                <SessionProvider config={{ ...configFixture }} rsConsole={{} as any}>
                     Test
                 </SessionProvider>,
             );
@@ -144,16 +129,12 @@ describe("SessionContext", () => {
         describe("isUserAgentOutdated", () => {
             test("undefined when regex test passes", () => {
                 setup();
-                expect(
-                    mockReactPlugin.customProperties.isUserAgentOutdated,
-                ).toBe(undefined);
+                expect(mockReactPlugin.customProperties.isUserAgentOutdated).toBe(undefined);
             });
 
             test("true when test fails", () => {
                 setup(false);
-                expect(
-                    mockReactPlugin.customProperties.isUserAgentOutdated,
-                ).toBe(true);
+                expect(mockReactPlugin.customProperties.isUserAgentOutdated).toBe(true);
             });
         });
     });

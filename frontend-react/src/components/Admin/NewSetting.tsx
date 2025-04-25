@@ -8,10 +8,7 @@ import { showToast } from "../../contexts/Toast";
 import { ErrorPage } from "../../pages/error/ErrorPage";
 import OrgReceiverSettingsResource from "../../resources/OrgReceiverSettingsResource";
 import OrgSenderSettingsResource from "../../resources/OrgSenderSettingsResource";
-import {
-    getErrorDetailFromResponse,
-    isValidServiceName,
-} from "../../utils/misc";
+import { getErrorDetailFromResponse, isValidServiceName } from "../../utils/misc";
 import Spinner from "../Spinner";
 
 interface NewSettingProps {
@@ -27,8 +24,7 @@ export function NewSettingPage() {
     const { orgname, settingtype } = useParams<NewSettingProps>();
     /* useParams now returns possible undefined. This will error up to a boundary
      * if the url param is undefined */
-    if (orgname === undefined || settingtype === undefined)
-        throw Error("Expected orgname & settingtype from path");
+    if (orgname === undefined || settingtype === undefined) throw Error("Expected orgname & settingtype from path");
 
     let orgSetting: object = [];
     let orgSettingName = "";
@@ -37,10 +33,7 @@ export function NewSettingPage() {
     const saveData = async () => {
         try {
             if (!isValidServiceName(orgSettingName)) {
-                showToast(
-                    `${orgSettingName} cannot contain special characters.`,
-                    "error",
-                );
+                showToast(`${orgSettingName} cannot contain special characters.`, "error");
                 return false;
             }
 
@@ -59,20 +52,13 @@ export function NewSettingPage() {
                 },
             };
 
-            await fetchController(
-                SETTINGTYPE[settingtype].updateFn,
-                SETTINGTYPE[settingtype].args,
-                data,
-            );
+            await fetchController(SETTINGTYPE[settingtype].updateFn, SETTINGTYPE[settingtype].args, data);
 
             showToast(`Item '${orgSettingName}' has been created`, "success");
             navigate(-1);
         } catch (e: any) {
             const errorDetail = await getErrorDetailFromResponse(e);
-            showToast(
-                `Updating setting '${orgSettingName}' failed with: ${errorDetail}`,
-                "error",
-            );
+            showToast(`Updating setting '${orgSettingName}' failed with: ${errorDetail}`, "error");
             return false;
         }
         return true;

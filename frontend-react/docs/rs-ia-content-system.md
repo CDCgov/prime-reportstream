@@ -51,10 +51,7 @@ the `MarkdownDirectory` or `ElementDirectory`. You can use them interchangeably 
 
 ```typescript jsx
 export const helpDirectories: ContentDirectory[] = [
-    new MarkdownDirectory()
-        .setTitle("FAQ")
-        .setSlug(HelpDirectoryTools.getSlug(HelpDirectories.FAQ))
-        .addFile(FaqMd), // <-- Imported MD file
+    new MarkdownDirectory().setTitle("FAQ").setSlug(HelpDirectoryTools.getSlug(HelpDirectories.FAQ)).addFile(FaqMd), // <-- Imported MD file
     new ElementDirectory()
         .setTitle("Another one")
         .setSlug(HelpDirectoryTools.getSlug(HelpDirectories.ANOTHER_ONE))

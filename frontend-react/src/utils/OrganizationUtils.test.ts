@@ -16,11 +16,9 @@ const mockUpdateApiSessions = vi.fn();
 
 vi.mock("../utils/SessionStorageTools", () => {
     return {
-        storeSessionMembershipState: (value: string) =>
-            mockStoreSessionMembershipState(value),
+        storeSessionMembershipState: (value: string) => mockStoreSessionMembershipState(value),
         getSessionMembershipState: () => mockGetSessionMembershipState(),
-        storeOrganizationOverride: (value: string) =>
-            mockStoreOrganizationOverride(value),
+        storeOrganizationOverride: (value: string) => mockStoreOrganizationOverride(value),
         getOrganizationOverride: () => mockGetOrganizationOverride(),
     };
 });

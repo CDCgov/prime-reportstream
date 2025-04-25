@@ -43,8 +43,7 @@ test("verify checking json for errors", () => {
     expect(checkJson(`{ "foo": [1,2,3 }`)).toStrictEqual({
         valid: false,
         offset: 16,
-        errorMsg:
-            "Expected ',' or ']' after array element in JSON at position 16",
+        errorMsg: "Expected ',' or ']' after array element in JSON at position 16",
     });
 });
 
@@ -110,20 +109,13 @@ describe("capitalizeFirst", () => {
     });
     test("returns original string with first letter capitalized", () => {
         expect(capitalizeFirst("all")).toEqual("All");
-        expect(capitalizeFirst("vdpoiENUpajfPWEOIWA")).toEqual(
-            "VdpoiENUpajfPWEOIWA",
-        );
+        expect(capitalizeFirst("vdpoiENUpajfPWEOIWA")).toEqual("VdpoiENUpajfPWEOIWA");
     });
 });
 
 describe("groupBy", () => {
     test("groupBy basic", () => {
-        expect(
-            groupBy(
-                ["one", "two", "three", "four", "five"],
-                (v) => `${v.length}`,
-            ),
-        ).toStrictEqual({
+        expect(groupBy(["one", "two", "three", "four", "five"], (v) => `${v.length}`)).toStrictEqual({
             3: ["one", "two"],
             4: ["four", "five"],
             5: ["three"],
@@ -133,19 +125,7 @@ describe("groupBy", () => {
 
 describe("isValidServiceName", () => {
     describe("when the string is empty or contains characters outside of the allowed set", () => {
-        const names = [
-            "",
-            "test/",
-            "te.st",
-            "te$t",
-            "tes#",
-            "@est",
-            "te,st",
-            "te)",
-            "a\\ttest",
-            "|test",
-            "test hello",
-        ];
+        const names = ["", "test/", "te.st", "te$t", "tes#", "@est", "te,st", "te)", "a\\ttest", "|test", "test hello"];
 
         names.forEach((name) => {
             test(`return false for string ${name}`, () => {
@@ -155,13 +135,7 @@ describe("isValidServiceName", () => {
     });
 
     describe("when the string only contains characters within the allowed set", () => {
-        const names = [
-            "orgname",
-            "org-name",
-            "org_name",
-            "ORG-NAME",
-            "org-name-1",
-        ];
+        const names = ["orgname", "org-name", "org_name", "ORG-NAME", "org-name-1"];
 
         names.forEach((name) => {
             test(`returns true for string ${name}`, () => {
@@ -178,9 +152,7 @@ describe("parseFileLocation", () => {
         );
         expect(folderLocation).toEqual("receive");
         expect(sendingOrg).toEqual("simple_report.csvuploader");
-        expect(fileName).toEqual(
-            "upload-covid-19-c33f9d36-9e5b-44eb-9368-218d88f3a7d1-20230131190253.csv",
-        );
+        expect(fileName).toEqual("upload-covid-19-c33f9d36-9e5b-44eb-9368-218d88f3a7d1-20230131190253.csv");
     });
 
     test("returns empty strings for sendingOrg and fileName when string is missing all three fragments split on %2F", () => {

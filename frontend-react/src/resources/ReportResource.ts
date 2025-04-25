@@ -23,13 +23,7 @@ export default class ReportResource extends AuthResource {
     readonly fileName: string = "";
     readonly mimeType: string = "";
 
-    constructor(
-        reportId?: string,
-        sent?: number,
-        expires?: number,
-        total?: number,
-        fileType?: string,
-    ) {
+    constructor(reportId?: string, sent?: number, expires?: number, total?: number, fileType?: string) {
         super();
         this.reportId = reportId ?? "";
         this.sent = sent ?? 0;

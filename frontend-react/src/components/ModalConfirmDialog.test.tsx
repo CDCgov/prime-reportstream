@@ -23,11 +23,7 @@ describe("ConfirmDialog", () => {
         const modalRef = result.current;
         renderApp(
             <div>
-                <ModalConfirmDialog
-                    ref={modalRef}
-                    id={id}
-                    onConfirm={confirmCallback}
-                ></ModalConfirmDialog>
+                <ModalConfirmDialog ref={modalRef} id={id} onConfirm={confirmCallback}></ModalConfirmDialog>
             </div>,
         );
 

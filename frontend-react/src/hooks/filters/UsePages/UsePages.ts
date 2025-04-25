@@ -25,10 +25,7 @@ interface PageSettingsAction {
     payload?: Partial<PageSettings>;
 }
 
-const pageNumReducer = (
-    state: PageSettings,
-    action: PageSettingsAction,
-): PageSettings => {
+const pageNumReducer = (state: PageSettings, action: PageSettingsAction): PageSettings => {
     const { type, payload } = action;
     switch (type) {
         case PageSettingsActionType.DEC_PAGE:

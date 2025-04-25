@@ -12,8 +12,7 @@ const MOCK_MESSAGE_WARNINGS = [
             class: "gov.cdc.prime.router.InvalidCodeMessage",
             fieldMapping: "Specimen_type_code (specimen_type)",
             scope: "item",
-            message:
-                "Invalid code: '' is not a display value in altValues set for Specimen_type_code (specimen_type).",
+            message: "Invalid code: '' is not a display value in altValues set for Specimen_type_code (specimen_type).",
         },
     },
     {
@@ -50,8 +49,7 @@ const MOCK_RECEIVER_DATA = [
         receivingOrg: "md-phd",
         receivingOrgSvc: "elr",
         transportResult: null,
-        fileName:
-            "fl-covid-19-45ee5710-08fd-4446-bb89-c106fb4c63ea-20221022025000.hl7",
+        fileName: "fl-covid-19-45ee5710-08fd-4446-bb89-c106fb4c63ea-20221022025000.hl7",
         fileUrl: null,
         createdAt: "2022-09-28T19:55:12.46782",
         qualityFilters: [],
@@ -77,8 +75,7 @@ const MOCK_RECEIVER_DATA = [
                     filteredTrackingElement: "Alaska1",
                     filterType: "QUALITY_FILTER",
                     scope: "translation",
-                    message:
-                        "For ak-phd.elr, filter hasValidDataFor[patient_dob] filtered out item Alaska1",
+                    message: "For ak-phd.elr, filter hasValidDataFor[patient_dob] filtered out item Alaska1",
                 },
             },
             {
@@ -188,9 +185,7 @@ describe("RSMessageDetail component", () => {
         expect(screen.getByText(/Submitter/)).toBeInTheDocument();
         expect(screen.getByText(/somebody 1/)).toBeInTheDocument();
         expect(screen.getByText(/Incoming Report ID/)).toBeInTheDocument();
-        expect(
-            screen.getByText(/29038fca-e521-4af8-82ac-6b9fafd0fd58/),
-        ).toBeVisible();
+        expect(screen.getByText(/29038fca-e521-4af8-82ac-6b9fafd0fd58/)).toBeVisible();
         expect(screen.getAllByText("Date/Time Submitted")[0]).toBeVisible();
         expect(screen.getByText("9/28/2022, 10:21:33 PM")).toBeVisible();
         expect(screen.getAllByText("File Location")[0]).toBeVisible();
@@ -198,9 +193,7 @@ describe("RSMessageDetail component", () => {
         expect(screen.getByText("simple_report.csvuploader")).toBeVisible();
         expect(screen.getAllByText(/Incoming File Name/)[0]).toBeVisible();
         expect(
-            screen.getByText(
-                "upload-covid-19-c33f9d36-9e5b-44eb-9368-218d88f3a7d1-20230131190253.csv",
-            ),
+            screen.getByText("upload-covid-19-c33f9d36-9e5b-44eb-9368-218d88f3a7d1-20230131190253.csv"),
         ).toBeVisible();
         expect(screen.getByText("Warnings (2)")).toBeVisible();
     });
@@ -219,26 +212,21 @@ describe("RSMessageDetail component", () => {
             expect(screen.getByText("RECEIVE")).toBeVisible();
             expect(screen.getByText("simple_report.csvuploader")).toBeVisible();
             expect(
-                screen.getByText(
-                    "upload-covid-19-c33f9d36-9e5b-44eb-9368-218d88f3a7d1-20230131190253.csv",
-                ),
+                screen.getByText("upload-covid-19-c33f9d36-9e5b-44eb-9368-218d88f3a7d1-20230131190253.csv"),
             ).toBeVisible();
         });
 
         test("does not return folderLocation, sendingOrg, and fileName when not all three fragments exist", () => {
             const mockMessageDetails = {
                 ...DEFAULT_MESSAGE_DETAIL,
-                fileUrl:
-                    "https://azurite:10000/devstoreaccount1/reports/receive%2Fsimple_report.csvuploader",
+                fileUrl: "https://azurite:10000/devstoreaccount1/reports/receive%2Fsimple_report.csvuploader",
             };
             mockUseMessageDetails.mockReturnValue({
                 messageDetails: mockMessageDetails,
             });
             renderApp(<MessageDetailsPage />);
             expect(screen.queryByText("RECEIVE")).not.toBeInTheDocument();
-            expect(
-                screen.queryByText("/ simple_report.csvuploader"),
-            ).not.toBeInTheDocument();
+            expect(screen.queryByText("/ simple_report.csvuploader")).not.toBeInTheDocument();
         });
     });
 });

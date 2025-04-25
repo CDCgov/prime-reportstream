@@ -1,12 +1,4 @@
-import {
-    addMinutes,
-    addSeconds,
-    differenceInMinutes,
-    endOfDay,
-    interval,
-    startOfDay,
-    subDays,
-} from "date-fns";
+import { addMinutes, addSeconds, differenceInMinutes, endOfDay, interval, startOfDay, subDays } from "date-fns";
 import { randomInt } from "crypto";
 import { RSReceiverStatus } from "../../src/hooks/api/UseReceiversConnectionStatus/UseReceiversConnectionStatus";
 import { SuccessRate } from "../../src/pages/admin/receiver-dashboard/utils";
@@ -30,10 +22,7 @@ export function createMockGetReceiverStatusSet({
 }: {
     range?: [start: Date, end: Date];
     maxMinutesPerStatus?: number;
-    statusType?:
-        | SuccessRate.ALL_SUCCESSFUL
-        | SuccessRate.ALL_FAILURE
-        | SuccessRate.MIXED_SUCCESS;
+    statusType?: SuccessRate.ALL_SUCCESSFUL | SuccessRate.ALL_FAILURE | SuccessRate.MIXED_SUCCESS;
     randomlySkip?: boolean;
     statusIdStart?: number;
     receiver: {
@@ -52,8 +41,7 @@ export function createMockGetReceiverStatusSet({
     const end = endOfDay(range ? range[1] : now);
     const statusSet: RSReceiverStatus[] = [];
     // add minute lost from endOfDay conversion
-    const statusSetLength =
-        (differenceInMinutes(end, start) + 1) / maxMinutesPerStatus;
+    const statusSetLength = (differenceInMinutes(end, start) + 1) / maxMinutesPerStatus;
     let currDateTime = start;
     let i = statusIdStart;
     // limit skips and fails to a max of a third of total possible set
@@ -63,9 +51,7 @@ export function createMockGetReceiverStatusSet({
             : statusType === SuccessRate.MIXED_SUCCESS
               ? randomInt(3, Math.ceil(statusSetLength / 3))
               : 0;
-    const skipLength = randomlySkip
-        ? randomInt(3, Math.ceil(statusSetLength / 3))
-        : 0;
+    const skipLength = randomlySkip ? randomInt(3, Math.ceil(statusSetLength / 3)) : 0;
     const skipIndexes: number[] = [];
     const failIndexes: number[] = [];
 
@@ -76,8 +62,7 @@ export function createMockGetReceiverStatusSet({
     }
     while (skipIndexes.length < skipLength) {
         const i = randomInt(statusSetLength);
-        if (!failIndexes.includes(i) && !skipIndexes.includes(i))
-            skipIndexes.push(i);
+        if (!failIndexes.includes(i) && !skipIndexes.includes(i)) skipIndexes.push(i);
     }
 
     // loop through time
@@ -95,9 +80,7 @@ export function createMockGetReceiverStatusSet({
                 connectionCheckStartedAt: startedAt.toISOString(),
                 connectionCheckCompletedAt: completedAt.toISOString(),
                 connectionCheckSuccessful: isSuccessful,
-                connectionCheckResult:
-                    (isSuccessful ? mockSuccessResult : mockFailResult) +
-                    ` ${i}`,
+                connectionCheckResult: (isSuccessful ? mockSuccessResult : mockFailResult) + ` ${i}`,
             });
         }
 
@@ -120,10 +103,7 @@ export function createMockGetReceiverStatusSet({
 /**
  * Generate new mock from scratch.
  */
-export function createMockGetReceiverStatus(
-    range?: [start: Date, end: Date],
-    maxMinutesPerStatus?: number,
-) {
+export function createMockGetReceiverStatus(range?: [start: Date, end: Date], maxMinutesPerStatus?: number) {
     const orgA = { organizationId: 1, organizationName: "org-a" };
 
     const success = createMockGetReceiverStatusSet({

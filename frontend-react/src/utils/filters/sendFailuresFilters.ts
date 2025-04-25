@@ -6,10 +6,7 @@ import { formatDate } from "../misc";
  * Allows some data to be excluded or cleaned up
  * @param search {string}
  */
-export function filterMatch(
-    obj: RSSendFailure,
-    search: string | null,
-): boolean {
+export function filterMatch(obj: RSSendFailure, search: string | null): boolean {
     if (!search) {
         // no search returns EVERYTHING
         return true;

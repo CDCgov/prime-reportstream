@@ -4,9 +4,7 @@ import { renderApp } from "../../../utils/CustomRenderUtils";
 
 const TEST_ID = "test-id-123";
 
-vi.mock(
-    "../../../hooks/api/deliveries/UseReportFacilities/UseReportFacilities",
-);
+vi.mock("../../../hooks/api/deliveries/UseReportFacilities/UseReportFacilities");
 const mockUseReportFacilities = vi.mocked(useReportsFacilities);
 
 describe("DeliveryFacilitiesTable", () => {

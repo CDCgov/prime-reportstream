@@ -1,7 +1,4 @@
-import {
-    mockReceiversStatuses,
-    mockReceiversStatusesTimePeriod,
-} from "./fixtures";
+import { mockReceiversStatuses, mockReceiversStatusesTimePeriod } from "./fixtures";
 import { filterStatuses, sortStatusData, SuccessRate } from "./utils";
 
 describe("AdminReceiverDashboard utils tests", () => {
@@ -13,11 +10,7 @@ describe("AdminReceiverDashboard utils tests", () => {
     });
 
     test("filterStatuses", () => {
-        const filteredData = filterStatuses(
-            mockReceiversStatusesTimePeriod,
-            "-",
-            SuccessRate.UNDEFINED,
-        );
+        const filteredData = filterStatuses(mockReceiversStatusesTimePeriod, "-", SuccessRate.UNDEFINED);
         expect(filteredData).toHaveLength(3);
     });
 });

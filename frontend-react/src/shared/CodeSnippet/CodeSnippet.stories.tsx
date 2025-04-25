@@ -24,9 +24,7 @@ const blockText = `{
 
 export const Default: StoryFn<typeof CodeSnippet> = () => (
     <p>
-        <CodeSnippet>
-            This is a code snippet to copy with highlighted kid healthy-labs
-        </CodeSnippet>
+        <CodeSnippet>This is a code snippet to copy with highlighted kid healthy-labs</CodeSnippet>
 
         <CodeSnippet>./healthy-labs-nonPII-data.csv</CodeSnippet>
         <CodeSnippet>{blockText}</CodeSnippet>

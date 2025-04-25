@@ -8,14 +8,7 @@ import {
     ModalToggleButton,
 } from "@trussworks/react-uswds";
 import { ButtonProps } from "@trussworks/react-uswds/lib/components/Button/Button";
-import {
-    forwardRef,
-    ReactElement,
-    Ref,
-    useImperativeHandle,
-    useRef,
-    useState,
-} from "react";
+import { forwardRef, ReactElement, Ref, useImperativeHandle, useRef, useState } from "react";
 
 import { EditableCompare, EditableCompareRef } from "../EditableCompare";
 
@@ -28,9 +21,7 @@ export const ModalConfirmSaveButton = ({
     handleClose,
     uniquid,
     ...buttonProps
-}: ModalConfirmButtonProps &
-    Omit<ButtonProps, "type"> &
-    JSX.IntrinsicElements["button"]): ReactElement => {
+}: ModalConfirmButtonProps & Omit<ButtonProps, "type"> & JSX.IntrinsicElements["button"]): ReactElement => {
     return (
         <Button
             {...buttonProps}
@@ -64,120 +55,114 @@ export interface CompareSettingsModalProps {
     newjson: string;
 }
 
-export const ConfirmSaveSettingModal = forwardRef(
-    function ConfirmSaveSettingModal(
-        { uniquid, onConfirm, oldjson, newjson }: CompareSettingsModalProps,
-        ref: Ref<ConfirmSaveSettingModalRef>,
-    ) {
-        const modalRef = useRef<ModalRef>(null);
-        const diffEditorRef = useRef<EditableCompareRef>(null);
-        const [errorText, setErrorText] = useState("");
-        const [saveDisabled, setSaveDisabled] = useState(false);
-        const scopedConfirm = () => {
-            onConfirm();
-        };
+export const ConfirmSaveSettingModal = forwardRef(function ConfirmSaveSettingModal(
+    { uniquid, onConfirm, oldjson, newjson }: CompareSettingsModalProps,
+    ref: Ref<ConfirmSaveSettingModalRef>,
+) {
+    const modalRef = useRef<ModalRef>(null);
+    const diffEditorRef = useRef<EditableCompareRef>(null);
+    const [errorText, setErrorText] = useState("");
+    const [saveDisabled, setSaveDisabled] = useState(false);
+    const scopedConfirm = () => {
+        onConfirm();
+    };
 
-        // Disable the 'Save' button whenever the user updates the textarea
-        // It'll only be enabled when they click the 'Check syntax' button,
-        // and it passes validation
-        const onChange = () => setSaveDisabled(true);
-        const onCheckSyntaxClick = () => {
-            if (diffEditorRef?.current?.refreshEditedText()) {
-                setSaveDisabled(false);
-            }
-        };
+    // Disable the 'Save' button whenever the user updates the textarea
+    // It'll only be enabled when they click the 'Check syntax' button,
+    // and it passes validation
+    const onChange = () => setSaveDisabled(true);
+    const onCheckSyntaxClick = () => {
+        if (diffEditorRef?.current?.refreshEditedText()) {
+            setSaveDisabled(false);
+        }
+    };
 
-        useImperativeHandle(
-            ref,
-            () => ({
-                // route this down the diffEditor
-                getEditedText: (): string => {
-                    return diffEditorRef?.current?.getEditedText() ?? newjson;
-                },
-                getOriginalText: (): string => {
-                    return diffEditorRef?.current?.getOriginalText() ?? oldjson;
-                },
-                setWarning(warning) {
-                    setErrorText(warning);
-                },
-                showModal: () => {
-                    // need to refresh data passed into object
-                    diffEditorRef?.current?.refreshEditedText(newjson);
-                    modalRef?.current?.toggleModal(undefined, true);
-                },
-                hideModal: () => {
-                    modalRef?.current?.toggleModal(undefined, false);
-                },
-                disableSave: () => {
-                    setSaveDisabled(true);
-                },
-                // route these down to modal ref
-                modalId: modalRef?.current?.modalId ?? "",
-                modalIsOpen: modalRef?.current?.modalIsOpen ?? false,
-                toggleModal: modalRef?.current?.toggleModal ?? (() => false),
-            }),
-            [diffEditorRef, newjson, modalRef, oldjson],
-        );
+    useImperativeHandle(
+        ref,
+        () => ({
+            // route this down the diffEditor
+            getEditedText: (): string => {
+                return diffEditorRef?.current?.getEditedText() ?? newjson;
+            },
+            getOriginalText: (): string => {
+                return diffEditorRef?.current?.getOriginalText() ?? oldjson;
+            },
+            setWarning(warning) {
+                setErrorText(warning);
+            },
+            showModal: () => {
+                // need to refresh data passed into object
+                diffEditorRef?.current?.refreshEditedText(newjson);
+                modalRef?.current?.toggleModal(undefined, true);
+            },
+            hideModal: () => {
+                modalRef?.current?.toggleModal(undefined, false);
+            },
+            disableSave: () => {
+                setSaveDisabled(true);
+            },
+            // route these down to modal ref
+            modalId: modalRef?.current?.modalId ?? "",
+            modalIsOpen: modalRef?.current?.modalIsOpen ?? false,
+            toggleModal: modalRef?.current?.toggleModal ?? (() => false),
+        }),
+        [diffEditorRef, newjson, modalRef, oldjson],
+    );
 
-        return (
-            <Modal
-                ref={modalRef}
-                id={uniquid}
-                aria-labelledby={`${uniquid}-heading`}
-                aria-describedby={`${uniquid}-description`}
-                isLarge={true}
-                className="rs-compare-modal"
-            >
-                <ModalHeading id={`${uniquid}-heading`}>
-                    Compare your changes with previous version
-                </ModalHeading>
-                <div className="usa-prose">
-                    <p id={`${uniquid}-description`}>
-                        You are about to change this setting: {uniquid}
-                    </p>
-                    <p id={`${uniquid}-error`} className="usa-error-message">
-                        {errorText}
-                    </p>
-                    <EditableCompare
-                        ref={diffEditorRef}
-                        original={oldjson}
-                        modified={newjson}
-                        jsonDiffMode={true}
-                        onChange={onChange}
-                    />
-                </div>
-                <ModalFooter>
-                    <ButtonGroup>
-                        <ModalToggleButton
-                            modalRef={modalRef}
-                            closer
-                            unstyled
-                            className="padding-105 text-center"
-                            data-testid={"editCompareCancelButton"}
-                        >
-                            Go back
-                        </ModalToggleButton>
-                        <ModalConfirmSaveButton
-                            uniquid={uniquid}
-                            handleClose={scopedConfirm}
-                            disabled={saveDisabled}
-                            data-testid={"editCompareSaveButton"}
-                        >
-                            Save
-                        </ModalConfirmSaveButton>
-                        <Button
-                            aria-label="Check the settings JSON syntax"
-                            key={`${uniquid}-validate-button`}
-                            data-uniquid={uniquid}
-                            data-testid={"editCheckSyntaxButton"}
-                            onClick={onCheckSyntaxClick}
-                            type="button"
-                        >
-                            Check syntax
-                        </Button>
-                    </ButtonGroup>
-                </ModalFooter>
-            </Modal>
-        );
-    },
-);
+    return (
+        <Modal
+            ref={modalRef}
+            id={uniquid}
+            aria-labelledby={`${uniquid}-heading`}
+            aria-describedby={`${uniquid}-description`}
+            isLarge={true}
+            className="rs-compare-modal"
+        >
+            <ModalHeading id={`${uniquid}-heading`}>Compare your changes with previous version</ModalHeading>
+            <div className="usa-prose">
+                <p id={`${uniquid}-description`}>You are about to change this setting: {uniquid}</p>
+                <p id={`${uniquid}-error`} className="usa-error-message">
+                    {errorText}
+                </p>
+                <EditableCompare
+                    ref={diffEditorRef}
+                    original={oldjson}
+                    modified={newjson}
+                    jsonDiffMode={true}
+                    onChange={onChange}
+                />
+            </div>
+            <ModalFooter>
+                <ButtonGroup>
+                    <ModalToggleButton
+                        modalRef={modalRef}
+                        closer
+                        unstyled
+                        className="padding-105 text-center"
+                        data-testid={"editCompareCancelButton"}
+                    >
+                        Go back
+                    </ModalToggleButton>
+                    <ModalConfirmSaveButton
+                        uniquid={uniquid}
+                        handleClose={scopedConfirm}
+                        disabled={saveDisabled}
+                        data-testid={"editCompareSaveButton"}
+                    >
+                        Save
+                    </ModalConfirmSaveButton>
+                    <Button
+                        aria-label="Check the settings JSON syntax"
+                        key={`${uniquid}-validate-button`}
+                        data-uniquid={uniquid}
+                        data-testid={"editCheckSyntaxButton"}
+                        onClick={onCheckSyntaxClick}
+                        type="button"
+                    >
+                        Check syntax
+                    </Button>
+                </ButtonGroup>
+            </ModalFooter>
+        </Modal>
+    );
+});

@@ -1,15 +1,7 @@
 import { Dispatch, useCallback } from "react";
 
-import useDateRange, {
-    RangeField,
-    RangeSettings,
-    RangeSettingsActionType,
-} from "../UseDateRange/UseDateRange";
-import usePages, {
-    PageSettings,
-    PageSettingsAction,
-    PageSettingsActionType,
-} from "../UsePages/UsePages";
+import useDateRange, { RangeField, RangeSettings, RangeSettingsActionType } from "../UseDateRange/UseDateRange";
+import usePages, { PageSettings, PageSettingsAction, PageSettingsActionType } from "../UsePages/UsePages";
 import useSortOrder, {
     SortOrder,
     SortSettings,
@@ -45,22 +37,11 @@ interface FilterManagerDefaults {
  *
  * history (end) -> present (start) for ASC
  * present (start) -> history (end) for DESC */
-const cursorOrRange = (
-    order: SortOrder,
-    field: RangeField,
-    cursor: string,
-    range: string,
-): string => {
-    if (
-        (order === "ASC" && field === RangeField.FROM) ||
-        (order === "DESC" && field === RangeField.TO)
-    ) {
+const cursorOrRange = (order: SortOrder, field: RangeField, cursor: string, range: string): string => {
+    if ((order === "ASC" && field === RangeField.FROM) || (order === "DESC" && field === RangeField.TO)) {
         return cursor;
     }
-    if (
-        (order === "ASC" && field === RangeField.TO) ||
-        (order === "DESC" && field === RangeField.FROM)
-    ) {
+    if ((order === "ASC" && field === RangeField.TO) || (order === "DESC" && field === RangeField.FROM)) {
         return range;
     }
 
@@ -69,12 +50,8 @@ const cursorOrRange = (
 
 const useFilterManager = (defaults?: FilterManagerDefaults): FilterManager => {
     const { settings: rangeSettings, update: updateRange } = useDateRange();
-    const { settings: sortSettings, update: updateSort } = useSortOrder(
-        defaults?.sortDefaults,
-    );
-    const { settings: pageSettings, update: updatePage } = usePages(
-        defaults?.pageDefaults,
-    );
+    const { settings: sortSettings, update: updateSort } = useSortOrder(defaults?.sortDefaults);
+    const { settings: pageSettings, update: updatePage } = usePages(defaults?.pageDefaults);
 
     const resetAll = useCallback(() => {
         updateRange({ type: RangeSettingsActionType.RESET });

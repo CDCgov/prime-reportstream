@@ -45,13 +45,7 @@ const routeUrlsMap = {
 
 const mailToLink = "mailto:someone@abc.com";
 
-const nonRouteUrls = [
-    undefined,
-    mailToLink,
-    "https://www.google.com",
-    "http://www.google.com",
-    "//www.google.com",
-];
+const nonRouteUrls = [undefined, mailToLink, "https://www.google.com", "http://www.google.com", "//www.google.com"];
 
 describe("getHrefRoute", () => {
     test.each(routeUrls)("'%s' returns string", (url) => {
@@ -143,24 +137,16 @@ describe("USLinkButton", () => {
         );
     });
 
-    test.each(testScenarios)(
-        "%s button style applied",
-        ([key, value, prefix]) => {
-            const prop = { [key]: value };
-            const className = prefix
-                ? `usa-button--${prefix}-${value}`
-                : `usa-button--${value}`;
-            renderApp(
-                <USLinkButton {...prop} href="#">
-                    Test
-                </USLinkButton>,
-            );
-            expect(screen.getByRole("link")).toHaveClass(
-                "usa-button",
-                className,
-            );
-        },
-    );
+    test.each(testScenarios)("%s button style applied", ([key, value, prefix]) => {
+        const prop = { [key]: value };
+        const className = prefix ? `usa-button--${prefix}-${value}` : `usa-button--${value}`;
+        renderApp(
+            <USLinkButton {...prop} href="#">
+                Test
+            </USLinkButton>,
+        );
+        expect(screen.getByRole("link")).toHaveClass("usa-button", className);
+    });
 
     test("renders USLinkButton with an icon if it has an external link is set", () => {
         renderApp(
@@ -172,12 +158,7 @@ describe("USLinkButton", () => {
     });
 });
 
-const externalUrls = [
-    "https://www.google.com",
-    "//www.google.com",
-    "//google.com",
-    mailToLink,
-];
+const externalUrls = ["https://www.google.com", "//www.google.com", "//google.com", mailToLink];
 
 const internalUrls = [
     undefined,
@@ -211,8 +192,6 @@ describe("USSmartLink", () => {
 
     test.each(internalUrls)("'%s' returns internal link", (url) => {
         const view = renderApp(<USSmartLink href={url}>Test</USSmartLink>);
-        expect(view.container.children[0]).not.toHaveClass(
-            "usa-link--external",
-        );
+        expect(view.container.children[0]).not.toHaveClass("usa-link--external");
     });
 });

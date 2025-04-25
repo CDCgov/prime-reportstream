@@ -21,8 +21,7 @@ export const MOCK_GET_SUBMISSION_HISTORY = {
             filteredReportItems: [],
             sentReports: [
                 {
-                    externalName:
-                        "None-46c8c28d-e6a9-4c8a-9244-7479e05b12ca-20240307180110.hl7",
+                    externalName: "None-46c8c28d-e6a9-4c8a-9244-7479e05b12ca-20240307180110.hl7",
                     createdAt: "2024-03-07T18:01:10.684Z",
                     itemCount: 1,
                 },
@@ -38,8 +37,7 @@ export const MOCK_GET_SUBMISSION_HISTORY = {
     warnings: [
         {
             scope: "report",
-            message:
-                "Data type error: 'CE' in record 1 is invalid for version 2.7 at OBX-2(0)",
+            message: "Data type error: 'CE' in record 1 is invalid for version 2.7 at OBX-2(0)",
             errorCode: "UNKNOWN",
         },
     ],

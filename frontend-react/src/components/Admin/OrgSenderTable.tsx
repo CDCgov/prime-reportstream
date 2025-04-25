@@ -11,33 +11,20 @@ interface OrgSettingsTableProps {
 }
 
 export function OrgSenderTable(props: OrgSettingsTableProps) {
-    const orgSenderSettings: OrgSenderSettingsResource[] = useResource(
-        OrgSenderSettingsResource.list(),
-        { orgname: props.orgname },
-    );
+    const orgSenderSettings: OrgSenderSettingsResource[] = useResource(OrgSenderSettingsResource.list(), {
+        orgname: props.orgname,
+    });
 
     return (
-        <section
-            id="orgsendersettings"
-            className="grid-container margin-bottom-5"
-        >
+        <section id="orgsendersettings" className="grid-container margin-bottom-5">
             <h2>
                 Organization Sender Settings ({orgSenderSettings.length}){" - "}
-                <USLink
-                    href={`/admin/revisionhistory/org/${props.orgname}/settingtype/sender`}
-                >
-                    History
-                </USLink>
+                <USLink href={`/admin/revisionhistory/org/${props.orgname}/settingtype/sender`}>History</USLink>
             </h2>
             {!orgSenderSettings ? (
                 <Spinner />
             ) : (
-                <Table
-                    key="orgsendersettingstable"
-                    aria-label="Organization Senders"
-                    striped
-                    fullWidth
-                >
+                <Table key="orgsendersettingstable" aria-label="Organization Senders" striped fullWidth>
                     <thead>
                         <tr>
                             <th scope="col">Name</th>
@@ -59,13 +46,9 @@ export function OrgSenderTable(props: OrgSettingsTableProps) {
                     </thead>
                     <tbody id="tBodyOrgSender" className="font-mono-2xs">
                         {orgSenderSettings.map((eachOrgSetting, index) => (
-                            <tr
-                                key={`sender-row-${eachOrgSetting.name}-${index}`}
-                            >
+                            <tr key={`sender-row-${eachOrgSetting.name}-${index}`}>
                                 <td>{eachOrgSetting.name}</td>
-                                <td>
-                                    {eachOrgSetting?.organizationName || "-"}
-                                </td>
+                                <td>{eachOrgSetting?.organizationName || "-"}</td>
                                 <td>{eachOrgSetting.topic || ""}</td>
                                 <td>{eachOrgSetting.customerStatus || ""}</td>
                                 <td>

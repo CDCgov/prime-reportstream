@@ -4,10 +4,7 @@ import { Helmet } from "react-helmet-async";
 import { useNavigate } from "react-router-dom";
 import { NetworkErrorBoundary, useController } from "rest-hooks";
 
-import {
-    TextAreaComponent,
-    TextInputComponent,
-} from "../../components/Admin/AdminFormEdit";
+import { TextAreaComponent, TextInputComponent } from "../../components/Admin/AdminFormEdit";
 import Spinner from "../../components/Spinner";
 import useSessionContext from "../../contexts/Session/useSessionContext";
 import { showToast } from "../../contexts/Toast";
@@ -29,11 +26,7 @@ export function AdminOrgNewPage() {
     const saveData = async () => {
         setLoading(true);
         try {
-            await fetchController(
-                OrganizationResource.update(),
-                { orgname: orgName },
-                orgSetting,
-            );
+            await fetchController(OrganizationResource.update(), { orgname: orgName }, orgSetting);
             showToast(`Item '${orgName}' has been created`, "success");
 
             navigate(`/admin/orgsettings/org/${orgName}`);
@@ -41,10 +34,7 @@ export function AdminOrgNewPage() {
             setLoading(false);
             const errorDetail = await getErrorDetailFromResponse(e);
             rsConsole.trace(e, errorDetail);
-            showToast(
-                `Creating item '${orgName}' failed. ${errorDetail}`,
-                "error",
-            );
+            showToast(`Creating item '${orgName}' failed. ${errorDetail}`, "error");
             return false;
         }
 
@@ -55,10 +45,7 @@ export function AdminOrgNewPage() {
         <NetworkErrorBoundary fallbackComponent={fallbackPage}>
             <Helmet>
                 <title>New organization - Admin</title>
-                <meta
-                    property="og:image"
-                    content="/assets/img/opengraph/reportstream.png"
-                />
+                <meta property="og:image" content="/assets/img/opengraph/reportstream.png" />
                 <meta
                     property="og:image:alt"
                     content='"ReportStream" surrounded by an illustration of lines and boxes connected by colorful dots.'

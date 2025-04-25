@@ -50,8 +50,8 @@ where `XXXX` refers to the GitHub issue/ZenHub ticket number
 
 > Why?
 >
-> -   Git gets confused with purely numeric branches.
-> -   It helps fellow teammates not have to remember specific ticket numbers when switching between branches locally.
+> - Git gets confused with purely numeric branches.
+> - It helps fellow teammates not have to remember specific ticket numbers when switching between branches locally.
 
 ### Commit messages
 
@@ -88,15 +88,15 @@ In cases in which there needs to be one "atomic" change, it's recommended to cre
 >
 > Smaller pull requests help reviewers by:
 >
-> -   Focusing their attention on individual logical changes to make suggestions and catch potential bugs
-> -   Reducing the amount of complexity and overhead they need to maintain during reviews
-> -   Not causing slowdown on GitHub
+> - Focusing their attention on individual logical changes to make suggestions and catch potential bugs
+> - Reducing the amount of complexity and overhead they need to maintain during reviews
+> - Not causing slowdown on GitHub
 >
 > Smaller pull requests help developers by:
 >
-> -   Getting proposals in front of eyes sooner rather than later
-> -   Allowing a more TDD-approach to think about edge/corner cases
-> -   Breaking their work down into better stopping points
+> - Getting proposals in front of eyes sooner rather than later
+> - Allowing a more TDD-approach to think about edge/corner cases
+> - Breaking their work down into better stopping points
 
 ---
 
@@ -104,7 +104,7 @@ In cases in which there needs to be one "atomic" change, it's recommended to cre
 
 ### Naming
 
--   Variables and non-component functions (including hooks) use `camelCase`
+- Variables and non-component functions (including hooks) use `camelCase`
 
 ```js
 let hoursSpentOnHomework = 0;
@@ -118,7 +118,7 @@ function doHomework() { ... }
 function useHomeworkDoer() { ... }
 ```
 
--   Components and file names use `PascalCase`
+- Components and file names use `PascalCase`
 
 ```jsx
 // in ExampleClassComponent.tsx
@@ -128,7 +128,7 @@ class ExampleClassComponent extends Component { ... }
 function ExampleFunctionComponent() { ... }
 ```
 
--   Event-handlers use the `handle<target><event>` pattern when declared and the `on<target><event>` pattern as a named parameter or prop
+- Event-handlers use the `handle<target><event>` pattern when declared and the `on<target><event>` pattern as a named parameter or prop
 
 ```ts
 // on declaration
@@ -147,9 +147,9 @@ function handleFormSubmit() { ... }
 function doSomething(onBackButtonClick) { ... }
 ```
 
--   Avoid generic names like `a|b|c`, `i|j|k`, `tmp`, `obj` and opt for more descriptive ones like `idx`, `child`, `element`, et cetera
--   Add units when conversions are appropriate: `timeInHours`, `sizeInBytes`, `heightInInches`
--   Use predicate naming for computed boolean values: `isReady`, `shouldDisplayTime`, `willUpdate`
+- Avoid generic names like `a|b|c`, `i|j|k`, `tmp`, `obj` and opt for more descriptive ones like `idx`, `child`, `element`, et cetera
+- Add units when conversions are appropriate: `timeInHours`, `sizeInBytes`, `heightInInches`
+- Use predicate naming for computed boolean values: `isReady`, `shouldDisplayTime`, `willUpdate`
 
 ### Prefer using function declarations over function expressions for first-class functions and components
 
@@ -228,9 +228,9 @@ function delayedAlert(delayTime) {
 
 In short, striving for more human-readable enums and constants helps us:
 
--   Keep logic readable, readily understandable, and easier to update
--   Maintains a single source of truth for would-be generalized values
--   Encourage parameterization of said values
+- Keep logic readable, readily understandable, and easier to update
+- Maintains a single source of truth for would-be generalized values
+- Encourage parameterization of said values
 
 ### Avoid `any` and down-casting types
 
@@ -315,11 +315,11 @@ React is a tool whose sole purpose is to render; by React's own definition, it's
 >
 > There are a few benefits to this approach:
 >
-> -   Easier to reevaluate complexity
-> -   Better encapsulation of logic for separation of concerns
-> -   Helps to prevent unnecessary re-renders
-> -   Splits logic into smaller, unit-testable parts -- and may obviate the need for rendering in tests
-> -   Keeps JSX as flat and simplistic as possible
+> - Easier to reevaluate complexity
+> - Better encapsulation of logic for separation of concerns
+> - Helps to prevent unnecessary re-renders
+> - Splits logic into smaller, unit-testable parts -- and may obviate the need for rendering in tests
+> - Keeps JSX as flat and simplistic as possible
 
 Consider the following example:
 
@@ -329,13 +329,7 @@ type User = {
     name: string;
 };
 
-function UserList({
-    users,
-    sortProperty,
-}: {
-    users: User[];
-    sortProperty: "age" | "name";
-}) {
+function UserList({ users, sortProperty }: { users: User[]; sortProperty: "age" | "name" }) {
     const sortedUsers = useMemo(() => {
         if (sortProperty === "age") {
             return users.sort((a, b) => a.age - b.age);
@@ -394,13 +388,7 @@ function sortUsers(users: User[], sortProperty: "age" | "name") {
 }
 
 // then just call this function in the component
-function UserList({
-    users,
-    sortProperty,
-}: {
-    users: User[];
-    sortProperty: "age" | "name";
-}) {
+function UserList({ users, sortProperty }: { users: User[]; sortProperty: "age" | "name" }) {
     const sortedUsers = useMemo(() => {
         return sortUsers(users, sortProperty);
     }, [users, sortProperty]);
@@ -448,10 +436,7 @@ function CommentsPage() {
                     {comments.map((comment) => (
                         <li key={comment.id}>
                             <p>{comment.title}</p>
-                            <button
-                                type="button"
-                                onClick={() => setFocusedComment(comment)}
-                            >
+                            <button type="button" onClick={() => setFocusedComment(comment)}>
                                 See details
                             </button>
                         </li>
@@ -473,10 +458,10 @@ function CommentsPage() {
 
 There are a few things happening in this component:
 
--   Fetching the list of comments
--   Rendering the spinner
--   Rendering each individual comment
--   Maintaining the state of the detailed comment view
+- Fetching the list of comments
+- Rendering the spinner
+- Rendering each individual comment
+- Maintaining the state of the detailed comment view
 
 Instead, it may be better to separate the responsibilities of the single component into multiple components:
 
@@ -507,29 +492,17 @@ function CommentsList({ comments }: { comments: Comment[] }) {
         <div>
             <ul>
                 {comments.map((comment) => (
-                    <CommentsListItem
-                        key={comment.id}
-                        comment={comment}
-                        onClick={() => setFocusedComment(comment)}
-                    />
+                    <CommentsListItem key={comment.id} comment={comment} onClick={() => setFocusedComment(comment)} />
                 ))}
             </ul>
 
-            {Boolean(focusedCommentText) && (
-                <FocusedComment comment={focusedComment} />
-            )}
+            {Boolean(focusedCommentText) && <FocusedComment comment={focusedComment} />}
         </div>
     );
 }
 
 // primary concerns: rendering an individual comment and binding an onClick handler
-function CommentsListItem({
-    comment,
-    onClick,
-}: {
-    comment: Comment;
-    onClick: (comment: Comment) => void;
-}) {
+function CommentsListItem({ comment, onClick }: { comment: Comment; onClick: (comment: Comment) => void }) {
     return (
         <li>
             <p>{comment.title}</p>
@@ -554,10 +527,10 @@ function FocusedComment({ comment }: { comment: Comment }) {
 
 This example may be overkill depending on the circumstances, but the idea here is to try to make components focus on at most one or two primary concerns. Maintaining a clear separation of concerns between components helps us:
 
--   Keep presentational components agnostic to where they're rendered so they can be more easily reused
--   Write smaller, more readable components
--   Group more complex logic in manager/parent components for single source of truth
--   Write better, more granular and focused tests
+- Keep presentational components agnostic to where they're rendered so they can be more easily reused
+- Write smaller, more readable components
+- Group more complex logic in manager/parent components for single source of truth
+- Write better, more granular and focused tests
 
 Note that it's not always necessary or wise to split logic out. For example, if there's very specific computational logic that will never exist separately from the presentational logic, keeping them together is perfectly reasonable. Like everything else in programming, it depends on the circumstances.
 
@@ -616,8 +589,8 @@ React Contexts are just a way to share data within a tree of React components to
 >
 > There are a few drawbacks to using Contexts:
 >
-> -   Tight coupling between Context and descendant hooks/components
-> -   Potential performance issues
+> - Tight coupling between Context and descendant hooks/components
+> - Potential performance issues
 
 **Decreased reusability of hooks and components**
 
@@ -751,7 +724,7 @@ div {
 
 ## Further Reading
 
--   Airbnb's various styleguides: [JavaScript](https://github.com/airbnb/javascript), [React](https://github.com/airbnb/javascript/tree/master/react), [CSS](https://github.com/airbnb/css)
--   [React beta docs](https://beta.reactjs.org/) (much better than their current docs)
--   [JavaScript: The Good Parts](https://cdn.tc-library.org/Rhizr/Files/daaz74mzphKfnHsen/files/JavaScript-%20The%20Good%20Parts.pdf)
--   [JavaScript Allongée](https://leanpub.com/javascriptallongesix/read)
+- Airbnb's various styleguides: [JavaScript](https://github.com/airbnb/javascript), [React](https://github.com/airbnb/javascript/tree/master/react), [CSS](https://github.com/airbnb/css)
+- [React beta docs](https://beta.reactjs.org/) (much better than their current docs)
+- [JavaScript: The Good Parts](https://cdn.tc-library.org/Rhizr/Files/daaz74mzphKfnHsen/files/JavaScript-%20The%20Good%20Parts.pdf)
+- [JavaScript Allongée](https://leanpub.com/javascriptallongesix/read)

@@ -17,10 +17,7 @@ function Summary(props: Props) {
     const { data: orgDetails } = useOrganizationSettings();
     const { description } = orgDetails ?? {};
     const crumbProps: CrumbsProps = {
-        crumbList: [
-            { label: FeatureName.DAILY_DATA, path: "/daily-data" },
-            { label: "Details" },
-        ],
+        crumbList: [{ label: FeatureName.DAILY_DATA, path: "/daily-data" }, { label: "Details" }],
     };
 
     return (

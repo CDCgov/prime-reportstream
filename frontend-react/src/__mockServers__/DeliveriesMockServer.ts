@@ -4,10 +4,7 @@ import { setupServer } from "msw/node";
 import config from "../config";
 import { RSDelivery, RSFacility } from "../config/endpoints/deliveries";
 
-export const makeFacilityFixture = (
-    identifier: number,
-    overrides?: Partial<RSFacility>,
-): RSFacility => ({
+export const makeFacilityFixture = (identifier: number, overrides?: Partial<RSFacility>): RSFacility => ({
     facility: overrides?.facility ?? "Facility Fixture",
     location: overrides?.location ?? "DeliveriesMockServer.ts",
     CLIA: identifier.toString(),
@@ -23,10 +20,7 @@ export const makeFacilityFixtureArray = (count: number) => {
     return fixtures;
 };
 
-export const makeDeliveryFixture = (
-    id: number,
-    overrides?: Partial<RSDelivery>,
-): RSDelivery => ({
+export const makeDeliveryFixture = (id: number, overrides?: Partial<RSDelivery>): RSDelivery => ({
     deliveryId: overrides?.deliveryId ?? 0,
     batchReadyAt: overrides?.batchReadyAt ?? "",
     expires: overrides?.expires ?? "",
@@ -46,25 +40,14 @@ export const makeDeliveryFixtureArray = (count: number) => {
 };
 
 const handlers = [
-    http.get(
-        `${config.API_ROOT}/waters/org/testOrg.testService/deliveries`,
-        ({ request }) => {
-            if (
-                !request.headers.get("authorization")?.includes("TOKEN") ||
-                !request.headers.get("organization")
-            ) {
-                return HttpResponse.json(null, { status: 401 });
-            }
-            return HttpResponse.json(
-                [
-                    makeDeliveryFixture(1),
-                    makeDeliveryFixture(2),
-                    makeDeliveryFixture(3),
-                ],
-                { status: 200 },
-            );
-        },
-    ),
+    http.get(`${config.API_ROOT}/waters/org/testOrg.testService/deliveries`, ({ request }) => {
+        if (!request.headers.get("authorization")?.includes("TOKEN") || !request.headers.get("organization")) {
+            return HttpResponse.json(null, { status: 401 });
+        }
+        return HttpResponse.json([makeDeliveryFixture(1), makeDeliveryFixture(2), makeDeliveryFixture(3)], {
+            status: 200,
+        });
+    }),
     /* Successfully returns a Report */
     http.get(`${config.API_ROOT}/waters/report/123/delivery`, () => {
         return HttpResponse.json(makeDeliveryFixture(123), { status: 200 });

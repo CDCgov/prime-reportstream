@@ -9,12 +9,7 @@ import {
 } from "../../utils/TemporarySettingsAPITypes";
 
 interface ObjectTooltipProps {
-    obj:
-        | SampleTimingObj
-        | SampleKeysObj
-        | SampleTranslationObj
-        | SampleFilterObject
-        | SampleTransportObject;
+    obj: SampleTimingObj | SampleKeysObj | SampleTranslationObj | SampleFilterObject | SampleTransportObject;
 }
 
 interface EnumTooltipProps {
@@ -41,11 +36,7 @@ const EnumTooltip = ({ vals }: EnumTooltipProps) => {
     const label = `Available values:\n${formattedVals}`;
     const clipboard = `${vals.join(" ")}`;
     return (
-        <Tooltip
-            position="bottom"
-            label={label}
-            onClick={() => void copyToClipboard(clipboard)}
-        >
+        <Tooltip position="bottom" label={label} onClick={() => void copyToClipboard(clipboard)}>
             <Icon.Help />
         </Tooltip>
     );

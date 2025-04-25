@@ -18,9 +18,7 @@ const timeRegex = /\d{1,2}:\d{2}/;
     We can only mock one behavior for useResource currently. This is a major
     limitation for us that doesn't allow us to test negative cases.
 */
-const mockData: ActionDetailsResource = new TestResponse(
-    ResponseType.ACTION_DETAIL,
-).data;
+const mockData: ActionDetailsResource = new TestResponse(ResponseType.ACTION_DETAIL).data;
 vi.mock("rest-hooks", async (importActual) => ({
     ...(await importActual<typeof import("rest-hooks")>()),
     useResource: () => {
@@ -61,17 +59,11 @@ describe("SubmissionDetails", () => {
         const idElement = await screen.findByText(mockData.id);
 
         /* DestinationItem contents*/
-        const receiverOrgNameAndService = await screen.findByText(
-            `${mockData.destinations[0].organization}`,
-        );
-        const dataStream = await screen.findByText(
-            mockData.destinations[0].service.toUpperCase(),
-        );
+        const receiverOrgNameAndService = await screen.findByText(`${mockData.destinations[0].organization}`);
+        const dataStream = await screen.findByText(mockData.destinations[0].service.toUpperCase());
         const transmissionDate = await screen.findByText("7 Apr 1970");
         const transmissionTime = screen.getByText(findTimeWithoutDate);
-        const recordsTransmitted = await screen.findByText(
-            mockData.destinations[0].itemCount,
-        );
+        const recordsTransmitted = await screen.findByText(mockData.destinations[0].itemCount);
 
         /*
             As above, so below. Add any new elements needing unit test
@@ -119,14 +111,10 @@ describe("DestinationItem", () => {
         renderApp(
             <>
                 <div data-testid="first-section">
-                    <DestinationItem
-                        destinationObj={mockData.destinations[0]}
-                    />
+                    <DestinationItem destinationObj={mockData.destinations[0]} />
                 </div>
                 <div data-testid="second-section">
-                    <DestinationItem
-                        destinationObj={mockData.destinations[1]}
-                    />
+                    <DestinationItem destinationObj={mockData.destinations[1]} />
                 </div>
             </>,
         );
@@ -136,24 +124,14 @@ describe("DestinationItem", () => {
         setup();
         const firstSection = screen.getByTestId("first-section");
         const secondSection = screen.getByTestId("second-section");
-        expect(
-            within(firstSection).getByText(/transmission date/i),
-        ).toBeInTheDocument();
-        expect(
-            within(firstSection).getByText(/transmission time/i),
-        ).toBeInTheDocument();
+        expect(within(firstSection).getByText(/transmission date/i)).toBeInTheDocument();
+        expect(within(firstSection).getByText(/transmission time/i)).toBeInTheDocument();
         expect(within(firstSection).getByText(/records/i)).toBeInTheDocument();
         expect(within(firstSection).getByText(/primary/i)).toBeInTheDocument();
-        expect(
-            within(secondSection).getByText(/transmission date/i),
-        ).toBeInTheDocument();
-        expect(
-            within(secondSection).getByText(/transmission time/i),
-        ).toBeInTheDocument();
+        expect(within(secondSection).getByText(/transmission date/i)).toBeInTheDocument();
+        expect(within(secondSection).getByText(/transmission time/i)).toBeInTheDocument();
         expect(within(secondSection).getByText(/records/i)).toBeInTheDocument();
-        expect(
-            within(secondSection).getByText(/secondary/i),
-        ).toBeInTheDocument();
+        expect(within(secondSection).getByText(/secondary/i)).toBeInTheDocument();
         expect(within(secondSection).getAllByText(/N\/A/i)).toHaveLength(2);
         /*
             These must change if we ever change the sending_at property of

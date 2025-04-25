@@ -2,18 +2,11 @@ import { http, HttpResponse } from "msw";
 import { setupServer } from "msw/node";
 
 import config from "../config";
-import {
-    ApiKey,
-    ApiKeySet,
-    RSApiKeysResponse,
-    RSReceiver,
-    RSSender,
-} from "../config/endpoints/settings";
+import { ApiKey, ApiKeySet, RSApiKeysResponse, RSReceiver, RSSender } from "../config/endpoints/settings";
 import { CustomerStatusType } from "../utils/DataDashboardUtils";
 
 const base = `${config.API_ROOT}/settings/organizations`;
-const getSender = (org: string, sender: string) =>
-    `${base}/${org}/senders/${sender}`;
+const getSender = (org: string, sender: string) => `${base}/${org}/senders/${sender}`;
 const testSender = getSender("testOrg", "testSender");
 const firstSender = getSender("firstOrg", "firstSender");
 
@@ -102,8 +95,7 @@ export const receiversGenerator = (count: number, sort?: boolean) => {
         createdBy: "",
     });
 
-    if (sort)
-        return receiverServices.sort((a, b) => a.name.localeCompare(b.name));
+    if (sort) return receiverServices.sort((a, b) => a.name.localeCompare(b.name));
 
     return receiverServices;
 };

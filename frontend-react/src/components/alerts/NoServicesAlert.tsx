@@ -9,10 +9,7 @@ export const NoServicesBanner = () => {
                 <h3 className="margin-top-0">No available data</h3>
                 <p>
                     If you need more help finding what you&apos;re looking for,{" "}
-                    <USExtLink href={site.forms.contactUs.url}>
-                        contact us
-                    </USExtLink>
-                    .
+                    <USExtLink href={site.forms.contactUs.url}>contact us</USExtLink>.
                 </p>
             </section>
         </>

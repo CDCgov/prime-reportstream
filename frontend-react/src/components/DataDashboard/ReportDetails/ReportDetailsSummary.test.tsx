@@ -3,10 +3,7 @@ import { screen } from "@testing-library/react";
 import { ReportDetailsSummary } from "./ReportDetailsSummary";
 import { renderApp } from "../../../utils/CustomRenderUtils";
 import { formatDateWithoutSeconds } from "../../../utils/DateTimeUtils";
-import {
-    AccessTokenWithRSClaims,
-    MemberType,
-} from "../../../utils/OrganizationUtils";
+import { AccessTokenWithRSClaims, MemberType } from "../../../utils/OrganizationUtils";
 import { FileType } from "../../../utils/TemporarySettingsAPITypes";
 
 const { mockSessionContentReturnValue } = await vi.importMock<
@@ -64,9 +61,7 @@ beforeEach(() => {
 
 describe("ReportDetailsSummary", () => {
     test("renders expected content", () => {
-        const expectedExpireDate = formatDateWithoutSeconds(
-            futureDate.toString(),
-        );
+        const expectedExpireDate = formatDateWithoutSeconds(futureDate.toString());
         renderApp(<ReportDetailsSummary report={DEFAULT_RSDELIVERY} />);
 
         expect(screen.getByText(/Download as/)).toBeVisible();

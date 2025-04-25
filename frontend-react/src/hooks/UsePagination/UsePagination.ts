@@ -2,11 +2,7 @@ import { chunk, range } from "lodash";
 import { useCallback, useEffect, useReducer, useState } from "react";
 import useDeepCompareEffect from "use-deep-compare-effect";
 import { validate as uuidValidate } from "uuid";
-import {
-    OVERFLOW_INDICATOR,
-    PaginationProps,
-    SlotItem,
-} from "../../components/Table/Pagination";
+import { OVERFLOW_INDICATOR, PaginationProps, SlotItem } from "../../components/Table/Pagination";
 import useAppInsightsContext from "../UseAppInsightsContext/UseAppInsightsContext";
 
 // A function that will return a cursor value for a resource in the paginated
@@ -15,18 +11,11 @@ export type CursorExtractor<T> = (arg: T) => string;
 
 // A function that will resolve to a list of results give a start cursor and
 // number of results.
-export type ResultsFetcher<T> = (
-    cursor: string,
-    numResults: number,
-    additionalParams?: object,
-) => Promise<T[]>;
+export type ResultsFetcher<T> = (cursor: string, numResults: number, additionalParams?: object) => Promise<T[]>;
 
 // Returns a list of slots based on the USWDS pagination behavior rules.
 // See https://designsystem.digital.gov/components/pagination/
-export function getSlots(
-    currentPageNum: number,
-    finalPageNum?: number,
-): SlotItem[] {
+export function getSlots(currentPageNum: number, finalPageNum?: number): SlotItem[] {
     // For unbounded sets show the first, previous, current, and next pages. Put
     // the current page in Slot 4 and fill in gaps with additional pages or
     // overflow indicators.
@@ -63,11 +52,7 @@ export function getSlots(
     // current page and final page are within that range of five numbers, start
     // with the final page and backfill the previous slots.
     if (finalPageNum < currentPageNum + 4) {
-        return [
-            1,
-            OVERFLOW_INDICATOR,
-            ...range(finalPageNum - 4, finalPageNum + 1),
-        ];
+        return [1, OVERFLOW_INDICATOR, ...range(finalPageNum - 4, finalPageNum + 1)];
     }
 
     // Otherwise, we can safely put an overflow indicator between the next and
@@ -135,10 +120,7 @@ type SetSelectedPagePayload = number;
 
 interface PaginationAction<T> {
     type: PaginationActionType;
-    payload:
-        | ProcessResultsPayload<T>
-        | ResetPayload<T>
-        | SetSelectedPagePayload;
+    payload: ProcessResultsPayload<T> | ResetPayload<T> | SetSelectedPagePayload;
 }
 
 type PaginationReducer<PaginationState, PaginationAction> = (
@@ -153,19 +135,12 @@ export function processResultsReducer<T>(
     { results, requestConfig }: ProcessResultsPayload<T>,
 ): PaginationState<T> {
     const { numResults, cursorPageNum, selectedPageNum } = requestConfig;
-    const {
-        extractCursor,
-        isCursorInclusive,
-        pageSize,
-        pageCursorMap,
-        pageResultsMap,
-    } = state;
+    const { extractCursor, isCursorInclusive, pageSize, pageCursorMap, pageResultsMap } = state;
     // Determine the number of whole pages we requested data for. Ignoring the
     // remainder accounts for a dangling result, which we use as an indicator of
     // a subsequent page.
     const numTargetWholePages = Math.floor(numResults / pageSize);
-    const resultLength =
-        cursorPageNum === 1 ? results.length : state.resultLength;
+    const resultLength = cursorPageNum === 1 ? results.length : state.resultLength;
     let finalPageNum;
 
     const resultPages = chunk(results, pageSize);
@@ -179,8 +154,7 @@ export function processResultsReducer<T>(
         // a) a page for which we might get a full page of results AND
         // b) it has fewer than pageSize results OR is the last chunk in the
         //    returned results.
-        const isFinalPage =
-            isTargetWholePage && (isIncompletePage || isLastChunk);
+        const isFinalPage = isTargetWholePage && (isIncompletePage || isLastChunk);
         if (isFinalPage) {
             finalPageNum = pageNum;
         }
@@ -226,10 +200,7 @@ export function processResultsReducer<T>(
 // selected page value. If more results are needed, this reducer does not update
 // the current page, and instead creates a request config to trigger the
 // fetching of a new batch of results.
-export function setSelectedPageReducer<T>(
-    state: PaginationState<T>,
-    selectedPageNum: number,
-): PaginationState<T> {
+export function setSelectedPageReducer<T>(state: PaginationState<T>, selectedPageNum: number): PaginationState<T> {
     const slots = getSlots(selectedPageNum, state.finalPageNum);
 
     // The last page to fetch is the last page number in the slots, excluding
@@ -239,11 +210,8 @@ export function setSelectedPageReducer<T>(
     // the last page as not undefined.
     const lastSlotPage = slotNumbers.pop()!;
 
-    const fetchedPageNumbers = Object.keys(state.pageResultsMap).map((k) =>
-        parseInt(k),
-    );
-    const lastFetchedPage =
-        fetchedPageNumbers.length > 0 ? Math.max(...fetchedPageNumbers) : 0;
+    const fetchedPageNumbers = Object.keys(state.pageResultsMap).map((k) => parseInt(k));
+    const lastFetchedPage = fetchedPageNumbers.length > 0 ? Math.max(...fetchedPageNumbers) : 0;
 
     // We already have all the data that we need.
     if (lastFetchedPage >= lastSlotPage) {
@@ -273,27 +241,15 @@ export function setSelectedPageReducer<T>(
     };
 }
 
-function reducer<T>(
-    state: PaginationState<T>,
-    action: PaginationAction<T>,
-): PaginationState<T> {
+function reducer<T>(state: PaginationState<T>, action: PaginationAction<T>): PaginationState<T> {
     const { type, payload } = action;
     switch (type) {
         case PaginationActionType.PROCESS_RESULTS:
-            return processResultsReducer(
-                state,
-                payload as ProcessResultsPayload<T>,
-            );
+            return processResultsReducer(state, payload as ProcessResultsPayload<T>);
         case PaginationActionType.RESET:
-            return setSelectedPageReducer(
-                getInitialState(payload as ResetPayload<T>),
-                1,
-            );
+            return setSelectedPageReducer(getInitialState(payload as ResetPayload<T>), 1);
         case PaginationActionType.SET_SELECTED_PAGE:
-            return setSelectedPageReducer(
-                state,
-                payload as SetSelectedPagePayload,
-            );
+            return setSelectedPageReducer(state, payload as SetSelectedPagePayload);
         default:
             return state;
     }
@@ -367,9 +323,7 @@ function usePagination<T>({
     analyticsEventName,
 }: UsePaginationProps<T>): UsePaginationState<T> {
     const appInsights = useAppInsightsContext();
-    const [state, dispatch] = useReducer<
-        PaginationReducer<PaginationState<T>, PaginationAction<T>>
-    >(
+    const [state, dispatch] = useReducer<PaginationReducer<PaginationState<T>, PaginationAction<T>>>(
         reducer,
         getInitialState({
             startCursor,
@@ -391,14 +345,7 @@ function usePagination<T>({
                 extractCursor,
             },
         });
-    }, [
-        searchTerm,
-        fetchResults,
-        pageSize,
-        startCursor,
-        extractCursor,
-        isCursorInclusive,
-    ]);
+    }, [searchTerm, fetchResults, pageSize, startCursor, extractCursor, isCursorInclusive]);
 
     // Fetch a new batch of results when the fetch parameters change.
     const { requestConfig } = state;
@@ -421,11 +368,7 @@ function usePagination<T>({
                     ? { reportId: searchTerm }
                     : { fileName: searchTerm }
                 : {};
-            const results = await fetchResults(
-                requestConfig.cursor,
-                requestConfig.numResults,
-                searchParam,
-            );
+            const results = await fetchResults(requestConfig.cursor, requestConfig.numResults, searchParam);
             dispatch({
                 type: PaginationActionType.PROCESS_RESULTS,
                 payload: {

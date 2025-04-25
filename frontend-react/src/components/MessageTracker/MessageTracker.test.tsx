@@ -17,9 +17,7 @@ const mockUseMessageSearch = vi.mocked(useMessageSearch);
 
 describe("MessageTracker component", () => {
     function setup() {
-        mockUseMessageSearch.mockImplementation(
-            () => mockUseMessageSearchInitial as any,
-        );
+        mockUseMessageSearch.mockImplementation(() => mockUseMessageSearchInitial as any);
         renderApp(<MessageTracker />);
     }
 

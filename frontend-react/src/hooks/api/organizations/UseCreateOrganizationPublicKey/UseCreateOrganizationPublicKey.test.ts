@@ -1,8 +1,5 @@
 import useCreateOrganizationPublicKey from "./UseCreateOrganizationPublicKey";
-import {
-    dummyPublicKey,
-    orgServer,
-} from "../../../../__mockServers__/OrganizationMockServer";
+import { dummyPublicKey, orgServer } from "../../../../__mockServers__/OrganizationMockServer";
 import { renderHook } from "../../../../utils/CustomRenderUtils";
 import { MemberType } from "../../../../utils/OrganizationUtils";
 
@@ -15,8 +12,7 @@ describe("useCreateOrganizationPublicKey", () => {
     afterEach(() => orgServer.resetHandlers());
     afterAll(() => orgServer.close());
 
-    const renderWithAppWrapper = () =>
-        renderHook(() => useCreateOrganizationPublicKey());
+    const renderWithAppWrapper = () => renderHook(() => useCreateOrganizationPublicKey());
 
     describe("when authorized, 200", () => {
         beforeEach(() => {

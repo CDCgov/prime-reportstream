@@ -1,11 +1,7 @@
 import { fireEvent, screen } from "@testing-library/react";
 import { useRef } from "react";
 
-import {
-    CompareSettingsModalProps,
-    ConfirmSaveSettingModal,
-    ConfirmSaveSettingModalRef,
-} from "./CompareJsonModal";
+import { CompareSettingsModalProps, ConfirmSaveSettingModal, ConfirmSaveSettingModalRef } from "./CompareJsonModal";
 import { renderApp } from "../../utils/CustomRenderUtils";
 
 const { mockSessionContentReturnValue } = await vi.importMock<
@@ -109,9 +105,7 @@ describe("ConfirmSaveSettingModal", () => {
 
                     fireEvent.click(checkSyntaxButtonNode);
 
-                    errorDiffNode = screen.queryByTestId(
-                        "EditableCompare__errorDiff",
-                    );
+                    errorDiffNode = screen.queryByTestId("EditableCompare__errorDiff");
                 }
 
                 test("does not render an error diff", () => {
@@ -121,9 +115,7 @@ describe("ConfirmSaveSettingModal", () => {
 
                 test("does not render an error toast", () => {
                     setup();
-                    expect(
-                        screen.queryByText(/JSON data generated/),
-                    ).not.toBeInTheDocument();
+                    expect(screen.queryByText(/JSON data generated/)).not.toBeInTheDocument();
                 });
 
                 test("pretty-prints the JSON in the textarea", () => {
@@ -141,9 +133,7 @@ describe("ConfirmSaveSettingModal", () => {
                     });
                     fireEvent.click(checkSyntaxButtonNode);
 
-                    errorDiffNode = screen.queryByTestId(
-                        "EditableCompare__errorDiff",
-                    );
+                    errorDiffNode = screen.queryByTestId("EditableCompare__errorDiff");
                 }
 
                 test("does not render an error diff", () => {
@@ -153,16 +143,12 @@ describe("ConfirmSaveSettingModal", () => {
 
                 test("does not render an error toast", () => {
                     setup();
-                    expect(
-                        screen.queryByText(/JSON data generated/),
-                    ).not.toBeInTheDocument();
+                    expect(screen.queryByText(/JSON data generated/)).not.toBeInTheDocument();
                 });
 
                 test("pretty-prints the JSON in the textarea", () => {
                     setup();
-                    expect(textareaNode.innerHTML).toEqual(
-                        '{\n  "a": 1,\n  "b": 2\n}',
-                    );
+                    expect(textareaNode.innerHTML).toEqual('{\n  "a": 1,\n  "b": 2\n}');
                 });
             });
         });
@@ -176,9 +162,7 @@ describe("ConfirmSaveSettingModal", () => {
                 });
                 fireEvent.click(checkSyntaxButtonNode);
 
-                errorDiffNode = screen.getByTestId(
-                    "EditableCompare__errorDiff",
-                );
+                errorDiffNode = screen.getByTestId("EditableCompare__errorDiff");
             }
 
             test("renders an error diff highlighting the error", () => {
@@ -195,9 +179,7 @@ describe("ConfirmSaveSettingModal", () => {
                         target: { value: "lalalalala" },
                     });
 
-                    errorDiffNode = screen.queryByTestId(
-                        "EditableCompare__errorDiff",
-                    );
+                    errorDiffNode = screen.queryByTestId("EditableCompare__errorDiff");
                     expect(errorDiffNode).toBeNull();
                 });
             });

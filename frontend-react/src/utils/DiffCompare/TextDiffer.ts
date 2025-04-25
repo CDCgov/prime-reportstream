@@ -14,18 +14,8 @@ import { splitOn } from "../misc";
  * @param length length of text to have <mark>
  * @return updated string
  */
-export const insertHighlight = (
-    text: string,
-    offset: number,
-    length: number,
-): string => {
-    if (
-        text.length === 0 ||
-        offset < 0 ||
-        offset > text.length ||
-        length === 0 ||
-        length >= text.length
-    ) {
+export const insertHighlight = (text: string, offset: number, length: number): string => {
+    if (text.length === 0 || offset < 0 || offset > text.length || length === 0 || length >= text.length) {
         return text;
     }
 
@@ -46,10 +36,7 @@ export const insertHighlight = (
  * @param leftText
  * @param rightText
  */
-export const textDifferMarkup = (
-    leftText: string,
-    rightText: string,
-): DifferMarkupResult => {
+export const textDifferMarkup = (leftText: string, rightText: string): DifferMarkupResult => {
     const differ = Diff(leftText, rightText);
     differ.compose();
     const sesses = differ.getses();
@@ -60,18 +47,14 @@ export const textDifferMarkup = (
     // Left items are "Deleted" in the Sess world
     const leftMarkupText = sesses.reduce(
         (acc, eachDiff) =>
-            eachDiff.sestype !== SES_TYPE.DELETE
-                ? acc
-                : insertHighlight(acc, eachDiff.index - 1, eachDiff.len),
+            eachDiff.sestype !== SES_TYPE.DELETE ? acc : insertHighlight(acc, eachDiff.index - 1, eachDiff.len),
         leftText,
     );
 
     // Right items are "Added" in the Sess world
     const rightMarkupText = sesses.reduce(
         (acc, eachDiff) =>
-            eachDiff.sestype !== SES_TYPE.ADD
-                ? acc
-                : insertHighlight(acc, eachDiff.index - 1, eachDiff.len),
+            eachDiff.sestype !== SES_TYPE.ADD ? acc : insertHighlight(acc, eachDiff.index - 1, eachDiff.len),
         rightText,
     );
 

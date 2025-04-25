@@ -5,9 +5,7 @@ import { renderApp } from "../utils/CustomRenderUtils";
 
 describe("StaticAlert", () => {
     test("renders correct class for success", async () => {
-        renderApp(
-            <StaticAlert type={StaticAlertType.Success} heading={"any"} />,
-        );
+        renderApp(<StaticAlert type={StaticAlertType.Success} heading={"any"} />);
 
         const wrapper = await screen.findByRole("alert");
         expect(wrapper).toHaveClass("usa-alert--success");

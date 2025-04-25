@@ -57,10 +57,7 @@ type AzureFamily = keyof typeof azureFamilySourceRegexMap;
 /**
  * Create custom BrowserRegex fitting Azure from desktop version.
  */
-function getAzureBrowserRegex(
-    family: AzureFamily,
-    sources: BrowserRegex[],
-): BrowserRegex {
+function getAzureBrowserRegex(family: AzureFamily, sources: BrowserRegex[]): BrowserRegex {
     const regex = new RegExp(azureFamilySourceRegexMap[family]);
     let source = sources.find((s) => s.family === family);
 
@@ -77,8 +74,7 @@ function getAzureBrowserRegex(
             break;
     }
 
-    if (!source)
-        throw new Error(`Could not find nearest source for: ${family}`);
+    if (!source) throw new Error(`Could not find nearest source for: ${family}`);
 
     return {
         ...source,
@@ -91,9 +87,7 @@ function getAzureBrowserRegex(
  * Perform from-scratch building up to getRegexesForBrowsers so that we can then
  * create an azure-form copy to then create single regexes for both.
  */
-function getRegexes(
-    options: UserAgentRegexOptions = {},
-): [useragent: RegExp, azure: RegExp] {
+function getRegexes(options: UserAgentRegexOptions = {}): [useragent: RegExp, azure: RegExp] {
     const browsersList = getBrowsersList(options);
     const mergedBrowsers = mergeBrowserVersions(browsersList);
 
@@ -103,10 +97,7 @@ function getRegexes(
     );
 
     const versionedRegexes = applyVersionsToRegexes(sourceRegexes, options);
-    const azureVersionedRegexes = applyVersionsToRegexes(
-        azureSourceRegex,
-        options,
-    );
+    const azureVersionedRegexes = applyVersionsToRegexes(azureSourceRegex, options);
 
     const versionedRegex = compileRegex(versionedRegexes);
     const azureVersionedRegex = compileRegex(azureVersionedRegexes);

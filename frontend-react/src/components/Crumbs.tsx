@@ -20,11 +20,7 @@ const Crumbs = ({ crumbList, previousPage }: CrumbsProps) => {
             <div>
                 {previousPage ? (
                     <div className="font-sans-lg line-height-sans-4 margin-top-8">
-                        <IconButton
-                            size="big"
-                            type="button"
-                            onClick={() => window.history.back()}
-                        >
+                        <IconButton size="big" type="button" onClick={() => window.history.back()}>
                             <Icon.ArrowBack />
                         </IconButton>
                         Return to {previousPage}
@@ -34,16 +30,9 @@ const Crumbs = ({ crumbList, previousPage }: CrumbsProps) => {
                     <>
                         <BreadcrumbBar>
                             {crumbList?.map((crumbConfig) => (
-                                <Breadcrumb
-                                    key={`${crumbConfig.label}`}
-                                    current={!crumbConfig?.path}
-                                >
+                                <Breadcrumb key={`${crumbConfig.label}`} current={!crumbConfig?.path}>
                                     {crumbConfig?.path ? (
-                                        <USCrumbLink
-                                            href={crumbConfig?.path || ""}
-                                        >
-                                            {crumbConfig.label}
-                                        </USCrumbLink>
+                                        <USCrumbLink href={crumbConfig?.path || ""}>{crumbConfig.label}</USCrumbLink>
                                     ) : (
                                         crumbConfig.label
                                     )}

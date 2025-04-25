@@ -1,10 +1,7 @@
 import { waitFor } from "@testing-library/react";
 
 import useOrganizationReceivers from "./UseOrganizationReceivers";
-import {
-    dummyReceivers,
-    orgServer,
-} from "../../../../__mockServers__/OrganizationMockServer";
+import { dummyReceivers, orgServer } from "../../../../__mockServers__/OrganizationMockServer";
 import { renderHook } from "../../../../utils/CustomRenderUtils";
 import { MemberType } from "../../../../utils/OrganizationUtils";
 import { Organizations } from "../../../UseAdminSafeOrganizationName/UseAdminSafeOrganizationName";
@@ -55,9 +52,7 @@ describe("useOrganizationReceivers", () => {
             } as any,
         });
         const { result } = renderHook(() => useOrganizationReceivers());
-        await waitFor(() =>
-            expect(result.current.data).toEqual(dummyReceivers),
-        );
+        await waitFor(() => expect(result.current.data).toEqual(dummyReceivers));
         expect(result.current.isLoading).toEqual(false);
     });
 

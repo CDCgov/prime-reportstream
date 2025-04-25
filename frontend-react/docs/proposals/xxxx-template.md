@@ -1,10 +1,10 @@
 # [XXXX: Title of Proposal]
 
--   Status: [proposed | rejected | accepted | deprecated | superseded by [0005](0005-example.md)]
--   Authors: [list of contributors to the proposal]
--   Deciders: [list everyone involved in the decision]
--   Proposal date: [YYYY-MM-DD when the proposal was submitted for review]
--   Last updated: [YYYY-MM-DD when the proposal was last updated]
+- Status: [proposed | rejected | accepted | deprecated | superseded by [0005](0005-example.md)]
+- Authors: [list of contributors to the proposal]
+- Deciders: [list everyone involved in the decision]
+- Proposal date: [YYYY-MM-DD when the proposal was submitted for review]
+- Last updated: [YYYY-MM-DD when the proposal was last updated]
 
 ## Problem Statement
 
@@ -14,9 +14,9 @@ _Describe the context and problem statement in a few sentences. What are we tryi
 
 \_Why is this being discussed now? What circumstances are precipitating a need for a change now? This section can also include long-standing issues like developer experience pain points or joint decisions made with other teams.
 
--   [driver 1]
--   [driver 2]
--   ...
+- [driver 1]
+- [driver 2]
+- ...
 
 ## Considered Options
 
@@ -30,15 +30,15 @@ _Write a few sentences of what this approach would entail. At a high level, what
 
 #### Pros
 
--   [option 1 pro]
--   [option 1 pro]
--   ...
+- [option 1 pro]
+- [option 1 pro]
+- ...
 
 #### Cons
 
--   [option 1 con]
--   [option 1 con]
--   ...
+- [option 1 con]
+- [option 1 con]
+- ...
 
 ### Option 2: [option 2 title]
 
@@ -48,15 +48,15 @@ _Write a few sentences of what this approach would entail. At a high level, what
 
 #### Pros
 
--   [option 2 pro]
--   [option 2 pro]
--   ...
+- [option 2 pro]
+- [option 2 pro]
+- ...
 
 #### Cons
 
--   [option 2 con]
--   [option 2 con]
--   ...
+- [option 2 con]
+- [option 2 con]
+- ...
 
 ## Decision Outcome
 
@@ -66,22 +66,22 @@ _Note which option was chosen and list the main contributing factors that led to
 
 _Explain how the proposed change will be implemented. Break down the implementation into small steps to mitigate as much risk as possible and note what sort of user impact (internal or external) this may have. Note any potential obstacles or blockers that may impede progress along the way._
 
--   [step 1]
--   [step 2]
--   ...
+- [step 1]
+- [step 2]
+- ...
 
 ### Follow-Ups
 
 _List any actions that need to be made or any questions that need to be answered as a direct consequence of this decision outcome. If any of these are hard blockers to start on this proposal's implementation, they should optimally be factored into and discussed as part of this proposal._
 
--   [follow-up 1]
--   [follow-up 2]
--   ...
+- [follow-up 1]
+- [follow-up 2]
+- ...
 
 ## Additional Information
 
 _List follow-up points or links (e.g., example or real GitHub repositories) that helped to influence this proposal._
 
--   [link 1]
--   [link 2]
--   ...
+- [link 1]
+- [link 2]
+- ...

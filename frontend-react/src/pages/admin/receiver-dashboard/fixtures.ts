@@ -2,10 +2,7 @@ import { createStatusTimePeriodData, RSReceiverStatusParsed } from "./utils";
 import type { RSReceiverStatus } from "../../../hooks/api/UseReceiversConnectionStatus/UseReceiversConnectionStatus";
 import type { DatePair } from "../../../utils/DateTimeUtils";
 
-export const mockDateRange = [
-    new Date("2022-07-11"),
-    new Date("2022-07-13"),
-] as DatePair;
+export const mockDateRange = [new Date("2022-07-11"), new Date("2022-07-13")] as DatePair;
 export const mockReceiversStatuses = [
     {
         receiverConnectionCheckResultId: 2397,

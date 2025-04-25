@@ -1,20 +1,6 @@
-import {
-    GovBanner,
-    Header,
-    Menu,
-    NavMenuButton,
-    PrimaryNav,
-    Title,
-} from "@trussworks/react-uswds";
+import { GovBanner, Header, Menu, NavMenuButton, PrimaryNav, Title } from "@trussworks/react-uswds";
 import classnames from "classnames";
-import {
-    PropsWithChildren,
-    ReactElement,
-    Suspense,
-    useCallback,
-    useEffect,
-    useState,
-} from "react";
+import { PropsWithChildren, ReactElement, Suspense, useCallback, useEffect, useState } from "react";
 import { useMatch } from "react-router-dom";
 
 import styles from "./ReportStreamHeader.module.scss";
@@ -42,12 +28,7 @@ export interface DropdownProps extends PropsWithChildren {
     setActiveDropdown: (menuName: string | null) => void;
 }
 
-function Dropdown({
-    activeDropdown,
-    dropdownList,
-    menuName,
-    setActiveDropdown,
-}: DropdownProps) {
+function Dropdown({ activeDropdown, dropdownList, menuName, setActiveDropdown }: DropdownProps) {
     const isCurrentDropdown = activeDropdown === menuName;
     const handleToggle = (e: React.MouseEvent<HTMLButtonElement>) => {
         e.stopPropagation();
@@ -75,11 +56,7 @@ function Dropdown({
             >
                 <span>{menuName}</span>
             </button>
-            <Menu
-                items={dropdownList}
-                isOpen={isCurrentDropdown}
-                id={`${menuName}Dropdown`}
-            />
+            <Menu items={dropdownList} isOpen={isCurrentDropdown} id={`${menuName}Dropdown`} />
         </>
     );
 }
@@ -109,24 +86,13 @@ function ReportStreamAuthNavbar({
 }: ReportStreamNavbarProps) {
     const defaultMenuItems = [
         <div className="primary-nav-link-container" key="user-email">
-            {user.claims && (
-                <span className={styles.UserEmail}>
-                    {user.claims.email ?? "Unknown"}
-                </span>
-            )}
+            {user.claims && <span className={styles.UserEmail}>{user.claims.email ?? "Unknown"}</span>}
         </div>,
     ];
 
     const menuOrganization = [
-        <div
-            className="primary-nav-link-container org-settings"
-            key="organization"
-        >
-            <USLinkButton
-                unstyled
-                data-testid="org-settings"
-                href="/admin/settings"
-            >
+        <div className="primary-nav-link-container org-settings" key="organization">
+            <USLinkButton unstyled data-testid="org-settings" href="/admin/settings">
                 {activeMembership?.parsedName ?? " "}
                 <Icon name="Loop" className="text-tbottom" />
             </USLinkButton>
@@ -172,10 +138,7 @@ function ReportStreamAuthNavbar({
                 <USSmartLink href="/admin/lastmile" key="lastmile">
                     Last Mile Failures
                 </USSmartLink>,
-                <USSmartLink
-                    href="/admin/message-tracker"
-                    key="message-tracker"
-                >
+                <USSmartLink href="/admin/message-tracker" key="message-tracker">
                     Message Id Search
                 </USSmartLink>,
                 <USSmartLink href="/admin/send-dash" key="send-dash">
@@ -193,12 +156,7 @@ function ReportStreamAuthNavbar({
 
     const menuLogOut = [
         <div className="primary-nav-link-container" key="logout">
-            <USLinkButton
-                id="logout"
-                data-testid="logout"
-                unstyled
-                onClick={logout}
-            >
+            <USLinkButton id="logout" data-testid="logout" unstyled onClick={logout}>
                 Log out
             </USLinkButton>
         </div>,
@@ -247,32 +205,22 @@ function ReportStreamNavbar({
     const defaultMenuItems = [
         <div className="primary-nav-link-container" key="developer-resources">
             <USSmartLink
-                className={primaryLinkClasses(
-                    !!useMatch("/developer-resources/*"),
-                )}
+                className={primaryLinkClasses(!!useMatch("/developer-resources/*"))}
                 href="/developer-resources"
             >
                 Developers
             </USSmartLink>
         </div>,
-        <div
-            className="primary-nav-link-container"
-            key="managing-your-connection"
-        >
+        <div className="primary-nav-link-container" key="managing-your-connection">
             <USSmartLink
-                className={primaryLinkClasses(
-                    !!useMatch("/managing-your-connection/*"),
-                )}
+                className={primaryLinkClasses(!!useMatch("/managing-your-connection/*"))}
                 href="/managing-your-connection"
             >
                 Your connection
             </USSmartLink>
         </div>,
         <div className="primary-nav-link-container" key="support">
-            <USSmartLink
-                className={primaryLinkClasses(!!useMatch("/support/*"))}
-                href="/support"
-            >
+            <USSmartLink className={primaryLinkClasses(!!useMatch("/support/*"))} href="/support">
                 Support
             </USSmartLink>
         </div>,
@@ -314,16 +262,10 @@ function ReportStreamNavbar({
         <Dropdown
             menuName="Getting started"
             dropdownList={[
-                <USSmartLink
-                    href="/getting-started/sending-data"
-                    key="sending-data"
-                >
+                <USSmartLink href="/getting-started/sending-data" key="sending-data">
                     Sending data
                 </USSmartLink>,
-                <USSmartLink
-                    href="/getting-started/receiving-data"
-                    key="receiving-data"
-                >
+                <USSmartLink href="/getting-started/receiving-data" key="receiving-data">
                     Receiving data
                 </USSmartLink>,
             ]}
@@ -335,10 +277,7 @@ function ReportStreamNavbar({
 
     const menuItemsReceiver = [
         <div className="primary-nav-link-container" key="daily">
-            <USSmartLink
-                className={primaryLinkClasses(!!useMatch("/daily-data/*"))}
-                href="/daily-data"
-            >
+            <USSmartLink className={primaryLinkClasses(!!useMatch("/daily-data/*"))} href="/daily-data">
                 Daily Data
             </USSmartLink>
         </div>,
@@ -346,10 +285,7 @@ function ReportStreamNavbar({
 
     const menuItemsSender = [
         <div className="primary-nav-link-container" key="submissions">
-            <USSmartLink
-                className={primaryLinkClasses(!!useMatch("/submissions/*"))}
-                href="/submissions"
-            >
+            <USSmartLink className={primaryLinkClasses(!!useMatch("/submissions/*"))} href="/submissions">
                 Submissions
             </USSmartLink>
         </div>,
@@ -368,10 +304,7 @@ function ReportStreamNavbar({
                 <USSmartLink href="/admin/lastmile" key="lastmile">
                     Last Mile Failures
                 </USSmartLink>,
-                <USSmartLink
-                    href="/admin/message-tracker"
-                    key="message-tracker"
-                >
+                <USSmartLink href="/admin/message-tracker" key="message-tracker">
                     Message Id Search
                 </USSmartLink>,
                 <USSmartLink href="/admin/send-dash" key="send-dash">
@@ -390,11 +323,7 @@ function ReportStreamNavbar({
         />,
     ];
 
-    let menuItems = [
-        ...menuItemsAbout,
-        ...menuItemsGettingStarted,
-        ...defaultMenuItems,
-    ];
+    let menuItems = [...menuItemsAbout, ...menuItemsGettingStarted, ...defaultMenuItems];
 
     if (isMobileNavOpen) {
         if (user.isUserSender || user.isUserTransceiver || user.isUserAdmin) {
@@ -433,18 +362,11 @@ function ReportStreamNavbar({
 
 const suspenseFallback = <Spinner size={"fullpage"} />;
 
-const ReportStreamHeader = ({
-    blueVariant,
-    children,
-    isNavHidden,
-}: ReportStreamHeaderProps) => {
+const ReportStreamHeader = ({ blueVariant, children, isNavHidden }: ReportStreamHeaderProps) => {
     const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
     const { config, user, activeMembership, logout } = useSessionContext();
     const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
-    const toggleMobileNav = useCallback(
-        () => setIsMobileNavOpen((v) => !v),
-        [],
-    );
+    const toggleMobileNav = useCallback(() => setIsMobileNavOpen((v) => !v), []);
     const handleClickOutside = () => {
         setActiveDropdown(null);
     };
@@ -461,11 +383,7 @@ const ReportStreamHeader = ({
             <GovBanner aria-label="Official government website" />
             {!isNavHidden && <SenderModeBanner />}
             {!isNavHidden && (activeMembership ?? user.claims) && (
-                <Header
-                    data-testid="auth-header"
-                    basic={true}
-                    className={classnames(styles.AuthNavbar)}
-                >
+                <Header data-testid="auth-header" basic={true} className={classnames(styles.AuthNavbar)}>
                     <div className="usa-nav-container">
                         <Suspense fallback={suspenseFallback}>
                             <ReportStreamAuthNavbar
@@ -493,11 +411,7 @@ const ReportStreamHeader = ({
                         <Title>
                             <USLink href="/" title="Home" aria-label="Home">
                                 ReportStream
-                                {config.IS_PREVIEW && (
-                                    <span className={styles.ClientEnv}>
-                                        {config.MODE}
-                                    </span>
-                                )}
+                                {config.IS_PREVIEW && <span className={styles.ClientEnv}>{config.MODE}</span>}
                             </USLink>
                         </Title>
                         <NavMenuButton onClick={toggleMobileNav} label="Menu" />
@@ -517,28 +431,14 @@ const ReportStreamHeader = ({
                                 <div className="nav-cta-container">
                                     {user.claims && isMobileNavOpen && (
                                         <>
-                                            <p className="nav-cta-username">
-                                                {user.claims.email ?? "Unknown"}
-                                            </p>
+                                            <p className="nav-cta-username">{user.claims.email ?? "Unknown"}</p>
                                             {user.isUserAdmin && (
-                                                <USLinkButton
-                                                    outline
-                                                    data-testid="org-settings"
-                                                    href="/admin/settings"
-                                                >
-                                                    {activeMembership?.parsedName ??
-                                                        " "}
-                                                    <Icon
-                                                        name="Loop"
-                                                        className="text-tbottom"
-                                                    />
+                                                <USLinkButton outline data-testid="org-settings" href="/admin/settings">
+                                                    {activeMembership?.parsedName ?? " "}
+                                                    <Icon name="Loop" className="text-tbottom" />
                                                 </USLinkButton>
                                             )}
-                                            <USLinkButton
-                                                id="logout"
-                                                type="button"
-                                                onClick={logout}
-                                            >
+                                            <USLinkButton id="logout" type="button" onClick={logout}>
                                                 Logout
                                             </USLinkButton>
                                         </>
@@ -549,11 +449,7 @@ const ReportStreamHeader = ({
                                         </USLinkButton>
                                     )}
                                     {!isMobileNavOpen && (
-                                        <USLinkButton
-                                            href={site.forms.connectWithRS.url}
-                                        >
-                                            Contact us
-                                        </USLinkButton>
+                                        <USLinkButton href={site.forms.connectWithRS.url}>Contact us</USLinkButton>
                                     )}
                                 </div>
                             </ReportStreamNavbar>

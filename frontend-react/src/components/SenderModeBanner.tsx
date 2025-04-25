@@ -22,8 +22,7 @@ const BannerContent = () => {
                             <Icon.Warning />
                         </div>
                         <div className="grid-col-fill tablet:grid-col-auto">
-                            <b>Onboarding: </b> Your account is not yet sending
-                            data to your public health authority.{" "}
+                            <b>Onboarding: </b> Your account is not yet sending data to your public health authority.{" "}
                             <USLink href="/getting-started/testing-facilities/overview">
                                 Learn more about onboarding.
                             </USLink>

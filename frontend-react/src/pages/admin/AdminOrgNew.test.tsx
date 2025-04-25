@@ -6,9 +6,7 @@ import OrganizationResource from "../../resources/OrganizationResource";
 import { ResponseType, TestResponse } from "../../resources/TestResponse";
 import { renderApp } from "../../utils/CustomRenderUtils";
 
-const mockData: OrganizationResource = new TestResponse(
-    ResponseType.NEW_ORGANIZATION,
-).data;
+const mockData: OrganizationResource = new TestResponse(ResponseType.NEW_ORGANIZATION).data;
 
 vi.mock("rest-hooks", async (importActual) => ({
     ...(await importActual<typeof import("rest-hooks")>()),

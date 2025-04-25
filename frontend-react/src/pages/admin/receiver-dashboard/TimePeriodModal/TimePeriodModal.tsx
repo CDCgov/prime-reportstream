@@ -23,17 +23,12 @@ function TimePeriodModalInner({ receiverStatuses }: TimePeriodModalInnerProps) {
         <GridContainer className={"rs-admindash-modal-container"}>
             {/* We support multiple results per slice */}
             {receiverStatuses.map((dataItem) => (
-                <Grid
-                    key={`dlog-item-${dataItem.receiverConnectionCheckResultId}`}
-                >
-                    <Grid className={"modal-info-title"}>
-                        Results for connection verification check
-                    </Grid>
+                <Grid key={`dlog-item-${dataItem.receiverConnectionCheckResultId}`}>
+                    <Grid className={"modal-info-title"}>Results for connection verification check</Grid>
                     <Grid row className={"modal-info-row"}>
                         <Grid className={"modal-info-label"}>Org:</Grid>
                         <Grid className={"modal-info-value"}>
-                            {dataItem.organizationName} (id:{" "}
-                            {dataItem.organizationId})
+                            {dataItem.organizationName} (id: {dataItem.organizationId})
                         </Grid>
                     </Grid>
 
@@ -48,14 +43,10 @@ function TimePeriodModalInner({ receiverStatuses }: TimePeriodModalInnerProps) {
                         <Grid className={"modal-info-label"}>Result:</Grid>
                         <Grid
                             className={`modal-info-value ${
-                                dataItem.connectionCheckSuccessful
-                                    ? "success-all"
-                                    : "failure-all"
+                                dataItem.connectionCheckSuccessful ? "success-all" : "failure-all"
                             }`}
                         >
-                            {dataItem.connectionCheckSuccessful
-                                ? "success"
-                                : "failed"}
+                            {dataItem.connectionCheckSuccessful ? "success" : "failed"}
                         </Grid>
                     </Grid>
 
@@ -69,9 +60,7 @@ function TimePeriodModalInner({ receiverStatuses }: TimePeriodModalInnerProps) {
                     </Grid>
 
                     <Grid row className={"modal-info-row"}>
-                        <Grid className={"modal-info-label"}>
-                            Time to complete:
-                        </Grid>
+                        <Grid className={"modal-info-label"}>Time to complete:</Grid>
                         <Grid className={"modal-info-value"}>
                             {duration(dataItem)}
                             <br />
@@ -79,12 +68,8 @@ function TimePeriodModalInner({ receiverStatuses }: TimePeriodModalInnerProps) {
                     </Grid>
 
                     <Grid row className={"modal-info-row"}>
-                        <Grid className={"modal-info-label"}>
-                            Result message:
-                        </Grid>
-                        <Grid className={"modal-info-value"}>
-                            {dataItem.connectionCheckResult}
-                        </Grid>
+                        <Grid className={"modal-info-label"}>Result message:</Grid>
+                        <Grid className={"modal-info-value"}>{dataItem.connectionCheckResult}</Grid>
                     </Grid>
                 </Grid>
             ))}

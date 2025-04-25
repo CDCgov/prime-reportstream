@@ -3,10 +3,7 @@ import { Grid } from "@trussworks/react-uswds";
 import styles from "./ReportDetailsSummary.module.scss";
 import { RSDelivery } from "../../../config/endpoints/deliveries";
 import ReportLink from "../../../pages/deliveries/daily-data/ReportLink";
-import {
-    formatDateWithoutSeconds,
-    isDateExpired,
-} from "../../../utils/DateTimeUtils";
+import { formatDateWithoutSeconds, isDateExpired } from "../../../utils/DateTimeUtils";
 
 interface Props {
     report: RSDelivery | undefined;
@@ -35,9 +32,7 @@ export function ReportDetailsSummary(props: Props) {
                 <Grid row>
                     <Grid col={2}>
                         <hr className="margin-top-2 margin-bottom-2" />
-                        <span className="text-bold padding-right-3">
-                            Report ID
-                        </span>
+                        <span className="text-bold padding-right-3">Report ID</span>
                     </Grid>
                     <Grid col={4} className="padding-right-6">
                         <hr className="margin-top-2 margin-bottom-2" />
@@ -45,9 +40,7 @@ export function ReportDetailsSummary(props: Props) {
                     </Grid>
                     <Grid col={2}>
                         <hr className="margin-top-2 margin-bottom-2" />
-                        <span className="text-bold padding-right-3">
-                            File name
-                        </span>
+                        <span className="text-bold padding-right-3">File name</span>
                     </Grid>
                     <Grid col={4}>
                         <hr className="margin-top-2 margin-bottom-2" />
@@ -57,21 +50,15 @@ export function ReportDetailsSummary(props: Props) {
                 <Grid row>
                     <Grid col={2}>
                         <hr className="margin-top-2 margin-bottom-2" />
-                        <span className="text-bold padding-right-3">
-                            Date sent to you
-                        </span>
+                        <span className="text-bold padding-right-3">Date sent to you</span>
                     </Grid>
                     <Grid col={4} className="padding-right-6">
                         <hr className="margin-top-2 margin-bottom-2" />
-                        <span className="font-code-xs">
-                            {formatDateWithoutSeconds(report!.batchReadyAt)}{" "}
-                        </span>
+                        <span className="font-code-xs">{formatDateWithoutSeconds(report!.batchReadyAt)} </span>
                     </Grid>
                     <Grid col={2}>
                         <hr className="margin-top-2 margin-bottom-2" />
-                        <span className="text-bold padding-right-3">
-                            Delivery method
-                        </span>
+                        <span className="text-bold padding-right-3">Delivery method</span>
                     </Grid>
                     <Grid col={4}>
                         <hr className="margin-top-2 margin-bottom-2" />
@@ -81,16 +68,12 @@ export function ReportDetailsSummary(props: Props) {
                 <Grid row>
                     <Grid col={2}>
                         <hr className="margin-top-2 margin-bottom-2" />
-                        <span className="text-bold padding-right-3">
-                            Available until
-                        </span>
+                        <span className="text-bold padding-right-3">Available until</span>
                         <hr className="margin-top-2 margin-bottom-2" />
                     </Grid>
                     <Grid col={4} className="padding-right-6">
                         <hr className="margin-top-2 margin-bottom-2" />
-                        <span className="font-code-xs">
-                            {formatDateWithoutSeconds(report!.expires)}{" "}
-                        </span>
+                        <span className="font-code-xs">{formatDateWithoutSeconds(report!.expires)} </span>
                         <hr className="margin-top-2 margin-bottom-2" />
                     </Grid>
                     <Grid col={2}>

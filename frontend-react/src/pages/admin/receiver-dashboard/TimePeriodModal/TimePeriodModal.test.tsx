@@ -9,9 +9,7 @@ describe("TimePeriodModal", () => {
         const data = sortStatusData(mockReceiversStatusesParsed); // sorts
         const statuses = [data[0]];
         renderApp(<TimePeriodModalInner receiverStatuses={statuses} />);
-        const matches = screen.queryAllByText(
-            "connectionCheckResult dummy result 2397",
-        );
+        const matches = screen.queryAllByText("connectionCheckResult dummy result 2397");
         expect(matches.length).toBe(1);
     });
 

@@ -98,9 +98,8 @@ describe("EditReceiverSettings", () => {
         });
         settingsServer.listen();
         settingsServer.use(
-            http.get(
-                `${config.API_ROOT}/settings/organizations/abbott/receivers/user1234`,
-                () => HttpResponse.json(mockData),
+            http.get(`${config.API_ROOT}/settings/organizations/abbott/receivers/user1234`, () =>
+                HttpResponse.json(mockData),
             ),
         );
     });

@@ -59,9 +59,7 @@ describe("useReceiverDeliveries", () => {
         });
 
         test("returns receiver meta and deliveries", async () => {
-            const { result } = renderHook(() =>
-                useReceiverDeliveries("testService"),
-            );
+            const { result } = renderHook(() => useReceiverDeliveries("testService"));
 
             await waitFor(() => expect(result.current.data).toHaveLength(1));
             expect(result.current.isLoading).toEqual(false);

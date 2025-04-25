@@ -23,13 +23,7 @@ describe("Alert", () => {
         expect(body.tagName.toLowerCase()).toEqual("div");
     });
 
-    test.each([
-        "info",
-        "warning",
-        "tip",
-        "error",
-        "success",
-    ] as AlertProps["type"][])(
+    test.each(["info", "warning", "tip", "error", "success"] as AlertProps["type"][])(
         "renders with aria role for type: %s",
         (type) => {
             renderApp(<Alert type={type}>Test</Alert>);

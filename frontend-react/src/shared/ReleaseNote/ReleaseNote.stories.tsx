@@ -17,11 +17,9 @@ export const Default = (): ReactElement => (
                 tag: "feature",
                 body: (
                     <p>
-                        We launched a pilot program receiving and sending flu
-                        data through ReportStream. This is part of continued
-                        efforts to expand our capabilities beyond COVID-19. Let
-                        us know if you&apos;re interested in receiving flu data
-                        from ReportStream.
+                        We launched a pilot program receiving and sending flu data through ReportStream. This is part of
+                        continued efforts to expand our capabilities beyond COVID-19. Let us know if you&apos;re
+                        interested in receiving flu data from ReportStream.
                     </p>
                 ),
             },
@@ -30,9 +28,8 @@ export const Default = (): ReactElement => (
                 tag: "improvement",
                 body: (
                     <p>
-                        The ReportStream homepage more accurately reflects the
-                        work we are doing and provides a clear action step for
-                        starting to send or receive data.
+                        The ReportStream homepage more accurately reflects the work we are doing and provides a clear
+                        action step for starting to send or receive data.
                     </p>
                 ),
             },
@@ -41,12 +38,8 @@ export const Default = (): ReactElement => (
                 tag: "bug",
                 body: (
                     <p>
-                        The navigation of the{" "}
-                        <a href="https://reportstream.cdc.gov/resources/api">
-                            API Guide
-                        </a>{" "}
-                        no longer overlaps with the content of the page on
-                        mobile view.
+                        The navigation of the <a href="https://reportstream.cdc.gov/resources/api">API Guide</a> no
+                        longer overlaps with the content of the page on mobile view.
                     </p>
                 ),
             },
@@ -54,10 +47,7 @@ export const Default = (): ReactElement => (
                 title: "South Dakota now connected with ReportStream",
                 tag: "announcement",
                 body: (
-                    <p>
-                        We’re excited to announce that ReportStream can now send
-                        public health data to South Dakota.
-                    </p>
+                    <p>We’re excited to announce that ReportStream can now send public health data to South Dakota.</p>
                 ),
             },
         ]}

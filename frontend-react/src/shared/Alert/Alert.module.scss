@@ -9,50 +9,50 @@
  * body scenario.
  */
 .Alert {
-    &:global {
-        &.usa-alert {
-            .usa-alert {
-                &__body {
-                    min-height: units(3);
+  &:global {
+    &.usa-alert {
+      .usa-alert {
+        &__body {
+          min-height: units(3);
 
-                    &:before {
-                        all: unset;
-                    }
+          &:before {
+            all: unset;
+          }
 
-                    & > .usa-icon {
-                        @include u-width(4);
-                        height: (2 * units($theme-alert-padding-y)) + units(3);
-                        left: $alert-icon-optical-padding;
-                        position: absolute;
-                        top: 0;
-                    }
-                }
-            }
-
-            div.usa-alert__heading {
-                font-weight: bold;
-            }
-
-            &--no-icon .usa-alert__body {
-                padding-left: 0;
-            }
-
-            &--slim .usa-alert__body > .usa-icon {
-                @include u-height(5);
-                @include u-width(3);
-            }
-
-            &--tip {
-                /* Tip type style */
-                @include u-border("primary-lighter");
-                @include u-border(1px);
-                @include u-border("solid");
-                @include u-radius("md");
-
-                .usa-alert__heading {
-                    font-size: size("body", "sm");
-                }
-            }
+          & > .usa-icon {
+            @include u-width(4);
+            height: (2 * units($theme-alert-padding-y)) + units(3);
+            left: $alert-icon-optical-padding;
+            position: absolute;
+            top: 0;
+          }
         }
+      }
+
+      div.usa-alert__heading {
+        font-weight: bold;
+      }
+
+      &--no-icon .usa-alert__body {
+        padding-left: 0;
+      }
+
+      &--slim .usa-alert__body > .usa-icon {
+        @include u-height(5);
+        @include u-width(3);
+      }
+
+      &--tip {
+        /* Tip type style */
+        @include u-border("primary-lighter");
+        @include u-border(1px);
+        @include u-border("solid");
+        @include u-radius("md");
+
+        .usa-alert__heading {
+          font-size: size("body", "sm");
+        }
+      }
     }
+  }
 }

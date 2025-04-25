@@ -51,12 +51,7 @@ describe("FileHandlerSchemaSelectionStep", () => {
                 isLoading: false,
             } as any);
 
-            renderApp(
-                <FileHandlerSchemaSelectionStep
-                    {...DEFAULT_PROPS}
-                    onSchemaChange={onSchemaChangeSpy}
-                />,
-            );
+            renderApp(<FileHandlerSchemaSelectionStep {...DEFAULT_PROPS} onSchemaChange={onSchemaChangeSpy} />);
         }
 
         test("renders the options", () => {
@@ -68,9 +63,7 @@ describe("FileHandlerSchemaSelectionStep", () => {
         describe("when selecting a schema", () => {
             test("triggers the onSchemaChange callback with the schema", async () => {
                 setup();
-                await userEvent.selectOptions(screen.getByRole("combobox"), [
-                    "csv",
-                ]);
+                await userEvent.selectOptions(screen.getByRole("combobox"), ["csv"]);
                 await waitFor(() =>
                     expect(onSchemaChangeSpy).toHaveBeenCalledWith({
                         format: "CSV",

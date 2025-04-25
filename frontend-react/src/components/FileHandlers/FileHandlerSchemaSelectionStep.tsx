@@ -3,13 +3,10 @@ import { useRef } from "react";
 
 import { FileHandlerStepProps } from "./FileHandler";
 import FileHandlerPiiWarning from "./FileHandlerPiiWarning";
-import useSenderSchemaOptions, {
-    SchemaOption,
-} from "../../hooks/UseSenderSchemaOptions/UseSenderSchemaOptions";
+import useSenderSchemaOptions, { SchemaOption } from "../../hooks/UseSenderSchemaOptions/UseSenderSchemaOptions";
 import Spinner from "../Spinner";
 
-export interface FileHandlerSchemaSelectionStepProps
-    extends FileHandlerStepProps {
+export interface FileHandlerSchemaSelectionStepProps extends FileHandlerStepProps {
     onSchemaChange: (schemaOption: SchemaOption) => void;
 }
 
@@ -45,10 +42,7 @@ export default function FileHandlerSchemaSelectionStep({
                     name="upload-schema-select"
                     value={selectedSchemaOption.value}
                     onChange={(e) => {
-                        const option = schemaOptions.find(
-                            ({ value }: SchemaOption) =>
-                                value === e.target.value,
-                        )!;
+                        const option = schemaOptions.find(({ value }: SchemaOption) => value === e.target.value)!;
 
                         if (option?.format !== fileType) {
                             fileInputRef.current?.clearFiles();
@@ -68,12 +62,7 @@ export default function FileHandlerSchemaSelectionStep({
                 </Select>
             </div>
 
-            <Button
-                disabled={!isValid}
-                className="usa-button"
-                type="submit"
-                onClick={onNextStepClick}
-            >
+            <Button disabled={!isValid} className="usa-button" type="submit" onClick={onNextStepClick}>
                 Continue
             </Button>
         </div>

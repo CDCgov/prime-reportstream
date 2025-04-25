@@ -1,12 +1,4 @@
-import {
-    Button,
-    FileInput,
-    FileInputRef,
-    Form,
-    FormGroup,
-    Grid,
-    Label,
-} from "@trussworks/react-uswds";
+import { Button, FileInput, FileInputRef, Form, FormGroup, Grid, Label } from "@trussworks/react-uswds";
 import { ChangeEvent, FormEvent, useRef } from "react";
 
 export interface ManagePublicKeyUploadProps {
@@ -31,11 +23,7 @@ export default function ManagePublicKeyUpload({
 
     return (
         <>
-            {publicKey && (
-                <p className="font-sans-md">
-                    Your public key is already configured.
-                </p>
-            )}
+            {publicKey && <p className="font-sans-md">Your public key is already configured.</p>}
             <div data-testid="ManagePublicKeyUpload">
                 <Form
                     name="public-key-upload"
@@ -46,17 +34,10 @@ export default function ManagePublicKeyUpload({
                     className="rs-full-width-form"
                 >
                     <FormGroup className="margin-bottom-3">
-                        <Label
-                            className="font-sans-xs"
-                            id="upload-pem-input-label"
-                            htmlFor="upload-pem-input"
-                        >
-                            <span className="display-block">
-                                Upload public key
-                            </span>
+                        <Label className="font-sans-xs" id="upload-pem-input-label" htmlFor="upload-pem-input">
+                            <span className="display-block">Upload public key</span>
                             <span className="text-gray-50">
-                                Make sure your file has a .pem extension and is
-                                properly configured.
+                                Make sure your file has a .pem extension and is properly configured.
                             </span>
                         </Label>
                         <FileInput

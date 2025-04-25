@@ -1,8 +1,6 @@
 import { screen } from "@testing-library/react";
 
-import ManagePublicKeyChooseSender, {
-    ManagePublicKeyChooseSenderProps,
-} from "./ManagePublicKeyChooseSender";
+import ManagePublicKeyChooseSender, { ManagePublicKeyChooseSenderProps } from "./ManagePublicKeyChooseSender";
 import { RSSender } from "../../config/endpoints/settings";
 import { renderApp } from "../../utils/CustomRenderUtils";
 
@@ -53,12 +51,8 @@ describe("ManagePublicKeyChooseSender", () => {
 
             test("renders the sender options", () => {
                 setup();
-                expect(
-                    screen.getByRole("option", { name: "default" }),
-                ).toBeVisible();
-                expect(
-                    screen.getByRole("option", { name: "ignore-full-elr" }),
-                ).toBeVisible();
+                expect(screen.getByRole("option", { name: "default" })).toBeVisible();
+                expect(screen.getByRole("option", { name: "ignore-full-elr" })).toBeVisible();
             });
 
             test("renders the submit button", () => {
