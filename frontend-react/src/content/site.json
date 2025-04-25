@@ -39,9 +39,9 @@
     "documentation": {
       "name": "Documentation",
       "url": "/developer-resources/documentation",
-      "responseFromReportStream": {
-        "name": "Responses from ReportStream",
-        "url": "/developer-resources/documentation/responses-from-reportstream"
+      "submissionStatusAndErrors": {
+        "name": "Submission status and errors",
+        "url": "/developer-resources/documentation/submission-status-and-errors"
       }
     }
   },
@@ -99,6 +99,21 @@
       },
       "historyApi": {
         "url": "https://github.com/CDCgov/prime-reportstream/blob/main/prime-router/docs/universal-pipeline/submission-history.md"
+      },
+      "historyApiHowToUse": {
+        "url": "https://github.com/CDCgov/prime-reportstream/blob/main/prime-router/docs/universal-pipeline/submission-history.md#how-to-use"
+      },
+      "historyApiCheckingStatus": {
+        "url": "https://github.com/CDCgov/prime-reportstream/blob/main/prime-router/docs/universal-pipeline/submission-history.md#checking-for-overall-status-and-destinations"
+      },
+      "historyApiCheckingFailures": {
+        "url": "https://github.com/CDCgov/prime-reportstream/blob/main/prime-router/docs/universal-pipeline/submission-history.md#checking-for-failures"
+      },
+      "historyApiJsonResponseFields": {
+        "url": "https://github.com/CDCgov/prime-reportstream/blob/main/prime-router/docs/universal-pipeline/submission-history.md#fields-returned-in-json-response"
+      },
+      "historyApiErrorsWarnings": {
+        "url": "https://github.com/CDCgov/prime-reportstream/blob/main/prime-router/docs/universal-pipeline/submission-history.md#list-of-potential-errors-and-warnings"
       }
     }
   }
