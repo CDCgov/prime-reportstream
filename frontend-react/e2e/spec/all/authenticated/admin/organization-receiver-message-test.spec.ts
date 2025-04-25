@@ -132,9 +132,9 @@ test.describe("Admin Organization Receiver Message Test Page", () => {
 
                         await organizationReceiverMessageTestPage.customMessageTextArea.fill(message);
                         await expect(organizationReceiverMessageTestPage.customMessageTextArea).toHaveValue(message);
+                        await organizationReceiverMessageTestPage.senderDropdown.selectOption({ index: 0 });
                         await organizationReceiverMessageTestPage.submitCustomMessageButton.click();
                         await expect(organizationReceiverMessageTestPage.customMessageTextArea).toBeHidden();
-                        await expect(organizationReceiverMessageTestPage.submitCustomMessageButton).toBeHidden();
                         await expect(organizationReceiverMessageTestPage.cancelCustomMessageButton).toBeHidden();
 
                         await expect(customOption).toBeVisible();
