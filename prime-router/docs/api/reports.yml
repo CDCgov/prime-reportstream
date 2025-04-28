@@ -13,7 +13,7 @@ paths:
   #
   /reports:
     post:
-      summary: Post a report to the data hub
+      summary: Post a report to the data hub test
       security:
         - ApiKeyAuth: []
       parameters:
