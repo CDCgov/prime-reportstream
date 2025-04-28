@@ -192,7 +192,7 @@ class BatchDeciderTests {
 
         every { timing1.numberPerDay } returns 1
         every { timing1.maxReportCount } returns 2
-        every { timing1.timeBetweenBatches } returns Duration.ofMinutes(2)
+        every { timing1.timeBetweenBatches } returns 120
         every { timing1.whenEmpty } returns Receiver.WhenEmpty()
 
         val settings = FileSettings().loadOrganizations(oneOrganization)
