@@ -1,15 +1,13 @@
 import site from "../../../content/site.json";
 
 <SideNav items={[
-		<SideNavItem href={site.developerResources.url} items={[
-			<SideNavItem href={site.developerResources.apiOnboardingGuide.url}>API onboarding guide</SideNavItem>,
-			<SideNavItem href={site.developerResources.documentation.url} items={[
-				<SideNavItem href={site.developerResources.documentation.responseFromReportStream.url} items={[
-					<USNavLink href={`${site.developerResources.documentation.responseFromReportStream.url}#response-messages`}>Response messages</USNavLink>,
-					<USNavLink href={`${site.developerResources.documentation.responseFromReportStream.url}#json-error-responses`}>JSON error responses</USNavLink>,
-				]}>Responses from ReportStream</SideNavItem>,
-			]}>Documentation</SideNavItem>,
-		]}>
-	Developers
-	</SideNavItem>
-]} />
+    <SideNavItem href={site.developerResources.url} items={[
+        <SideNavItem href={site.developerResources.apiOnboardingGuide.url}>API onboarding guide</SideNavItem>,
+        <SideNavItem href={site.developerResources.documentation.url} items={[
+            <SideNavItem href={site.developerResources.documentation.submissionStatusAndErrors.url} items={[]}>Submission
+                status and errors</SideNavItem>,
+        ]}>Documentation</SideNavItem>,
+    ]}>
+        Developers
+    </SideNavItem>
+]}/>

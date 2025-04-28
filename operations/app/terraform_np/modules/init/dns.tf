@@ -24,8 +24,8 @@ resource "azurerm_container_group" "init" {
   resource_group_name = var.resource_group
   ip_address_type     = "Private"
   os_type             = "Linux"
- subnet_ids = [azurerm_subnet.init.id]
 
+ subnet_ids = [azurerm_subnet.init.id]
 
   container {
     name   = "dnsmasq"
@@ -38,5 +38,4 @@ resource "azurerm_container_group" "init" {
       protocol = "UDP"
     }
   }
-
 }

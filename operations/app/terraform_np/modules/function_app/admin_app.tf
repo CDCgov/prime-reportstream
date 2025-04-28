@@ -62,29 +62,34 @@ locals {
 #
 ########################################
 
-resource "azurerm_linux_function_app" "admin" {
-  name                       = "your-app-name"
-  location                   = var.location
-  resource_group_name        = var.resource_group_name
-  service_plan_id            = azurerm_app_service_plan.plan.id
-  storage_account_name       = azurerm_storage_account.storage.name
-  storage_account_access_key = azurerm_storage_account.storage.primary_access_key
-
+resource "azurerm_function_app" "admin" {
+  name                       = local.interface.function_app_name
+  location                   = local.interface.location
+  resource_group_name        = local.interface.resource_group_name
+  app_service_plan_id        = local.interface.app_service_plan_id
+  storage_account_name       = local.interface.storage_account_name
+  storage_account_access_key = local.interface.storage_account_access_key
+  https_only                 = true
+  os_type                    = "linux"
+  version                    = "~4"
+  enable_builtin_logging     = true
   site_config {
-    application_stack {
-      node_version = "18"
-    }
-  }
-
-  identity {
-    type = "SystemAssigned"
-  }
-
-  tags = var.tags
-}
+    ftps_state                = "Disabled"
+    linux_fx_version          = local.config.linux_fx_version
+    use_32_bit_worker_process = local.config.use_32_bit_worker_process
+    vnet_route_all_enabled    = local.config.vnet_route_all_enabled
+    always_on                 = local.config.always_on
+    dynamic "ip_restriction" {
+      for_each = local.ip_restrictions
+      content {
+        action                    = ip_restriction.value.action
+        name                      = ip_restriction.value.name
+        priority                  = ip_restriction.value.priority
+        virtual_network_subnet_id = ip_restriction.value.virtual_network_subnet_id
+        service_tag               = ip_restriction.value.service_tag
+        ip_address                = ip_restriction.value.ip_address
       }
     }
-    :i
   }
   app_settings = local.app_settings
   identity {
