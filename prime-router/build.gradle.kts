@@ -36,7 +36,7 @@ apply(from = rootProject.file("buildSrc/shared.gradle.kts"))
 plugins {
     val kotlinVersion by System.getProperties()
     id("reportstream.project-conventions")
-    id("org.flywaydb.flyway") version "10.21.0"
+    id("org.flywaydb.flyway") version "11.7.2"
     id("nu.studer.jooq") version "9.0"
     id("com.github.johnrengelman.shadow") version "8.1.1"
     id("com.microsoft.azure.azurefunctions") version "1.16.1"
@@ -842,7 +842,7 @@ buildscript {
         // will need to be removed once this issue is resolved in Maven.
         classpath("net.minidev:json-smart:2.5.2")
         // as per flyway v10 docs the postgres flyway module must be on the project buildpath
-        classpath("org.flywaydb:flyway-database-postgresql:10.21.0")
+        classpath("org.flywaydb:flyway-database-postgresql:11.7.2")
     }
 }
 
@@ -870,7 +870,7 @@ dependencies {
     implementation("com.azure:azure-storage-queue:12.22.0") {
         exclude(group = "com.azure", module = "azure-core")
     }
-    implementation("com.azure:azure-security-keyvault-secrets:4.9.0") {
+    implementation("com.azure:azure-security-keyvault-secrets:4.9.4") {
         exclude(group = "com.azure", module = "azure-core")
         exclude(group = "com.azure", module = "azure-core-http-netty")
     }
@@ -878,13 +878,13 @@ dependencies {
         exclude(group = "com.azure", module = "azure-core")
         exclude(group = "com.azure", module = "azure-core-http-netty")
     }
-    implementation("com.nimbusds:nimbus-jose-jwt:9.47")
-    implementation("org.apache.logging.log4j:log4j-api:2.24.0")
-    implementation("org.apache.logging.log4j:log4j-core:2.24.0")
-    implementation("org.apache.logging.log4j:log4j-slf4j2-impl:2.24.0")
-    implementation("org.apache.logging.log4j:log4j-layout-template-json:2.24.0")
+    implementation("com.nimbusds:nimbus-jose-jwt:10.1")
+    implementation("org.apache.logging.log4j:log4j-api:2.24.3")
+    implementation("org.apache.logging.log4j:log4j-core:2.24.3")
+    implementation("org.apache.logging.log4j:log4j-slf4j2-impl:2.24.3")
+    implementation("org.apache.logging.log4j:log4j-layout-template-json:2.24.3")
     implementation("org.apache.logging.log4j:log4j-api-kotlin:1.5.0")
-    implementation("io.github.oshai:kotlin-logging-jvm:7.0.3")
+    implementation("io.github.oshai:kotlin-logging-jvm:7.0.7")
     implementation("com.github.doyaaaaaken:kotlin-csv-jvm:1.10.0")
     implementation("tech.tablesaw:tablesaw-core:0.44.1")
     implementation("com.github.ajalt.clikt:clikt-jvm:4.4.0")
@@ -900,14 +900,14 @@ dependencies {
             branch = "master"
         }
     }
-    implementation("ca.uhn.hapi.fhir:hapi-fhir-structures-r4:7.6.1")
+    implementation("ca.uhn.hapi.fhir:hapi-fhir-structures-r4:8.0.0")
     // https://mvnrepository.com/artifact/ca.uhn.hapi.fhir/hapi-fhir-caching-caffeine
-    implementation("ca.uhn.hapi.fhir:hapi-fhir-caching-caffeine:7.6.1")
-    implementation("ca.uhn.hapi.fhir:hapi-fhir-client:7.6.1")
+    implementation("ca.uhn.hapi.fhir:hapi-fhir-caching-caffeine:8.0.0")
+    implementation("ca.uhn.hapi.fhir:hapi-fhir-client:8.0.0")
     implementation("ca.uhn.hapi:hapi-base:2.6.0")
     implementation("ca.uhn.hapi:hapi-structures-v251:2.6.0")
     implementation("ca.uhn.hapi:hapi-structures-v27:2.6.0")
-    implementation("com.googlecode.libphonenumber:libphonenumber:8.13.50")
+    implementation("com.googlecode.libphonenumber:libphonenumber:9.0.4")
     implementation("org.thymeleaf:thymeleaf:3.1.3.RELEASE")
     implementation("com.sendgrid:sendgrid-java:4.10.3")
     implementation("com.okta.jwt:okta-jwt-verifier:0.5.7")
@@ -915,18 +915,18 @@ dependencies {
     // DO NOT INCREMENT SSHJ to a newer version without first thoroughly testing it locally.
     implementation("com.hierynomus:sshj:0.39.0")
     implementation("com.jcraft:jsch:0.1.55")
-    implementation("org.apache.poi:poi:5.4.0")
+    implementation("org.apache.poi:poi:5.4.1")
     implementation("org.apache.commons:commons-csv:1.12.0")
     implementation("org.apache.commons:commons-lang3:3.17.0")
     implementation("org.apache.commons:commons-text:1.13.1")
     implementation("commons-codec:commons-codec:1.18.0")
-    implementation("commons-io:commons-io:2.18.0")
+    implementation("commons-io:commons-io:2.19.0")
     implementation("org.postgresql:postgresql:42.7.4")
     implementation("com.zaxxer:HikariCP:6.3.0")
-    implementation("org.flywaydb:flyway-core:10.21.0")
-    implementation("org.flywaydb:flyway-database-postgresql:10.21.0")
+    implementation("org.flywaydb:flyway-core:11.7.2")
+    implementation("org.flywaydb:flyway-database-postgresql:11.7.2")
     implementation("org.commonmark:commonmark:0.24.0")
-    implementation("com.google.guava:guava:33.4.0-jre")
+    implementation("com.google.guava:guava:33.4.8-jre")
     implementation("com.helger.as2:as2-lib:5.1.4")
     implementation("org.bouncycastle:bcprov-jdk15to18:1.80")
     implementation("org.bouncycastle:bcprov-jdk18on:1.80")
@@ -947,10 +947,10 @@ dependencies {
     implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
     implementation("it.skrape:skrapeit-html-parser:1.3.0-alpha.2")
     implementation("it.skrape:skrapeit-http-fetcher:1.3.0-alpha.2")
-    implementation("org.apache.poi:poi:5.4.0")
-    implementation("org.apache.poi:poi-ooxml:5.4.0")
+    implementation("org.apache.poi:poi:5.4.1")
+    implementation("org.apache.poi:poi-ooxml:5.4.1")
     implementation("org.apache.commons:commons-compress:1.27.1")
-    implementation("commons-io:commons-io:2.18.0")
+    implementation("commons-io:commons-io:2.19.0")
     implementation("com.anyascii:anyascii:0.3.2")
     // force jsoup since skrapeit-html-parser@1.2.1+ has not updated
     implementation("org.jsoup:jsoup:1.19.1")
@@ -967,7 +967,7 @@ dependencies {
     // TODO: move this to a test dependency when CompareFhirData lives under src/test
     implementation("com.flipkart.zjsonpatch:zjsonpatch:0.4.16")
 
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.1")
 
     implementation("gov.nist:hl7-v2-validation:1.6.5") {
         // These conflict with the javax.xml.transform package available in the base JDK and need to be excluded
@@ -982,12 +982,12 @@ dependencies {
     implementation("io.konform:konform-jvm:0.4.0")
 
     runtimeOnly("com.okta.jwt:okta-jwt-verifier-impl:0.5.7")
-    runtimeOnly("com.squareup.okio:okio:3.10.2")
+    runtimeOnly("com.squareup.okio:okio:3.11.0")
     runtimeOnly("io.jsonwebtoken:jjwt-impl:0.11.5")
     runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.11.5")
 
     testImplementation(kotlin("test-junit5"))
-    testImplementation("io.mockk:mockk:1.13.16")
+    testImplementation("io.mockk:mockk:1.14.0")
     testImplementation("io.ktor:ktor-client-mock:$ktorVersion")
 
     implementation(project(":shared"))
