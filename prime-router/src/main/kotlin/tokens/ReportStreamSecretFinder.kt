@@ -1,7 +1,7 @@
 package gov.cdc.prime.router.tokens
 
 import gov.cdc.prime.router.secrets.SecretHelper
-import io.jsonwebtoken.SignatureAlgorithm
+import io.jsonwebtoken.Jwts.SIG
 import io.jsonwebtoken.io.Decoders
 import io.jsonwebtoken.io.Encoders
 import io.jsonwebtoken.security.Keys
@@ -12,10 +12,10 @@ interface ReportStreamSecretFinder {
 
     companion object {
         const val TOKEN_SIGNING_SECRET_NAME = "TokenSigningSecret"
-        private val TOKEN_SIGNING_KEY_ALGORITHM = SignatureAlgorithm.HS384
+        private val TOKEN_SIGNING_KEY_ALGORITHM = SIG.HS384
 
         // convenience method that knows how to generate the right kind of secret.
-        fun generateSecret(): String = Encoders.BASE64.encode(Keys.secretKeyFor(TOKEN_SIGNING_KEY_ALGORITHM).encoded)
+        fun generateSecret(): String = Encoders.BASE64.encode(TOKEN_SIGNING_KEY_ALGORITHM.key().build().encoded)
     }
 }
 

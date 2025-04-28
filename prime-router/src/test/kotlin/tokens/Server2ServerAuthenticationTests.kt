@@ -15,7 +15,7 @@ import gov.cdc.prime.router.azure.MockSettings
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.common.JacksonMapperUtilities.jacksonObjectMapper
 import gov.cdc.prime.router.unittest.UnitTestUtils
-import io.jsonwebtoken.SignatureAlgorithm
+import io.jsonwebtoken.Jwts.SIG
 import io.jsonwebtoken.io.Decoders
 import io.jsonwebtoken.io.Encoders
 import io.jsonwebtoken.security.Keys
@@ -118,7 +118,7 @@ class Server2ServerAuthenticationTests {
 
     // return a ReportStream secret, used by ReportStream to sign a short-lived token
     class GetTestSecret : ReportStreamSecretFinder {
-        private val TOKEN_SIGNING_KEY_ALGORITHM = SignatureAlgorithm.HS384
+        private val TOKEN_SIGNING_KEY_ALGORITHM = SIG.HS384
 
         // Good for testing:  Each time you create a new GetTestSecret() obj, its a totally new secret.
         private val tokenSigningSecret = this.generateSecret()
@@ -128,7 +128,7 @@ class Server2ServerAuthenticationTests {
 
         private fun generateSecret(): String =
             Encoders.BASE64
-                .encode(Keys.secretKeyFor(TOKEN_SIGNING_KEY_ALGORITHM).encoded)
+                .encode(TOKEN_SIGNING_KEY_ALGORITHM.key().build().encoded)
     }
 
     @BeforeEach

@@ -910,7 +910,7 @@ dependencies {
     implementation("com.googlecode.libphonenumber:libphonenumber:9.0.4")
     implementation("org.thymeleaf:thymeleaf:3.1.3.RELEASE")
     implementation("com.sendgrid:sendgrid-java:4.10.3")
-    implementation("com.okta.jwt:okta-jwt-verifier:0.5.7")
+    implementation("com.okta.jwt:okta-jwt-verifier:0.5.11")
     implementation("org.json:json:20250107")
     // DO NOT INCREMENT SSHJ to a newer version without first thoroughly testing it locally.
     implementation("com.hierynomus:sshj:0.39.0")
@@ -934,7 +934,7 @@ dependencies {
 
     implementation("commons-net:commons-net:3.11.1")
     implementation("com.cronutils:cron-utils:9.2.1")
-    implementation("io.jsonwebtoken:jjwt-api:0.11.5")
+    implementation("io.jsonwebtoken:jjwt-api:0.12.6")
     implementation("de.m3y.kformat:kformat:0.12")
     implementation("io.github.java-diff-utils:java-diff-utils:4.15")
     implementation("io.ktor:ktor-client-core:$ktorVersion")
@@ -981,10 +981,10 @@ dependencies {
     implementation("com.networknt:json-schema-validator:1.5.6")
     implementation("io.konform:konform-jvm:0.4.0")
 
-    runtimeOnly("com.okta.jwt:okta-jwt-verifier-impl:0.5.7")
+    runtimeOnly("com.okta.jwt:okta-jwt-verifier-impl:0.5.11")
     runtimeOnly("com.squareup.okio:okio:3.11.0")
-    runtimeOnly("io.jsonwebtoken:jjwt-impl:0.11.5")
-    runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.11.5")
+    runtimeOnly("io.jsonwebtoken:jjwt-impl:0.12.6")
+    runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.12.6")
 
     testImplementation(kotlin("test-junit5"))
     testImplementation("io.mockk:mockk:1.14.0")
