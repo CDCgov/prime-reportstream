@@ -52,7 +52,7 @@ OUT_FORMAT="HL7"
 TRANSFORM="classpath:/metadata/fhir_transforms/senders/SimpleReport/simple-report-sender-transform.yml"
 
 # absolute path to prime router directory
-PRIME_ROUTER_DIR="/Users/andrew/Downloads/prime-reportstream/prime-router"
+PRIME_ROUTER_DIR="<path>/<to>/<prime router>"
 
 # Pipeline is 'up' for universal pipeline, otherwise it's for the COVID pipeline
 PIPELINE="up"
@@ -61,7 +61,7 @@ PIPELINE="up"
 
 # Universal pipeline branch to process FHIR files
 if [[ ${PIPELINE} == "up" ]]; then
-    BASE_DIR="$(pwd)/fhir2"
+    BASE_DIR="$(pwd)/fhir"
     cd ${BASE_DIR}
 
     # Uncomment to use the first version of the for loop for every subdirectory
