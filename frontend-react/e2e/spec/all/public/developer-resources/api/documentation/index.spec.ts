@@ -1,5 +1,5 @@
 import { developerResourcesApiSideNav } from "../../../../../../helpers/internal-links";
-import { DeveloperResourcesApiDocumentationPage } from "../../../../../../pages/public/developer-resources/api/documentation/index";
+import { DeveloperResourcesApiDocumentationPage } from "../../../../../../pages/public/developer-resources/documentation";
 import { test as baseTest } from "../../../../../../test";
 
 export interface SecurityPageFixtures {

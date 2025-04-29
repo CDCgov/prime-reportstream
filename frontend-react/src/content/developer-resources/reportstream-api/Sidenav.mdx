@@ -1,11 +1,13 @@
+import site from "../../../content/site.json";
+
 <SideNav items={[
-    <SideNavItem href="/developer-resources/api" end>ReportStream API</SideNavItem>,
-    <SideNavItem href="/developer-resources/api/getting-started">Getting started</SideNavItem>,
-    <SideNavItem isActive={true} href="/developer-resources/api/documentation" items={[
-            <SideNavItem href="/developer-resources/api/documentation/responses-from-reportstream" items={[
-                    <USNavLink href="/developer-resources/api/documentation/responses-from-reportstream#response-messages">Response messages</USNavLink>,
-                    <USNavLink href="/developer-resources/api/documentation/responses-from-reportstream#json-error-responses">JSON error responses</USNavLink>,
-            ]}>Responses from ReportStream</SideNavItem>,
-    ]}>Documentation</SideNavItem>,
-]}>
-</SideNav>
+    <SideNavItem href={site.developerResources.url} items={[
+        <SideNavItem href={site.developerResources.apiOnboardingGuide.url}>API onboarding guide</SideNavItem>,
+        <SideNavItem href={site.developerResources.documentation.url} items={[
+            <SideNavItem href={site.developerResources.documentation.submissionStatusAndErrors.url} items={[]}>Submission
+                status and errors</SideNavItem>,
+        ]}>Documentation</SideNavItem>,
+    ]}>
+        Developers
+    </SideNavItem>
+]}/>

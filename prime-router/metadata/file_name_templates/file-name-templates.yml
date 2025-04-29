@@ -133,4 +133,4 @@
   lowerCase: true
   elements:
     - cdcprime_ELR_TEST_
-    - createdDate(MMddyyyy-HHmmss)
+    - createdDate(yyyyMMdd-HHmmss)

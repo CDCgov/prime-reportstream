@@ -24,38 +24,27 @@ const GettingStartedSendingData = lazy(lazyRouteMarkdown(() => import("./content
 const GettingStartedReceivingData = lazy(
     lazyRouteMarkdown(() => import("./content/getting-started/receiving-data.mdx")),
 );
-const ReportStreamApiIndex = lazy(
-    lazyRouteMarkdown(() => import("./content/developer-resources/reportstream-api/ReportStreamApi.mdx")),
-);
+
 const ApiOnboardingGuide = lazy(
     lazyRouteMarkdown(
         () => import("./content/developer-resources/reportstream-api/api-onboarding-guide/ApiOnboardingGuide.mdx"),
     ),
 );
 const DeveloperResourcesIndex = lazy(lazyRouteMarkdown(() => import("./content/developer-resources/index-page.mdx")));
-const ReportStreamApiGettingStarted = lazy(
-    lazyRouteMarkdown(
-        () => import("./content/developer-resources/reportstream-api/getting-started/GettingStarted.mdx"),
-    ),
-);
+
 const ReportStreamApiDocumentation = lazy(
     lazyRouteMarkdown(() => import("./content/developer-resources/reportstream-api/documentation/Documentation.mdx")),
-);
-const ReportStreamApiDocumentationResponses = lazy(
-    lazyRouteMarkdown(
-        () => import("./content/developer-resources/reportstream-api/documentation/ResponsesFromReportStream.mdx"),
-    ),
 );
 const ManagingYourConnectionIndex = lazy(
     lazyRouteMarkdown(() => import("./content/managing-your-connection/index.mdx")),
 );
 const SupportIndex = lazy(lazyRouteMarkdown(() => import("./content/support/index.mdx")));
-// Page currently archived
-/*const ReportStreamApiDocumentationPayloads = lazy(
+
+const SubmissionStatusAndErrors = lazy(
     lazyRouteMarkdown(
-        () => import("./content/developer-resources/reportstream-api/documentation/SamplePayloadsAndOutput.mdx"),
+        () => import("./content/developer-resources/reportstream-api/documentation/SubmissionStatusAndErrors.mdx"),
     ),
-);*/
+);
 
 /* Public Pages */
 const TermsOfService = lazy(() => import("./pages/TermsOfService"));
@@ -242,66 +231,32 @@ export const appRoutes: RouteObject[] = [
                         },
                     },
                     {
-                        path: "api",
+                        path: "api-onboarding-guide",
+                        index: true,
+                        element: <ApiOnboardingGuide />,
+                        handle: {
+                            isContentPage: true,
+                        },
+                    },
+                    {
+                        path: "documentation",
                         children: [
                             {
                                 path: "",
+                                element: <ReportStreamApiDocumentation />,
                                 index: true,
-                                element: <ReportStreamApiIndex />,
                                 handle: {
                                     isContentPage: true,
                                 },
                             },
                             {
-                                path: "api-onboarding-guide",
-                                index: true,
-                                element: <ApiOnboardingGuide />,
+                                path: "submission-status-and-errors",
+                                element: <SubmissionStatusAndErrors />,
                                 handle: {
                                     isContentPage: true,
                                 },
-                            },
-                            {
-                                path: "getting-started",
-                                element: <ReportStreamApiGettingStarted />,
-                                handle: {
-                                    isContentPage: true,
-                                },
-                            },
-                            {
-                                path: "documentation",
-                                children: [
-                                    {
-                                        path: "",
-                                        element: <ReportStreamApiDocumentation />,
-                                        index: true,
-                                        handle: {
-                                            isContentPage: true,
-                                        },
-                                    },
-                                    {
-                                        path: "responses-from-reportstream",
-                                        element: <ReportStreamApiDocumentationResponses />,
-                                        handle: {
-                                            isContentPage: true,
-                                        },
-                                    },
-                                    // Page currently archived
-                                    /*{
-                                        path: "sample-payloads-and-output",
-                                        element: <ReportStreamApiDocumentationPayloads />,
-                                        handle: {
-                                            isContentPage: true,
-                                        },
-                                    },*/
-                                ],
                             },
                         ],
-                    },
-                    {
-                        path: "programmers-guide",
-                        loader: () => {
-                            return redirect("/developer-resources/api");
-                        },
                     },
                 ],
             },
@@ -331,7 +286,7 @@ export const appRoutes: RouteObject[] = [
             {
                 path: "/file-handler/validate",
                 loader: () => {
-                    return redirect("/developer-resources/api/getting-started");
+                    return redirect("/developer-resources/api-onboarding-guide");
                 },
             },
             {
