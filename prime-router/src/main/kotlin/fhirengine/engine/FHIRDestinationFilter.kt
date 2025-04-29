@@ -152,7 +152,9 @@ class FHIRDestinationFilter(
                             null,
                             null,
                             null,
-                            report.getItemHashForRow(1)
+                            report.getItemHashForRow(1) // todo
+                            // note: places where item hash lineages need to be updated with new "null" data has not
+                            // been exhaustively marked.
                         )
                     )
 
@@ -248,7 +250,7 @@ class FHIRDestinationFilter(
                         null,
                         null,
                         null,
-                        report.getItemHashForRow(1)
+                        report.getItemHashForRow(1) // todo
                     )
                 )
 

@@ -15,6 +15,7 @@ import gov.cdc.prime.router.common.DateUtilities
 import gov.cdc.prime.router.common.DateUtilities.toLocalDate
 import gov.cdc.prime.router.common.DateUtilities.toOffsetDateTime
 import gov.cdc.prime.router.common.DateUtilities.toYears
+import gov.cdc.prime.router.fhirengine.utils.HashGenerator
 import gov.cdc.prime.router.metadata.ElementAndValue
 import gov.cdc.prime.router.metadata.Mappers
 import gov.cdc.prime.router.report.ReportService
@@ -24,14 +25,12 @@ import tech.tablesaw.api.StringColumn
 import tech.tablesaw.api.Table
 import tech.tablesaw.columns.Column
 import tech.tablesaw.selection.Selection
-import java.security.MessageDigest
 import java.time.Duration
 import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.UUID
-import javax.xml.bind.DatatypeConverter
 import kotlin.random.Random
 
 /**
@@ -370,7 +369,7 @@ class Report : Logging {
         this.bodyURL = bodyURL
     }
 
-    data class ParentItemLineageData(val parentReportId: UUID, val parentReportIndex: Int)
+    data class ParentItemLineageData(val parentReportId: UUID, val parentReportIndex: Int, val itemHash: String)
 
     /**
      * This constructor can be used to generate a report with its item lineage constructed as
@@ -1284,11 +1283,18 @@ class Report : Logging {
             rawStr += row.getString(colNum)
         }
 
-        val digest = MessageDigest
-            .getInstance("SHA-256")
-            .digest(rawStr.toByteArray())
+        return HashGenerator.generateHashFromString(rawStr)
+    }
 
-        return DatatypeConverter.printHexBinary(digest).uppercase()
+    /**
+     * TODO just a copy/pasted stub atm.
+     * Trade off here is that it is probably better to keep the hash generation method decoupled from report code,
+     * but question of where that should really live is *shrugs*
+     */
+    fun getItemHashForRow(string: String): String {
+        // todo, any processing that needs to happen? Maybe we could pre-pend the sender here? BUt then that would
+        // decouple business rules from code in an icky way
+        return HashGenerator.generateHashFromString(string)
     }
 
     /**
@@ -1651,7 +1657,7 @@ class Report : Logging {
                     null,
                     null,
                     null,
-                    "0" // Hash is only used for deduplication when receiving
+                    "0" // Hash is only used for deduplication when receiving // todo
                 )
             }
 

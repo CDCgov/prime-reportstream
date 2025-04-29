@@ -170,6 +170,7 @@ class WorkflowEngine(
 
     /**
      * Returns true if the [itemHash] passed in is already present in the database
+     * TODO: Evaluate moving this elsewhere.
      */
     fun isDuplicateItem(itemHash: String): Boolean = db.isDuplicateItem(itemHash)
 

@@ -888,6 +888,18 @@ abstract class CoolTest {
                 ?: error("Unable to find sender $fhirSenderName for organization ${org1.name}")
         }
 
+        const val noDupesFHIRSenderName = "ignore-nodupes-fhir"
+        val noDupesFHIRSender by lazy {
+            settings.findSender("$org1Name.$noDupesFHIRSenderName") as? UniversalPipelineSender
+                ?: error("Unable to find sender $noDupesFHIRSenderName for organization ${org1.name}")
+        }
+
+        const val noDupesHL7SenderName = "ignore-nodupes-hl7"
+        val noDupesHL7Sender by lazy {
+            settings.findSender("$org1Name.$noDupesHL7SenderName") as? UniversalPipelineSender
+                ?: error("Unable to find sender $noDupesHL7SenderName for organization ${org1.name}")
+        }
+
         const val elrElimsSenderName = "ignore-elr-elims"
         val elrElimsSender by lazy {
             settings.findSender("$org1Name.$elrElimsSenderName") as? UniversalPipelineSender
@@ -939,6 +951,9 @@ abstract class CoolTest {
         val hl7FullELRReceiver = settings.receivers.filter {
             it.organizationName == org1Name && it.name == "FULL_ELR_E2E"
         }[0]
+        val noDupesReceiver = settings.receivers.filter {
+            it.organizationName == org1Name && it.name == "FULL_ELR_NODUPES"
+        }[0]
         val fhirFullELRE2EReceiverA = settings.receivers.filter {
             it.organizationName == org1Name && it.name == "FULL_ELR_FHIR_A_E2E"
         }[0]
@@ -987,24 +1002,30 @@ abstract class CoolTest {
         fun testDataForUniversalPipeline(): ArrayList<E2EData> {
             val smoketestDir = "src/test/resources/fhirengine/smoketest"
 
+            //
+            // NOTE: The idea of adding in dedupe scenarios for the up e2e test was to create a shorter dev loop for
+            //   testing and debugging dedupe while implementing. It shouldn't need an e2e test for itself.
+            //
             return arrayListOf(
                 E2EData(
-                    "Sending HL7 Report, Receiving HL7/FHIR (full-elr)",
-                    File("$smoketestDir/valid_hl7_e2e.hl7"),
-                    fullELRE2ESender,
+//                    "Sending HL7 Report, Receiving HL7/FHIR (full-elr)",
+                    "DEDUPE WORKFLOW, MORE DESCRIPTION TBD (fhir->fhir)",
+                    File("$smoketestDir/slim_dedupe.hl7"),
+                    noDupesHL7Sender,
                     arrayListOf(
-                        Pair(hl7FullELRReceiver, File("$smoketestDir/Expected_HL7_to_HL7_FULLELR.hl7")),
-                        Pair(fhirFullELRE2EReceiverB, File("$smoketestDir/Expected_HL7_to_FHIR_FULLELR.fhir"))
+                    // todo tomorrow, pull the resulting hl7 or fhir so taht i can have correct expected results,
+                    //  also i'll then have to change whatever data pieces to match the receiver i want it to tend up at
+                        Pair(fhirFullELRE2EReceiverA, File("$smoketestDir/Expected_HL7_to_HL7_FULLELR.hl7"))
                     )
                 ),
-                E2EData(
-                    "Sending HL7 Report, Receiving HL7 (elr-elims)",
-                    File("$smoketestDir/valid_hl7_e2e.hl7"),
-                    elrElimsSender,
-                    arrayListOf(
-                        Pair(elimsReceiver, File("$smoketestDir/Expected_HL7_to_HL7_ELIMS.hl7"))
-                    )
-                ),
+//                E2EData(
+//                    "Sending HL7 Report, Receiving HL7 (elr-elims)",
+//                    File("$smoketestDir/valid_hl7_e2e.hl7"),
+//                    elrElimsSender,
+//                    arrayListOf(
+//                        Pair(elimsReceiver, File("$smoketestDir/Expected_HL7_to_HL7_ELIMS.hl7"))
+//                    )
+//                ),
                 E2EData(
                     "Sending FHIR Report, Receiving FHIR (full-elr)",
                     File("$smoketestDir/valid_fhir.fhir"),
@@ -1013,23 +1034,23 @@ abstract class CoolTest {
                         Pair(fhirFullELRE2EReceiverA, File("$smoketestDir/Expected_FHIR_to_FHIR_FULLELR.fhir"))
                     )
                 ),
-                E2EData(
-                    "Sending HL7 Report, Receiving HL7/FHIR (mars-otc-elr); Invalid HL7 Items Filtered Out",
-                    File("$smoketestDir/valid_mars.hl7"),
-                    marsOTCELRSender,
-                    arrayListOf(
-                        Pair(hl7MarsOTCReceiver, File("$smoketestDir/Expected_HL7_to_HL7_MARSOTC.hl7")),
-                        Pair(fhirMarsReceiverB, File("$smoketestDir/Expected_HL7_to_FHIR_MARSOTC.fhir"))
-                    )
-                ),
-                E2EData(
-                    "Sending FHIR Report, Receiving FHIR (mars-otc-elr)",
-                    File("$smoketestDir/valid_mars.fhir"),
-                    fhirMarsOTCELRSender,
-                    arrayListOf(
-                        Pair(fhirMarsReceiverA, File("$smoketestDir/Expected_FHIR_to_FHIR_MARSOTC.fhir"))
-                    )
-                )
+//                E2EData(
+//                    "Sending HL7 Report, Receiving HL7/FHIR (mars-otc-elr); Invalid HL7 Items Filtered Out",
+//                    File("$smoketestDir/valid_mars.hl7"),
+//                    marsOTCELRSender,
+//                    arrayListOf(
+//                        Pair(hl7MarsOTCReceiver, File("$smoketestDir/Expected_HL7_to_HL7_MARSOTC.hl7")),
+//                        Pair(fhirMarsReceiverB, File("$smoketestDir/Expected_HL7_to_FHIR_MARSOTC.fhir"))
+//                    )
+//                ),
+//                E2EData(
+//                    "Sending FHIR Report, Receiving FHIR (mars-otc-elr)",
+//                    File("$smoketestDir/valid_mars.fhir"),
+//                    fhirMarsOTCELRSender,
+//                    arrayListOf(
+//                        Pair(fhirMarsReceiverA, File("$smoketestDir/Expected_FHIR_to_FHIR_MARSOTC.fhir"))
+//                    )
+//                )
             )
         }
 

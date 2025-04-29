@@ -51,8 +51,10 @@ import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.fhirengine.utils.HL7Reader.Companion.parseHL7Message
+import gov.cdc.prime.router.fhirengine.utils.ORUR01KeyFields
 import gov.cdc.prime.router.fhirengine.utils.getObservations
 import gov.cdc.prime.router.fhirengine.utils.getRSMessageType
+import gov.cdc.prime.router.fhirengine.utils.isElr
 import gov.cdc.prime.router.logging.LogMeasuredTime
 import gov.cdc.prime.router.report.ReportService
 import gov.cdc.prime.router.validation.IItemValidator
@@ -130,6 +132,12 @@ class FHIRConverter(
                 val blobDigest = message.digest
                 val blobSubFolderName = message.blobSubFolderName
                 actionHistory.trackExistingInputReport(reportId)
+
+                // copy pasted from somewhere, idea is that we need to get sender id somehow, it may not be avail
+//                val clientId = message.headers[clientIdHeader]
+//                val sender = clientId?.takeIf { it.isNotBlank() }?.let { settings.findSender(it) }
+//                ClientSource(organization = sender.organizationName, client = sender.name))
+
                 return FHIRConvertInput(
                     reportId,
                     topic,
@@ -259,7 +267,9 @@ class FHIRConverter(
             // TODO: https://github.com/CDCgov/prime-reportstream/issues/14287
             FhirPathUtils
 
-            val processedItems = process(format, input, actionLogger)
+            val processedItems = process(format, input, actionLogger) // aka "bundles" returned from the method
+
+            // for each processedItems
 
             // processedItems can be empty in three scenarios:
             // - the blob had no contents, i.e. an empty file was submitted
@@ -286,7 +296,8 @@ class FHIRConverter(
                                 MimeFormat.FHIR,
                                 emptyList(),
                                 parentItemLineageData = listOf(
-                                    Report.ParentItemLineageData(input.reportId, itemIndex.toInt() + 1)
+                                    // todo need to properly null out the "blank" items, or maybe this works
+                                    Report.ParentItemLineageData(input.reportId, itemIndex.toInt() + 1, "")
                                 ),
                                 metadata = this.metadata,
                                 topic = input.topic,
@@ -325,12 +336,40 @@ class FHIRConverter(
                             val bundle = processedItem.bundle!!
                             transformer?.process(bundle)
 
+                            // TODO this is the WRONG place for this logic, see other notes
+                            // Deduplication workflow including hash generation is only for ORU_R01 atm
+                            val itemHash = if (bundle.isElr()) { // this method is questionable. Need to verify it or
+                                // find/create better.
+                                // Need to get sender org + name to add into hash:
+                                // val senderOrgName = input.senderId
+                                // ORUR01KeyFields(bundle, senderOrgName).getHashFromBundle()
+
+                                // save hash to stick into report later
+                                val hashString = ORUR01KeyFields(bundle).getHashFromBundle()
+
+                                // Check for duplicates
+
+                                // hashString
+                                "temp hash result"
+                            } else {
+                                // log out exception or regular message stating deduplication could not be run as
+                                // the bundle type could not be determined
+                                ""
+                            }
+
+                            // if sender.allowduplicates
+                            // else
+
                             // make a 'report'
                             val report = Report(
                                 MimeFormat.FHIR,
                                 emptyList(),
                                 parentItemLineageData = listOf(
-                                    Report.ParentItemLineageData(input.reportId, itemIndex.toInt() + 1)
+                                    Report.ParentItemLineageData(
+                                        input.reportId,
+                                        itemIndex.toInt() + 1,
+                                        itemHash
+                                    )
                                 ),
                                 metadata = this.metadata,
                                 topic = input.topic,
@@ -753,6 +792,15 @@ class FHIRConverter(
     } else {
         null
     }
+
+//    fun getBundleHash(): String {
+//        // todo move the hash creation logic here
+//    }
+//
+//      // checks for duplicates within entire report first, database second
+//    fun checkForDuplicateHash(): Boolean {
+//        // todo add the duplicate check logic here
+//    }
 }
 
 /**

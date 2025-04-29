@@ -365,7 +365,7 @@ class FHIRReceiverFilter(
                         MimeFormat.FHIR,
                         emptyList(),
                         parentItemLineageData = listOf(
-                            Report.ParentItemLineageData(queueMessage.reportId, 1)
+                            Report.ParentItemLineageData(queueMessage.reportId, 1, "") // todo
                         ),
                         metadata = this.metadata,
                         topic = queueMessage.topic,
@@ -441,7 +441,7 @@ class FHIRReceiverFilter(
                             null,
                             null,
                             null,
-                            emptyReport.getItemHashForRow(1)
+                            emptyReport.getItemHashForRow(1) // todo
                         )
                     )
 

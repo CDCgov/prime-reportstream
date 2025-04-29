@@ -156,6 +156,20 @@
       customerStatus: active
       schemaName: classpath:/metadata/fhir_transforms/senders/baseline-sender-transform.yml
       format: FHIR
+    - name: ignore-nodupes-fhir # note: these dedupe senders may need more changes or reworked totally
+      organizationName: ignore
+      topic: full-elr
+      customerStatus: active
+      schemaName: classpath:/metadata/fhir_transforms/senders/baseline-sender-transform.yml
+      allowDuplicates: false
+      format: FHIR
+    - name: ignore-nodupes-hl7
+      organizationName: ignore
+      topic: full-elr
+      customerStatus: active
+      schemaName: classpath:/metadata/fhir_transforms/senders/baseline-sender-transform.yml
+      allowDuplicates: false
+      format: HL7
     - name: ignore-fhir-mars-otc-e2e   # For the E2E UP test
       organizationName: ignore
       topic: mars-otc-elr

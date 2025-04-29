@@ -280,15 +280,6 @@ class UniversalPipelineReceiver : SubmissionReceiver {
                     topic = sender.topic,
                 )
 
-                // TODO fix and re-enable https://github.com/CDCgov/prime-reportstream/issues/14103
-                // dupe detection if needed, and if we have not already produced an error
-//                if (!allowDuplicates && !actionLogs.hasErrors()) {
-//                    doDuplicateDetection(
-//                        workflowEngine,
-//                        report,
-//                        actionLogs
-//                    )
-//                }
                 if (messageCount == 0 && !actionLogs.hasErrors()) {
                     actionLogs.error(InvalidReportMessage("Unable to find HL7 messages in provided data."))
                 }

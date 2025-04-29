@@ -162,6 +162,11 @@ class DatabaseAccess(val create: DSLContext) : Logging {
     }
 
     /**
+     * TODO deprecate/rewrite
+     * FOR UP DEDUPE, we want the item id of the matching result if a duplicate is found.
+     * It should be possible to do a select instead of "fetch exists" and move the ctx logic to a new place like is
+     * happening for the hash generation logic. Then wouldn't need to couple workflow engine to FHIRConverter.
+     *
      * Returns true if there is already a record from the last 7 days
      * in the item_lineage table that matches the passed in [itemHash]
      * @return true if item is duplicate
