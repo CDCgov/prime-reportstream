@@ -102,8 +102,7 @@ sealed class ConfigurationType<T> {
 
             // parse each expression that is not the resourceType
             val expressions = node
-                .fields()
-                .asSequence()
+                .properties()
                 .associate { it.key to it.value }
                 .filter { it.key != "resourceType" }
                 .mapValues { mapper.convertValue(it.value, ExpressionAttributes::class.java) }

@@ -1056,8 +1056,8 @@ class ReportFunctionTests {
             val settings = FileSettings().loadOrganizations(oneOrganization)
             mockkObject(AuthenticatedClaims)
             val claims = mockk<AuthenticatedClaims>()
-            every { AuthenticatedClaims.authenticate(any()) } returns claims
             every { claims.authorized(setOf(Scope.primeAdminScope)) } returns false
+            every { AuthenticatedClaims.authenticate(any()) } returns claims
 
             val result = ReportFunction(
                 makeEngine(metadata, settings),
