@@ -1,3 +1,4 @@
+
 resource "azurerm_network_profile" "init" {
   name                = "${var.resource_prefix}-dns-profile"
   location            = var.location
@@ -23,7 +24,8 @@ resource "azurerm_container_group" "init" {
   resource_group_name = var.resource_group
   ip_address_type     = "Private"
   os_type             = "Linux"
-  network_profile_id  = azurerm_network_profile.init.id
+
+ subnet_ids = [azurerm_subnet.init.id]
 
   container {
     name   = "dnsmasq"

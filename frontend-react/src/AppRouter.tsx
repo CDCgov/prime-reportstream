@@ -35,15 +35,16 @@ const DeveloperResourcesIndex = lazy(lazyRouteMarkdown(() => import("./content/d
 const ReportStreamApiDocumentation = lazy(
     lazyRouteMarkdown(() => import("./content/developer-resources/reportstream-api/documentation/Documentation.mdx")),
 );
-const ReportStreamApiDocumentationResponses = lazy(
-    lazyRouteMarkdown(
-        () => import("./content/developer-resources/reportstream-api/documentation/ResponsesFromReportStream.mdx"),
-    ),
-);
 const ManagingYourConnectionIndex = lazy(
     lazyRouteMarkdown(() => import("./content/managing-your-connection/index.mdx")),
 );
 const SupportIndex = lazy(lazyRouteMarkdown(() => import("./content/support/index.mdx")));
+
+const SubmissionStatusAndErrors = lazy(
+    lazyRouteMarkdown(
+        () => import("./content/developer-resources/reportstream-api/documentation/SubmissionStatusAndErrors.mdx"),
+    ),
+);
 
 /* Public Pages */
 const TermsOfService = lazy(() => import("./pages/TermsOfService"));
@@ -249,8 +250,8 @@ export const appRoutes: RouteObject[] = [
                                 },
                             },
                             {
-                                path: "responses-from-reportstream",
-                                element: <ReportStreamApiDocumentationResponses />,
+                                path: "submission-status-and-errors",
+                                element: <SubmissionStatusAndErrors />,
                                 handle: {
                                     isContentPage: true,
                                 },

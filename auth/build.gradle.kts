@@ -1,10 +1,10 @@
 apply(from = rootProject.file("buildSrc/shared.gradle.kts"))
 
 plugins {
-    id("org.springframework.boot") version "3.4.1"
+    id("org.springframework.boot") version "3.4.5"
     id("io.spring.dependency-management") version "1.1.7"
     id("reportstream.project-conventions")
-    kotlin("plugin.spring") version "2.1.0"
+    kotlin("plugin.spring") version "2.1.20"
 }
 
 group = "gov.cdc.prime"
@@ -14,8 +14,8 @@ dependencies {
     implementation(project(":shared"))
 
     implementation("org.jetbrains.kotlin:kotlin-reflect")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.9.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.10.2")
 
     /**
      * Spring WebFlux was chosen for this project to be able to better handle periods of high traffic
@@ -24,14 +24,14 @@ dependencies {
     implementation("org.springframework.cloud:spring-cloud-starter-gateway")
     implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
 
-    runtimeOnly("com.nimbusds:oauth2-oidc-sdk:11.20.1")
+    runtimeOnly("com.nimbusds:oauth2-oidc-sdk:11.23.1")
 
     // okta
-    implementation("com.okta.sdk:okta-sdk-api:20.0.0")
-    runtimeOnly("com.okta.sdk:okta-sdk-impl:20.0.0")
+    implementation("com.okta.sdk:okta-sdk-api:22.0.1")
+    runtimeOnly("com.okta.sdk:okta-sdk-impl:22.0.1")
 
     // Swagger
-    implementation("org.springdoc:springdoc-openapi-starter-webflux-ui:2.7.0")
+    implementation("org.springdoc:springdoc-openapi-starter-webflux-ui:2.8.6")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.security:spring-security-test")
@@ -48,8 +48,8 @@ configurations.all {
 
 dependencyManagement {
     imports {
-        mavenBom("com.azure.spring:spring-cloud-azure-dependencies:5.19.0")
-        mavenBom("org.springframework.cloud:spring-cloud-dependencies:2024.0.0")
+        mavenBom("com.azure.spring:spring-cloud-azure-dependencies:5.22.0")
+        mavenBom("org.springframework.cloud:spring-cloud-dependencies:2024.0.1")
     }
 }
 
