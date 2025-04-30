@@ -18,6 +18,7 @@ import com.github.ajalt.clikt.parameters.types.choice
 import com.github.ajalt.clikt.parameters.types.file
 import fhirengine.engine.CustomFhirPathFunctions
 import fhirengine.engine.CustomTranslationFunctions
+import gov.cdc.prime.reportstream.shared.QueueMessage
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.Hl7Configuration
 import gov.cdc.prime.router.Metadata
@@ -966,6 +967,7 @@ class NoopReportStreamEventService : IReportStreamEventService {
         childReport: ReportFile,
         pipelineStepName: TaskAction,
         error: String,
+        queueMessage: QueueMessage,
         shouldQueue: Boolean,
         initializer: ReportStreamReportProcessingErrorEventBuilder.() -> Unit,
     ): Unit = throw NotImplementedError()
@@ -975,6 +977,7 @@ class NoopReportStreamEventService : IReportStreamEventService {
         childReport: Report,
         pipelineStepName: TaskAction,
         error: String,
+        queueMessage: QueueMessage,
         shouldQueue: Boolean,
         initializer: ReportStreamReportProcessingErrorEventBuilder.() -> Unit,
     ): Unit = throw NotImplementedError()
@@ -1001,6 +1004,7 @@ class NoopReportStreamEventService : IReportStreamEventService {
         pipelineStepName: TaskAction,
         error: String,
         shouldQueue: Boolean,
+        queueMessage: QueueMessage,
         initializer: ReportStreamItemProcessingErrorEventBuilder.() -> Unit,
     ): Unit = throw NotImplementedError()
 
