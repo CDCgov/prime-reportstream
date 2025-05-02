@@ -588,6 +588,7 @@ class ReportFunction(
                         rawBody,
                         payloadName
                     )
+
                     reportEventService.sendReportEvent(
                         eventName = ReportStreamEventName.REPORT_RECEIVED,
                         childReport = report,
