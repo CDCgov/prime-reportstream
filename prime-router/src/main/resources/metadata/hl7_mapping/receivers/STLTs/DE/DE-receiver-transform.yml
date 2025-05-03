@@ -19,3 +19,27 @@ elements:
     condition: 'Bundle.entry.resource.ofType(ServiceRequest).where(requester.resolve().practitioner.resolve().name.given[0].empty())'
     value: [ 'Warner' ]
     hl7Spec: [ '/PATIENT_RESULT/ORDER_OBSERVATION/ORC-12-3' ]
+
+  - name: sending-facility_namespace-id
+    value:
+      - 'Bundle.entry.resource.ofType(MessageHeader).extension("https://reportstream.cdc.gov/fhir/StructureDefinition/sender-id").value'
+    valueSet:
+      values:
+        carbon-health: Carbon Health
+    hl7Spec: [ MSH-4-1 ]
+
+  - name: sending-facility-universal-id
+    value:
+      - 'Bundle.entry.resource.ofType(MessageHeader).extension("https://reportstream.cdc.gov/fhir/StructureDefinition/sender-id").value'
+    valueSet:
+      values:
+        carbon-health: 05D2121942
+    hl7Spec: [ MSH-4-2 ]
+
+  - name: sending-facility-universal-id-type
+    value:
+      - 'Bundle.entry.resource.ofType(MessageHeader).extension("https://reportstream.cdc.gov/fhir/StructureDefinition/sender-id").value'
+    valueSet:
+      values:
+        carbon-health: CLIA
+    hl7Spec: [ MSH-4-3 ]
