@@ -9037,9 +9037,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"msw@npm:^2.7.3":
-  version: 2.7.3
-  resolution: "msw@npm:2.7.3"
+"msw@npm:^2.7.5":
+  version: 2.7.5
+  resolution: "msw@npm:2.7.5"
   dependencies:
     "@bundled-es-modules/cookie": ^2.0.1
     "@bundled-es-modules/statuses": ^1.0.1
@@ -9066,7 +9066,7 @@ __metadata:
       optional: true
   bin:
     msw: cli/index.js
-  checksum: 6f1125aebee753f7cf0fe3a52ae161a744b6cf3bed5c6355b1cc6e05064423fa5bf7dc97a180fb85cbf1ed8bd80d67fcc86b8959fe238f5e6fdce2a8c2be4946
+  checksum: d35786207e1f01e42a628e15aee9abfdaaf5770ab2afab421436df8b0095b0778d3ceee4f9c3aea840af993a0cc93444cdbfe64de949d3d42b451ba8682cdb8a
   languageName: node
   linkType: hard
 
@@ -10185,7 +10185,7 @@ __metadata:
     lint-staged: ^15.5.0
     lodash: ^4.17.21
     mockdate: ^3.0.5
-    msw: ^2.7.3
+    msw: ^2.7.5
     npm-run-all: ^4.1.5
     otpauth: ^9.3.6
     p-limit: ^6.2.0
