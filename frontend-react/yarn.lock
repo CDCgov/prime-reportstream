@@ -1139,9 +1139,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@microsoft/applicationinsights-react-js@npm:^18.3.6":
-  version: 18.3.6
-  resolution: "@microsoft/applicationinsights-react-js@npm:18.3.6"
+"@microsoft/applicationinsights-react-js@npm:^19.3.6":
+  version: 19.3.6
+  resolution: "@microsoft/applicationinsights-react-js@npm:19.3.6"
   dependencies:
     "@microsoft/applicationinsights-common": ^3.3.6
     "@microsoft/applicationinsights-core-js": ^3.3.6
@@ -1150,9 +1150,9 @@ __metadata:
     "@nevware21/ts-utils": ">= 0.11.3 < 2.x"
   peerDependencies:
     history: ">= 4.10.1"
-    react: ">= 18.0.0"
+    react: ">= 19.0.0"
     tslib: "*"
-  checksum: 48e807ff446c48c1103acd8912229eadab91622982e90774195c8402f9e78e1cd2661e357a8a408e14e48695d42a435616f4143e85fd5fa1154d3c8b7682358a
+  checksum: b76122f035ce028fbafa97e2d478178dc79ec1358d9b4335ad7ccd7fd3cdfbf647fd3ee5af2f679db91e5ffc0bf30b1e4e86756cf6ddf54a9346b6e3be93a822
   languageName: node
   linkType: hard
 
@@ -10106,7 +10106,7 @@ __metadata:
     "@eslint/js": ^9.22.0
     "@mdx-js/react": ^3.1.0
     "@mdx-js/rollup": ^3.1.0
-    "@microsoft/applicationinsights-react-js": ^18.3.6
+    "@microsoft/applicationinsights-react-js": ^19.3.6
     "@microsoft/applicationinsights-web": ^3.3.6
     "@okta/okta-react": ^6.9.0
     "@okta/okta-signin-widget": ^7.29.2
