@@ -1,10 +1,4 @@
-import {
-    Button,
-    Form,
-    FormGroup,
-    Label,
-    TextInput,
-} from "@trussworks/react-uswds";
+import { Button, Form, FormGroup, Label, TextInput } from "@trussworks/react-uswds";
 import { FC, FormEvent, useState } from "react";
 
 import { MessageListResource } from "../../config/endpoints/messageTracker";
@@ -19,11 +13,7 @@ interface MessageListTableContentProps {
     hasSearched: boolean;
 }
 
-const MessageTrackerTableContent: FC<MessageListTableContentProps> = ({
-    isLoading,
-    messagesData,
-    hasSearched,
-}) => {
+const MessageTrackerTableContent: FC<MessageListTableContentProps> = ({ isLoading, messagesData, hasSearched }) => {
     if (isLoading) return <Spinner />;
 
     const formattedTableData = messagesData.map((row) => {
@@ -31,11 +21,7 @@ const MessageTrackerTableContent: FC<MessageListTableContentProps> = ({
             {
                 columnKey: "messageId",
                 columnHeader: "Message ID",
-                content: (
-                    <USLink href={`/message-details/${row.id}`}>
-                        {row.messageId}
-                    </USLink>
-                ),
+                content: <USLink href={`/message-details/${row.id}`}>{row.messageId}</USLink>,
             },
             {
                 columnKey: "sender",
@@ -45,29 +31,17 @@ const MessageTrackerTableContent: FC<MessageListTableContentProps> = ({
             {
                 columnKey: "submittedDate",
                 columnHeader: "Date/time submitted",
-                content: row.submittedDate
-                    ? new Date(row.submittedDate).toLocaleString()
-                    : "",
+                content: row.submittedDate ? new Date(row.submittedDate).toLocaleString() : "",
             },
             {
                 columnKey: "reportId",
                 columnHeader: "Incoming Report Id",
-                content: (
-                    <USLink href={`/submissions/${row.reportId}`}>
-                        {row.reportId}
-                    </USLink>
-                ),
+                content: <USLink href={`/submissions/${row.reportId}`}>{row.reportId}</USLink>,
             },
         ];
     });
 
-    return (
-        <>
-            {hasSearched && (
-                <Table borderless striped rowData={formattedTableData} />
-            )}
-        </>
-    );
+    return <>{hasSearched && <Table borderless striped rowData={formattedTableData} />}</>;
 };
 
 // Main component.
@@ -79,8 +53,7 @@ export function MessageTracker() {
 
     const searchMessageId = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        const senderResponse: MessageListResource[] =
-            await search(searchFilter);
+        const senderResponse: MessageListResource[] = await search(searchFilter);
 
         setHasSearched(true);
 
@@ -96,17 +69,11 @@ export function MessageTracker() {
         <section className="margin-bottom-5 tablet:margin-top-6">
             <h1>Message ID Search</h1>
 
-            <Form
-                onSubmit={(e) => void searchMessageId(e)}
-                className="maxw-full"
-            >
+            <Form onSubmit={(e) => void searchMessageId(e)} className="maxw-full">
                 <div className="grid-row display-flex">
                     <div className="display-flex">
                         <FormGroup>
-                            <Label
-                                className="font-sans-xs usa-label"
-                                htmlFor="search-field"
-                            >
+                            <Label className="font-sans-xs usa-label" htmlFor="search-field">
                                 Message ID
                             </Label>
                             <TextInput
@@ -119,13 +86,7 @@ export function MessageTracker() {
                                 inputSize={"medium"}
                                 aria-disabled={isPending}
                                 value={searchFilter}
-                                onChange={(evt) =>
-                                    setSearchFilter(
-                                        (
-                                            evt.target as HTMLInputElement
-                                        ).value.trim(),
-                                    )
-                                }
+                                onChange={(evt) => setSearchFilter((evt.target as HTMLInputElement).value.trim())}
                                 required={true}
                             />
                         </FormGroup>

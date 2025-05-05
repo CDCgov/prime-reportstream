@@ -29,8 +29,7 @@ interface Frontmatter {
     backToTop?: boolean;
 }
 
-interface ContentSubitem
-    extends React.PropsWithChildren<React.HTMLAttributes<HTMLElement>> {
+interface ContentSubitem extends React.PropsWithChildren<React.HTMLAttributes<HTMLElement>> {
     method?: number;
     title?: string;
     icon?: string;

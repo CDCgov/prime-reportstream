@@ -220,9 +220,9 @@ You'll notice that the `SubmissionTable` example uses a filter manager as well.
 What is that? A filter manager is a hook that manages filter state. It currently
 supports:
 
--   Date range
--   Sort order and column
--   Page size
+- Date range
+- Sort order and column
+- Page size
 
 To utilize these filters, you'll need to first set up a filter manager in your
 parent component using the `useFilterManager` hook, then pass it into both
@@ -281,17 +281,14 @@ to ensure your API call is properly set up for that. Your call might look someth
 like this to start:
 
 ```typescript
-const submissions: SubmissionsResource[] = useResource(
-    SubmissionsResource.list(),
-    {
-        organization: activeMembership.parsedName,
-        cursor: filterManager.rangeSettings.start,
-        endCursor: filterManager.rangeSettings.end,
-        pageSize: filterManager.pageSettings.size + 1, // Pulls +1 to check for next page
-        sort: filterManager.sortSettings.order,
-        showFailed: false, // No plans for this to be set to true
-    },
-);
+const submissions: SubmissionsResource[] = useResource(SubmissionsResource.list(), {
+    organization: activeMembership.parsedName,
+    cursor: filterManager.rangeSettings.start,
+    endCursor: filterManager.rangeSettings.end,
+    pageSize: filterManager.pageSettings.size + 1, // Pulls +1 to check for next page
+    sort: filterManager.sortSettings.order,
+    showFailed: false, // No plans for this to be set to true
+});
 ```
 
 When sorting and paginating, this logic needs to become dynamic. For this, there's a
@@ -302,23 +299,20 @@ pass in the values required, and it spits the right one out:
 import { RangeField } from "./UseDateRange";
 import { cursorOrRange } from "./UseFilterManager";
 
-const submissions: SubmissionsResource[] = useResource(
-    SubmissionsResource.list(),
-    {
-        // ...
-        cursor: cursorOrRange(
-            filterManager.sortSettings.order,
-            RangeField.START,
-            cursors.current,
-            filterManager.rangeSettings.start,
-        ),
-        endCursor: cursorOrRange(
-            filterManager.sortSettings.order,
-            RangeField.END,
-            cursors.current,
-            filterManager.rangeSettings.end,
-        ),
-        // ...
-    },
-);
+const submissions: SubmissionsResource[] = useResource(SubmissionsResource.list(), {
+    // ...
+    cursor: cursorOrRange(
+        filterManager.sortSettings.order,
+        RangeField.START,
+        cursors.current,
+        filterManager.rangeSettings.start,
+    ),
+    endCursor: cursorOrRange(
+        filterManager.sortSettings.order,
+        RangeField.END,
+        cursors.current,
+        filterManager.rangeSettings.end,
+    ),
+    // ...
+});
 ```

@@ -59,9 +59,7 @@ describe("useReceiverSubmitters", () => {
         });
 
         test("returns receiver meta and submitters", async () => {
-            const { result } = renderHook(() =>
-                useReceiverSubmitters("testService"),
-            );
+            const { result } = renderHook(() => useReceiverSubmitters("testService"));
 
             await waitFor(() => expect(result.current.data).toHaveLength(1));
             expect(result.current.isLoading).toEqual(false);

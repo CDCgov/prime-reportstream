@@ -79,15 +79,9 @@ describe("ValueSetsIndex tests", () => {
         expect(rows.length).toBe(3); // +1 for header
 
         const firstContentRow = rows[1];
-        expect(
-            within(firstContentRow).getByText("any name"),
-        ).toBeInTheDocument();
-        expect(
-            within(firstContentRow).getByText("your very own system"),
-        ).toBeInTheDocument();
-        expect(
-            within(firstContentRow).getByText("Tuesday"),
-        ).toBeInTheDocument();
+        expect(within(firstContentRow).getByText("any name")).toBeInTheDocument();
+        expect(within(firstContentRow).getByText("your very own system")).toBeInTheDocument();
+        expect(within(firstContentRow).getByText("Tuesday")).toBeInTheDocument();
         expect(within(firstContentRow).getByText("you")).toBeInTheDocument();
     });
     test("Error in query will render error UI instead of table", () => {
@@ -107,10 +101,6 @@ describe("ValueSetsIndex tests", () => {
         /* Outputs a large error stack...should we consider hiding error stacks in page tests since we
          * test them via the ErrorBoundary test? */
         renderApp(<ValueSetsIndexPage />);
-        expect(
-            screen.getByText(
-                "Our apologies, there was an error loading this content.",
-            ),
-        ).toBeInTheDocument();
+        expect(screen.getByText("Our apologies, there was an error loading this content.")).toBeInTheDocument();
     });
 });

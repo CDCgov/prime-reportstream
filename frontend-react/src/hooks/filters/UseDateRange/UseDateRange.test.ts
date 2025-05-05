@@ -1,9 +1,6 @@
 import { act } from "@testing-library/react";
 
-import useDateRange, {
-    getEndOfDay,
-    RangeSettingsActionType,
-} from "./UseDateRange";
+import useDateRange, { getEndOfDay, RangeSettingsActionType } from "./UseDateRange";
 import { renderHook } from "../../../utils/CustomRenderUtils";
 
 describe("UseDateRange", () => {

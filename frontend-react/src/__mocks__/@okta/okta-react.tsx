@@ -3,7 +3,5 @@ module.exports = {
         authState: {},
         oktaAuth: {},
     }),
-    Security: vi
-        .fn()
-        .mockImplementation(({ children }: any) => <>{children}</>),
+    Security: vi.fn().mockImplementation(({ children }: any) => <>{children}</>),
 };

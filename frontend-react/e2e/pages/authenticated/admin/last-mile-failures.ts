@@ -12,11 +12,11 @@ export class LastMileFailuresPage extends BasePage {
     readonly filterFormInputs: {
         filter: {
             input: Locator;
-        },
+        };
         daysToShow: {
             input: Locator;
-            button: Locator
-        }
+            button: Locator;
+        };
     };
 
     constructor(testArgs: BasePageTestArgs) {
@@ -34,17 +34,16 @@ export class LastMileFailuresPage extends BasePage {
         this.addMockRouteHandlers([this.createMockGetSendFailuresHandler(), this.createMockGetResendHandler()]);
         this.filterFormInputs = {
             filter: {
-                input: this.page.locator("#input_filter")
+                input: this.page.locator("#input_filter"),
             },
             daysToShow: {
                 input: this.page.locator("#days_to_show"),
                 button: this.page.getByRole("button", {
                     name: "Refresh",
                 }),
-            }
-        }
+            },
+        };
     }
-
 
     createMockGetSendFailuresHandler(): RouteHandlerFulfillEntry {
         return [
@@ -68,9 +67,7 @@ export class LastMileFailuresPage extends BasePage {
         ];
     }
 
-    async tableColumnDateTimeInRange(
-        daysToShow: number,
-    ) {
+    async tableColumnDateTimeInRange(daysToShow: number) {
         let datesInRange = true;
         const rowCount = await tableRows(this.page).count();
         const now = new Date();
@@ -88,9 +85,7 @@ export class LastMileFailuresPage extends BasePage {
         return datesInRange;
     }
 
-    async testReportId(
-        reportId: string,
-    ) {
+    async testReportId(reportId: string) {
         const rowCount = await tableRows(this.page).count();
 
         for (let i = 0; i < rowCount; i++) {

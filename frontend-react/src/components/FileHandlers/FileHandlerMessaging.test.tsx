@@ -178,9 +178,7 @@ describe("FileQualityFilterDisplay", () => {
             <FileQualityFilterDisplay
                 destinations={qualityFilterMessages}
                 heading={""}
-                message={
-                    "The following records were filtered out while processing/validating your file."
-                }
+                message={"The following records were filtered out while processing/validating your file."}
             />,
         );
 
@@ -198,17 +196,11 @@ describe("FileQualityFilterDisplay", () => {
         const rows = await screen.findAllByRole("row");
         expect(rows).toHaveLength(6);
 
-        expect(
-            screen.queryByText(/Maryland Public Health Department/),
-        ).not.toBeInTheDocument();
-        expect(
-            screen.getByText(/Alaska Public Health Department/),
-        ).toBeInTheDocument();
+        expect(screen.queryByText(/Maryland Public Health Department/)).not.toBeInTheDocument();
+        expect(screen.getByText(/Alaska Public Health Department/)).toBeInTheDocument();
         const row1 = await within(rows[1]).findAllByRole("cell");
         expect(row1[0]).toHaveTextContent("Filtered out item Alaska1");
-        expect(
-            screen.getByText(/Hawaii Public Health Department/),
-        ).toBeInTheDocument();
+        expect(screen.getByText(/Hawaii Public Health Department/)).toBeInTheDocument();
         const row3 = await within(rows[3]).findAllByRole("cell");
         expect(row3[0]).toHaveTextContent("Filtered out item Hawaii6");
     });
@@ -224,9 +216,7 @@ describe("ValidationErrorMessage", () => {
     let errorMessageNode: HTMLElement;
 
     function renderComponent(props: Partial<ValidationErrorMessageProps>) {
-        const view = renderApp(
-            <ValidationErrorMessage {...DEFAULT_PROPS} {...props} />,
-        );
+        const view = renderApp(<ValidationErrorMessage {...DEFAULT_PROPS} {...props} />);
 
         errorMessageNode = screen.getByTestId("ValidationErrorMessage");
 
@@ -322,9 +312,7 @@ describe("ValidationErrorMessage", () => {
             renderComponent({
                 errorCode: ErrorCode.INVALID_HL7_MSG_VALIDATION,
             });
-            expect(errorMessageNode).toHaveTextContent(
-                "Reformat validation_field to HL7 specification.",
-            );
+            expect(errorMessageNode).toHaveTextContent("Reformat validation_field to HL7 specification.");
         });
 
         test("renders a link to the HL7 product matrix", () => {
@@ -341,9 +329,7 @@ describe("ValidationErrorMessage", () => {
     describe("when the error is INVALID_MSG_MISSING_FIELD", () => {
         test("renders an error about a missing field", () => {
             renderComponent({ errorCode: ErrorCode.INVALID_MSG_MISSING_FIELD });
-            expect(errorMessageNode).toHaveTextContent(
-                "Fill in the required field validation_field.",
-            );
+            expect(errorMessageNode).toHaveTextContent("Fill in the required field validation_field.");
         });
     });
 
@@ -361,10 +347,7 @@ describe("ValidationErrorMessage", () => {
             renderComponent({
                 errorCode: ErrorCode.INVALID_MSG_EQUIPMENT_MAPPING,
             });
-            expect(screen.getByRole("link")).toHaveAttribute(
-                "href",
-                "https://www.cdc.gov/csels/dls/livd-codes.html",
-            );
+            expect(screen.getByRole("link")).toHaveAttribute("href", "https://www.cdc.gov/csels/dls/livd-codes.html");
         });
     });
 
@@ -375,9 +358,7 @@ describe("ValidationErrorMessage", () => {
                     errorCode: ErrorCode.UNKNOWN,
                     message: "this is wrong please fix it kthxbai",
                 });
-                expect(errorMessageNode).toHaveTextContent(
-                    "this is wrong please fix it kthxbai",
-                );
+                expect(errorMessageNode).toHaveTextContent("this is wrong please fix it kthxbai");
             });
         });
 
@@ -396,24 +377,12 @@ describe("ValidationErrorMessage", () => {
 
 describe("getSafeFileName", () => {
     test("returns a safe file name, replacing non-alphanumeric characters with hyphens", () => {
-        expect(getSafeFileName("aaa", RequestLevel.WARNING)).toEqual(
-            "aaa-warnings",
-        );
-        expect(getSafeFileName("aaa-!@#.csv", RequestLevel.WARNING)).toEqual(
-            "aaa-----csv-warnings",
-        );
-        expect(
-            getSafeFileName("Hello I Am A File", RequestLevel.WARNING),
-        ).toEqual("hello-i-am-a-file-warnings");
+        expect(getSafeFileName("aaa", RequestLevel.WARNING)).toEqual("aaa-warnings");
+        expect(getSafeFileName("aaa-!@#.csv", RequestLevel.WARNING)).toEqual("aaa-----csv-warnings");
+        expect(getSafeFileName("Hello I Am A File", RequestLevel.WARNING)).toEqual("hello-i-am-a-file-warnings");
 
-        expect(getSafeFileName("aaa", RequestLevel.ERROR)).toEqual(
-            "aaa-errors",
-        );
-        expect(getSafeFileName("aaa!@#.csv", RequestLevel.ERROR)).toEqual(
-            "aaa----csv-errors",
-        );
-        expect(
-            getSafeFileName("Hello I Am A File", RequestLevel.ERROR),
-        ).toEqual("hello-i-am-a-file-errors");
+        expect(getSafeFileName("aaa", RequestLevel.ERROR)).toEqual("aaa-errors");
+        expect(getSafeFileName("aaa!@#.csv", RequestLevel.ERROR)).toEqual("aaa----csv-errors");
+        expect(getSafeFileName("Hello I Am A File", RequestLevel.ERROR)).toEqual("hello-i-am-a-file-errors");
     });
 });

@@ -1,10 +1,7 @@
 import { waitFor } from "@testing-library/react";
 
 import useOrganizationSettings from "./UseOrganizationSettings";
-import {
-    fakeOrg,
-    orgServer,
-} from "../../../../__mockServers__/OrganizationMockServer";
+import { fakeOrg, orgServer } from "../../../../__mockServers__/OrganizationMockServer";
 import { renderHook } from "../../../../utils/CustomRenderUtils";
 import { MemberType } from "../../../../utils/OrganizationUtils";
 import { Organizations } from "../../../UseAdminSafeOrganizationName/UseAdminSafeOrganizationName";

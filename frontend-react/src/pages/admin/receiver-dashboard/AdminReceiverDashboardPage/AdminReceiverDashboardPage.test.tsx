@@ -3,16 +3,11 @@ import useReceiversConnectionStatus from "../../../../hooks/api/UseReceiversConn
 import { renderApp, screen } from "../../../../utils/CustomRenderUtils";
 import { mockReceiversStatuses } from "../fixtures";
 
-vi.mock(
-    "../../../../hooks/api/UseReceiversConnectionStatus/UseReceiversConnectionStatus.ts",
-    () => ({
-        default: vi.fn(),
-    }),
-);
+vi.mock("../../../../hooks/api/UseReceiversConnectionStatus/UseReceiversConnectionStatus.ts", () => ({
+    default: vi.fn(),
+}));
 
-const _ = vi
-    .mocked(useReceiversConnectionStatus)
-    .mockImplementation(() => ({ data: mockReceiversStatuses }) as any);
+const _ = vi.mocked(useReceiversConnectionStatus).mockImplementation(() => ({ data: mockReceiversStatuses }) as any);
 
 describe("AdminReceiverDashboard", () => {
     test("renders", () => {

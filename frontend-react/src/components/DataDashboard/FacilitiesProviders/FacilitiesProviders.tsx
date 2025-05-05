@@ -21,13 +21,10 @@ export function FacilitiesProvidersPage() {
                 <div className="grid-container">
                     <header className="usa-section usa-prose">
                         <Crumbs {...crumbProps}></Crumbs>
-                        <div className="font-sans-2xl text-bold">
-                            All facilities & providers
-                        </div>
+                        <div className="font-sans-2xl text-bold">All facilities & providers</div>
                         <hr className="margin-bottom-1" />
                         <div className="font-sans-lg">
-                            An index of all the ordering & provider facilities
-                            who have submitted to you.
+                            An index of all the ordering & provider facilities who have submitted to you.
                         </div>
                         <hr />
                     </header>

@@ -11,10 +11,7 @@ import { SortSettingsActionType } from "../../../hooks/filters/UseSortOrder/UseS
 import useAppInsightsContext from "../../../hooks/UseAppInsightsContext/UseAppInsightsContext";
 import { Table } from "../../../shared";
 import { EventName } from "../../../utils/AppInsights";
-import {
-    transformFacilityTypeClass,
-    transformFacilityTypeLabel,
-} from "../../../utils/DataDashboardUtils";
+import { transformFacilityTypeClass, transformFacilityTypeLabel } from "../../../utils/DataDashboardUtils";
 import { formatDateWithoutSeconds } from "../../../utils/DateTimeUtils";
 import { FeatureName } from "../../../utils/FeatureName";
 import AdminFetchAlert from "../../alerts/AdminFetchAlert";
@@ -40,11 +37,7 @@ function FacilitiesProvidersFilterAndTable({
         if (result) setActiveReceiver(result);
     };
 
-    const {
-        data: results,
-        filterManager,
-        isLoading,
-    } = useReceiverSubmitters(activeReceiver.name);
+    const { data: results, filterManager, isLoading } = useReceiverSubmitters(activeReceiver.name);
 
     if (isLoading || !results) return <Spinner />;
 
@@ -84,24 +77,21 @@ function FacilitiesProvidersFilterAndTable({
             ) : (
                 ""
             ),
-            columnCustomSort: () =>
-                onColumnCustomSort(DeliveriesAttr.FACILITY_TYPE),
+            columnCustomSort: () => onColumnCustomSort(DeliveriesAttr.FACILITY_TYPE),
             columnCustomSortSettings: filterManager.sortSettings,
         },
         {
             columnKey: DeliveriesAttr.TEST_RESULT_COUNT,
             columnHeader: "Report count",
             content: dataRow.testResultCount,
-            columnCustomSort: () =>
-                onColumnCustomSort(DeliveriesAttr.TEST_RESULT_COUNT),
+            columnCustomSort: () => onColumnCustomSort(DeliveriesAttr.TEST_RESULT_COUNT),
             columnCustomSortSettings: filterManager.sortSettings,
         },
         {
             columnKey: DeliveriesAttr.REPORT_DATE,
             columnHeader: "Most recent report date",
             content: formatDateWithoutSeconds(dataRow.firstReportDate),
-            columnCustomSort: () =>
-                onColumnCustomSort(DeliveriesAttr.REPORT_DATE),
+            columnCustomSort: () => onColumnCustomSort(DeliveriesAttr.REPORT_DATE),
             columnCustomSortSettings: filterManager.sortSettings,
         },
     ]);
@@ -111,9 +101,7 @@ function FacilitiesProvidersFilterAndTable({
     return (
         <div>
             <section id="facilities-providers">
-                <div className="text-bold font-sans-md">
-                    Showing all results ({results?.meta.totalFilteredCount})
-                </div>
+                <div className="text-bold font-sans-md">Showing all results ({results?.meta.totalFilteredCount})</div>
                 <div className="display-flex flex-row">
                     <ReceiverServices
                         receiverServices={receiverServices}
@@ -124,13 +112,7 @@ function FacilitiesProvidersFilterAndTable({
                         startDateLabel="From: (mm/dd/yyyy)"
                         endDateLabel="To: (mm/dd/yyyy)"
                         filterManager={filterManager}
-                        onFilterClick={({
-                            from,
-                            to,
-                        }: {
-                            from: string;
-                            to: string;
-                        }) => {
+                        onFilterClick={({ from, to }: { from: string; to: string }) => {
                             filterManager?.updatePage({
                                 type: PageSettingsActionType.RESET,
                             });
@@ -153,9 +135,7 @@ function FacilitiesProvidersFilterAndTable({
                         currentPage={currentPageNum}
                         pathname=""
                         onClickPageNumber={(e) => {
-                            const pageNumValue = parseInt(
-                                (e.target as HTMLElement).innerText,
-                            );
+                            const pageNumValue = parseInt((e.target as HTMLElement).innerText);
                             filterManager.updatePage({
                                 type: PageSettingsActionType.SET_PAGE,
                                 payload: { page: pageNumValue },
@@ -182,8 +162,7 @@ function FacilitiesProvidersFilterAndTable({
 }
 
 export default function FacilitiesProvidersTable() {
-    const { isLoading, isDisabled, activeReceivers } =
-        useOrganizationReceivers();
+    const { isLoading, isDisabled, activeReceivers } = useOrganizationReceivers();
     const [activeReceiver, setActiveReceiver] = useState(activeReceivers?.[0]);
     if (isLoading) return <Spinner />;
 

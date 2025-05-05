@@ -7,30 +7,19 @@ import { AlertSimple } from "./Alert";
 
 const testText = (
     <>
-        Lorem ipsum dolor sit amet, <a href="#test">consectetur adipiscing</a>{" "}
-        elit, sed do eiusmod.
+        Lorem ipsum dolor sit amet, <a href="#test">consectetur adipiscing</a> elit, sed do eiusmod.
     </>
 );
 const types = ["success", "warning", "error", "info"];
 
-const AlertSimpleRender = ({
-    type,
-    ...props
-}: ComponentProps<typeof AlertSimple>) => (
+const AlertSimpleRender = ({ type, ...props }: ComponentProps<typeof AlertSimple>) => (
     <AlertSimple type={type} heading={`${type} status`} {...props} />
 );
 
-const AlertSimpleTypesRender = ({
-    type: _,
-    ...props
-}: ComponentProps<typeof AlertSimple>) => (
+const AlertSimpleTypesRender = ({ type: _, ...props }: ComponentProps<typeof AlertSimple>) => (
     <>
         {types.map((t) => (
-            <AlertSimpleRender
-                key={t}
-                type={t as ComponentProps<typeof AlertSimpleRender>["type"]}
-                {...props}
-            />
+            <AlertSimpleRender key={t} type={t as ComponentProps<typeof AlertSimpleRender>["type"]} {...props} />
         ))}
     </>
 );

@@ -1,20 +1,9 @@
-import {
-    Button,
-    ButtonGroup,
-    Modal,
-    ModalFooter,
-    ModalHeading,
-    ModalRef,
-} from "@trussworks/react-uswds";
+import { Button, ButtonGroup, Modal, ModalFooter, ModalHeading, ModalRef } from "@trussworks/react-uswds";
 import classnames from "classnames";
 import { useRef } from "react";
 
 import { FileHandlerStepProps } from "./FileHandler";
-import {
-    FileQualityFilterDisplay,
-    RequestedChangesDisplay,
-    RequestLevel,
-} from "./FileHandlerMessaging";
+import { FileQualityFilterDisplay, RequestedChangesDisplay, RequestLevel } from "./FileHandlerMessaging";
 import { OverallStatus } from "../../config/endpoints/waters";
 import { ErrorType } from "../../hooks/UseFileHandler/UseFileHandler";
 
@@ -31,8 +20,7 @@ const ERROR_MESSAGING_MAP = {
     },
 };
 
-export interface FileHandlerErrorsWarningsStepProps
-    extends FileHandlerStepProps {
+export interface FileHandlerErrorsWarningsStepProps extends FileHandlerStepProps {
     onTestAnotherFileClick: () => void;
 }
 
@@ -51,14 +39,10 @@ export default function FileHandlerErrorsWarningsStep({
     const errorMessaging = ERROR_MESSAGING_MAP[errorType ?? ErrorType.FILE];
 
     // Array containing only qualityFilterMessages that have filteredReportItems.
-    const qualityFilterMessages = reportItems?.filter(
-        (d) => d.filteredReportItems.length > 0,
-    );
+    const qualityFilterMessages = reportItems?.filter((d) => d.filteredReportItems.length > 0);
 
     const hasQualityFilterMessages =
-        destinations.length > 0 &&
-        qualityFilterMessages &&
-        qualityFilterMessages.length > 0;
+        destinations.length > 0 && qualityFilterMessages && qualityFilterMessages.length > 0;
 
     const modalRef = useRef<ModalRef>(null);
     return (
@@ -105,25 +89,18 @@ export default function FileHandlerErrorsWarningsStep({
                     Test another file
                 </Button>
                 {!errors.length && (
-                    <Button
-                        className="usa-button"
-                        type="button"
-                        onClick={() => modalRef?.current?.toggleModal()}
-                    >
+                    <Button className="usa-button" type="button" onClick={() => modalRef?.current?.toggleModal()}>
                         Continue without changes
                     </Button>
                 )}
             </div>
 
             <Modal id="file-validator-modal" ref={modalRef}>
-                <ModalHeading>
-                    Have you exported your recommended edits?
-                </ModalHeading>
+                <ModalHeading>Have you exported your recommended edits?</ModalHeading>
                 <div className="usa-prose">
                     <p>
-                        Before continuing to validation, we suggest saving your
-                        recommended edits so our team can better assist you with
-                        your files.
+                        Before continuing to validation, we suggest saving your recommended edits so our team can better
+                        assist you with your files.
                     </p>
                 </div>
                 <ModalFooter>
@@ -135,11 +112,7 @@ export default function FileHandlerErrorsWarningsStep({
                         >
                             Go back and save
                         </Button>
-                        <Button
-                            className="usa-button"
-                            type={"button"}
-                            onClick={onNextStepClick}
-                        >
+                        <Button className="usa-button" type={"button"} onClick={onNextStepClick}>
                             Continue
                         </Button>
                     </ButtonGroup>

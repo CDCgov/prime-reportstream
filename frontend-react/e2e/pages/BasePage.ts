@@ -89,8 +89,8 @@ export abstract class BasePage {
             typeof err === "function" || typeof err === "object"
                 ? err
                 : {
-                    status: typeof err === "number" ? err : 500,
-                };
+                      status: typeof err === "number" ? err : 500,
+                  };
     }
 
     /**

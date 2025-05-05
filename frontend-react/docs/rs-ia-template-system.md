@@ -57,8 +57,8 @@ export default IASampleTemplate;
 To keep things as reusable as possible, try to create a component tree that doesn't require
 any side effects provided by the template itself.
 
--   Using value from `ContentDirectory` to construct an object you pass to a subcomponent ❌
--   Passing in the value from `ContentDirectory` and letting the subcomponent construct the object ✅
+- Using value from `ContentDirectory` to construct an object you pass to a subcomponent ❌
+- Passing in the value from `ContentDirectory` and letting the subcomponent construct the object ✅
 
 ### Activate template
 

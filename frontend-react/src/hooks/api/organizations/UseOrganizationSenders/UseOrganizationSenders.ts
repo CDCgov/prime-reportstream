@@ -1,17 +1,12 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useCallback } from "react";
 
-import {
-    RSSender,
-    servicesEndpoints,
-} from "../../../../config/endpoints/settings";
+import { RSSender, servicesEndpoints } from "../../../../config/endpoints/settings";
 import useSessionContext from "../../../../contexts/Session/useSessionContext";
 
 const { senders } = servicesEndpoints;
 
-export type UseOrganizationSendersResult = ReturnType<
-    typeof useOrganizationSenders
->;
+export type UseOrganizationSendersResult = ReturnType<typeof useOrganizationSenders>;
 
 export default function useOrganizationSenders() {
     const { activeMembership, authorizedFetch } = useSessionContext();

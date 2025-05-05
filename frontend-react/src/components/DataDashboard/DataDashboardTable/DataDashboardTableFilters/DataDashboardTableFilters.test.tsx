@@ -1,14 +1,8 @@
 import { screen } from "@testing-library/react";
 import { userEvent } from "@testing-library/user-event";
 
-import DataDashboardTableFilters, {
-    isValidDateString,
-    TableFilterDateLabel,
-} from "./DataDashboardTableFilters";
-import {
-    cursorManagerFixture,
-    filterManagerFixture,
-} from "../../../../hooks/filters/filters.fixtures";
+import DataDashboardTableFilters, { isValidDateString, TableFilterDateLabel } from "./DataDashboardTableFilters";
+import { cursorManagerFixture, filterManagerFixture } from "../../../../hooks/filters/filters.fixtures";
 import { renderApp } from "../../../../utils/CustomRenderUtils";
 
 describe("Rendering", () => {
@@ -35,9 +29,7 @@ describe("Rendering", () => {
          *  HTML elements, so we have to use getAllBy...() rather than getBy...()
          *  and assert that they are non-null.
          * */
-        const datePickers = await screen.findAllByTestId(
-            "date-picker-internal-input",
-        );
+        const datePickers = await screen.findAllByTestId("date-picker-internal-input");
         expect(datePickers).toHaveLength(2);
     });
 });
@@ -61,9 +53,7 @@ describe("when validating values", () => {
             />,
         );
 
-        [startDateNode, endDateNode] = screen.getAllByTestId(
-            "date-picker-external-input",
-        );
+        [startDateNode, endDateNode] = screen.getAllByTestId("date-picker-external-input");
         filterButtonNode = screen.getByText("Filter");
     }
 

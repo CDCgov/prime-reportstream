@@ -1,10 +1,7 @@
 import { act } from "@testing-library/react";
 
 import useMessageSearch from "./UseMessageSearch";
-import {
-    messageTrackerServer,
-    MOCK_MESSAGE_SENDER_DATA,
-} from "../../../../__mockServers__/MessageTrackerMockServer";
+import { messageTrackerServer, MOCK_MESSAGE_SENDER_DATA } from "../../../../__mockServers__/MessageTrackerMockServer";
 import { renderHook } from "../../../../utils/CustomRenderUtils";
 import { MemberType } from "../../../../utils/OrganizationUtils";
 
@@ -40,15 +37,9 @@ describe("useMessageSearch", () => {
         await act(async () => {
             messages = await result.current.mutateAsync("alaska1");
             expect(messages.length).toEqual(3);
-            expect(messages[0].reportId).toEqual(
-                MOCK_MESSAGE_SENDER_DATA[0].reportId,
-            );
-            expect(messages[1].reportId).toEqual(
-                MOCK_MESSAGE_SENDER_DATA[1].reportId,
-            );
-            expect(messages[2].reportId).toEqual(
-                MOCK_MESSAGE_SENDER_DATA[2].reportId,
-            );
+            expect(messages[0].reportId).toEqual(MOCK_MESSAGE_SENDER_DATA[0].reportId);
+            expect(messages[1].reportId).toEqual(MOCK_MESSAGE_SENDER_DATA[1].reportId);
+            expect(messages[2].reportId).toEqual(MOCK_MESSAGE_SENDER_DATA[2].reportId);
         });
     });
 });

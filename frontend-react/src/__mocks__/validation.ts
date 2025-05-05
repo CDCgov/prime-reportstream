@@ -2,11 +2,7 @@
   below is an example of a mocked File & mocked React file input change event we can use for future tests
   thx to https://evanteague.medium.com/creating-fake-test-events-with-typescript-jest-778018379d1e
 */
-import {
-    ErrorCode,
-    OverallStatus,
-    WatersResponse,
-} from "../config/endpoints/waters";
+import { ErrorCode, OverallStatus, WatersResponse } from "../config/endpoints/waters";
 
 export const contentString = "foo,bar\r\nbar,foo";
 // doesn't work out of the box as it somehow doesn't come with a .text method

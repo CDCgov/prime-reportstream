@@ -2,13 +2,7 @@
 import type { SeverityLevel } from "@microsoft/applicationinsights-web";
 import type { ReactPlugin } from "../TelemetryService/TelemetryService";
 
-export type ConsoleLevel =
-    | "info"
-    | "warn"
-    | "error"
-    | "debug"
-    | "assert"
-    | "trace";
+export type ConsoleLevel = "info" | "warn" | "error" | "debug" | "assert" | "trace";
 
 export interface ConsoleTelemetryProperties {
     location: string;
@@ -58,10 +52,7 @@ export class RSConsole {
     };
 
     _trace(
-        {
-            args: [message, ...otherArgs],
-            ...otherProperties
-        }: ConsoleTelemetryProperties,
+        { args: [message, ...otherArgs], ...otherProperties }: ConsoleTelemetryProperties,
         severityLevel: SeverityLevel,
     ) {
         this.ai?.trackTrace({
@@ -75,10 +66,7 @@ export class RSConsole {
     }
 
     _error(
-        {
-            args: [error, ...otherArgs],
-            ...otherProperties
-        }: ConsoleTelemetryProperties,
+        { args: [error, ...otherArgs], ...otherProperties }: ConsoleTelemetryProperties,
         severityLevel: SeverityLevel,
     ) {
         this.ai?.trackException({
@@ -93,18 +81,11 @@ export class RSConsole {
     }
 
     _assert(
-        {
-            args: [value, message, ...otherArgs],
-            ...otherProperties
-        }: ConsoleTelemetryProperties,
+        { args: [value, message, ...otherArgs], ...otherProperties }: ConsoleTelemetryProperties,
         severityLevel: SeverityLevel,
     ) {
         const msg = `Assertion failed: ${message}`;
-        if (!value)
-            this._error(
-                { ...otherProperties, args: [new Error(msg), ...otherArgs] },
-                severityLevel,
-            );
+        if (!value) this._error({ ...otherProperties, args: [new Error(msg), ...otherArgs] }, severityLevel);
     }
 
     trackConsoleEvent(consoleLevel: ConsoleLevel, ...args: any[]) {

@@ -1,18 +1,8 @@
 import { uniq } from "lodash";
-import {
-    createContext,
-    Dispatch,
-    PropsWithChildren,
-    useCallback,
-    useMemo,
-    useReducer,
-} from "react";
+import { createContext, Dispatch, PropsWithChildren, useCallback, useMemo, useReducer } from "react";
 
 import config from "../../config";
-import {
-    getSavedFeatureFlags,
-    storeFeatureFlags,
-} from "../../utils/SessionStorageTools";
+import { getSavedFeatureFlags, storeFeatureFlags } from "../../utils/SessionStorageTools";
 
 export enum FeatureFlagActionType {
     ADD = "ADD",
@@ -47,25 +37,18 @@ export const FeatureFlagContext = createContext<FeatureFlagContextValues>({
     featureFlags: DEFAULT_FEATURE_FLAGS,
 });
 
-export const featureFlagReducer = (
-    state: FeatureFlagState,
-    action: FeatureFlagAction,
-) => {
+export const featureFlagReducer = (state: FeatureFlagState, action: FeatureFlagAction) => {
     const { type, payload } = action;
     let newFlags;
     switch (type) {
         case FeatureFlagActionType.ADD:
-            newFlags = uniq(
-                state.featureFlags.concat([payload.trim().toLowerCase()]),
-            );
+            newFlags = uniq(state.featureFlags.concat([payload.trim().toLowerCase()]));
             storeFeatureFlags(newFlags);
             return { featureFlags: newFlags };
         // we're hiding the delete button for env level flags, so
         // we shouldn't run into a case where this is hit for those
         case FeatureFlagActionType.REMOVE:
-            newFlags = state.featureFlags.filter(
-                (f) => f !== payload.trim().toLowerCase(),
-            );
+            newFlags = state.featureFlags.filter((f) => f !== payload.trim().toLowerCase());
             storeFeatureFlags(newFlags);
             return { featureFlags: newFlags };
         default:
@@ -81,10 +64,7 @@ const FeatureFlagProvider = ({ children }: PropsWithChildren<object>) => {
 
     // makes sure default values from environment don't get stored in local storage.
     // if the env turns on the flag, we don't want a user accidentally accessing it later on
-    const allFeatureFlags: string[] = useMemo(
-        () => uniq(featureFlags.concat(DEFAULT_FEATURE_FLAGS)),
-        [featureFlags],
-    );
+    const allFeatureFlags: string[] = useMemo(() => uniq(featureFlags.concat(DEFAULT_FEATURE_FLAGS)), [featureFlags]);
 
     const checkFlags = useCallback(
         (flags: string | string[]): boolean => {
@@ -103,11 +83,7 @@ const FeatureFlagProvider = ({ children }: PropsWithChildren<object>) => {
         [allFeatureFlags, checkFlags],
     );
 
-    return (
-        <FeatureFlagContext.Provider value={ctx}>
-            {children}
-        </FeatureFlagContext.Provider>
-    );
+    return <FeatureFlagContext.Provider value={ctx}>{children}</FeatureFlagContext.Provider>;
 };
 
 export default FeatureFlagProvider;

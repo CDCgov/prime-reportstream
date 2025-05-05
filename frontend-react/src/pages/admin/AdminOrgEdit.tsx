@@ -4,15 +4,8 @@ import { Helmet } from "react-helmet-async";
 import { useParams } from "react-router-dom";
 import { NetworkErrorBoundary, useController, useResource } from "rest-hooks";
 
-import {
-    DropdownComponent,
-    TextAreaComponent,
-    TextInputComponent,
-} from "../../components/Admin/AdminFormEdit";
-import {
-    ConfirmSaveSettingModal,
-    ConfirmSaveSettingModalRef,
-} from "../../components/Admin/CompareJsonModal";
+import { DropdownComponent, TextAreaComponent, TextInputComponent } from "../../components/Admin/AdminFormEdit";
+import { ConfirmSaveSettingModal, ConfirmSaveSettingModalRef } from "../../components/Admin/CompareJsonModal";
 import { DisplayMeta } from "../../components/Admin/DisplayMeta";
 import { OrgReceiverTable } from "../../components/Admin/OrgReceiverTable";
 import { OrgSenderTable } from "../../components/Admin/OrgSenderTable";
@@ -26,11 +19,7 @@ import { useToast } from "../../contexts/Toast";
 import useAppInsightsContext from "../../hooks/UseAppInsightsContext/UseAppInsightsContext";
 import OrgSettingsResource from "../../resources/OrgSettingsResource";
 import { jsonSortReplacer } from "../../utils/JsonSortReplacer";
-import {
-    getErrorDetailFromResponse,
-    getVersionWarning,
-    VersionWarningType,
-} from "../../utils/misc";
+import { getErrorDetailFromResponse, getVersionWarning, VersionWarningType } from "../../utils/misc";
 import { SampleFilterObject } from "../../utils/TemporarySettingsAPITypes";
 import { ErrorPage } from "../error/ErrorPage";
 
@@ -47,10 +36,7 @@ export function AdminOrgEditPage() {
     const { orgname } = useParams<AdminOrgEditProps>();
     const { activeMembership, authState } = useSessionContext();
 
-    const orgSettings: OrgSettingsResource = useResource(
-        OrgSettingsResource.detail(),
-        { orgname: orgname },
-    );
+    const orgSettings: OrgSettingsResource = useResource(OrgSettingsResource.detail(), { orgname: orgname });
     const confirmModalRef = useRef<ConfirmSaveSettingModalRef>(null);
 
     const [orgSettingsOldJson, setOrgSettingsOldJson] = useState("");
@@ -62,16 +48,13 @@ export function AdminOrgEditPage() {
         const accessToken = authState.accessToken?.accessToken;
         const organization = activeMembership?.parsedName;
 
-        const response = await fetch(
-            `${RS_API_URL}/api/settings/organizations/${orgname}`,
-            {
-                headers: {
-                    "x-ms-session-id": properties.context.getSessionId(),
-                    Authorization: `Bearer ${accessToken}`,
-                    Organization: organization!,
-                },
+        const response = await fetch(`${RS_API_URL}/api/settings/organizations/${orgname}`, {
+            headers: {
+                "x-ms-session-id": properties.context.getSessionId(),
+                Authorization: `Bearer ${accessToken}`,
+                Organization: organization!,
             },
-        );
+        });
 
         return await response.json();
     }
@@ -81,21 +64,12 @@ export function AdminOrgEditPage() {
             // fetch original version
             setLoading(true);
             const latestResponse = await getLatestOrgResponse();
-            setOrgSettingsOldJson(
-                JSON.stringify(latestResponse, jsonSortReplacer, 2),
-            );
-            setOrgSettingsNewJson(
-                JSON.stringify(orgSettings, jsonSortReplacer, 2),
-            );
+            setOrgSettingsOldJson(JSON.stringify(latestResponse, jsonSortReplacer, 2));
+            setOrgSettingsNewJson(JSON.stringify(orgSettings, jsonSortReplacer, 2));
 
             if (latestResponse?.version !== orgSettings?.version) {
-                showAlertNotification(
-                    getVersionWarning(VersionWarningType.POPUP),
-                    "error",
-                );
-                confirmModalRef?.current?.setWarning(
-                    getVersionWarning(VersionWarningType.FULL, latestResponse),
-                );
+                showAlertNotification(getVersionWarning(VersionWarningType.POPUP), "error");
+                confirmModalRef?.current?.setWarning(getVersionWarning(VersionWarningType.FULL, latestResponse));
                 confirmModalRef?.current?.disableSave();
             }
 
@@ -105,10 +79,7 @@ export function AdminOrgEditPage() {
             setLoading(false);
             const errorDetail = await getErrorDetailFromResponse(e);
             showAlertNotification(
-                new Error(
-                    `Reloading org '${orgname}' failed with: ${errorDetail}`,
-                    { cause: e },
-                ),
+                new Error(`Reloading org '${orgname}' failed with: ${errorDetail}`, { cause: e }),
                 "error",
             );
             return false;
@@ -120,41 +91,24 @@ export function AdminOrgEditPage() {
             const latestResponse = await getLatestOrgResponse();
             if (latestResponse.version !== orgSettings?.version) {
                 // refresh left-side panel in compare modal to make it obvious what has changed
-                setOrgSettingsOldJson(
-                    JSON.stringify(latestResponse, jsonSortReplacer, 2),
-                );
-                showAlertNotification(
-                    getVersionWarning(VersionWarningType.POPUP),
-                    "error",
-                );
-                confirmModalRef?.current?.setWarning(
-                    getVersionWarning(VersionWarningType.FULL, latestResponse),
-                );
+                setOrgSettingsOldJson(JSON.stringify(latestResponse, jsonSortReplacer, 2));
+                showAlertNotification(getVersionWarning(VersionWarningType.POPUP), "error");
+                confirmModalRef?.current?.setWarning(getVersionWarning(VersionWarningType.FULL, latestResponse));
                 confirmModalRef?.current?.disableSave();
                 return false;
             }
 
             const data = confirmModalRef?.current?.getEditedText();
             showAlertNotification(`Saving...`, "success");
-            await fetchController(
-                OrgSettingsResource.update(),
-                { orgname },
-                data,
-            );
-            showAlertNotification(
-                `Item '${orgname}' has been updated`,
-                "success",
-            );
+            await fetchController(OrgSettingsResource.update(), { orgname }, data);
+            showAlertNotification(`Item '${orgname}' has been updated`, "success");
             confirmModalRef?.current?.hideModal();
             showAlertNotification(`Saved '${orgname}' setting.`, "success");
         } catch (e: any) {
             setLoading(false);
             const errorDetail = await getErrorDetailFromResponse(e);
             showAlertNotification(
-                new Error(
-                    `Updating org '${orgname}' failed with: ${errorDetail}`,
-                    { cause: e },
-                ),
+                new Error(`Updating org '${orgname}' failed with: ${errorDetail}`, { cause: e }),
                 "error",
             );
             return false;
@@ -164,15 +118,10 @@ export function AdminOrgEditPage() {
     };
 
     return (
-        <NetworkErrorBoundary
-            fallbackComponent={() => <ErrorPage type="page" />}
-        >
+        <NetworkErrorBoundary fallbackComponent={() => <ErrorPage type="page" />}>
             <Helmet>
                 <title>Organization edit - Admin</title>
-                <meta
-                    property="og:image"
-                    content="/assets/img/opengraph/reportstream.png"
-                />
+                <meta property="og:image" content="/assets/img/opengraph/reportstream.png" />
                 <meta
                     property="og:image:alt"
                     content='"ReportStream" surrounded by an illustration of lines and boxes connected by colorful dots.'
@@ -181,16 +130,10 @@ export function AdminOrgEditPage() {
             <section className="grid-container margin-top-3 margin-bottom-5">
                 <h2>
                     Org name: {orgname} {" - "}
-                    <USLink
-                        href={`/admin/revisionhistory/org/${orgname}/settingtype/organization`}
-                    >
-                        History
-                    </USLink>
+                    <USLink href={`/admin/revisionhistory/org/${orgname}/settingtype/organization`}>History</USLink>
                 </h2>
             </section>
-            <NetworkErrorBoundary
-                fallbackComponent={() => <ErrorPage type="message" />}
-            >
+            <NetworkErrorBoundary fallbackComponent={() => <ErrorPage type="message" />}>
                 <Suspense fallback={<Spinner />}>
                     <section className="grid-container margin-top-0">
                         <GridContainer>
@@ -218,28 +161,18 @@ export function AdminOrgEditPage() {
                                 fieldname={"countyName"}
                                 label={"County Name"}
                                 defaultvalue={orgSettings.countyName ?? null}
-                                savefunc={(v) =>
-                                    (orgSettings.countyName =
-                                        v === "" ? null : v)
-                                }
+                                savefunc={(v) => (orgSettings.countyName = v === "" ? null : v)}
                             />
                             <TextInputComponent
                                 fieldname={"stateCode"}
                                 label={"State Code"}
                                 defaultvalue={orgSettings.stateCode ?? null}
-                                savefunc={(v) =>
-                                    (orgSettings.stateCode =
-                                        v === "" ? null : v)
-                                }
+                                savefunc={(v) => (orgSettings.stateCode = v === "" ? null : v)}
                             />
                             <TextAreaComponent
                                 fieldname={"filters"}
                                 label={"Filters"}
-                                toolTip={
-                                    <ObjectTooltip
-                                        obj={new SampleFilterObject()}
-                                    />
-                                }
+                                toolTip={<ObjectTooltip obj={new SampleFilterObject()} />}
                                 defaultvalue={orgSettings.filters}
                                 defaultnullvalue="[]"
                                 savefunc={(v) => (orgSettings.filters = v)}

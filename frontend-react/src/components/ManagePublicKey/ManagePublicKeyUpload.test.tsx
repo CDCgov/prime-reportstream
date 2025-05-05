@@ -1,8 +1,6 @@
 import { screen } from "@testing-library/react";
 
-import ManagePublicKeyUpload, {
-    ManagePublicKeyUploadProps,
-} from "./ManagePublicKeyUpload";
+import ManagePublicKeyUpload, { ManagePublicKeyUploadProps } from "./ManagePublicKeyUpload";
 import { renderApp } from "../../utils/CustomRenderUtils";
 
 describe("ManagePublicKeyUpload", () => {
@@ -21,9 +19,7 @@ describe("ManagePublicKeyUpload", () => {
     });
 
     function doRender(props: Partial<ManagePublicKeyUploadProps> = {}) {
-        return renderApp(
-            <ManagePublicKeyUpload {...DEFAULT_PROPS} {...props} />,
-        );
+        return renderApp(<ManagePublicKeyUpload {...DEFAULT_PROPS} {...props} />);
     }
 
     describe("default state", () => {
@@ -43,9 +39,7 @@ describe("ManagePublicKeyUpload", () => {
 
         test("displays message", () => {
             setup();
-            expect(
-                screen.getByText(/Your public key is already configured./),
-            ).toBeVisible();
+            expect(screen.getByText(/Your public key is already configured./)).toBeVisible();
         });
     });
 
@@ -77,10 +71,7 @@ describe("ManagePublicKeyUpload", () => {
         describe("with accept values", () => {
             test("only allows .pem files", () => {
                 setup();
-                expect(screen.getByTestId("file-input-input")).toHaveAttribute(
-                    "accept",
-                    ".pem",
-                );
+                expect(screen.getByTestId("file-input-input")).toHaveAttribute("accept", ".pem");
             });
         });
     });

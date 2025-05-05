@@ -51,8 +51,7 @@ describe("SubmissionTable", () => {
                         id: "3fc6bc2b-91e0-44f0-a73e-5bead6291061",
                         topic: "elr-elims",
                         reportItemCount: 1,
-                        fileName:
-                            "None-3fc6bc2b-91e0-44f0-a73e-5bead6291061-20240401165526.hl7",
+                        fileName: "None-3fc6bc2b-91e0-44f0-a73e-5bead6291061-20240401165526.hl7",
                         fileType: "HL7",
                         externalName: "myfile.hl7",
                     },
@@ -64,8 +63,7 @@ describe("SubmissionTable", () => {
                         id: "03c3b7ab-7c65-4174-bea7-9195cbb7ed01",
                         topic: "elr-elims",
                         reportItemCount: 1,
-                        fileName:
-                            "None-03c3b7ab-7c65-4174-bea7-9195cbb7ed01-20240314174050.hl7",
+                        fileName: "None-03c3b7ab-7c65-4174-bea7-9195cbb7ed01-20240314174050.hl7",
                         fileType: "HL7",
                     },
                 ] as SubmissionsResource[],
@@ -73,9 +71,7 @@ describe("SubmissionTable", () => {
         ];
         renderApp(<SubmissionTable />, { restHookFixtures: fixtures });
 
-        const pagination = await screen.findByLabelText(
-            /submissions pagination/i,
-        );
+        const pagination = await screen.findByLabelText(/submissions pagination/i);
         expect(pagination).toBeInTheDocument();
 
         const filter = await screen.findByTestId("filter-container");
@@ -89,9 +85,7 @@ describe("SubmissionTable", () => {
 
         const externalFileName = screen.getByText(/myfile.hl7/i);
         expect(externalFileName).toBeInTheDocument();
-        const fileName = screen.getByText(
-            /None-03c3b7ab-7c65-4174-bea7-9195cbb7ed01-20240314174050.hl7/i,
-        );
+        const fileName = screen.getByText(/None-03c3b7ab-7c65-4174-bea7-9195cbb7ed01-20240314174050.hl7/i);
         expect(fileName).toBeInTheDocument();
     });
 
@@ -116,14 +110,8 @@ describe("SubmissionTable", () => {
 
         test("renders a warning about not being able to request submission history", async () => {
             setup();
-            expect(
-                await screen.findByText(
-                    "Cannot fetch Organization data as admin",
-                ),
-            ).toBeVisible();
-            expect(
-                await screen.findByText("Please try again as an Organization"),
-            ).toBeVisible();
+            expect(await screen.findByText("Cannot fetch Organization data as admin")).toBeVisible();
+            expect(await screen.findByText("Please try again as an Organization")).toBeVisible();
         });
     });
 });

@@ -11,8 +11,7 @@ import OktaSignInWidget from "../shared/OktaSignInWidget/OktaSignInWidget";
 
 export function Login() {
     const { oktaAuth, authState, config } = useSessionContext();
-    const location: Location<{ originalUrl?: string } | undefined> =
-        useLocation();
+    const location: Location<{ originalUrl?: string } | undefined> = useLocation();
     const [searchParams] = useSearchParams();
     const finalConfig = useMemo(
         () =>
@@ -28,10 +27,7 @@ export function Login() {
 
     const onSuccess = useCallback(
         (tokens: Tokens) => {
-            void oktaAuth.handleLoginRedirect(
-                tokens,
-                location.state?.originalUrl ?? "/",
-            );
+            void oktaAuth.handleLoginRedirect(tokens, location.state?.originalUrl ?? "/");
             return tokens;
         },
         [location.state?.originalUrl, oktaAuth],
@@ -56,10 +52,7 @@ export function Login() {
         <>
             <Helmet>
                 <title>ReportStream login</title>
-                <meta
-                    property="og:image"
-                    content="/assets/img/opengraph/reportstream.png"
-                />
+                <meta property="og:image" content="/assets/img/opengraph/reportstream.png" />
                 <meta
                     property="og:image:alt"
                     content='"ReportStream" surrounded by an illustration of lines and boxes connected by colorful dots.'
@@ -72,11 +65,9 @@ export function Login() {
                 onError={onError}
             >
                 <div className="margin-bottom-5 font-sans-3xs">
-                    This is a U.S. government service. Your use indicates your
-                    consent to monitoring, recording, and no expectation of
-                    privacy. Misuse is subject to criminal and civil penalties.
-                    By logging in, you are agreeing to our{" "}
-                    <USLink href="/terms-of-service">terms of service.</USLink>
+                    This is a U.S. government service. Your use indicates your consent to monitoring, recording, and no
+                    expectation of privacy. Misuse is subject to criminal and civil penalties. By logging in, you are
+                    agreeing to our <USLink href="/terms-of-service">terms of service.</USLink>
                 </div>
             </OktaSignInWidget>
         </>

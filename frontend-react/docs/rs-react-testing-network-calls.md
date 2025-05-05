@@ -8,8 +8,8 @@ When using our former networking library, we ran into issues testing both positi
 
 The test setup process consists of two main tasks:
 
--   setting up your mock service
--   listening to the service in your `.test.tsx` file
+- setting up your mock service
+- listening to the service in your `.test.tsx` file
 
 ### Mock services
 
@@ -98,9 +98,7 @@ If you're testing a hook, you'll need to render the hook without rendering a com
 
 ```typescript
 test("positive response", async () => {
-    const { result, waitForNextUpdate } = renderHook(() =>
-        useNetwork<Report>(HistoryApi.detail("test")),
-    );
+    const { result, waitForNextUpdate } = renderHook(() => useNetwork<Report>(HistoryApi.detail("test")));
     await waitForNextUpdate();
     expect(result.current.loading).toBeFalsy();
     expect(result.current.status).toBe(200);

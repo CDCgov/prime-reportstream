@@ -8,11 +8,7 @@ import { DatasetAction } from "./TableInfo";
 type TableActionButtonProps = DatasetAction & {
     disabled: boolean;
 };
-export const TableActionButton = ({
-    label,
-    method = () => void 0,
-    disabled,
-}: TableActionButtonProps) => (
+export const TableActionButton = ({ label, method = () => void 0, disabled }: TableActionButtonProps) => (
     <Button type={"button"} onClick={() => method()} disabled={disabled}>
         {label}
     </Button>

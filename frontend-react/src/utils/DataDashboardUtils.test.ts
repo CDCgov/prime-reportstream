@@ -1,21 +1,12 @@
-import {
-    transformFacilityTypeClass,
-    transformFacilityTypeLabel,
-} from "./DataDashboardUtils";
+import { transformFacilityTypeClass, transformFacilityTypeLabel } from "./DataDashboardUtils";
 
 describe("transformFacilityTypeLabel", () => {
     test("returns a transformed facility name", () => {
-        expect(transformFacilityTypeLabel("facility")).toBe(
-            "PERFORMING FACILITY",
-        );
+        expect(transformFacilityTypeLabel("facility")).toBe("PERFORMING FACILITY");
 
-        expect(transformFacilityTypeLabel("FACILITY")).toBe(
-            "PERFORMING FACILITY",
-        );
+        expect(transformFacilityTypeLabel("FACILITY")).toBe("PERFORMING FACILITY");
 
-        expect(transformFacilityTypeLabel("provider")).toBe(
-            "ORDERING PROVIDER",
-        );
+        expect(transformFacilityTypeLabel("provider")).toBe("ORDERING PROVIDER");
 
         expect(transformFacilityTypeLabel("submitter")).toBe("SUBMITTER");
     });

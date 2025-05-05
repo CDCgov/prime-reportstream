@@ -15,12 +15,8 @@ import { renderApp } from "../../../utils/CustomRenderUtils";
 import { MemberType } from "../../../utils/OrganizationUtils";
 import { selectDatesFromRange } from "../../../utils/TestUtils";
 
-vi.mock(
-    "../../../hooks/api/deliveries/UseReceiverDeliveries/UseReceiverDeliveries",
-);
-vi.mock(
-    "../../../hooks/api/organizations/UseOrganizationReceivers/UseOrganizationReceivers",
-);
+vi.mock("../../../hooks/api/deliveries/UseReceiverDeliveries/UseReceiverDeliveries");
+vi.mock("../../../hooks/api/organizations/UseOrganizationReceivers/UseOrganizationReceivers");
 
 const mockUseReceiverDeliveries = vi.mocked(useReceiverDeliveries);
 const mockUseOrganizationReceivers = vi.mocked(useOrganizationReceivers);
@@ -94,9 +90,7 @@ describe("DataDashboardTable", () => {
                 filterManager: mockFilterManager,
                 isLoading: false,
             };
-            mockUseReceiverDeliveries.mockReturnValue(
-                mockUseReceiverDeliveriesCallback,
-            );
+            mockUseReceiverDeliveries.mockReturnValue(mockUseReceiverDeliveriesCallback);
 
             // Render the component
             renderApp(<DataDashboardTable />);
@@ -137,9 +131,7 @@ describe("DataDashboardTableWithPagination", () => {
                     filterManager: mockFilterManager,
                     isLoading: false,
                 };
-                mockUseReceiverDeliveries.mockReturnValue(
-                    mockUseReceiverDeliveriesCallback,
-                );
+                mockUseReceiverDeliveries.mockReturnValue(mockUseReceiverDeliveriesCallback);
 
                 // Render the component
                 renderApp(<DataDashboardTable />);
@@ -156,18 +148,10 @@ describe("DataDashboardTableWithPagination", () => {
                 expect(pagination).toBeInTheDocument();
 
                 // Column headers render
-                expect(
-                    screen.getByText("Showing all results (101)"),
-                ).toBeInTheDocument();
-                expect(
-                    screen.getByText("Date sent to you"),
-                ).toBeInTheDocument();
-                expect(
-                    screen.getByText("Ordering provider"),
-                ).toBeInTheDocument();
-                expect(
-                    screen.getByText("Performing facility"),
-                ).toBeInTheDocument();
+                expect(screen.getByText("Showing all results (101)")).toBeInTheDocument();
+                expect(screen.getByText("Date sent to you")).toBeInTheDocument();
+                expect(screen.getByText("Ordering provider")).toBeInTheDocument();
+                expect(screen.getByText("Performing facility")).toBeInTheDocument();
                 expect(screen.getByText("Submitter")).toBeInTheDocument();
                 expect(screen.getByText("Report ID")).toBeInTheDocument();
             });
@@ -213,9 +197,7 @@ describe("DataDashboardTableWithPagination", () => {
                     filterManager: mockFilterManager,
                     isLoading: false,
                 };
-                mockUseReceiverDeliveries.mockReturnValue(
-                    mockUseReceiverDeliveriesCallback,
-                );
+                mockUseReceiverDeliveries.mockReturnValue(mockUseReceiverDeliveriesCallback);
 
                 // Render the component
                 renderApp(<DataDashboardTable />);
@@ -224,17 +206,13 @@ describe("DataDashboardTableWithPagination", () => {
             test("renders the receiver service", () => {
                 setup();
                 expect(screen.queryByRole("select")).not.toBeInTheDocument();
-                expect(
-                    screen.getByText("Receiver service:"),
-                ).toBeInTheDocument();
+                expect(screen.getByText("Receiver service:")).toBeInTheDocument();
                 expect(screen.getByText("ELR-0")).toBeInTheDocument();
             });
 
             test("without data", () => {
                 setup();
-                expect(
-                    screen.getByText("No available data"),
-                ).toBeInTheDocument();
+                expect(screen.getByText("No available data")).toBeInTheDocument();
                 expect(screen.getByText("contact us")).toBeInTheDocument();
             });
         });
@@ -274,9 +252,7 @@ describe("DataDashboardTableWithPagination", () => {
                     filterManager: mockFilterManager,
                     isLoading: false,
                 };
-                mockUseReceiverDeliveries.mockReturnValue(
-                    mockUseReceiverDeliveriesCallback,
-                );
+                mockUseReceiverDeliveries.mockReturnValue(mockUseReceiverDeliveriesCallback);
 
                 // Render the component
                 renderApp(<DataDashboardTable />);
@@ -325,9 +301,7 @@ describe("DataDashboardTableWithPagination", () => {
                 filterManager: mockFilterManager,
                 isLoading: false,
             };
-            mockUseReceiverDeliveries.mockReturnValue(
-                mockUseReceiverDeliveriesCallback,
-            );
+            mockUseReceiverDeliveries.mockReturnValue(mockUseReceiverDeliveriesCallback);
 
             // Render the component
             renderApp(<DataDashboardTable />);
@@ -335,15 +309,9 @@ describe("DataDashboardTableWithPagination", () => {
 
         test("renders an error saying admins shouldn't fetch organization data", async () => {
             setup();
-            expect(
-                await screen.findByText(
-                    "Cannot fetch Organization data as admin",
-                ),
-            ).toBeVisible();
+            expect(await screen.findByText("Cannot fetch Organization data as admin")).toBeVisible();
 
-            expect(
-                await screen.findByText("Please try again as an Organization"),
-            ).toBeVisible();
+            expect(await screen.findByText("Please try again as an Organization")).toBeVisible();
         });
     });
 });

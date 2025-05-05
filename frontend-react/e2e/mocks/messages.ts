@@ -65,8 +65,7 @@ export const MOCK_GET_MESSAGE = {
             receivingOrgSvc: "HL7",
             transportResult:
                 "Success: sftp upload of fl-covid-19-507e8a18-474e-4574-8b6b-e4f043a098a0-20240514142709.hl7 to SFTPTransportType(host=172.17.6.20, port=22, filePath=./upload, credentialName=null)",
-            fileName:
-                "fl-covid-19-507e8a18-474e-4574-8b6b-e4f043a098a0-20240514142709.hl7",
+            fileName: "fl-covid-19-507e8a18-474e-4574-8b6b-e4f043a098a0-20240514142709.hl7",
             fileUrl:
                 "https://pdhstagingstorageaccount.blob.core.windows.net/reports/none%2Fignore.HL7%2Ffl-covid-19-507e8a18-474e-4574-8b6b-e4f043a098a0-20240514142709.hl7",
             createdAt: "2024-05-14T14:27:16.057366",
@@ -78,8 +77,7 @@ export const MOCK_GET_MESSAGE = {
             receivingOrgSvc: "HL7",
             transportResult:
                 "Success: sftp upload of fl-covid-19-24ffa08e-9cf6-441f-bc2c-fc1ce659f17e-20240514142709.hl7 to SFTPTransportType(host=172.17.6.20, port=22, filePath=./upload, credentialName=null)",
-            fileName:
-                "fl-covid-19-24ffa08e-9cf6-441f-bc2c-fc1ce659f17e-20240514142709.hl7",
+            fileName: "fl-covid-19-24ffa08e-9cf6-441f-bc2c-fc1ce659f17e-20240514142709.hl7",
             fileUrl:
                 "https://pdhstagingstorageaccount.blob.core.windows.net/reports/none%2Fignore.HL7%2Ffl-covid-19-24ffa08e-9cf6-441f-bc2c-fc1ce659f17e-20240514142709.hl7",
             createdAt: "2024-05-14T14:27:16.182365",

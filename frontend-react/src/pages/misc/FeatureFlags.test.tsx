@@ -30,15 +30,9 @@ describe("FeatureFlags", () => {
 
         const featureFlagAlerts = screen.getAllByTestId("alert");
         expect(featureFlagAlerts).toHaveLength(3);
-        expect(screen.getAllByTestId("alert")[0]).toContainHTML(
-            "<b>flag-1</b>",
-        );
-        expect(screen.getAllByTestId("alert")[1]).toContainHTML(
-            "<b>flag-2</b>",
-        );
-        expect(screen.getAllByTestId("alert")[2]).toContainHTML(
-            "<b>flag-3</b>",
-        );
+        expect(screen.getAllByTestId("alert")[0]).toContainHTML("<b>flag-1</b>");
+        expect(screen.getAllByTestId("alert")[1]).toContainHTML("<b>flag-2</b>");
+        expect(screen.getAllByTestId("alert")[2]).toContainHTML("<b>flag-3</b>");
     });
     test("displays a remove button for feature flags not set at env level", () => {
         mockFeatureFlagContext.mockReturnValue({

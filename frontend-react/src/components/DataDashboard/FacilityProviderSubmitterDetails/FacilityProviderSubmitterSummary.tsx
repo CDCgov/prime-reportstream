@@ -1,11 +1,7 @@
 import { Grid } from "@trussworks/react-uswds";
 
 import styles from "./FacilityProviderSubmitterSummary.module.scss";
-import {
-    SenderType,
-    transformFacilityTypeClass,
-    transformFacilityTypeLabel,
-} from "../../../utils/DataDashboardUtils";
+import { SenderType, transformFacilityTypeClass, transformFacilityTypeLabel } from "../../../utils/DataDashboardUtils";
 import { formatDateWithoutSeconds } from "../../../utils/DateTimeUtils";
 
 interface SummaryProps {
@@ -23,10 +19,7 @@ interface SummaryProps {
     summaryDetailType: SenderType;
 }
 
-export function FacilityProviderSubmitterSummary({
-    details,
-    summaryDetailType,
-}: SummaryProps) {
+export function FacilityProviderSubmitterSummary({ details, summaryDetailType }: SummaryProps) {
     return (
         <div className={styles.FacilityProviderSubmitterSummary}>
             <div className="margin-bottom-3">
@@ -39,15 +32,11 @@ export function FacilityProviderSubmitterSummary({
                 <Grid row>
                     <Grid col={2}>
                         <hr className="margin-top-2 margin-bottom-2" />
-                        <span className="text-bold padding-right-3">
-                            Started reporting to you
-                        </span>
+                        <span className="text-bold padding-right-3">Started reporting to you</span>
                     </Grid>
                     <Grid col={4} className="padding-right-6">
                         <hr className="margin-top-2 margin-bottom-2" />
-                        <span className="font-code-xs">
-                            {formatDateWithoutSeconds(details.reportDate)}
-                        </span>
+                        <span className="font-code-xs">{formatDateWithoutSeconds(details.reportDate)}</span>
                     </Grid>
                     <Grid col={1}>
                         <hr className="margin-top-2 margin-bottom-2" />
@@ -61,75 +50,53 @@ export function FacilityProviderSubmitterSummary({
                 <Grid row>
                     <Grid col={2}>
                         <hr className="margin-top-2 margin-bottom-2" />
-                        <span className="text-bold padding-right-3">
-                            Average tests per report
-                        </span>
+                        <span className="text-bold padding-right-3">Average tests per report</span>
                     </Grid>
                     <Grid col={4} className="padding-right-6">
                         <hr className="margin-top-2 margin-bottom-2" />
-                        <span className="font-code-xs">
-                            {details.averageTestPerReport}
-                        </span>
+                        <span className="font-code-xs">{details.averageTestPerReport}</span>
                     </Grid>
                     <Grid col={1}>
                         <hr className="margin-top-2 margin-bottom-2" />
-                        <span className="text-bold padding-right-3">
-                            Location
-                        </span>
+                        <span className="text-bold padding-right-3">Location</span>
                     </Grid>
                     <Grid col={5}>
                         <hr className="margin-top-2 margin-bottom-2" />
-                        <span className="font-code-xs">
-                            {details?.location}
-                        </span>
+                        <span className="font-code-xs">{details?.location}</span>
                     </Grid>
                 </Grid>
                 <Grid row>
                     <Grid col={2}>
                         <hr className="margin-top-2 margin-bottom-2" />
-                        <span className="text-bold padding-right-3">
-                            Total tests (all time)
-                        </span>
+                        <span className="text-bold padding-right-3">Total tests (all time)</span>
                     </Grid>
                     <Grid col={4} className="padding-right-6">
                         <hr className="margin-top-2 margin-bottom-2" />
-                        <span className="font-code-xs">
-                            {details.totalTests}
-                        </span>
+                        <span className="font-code-xs">{details.totalTests}</span>
                     </Grid>
                     <Grid col={1}>
                         <hr className="margin-top-2 margin-bottom-2" />
-                        <span className="text-bold padding-right-3">
-                            Contact
-                        </span>
+                        <span className="text-bold padding-right-3">Contact</span>
                     </Grid>
                     <Grid col={5}>
                         <hr className="margin-top-2 margin-bottom-2" />
-                        <span className="font-code-xs">
-                            {details.contactName}
-                        </span>
+                        <span className="font-code-xs">{details.contactName}</span>
                     </Grid>
                 </Grid>
                 <Grid row>
                     <Grid col={2}>
                         <hr className="margin-top-2 margin-bottom-2" />
-                        <span className="text-bold padding-right-3">
-                            Submitter
-                        </span>
+                        <span className="text-bold padding-right-3">Submitter</span>
                     </Grid>
                     <Grid col={4} className="padding-right-6">
                         <hr className="margin-top-2 margin-bottom-2" />
-                        <span className="font-code-xs">
-                            {details.submitter}
-                        </span>
+                        <span className="font-code-xs">{details.submitter}</span>
                     </Grid>
                     <Grid col={1}>
                         <div className="margin-top-4 font-code-xs"></div>
                     </Grid>
                     <Grid col={5}>
-                        <div className="margin-top-4 font-code-xs">
-                            {details.phone}
-                        </div>
+                        <div className="margin-top-4 font-code-xs">{details.phone}</div>
                     </Grid>
                 </Grid>
             </section>

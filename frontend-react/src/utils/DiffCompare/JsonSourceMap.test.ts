@@ -31,8 +31,7 @@ const realData = {
             ],
         },
     ],
-    description:
-        '<div xmlns="http://www.w3.org/1999/xhtml">Subject\'s height units</div>',
+    description: '<div xmlns="http://www.w3.org/1999/xhtml">Subject\'s height units</div>',
     compose: {
         lockedDate: "2016-08-24",
         include: [
@@ -143,9 +142,7 @@ describe("JsonSourceMap suite", () => {
         const checkStrResult = JSON.stringify(reparsed, null, 2);
         expect(checkStrOriginal).toEqual(checkStrResult);
 
-        expect(jsonSourceMap(realData, 4).json).toEqual(
-            JSON.stringify(realData, null, 4),
-        );
+        expect(jsonSourceMap(realData, 4).json).toEqual(JSON.stringify(realData, null, 4));
     });
 
     test("Basic quotes", () => {
@@ -178,10 +175,7 @@ describe("JsonSourceMap suite", () => {
 
     test("numeric types are handled in array", () => {
         const data = {
-            data: [
-                -1, 0, 1, 2, 3, 3.14, 0.12, 1.3e-12, 3.14e22,
-                2305843009213694000,
-            ],
+            data: [-1, 0, 1, 2, 3, 3.14, 0.12, 1.3e-12, 3.14e22, 2305843009213694000],
         };
         const result = jsonSourceMap(data, 2);
         // stringify should match standard
@@ -284,13 +278,7 @@ describe("JsonSourceMap suite", () => {
         const keys = Object.keys(result.pointers);
         const values = Object.values(result.pointers);
 
-        expect(keys).toStrictEqual([
-            "",
-            "/bray",
-            "/bray/0",
-            "/bray/0/a",
-            "/bray/0/b",
-        ]);
+        expect(keys).toStrictEqual(["", "/bray", "/bray/0", "/bray/0/a", "/bray/0/b"]);
 
         // checking overall should be good enough to sanity check all the content
         expect(values[0]).toStrictEqual({
@@ -317,12 +305,7 @@ describe("JsonSourceMap suite", () => {
         const keys = Object.keys(result.pointers);
         const values = Object.values(result.pointers);
 
-        expect(keys).toStrictEqual([
-            "",
-            "/emptyObj",
-            "/emptyArray",
-            "/emptyStr",
-        ]);
+        expect(keys).toStrictEqual(["", "/emptyObj", "/emptyArray", "/emptyStr"]);
 
         // checking overall should be good enough to sanity check all the content
         // <editor-fold defaultstate="collapsed" desc="expect(values).toStrictEqual">
@@ -758,8 +741,6 @@ describe("JsonSourceMap suite", () => {
         const result = jsonSourceMap(data, 2);
         // this is the core of the test. Does it match JSON.stringify()'s parsing
         expect(result.json).toEqual(JSON.stringify(data, null, 2));
-        expect(
-            result.pointers[`/special\\characters/0/quote-start-only`],
-        ).not.toBeUndefined();
+        expect(result.pointers[`/special\\characters/0/quote-start-only`]).not.toBeUndefined();
     });
 });

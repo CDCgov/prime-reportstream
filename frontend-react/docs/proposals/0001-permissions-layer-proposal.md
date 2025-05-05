@@ -76,9 +76,7 @@ const permissionCheck = (permission: string, authState: AuthState) => {
     if (permission === PERMISSIONS.RECEIVER) {
         return reportReceiver(authState);
     }
-    return authState.accessToken?.claims.organization.find((o: string) =>
-        o.includes(permission),
-    );
+    return authState.accessToken?.claims.organization.find((o: string) => o.includes(permission));
 };
 ```
 
@@ -203,16 +201,8 @@ Lastly, we'll conclude by fixing up the implementation of our permissions checks
 ```typescript
 const restoreOriginalUri = async (_oktaAuth: any, originalUri: string) => {
     const authState: Authorization | undefined = cookieAuth;
-    if (
-        authState?.userHasClaim(CLAIM.SENDER) &&
-        !authState?.userHasClaim(CLAIM.RECEIVER)
-    ) {
-        history.replace(
-            toRelativeUrl(
-                `${window.location.origin}/upload`,
-                window.location.origin,
-            ),
-        );
+    if (authState?.userHasClaim(CLAIM.SENDER) && !authState?.userHasClaim(CLAIM.RECEIVER)) {
+        history.replace(toRelativeUrl(`${window.location.origin}/upload`, window.location.origin));
         return;
     }
     history.replace(toRelativeUrl(originalUri, window.location.origin));

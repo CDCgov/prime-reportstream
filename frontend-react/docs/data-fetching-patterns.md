@@ -16,9 +16,9 @@ As documented [here](https://cdc.sharepoint.com/:w:/r/teams/USDSatCDC/Shared%20D
 
 All components that require data from the API, or that push data to the API, should do so through simple invocation of custom hooks that will provide:
 
--   data, when available
--   loading state to be caught with Suspense
--   error state to be caught with ErrorBoundary
+- data, when available
+- loading state to be caught with Suspense
+- error state to be caught with ErrorBoundary
 
 In general, fetch logic shouldn't live in components, and all a component should need to do is invoke a hook!
 
@@ -74,15 +74,11 @@ A simplified example from [UseValueSets.ts](https://github.com/CDCgov/prime-repo
 export interface ValueSetsMetaResponse {
     valueSetMeta: LookupTable;
 }
-export const useValueSetsMeta = (
-    dataTableName: string = LookupTables.VALUE_SET,
-): ValueSetsMetaResponse => {
+export const useValueSetsMeta = (dataTableName: string = LookupTables.VALUE_SET): ValueSetsMetaResponse => {
     const { authorizedFetch, rsUseQuery } = useAuthorizedFetch<LookupTable[]>();
 
     // get all lookup tables in order to get metadata
-    const { data: tableData } = rsUseQuery([getTableList.queryKey], () =>
-        authorizedFetch(getTableList),
-    );
+    const { data: tableData } = rsUseQuery([getTableList.queryKey], () => authorizedFetch(getTableList));
 
     const tableMeta = findTableMetaByName(tableData, dataTableName);
 
@@ -113,11 +109,7 @@ export const useValueSetUpdate = () => {
 
     // generic signature is defined here https://github.com/TanStack/query/blob/4690b585722d2b71d9b87a81cb139062d3e05c9c/packages/react-query/src/useMutation.ts#L66
     // <type of data returned, type of error returned, type of variables passed to mutate fn, type of context (?)>
-    const mutation = useMutation<
-        LookupTable,
-        RSNetworkError,
-        UpdateValueSetOptions
-    >(updateValueSet);
+    const mutation = useMutation<LookupTable, RSNetworkError, UpdateValueSetOptions>(updateValueSet);
     return {
         saveData: mutation.mutateAsync,
         isSaving: mutation.isLoading,
@@ -147,8 +139,8 @@ In this case `useMutation<LookupTable, RSNetworkError, UpdateValueSetOptions>` d
 
 #### Resources
 
--   [Quick Start Docs](https://tanstack.com/query/v4/docs/quick-start)
--   [Deep Dive Video](https://www.youtube.com/watch?v=DocXo3gqGdI) - the creator of react query building a sample app in real time that utilizes all of the functionality of react query
+- [Quick Start Docs](https://tanstack.com/query/v4/docs/quick-start)
+- [Deep Dive Video](https://www.youtube.com/watch?v=DocXo3gqGdI) - the creator of react query building a sample app in real time that utilizes all of the functionality of react query
 
 ### useAuthorizedFetch
 
@@ -168,14 +160,14 @@ The topics covered above should provide all the information needed to build a ne
 
 Endpoint configurations, as represented by instances of the RSEndpoint class, represent an endpoint on the ReportStream API that will be called. Each endpoint configuration instance includes:
 
--   path: the path to the endpoint. Paths can include dynamic segments to be populated at request time, which will be denoted, as in React Router and others, by a prefixed colon (`/:`)
--   method: the HTTP verb to be used
--   queryKey (optional): the single string key that will be used when referencing this endpoint in a useQuery invocation
+- path: the path to the endpoint. Paths can include dynamic segments to be populated at request time, which will be denoted, as in React Router and others, by a prefixed colon (`/:`)
+- method: the HTTP verb to be used
+- queryKey (optional): the single string key that will be used when referencing this endpoint in a useQuery invocation
 
 Beyond this, the RSEndpoint class also includes built in methods and functionality that assist in creating the necessary configuration for each network request:
 
--   toDynamicUrl: in the case of an endpoint with a dynamic path, this function will take an object containing key-value pairs representing dynamic segment names and values, and build a functional path to use for a particular request
--   toAxiosConfig: given an options object (optionally including segment data), creates an Axios config object that can be used to make a request
+- toDynamicUrl: in the case of an endpoint with a dynamic path, this function will take an object containing key-value pairs representing dynamic segment names and values, and build a functional path to use for a particular request
+- toAxiosConfig: given an options object (optionally including segment data), creates an Axios config object that can be used to make a request
 
 #### Structure / Example
 
@@ -225,26 +217,20 @@ Confused yet?
 
 So, as you can see from the above explanation, useCreateFetch allows us to do two things:
 
--   close over global auth based information (token and membership) so that the rest of the application can make use of it without the developer or any pieces of higher level code needing to think about it
--   supply type information to the functions that are making requests for us so that we can reason about the shape of return values, and maintain some type safety
+- close over global auth based information (token and membership) so that the rest of the application can make use of it without the developer or any pieces of higher level code needing to think about it
+- supply type information to the functions that are making requests for us so that we can reason about the shape of return values, and maintain some type safety
 
 The first part there is easier to understand, so let's start there. Here is the meat of the functionality
 
 ```typescript
-function createTypeWrapperForAuthorizedFetch(
-    oktaToken: Partial<AccessToken>,
-    activeMembership: MembershipSettings,
-) {
+function createTypeWrapperForAuthorizedFetch(oktaToken: Partial<AccessToken>, activeMembership: MembershipSettings) {
     const authHeaders = {
         "authentication-type": "okta",
         authorization: `Bearer ${oktaToken?.accessToken || ""}`,
         organization: `${activeMembership?.parsedName || ""}`,
     };
 
-    return async function <T>(
-        EndpointConfig: RSEndpoint,
-        options: Partial<AxiosOptionsWithSegments> = {},
-    ): Promise<T> {
+    return async function <T>(EndpointConfig: RSEndpoint, options: Partial<AxiosOptionsWithSegments> = {}): Promise<T> {
         const headerOverrides = options?.headers || {};
         const headers = { ...authHeaders, ...headerOverrides };
         const axiosConfig = EndpointConfig.toAxiosConfig({
@@ -300,6 +286,6 @@ The burden of error handling and suspense (loading UI) falls on the component sy
 
 To wrap your components with one, or both, of these dom elements, use the included helper functions:
 
--   withSuspense will remove the wrapped component and replace it with <Spinner /> while any nested children fetch data or lazily load
--   withCatch will remove the wrapped component and replace it with the fallback error UI if any fetches or lazy loads throw errors
--   withCatchAndSuspense will wrap dom element with both tags, allowing for loading AND error UIs when loading/failing
+- withSuspense will remove the wrapped component and replace it with <Spinner /> while any nested children fetch data or lazily load
+- withCatch will remove the wrapped component and replace it with the fallback error UI if any fetches or lazy loads throw errors
+- withCatchAndSuspense will wrap dom element with both tags, allowing for loading AND error UIs when loading/failing

@@ -1,9 +1,7 @@
 import styles from "./ReportDetailsTable.module.scss";
 import Table, { TableConfig } from "../../../components/Table/Table";
 import useReportsFacilities from "../../../hooks/api/deliveries/UseReportFacilities/UseReportFacilities";
-import useFilterManager, {
-    FilterManagerDefaults,
-} from "../../../hooks/filters/UseFilterManager/UseFilterManager";
+import useFilterManager, { FilterManagerDefaults } from "../../../hooks/filters/UseFilterManager/UseFilterManager";
 import useAppInsightsContext from "../../../hooks/UseAppInsightsContext/UseAppInsightsContext";
 import { EventName } from "../../../utils/AppInsights";
 import { FeatureName } from "../../../utils/FeatureName";
@@ -47,13 +45,7 @@ function ReportDetailsTable(props: ReportDetailsTableProps) {
                     startDateLabel="From: (mm/dd/yyyy)"
                     endDateLabel="To: (mm/dd/yyyy)"
                     filterManager={filterManager}
-                    onFilterClick={({
-                        from,
-                        to,
-                    }: {
-                        from: string;
-                        to: string;
-                    }) =>
+                    onFilterClick={({ from, to }: { from: string; to: string }) =>
                         appInsights?.trackEvent({
                             name: featureEvent,
                             properties: {

@@ -13,9 +13,7 @@ export default class OrgSettingsResource extends OrgSettingsBaseResource {
 
     static readonly key = "OrgSettingsResource";
 
-    static listUrl(
-        _params?: Readonly<Record<string, string | number | boolean>>,
-    ): string {
+    static listUrl(_params?: Readonly<Record<string, string | number | boolean>>): string {
         return `${RS_API_URL}/api/settings/organizations`;
     }
 

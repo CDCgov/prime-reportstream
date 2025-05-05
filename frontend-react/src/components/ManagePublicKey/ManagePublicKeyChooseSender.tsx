@@ -8,10 +8,7 @@ export interface ManagePublicKeyChooseSenderProps {
     onSenderSelect: (sender: string, hasBack: boolean) => void;
 }
 
-export default function ManagePublicKeyChooseSender({
-    senders,
-    onSenderSelect,
-}: ManagePublicKeyChooseSenderProps) {
+export default function ManagePublicKeyChooseSender({ senders, onSenderSelect }: ManagePublicKeyChooseSenderProps) {
     const [selectedSender, setSelectedSender] = useState("");
 
     function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -38,11 +35,7 @@ export default function ManagePublicKeyChooseSender({
                                 </option>
                             ))}
                         </Select>
-                        <Button
-                            key="submit-sender"
-                            type="submit"
-                            disabled={!selectedSender}
-                        >
+                        <Button key="submit-sender" type="submit" disabled={!selectedSender}>
                             Submit
                         </Button>
                     </FormGroup>

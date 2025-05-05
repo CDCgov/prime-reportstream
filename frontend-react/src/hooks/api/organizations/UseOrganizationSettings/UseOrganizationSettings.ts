@@ -1,10 +1,7 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useCallback } from "react";
 import { createSuspenseQuery } from "react-query-kit";
-import {
-    RSOrganizationSettings,
-    servicesEndpoints,
-} from "../../../../config/endpoints/settings";
+import { RSOrganizationSettings, servicesEndpoints } from "../../../../config/endpoints/settings";
 import useSessionContext from "../../../../contexts/Session/useSessionContext";
 import { getAuthFetchProps } from "../../../../network/Middleware";
 import { Organizations } from "../../../UseAdminSafeOrganizationName/UseAdminSafeOrganizationName";
@@ -51,8 +48,7 @@ const useOrganizationSettings = () => {
     });
 };
 
-const { authFetch, authMiddleware } =
-    getAuthFetchProps<RSOrganizationSettings>();
+const { authFetch, authMiddleware } = getAuthFetchProps<RSOrganizationSettings>();
 
 /**
  * Experimental replacement hook using middleware for controlling enablement
@@ -75,11 +71,9 @@ export const useOrganizationSettings__ = createSuspenseQuery({
                             orgName: activeMembership?.parsedName,
                         },
                         enabled:
-                            (options.variables as any)?.fetchConfig.enabled ==
-                                null &&
+                            (options.variables as any)?.fetchConfig.enabled == null &&
                             Boolean(activeMembership?.parsedName) &&
-                            activeMembership?.parsedName !==
-                                Organizations.PRIMEADMINS,
+                            activeMembership?.parsedName !== Organizations.PRIMEADMINS,
                     },
                 },
             };

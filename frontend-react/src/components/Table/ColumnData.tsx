@@ -14,17 +14,10 @@ export interface ColumnProps {
     setUpdatedRow?: (value: any, field: string) => void;
 }
 
-const showMappedFieldValue = (
-    columnConfig: ColumnConfig,
-    rowData: TableRowData,
-) => {
+const showMappedFieldValue = (columnConfig: ColumnConfig, rowData: TableRowData) => {
     const rawFieldValue = rowData[columnConfig.dataAttr];
     if (columnConfig.valueMap) {
-        return (
-            <span>
-                {columnConfig.valueMap?.get(rawFieldValue) || rawFieldValue}
-            </span>
-        );
+        return <span>{columnConfig.valueMap?.get(rawFieldValue) || rawFieldValue}</span>;
     } else {
         return <span>{rawFieldValue}</span>;
     }
@@ -43,10 +36,7 @@ export const ColumnData = ({
     // TODO: move these functions outside of the render
 
     // Easy-to-read way to transform value
-    const transform = (
-        transformFunc: (...args: any[]) => unknown,
-        transformVal: string | number,
-    ) => {
+    const transform = (transformFunc: (...args: any[]) => unknown, transformVal: string | number) => {
         return transformFunc(transformVal);
     };
     // Runtime type checking for ColumnFeature
@@ -55,13 +45,10 @@ export const ColumnData = ({
         return Object.keys(columnConfig.feature).includes(attr);
     };
     // Editing state indicator
-    const isEditing = (): boolean =>
-        (editing && columnConfig.editable) ?? false;
+    const isEditing = (): boolean => (editing && columnConfig.editable) ?? false;
 
     // <td> wrapper w/ key
-    const tableData = (child: ReactNode) => (
-        <td key={`${rowIndex}:${colIndex}`}>{child}</td>
-    );
+    const tableData = (child: ReactNode) => <td key={`${rowIndex}:${colIndex}`}>{child}</td>;
 
     // indexes into rowData map based on the column's dataAttr value
     const field = columnConfig.dataAttr;
@@ -76,22 +63,17 @@ export const ColumnData = ({
         const feature = columnConfig?.feature as LinkableColumn;
         return tableData(
             <USLink
-                href={`${feature.linkBasePath ?? ""}${
-                    rowData[feature.linkAttr ?? field]
-                }`}
+                href={`${feature.linkBasePath ?? ""}${rowData[feature.linkAttr ?? field]}`}
                 state={feature.linkState || {}}
             >
-                {columnConfig.valueMap
-                    ? showMappedFieldValue(columnConfig, rowData)
-                    : displayValue}
+                {columnConfig.valueMap ? showMappedFieldValue(columnConfig, rowData) : displayValue}
             </USLink>,
         );
     }
 
     if (hasFeature("action")) {
         // Make column value actionable
-        const { action, param, actionButtonHandler, actionButtonParam } =
-            columnConfig.feature as ActionableColumn;
+        const { action, param, actionButtonHandler, actionButtonParam } = columnConfig.feature as ActionableColumn;
 
         if (!param || !rowData[param]) {
             throw new Error(`The row attribute '${param}' could not be found`);
@@ -112,12 +94,7 @@ export const ColumnData = ({
         return tableData(
             <>
                 {showActionButton() ? (
-                    <Button
-                        className="font-mono-2xs line-height-alt-4"
-                        type="button"
-                        unstyled
-                        onClick={doAction}
-                    >
+                    <Button className="font-mono-2xs line-height-alt-4" type="button" unstyled onClick={doAction}>
                         {displayValue}
                     </Button>
                 ) : (
@@ -144,7 +121,5 @@ export const ColumnData = ({
         );
     }
 
-    return columnConfig.valueMap
-        ? tableData(showMappedFieldValue(columnConfig, rowData))
-        : tableData(displayValue);
+    return columnConfig.valueMap ? tableData(showMappedFieldValue(columnConfig, rowData)) : tableData(displayValue);
 };

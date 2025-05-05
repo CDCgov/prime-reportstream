@@ -1,9 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 
-import {
-    LookupTable,
-    lookupTablesEndpoints,
-} from "../../../../config/endpoints/lookupTables";
+import { LookupTable, lookupTablesEndpoints } from "../../../../config/endpoints/lookupTables";
 import useSessionContext from "../../../../contexts/Session/useSessionContext";
 import { RSNetworkError } from "../../../../utils/RSNetworkError";
 
@@ -14,16 +11,11 @@ export interface ActivateValueSetOptions {
     tableName: string;
 }
 
-export type UseValueSetActivationResult = ReturnType<
-    typeof useValueSetActivation
->;
+export type UseValueSetActivationResult = ReturnType<typeof useValueSetActivation>;
 
 const useValueSetActivation = () => {
     const { authorizedFetch } = useSessionContext();
-    const activateValueSet = ({
-        tableVersion,
-        tableName,
-    }: ActivateValueSetOptions) => {
+    const activateValueSet = ({ tableVersion, tableName }: ActivateValueSetOptions) => {
         return authorizedFetch<LookupTable>(
             {
                 segments: {

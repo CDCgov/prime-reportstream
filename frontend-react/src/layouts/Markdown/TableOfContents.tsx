@@ -36,14 +36,7 @@ export function TableOfContents({
     const sluggedItems = sluggifyToc(items);
     const listItems = sluggedItems
         .filter((i) => i.depth <= depth)
-        .map((i) => (
-            <TableOfContentsEntry
-                key={i.attributes.id}
-                {...i}
-                maxDepth={depth}
-                isInPage={isInPage}
-            />
-        ));
+        .map((i) => <TableOfContentsEntry key={i.attributes.id} {...i} maxDepth={depth} isInPage={isInPage} />);
 
     return <ul>{listItems}</ul>;
 }
@@ -67,11 +60,7 @@ export function TableOfContentsEntry({
         <li>
             <USSmartLink href={`#${attributes.id}`}>{value}</USSmartLink>
             {children.length && depth + 1 <= maxDepth ? (
-                <TableOfContents
-                    items={children}
-                    depth={maxDepth}
-                    isInPage={isInPage}
-                />
+                <TableOfContents items={children} depth={maxDepth} isInPage={isInPage} />
             ) : null}
         </li>
     );

@@ -1,16 +1,8 @@
 import { HTMLAttributes, PropsWithChildren } from "react";
 
-export type CitationProps = PropsWithChildren<
-    HTMLAttributes<HTMLElement> & CitationItem
->;
+export type CitationProps = PropsWithChildren<HTMLAttributes<HTMLElement> & CitationItem>;
 
-export const Citation = ({
-    title,
-    quote,
-    author,
-    authorTitle,
-    ...props
-}: CitationProps) => {
+export const Citation = ({ title, quote, author, authorTitle, ...props }: CitationProps) => {
     return (
         <div className="padding-top-9" {...props}>
             <p data-testid="title" className="font-sans-lg text-bold">

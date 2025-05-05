@@ -36,8 +36,7 @@ export interface JsonDiffResult {
  * @param childPath path to check. format ("/top/middle/bottom")
  * @param parentPath path that is considered parent ("/top/middle")
  */
-const isInPath = (childPath: string, parentPath: string) =>
-    `${childPath}/`.startsWith(`${parentPath}/`);
+const isInPath = (childPath: string, parentPath: string) => `${childPath}/`.startsWith(`${parentPath}/`);
 
 /**
  * Loop over array of parentPaths and if childPath has any parentPaths as the
@@ -98,9 +97,7 @@ const extractLeafNodes = (pathArray: string[]): string[] => {
         // /1/2/3/4/5 => ["", "/1", "/1/2", "/1/2/3", "/1/2/3/4", "/1/2/3/4/5"];
         const parentPaths: string[] = leafPath
             .split("/")
-            .map((elem, index, array) =>
-                [...array.slice(0, index), elem].join("/"),
-            )
+            .map((elem, index, array) => [...array.slice(0, index), elem].join("/"))
             .slice(0, -1); // remove the last element which is leaf node itself
 
         // now remove all parents from the array.
@@ -131,10 +128,7 @@ interface Marker {
  *      ▲            ▲
  *      └────────────┘
  */
-const convertValuesToMarkers = (
-    keys: string[],
-    jsonMap: SourceMapResult,
-): Marker[] => {
+const convertValuesToMarkers = (keys: string[], jsonMap: SourceMapResult): Marker[] => {
     return keys.reduce(
         (acc: Marker[], each: string): Marker[] => [
             ...acc,
@@ -154,17 +148,12 @@ const convertValuesToMarkers = (
  *            ▲     ▲
  *            └─────┘
  */
-const convertNodesToMarkers = (
-    keys: string[],
-    jsonMap: SourceMapResult,
-): Marker[] => {
+const convertNodesToMarkers = (keys: string[], jsonMap: SourceMapResult): Marker[] => {
     return keys.reduce(
         (acc: Marker[], each: string): Marker[] => [
             ...acc,
             {
-                start:
-                    jsonMap.pointers[each].key?.pos ||
-                    jsonMap.pointers[each].value.pos,
+                start: jsonMap.pointers[each].key?.pos || jsonMap.pointers[each].value.pos,
                 end: jsonMap.pointers[each].valueEnd.pos,
             },
         ],
@@ -205,8 +194,7 @@ const insertMarks = (jsonStr: string, markers: Marker[]): string => {
 
     // go through and inject <mark> or </mark> at each pos
     return inserts.reduce(
-        (acc: string, each: MarkerInsert) =>
-            `${acc.slice(0, each.pos)}${each.mark}${acc.slice(each.pos)}`,
+        (acc: string, each: MarkerInsert) => `${acc.slice(0, each.pos)}${each.mark}${acc.slice(each.pos)}`,
         jsonStr,
     );
 };
@@ -217,21 +205,14 @@ const insertMarks = (jsonStr: string, markers: Marker[]): string => {
  * @param rightData
  * @return JsonDiffResult Called by jsonDifferMarkup.
  */
-const jsonDiffer = (
-    leftData: SourceMapResult,
-    rightData: SourceMapResult,
-): JsonDiffResult => {
+const jsonDiffer = (leftData: SourceMapResult, rightData: SourceMapResult): JsonDiffResult => {
     // diff the keys. If the key is different, then just consider the value of that key to be different.
     const leftKeys = Object.keys(leftData.pointers);
     const rightKeys = Object.keys(rightData.pointers);
 
     // this is looking for diffs between the two lists.
-    const addedLeftKeys = leftKeys.filter(
-        (key) => key.length && !rightKeys.includes(key),
-    );
-    const addedRightKeys = rightKeys.filter(
-        (key) => key.length && !leftKeys.includes(key),
-    );
+    const addedLeftKeys = leftKeys.filter((key) => key.length && !rightKeys.includes(key));
+    const addedRightKeys = rightKeys.filter((key) => key.length && !leftKeys.includes(key));
 
     // now we want intersection (aka NOT changed and see if the values have changed).
     const intersectionKeys = leftKeys.filter((key) => rightKeys.includes(key));
@@ -242,13 +223,11 @@ const jsonDiffer = (
     };
 
     // inline getValue() improves readability only. slices out the string of a given value
-    const getValue = (key: string, data: SourceMapResult): string =>
-        data.json.slice(...getStartEnd(key, data));
+    const getValue = (key: string, data: SourceMapResult): string => data.json.slice(...getStartEnd(key, data));
 
     // we pull out the value of unchanged keys and see if that's different.
     let changedKeys = intersectionKeys.filter(
-        (key) =>
-            key !== "" && getValue(key, leftData) !== getValue(key, rightData),
+        (key) => key !== "" && getValue(key, leftData) !== getValue(key, rightData),
     );
 
     // now extract just the node leaves from the keys. This is because technically the content of each parent
@@ -269,10 +248,7 @@ const jsonDiffer = (
  * @param leftJson Valid JSON.
  * @param rightJson Valid JSON.
  */
-export const jsonDifferMarkup = (
-    leftJson: unknown,
-    rightJson: unknown,
-): DifferMarkupResult => {
+export const jsonDifferMarkup = (leftJson: unknown, rightJson: unknown): DifferMarkupResult => {
     const leftMap = jsonSourceMap(leftJson, 2);
     const rightMap = jsonSourceMap(rightJson, 2);
     const diffs = jsonDiffer(leftMap, rightMap);
@@ -284,10 +260,7 @@ export const jsonDifferMarkup = (
     let leftChanged = diffs.changedKeys;
     if (leftChanged.length) {
         // combine, find leaf nodes, undo the combine
-        leftChanged = extractLeafNodes([
-            ...diffs.addedLeftKeys,
-            ...leftChanged,
-        ]).filter((k) => leftChanged.includes(k));
+        leftChanged = extractLeafNodes([...diffs.addedLeftKeys, ...leftChanged]).filter((k) => leftChanged.includes(k));
     }
 
     // collect all the markers, then insert marks
@@ -301,10 +274,9 @@ export const jsonDifferMarkup = (
     let rightChanged = diffs.changedKeys;
     if (rightChanged.length) {
         // combine, find leaf nodes, uncombine
-        rightChanged = extractLeafNodes([
-            ...diffs.addedRightKeys,
-            ...rightChanged,
-        ]).filter((k) => rightChanged.includes(k));
+        rightChanged = extractLeafNodes([...diffs.addedRightKeys, ...rightChanged]).filter((k) =>
+            rightChanged.includes(k),
+        );
     }
     const rightMarks = [
         ...convertNodesToMarkers(diffs.addedRightKeys, rightMap),

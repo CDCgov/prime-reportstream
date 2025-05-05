@@ -19,13 +19,7 @@ interface ReportStreamApiHeaders {
 
 // update auth / session info for all registered APIs using the Api.ts fetch method
 // to be run whenever auth or session information is updated in the application
-export const updateApiSessions = ({
-    token,
-    organization,
-}: {
-    token: string;
-    organization: string;
-}) => {
+export const updateApiSessions = ({ token, organization }: { token: string; organization: string }) => {
     const headers = {
         Authorization: `Bearer ${token || ""}`,
         Organization: organization || "",

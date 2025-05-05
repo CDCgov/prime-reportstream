@@ -8,10 +8,7 @@ import useSessionContext from "../../contexts/Session/useSessionContext";
  **/
 function RSErrorSessionBoundary(props: ErrorBoundaryProps) {
     const { rsConsole } = useSessionContext();
-    const errorHandler = useMemo(
-        () => createErrorLogger(rsConsole),
-        [rsConsole],
-    );
+    const errorHandler = useMemo(() => createErrorLogger(rsConsole), [rsConsole]);
     return <ErrorBoundary onError={errorHandler} {...props} />;
 }
 

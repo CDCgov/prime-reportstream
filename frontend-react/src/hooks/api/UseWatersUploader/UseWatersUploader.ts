@@ -1,15 +1,9 @@
 import { UseMutateAsyncFunction, useMutation } from "@tanstack/react-query";
 
-import {
-    watersEndpoints,
-    WatersResponse,
-} from "../../../config/endpoints/waters";
+import { watersEndpoints, WatersResponse } from "../../../config/endpoints/waters";
 import useSessionContext from "../../../contexts/Session/useSessionContext";
 import { RSNetworkError } from "../../../utils/RSNetworkError";
-import {
-    ContentType,
-    FileType,
-} from "../../../utils/TemporarySettingsAPITypes";
+import { ContentType, FileType } from "../../../utils/TemporarySettingsAPITypes";
 
 export interface WatersPostArgs {
     client: string;
@@ -43,13 +37,7 @@ export const FORMAT_TO_CONTENT_TYPE = {
 const useWatersUploader = (callback?: (data?: WatersResponse) => void) => {
     const { authorizedFetch } = useSessionContext();
 
-    const mutationFunction = ({
-        fileContent,
-        client,
-        fileName,
-        schema,
-        format,
-    }: WatersPostArgs) => {
+    const mutationFunction = ({ fileContent, client, fileName, schema, format }: WatersPostArgs) => {
         return authorizedFetch<WatersResponse>(
             {
                 headers: {
@@ -66,11 +54,7 @@ const useWatersUploader = (callback?: (data?: WatersResponse) => void) => {
             validate,
         );
     };
-    return useMutation<
-        WatersResponse,
-        RSNetworkError<WatersResponse>,
-        WatersPostArgs
-    >({
+    return useMutation<WatersResponse, RSNetworkError<WatersResponse>, WatersPostArgs>({
         mutationFn: mutationFunction,
         onSuccess: (data) => callback?.(data),
         // pass response data we stored in RSNetworkError on throw

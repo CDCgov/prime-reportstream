@@ -24,10 +24,7 @@ interface RangeFilter {
     update: Dispatch<RangeSettingsAction>;
 }
 
-const rangeReducer = (
-    state: RangeSettings,
-    action: RangeSettingsAction,
-): RangeSettings => {
+const rangeReducer = (state: RangeSettings, action: RangeSettingsAction): RangeSettings => {
     const { type, payload } = action;
     switch (type) {
         case RangeSettingsActionType.UPDATE_FROM:

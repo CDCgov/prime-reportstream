@@ -1,12 +1,7 @@
 import { useCallback, useMemo, useState } from "react";
-import {
-    deliveriesEndpoints,
-    RSDelivery,
-} from "../../../../config/endpoints/deliveries";
+import { deliveriesEndpoints, RSDelivery } from "../../../../config/endpoints/deliveries";
 import useSessionContext from "../../../../contexts/Session/useSessionContext";
-import useFilterManager, {
-    FilterManagerDefaults,
-} from "../../../filters/UseFilterManager/UseFilterManager";
+import useFilterManager, { FilterManagerDefaults } from "../../../filters/UseFilterManager/UseFilterManager";
 import useAdminSafeOrganizationName, {
     Organizations,
 } from "../../../UseAdminSafeOrganizationName/UseAdminSafeOrganizationName";
@@ -30,9 +25,7 @@ export type SearchParams =
           fileName: string;
       };
 
-export type SearchFetcher<T> = (
-    additionalParams?: SearchParams,
-) => Promise<T[]>;
+export type SearchFetcher<T> = (additionalParams?: SearchParams) => Promise<T[]>;
 
 const filterManagerDefaults: FilterManagerDefaults = {
     sortDefaults: {
@@ -52,12 +45,9 @@ const useOrgDeliveries = (initialService?: string) => {
     const [service, setService] = useState(initialService ?? "");
     const { activeMembership, authorizedFetch } = useSessionContext();
 
-    const adminSafeOrgName = useAdminSafeOrganizationName(
-        activeMembership?.parsedName,
-    ); // "PrimeAdmins" -> "ignore"
+    const adminSafeOrgName = useAdminSafeOrganizationName(activeMembership?.parsedName); // "PrimeAdmins" -> "ignore"
     const orgAndService = useMemo(
-        () =>
-            service ? `${adminSafeOrgName}.${service}` : `${adminSafeOrgName}`,
+        () => (service ? `${adminSafeOrgName}.${service}` : `${adminSafeOrgName}`),
         [adminSafeOrgName, service],
     );
 
@@ -93,14 +83,7 @@ const useOrgDeliveries = (initialService?: string) => {
                 getOrgDeliveries,
             );
         },
-        [
-            activeMembership?.parsedName,
-            sortOrder,
-            rangeFrom,
-            rangeTo,
-            orgAndService,
-            authorizedFetch,
-        ],
+        [activeMembership?.parsedName, sortOrder, rangeFrom, rangeTo, orgAndService, authorizedFetch],
     );
 
     return { fetchResults, filterManager, setService };

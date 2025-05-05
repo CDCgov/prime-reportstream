@@ -1,15 +1,9 @@
 import { waitFor } from "@testing-library/react";
 
 import useOrganizationSender from "./UseOrganizationSender";
-import {
-    dummySender,
-    orgServer,
-} from "../../../../__mockServers__/OrganizationMockServer";
+import { dummySender, orgServer } from "../../../../__mockServers__/OrganizationMockServer";
 import { AppWrapper, renderHook } from "../../../../utils/CustomRenderUtils";
-import {
-    MembershipSettings,
-    MemberType,
-} from "../../../../utils/OrganizationUtils";
+import { MembershipSettings, MemberType } from "../../../../utils/OrganizationUtils";
 
 const { mockSessionContentReturnValue } = await vi.importMock<
     typeof import("../../../../contexts/Session/__mocks__/useSessionContext")

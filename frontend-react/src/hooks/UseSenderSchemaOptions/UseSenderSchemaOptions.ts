@@ -31,22 +31,13 @@ export const STANDARD_SCHEMA_OPTIONS: SchemaOption[] = [
     },
 ];
 
-export type UseSenderSchemaOptionsHookResult = ReturnType<
-    typeof useSenderSchemaOptions
->;
+export type UseSenderSchemaOptionsHookResult = ReturnType<typeof useSenderSchemaOptions>;
 
 export default function useSenderSchemaOptions() {
-    const {
-        data: senderDetail,
-        isLoading,
-        ...query
-    } = useOrganizationSender({} as any);
+    const { data: senderDetail, isLoading, ...query } = useOrganizationSender({} as any);
 
     const schemaOptions =
-        senderDetail &&
-        !(Object.values(StandardSchema) as string[]).includes(
-            senderDetail.schemaName,
-        )
+        senderDetail && !(Object.values(StandardSchema) as string[]).includes(senderDetail.schemaName)
             ? ([
                   {
                       value: senderDetail.schemaName,

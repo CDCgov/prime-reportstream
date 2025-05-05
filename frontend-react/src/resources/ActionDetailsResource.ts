@@ -59,10 +59,7 @@ export default class ActionDetailsResource extends AuthResource {
     */
     static readonly key = "ActionDetailsResource";
 
-    static url(searchParams: {
-        actionId: string;
-        organization: string;
-    }): string {
+    static url(searchParams: { actionId: string; organization: string }): string {
         if (searchParams && Object.keys(searchParams).length) {
             return `${RS_API_URL}/api/waters/report/${searchParams.actionId}/history`;
         }

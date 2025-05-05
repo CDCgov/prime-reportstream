@@ -70,11 +70,7 @@ describe("RequireGate", () => {
             } as any,
         });
         renderApp(
-            <RequireGateBase
-                anonymousElement={<Anonymous />}
-                failElement={<Fail />}
-                auth={PERMISSIONS.RECEIVER}
-            >
+            <RequireGateBase anonymousElement={<Anonymous />} failElement={<Fail />} auth={PERMISSIONS.RECEIVER}>
                 <TestElement />
             </RequireGateBase>,
         );
@@ -92,11 +88,7 @@ describe("RequireGate", () => {
             } as any,
         });
         renderApp(
-            <RequireGateBase
-                anonymousElement={<Anonymous />}
-                failElement={<Fail />}
-                auth={PERMISSIONS.RECEIVER}
-            >
+            <RequireGateBase anonymousElement={<Anonymous />} failElement={<Fail />} auth={PERMISSIONS.RECEIVER}>
                 <TestElement />
             </RequireGateBase>,
         );
@@ -180,11 +172,7 @@ describe("RequireGate", () => {
             } as any,
         });
         renderApp(
-            <RequireGateBase
-                anonymousElement={<Anonymous />}
-                failElement={<Fail />}
-                auth={PERMISSIONS.PRIME_ADMIN}
-            >
+            <RequireGateBase anonymousElement={<Anonymous />} failElement={<Fail />} auth={PERMISSIONS.PRIME_ADMIN}>
                 <TestElement />
             </RequireGateBase>,
         );

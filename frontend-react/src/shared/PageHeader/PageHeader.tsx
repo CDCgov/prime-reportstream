@@ -13,27 +13,14 @@ export type PageHeaderProps = PropsWithChildren<
     } & HTMLAttributes<HTMLElement>
 >;
 
-function PageHeader({
-    title,
-    breadcrumbs,
-    subtitleArr,
-    callToAction,
-    lastUpdated,
-    ...props
-}: PageHeaderProps) {
+function PageHeader({ title, breadcrumbs, subtitleArr, callToAction, lastUpdated, ...props }: PageHeaderProps) {
     return (
         <header {...props}>
             {breadcrumbs != null ? (
                 <BreadcrumbBar>
                     {breadcrumbs.map((b) => (
                         <Breadcrumb key={b.label}>
-                            {b.href ? (
-                                <USCrumbLink href={b.href}>
-                                    {b.label}
-                                </USCrumbLink>
-                            ) : (
-                                b.label
-                            )}
+                            {b.href ? <USCrumbLink href={b.href}>{b.label}</USCrumbLink> : b.label}
                         </Breadcrumb>
                     ))}
                 </BreadcrumbBar>
@@ -51,11 +38,7 @@ function PageHeader({
                             {c.label}
                         </USLinkButton>
                     ))}
-                    {lastUpdated && (
-                        <p className="text-base text-italic">
-                            Last updated: {lastUpdated}
-                        </p>
-                    )}
+                    {lastUpdated && <p className="text-base text-italic">Last updated: {lastUpdated}</p>}
                 </div>
             )}
         </header>

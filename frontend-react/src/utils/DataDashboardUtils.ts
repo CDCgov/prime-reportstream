@@ -12,13 +12,11 @@ export enum CustomerStatusType {
 export const facilityTypeDisplay = {
     [SenderType.FACILITY]: {
         label: "PERFORMING FACILITY",
-        className:
-            "font-mono-3xs radius-md padding-05 height-3 bg-mint-cool-5v",
+        className: "font-mono-3xs radius-md padding-05 height-3 bg-mint-cool-5v",
     },
     [SenderType.PROVIDER]: {
         label: "ORDERING PROVIDER",
-        className:
-            "font-mono-3xs radius-md padding-05 height-3 bg-indigo-cool-10v",
+        className: "font-mono-3xs radius-md padding-05 height-3 bg-indigo-cool-10v",
     },
     [SenderType.SUBMITTER]: {
         label: "SUBMITTER",
@@ -28,14 +26,10 @@ export const facilityTypeDisplay = {
 
 export function transformFacilityTypeLabel(facility: string) {
     const facilityType = facility.toLowerCase() as SenderType;
-    return facilityTypeDisplay[facilityType]
-        ? facilityTypeDisplay[facilityType].label
-        : facility;
+    return facilityTypeDisplay[facilityType] ? facilityTypeDisplay[facilityType].label : facility;
 }
 
 export function transformFacilityTypeClass(facility: string) {
     const facilityType = facility.toLowerCase() as SenderType;
-    return facilityTypeDisplay[facilityType]
-        ? facilityTypeDisplay[facilityType].className
-        : "";
+    return facilityTypeDisplay[facilityType] ? facilityTypeDisplay[facilityType].className : "";
 }

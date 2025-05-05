@@ -33,9 +33,7 @@ export interface RSOrganizationSubmission {
 export const FALLBACKDATE = "2020-01-01T00:00:00.000Z";
 
 // TODO Implement in pages
-function useOrganizationSubmissions(
-    params: RSOrganizationSubmissionsSearchParams,
-) {
+function useOrganizationSubmissions(params: RSOrganizationSubmissionsSearchParams) {
     const { authorizedFetch } = useSessionContext();
 
     const fn = () => {

@@ -4,8 +4,7 @@ import { useLocation } from "react-router-dom";
 
 import { USNavLink } from "../../components/USLink";
 
-export interface SideNavItemProps
-    extends AnchorHTMLAttributes<HTMLAnchorElement> {
+export interface SideNavItemProps extends AnchorHTMLAttributes<HTMLAnchorElement> {
     items?: ReactNode[];
     children: ReactNode;
     to?:
@@ -24,21 +23,10 @@ export interface SideNavItemProps
  * or html element string as the "to" prop (defaults to USNavLink). The SideNav sibling
  * can be forced visible via the "isActive" prop (otherwise defaults to checking path).
  */
-function SideNavItem({
-    href,
-    children,
-    items,
-    to: NavLink = USNavLink,
-    isActive,
-    ...props
-}: SideNavItemProps) {
+function SideNavItem({ href, children, items, to: NavLink = USNavLink, isActive, ...props }: SideNavItemProps) {
     const { pathname } = useLocation();
     const isSubnavVisible =
-        isActive ??
-        (href === undefined ||
-            href === "" ||
-            pathname === href ||
-            pathname.startsWith(href));
+        isActive ?? (href === undefined || href === "" || pathname === href || pathname.startsWith(href));
     const subnavClassname = !isSubnavVisible ? "display-none" : "";
 
     // SideNav doesn't allow custom classes so we have to wrap in a div 😡

@@ -29,9 +29,7 @@ export const DisplayMeta = ({ metaObj }: DisplayMetaProps) => {
 
     // handle cases where individual metadata are not available
     const versionDisplay = version || version === 0 ? `v${version} ` : "";
-    const createdAtDisplay = createdAt
-        ? `[${formatDate(metaData.createdAt)}] `
-        : "";
+    const createdAtDisplay = createdAt ? `[${formatDate(metaData.createdAt)}] ` : "";
     const createdByDisplay = createdBy ?? "";
 
     return <>{`${versionDisplay}${createdAtDisplay}${createdByDisplay}`}</>;

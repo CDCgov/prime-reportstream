@@ -1,8 +1,4 @@
-import {
-    IExceptionTelemetry,
-    ITraceTelemetry,
-    SeverityLevel,
-} from "@microsoft/applicationinsights-web";
+import { IExceptionTelemetry, ITraceTelemetry, SeverityLevel } from "@microsoft/applicationinsights-web";
 
 import { ConsoleLevel, RSConsole } from "./rsConsole";
 import { mockConsole } from "../../__fixtures__/console";
@@ -13,14 +9,7 @@ const obj = { hello: "there" };
 const defaultProperties = {
     location: "http://localhost:3000/",
 };
-const reportableConsoleLevels: ConsoleLevel[] = [
-    "assert",
-    "debug",
-    "error",
-    "info",
-    "trace",
-    "warn",
-];
+const reportableConsoleLevels: ConsoleLevel[] = ["assert", "debug", "error", "info", "trace", "warn"];
 const consoleSeverityLevels: Record<ConsoleLevel, SeverityLevel> = {
     info: SeverityLevel.Information,
     warn: SeverityLevel.Warning,
@@ -47,9 +36,7 @@ describe("RSConsole", () => {
             });
             rsConsole.info(message, obj);
 
-            expect(appInsightsFixture.trackTrace).toHaveBeenCalledWith<
-                [ITraceTelemetry]
-            >({
+            expect(appInsightsFixture.trackTrace).toHaveBeenCalledWith<[ITraceTelemetry]>({
                 message,
                 severityLevel: consoleSeverityLevels.info,
                 properties: {
@@ -74,9 +61,7 @@ describe("RSConsole", () => {
 
                 rsConsole.assert(false, message, obj);
 
-                expect(appInsightsFixture.trackException).toHaveBeenCalledWith<
-                    [IExceptionTelemetry]
-                >({
+                expect(appInsightsFixture.trackException).toHaveBeenCalledWith<[IExceptionTelemetry]>({
                     id: msg,
                     exception: new Error(msg),
                     severityLevel: consoleSeverityLevels.assert,
@@ -86,11 +71,7 @@ describe("RSConsole", () => {
                     },
                 });
 
-                expect(mockConsole.assert).toHaveBeenCalledWith(
-                    false,
-                    message,
-                    obj,
-                );
+                expect(mockConsole.assert).toHaveBeenCalledWith(false, message, obj);
             });
         });
 
@@ -103,14 +84,8 @@ describe("RSConsole", () => {
                 });
                 rsConsole.assert(true, message, obj);
 
-                expect(
-                    appInsightsFixture.trackException,
-                ).not.toHaveBeenCalled();
-                expect(mockConsole.assert).toHaveBeenCalledWith(
-                    true,
-                    message,
-                    obj,
-                );
+                expect(appInsightsFixture.trackException).not.toHaveBeenCalled();
+                expect(mockConsole.assert).toHaveBeenCalledWith(true, message, obj);
             });
         });
     });
@@ -125,9 +100,7 @@ describe("RSConsole", () => {
             // eslint-disable-next-line testing-library/no-debugging-utils
             rsConsole.debug(message, obj);
 
-            expect(appInsightsFixture.trackTrace).toHaveBeenCalledWith<
-                [ITraceTelemetry]
-            >({
+            expect(appInsightsFixture.trackTrace).toHaveBeenCalledWith<[ITraceTelemetry]>({
                 message,
                 severityLevel: consoleSeverityLevels.debug,
                 properties: {
@@ -148,9 +121,7 @@ describe("RSConsole", () => {
             const err = new Error(message);
             rsConsole.error(err, obj);
 
-            expect(appInsightsFixture.trackException).toHaveBeenCalledWith<
-                [IExceptionTelemetry]
-            >({
+            expect(appInsightsFixture.trackException).toHaveBeenCalledWith<[IExceptionTelemetry]>({
                 exception: err,
                 id: err.message,
                 severityLevel: consoleSeverityLevels.error,
@@ -171,9 +142,7 @@ describe("RSConsole", () => {
             });
             rsConsole.trace(message, obj);
 
-            expect(appInsightsFixture.trackTrace).toHaveBeenCalledWith<
-                [ITraceTelemetry]
-            >({
+            expect(appInsightsFixture.trackTrace).toHaveBeenCalledWith<[ITraceTelemetry]>({
                 message,
                 severityLevel: consoleSeverityLevels.trace,
                 properties: {
@@ -193,9 +162,7 @@ describe("RSConsole", () => {
             });
             rsConsole.warn(message, obj);
 
-            expect(appInsightsFixture.trackTrace).toHaveBeenCalledWith<
-                [ITraceTelemetry]
-            >({
+            expect(appInsightsFixture.trackTrace).toHaveBeenCalledWith<[ITraceTelemetry]>({
                 message,
                 severityLevel: consoleSeverityLevels.warn,
                 properties: {

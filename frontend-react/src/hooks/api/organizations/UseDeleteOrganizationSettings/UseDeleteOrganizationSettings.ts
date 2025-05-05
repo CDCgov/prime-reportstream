@@ -8,9 +8,7 @@ import useSessionContext from "../../../../contexts/Session/useSessionContext";
 function useDeleteOrganizationSettings() {
     const { authorizedFetch } = useSessionContext();
 
-    const fn = (
-        obj: Partial<Omit<RSOrganizationSettings, "name">> & { name: string },
-    ) => {
+    const fn = (obj: Partial<Omit<RSOrganizationSettings, "name">> & { name: string }) => {
         return authorizedFetch({
             url: `/settings/organizations/${obj.name}`,
             method: HTTPMethods.DELETE,

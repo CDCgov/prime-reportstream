@@ -134,17 +134,11 @@ describe("useFileHandler", () => {
         });
 
         expect(result.current.state.errors).toEqual(INITIAL_STATE.errors);
-        expect(result.current.state.destinations).toEqual(
-            INITIAL_STATE.destinations,
-        );
+        expect(result.current.state.destinations).toEqual(INITIAL_STATE.destinations);
         expect(result.current.state.reportId).toEqual(INITIAL_STATE.reportId);
-        expect(result.current.state.successTimestamp).toEqual(
-            INITIAL_STATE.successTimestamp,
-        );
+        expect(result.current.state.successTimestamp).toEqual(INITIAL_STATE.successTimestamp);
         expect(result.current.state.warnings).toEqual(INITIAL_STATE.warnings);
-        expect(result.current.state.localError).toEqual(
-            INITIAL_STATE.localError,
-        );
+        expect(result.current.state.localError).toEqual(INITIAL_STATE.localError);
     });
 
     test("returns local error on file selected if file is too big", () => {
@@ -175,9 +169,7 @@ describe("useFileHandler", () => {
             }),
         );
 
-        expect(result.current.state.localError).toEqual(
-            "The file type must be .csv or .hl7",
-        );
+        expect(result.current.state.localError).toEqual("The file type must be .csv or .hl7");
     });
     test("returns expected state on file selected with file type", () => {
         const { result } = renderHook(() => {
@@ -305,10 +297,7 @@ describe("useFileHandler", () => {
     });
 
     describe("when selecting a schema option", () => {
-        let renderer: RenderHookResult<
-            UseFileHandlerHookResult,
-            UseFileHandlerHookResult
-        >;
+        let renderer: RenderHookResult<UseFileHandlerHookResult, UseFileHandlerHookResult>;
 
         function doDispatch(payload: SchemaOption | null) {
             renderer = renderHook(() => useFileHandler());
@@ -328,9 +317,7 @@ describe("useFileHandler", () => {
 
             test("clears out the selected schema from state", () => {
                 setup();
-                expect(
-                    renderer.result.current.state.selectedSchemaOption,
-                ).toBeNull();
+                expect(renderer.result.current.state.selectedSchemaOption).toBeNull();
             });
         });
 
@@ -347,17 +334,12 @@ describe("useFileHandler", () => {
 
             test("sets the selected schema in state", () => {
                 setup();
-                expect(
-                    renderer.result.current.state.selectedSchemaOption,
-                ).toEqual(schemaOption);
+                expect(renderer.result.current.state.selectedSchemaOption).toEqual(schemaOption);
             });
         });
 
         describe("when there's already file data in the useFileHandler state", () => {
-            let renderer: RenderHookResult<
-                UseFileHandlerHookResult,
-                UseFileHandlerHookResult
-            >;
+            let renderer: RenderHookResult<UseFileHandlerHookResult, UseFileHandlerHookResult>;
 
             function setup() {
                 renderer = renderHook(() => useFileHandler());
@@ -366,13 +348,9 @@ describe("useFileHandler", () => {
                     renderer.result.current.dispatch({
                         type: FileHandlerActionType.FILE_SELECTED,
                         payload: {
-                            file: new File(
-                                [new Blob(["whatever"])],
-                                "blep.csv",
-                                {
-                                    type: "csv",
-                                },
-                            ),
+                            file: new File([new Blob(["whatever"])], "blep.csv", {
+                                type: "csv",
+                            }),
                         },
                     });
                 });

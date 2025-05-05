@@ -19,14 +19,8 @@ function DeliveriesPage() {
                     name="description"
                     content="Daily Data shows what data a public health entity has received with the option to download."
                 />
-                <meta
-                    property="og:image"
-                    content="/assets/img/opengraph/howwehelpyou-3.png"
-                />
-                <meta
-                    property="og:image:alt"
-                    content="An abstract illustration of screens and a document."
-                />
+                <meta property="og:image" content="/assets/img/opengraph/howwehelpyou-3.png" />
+                <meta property="og:image:alt" content="An abstract illustration of screens and a document." />
             </Helmet>
             <article className="padding-bottom-5 tablet:padding-top-6">
                 <Title

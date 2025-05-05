@@ -1,10 +1,7 @@
 import { waitFor } from "@testing-library/react";
 
 import useOrganizationPublicKeys from "./UseOrganizationPublicKeys";
-import {
-    dummyPublicKey,
-    orgServer,
-} from "../../../../__mockServers__/OrganizationMockServer";
+import { dummyPublicKey, orgServer } from "../../../../__mockServers__/OrganizationMockServer";
 import { renderHook } from "../../../../utils/CustomRenderUtils";
 import { MemberType } from "../../../../utils/OrganizationUtils";
 
@@ -63,9 +60,7 @@ describe("useOrganizationPublicKeys", () => {
 
         test("returns organization public keys", async () => {
             const { result } = renderHook(() => useOrganizationPublicKeys());
-            await waitFor(() =>
-                expect(result.current.data).toEqual(dummyPublicKey),
-            );
+            await waitFor(() => expect(result.current.data).toEqual(dummyPublicKey));
             expect(result.current.isLoading).toEqual(false);
         });
     });

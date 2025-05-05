@@ -1,8 +1,4 @@
-import {
-    parseCsvForError,
-    REPORT_MAX_ITEM_COLUMNS,
-    REPORT_MAX_ITEMS,
-} from "./FileUtils";
+import { parseCsvForError, REPORT_MAX_ITEM_COLUMNS, REPORT_MAX_ITEMS } from "./FileUtils";
 
 describe("parseCsvForError", () => {
     test("returns expected error string if max number of lines is exceeded", () => {

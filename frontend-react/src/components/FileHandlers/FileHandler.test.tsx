@@ -2,11 +2,7 @@ import { fireEvent, screen, waitFor } from "@testing-library/react";
 import { userEvent } from "@testing-library/user-event";
 
 import FileHandler from "./FileHandler";
-import {
-    mockSendFileWithErrors,
-    mockSendFileWithWarnings,
-    mockSendValidFile,
-} from "../../__mocks__/validation";
+import { mockSendFileWithErrors, mockSendFileWithWarnings, mockSendValidFile } from "../../__mocks__/validation";
 import { RSSender } from "../../config/endpoints/settings";
 import * as useWatersUploaderExports from "../../hooks/api/UseWatersUploader/UseWatersUploader";
 import {
@@ -93,37 +89,31 @@ const WARNING_CSV_FILE_SELECTED = {
     selectedSchemaOption: STANDARD_SCHEMA_OPTIONS[0],
 };
 
-vi.mock(
-    "../../hooks/api/organizations/UseOrganizationSettings/UseOrganizationSettings",
-    () => ({
-        default: () => {
-            return {
-                data: {
-                    description: "wow, cool organization",
-                    createdAt: "2023-01-10T21:23:14.467Z",
-                    createdBy: "local@test.com",
-                    filters: [],
-                    jurisdiction: "FEDERAL",
-                    name: "aegis",
-                    version: 0,
-                },
-                isLoading: false,
-            };
-        },
-    }),
-);
-
-vi.mock(
-    "../../hooks/api/organizations/UseOrganizationSender/UseOrganizationSender",
-    () => ({
-        default: () => ({
+vi.mock("../../hooks/api/organizations/UseOrganizationSettings/UseOrganizationSettings", () => ({
+    default: () => {
+        return {
             data: {
-                name: "default",
-                organizationName: "aegis",
-            } satisfies Partial<RSSender>,
-        }),
+                description: "wow, cool organization",
+                createdAt: "2023-01-10T21:23:14.467Z",
+                createdBy: "local@test.com",
+                filters: [],
+                jurisdiction: "FEDERAL",
+                name: "aegis",
+                version: 0,
+            },
+            isLoading: false,
+        };
+    },
+}));
+
+vi.mock("../../hooks/api/organizations/UseOrganizationSender/UseOrganizationSender", () => ({
+    default: () => ({
+        data: {
+            name: "default",
+            organizationName: "aegis",
+        } satisfies Partial<RSSender>,
     }),
-);
+}));
 
 async function _chooseSchema(schemaName: string) {
     expect(screen.getByText(/Select data model/)).toBeVisible();
@@ -138,9 +128,7 @@ async function _chooseFile(file: File) {
 }
 
 describe("FileHandler", () => {
-    function mockUseFileHandler(
-        fileHandlerState: Partial<FileHandlerState> = {},
-    ) {
+    function mockUseFileHandler(fileHandlerState: Partial<FileHandlerState> = {}) {
         vi.spyOn(useFileHandlerExports, "default").mockReturnValue({
             state: {
                 // TODO: any sensible defaults?
@@ -150,9 +138,7 @@ describe("FileHandler", () => {
         });
     }
 
-    function mockUseSenderSchemaOptions(
-        result: Partial<UseSenderSchemaOptionsHookResult> = {},
-    ) {
+    function mockUseSenderSchemaOptions(result: Partial<UseSenderSchemaOptionsHookResult> = {}) {
         vi.spyOn(useSenderSchemaOptionsExports, "default").mockReturnValue({
             isLoading: false,
             data: STANDARD_SCHEMA_OPTIONS,
@@ -160,14 +146,11 @@ describe("FileHandler", () => {
         } as any);
     }
 
-    function mockUseWatersUploader(
-        result: Partial<UseWatersUploaderResult> = {},
-    ) {
+    function mockUseWatersUploader(result: Partial<UseWatersUploaderResult> = {}) {
         vi.spyOn(useWatersUploaderExports, "default").mockReturnValue({
             isPending: false,
             error: null,
-            mutateAsync: (() =>
-                Promise.resolve({})) as UseWatersUploaderSendFileMutation,
+            mutateAsync: (() => Promise.resolve({})) as UseWatersUploaderSendFileMutation,
             ...result,
         } as any);
     }
@@ -206,12 +189,8 @@ describe("FileHandler", () => {
 
         test("renders the prompt as expected", () => {
             setup();
-            expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(
-                "ReportStream File Validator",
-            );
-            expect(screen.getByRole("heading", { level: 2 })).toHaveTextContent(
-                "wow, cool organization",
-            );
+            expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("ReportStream File Validator");
+            expect(screen.getByRole("heading", { level: 2 })).toHaveTextContent("wow, cool organization");
             expect(screen.getByText("Select data model")).toBeVisible();
         });
     });
@@ -244,11 +223,7 @@ describe("FileHandler", () => {
             // Step 2: file upload
             await fileContinue();
             // Step 3: success
-            expect(
-                await screen.findByText(
-                    "Your file is correctly formatted for ReportStream.",
-                ),
-            ).toBeInTheDocument();
+            expect(await screen.findByText("Your file is correctly formatted for ReportStream.")).toBeInTheDocument();
         });
     });
 
@@ -283,9 +258,7 @@ describe("FileHandler", () => {
             expect(screen.getByText("Continue without changes")).toBeEnabled();
             await waitFor(async () => {
                 await userEvent.click(screen.getByText(/^Continue$/));
-                return screen.getByText(
-                    "Your file is correctly formatted for ReportStream.",
-                );
+                return screen.getByText("Your file is correctly formatted for ReportStream.");
             });
         });
     });
@@ -315,9 +288,7 @@ describe("FileHandler", () => {
             await fileContinue();
 
             // Step 3: errors
-            expect(
-                screen.getByText("Resubmit with the required edits."),
-            ).toBeVisible();
+            expect(screen.getByText("Resubmit with the required edits.")).toBeVisible();
         });
 
         test("allows the user to test another file", async () => {
@@ -329,12 +300,8 @@ describe("FileHandler", () => {
             await fileContinue();
 
             // Step 3: errors
-            expect(
-                screen.getByText("Resubmit with the required edits."),
-            ).toBeVisible();
-            expect(
-                screen.queryByText("Continue without changes"),
-            ).not.toBeInTheDocument();
+            expect(screen.getByText("Resubmit with the required edits.")).toBeVisible();
+            expect(screen.queryByText("Continue without changes")).not.toBeInTheDocument();
 
             await waitFor(async () => {
                 await userEvent.click(screen.getByText("Test another file"));

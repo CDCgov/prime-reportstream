@@ -1,9 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 
-import {
-    MessageListResource,
-    messageTrackerEndpoints,
-} from "../../../../config/endpoints/messageTracker";
+import { MessageListResource, messageTrackerEndpoints } from "../../../../config/endpoints/messageTracker";
 import useSessionContext from "../../../../contexts/Session/useSessionContext";
 
 const { search } = messageTrackerEndpoints;
@@ -12,9 +9,7 @@ const { search } = messageTrackerEndpoints;
 const useMessageSearch = () => {
     const { authorizedFetch } = useSessionContext();
 
-    const messagesSearch = (
-        messageId: string,
-    ): Promise<MessageListResource[]> => {
+    const messagesSearch = (messageId: string): Promise<MessageListResource[]> => {
         return authorizedFetch<MessageListResource[]>(
             {
                 segments: { messageId },

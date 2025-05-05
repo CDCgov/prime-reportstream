@@ -70,9 +70,7 @@ vi.mock("../RSErrorBoundary/RSErrorBoundary", () => {
     };
 });
 
-const _mockUseOktaAuth = vi
-    .mocked(useOktaAuth)
-    .mockReturnValue({ authState: {} } as any);
+const _mockUseOktaAuth = vi.mocked(useOktaAuth).mockReturnValue({ authState: {} } as any);
 const _mockSecurity = vi.mocked(Security).mockImplementation(MockComponent);
 
 describe("App component", () => {

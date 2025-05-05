@@ -13,20 +13,12 @@ class TestSampleObject extends SampleObject {
 describe("Settings API Types", () => {
     test("SampleObject methods", () => {
         const obj = new TestSampleObject();
-        expect(obj.stringify()).toEqual(
-            JSON.stringify({ title: "test" }, null, 6),
-        );
-        expect(obj.getAllEnums()).toEqual(
-            new Map([["format", ["CSV", "HL7", "FHIR"]]]),
-        );
+        expect(obj.stringify()).toEqual(JSON.stringify({ title: "test" }, null, 6));
+        expect(obj.getAllEnums()).toEqual(new Map([["format", ["CSV", "HL7", "FHIR"]]]));
         expect(obj.description()).toEqual("A test sample object");
     });
 
     test("getListOfEnumValues", () => {
-        expect(getListOfEnumValues("customerStatus")).toEqual([
-            "inactive",
-            "testing",
-            "active",
-        ]);
+        expect(getListOfEnumValues("customerStatus")).toEqual(["inactive", "testing", "active"]);
     });
 });

@@ -14,17 +14,8 @@ export const ErrorDisplayWrapper = (props: PropsWithChildren<object>) => {
 };
 
 /** @deprecated For use with NetworkErrorBoundary until refactored out */
-export const ErrorPage = ({
-    type,
-    config,
-}: {
-    type?: "message" | "page";
-    config?: ErrorDisplayMessage;
-}) => (
+export const ErrorPage = ({ type, config }: { type?: "message" | "page"; config?: ErrorDisplayMessage }) => (
     <ErrorDisplayWrapper>
-        <BasicErrorDisplay
-            displayConfig={config}
-            displayAsPage={type === "page"}
-        />
+        <BasicErrorDisplay displayConfig={config} displayAsPage={type === "page"} />
     </ErrorDisplayWrapper>
 );

@@ -1,10 +1,7 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useCallback } from "react";
 
-import {
-    messageTrackerEndpoints,
-    RSMessageDetail,
-} from "../../../../config/endpoints/messageTracker";
+import { messageTrackerEndpoints, RSMessageDetail } from "../../../../config/endpoints/messageTracker";
 import useSessionContext from "../../../../contexts/Session/useSessionContext";
 
 const { getMessageDetails } = messageTrackerEndpoints;

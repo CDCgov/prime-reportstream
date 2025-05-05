@@ -19,13 +19,9 @@ describe("UsePages", () => {
             result.current.update({ type: PageSettingsActionType.INC_PAGE });
         });
         expect(result.current.settings.currentPage).toEqual(3);
-        act(() =>
-            result.current.update({ type: PageSettingsActionType.DEC_PAGE }),
-        );
+        act(() => result.current.update({ type: PageSettingsActionType.DEC_PAGE }));
         expect(result.current.settings.currentPage).toEqual(2);
-        act(() =>
-            result.current.update({ type: PageSettingsActionType.RESET }),
-        );
+        act(() => result.current.update({ type: PageSettingsActionType.RESET }));
         expect(result.current.settings.currentPage).toEqual(1);
     });
     test("dispatch updates size", () => {

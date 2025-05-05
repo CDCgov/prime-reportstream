@@ -1,14 +1,9 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useCallback, useMemo } from "react";
 
-import {
-    dataDashboardEndpoints,
-    RSReceiverSubmitterResponse,
-} from "../../../../config/endpoints/dataDashboard";
+import { dataDashboardEndpoints, RSReceiverSubmitterResponse } from "../../../../config/endpoints/dataDashboard";
 import useSessionContext from "../../../../contexts/Session/useSessionContext";
-import useFilterManager, {
-    FilterManagerDefaults,
-} from "../../../filters/UseFilterManager/UseFilterManager";
+import useFilterManager, { FilterManagerDefaults } from "../../../filters/UseFilterManager/UseFilterManager";
 import useAdminSafeOrganizationName from "../../../UseAdminSafeOrganizationName/UseAdminSafeOrganizationName";
 
 const { receiverSubmitters } = dataDashboardEndpoints;
@@ -39,12 +34,9 @@ const filterManagerDefaults: FilterManagerDefaults = {
  * */
 export default function useReceiverSubmitters(serviceName?: string) {
     const { activeMembership, authorizedFetch } = useSessionContext();
-    const adminSafeOrgName = useAdminSafeOrganizationName(
-        activeMembership?.parsedName,
-    ); // "PrimeAdmins" -> "ignore"
+    const adminSafeOrgName = useAdminSafeOrganizationName(activeMembership?.parsedName); // "PrimeAdmins" -> "ignore"
     const orgAndService = useMemo(
-        () =>
-            adminSafeOrgName ? `${adminSafeOrgName}.${serviceName}` : undefined,
+        () => (adminSafeOrgName ? `${adminSafeOrgName}.${serviceName}` : undefined),
         [adminSafeOrgName, serviceName],
     );
 
@@ -84,24 +76,10 @@ export default function useReceiverSubmitters(serviceName?: string) {
             );
         }
         return null;
-    }, [
-        authorizedFetch,
-        currentCursor,
-        numResults,
-        orgAndService,
-        rangeFrom,
-        rangeTo,
-        sortColumn,
-        sortDirection,
-    ]);
+    }, [authorizedFetch, currentCursor, numResults, orgAndService, rangeFrom, rangeTo, sortColumn, sortDirection]);
     return {
         ...useSuspenseQuery({
-            queryKey: [
-                receiverSubmitters.queryKey,
-                activeMembership,
-                orgAndService,
-                filterManager,
-            ],
+            queryKey: [receiverSubmitters.queryKey, activeMembership, orgAndService, filterManager],
             queryFn: memoizedDataFetch,
         }),
         filterManager,

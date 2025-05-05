@@ -17,15 +17,9 @@ export enum WatersTestHeaderValue {
 
 const handlers = [
     http.post(`${RS_API_URL}/api${WatersUrls.VALIDATE}`, ({ request }) => {
-        if (
-            request.headers.get(WatersTestHeader.CLIENT) ===
-            WatersTestHeaderValue.FAIL
-        )
+        if (request.headers.get(WatersTestHeader.CLIENT) === WatersTestHeaderValue.FAIL)
             return HttpResponse.json(null, { status: 400 });
-        if (
-            request.headers.get(WatersTestHeader.CLIENT) ===
-            WatersTestHeaderValue.TEST_NAME
-        ) {
+        if (request.headers.get(WatersTestHeader.CLIENT) === WatersTestHeaderValue.TEST_NAME) {
             return HttpResponse.json({ endpoint: "validate" }, { status: 201 });
         }
         return HttpResponse.json(null, { status: 200 });

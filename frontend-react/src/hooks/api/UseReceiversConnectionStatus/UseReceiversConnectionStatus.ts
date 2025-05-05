@@ -19,10 +19,7 @@ export interface RSReceiverStatusSearchParams {
     endDate?: Date;
 }
 
-const useReceiversConnectionStatus = ({
-    startDate,
-    endDate,
-}: RSReceiverStatusSearchParams) => {
+const useReceiversConnectionStatus = ({ startDate, endDate }: RSReceiverStatusSearchParams) => {
     const { authorizedFetch } = useSessionContext();
     const fixedParams = {
         start_date: startOfDay(startDate),

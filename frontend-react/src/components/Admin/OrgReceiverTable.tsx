@@ -1,12 +1,4 @@
-import {
-    Button,
-    ButtonGroup,
-    Modal,
-    ModalFooter,
-    ModalHeading,
-    ModalRef,
-    Table,
-} from "@trussworks/react-uswds";
+import { Button, ButtonGroup, Modal, ModalFooter, ModalHeading, ModalRef, Table } from "@trussworks/react-uswds";
 import DOMPurify from "dompurify";
 import { useCallback, useRef, useState } from "react";
 import { useResource } from "rest-hooks";
@@ -31,14 +23,10 @@ const DEFAULT_DATA: CheckSettingResult = {
 
 export function OrgReceiverTable(props: OrgSettingsTableProps) {
     const { orgname: orgName } = props;
-    const orgReceiverSettings: OrgReceiverSettingsResource[] = useResource(
-        OrgReceiverSettingsResource.list(),
-        props,
-    );
+    const orgReceiverSettings: OrgReceiverSettingsResource[] = useResource(OrgReceiverSettingsResource.list(), props);
 
     const { mutateAsync: doCheck, isPending } = useCheckOrganizationReceiver();
-    const [checkResultData, setCheckResultData] =
-        useState<CheckSettingResult>(DEFAULT_DATA);
+    const [checkResultData, setCheckResultData] = useState<CheckSettingResult>(DEFAULT_DATA);
     const modalRef = useRef<ModalRef>(null);
     const modalId = "checkSettingsModalId";
     const [clickedReceiver, setClickedReceiver] = useState("");
@@ -76,28 +64,15 @@ export function OrgReceiverTable(props: OrgSettingsTableProps) {
     }, [orgName, clickedReceiver, doCheck]);
 
     return (
-        <section
-            id="orgreceiversettings"
-            className="grid-container margin-bottom-5"
-        >
+        <section id="orgreceiversettings" className="grid-container margin-bottom-5">
             <h2>
-                Organization Receiver Settings ({orgReceiverSettings.length})
-                {" - "}
-                <USLink
-                    href={`/admin/revisionhistory/org/${props.orgname}/settingtype/receiver`}
-                >
-                    History
-                </USLink>
+                Organization Receiver Settings ({orgReceiverSettings.length}){" - "}
+                <USLink href={`/admin/revisionhistory/org/${props.orgname}/settingtype/receiver`}>History</USLink>
             </h2>
             {!orgReceiverSettings ? (
                 <Spinner />
             ) : (
-                <Table
-                    key="orgreceiversettingstable"
-                    aria-label="Organization Receivers"
-                    striped
-                    fullWidth
-                >
+                <Table key="orgreceiversettingstable" aria-label="Organization Receivers" striped fullWidth>
                     <thead>
                         <tr>
                             <th scope="col">Name</th>
@@ -119,13 +94,9 @@ export function OrgReceiverTable(props: OrgSettingsTableProps) {
                     </thead>
                     <tbody id="tBodyOrgReceiver" className="font-mono-2xs">
                         {orgReceiverSettings.map((eachOrgSetting, index) => (
-                            <tr
-                                key={`receiver-row-${eachOrgSetting.name}-${index}`}
-                            >
+                            <tr key={`receiver-row-${eachOrgSetting.name}-${index}`}>
                                 <td>{eachOrgSetting.name}</td>
-                                <td>
-                                    {eachOrgSetting?.organizationName || "-"}
-                                </td>
+                                <td>{eachOrgSetting?.organizationName || "-"}</td>
                                 <td>{eachOrgSetting.topic || ""}</td>
                                 <td>{eachOrgSetting.customerStatus || ""}</td>
                                 <td>
@@ -175,25 +146,15 @@ export function OrgReceiverTable(props: OrgSettingsTableProps) {
                 aria-labelledby={`${modalId}-heading`}
                 aria-describedby={`${modalId}-description`}
             >
-                <ModalHeading
-                    id={`${modalId}-heading`}
-                    data-testid={`${modalId}-heading`}
-                >
-                    This check will use the &apos;{clickedReceiver}&apos;
-                    settings to connect to the receiver&apos;s server. <br />
-                    No files will be sent. This feature ONLY supports SFTP and
-                    REST receivers currently.
+                <ModalHeading id={`${modalId}-heading`} data-testid={`${modalId}-heading`}>
+                    This check will use the &apos;{clickedReceiver}&apos; settings to connect to the receiver&apos;s
+                    server. <br />
+                    No files will be sent. This feature ONLY supports SFTP and REST receivers currently.
                 </ModalHeading>
                 <div className={"rs-admindash-modal-container"}>
                     <div className={"rs-resend-label"}>
                         Result:{" "}
-                        <span
-                            className={
-                                checkResultData.result === "success"
-                                    ? "success-all"
-                                    : "failure-all"
-                            }
-                        >
+                        <span className={checkResultData.result === "success" ? "success-all" : "failure-all"}>
                             {checkResultData.result}
                         </span>
                     </div>
@@ -207,20 +168,10 @@ export function OrgReceiverTable(props: OrgSettingsTableProps) {
                 </div>
                 <ModalFooter>
                     <ButtonGroup>
-                        <Button
-                            type="button"
-                            outline
-                            onClick={() =>
-                                modalRef?.current?.toggleModal(undefined, false)
-                            }
-                        >
+                        <Button type="button" outline onClick={() => modalRef?.current?.toggleModal(undefined, false)}>
                             Cancel
                         </Button>
-                        <Button
-                            type="button"
-                            disabled={isPending}
-                            onClick={() => void clickDoCheckCmd()}
-                        >
+                        <Button type="button" disabled={isPending} onClick={() => void clickDoCheckCmd()}>
                             Start check
                         </Button>
                     </ButtonGroup>

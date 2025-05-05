@@ -14,10 +14,7 @@ const isReceiver = (s: string) => !isSender(s) && !isAdmin(s);
  *
  * Example: User is member of "DHSender_xx-phd" and "DHxx_phd". User will be
  * admitted to both sender and receiver features. */
-const permissionCheck = (
-    level: PERMISSIONS,
-    token: AccessToken | undefined,
-): boolean => {
+const permissionCheck = (level: PERMISSIONS, token: AccessToken | undefined): boolean => {
     if (!token) return false;
     const oktaGroups = getOktaGroups(token);
     switch (level) {
@@ -57,10 +54,7 @@ export function getUserPermissions(user?: RSUserClaims): RSUserPermissions {
     };
 }
 
-export const isAuthenticatedPath = (
-    pathname: string,
-    appRoutes: RouteObject[],
-) => {
+export const isAuthenticatedPath = (pathname: string, appRoutes: RouteObject[]) => {
     const basePath = pathname.split("/")[1];
     const matchedRoute = appRoutes[0].children?.find((route) => {
         return route.path?.includes(basePath);

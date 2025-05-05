@@ -49,30 +49,21 @@ async function chooseFile(file: File) {
 }
 
 describe("ManagePublicKey", () => {
-    function mockUseCreateOrganizationPublicKey(
-        result: Partial<UseCreateOrganizationPublicKeyResult>,
-    ) {
-        vi.spyOn(
-            useCreateOrganizationPublicKeyExports,
-            "default",
-        ).mockReturnValue({
+    function mockUseCreateOrganizationPublicKey(result: Partial<UseCreateOrganizationPublicKeyResult>) {
+        vi.spyOn(useCreateOrganizationPublicKeyExports, "default").mockReturnValue({
             mutateAsync: vi.fn(),
             ...result,
         } as UseCreateOrganizationPublicKeyResult);
     }
 
-    function mockUseOrganizationSenders(
-        result: Partial<UseOrganizationSendersResult> = {},
-    ) {
+    function mockUseOrganizationSenders(result: Partial<UseOrganizationSendersResult> = {}) {
         vi.spyOn(useOrganizationSendersExports, "default").mockReturnValue({
             data: DEFAULT_SENDERS,
             ...result,
         } as UseOrganizationSendersResult);
     }
 
-    function mockUseOrganizationPublicKeys(
-        result: Partial<UseOrganizationPublicKeysResult> = {},
-    ) {
+    function mockUseOrganizationPublicKeys(result: Partial<UseOrganizationPublicKeysResult> = {}) {
         vi.spyOn(useOrganizationPublicKeysExports, "default").mockReturnValue({
             data: { orgName: "elr-0", keys: [] },
             ...result,
@@ -109,12 +100,8 @@ describe("ManagePublicKey", () => {
         test("renders the sender options", () => {
             renderSetup();
             expect(screen.getByText(/Manage public key/)).toBeVisible();
-            expect(
-                screen.getByTestId("ManagePublicKeyChooseSender"),
-            ).toBeVisible();
-            expect(
-                screen.queryByTestId("file-input-input"),
-            ).not.toBeInTheDocument();
+            expect(screen.getByTestId("ManagePublicKeyChooseSender")).toBeVisible();
+            expect(screen.queryByTestId("file-input-input")).not.toBeInTheDocument();
         });
 
         describe("when the Sender is selected", () => {
@@ -134,9 +121,7 @@ describe("ManagePublicKey", () => {
                 await waitFor(() => {
                     // eslint-disable-next-line testing-library/no-wait-for-side-effects
                     fireEvent.submit(screen.getByTestId("form"));
-                    expect(
-                        screen.queryByTestId("ManagePublicKeyChooseSender"),
-                    ).not.toBeInTheDocument();
+                    expect(screen.queryByTestId("ManagePublicKeyChooseSender")).not.toBeInTheDocument();
                 });
             }
 
@@ -162,9 +147,7 @@ describe("ManagePublicKey", () => {
         test("renders ManagePublicKeyUpload", () => {
             setup();
             expect(screen.getByText(/Manage public key/)).toBeVisible();
-            expect(
-                screen.queryByTestId("ManagePublicKeyChooseSender"),
-            ).not.toBeInTheDocument();
+            expect(screen.queryByTestId("ManagePublicKeyChooseSender")).not.toBeInTheDocument();
             expect(screen.getByTestId("file-input-input")).toBeVisible();
         });
     });
@@ -185,14 +168,10 @@ describe("ManagePublicKey", () => {
 
         test.skip("shows the configured screen and allows the user to upload a new public key", async () => {
             setup();
-            expect(
-                screen.getByText("Your public key is already configured."),
-            ).toBeVisible();
+            expect(screen.getByText("Your public key is already configured.")).toBeVisible();
 
             await waitFor(async () => {
-                await userEvent.click(
-                    screen.getByText("Upload new public key"),
-                );
+                await userEvent.click(screen.getByText("Upload new public key"));
 
                 await new Promise((res) => setTimeout(res, 1000));
             });
@@ -202,13 +181,9 @@ describe("ManagePublicKey", () => {
 
         test("shows the configured screen and displays a message to the user", () => {
             setup();
-            expect(
-                screen.getByText(/Your public key is already configured./),
-            ).toBeVisible();
+            expect(screen.getByText(/Your public key is already configured./)).toBeVisible();
             expect(screen.getByText("Contact ReportStream")).toBeVisible();
-            expect(
-                screen.getByText(/to upload a new public key./),
-            ).toBeVisible();
+            expect(screen.getByText(/to upload a new public key./)).toBeVisible();
         });
     });
 
@@ -240,11 +215,7 @@ describe("ManagePublicKey", () => {
             await waitFor(() => {
                 // eslint-disable-next-line testing-library/no-wait-for-side-effects
                 fireEvent.submit(screen.getByTestId("form"));
-                expect(
-                    screen.getByText(
-                        "You can now submit data to ReportStream.",
-                    ),
-                ).toBeVisible();
+                expect(screen.getByText("You can now submit data to ReportStream.")).toBeVisible();
             });
         });
     });
@@ -280,16 +251,12 @@ describe("ManagePublicKey", () => {
 
         test("shows the upload error screen", async () => {
             await setup();
-            expect(
-                screen.getByText("Key could not be submitted"),
-            ).toBeVisible();
+            expect(screen.getByText("Key could not be submitted")).toBeVisible();
         });
 
         test("allows the user to try again", async () => {
             await setup();
-            expect(
-                screen.getByText("Key could not be submitted"),
-            ).toBeVisible();
+            expect(screen.getByText("Key could not be submitted")).toBeVisible();
 
             await waitFor(async () => {
                 await userEvent.click(screen.getByText("Try again"));

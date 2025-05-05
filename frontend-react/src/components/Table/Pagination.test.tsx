@@ -1,10 +1,6 @@
 import { fireEvent, screen, within } from "@testing-library/react";
 
-import Pagination, {
-    OVERFLOW_INDICATOR,
-    PaginationProps,
-    SlotItem,
-} from "./Pagination";
+import Pagination, { OVERFLOW_INDICATOR, PaginationProps, SlotItem } from "./Pagination";
 import { renderApp } from "../../utils/CustomRenderUtils";
 
 describe("Pagination", () => {
@@ -19,17 +15,7 @@ describe("Pagination", () => {
             description: "on the second page of an unbounded set",
             slots: [1, 2, 3, 4, 5, 6, OVERFLOW_INDICATOR],
             currentPageNum: 2,
-            expectedItems: [
-                "Previous",
-                "1",
-                "2",
-                "3",
-                "4",
-                "5",
-                "6",
-                "…",
-                "Next",
-            ],
+            expectedItems: ["Previous", "1", "2", "3", "4", "5", "6", "…", "Next"],
         },
         {
             description: "on the first page of a bounded set",
@@ -49,24 +35,21 @@ describe("Pagination", () => {
             currentPageNum: 1,
             expectedItems: ["1"],
         },
-    ])(
-        "Handles Previous and Next links $description",
-        ({ slots, currentPageNum, expectedItems }) => {
-            const props: PaginationProps = {
-                slots: slots as SlotItem[],
-                currentPageNum,
-                setSelectedPage: vi.fn(),
-            };
-            renderApp(<Pagination {...props} />);
+    ])("Handles Previous and Next links $description", ({ slots, currentPageNum, expectedItems }) => {
+        const props: PaginationProps = {
+            slots: slots as SlotItem[],
+            currentPageNum,
+            setSelectedPage: vi.fn(),
+        };
+        renderApp(<Pagination {...props} />);
 
-            const list = screen.getByRole("list");
-            const { getAllByRole } = within(list);
-            const items = getAllByRole("listitem");
-            for (const [i, item] of items.entries()) {
-                expect(item).toHaveTextContent(expectedItems[i]);
-            }
-        },
-    );
+        const list = screen.getByRole("list");
+        const { getAllByRole } = within(list);
+        const items = getAllByRole("listitem");
+        for (const [i, item] of items.entries()) {
+            expect(item).toHaveTextContent(expectedItems[i]);
+        }
+    });
 
     test("Clicking on pagination items invokes the setSelectedPage callback", () => {
         const mockSetSelectedPage = vi.fn();

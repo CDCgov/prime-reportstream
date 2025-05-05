@@ -1,17 +1,12 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useCallback } from "react";
 
-import {
-    RSSender,
-    servicesEndpoints,
-} from "../../../../config/endpoints/settings";
+import { RSSender, servicesEndpoints } from "../../../../config/endpoints/settings";
 import useSessionContext from "../../../../contexts/Session/useSessionContext";
 
 const { senderDetail } = servicesEndpoints;
 
-export type UseSenderResourceHookResult = ReturnType<
-    typeof useOrganizationSender
->;
+export type UseSenderResourceHookResult = ReturnType<typeof useOrganizationSender>;
 
 export default function useOrganizationSender(initialData?: RSSender) {
     /* Access the session. */
@@ -29,11 +24,7 @@ export default function useOrganizationSender(initialData?: RSSender) {
             );
         }
         return null;
-    }, [
-        activeMembership?.parsedName,
-        activeMembership?.service,
-        authorizedFetch,
-    ]);
+    }, [activeMembership?.parsedName, activeMembership?.service, authorizedFetch]);
     return useSuspenseQuery({
         queryKey: [senderDetail.queryKey, activeMembership],
         queryFn: memoizedDataFetch,

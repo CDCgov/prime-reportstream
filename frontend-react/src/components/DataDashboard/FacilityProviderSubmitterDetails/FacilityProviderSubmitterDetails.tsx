@@ -13,9 +13,7 @@ export type FacilityProviderSubmitterDetailsProps = PropsWithChildren<{
     senderType: SenderType;
 }>;
 
-function FacilityProviderSubmitterDetailsPage(
-    props: FacilityProviderSubmitterDetailsProps,
-) {
+function FacilityProviderSubmitterDetailsPage(props: FacilityProviderSubmitterDetailsProps) {
     // TODO: get from params once API is complete.
     // const { senderId } = useParams();
     const senderTypeId = "1234";

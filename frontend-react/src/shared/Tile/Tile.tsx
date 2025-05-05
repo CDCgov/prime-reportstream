@@ -14,32 +14,14 @@ export interface TileProps {
     summary?: string;
 }
 
-const Tile = ({
-    children,
-    className,
-    img,
-    imgAlt,
-    imgClassName,
-    title,
-    summary,
-}: TileProps) => {
+const Tile = ({ children, className, img, imgAlt, imgClassName, title, summary }: TileProps) => {
     const cleanSummaryHtml = DOMPurify.sanitize(summary ?? "");
     const classnames = classNames(styles["rs-tile"], className);
     return (
         <div className={classnames}>
-            {img && (
-                <img
-                    data-testid="img"
-                    src={img}
-                    alt={imgAlt}
-                    className={imgClassName}
-                />
-            )}
+            {img && <img data-testid="img" src={img} alt={imgAlt} className={imgClassName} />}
             {title && (
-                <p
-                    data-testid="heading"
-                    className="usa-prose font-sans-lg text-bold"
-                >
+                <p data-testid="heading" className="usa-prose font-sans-lg text-bold">
                     {title}
                 </p>
             )}

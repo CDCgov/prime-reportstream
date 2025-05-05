@@ -6,10 +6,7 @@ export const OVERFLOW_INDICATOR = "…";
 export type SlotItem = number | typeof OVERFLOW_INDICATOR;
 
 const PaginationOverflow: FC = () => (
-    <li
-        className="usa-pagination__item usa-pagination__overflow"
-        role="listitem presentation"
-    >
+    <li className="usa-pagination__item usa-pagination__overflow" role="listitem presentation">
         <span>…</span>
     </li>
 );
@@ -37,9 +34,7 @@ const PaginationPageNumber: FC<PaginationPageNumberProps> = ({
                 type="button"
                 unstyled
                 {...(isCurrentPage && { "aria-current": "page" })}
-                data-testid={`${
-                    isLastPage ? "last page, " : ""
-                }Page ${pageNum}`}
+                data-testid={`${isLastPage ? "last page, " : ""}Page ${pageNum}`}
                 aria-label={`${isLastPage ? "last page, " : ""}Page ${pageNum}`}
                 className={classnames("usa-pagination__button", {
                     "usa-current": isCurrentPage,
@@ -58,11 +53,7 @@ interface PaginationArrowProps {
     direction: "previous" | "next";
 }
 
-const PaginationArrow: FC<PaginationArrowProps> = ({
-    pageNum,
-    setSelectedPage,
-    direction,
-}) => {
+const PaginationArrow: FC<PaginationArrowProps> = ({ pageNum, setSelectedPage, direction }) => {
     const isNext = direction === "next";
     const isPrevious = direction === "previous";
     const label = isPrevious ? "Previous" : "Next";
@@ -97,29 +88,16 @@ export interface PaginationProps {
     isPaginationLoading?: boolean;
 }
 
-const Pagination: FC<PaginationProps> = ({
-    slots,
-    setSelectedPage,
-    currentPageNum,
-    label = "Pagination",
-}) => {
-    const previousPageNum =
-        currentPageNum - 1 > 0 ? currentPageNum - 1 : undefined;
+const Pagination: FC<PaginationProps> = ({ slots, setSelectedPage, currentPageNum, label = "Pagination" }) => {
+    const previousPageNum = currentPageNum - 1 > 0 ? currentPageNum - 1 : undefined;
     const lastSlot = slots[slots.length - 1];
-    const nextPageNum =
-        lastSlot === OVERFLOW_INDICATOR || lastSlot > currentPageNum
-            ? currentPageNum + 1
-            : undefined;
+    const nextPageNum = lastSlot === OVERFLOW_INDICATOR || lastSlot > currentPageNum ? currentPageNum + 1 : undefined;
 
     return (
         <nav aria-label={label} data-testid={label} className="usa-pagination">
             <ul className="usa-pagination__list">
                 {previousPageNum && (
-                    <PaginationArrow
-                        pageNum={previousPageNum}
-                        setSelectedPage={setSelectedPage}
-                        direction="previous"
-                    />
+                    <PaginationArrow pageNum={previousPageNum} setSelectedPage={setSelectedPage} direction="previous" />
                 )}
                 {slots.map((s, i) => {
                     const key = String(s) + i;
@@ -137,11 +115,7 @@ const Pagination: FC<PaginationProps> = ({
                     );
                 })}
                 {nextPageNum && (
-                    <PaginationArrow
-                        pageNum={nextPageNum}
-                        setSelectedPage={setSelectedPage}
-                        direction="next"
-                    />
+                    <PaginationArrow pageNum={nextPageNum} setSelectedPage={setSelectedPage} direction="next" />
                 )}
             </ul>
         </nav>

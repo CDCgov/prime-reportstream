@@ -6,9 +6,7 @@ export interface RSOrganizationSettingsSearchParams {
     organization: string;
 }
 
-const useOrganizationSettingsList = (
-    params?: RSOrganizationSettingsSearchParams,
-) => {
+const useOrganizationSettingsList = (params?: RSOrganizationSettingsSearchParams) => {
     const { authorizedFetch } = useSessionContext();
 
     const fn = () => {

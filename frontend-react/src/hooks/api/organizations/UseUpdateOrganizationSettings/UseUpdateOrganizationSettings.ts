@@ -7,9 +7,7 @@ import useSessionContext from "../../../../contexts/Session/useSessionContext";
 function useUpdateOrganizationSettings() {
     const { authorizedFetch } = useSessionContext();
 
-    const fn = (
-        data: Partial<Omit<RSOrganizationSettings, "name">> & { name: string },
-    ) => {
+    const fn = (data: Partial<Omit<RSOrganizationSettings, "name">> & { name: string }) => {
         return authorizedFetch({
             url: `/settings/organizations/${data.name}`,
             method: HTTPMethods.PUT,

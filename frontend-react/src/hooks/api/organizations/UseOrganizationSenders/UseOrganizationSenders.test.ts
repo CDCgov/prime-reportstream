@@ -1,10 +1,7 @@
 import { waitFor } from "@testing-library/react";
 
 import useOrganizationSenders from "./UseOrganizationSenders";
-import {
-    dummySenders,
-    orgServer,
-} from "../../../../__mockServers__/OrganizationMockServer";
+import { dummySenders, orgServer } from "../../../../__mockServers__/OrganizationMockServer";
 import { AppWrapper, renderHook } from "../../../../utils/CustomRenderUtils";
 import { MemberType } from "../../../../utils/OrganizationUtils";
 
@@ -66,9 +63,7 @@ describe("useOrganizationSenders", () => {
             const { result } = renderHook(() => useOrganizationSenders(), {
                 wrapper: AppWrapper(),
             });
-            await waitFor(() =>
-                expect(result.current.data).toEqual(dummySenders),
-            );
+            await waitFor(() => expect(result.current.data).toEqual(dummySenders));
             expect(result.current.isLoading).toEqual(false);
         });
     });

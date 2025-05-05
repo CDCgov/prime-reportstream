@@ -9,10 +9,7 @@ export interface CardProps extends ComponentProps<typeof OrigCard> {
 }
 
 function Card({ isAlternate, className, ...props }: CardProps) {
-    const classnames = classNames(
-        isAlternate && styles["usa-card--alternate"],
-        className,
-    );
+    const classnames = classNames(isAlternate && styles["usa-card--alternate"], className);
     return <OrigCard className={classnames} {...props} />;
 }
 

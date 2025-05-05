@@ -5,9 +5,7 @@ const ScrollToHashElement = () => {
     const location = useLocation();
 
     useLayoutEffect(() => {
-        const hashElement = location.hash
-            ? document.getElementById(location.hash.slice(1))
-            : undefined;
+        const hashElement = location.hash ? document.getElementById(location.hash.slice(1)) : undefined;
 
         const scrollOptions: ScrollIntoViewOptions = {
             behavior: "smooth",
@@ -17,10 +15,7 @@ const ScrollToHashElement = () => {
         const obs = new MutationObserver((mutations, obs) => {
             for (const mutation of mutations) {
                 for (const added of mutation.addedNodes) {
-                    if (
-                        added instanceof HTMLElement &&
-                        added.id === location.hash
-                    ) {
+                    if (added instanceof HTMLElement && added.id === location.hash) {
                         added.scrollIntoView(scrollOptions);
                         obs.disconnect();
                     }

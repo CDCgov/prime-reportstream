@@ -4,9 +4,7 @@ interface QualityFiltersDisplayProps {
     qualityFilters: QualityFilter[] | undefined;
 }
 
-export const QualityFilters = ({
-    qualityFilters,
-}: QualityFiltersDisplayProps) => {
+export const QualityFilters = ({ qualityFilters }: QualityFiltersDisplayProps) => {
     return (
         <>
             <section className="margin-bottom-5">

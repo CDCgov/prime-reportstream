@@ -8,9 +8,7 @@ import { DetailItem } from "../../components/DetailItem/DetailItem";
 import Spinner from "../../components/Spinner";
 import Title from "../../components/Title";
 import useSessionContext from "../../contexts/Session/useSessionContext";
-import ActionDetailsResource, {
-    Destination,
-} from "../../resources/ActionDetailsResource";
+import ActionDetailsResource, { Destination } from "../../resources/ActionDetailsResource";
 import { generateDateTitles } from "../../utils/DateTimeUtils";
 import { FeatureName } from "../../utils/FeatureName";
 import { ErrorPage } from "../error/ErrorPage";
@@ -42,17 +40,13 @@ export function DestinationItem({ destinationObj }: DestinationItemProps) {
             <DetailItem
                 item="Transmission Date"
                 content={
-                    destinationObj.itemCount > 0
-                        ? submissionDate.dateString
-                        : "Not transmitting - all data filtered"
+                    destinationObj.itemCount > 0 ? submissionDate.dateString : "Not transmitting - all data filtered"
                 }
             />
             <DetailItem
                 item="Transmission Time"
                 content={
-                    destinationObj.itemCount > 0
-                        ? submissionDate.timeString
-                        : "Not transmitting - all data filtered"
+                    destinationObj.itemCount > 0 ? submissionDate.timeString : "Not transmitting - all data filtered"
                 }
             />
             <DetailItem item={"Records"} content={destinationObj.itemCount} />
@@ -71,25 +65,21 @@ function SubmissionDetailsContent() {
     const { activeMembership } = useSessionContext();
     const organization = activeMembership?.parsedName;
     const { actionId } = useParams<SubmissionDetailsProps>();
-    const actionDetails: ActionDetailsResource = useResource(
-        ActionDetailsResource.detail(),
-        { actionId, organization },
-    );
+    const actionDetails: ActionDetailsResource = useResource(ActionDetailsResource.detail(), {
+        actionId,
+        organization,
+    });
     const submissionDate = generateDateTitles(actionDetails.timestamp);
 
     /* Conditional title strings */
-    const preTitle = `${
-        actionDetails.sender
-    } ${actionDetails.topic.toUpperCase()} ${FeatureName.SUBMISSIONS}`;
+    const preTitle = `${actionDetails.sender} ${actionDetails.topic.toUpperCase()} ${FeatureName.SUBMISSIONS}`;
     const titleString: string = submissionDate
         ? `${submissionDate.dateString} ${submissionDate.timeString}`
         : "Date and Time parsing error";
 
     /* Only used when externalName is present */
     const titleWithFilename: string | undefined =
-        actionDetails.externalName !== null
-            ? `${titleString} - ${actionDetails.externalName}`
-            : undefined;
+        actionDetails.externalName !== null ? `${titleString} - ${actionDetails.externalName}` : undefined;
 
     if (!actionDetails) {
         return <ErrorPage type="page" />;
@@ -97,16 +87,10 @@ function SubmissionDetailsContent() {
         return (
             <div className="margin-bottom-10" data-testid="container">
                 <div className="grid-col-12">
-                    <Title
-                        preTitle={preTitle}
-                        title={titleWithFilename ?? titleString}
-                    />
+                    <Title preTitle={preTitle} title={titleWithFilename ?? titleString} />
                     <DetailItem item={"Report ID"} content={actionDetails.id} />
                     {actionDetails.destinations.map((dst) => (
-                        <DestinationItem
-                            key={`${dst.organization_id}-${dst.sending_at}`}
-                            destinationObj={dst}
-                        />
+                        <DestinationItem key={`${dst.organization_id}-${dst.sending_at}`} destinationObj={dst} />
                     ))}
                 </div>
             </div>
@@ -122,17 +106,11 @@ const fallbackPage = () => <ErrorPage type="page" />;
 */
 function SubmissionDetailsPage() {
     const { actionId } = useParams<SubmissionDetailsProps>();
-    const crumbs: CrumbConfig[] = [
-        { label: "Submissions", path: "/submissions" },
-        { label: `Details: ${actionId}` },
-    ];
+    const crumbs: CrumbConfig[] = [{ label: "Submissions", path: "/submissions" }, { label: `Details: ${actionId}` }];
     const location = useLocation();
     return (
         <GridContainer>
-            <Crumbs
-                crumbList={crumbs}
-                previousPage={location.state?.previousPage}
-            />
+            <Crumbs crumbList={crumbs} previousPage={location.state?.previousPage} />
             <NetworkErrorBoundary fallbackComponent={fallbackPage}>
                 <Suspense fallback={<Spinner size="fullpage" />}>
                     <SubmissionDetailsContent />

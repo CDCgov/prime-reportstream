@@ -27,15 +27,9 @@ describe("RSErrorBoundary", () => {
                 <ThrowsRSError />
             </RSErrorBoundary>,
         );
-        expect(
-            screen.getByText(
-                "Our apologies, there was an error loading this content.",
-            ),
-        ).toBeInTheDocument();
+        expect(screen.getByText("Our apologies, there was an error loading this content.")).toBeInTheDocument();
         expect(mockRsconsole._error).toHaveBeenCalledTimes(1);
-        expect(mockRsconsole._error.mock.lastCall?.[0].args[0]).toStrictEqual(
-            rsError,
-        );
+        expect(mockRsconsole._error.mock.lastCall?.[0].args[0]).toStrictEqual(rsError);
     });
 
     test("Renders component when no error", () => {

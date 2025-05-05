@@ -1,9 +1,6 @@
 import { useMutation, UseMutationResult } from "@tanstack/react-query";
 
-import {
-    RSApiKeysResponse,
-    servicesEndpoints,
-} from "../../../../config/endpoints/settings";
+import { RSApiKeysResponse, servicesEndpoints } from "../../../../config/endpoints/settings";
 import useSessionContext from "../../../../contexts/Session/useSessionContext";
 
 export interface OrganizationPublicKeyPostArgs {
@@ -21,10 +18,7 @@ export default function useCreateOrganizationPublicKey(): UseCreateOrganizationP
     const { activeMembership, authorizedFetch } = useSessionContext();
     const parsedName = activeMembership?.parsedName;
 
-    const mutationFn = async ({
-        kid,
-        sender,
-    }: OrganizationPublicKeyPostArgs) => {
+    const mutationFn = async ({ kid, sender }: OrganizationPublicKeyPostArgs) => {
         return await authorizedFetch<RSApiKeysResponse>(
             {
                 segments: { orgName: parsedName! },

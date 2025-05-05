@@ -46,12 +46,7 @@ export interface AccordionProps extends ComponentProps<typeof OrigAccordion> {
  * Will also update history will the last accordion item
  * id interacted with.
  */
-function Accordion({
-    isAlternate,
-    className,
-    items,
-    ...props
-}: AccordionProps) {
+function Accordion({ isAlternate, className, items, ...props }: AccordionProps) {
     const location = useLocation();
     const id = useId();
     const hashId = location.hash.replace("#", "");
@@ -61,40 +56,26 @@ function Accordion({
         title: <span id={i.id}>{i.title}</span>,
         expanded: i.id === hashId,
     }));
-    const classnames = classNames(
-        isAlternate && styles["usa-accordion--alternate"],
-        className,
-    );
-    const interactionHandler = useCallback(
-        (event: React.SyntheticEvent<HTMLDivElement>) => {
-            // TODO: Figure out how to get event.target to return proper type
-            const target = event.target as HTMLElement;
-            // Depending on DOM tree structure inside button, target will differ
-            // depending on area clicked. Check if the target itself has an id,
-            // otherwise try to find a descendant with one.
-            const id =
-                target.getAttribute("id") ?? target.querySelector("[id]")?.id;
+    const classnames = classNames(isAlternate && styles["usa-accordion--alternate"], className);
+    const interactionHandler = useCallback((event: React.SyntheticEvent<HTMLDivElement>) => {
+        // TODO: Figure out how to get event.target to return proper type
+        const target = event.target as HTMLElement;
+        // Depending on DOM tree structure inside button, target will differ
+        // depending on area clicked. Check if the target itself has an id,
+        // otherwise try to find a descendant with one.
+        const id = target.getAttribute("id") ?? target.querySelector("[id]")?.id;
 
-            if (id) {
-                appendHashToURL(`#${id}`);
-            }
-        },
-        [],
-    );
+        if (id) {
+            appendHashToURL(`#${id}`);
+        }
+    }, []);
     return (
         <div
             onClick={(ev) => interactionHandler(ev)}
-            onKeyDown={(ev) =>
-                [" ", "Enter"].includes(ev.key) && interactionHandler(ev)
-            }
+            onKeyDown={(ev) => [" ", "Enter"].includes(ev.key) && interactionHandler(ev)}
             role="none"
         >
-            <OrigAccordion
-                key={`${id}-${location.key}`}
-                {...props}
-                className={classnames}
-                items={finalItems}
-            />
+            <OrigAccordion key={`${id}-${location.key}`} {...props} className={classnames} items={finalItems} />
         </div>
     );
 }

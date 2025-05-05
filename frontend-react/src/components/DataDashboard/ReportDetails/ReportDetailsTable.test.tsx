@@ -8,9 +8,7 @@ import useAppInsightsContext from "../../../hooks/UseAppInsightsContext/UseAppIn
 import { renderApp } from "../../../utils/CustomRenderUtils";
 import { selectDatesFromRange } from "../../../utils/TestUtils";
 
-vi.mock(
-    "../../../hooks/api/deliveries/UseReportFacilities/UseReportFacilities",
-);
+vi.mock("../../../hooks/api/deliveries/UseReportFacilities/UseReportFacilities");
 
 const mockUseAppInsightsContext = vi.mocked(useAppInsightsContext);
 const mockAppInsights = mockUseAppInsightsContext();
@@ -33,9 +31,7 @@ describe("ReportDetailsTable", () => {
                 data: makeFacilityFixtureArray(10),
             };
 
-            mockUseReportFacilities.mockReturnValue(
-                mockUseReportFacilitiesCallback as any,
-            );
+            mockUseReportFacilities.mockReturnValue(mockUseReportFacilitiesCallback as any);
 
             // Render the component
             renderApp(<ReportDetailsTable reportId={TEST_ID} />);
@@ -83,9 +79,7 @@ describe("ReportDetailsTable", () => {
                 data: [],
             };
 
-            mockUseReportFacilities.mockReturnValue(
-                mockUseReportFacilitiesCallback as any,
-            );
+            mockUseReportFacilities.mockReturnValue(mockUseReportFacilitiesCallback as any);
 
             // Render the component
             renderApp(<ReportDetailsTable reportId={TEST_ID} />);

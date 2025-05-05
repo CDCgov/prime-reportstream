@@ -17,16 +17,13 @@ const DetailsContent = () => {
             <article>
                 <Summary report={reportDetail} />
                 <DeliveryInfo report={reportDetail} />
-                {withCatchAndSuspense(
-                    <DeliveryFacilitiesTable reportId={reportId!} />,
-                )}
+                {withCatchAndSuspense(<DeliveryFacilitiesTable reportId={reportId!} />)}
                 <HipaaNotice />
             </article>
         </GridContainer>
     );
 };
 
-export const DeliveryDetailPage = () =>
-    withCatchAndSuspense(<DetailsContent />);
+export const DeliveryDetailPage = () => withCatchAndSuspense(<DetailsContent />);
 
 export default DeliveryDetailPage;

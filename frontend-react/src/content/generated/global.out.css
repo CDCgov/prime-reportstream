@@ -1748,12 +1748,9 @@ template {
     font-weight: 300;
     font-display: fallback;
     src:
-        url(@uswds/uswds/fonts/roboto-mono/roboto-mono-v5-latin-300.woff2)
-            format("woff2"),
-        url(@uswds/uswds/fonts/roboto-mono/roboto-mono-v5-latin-300.woff)
-            format("woff"),
-        url(@uswds/uswds/fonts/roboto-mono/roboto-mono-v5-latin-300.ttf)
-            format("truetype");
+        url(@uswds/uswds/fonts/roboto-mono/roboto-mono-v5-latin-300.woff2) format("woff2"),
+        url(@uswds/uswds/fonts/roboto-mono/roboto-mono-v5-latin-300.woff) format("woff"),
+        url(@uswds/uswds/fonts/roboto-mono/roboto-mono-v5-latin-300.ttf) format("truetype");
 }
 @font-face {
     font-family: "Roboto Mono Web";
@@ -1761,12 +1758,9 @@ template {
     font-weight: 400;
     font-display: fallback;
     src:
-        url(@uswds/uswds/fonts/roboto-mono/roboto-mono-v5-latin-regular.woff2)
-            format("woff2"),
-        url(@uswds/uswds/fonts/roboto-mono/roboto-mono-v5-latin-regular.woff)
-            format("woff"),
-        url(@uswds/uswds/fonts/roboto-mono/roboto-mono-v5-latin-regular.ttf)
-            format("truetype");
+        url(@uswds/uswds/fonts/roboto-mono/roboto-mono-v5-latin-regular.woff2) format("woff2"),
+        url(@uswds/uswds/fonts/roboto-mono/roboto-mono-v5-latin-regular.woff) format("woff"),
+        url(@uswds/uswds/fonts/roboto-mono/roboto-mono-v5-latin-regular.ttf) format("truetype");
 }
 @font-face {
     font-family: "Roboto Mono Web";
@@ -1774,12 +1768,9 @@ template {
     font-weight: 700;
     font-display: fallback;
     src:
-        url(@uswds/uswds/fonts/roboto-mono/roboto-mono-v5-latin-700.woff2)
-            format("woff2"),
-        url(@uswds/uswds/fonts/roboto-mono/roboto-mono-v5-latin-700.woff)
-            format("woff"),
-        url(@uswds/uswds/fonts/roboto-mono/roboto-mono-v5-latin-700.ttf)
-            format("truetype");
+        url(@uswds/uswds/fonts/roboto-mono/roboto-mono-v5-latin-700.woff2) format("woff2"),
+        url(@uswds/uswds/fonts/roboto-mono/roboto-mono-v5-latin-700.woff) format("woff"),
+        url(@uswds/uswds/fonts/roboto-mono/roboto-mono-v5-latin-700.ttf) format("truetype");
 }
 @font-face {
     font-family: "Roboto Mono Web";
@@ -1787,12 +1778,9 @@ template {
     font-weight: 300;
     font-display: fallback;
     src:
-        url(@uswds/uswds/fonts/roboto-mono/roboto-mono-v5-latin-300italic.woff2)
-            format("woff2"),
-        url(@uswds/uswds/fonts/roboto-mono/roboto-mono-v5-latin-300italic.woff)
-            format("woff"),
-        url(@uswds/uswds/fonts/roboto-mono/roboto-mono-v5-latin-300italic.ttf)
-            format("truetype");
+        url(@uswds/uswds/fonts/roboto-mono/roboto-mono-v5-latin-300italic.woff2) format("woff2"),
+        url(@uswds/uswds/fonts/roboto-mono/roboto-mono-v5-latin-300italic.woff) format("woff"),
+        url(@uswds/uswds/fonts/roboto-mono/roboto-mono-v5-latin-300italic.ttf) format("truetype");
 }
 @font-face {
     font-family: "Roboto Mono Web";
@@ -1800,12 +1788,9 @@ template {
     font-weight: 400;
     font-display: fallback;
     src:
-        url(@uswds/uswds/fonts/roboto-mono/roboto-mono-v5-latin-italic.woff2)
-            format("woff2"),
-        url(@uswds/uswds/fonts/roboto-mono/roboto-mono-v5-latin-italic.woff)
-            format("woff"),
-        url(@uswds/uswds/fonts/roboto-mono/roboto-mono-v5-latin-italic.ttf)
-            format("truetype");
+        url(@uswds/uswds/fonts/roboto-mono/roboto-mono-v5-latin-italic.woff2) format("woff2"),
+        url(@uswds/uswds/fonts/roboto-mono/roboto-mono-v5-latin-italic.woff) format("woff"),
+        url(@uswds/uswds/fonts/roboto-mono/roboto-mono-v5-latin-italic.ttf) format("truetype");
 }
 @font-face {
     font-family: "Roboto Mono Web";
@@ -1813,12 +1798,9 @@ template {
     font-weight: 700;
     font-display: fallback;
     src:
-        url(@uswds/uswds/fonts/roboto-mono/roboto-mono-v5-latin-700italic.woff2)
-            format("woff2"),
-        url(@uswds/uswds/fonts/roboto-mono/roboto-mono-v5-latin-700italic.woff)
-            format("woff"),
-        url(@uswds/uswds/fonts/roboto-mono/roboto-mono-v5-latin-700italic.ttf)
-            format("truetype");
+        url(@uswds/uswds/fonts/roboto-mono/roboto-mono-v5-latin-700italic.woff2) format("woff2"),
+        url(@uswds/uswds/fonts/roboto-mono/roboto-mono-v5-latin-700italic.woff) format("woff"),
+        url(@uswds/uswds/fonts/roboto-mono/roboto-mono-v5-latin-700italic.ttf) format("truetype");
 }
 @font-face {
     font-family: "Public Sans Web";
@@ -1826,11 +1808,9 @@ template {
     font-weight: 300;
     font-display: fallback;
     src:
-        url(@uswds/uswds/fonts/public-sans/PublicSans-Light.woff2)
-            format("woff2"),
+        url(@uswds/uswds/fonts/public-sans/PublicSans-Light.woff2) format("woff2"),
         url(@uswds/uswds/fonts/public-sans/PublicSans-Light.woff) format("woff"),
-        url(@uswds/uswds/fonts/public-sans/PublicSans-Light.ttf)
-            format("truetype");
+        url(@uswds/uswds/fonts/public-sans/PublicSans-Light.ttf) format("truetype");
 }
 @font-face {
     font-family: "Public Sans Web";
@@ -1838,12 +1818,9 @@ template {
     font-weight: 400;
     font-display: fallback;
     src:
-        url(@uswds/uswds/fonts/public-sans/PublicSans-Regular.woff2)
-            format("woff2"),
-        url(@uswds/uswds/fonts/public-sans/PublicSans-Regular.woff)
-            format("woff"),
-        url(@uswds/uswds/fonts/public-sans/PublicSans-Regular.ttf)
-            format("truetype");
+        url(@uswds/uswds/fonts/public-sans/PublicSans-Regular.woff2) format("woff2"),
+        url(@uswds/uswds/fonts/public-sans/PublicSans-Regular.woff) format("woff"),
+        url(@uswds/uswds/fonts/public-sans/PublicSans-Regular.ttf) format("truetype");
 }
 @font-face {
     font-family: "Public Sans Web";
@@ -1851,11 +1828,9 @@ template {
     font-weight: 700;
     font-display: fallback;
     src:
-        url(@uswds/uswds/fonts/public-sans/PublicSans-Bold.woff2)
-            format("woff2"),
+        url(@uswds/uswds/fonts/public-sans/PublicSans-Bold.woff2) format("woff2"),
         url(@uswds/uswds/fonts/public-sans/PublicSans-Bold.woff) format("woff"),
-        url(@uswds/uswds/fonts/public-sans/PublicSans-Bold.ttf)
-            format("truetype");
+        url(@uswds/uswds/fonts/public-sans/PublicSans-Bold.ttf) format("truetype");
 }
 @font-face {
     font-family: "Public Sans Web";
@@ -1863,12 +1838,9 @@ template {
     font-weight: 300;
     font-display: fallback;
     src:
-        url(@uswds/uswds/fonts/public-sans/PublicSans-LightItalic.woff2)
-            format("woff2"),
-        url(@uswds/uswds/fonts/public-sans/PublicSans-LightItalic.woff)
-            format("woff"),
-        url(@uswds/uswds/fonts/public-sans/PublicSans-LightItalic.ttf)
-            format("truetype");
+        url(@uswds/uswds/fonts/public-sans/PublicSans-LightItalic.woff2) format("woff2"),
+        url(@uswds/uswds/fonts/public-sans/PublicSans-LightItalic.woff) format("woff"),
+        url(@uswds/uswds/fonts/public-sans/PublicSans-LightItalic.ttf) format("truetype");
 }
 @font-face {
     font-family: "Public Sans Web";
@@ -1876,12 +1848,9 @@ template {
     font-weight: 400;
     font-display: fallback;
     src:
-        url(@uswds/uswds/fonts/public-sans/PublicSans-Italic.woff2)
-            format("woff2"),
-        url(@uswds/uswds/fonts/public-sans/PublicSans-Italic.woff)
-            format("woff"),
-        url(@uswds/uswds/fonts/public-sans/PublicSans-Italic.ttf)
-            format("truetype");
+        url(@uswds/uswds/fonts/public-sans/PublicSans-Italic.woff2) format("woff2"),
+        url(@uswds/uswds/fonts/public-sans/PublicSans-Italic.woff) format("woff"),
+        url(@uswds/uswds/fonts/public-sans/PublicSans-Italic.ttf) format("truetype");
 }
 @font-face {
     font-family: "Public Sans Web";
@@ -1889,12 +1858,9 @@ template {
     font-weight: 700;
     font-display: fallback;
     src:
-        url(@uswds/uswds/fonts/public-sans/PublicSans-BoldItalic.woff2)
-            format("woff2"),
-        url(@uswds/uswds/fonts/public-sans/PublicSans-BoldItalic.woff)
-            format("woff"),
-        url(@uswds/uswds/fonts/public-sans/PublicSans-BoldItalic.ttf)
-            format("truetype");
+        url(@uswds/uswds/fonts/public-sans/PublicSans-BoldItalic.woff2) format("woff2"),
+        url(@uswds/uswds/fonts/public-sans/PublicSans-BoldItalic.woff) format("woff"),
+        url(@uswds/uswds/fonts/public-sans/PublicSans-BoldItalic.ttf) format("truetype");
 }
 /* stylelint-enable */
 body {
@@ -2169,8 +2135,7 @@ dfn {
     position: relative;
 }
 .usa-link--external::after {
-    background: url("@uswds/uswds/img/usa-icons/launch.svg") no-repeat
-        center/contain;
+    background: url("@uswds/uswds/img/usa-icons/launch.svg") no-repeat center/contain;
     display: inline-block;
     height: 1.75ex;
     width: 1.75ex;
@@ -2186,8 +2151,7 @@ dfn {
     .usa-link--external::after {
         background: none;
         background-color: currentColor;
-        mask: url("@uswds/uswds/img/usa-icons/launch.svg") no-repeat
-            center/contain;
+        mask: url("@uswds/uswds/img/usa-icons/launch.svg") no-repeat center/contain;
     }
 }
 .usa-link--external.usa-link--alt {
@@ -2196,8 +2160,7 @@ dfn {
     position: relative;
 }
 .usa-link--external.usa-link--alt::after {
-    background: url("@uswds/uswds/img/usa-icons-bg/launch--white.svg") no-repeat
-        center/contain;
+    background: url("@uswds/uswds/img/usa-icons-bg/launch--white.svg") no-repeat center/contain;
     display: inline-block;
     height: 1.75ex;
     width: 1.75ex;
@@ -2213,8 +2176,7 @@ dfn {
     .usa-link--external.usa-link--alt::after {
         background: none;
         background-color: currentColor;
-        mask: url("@uswds/uswds/img/usa-icons/launch.svg") no-repeat
-            center/contain;
+        mask: url("@uswds/uswds/img/usa-icons/launch.svg") no-repeat center/contain;
     }
 }
 
@@ -2497,14 +2459,8 @@ dfn {
     position: absolute;
     width: 100%;
 }
-.usa-prose
-    > table
-    th[data-sortable]:not([aria-sort])
-    .usa-table__header__button,
-.usa-prose
-    > table
-    th[data-sortable][aria-sort="none"]
-    .usa-table__header__button {
+.usa-prose > table th[data-sortable]:not([aria-sort]) .usa-table__header__button,
+.usa-prose > table th[data-sortable][aria-sort="none"] .usa-table__header__button {
     -moz-osx-font-smoothing: inherit;
     -webkit-font-smoothing: inherit;
     color: #005ea2;
@@ -2532,363 +2488,139 @@ dfn {
     top: 50%;
     transform: translate(0, -50%);
 }
-.usa-prose
-    > table
-    th[data-sortable]:not([aria-sort])
-    .usa-table__header__button:visited,
-.usa-prose
-    > table
-    th[data-sortable][aria-sort="none"]
-    .usa-table__header__button:visited {
+.usa-prose > table th[data-sortable]:not([aria-sort]) .usa-table__header__button:visited,
+.usa-prose > table th[data-sortable][aria-sort="none"] .usa-table__header__button:visited {
     color: #54278f;
 }
-.usa-prose
-    > table
-    th[data-sortable]:not([aria-sort])
-    .usa-table__header__button:hover,
-.usa-prose
-    > table
-    th[data-sortable][aria-sort="none"]
-    .usa-table__header__button:hover {
+.usa-prose > table th[data-sortable]:not([aria-sort]) .usa-table__header__button:hover,
+.usa-prose > table th[data-sortable][aria-sort="none"] .usa-table__header__button:hover {
     color: #1a4480;
 }
-.usa-prose
-    > table
-    th[data-sortable]:not([aria-sort])
-    .usa-table__header__button:active,
-.usa-prose
-    > table
-    th[data-sortable][aria-sort="none"]
-    .usa-table__header__button:active {
+.usa-prose > table th[data-sortable]:not([aria-sort]) .usa-table__header__button:active,
+.usa-prose > table th[data-sortable][aria-sort="none"] .usa-table__header__button:active {
     color: #162e51;
 }
-.usa-prose
-    > table
-    th[data-sortable]:not([aria-sort])
-    .usa-table__header__button:focus,
-.usa-prose
-    > table
-    th[data-sortable][aria-sort="none"]
-    .usa-table__header__button:focus {
+.usa-prose > table th[data-sortable]:not([aria-sort]) .usa-table__header__button:focus,
+.usa-prose > table th[data-sortable][aria-sort="none"] .usa-table__header__button:focus {
     outline: 0.25rem solid #2491ff;
     outline-offset: 0;
 }
-.usa-prose
-    > table
-    th[data-sortable]:not([aria-sort])
-    .usa-table__header__button:hover,
-.usa-prose
-    > table
-    th[data-sortable]:not([aria-sort])
-    .usa-table__header__button.usa-button--hover,
-.usa-prose
-    > table
-    th[data-sortable]:not([aria-sort])
-    .usa-table__header__button:disabled:hover,
-.usa-prose
-    > table
-    th[data-sortable]:not([aria-sort])
-    .usa-table__header__button[aria-disabled="true"]:hover,
-.usa-prose
-    > table
-    th[data-sortable]:not([aria-sort])
-    .usa-table__header__button:disabled.usa-button--hover,
+.usa-prose > table th[data-sortable]:not([aria-sort]) .usa-table__header__button:hover,
+.usa-prose > table th[data-sortable]:not([aria-sort]) .usa-table__header__button.usa-button--hover,
+.usa-prose > table th[data-sortable]:not([aria-sort]) .usa-table__header__button:disabled:hover,
+.usa-prose > table th[data-sortable]:not([aria-sort]) .usa-table__header__button[aria-disabled="true"]:hover,
+.usa-prose > table th[data-sortable]:not([aria-sort]) .usa-table__header__button:disabled.usa-button--hover,
 .usa-prose
     > table
     th[data-sortable]:not([aria-sort])
     .usa-table__header__button[aria-disabled="true"].usa-button--hover,
-.usa-prose
-    > table
-    th[data-sortable]:not([aria-sort])
-    .usa-table__header__button.usa-button--disabled:hover,
-.usa-prose
-    > table
-    th[data-sortable]:not([aria-sort])
-    .usa-table__header__button.usa-button--disabled.usa-button--hover,
-.usa-prose
-    > table
-    th[data-sortable]:not([aria-sort])
-    .usa-table__header__button:active,
-.usa-prose
-    > table
-    th[data-sortable]:not([aria-sort])
-    .usa-table__header__button.usa-button--active,
-.usa-prose
-    > table
-    th[data-sortable]:not([aria-sort])
-    .usa-table__header__button:disabled:active,
-.usa-prose
-    > table
-    th[data-sortable]:not([aria-sort])
-    .usa-table__header__button[aria-disabled="true"]:active,
-.usa-prose
-    > table
-    th[data-sortable]:not([aria-sort])
-    .usa-table__header__button:disabled.usa-button--active,
+.usa-prose > table th[data-sortable]:not([aria-sort]) .usa-table__header__button.usa-button--disabled:hover,
+.usa-prose > table th[data-sortable]:not([aria-sort]) .usa-table__header__button.usa-button--disabled.usa-button--hover,
+.usa-prose > table th[data-sortable]:not([aria-sort]) .usa-table__header__button:active,
+.usa-prose > table th[data-sortable]:not([aria-sort]) .usa-table__header__button.usa-button--active,
+.usa-prose > table th[data-sortable]:not([aria-sort]) .usa-table__header__button:disabled:active,
+.usa-prose > table th[data-sortable]:not([aria-sort]) .usa-table__header__button[aria-disabled="true"]:active,
+.usa-prose > table th[data-sortable]:not([aria-sort]) .usa-table__header__button:disabled.usa-button--active,
 .usa-prose
     > table
     th[data-sortable]:not([aria-sort])
     .usa-table__header__button[aria-disabled="true"].usa-button--active,
-.usa-prose
-    > table
-    th[data-sortable]:not([aria-sort])
-    .usa-table__header__button.usa-button--disabled:active,
+.usa-prose > table th[data-sortable]:not([aria-sort]) .usa-table__header__button.usa-button--disabled:active,
 .usa-prose
     > table
     th[data-sortable]:not([aria-sort])
     .usa-table__header__button.usa-button--disabled.usa-button--active,
-.usa-prose
-    > table
-    th[data-sortable]:not([aria-sort])
-    .usa-table__header__button:disabled:focus,
-.usa-prose
-    > table
-    th[data-sortable]:not([aria-sort])
-    .usa-table__header__button[aria-disabled="true"]:focus,
-.usa-prose
-    > table
-    th[data-sortable]:not([aria-sort])
-    .usa-table__header__button:disabled.usa-focus,
-.usa-prose
-    > table
-    th[data-sortable]:not([aria-sort])
-    .usa-table__header__button[aria-disabled="true"].usa-focus,
-.usa-prose
-    > table
-    th[data-sortable]:not([aria-sort])
-    .usa-table__header__button.usa-button--disabled:focus,
-.usa-prose
-    > table
-    th[data-sortable]:not([aria-sort])
-    .usa-table__header__button.usa-button--disabled.usa-focus,
-.usa-prose
-    > table
-    th[data-sortable]:not([aria-sort])
-    .usa-table__header__button:disabled,
-.usa-prose
-    > table
-    th[data-sortable]:not([aria-sort])
-    .usa-table__header__button[aria-disabled="true"],
-.usa-prose
-    > table
-    th[data-sortable]:not([aria-sort])
-    .usa-table__header__button.usa-button--disabled,
-.usa-prose
-    > table
-    th[data-sortable][aria-sort="none"]
-    .usa-table__header__button:hover,
-.usa-prose
-    > table
-    th[data-sortable][aria-sort="none"]
-    .usa-table__header__button.usa-button--hover,
-.usa-prose
-    > table
-    th[data-sortable][aria-sort="none"]
-    .usa-table__header__button:disabled:hover,
-.usa-prose
-    > table
-    th[data-sortable][aria-sort="none"]
-    .usa-table__header__button[aria-disabled="true"]:hover,
-.usa-prose
-    > table
-    th[data-sortable][aria-sort="none"]
-    .usa-table__header__button:disabled.usa-button--hover,
+.usa-prose > table th[data-sortable]:not([aria-sort]) .usa-table__header__button:disabled:focus,
+.usa-prose > table th[data-sortable]:not([aria-sort]) .usa-table__header__button[aria-disabled="true"]:focus,
+.usa-prose > table th[data-sortable]:not([aria-sort]) .usa-table__header__button:disabled.usa-focus,
+.usa-prose > table th[data-sortable]:not([aria-sort]) .usa-table__header__button[aria-disabled="true"].usa-focus,
+.usa-prose > table th[data-sortable]:not([aria-sort]) .usa-table__header__button.usa-button--disabled:focus,
+.usa-prose > table th[data-sortable]:not([aria-sort]) .usa-table__header__button.usa-button--disabled.usa-focus,
+.usa-prose > table th[data-sortable]:not([aria-sort]) .usa-table__header__button:disabled,
+.usa-prose > table th[data-sortable]:not([aria-sort]) .usa-table__header__button[aria-disabled="true"],
+.usa-prose > table th[data-sortable]:not([aria-sort]) .usa-table__header__button.usa-button--disabled,
+.usa-prose > table th[data-sortable][aria-sort="none"] .usa-table__header__button:hover,
+.usa-prose > table th[data-sortable][aria-sort="none"] .usa-table__header__button.usa-button--hover,
+.usa-prose > table th[data-sortable][aria-sort="none"] .usa-table__header__button:disabled:hover,
+.usa-prose > table th[data-sortable][aria-sort="none"] .usa-table__header__button[aria-disabled="true"]:hover,
+.usa-prose > table th[data-sortable][aria-sort="none"] .usa-table__header__button:disabled.usa-button--hover,
 .usa-prose
     > table
     th[data-sortable][aria-sort="none"]
     .usa-table__header__button[aria-disabled="true"].usa-button--hover,
-.usa-prose
-    > table
-    th[data-sortable][aria-sort="none"]
-    .usa-table__header__button.usa-button--disabled:hover,
+.usa-prose > table th[data-sortable][aria-sort="none"] .usa-table__header__button.usa-button--disabled:hover,
 .usa-prose
     > table
     th[data-sortable][aria-sort="none"]
     .usa-table__header__button.usa-button--disabled.usa-button--hover,
-.usa-prose
-    > table
-    th[data-sortable][aria-sort="none"]
-    .usa-table__header__button:active,
-.usa-prose
-    > table
-    th[data-sortable][aria-sort="none"]
-    .usa-table__header__button.usa-button--active,
-.usa-prose
-    > table
-    th[data-sortable][aria-sort="none"]
-    .usa-table__header__button:disabled:active,
-.usa-prose
-    > table
-    th[data-sortable][aria-sort="none"]
-    .usa-table__header__button[aria-disabled="true"]:active,
-.usa-prose
-    > table
-    th[data-sortable][aria-sort="none"]
-    .usa-table__header__button:disabled.usa-button--active,
+.usa-prose > table th[data-sortable][aria-sort="none"] .usa-table__header__button:active,
+.usa-prose > table th[data-sortable][aria-sort="none"] .usa-table__header__button.usa-button--active,
+.usa-prose > table th[data-sortable][aria-sort="none"] .usa-table__header__button:disabled:active,
+.usa-prose > table th[data-sortable][aria-sort="none"] .usa-table__header__button[aria-disabled="true"]:active,
+.usa-prose > table th[data-sortable][aria-sort="none"] .usa-table__header__button:disabled.usa-button--active,
 .usa-prose
     > table
     th[data-sortable][aria-sort="none"]
     .usa-table__header__button[aria-disabled="true"].usa-button--active,
-.usa-prose
-    > table
-    th[data-sortable][aria-sort="none"]
-    .usa-table__header__button.usa-button--disabled:active,
+.usa-prose > table th[data-sortable][aria-sort="none"] .usa-table__header__button.usa-button--disabled:active,
 .usa-prose
     > table
     th[data-sortable][aria-sort="none"]
     .usa-table__header__button.usa-button--disabled.usa-button--active,
-.usa-prose
-    > table
-    th[data-sortable][aria-sort="none"]
-    .usa-table__header__button:disabled:focus,
-.usa-prose
-    > table
-    th[data-sortable][aria-sort="none"]
-    .usa-table__header__button[aria-disabled="true"]:focus,
-.usa-prose
-    > table
-    th[data-sortable][aria-sort="none"]
-    .usa-table__header__button:disabled.usa-focus,
-.usa-prose
-    > table
-    th[data-sortable][aria-sort="none"]
-    .usa-table__header__button[aria-disabled="true"].usa-focus,
-.usa-prose
-    > table
-    th[data-sortable][aria-sort="none"]
-    .usa-table__header__button.usa-button--disabled:focus,
-.usa-prose
-    > table
-    th[data-sortable][aria-sort="none"]
-    .usa-table__header__button.usa-button--disabled.usa-focus,
-.usa-prose
-    > table
-    th[data-sortable][aria-sort="none"]
-    .usa-table__header__button:disabled,
-.usa-prose
-    > table
-    th[data-sortable][aria-sort="none"]
-    .usa-table__header__button[aria-disabled="true"],
-.usa-prose
-    > table
-    th[data-sortable][aria-sort="none"]
-    .usa-table__header__button.usa-button--disabled {
+.usa-prose > table th[data-sortable][aria-sort="none"] .usa-table__header__button:disabled:focus,
+.usa-prose > table th[data-sortable][aria-sort="none"] .usa-table__header__button[aria-disabled="true"]:focus,
+.usa-prose > table th[data-sortable][aria-sort="none"] .usa-table__header__button:disabled.usa-focus,
+.usa-prose > table th[data-sortable][aria-sort="none"] .usa-table__header__button[aria-disabled="true"].usa-focus,
+.usa-prose > table th[data-sortable][aria-sort="none"] .usa-table__header__button.usa-button--disabled:focus,
+.usa-prose > table th[data-sortable][aria-sort="none"] .usa-table__header__button.usa-button--disabled.usa-focus,
+.usa-prose > table th[data-sortable][aria-sort="none"] .usa-table__header__button:disabled,
+.usa-prose > table th[data-sortable][aria-sort="none"] .usa-table__header__button[aria-disabled="true"],
+.usa-prose > table th[data-sortable][aria-sort="none"] .usa-table__header__button.usa-button--disabled {
     -moz-osx-font-smoothing: inherit;
     -webkit-font-smoothing: inherit;
     background-color: transparent;
     box-shadow: none;
     text-decoration: underline;
 }
-.usa-prose
-    > table
-    th[data-sortable]:not([aria-sort])
-    .usa-table__header__button.usa-button--hover,
-.usa-prose
-    > table
-    th[data-sortable][aria-sort="none"]
-    .usa-table__header__button.usa-button--hover {
+.usa-prose > table th[data-sortable]:not([aria-sort]) .usa-table__header__button.usa-button--hover,
+.usa-prose > table th[data-sortable][aria-sort="none"] .usa-table__header__button.usa-button--hover {
     color: #1a4480;
 }
-.usa-prose
-    > table
-    th[data-sortable]:not([aria-sort])
-    .usa-table__header__button.usa-button--active,
-.usa-prose
-    > table
-    th[data-sortable][aria-sort="none"]
-    .usa-table__header__button.usa-button--active {
+.usa-prose > table th[data-sortable]:not([aria-sort]) .usa-table__header__button.usa-button--active,
+.usa-prose > table th[data-sortable][aria-sort="none"] .usa-table__header__button.usa-button--active {
     color: #162e51;
 }
-.usa-prose
-    > table
-    th[data-sortable]:not([aria-sort])
-    .usa-table__header__button:disabled,
-.usa-prose
-    > table
-    th[data-sortable]:not([aria-sort])
-    .usa-table__header__button[aria-disabled="true"],
-.usa-prose
-    > table
-    th[data-sortable]:not([aria-sort])
-    .usa-table__header__button.usa-button--disabled,
-.usa-prose
-    > table
-    th[data-sortable][aria-sort="none"]
-    .usa-table__header__button:disabled,
-.usa-prose
-    > table
-    th[data-sortable][aria-sort="none"]
-    .usa-table__header__button[aria-disabled="true"],
-.usa-prose
-    > table
-    th[data-sortable][aria-sort="none"]
-    .usa-table__header__button.usa-button--disabled {
+.usa-prose > table th[data-sortable]:not([aria-sort]) .usa-table__header__button:disabled,
+.usa-prose > table th[data-sortable]:not([aria-sort]) .usa-table__header__button[aria-disabled="true"],
+.usa-prose > table th[data-sortable]:not([aria-sort]) .usa-table__header__button.usa-button--disabled,
+.usa-prose > table th[data-sortable][aria-sort="none"] .usa-table__header__button:disabled,
+.usa-prose > table th[data-sortable][aria-sort="none"] .usa-table__header__button[aria-disabled="true"],
+.usa-prose > table th[data-sortable][aria-sort="none"] .usa-table__header__button.usa-button--disabled {
     color: #c9c9c9;
 }
-.usa-prose
-    > table
-    th[data-sortable]:not([aria-sort])
-    .usa-table__header__button
-    .usa-icon,
-.usa-prose
-    > table
-    th[data-sortable][aria-sort="none"]
-    .usa-table__header__button
-    .usa-icon {
+.usa-prose > table th[data-sortable]:not([aria-sort]) .usa-table__header__button .usa-icon,
+.usa-prose > table th[data-sortable][aria-sort="none"] .usa-table__header__button .usa-icon {
     height: 1.5rem;
     width: 1.5rem;
     vertical-align: middle;
 }
-.usa-prose
-    > table
-    th[data-sortable]:not([aria-sort])
-    .usa-table__header__button
-    .usa-icon
-    > g,
-.usa-prose
-    > table
-    th[data-sortable][aria-sort="none"]
-    .usa-table__header__button
-    .usa-icon
-    > g {
+.usa-prose > table th[data-sortable]:not([aria-sort]) .usa-table__header__button .usa-icon > g,
+.usa-prose > table th[data-sortable][aria-sort="none"] .usa-table__header__button .usa-icon > g {
     fill: transparent;
 }
-.usa-prose
-    > table
-    th[data-sortable]:not([aria-sort])
-    .usa-table__header__button
-    .usa-icon
-    > g.unsorted,
-.usa-prose
-    > table
-    th[data-sortable][aria-sort="none"]
-    .usa-table__header__button
-    .usa-icon
-    > g.unsorted {
+.usa-prose > table th[data-sortable]:not([aria-sort]) .usa-table__header__button .usa-icon > g.unsorted,
+.usa-prose > table th[data-sortable][aria-sort="none"] .usa-table__header__button .usa-icon > g.unsorted {
     fill: #1b1b1b;
 }
-.usa-prose
-    > table
-    th[data-sortable]:not([aria-sort])
-    .usa-table__header__button:hover
-    .usa-icon
-    > g.unsorted,
-.usa-prose
-    > table
-    th[data-sortable][aria-sort="none"]
-    .usa-table__header__button:hover
-    .usa-icon
-    > g.unsorted {
+.usa-prose > table th[data-sortable]:not([aria-sort]) .usa-table__header__button:hover .usa-icon > g.unsorted,
+.usa-prose > table th[data-sortable][aria-sort="none"] .usa-table__header__button:hover .usa-icon > g.unsorted {
     fill: black;
 }
 .usa-prose > table th[data-sortable][aria-sort="descending"],
 .usa-prose > table th[data-sortable][aria-sort="ascending"] {
     background-color: #97d4ea;
 }
-.usa-prose
-    > table
-    th[data-sortable][aria-sort="descending"]
-    .usa-table__header__button {
+.usa-prose > table th[data-sortable][aria-sort="descending"] .usa-table__header__button {
     -moz-osx-font-smoothing: inherit;
     -webkit-font-smoothing: inherit;
     color: #005ea2;
@@ -2916,192 +2648,85 @@ dfn {
     top: 50%;
     transform: translate(0, -50%);
 }
-.usa-prose
-    > table
-    th[data-sortable][aria-sort="descending"]
-    .usa-table__header__button:visited {
+.usa-prose > table th[data-sortable][aria-sort="descending"] .usa-table__header__button:visited {
     color: #54278f;
 }
-.usa-prose
-    > table
-    th[data-sortable][aria-sort="descending"]
-    .usa-table__header__button:hover {
+.usa-prose > table th[data-sortable][aria-sort="descending"] .usa-table__header__button:hover {
     color: #1a4480;
 }
-.usa-prose
-    > table
-    th[data-sortable][aria-sort="descending"]
-    .usa-table__header__button:active {
+.usa-prose > table th[data-sortable][aria-sort="descending"] .usa-table__header__button:active {
     color: #162e51;
 }
-.usa-prose
-    > table
-    th[data-sortable][aria-sort="descending"]
-    .usa-table__header__button:focus {
+.usa-prose > table th[data-sortable][aria-sort="descending"] .usa-table__header__button:focus {
     outline: 0.25rem solid #2491ff;
     outline-offset: 0;
 }
-.usa-prose
-    > table
-    th[data-sortable][aria-sort="descending"]
-    .usa-table__header__button:hover,
-.usa-prose
-    > table
-    th[data-sortable][aria-sort="descending"]
-    .usa-table__header__button.usa-button--hover,
-.usa-prose
-    > table
-    th[data-sortable][aria-sort="descending"]
-    .usa-table__header__button:disabled:hover,
-.usa-prose
-    > table
-    th[data-sortable][aria-sort="descending"]
-    .usa-table__header__button[aria-disabled="true"]:hover,
-.usa-prose
-    > table
-    th[data-sortable][aria-sort="descending"]
-    .usa-table__header__button:disabled.usa-button--hover,
+.usa-prose > table th[data-sortable][aria-sort="descending"] .usa-table__header__button:hover,
+.usa-prose > table th[data-sortable][aria-sort="descending"] .usa-table__header__button.usa-button--hover,
+.usa-prose > table th[data-sortable][aria-sort="descending"] .usa-table__header__button:disabled:hover,
+.usa-prose > table th[data-sortable][aria-sort="descending"] .usa-table__header__button[aria-disabled="true"]:hover,
+.usa-prose > table th[data-sortable][aria-sort="descending"] .usa-table__header__button:disabled.usa-button--hover,
 .usa-prose
     > table
     th[data-sortable][aria-sort="descending"]
     .usa-table__header__button[aria-disabled="true"].usa-button--hover,
-.usa-prose
-    > table
-    th[data-sortable][aria-sort="descending"]
-    .usa-table__header__button.usa-button--disabled:hover,
+.usa-prose > table th[data-sortable][aria-sort="descending"] .usa-table__header__button.usa-button--disabled:hover,
 .usa-prose
     > table
     th[data-sortable][aria-sort="descending"]
     .usa-table__header__button.usa-button--disabled.usa-button--hover,
-.usa-prose
-    > table
-    th[data-sortable][aria-sort="descending"]
-    .usa-table__header__button:active,
-.usa-prose
-    > table
-    th[data-sortable][aria-sort="descending"]
-    .usa-table__header__button.usa-button--active,
-.usa-prose
-    > table
-    th[data-sortable][aria-sort="descending"]
-    .usa-table__header__button:disabled:active,
-.usa-prose
-    > table
-    th[data-sortable][aria-sort="descending"]
-    .usa-table__header__button[aria-disabled="true"]:active,
-.usa-prose
-    > table
-    th[data-sortable][aria-sort="descending"]
-    .usa-table__header__button:disabled.usa-button--active,
+.usa-prose > table th[data-sortable][aria-sort="descending"] .usa-table__header__button:active,
+.usa-prose > table th[data-sortable][aria-sort="descending"] .usa-table__header__button.usa-button--active,
+.usa-prose > table th[data-sortable][aria-sort="descending"] .usa-table__header__button:disabled:active,
+.usa-prose > table th[data-sortable][aria-sort="descending"] .usa-table__header__button[aria-disabled="true"]:active,
+.usa-prose > table th[data-sortable][aria-sort="descending"] .usa-table__header__button:disabled.usa-button--active,
 .usa-prose
     > table
     th[data-sortable][aria-sort="descending"]
     .usa-table__header__button[aria-disabled="true"].usa-button--active,
-.usa-prose
-    > table
-    th[data-sortable][aria-sort="descending"]
-    .usa-table__header__button.usa-button--disabled:active,
+.usa-prose > table th[data-sortable][aria-sort="descending"] .usa-table__header__button.usa-button--disabled:active,
 .usa-prose
     > table
     th[data-sortable][aria-sort="descending"]
     .usa-table__header__button.usa-button--disabled.usa-button--active,
-.usa-prose
-    > table
-    th[data-sortable][aria-sort="descending"]
-    .usa-table__header__button:disabled:focus,
-.usa-prose
-    > table
-    th[data-sortable][aria-sort="descending"]
-    .usa-table__header__button[aria-disabled="true"]:focus,
-.usa-prose
-    > table
-    th[data-sortable][aria-sort="descending"]
-    .usa-table__header__button:disabled.usa-focus,
-.usa-prose
-    > table
-    th[data-sortable][aria-sort="descending"]
-    .usa-table__header__button[aria-disabled="true"].usa-focus,
-.usa-prose
-    > table
-    th[data-sortable][aria-sort="descending"]
-    .usa-table__header__button.usa-button--disabled:focus,
-.usa-prose
-    > table
-    th[data-sortable][aria-sort="descending"]
-    .usa-table__header__button.usa-button--disabled.usa-focus,
-.usa-prose
-    > table
-    th[data-sortable][aria-sort="descending"]
-    .usa-table__header__button:disabled,
-.usa-prose
-    > table
-    th[data-sortable][aria-sort="descending"]
-    .usa-table__header__button[aria-disabled="true"],
-.usa-prose
-    > table
-    th[data-sortable][aria-sort="descending"]
-    .usa-table__header__button.usa-button--disabled {
+.usa-prose > table th[data-sortable][aria-sort="descending"] .usa-table__header__button:disabled:focus,
+.usa-prose > table th[data-sortable][aria-sort="descending"] .usa-table__header__button[aria-disabled="true"]:focus,
+.usa-prose > table th[data-sortable][aria-sort="descending"] .usa-table__header__button:disabled.usa-focus,
+.usa-prose > table th[data-sortable][aria-sort="descending"] .usa-table__header__button[aria-disabled="true"].usa-focus,
+.usa-prose > table th[data-sortable][aria-sort="descending"] .usa-table__header__button.usa-button--disabled:focus,
+.usa-prose > table th[data-sortable][aria-sort="descending"] .usa-table__header__button.usa-button--disabled.usa-focus,
+.usa-prose > table th[data-sortable][aria-sort="descending"] .usa-table__header__button:disabled,
+.usa-prose > table th[data-sortable][aria-sort="descending"] .usa-table__header__button[aria-disabled="true"],
+.usa-prose > table th[data-sortable][aria-sort="descending"] .usa-table__header__button.usa-button--disabled {
     -moz-osx-font-smoothing: inherit;
     -webkit-font-smoothing: inherit;
     background-color: transparent;
     box-shadow: none;
     text-decoration: underline;
 }
-.usa-prose
-    > table
-    th[data-sortable][aria-sort="descending"]
-    .usa-table__header__button.usa-button--hover {
+.usa-prose > table th[data-sortable][aria-sort="descending"] .usa-table__header__button.usa-button--hover {
     color: #1a4480;
 }
-.usa-prose
-    > table
-    th[data-sortable][aria-sort="descending"]
-    .usa-table__header__button.usa-button--active {
+.usa-prose > table th[data-sortable][aria-sort="descending"] .usa-table__header__button.usa-button--active {
     color: #162e51;
 }
-.usa-prose
-    > table
-    th[data-sortable][aria-sort="descending"]
-    .usa-table__header__button:disabled,
-.usa-prose
-    > table
-    th[data-sortable][aria-sort="descending"]
-    .usa-table__header__button[aria-disabled="true"],
-.usa-prose
-    > table
-    th[data-sortable][aria-sort="descending"]
-    .usa-table__header__button.usa-button--disabled {
+.usa-prose > table th[data-sortable][aria-sort="descending"] .usa-table__header__button:disabled,
+.usa-prose > table th[data-sortable][aria-sort="descending"] .usa-table__header__button[aria-disabled="true"],
+.usa-prose > table th[data-sortable][aria-sort="descending"] .usa-table__header__button.usa-button--disabled {
     color: #c9c9c9;
 }
-.usa-prose
-    > table
-    th[data-sortable][aria-sort="descending"]
-    .usa-table__header__button
-    .usa-icon {
+.usa-prose > table th[data-sortable][aria-sort="descending"] .usa-table__header__button .usa-icon {
     height: 1.5rem;
     width: 1.5rem;
     vertical-align: middle;
 }
-.usa-prose
-    > table
-    th[data-sortable][aria-sort="descending"]
-    .usa-table__header__button
-    .usa-icon
-    > g {
+.usa-prose > table th[data-sortable][aria-sort="descending"] .usa-table__header__button .usa-icon > g {
     fill: transparent;
 }
-.usa-prose
-    > table
-    th[data-sortable][aria-sort="descending"]
-    .usa-table__header__button
-    .usa-icon
-    > g.descending {
+.usa-prose > table th[data-sortable][aria-sort="descending"] .usa-table__header__button .usa-icon > g.descending {
     fill: #1b1b1b;
 }
-.usa-prose
-    > table
-    th[data-sortable][aria-sort="ascending"]
-    .usa-table__header__button {
+.usa-prose > table th[data-sortable][aria-sort="ascending"] .usa-table__header__button {
     -moz-osx-font-smoothing: inherit;
     -webkit-font-smoothing: inherit;
     color: #005ea2;
@@ -3129,186 +2754,82 @@ dfn {
     top: 50%;
     transform: translate(0, -50%);
 }
-.usa-prose
-    > table
-    th[data-sortable][aria-sort="ascending"]
-    .usa-table__header__button:visited {
+.usa-prose > table th[data-sortable][aria-sort="ascending"] .usa-table__header__button:visited {
     color: #54278f;
 }
-.usa-prose
-    > table
-    th[data-sortable][aria-sort="ascending"]
-    .usa-table__header__button:hover {
+.usa-prose > table th[data-sortable][aria-sort="ascending"] .usa-table__header__button:hover {
     color: #1a4480;
 }
-.usa-prose
-    > table
-    th[data-sortable][aria-sort="ascending"]
-    .usa-table__header__button:active {
+.usa-prose > table th[data-sortable][aria-sort="ascending"] .usa-table__header__button:active {
     color: #162e51;
 }
-.usa-prose
-    > table
-    th[data-sortable][aria-sort="ascending"]
-    .usa-table__header__button:focus {
+.usa-prose > table th[data-sortable][aria-sort="ascending"] .usa-table__header__button:focus {
     outline: 0.25rem solid #2491ff;
     outline-offset: 0;
 }
-.usa-prose
-    > table
-    th[data-sortable][aria-sort="ascending"]
-    .usa-table__header__button:hover,
-.usa-prose
-    > table
-    th[data-sortable][aria-sort="ascending"]
-    .usa-table__header__button.usa-button--hover,
-.usa-prose
-    > table
-    th[data-sortable][aria-sort="ascending"]
-    .usa-table__header__button:disabled:hover,
-.usa-prose
-    > table
-    th[data-sortable][aria-sort="ascending"]
-    .usa-table__header__button[aria-disabled="true"]:hover,
-.usa-prose
-    > table
-    th[data-sortable][aria-sort="ascending"]
-    .usa-table__header__button:disabled.usa-button--hover,
+.usa-prose > table th[data-sortable][aria-sort="ascending"] .usa-table__header__button:hover,
+.usa-prose > table th[data-sortable][aria-sort="ascending"] .usa-table__header__button.usa-button--hover,
+.usa-prose > table th[data-sortable][aria-sort="ascending"] .usa-table__header__button:disabled:hover,
+.usa-prose > table th[data-sortable][aria-sort="ascending"] .usa-table__header__button[aria-disabled="true"]:hover,
+.usa-prose > table th[data-sortable][aria-sort="ascending"] .usa-table__header__button:disabled.usa-button--hover,
 .usa-prose
     > table
     th[data-sortable][aria-sort="ascending"]
     .usa-table__header__button[aria-disabled="true"].usa-button--hover,
-.usa-prose
-    > table
-    th[data-sortable][aria-sort="ascending"]
-    .usa-table__header__button.usa-button--disabled:hover,
+.usa-prose > table th[data-sortable][aria-sort="ascending"] .usa-table__header__button.usa-button--disabled:hover,
 .usa-prose
     > table
     th[data-sortable][aria-sort="ascending"]
     .usa-table__header__button.usa-button--disabled.usa-button--hover,
-.usa-prose
-    > table
-    th[data-sortable][aria-sort="ascending"]
-    .usa-table__header__button:active,
-.usa-prose
-    > table
-    th[data-sortable][aria-sort="ascending"]
-    .usa-table__header__button.usa-button--active,
-.usa-prose
-    > table
-    th[data-sortable][aria-sort="ascending"]
-    .usa-table__header__button:disabled:active,
-.usa-prose
-    > table
-    th[data-sortable][aria-sort="ascending"]
-    .usa-table__header__button[aria-disabled="true"]:active,
-.usa-prose
-    > table
-    th[data-sortable][aria-sort="ascending"]
-    .usa-table__header__button:disabled.usa-button--active,
+.usa-prose > table th[data-sortable][aria-sort="ascending"] .usa-table__header__button:active,
+.usa-prose > table th[data-sortable][aria-sort="ascending"] .usa-table__header__button.usa-button--active,
+.usa-prose > table th[data-sortable][aria-sort="ascending"] .usa-table__header__button:disabled:active,
+.usa-prose > table th[data-sortable][aria-sort="ascending"] .usa-table__header__button[aria-disabled="true"]:active,
+.usa-prose > table th[data-sortable][aria-sort="ascending"] .usa-table__header__button:disabled.usa-button--active,
 .usa-prose
     > table
     th[data-sortable][aria-sort="ascending"]
     .usa-table__header__button[aria-disabled="true"].usa-button--active,
-.usa-prose
-    > table
-    th[data-sortable][aria-sort="ascending"]
-    .usa-table__header__button.usa-button--disabled:active,
+.usa-prose > table th[data-sortable][aria-sort="ascending"] .usa-table__header__button.usa-button--disabled:active,
 .usa-prose
     > table
     th[data-sortable][aria-sort="ascending"]
     .usa-table__header__button.usa-button--disabled.usa-button--active,
-.usa-prose
-    > table
-    th[data-sortable][aria-sort="ascending"]
-    .usa-table__header__button:disabled:focus,
-.usa-prose
-    > table
-    th[data-sortable][aria-sort="ascending"]
-    .usa-table__header__button[aria-disabled="true"]:focus,
-.usa-prose
-    > table
-    th[data-sortable][aria-sort="ascending"]
-    .usa-table__header__button:disabled.usa-focus,
-.usa-prose
-    > table
-    th[data-sortable][aria-sort="ascending"]
-    .usa-table__header__button[aria-disabled="true"].usa-focus,
-.usa-prose
-    > table
-    th[data-sortable][aria-sort="ascending"]
-    .usa-table__header__button.usa-button--disabled:focus,
-.usa-prose
-    > table
-    th[data-sortable][aria-sort="ascending"]
-    .usa-table__header__button.usa-button--disabled.usa-focus,
-.usa-prose
-    > table
-    th[data-sortable][aria-sort="ascending"]
-    .usa-table__header__button:disabled,
-.usa-prose
-    > table
-    th[data-sortable][aria-sort="ascending"]
-    .usa-table__header__button[aria-disabled="true"],
-.usa-prose
-    > table
-    th[data-sortable][aria-sort="ascending"]
-    .usa-table__header__button.usa-button--disabled {
+.usa-prose > table th[data-sortable][aria-sort="ascending"] .usa-table__header__button:disabled:focus,
+.usa-prose > table th[data-sortable][aria-sort="ascending"] .usa-table__header__button[aria-disabled="true"]:focus,
+.usa-prose > table th[data-sortable][aria-sort="ascending"] .usa-table__header__button:disabled.usa-focus,
+.usa-prose > table th[data-sortable][aria-sort="ascending"] .usa-table__header__button[aria-disabled="true"].usa-focus,
+.usa-prose > table th[data-sortable][aria-sort="ascending"] .usa-table__header__button.usa-button--disabled:focus,
+.usa-prose > table th[data-sortable][aria-sort="ascending"] .usa-table__header__button.usa-button--disabled.usa-focus,
+.usa-prose > table th[data-sortable][aria-sort="ascending"] .usa-table__header__button:disabled,
+.usa-prose > table th[data-sortable][aria-sort="ascending"] .usa-table__header__button[aria-disabled="true"],
+.usa-prose > table th[data-sortable][aria-sort="ascending"] .usa-table__header__button.usa-button--disabled {
     -moz-osx-font-smoothing: inherit;
     -webkit-font-smoothing: inherit;
     background-color: transparent;
     box-shadow: none;
     text-decoration: underline;
 }
-.usa-prose
-    > table
-    th[data-sortable][aria-sort="ascending"]
-    .usa-table__header__button.usa-button--hover {
+.usa-prose > table th[data-sortable][aria-sort="ascending"] .usa-table__header__button.usa-button--hover {
     color: #1a4480;
 }
-.usa-prose
-    > table
-    th[data-sortable][aria-sort="ascending"]
-    .usa-table__header__button.usa-button--active {
+.usa-prose > table th[data-sortable][aria-sort="ascending"] .usa-table__header__button.usa-button--active {
     color: #162e51;
 }
-.usa-prose
-    > table
-    th[data-sortable][aria-sort="ascending"]
-    .usa-table__header__button:disabled,
-.usa-prose
-    > table
-    th[data-sortable][aria-sort="ascending"]
-    .usa-table__header__button[aria-disabled="true"],
-.usa-prose
-    > table
-    th[data-sortable][aria-sort="ascending"]
-    .usa-table__header__button.usa-button--disabled {
+.usa-prose > table th[data-sortable][aria-sort="ascending"] .usa-table__header__button:disabled,
+.usa-prose > table th[data-sortable][aria-sort="ascending"] .usa-table__header__button[aria-disabled="true"],
+.usa-prose > table th[data-sortable][aria-sort="ascending"] .usa-table__header__button.usa-button--disabled {
     color: #c9c9c9;
 }
-.usa-prose
-    > table
-    th[data-sortable][aria-sort="ascending"]
-    .usa-table__header__button
-    .usa-icon {
+.usa-prose > table th[data-sortable][aria-sort="ascending"] .usa-table__header__button .usa-icon {
     height: 1.5rem;
     width: 1.5rem;
     vertical-align: middle;
 }
-.usa-prose
-    > table
-    th[data-sortable][aria-sort="ascending"]
-    .usa-table__header__button
-    .usa-icon
-    > g {
+.usa-prose > table th[data-sortable][aria-sort="ascending"] .usa-table__header__button .usa-icon > g {
     fill: transparent;
 }
-.usa-prose
-    > table
-    th[data-sortable][aria-sort="ascending"]
-    .usa-table__header__button
-    .usa-icon
-    > g.ascending {
+.usa-prose > table th[data-sortable][aria-sort="ascending"] .usa-table__header__button .usa-icon > g.ascending {
     fill: #1b1b1b;
 }
 .usa-prose > table thead th[aria-sort] {
@@ -3538,16 +3059,8 @@ dfn {
 .usa-prose > .width-mobile .usa-table--stacked-header tr:nth-child(odd) th {
     background-color: inherit;
 }
-.usa-prose
-    > .width-mobile
-    .usa-table--stacked-header
-    tr:first-child
-    th:first-child,
-.usa-prose
-    > .width-mobile
-    .usa-table--stacked-header
-    tr:first-child
-    td:first-child {
+.usa-prose > .width-mobile .usa-table--stacked-header tr:first-child th:first-child,
+.usa-prose > .width-mobile .usa-table--stacked-header tr:first-child td:first-child {
     border-top: 0.25rem solid #1b1b1b;
 }
 .usa-prose > .width-mobile .usa-table--stacked-header th[data-label],
@@ -3699,8 +3212,7 @@ dfn {
     margin: 0;
     padding: 0;
     text-align: left;
-    background-image: url("@uswds/uswds/img/usa-icons/remove.svg"),
-        linear-gradient(transparent, transparent);
+    background-image: url("@uswds/uswds/img/usa-icons/remove.svg"), linear-gradient(transparent, transparent);
     background-repeat: no-repeat;
     background-color: #f0f0f0;
     background-position: right 1.25rem center;
@@ -3781,8 +3293,7 @@ dfn {
 }
 
 .usa-accordion__button[aria-expanded="false"] {
-    background-image: url("@uswds/uswds/img/usa-icons/add.svg"),
-        linear-gradient(transparent, transparent);
+    background-image: url("@uswds/uswds/img/usa-icons/add.svg"), linear-gradient(transparent, transparent);
     background-repeat: no-repeat;
     background-size: 1.5rem;
 }
@@ -3832,8 +3343,7 @@ dfn {
     color: #1b1b1b;
 }
 .usa-alert--success:before {
-    background: url("@uswds/uswds/img/usa-icons/check_circle.svg") no-repeat
-        center/contain;
+    background: url("@uswds/uswds/img/usa-icons/check_circle.svg") no-repeat center/contain;
     display: inline-block;
     height: 2rem;
     width: 2rem;
@@ -3848,8 +3358,7 @@ dfn {
     .usa-alert--success:before {
         background: none;
         background-color: #1b1b1b;
-        mask: url("@uswds/uswds/img/usa-icons/check_circle.svg") no-repeat
-            center/contain;
+        mask: url("@uswds/uswds/img/usa-icons/check_circle.svg") no-repeat center/contain;
     }
 }
 .usa-alert--success.usa-alert--slim:before {
@@ -3888,8 +3397,7 @@ dfn {
     color: #1b1b1b;
 }
 .usa-alert--warning:before {
-    background: url("@uswds/uswds/img/usa-icons/warning.svg") no-repeat
-        center/contain;
+    background: url("@uswds/uswds/img/usa-icons/warning.svg") no-repeat center/contain;
     display: inline-block;
     height: 2rem;
     width: 2rem;
@@ -3904,8 +3412,7 @@ dfn {
     .usa-alert--warning:before {
         background: none;
         background-color: #1b1b1b;
-        mask: url("@uswds/uswds/img/usa-icons/warning.svg") no-repeat
-            center/contain;
+        mask: url("@uswds/uswds/img/usa-icons/warning.svg") no-repeat center/contain;
     }
 }
 .usa-alert--warning.usa-alert--slim:before {
@@ -3944,8 +3451,7 @@ dfn {
     color: #1b1b1b;
 }
 .usa-alert--error:before {
-    background: url("@uswds/uswds/img/usa-icons/error.svg") no-repeat
-        center/contain;
+    background: url("@uswds/uswds/img/usa-icons/error.svg") no-repeat center/contain;
     display: inline-block;
     height: 2rem;
     width: 2rem;
@@ -3960,8 +3466,7 @@ dfn {
     .usa-alert--error:before {
         background: none;
         background-color: #1b1b1b;
-        mask: url("@uswds/uswds/img/usa-icons/error.svg") no-repeat
-            center/contain;
+        mask: url("@uswds/uswds/img/usa-icons/error.svg") no-repeat center/contain;
     }
 }
 .usa-alert--error.usa-alert--slim:before {
@@ -4000,8 +3505,7 @@ dfn {
     color: #1b1b1b;
 }
 .usa-alert--info:before {
-    background: url("@uswds/uswds/img/usa-icons/info.svg") no-repeat
-        center/contain;
+    background: url("@uswds/uswds/img/usa-icons/info.svg") no-repeat center/contain;
     display: inline-block;
     height: 2rem;
     width: 2rem;
@@ -4016,8 +3520,7 @@ dfn {
     .usa-alert--info:before {
         background: none;
         background-color: #1b1b1b;
-        mask: url("@uswds/uswds/img/usa-icons/info.svg") no-repeat
-            center/contain;
+        mask: url("@uswds/uswds/img/usa-icons/info.svg") no-repeat center/contain;
     }
 }
 .usa-alert--info.usa-alert--slim:before {
@@ -4056,8 +3559,7 @@ dfn {
     color: white;
 }
 .usa-alert--emergency:before {
-    background: url("@uswds/uswds/img/usa-icons-bg/error--white.svg") no-repeat
-        center/contain;
+    background: url("@uswds/uswds/img/usa-icons-bg/error--white.svg") no-repeat center/contain;
     display: inline-block;
     height: 2rem;
     width: 2rem;
@@ -4072,8 +3574,7 @@ dfn {
     .usa-alert--emergency:before {
         background: none;
         background-color: white;
-        mask: url("@uswds/uswds/img/usa-icons/error.svg") no-repeat
-            center/contain;
+        mask: url("@uswds/uswds/img/usa-icons/error.svg") no-repeat center/contain;
     }
 }
 .usa-alert--emergency.usa-alert--slim:before {
@@ -4338,8 +3839,7 @@ dfn {
     text-decoration: underline;
 }
 .usa-banner__header-action::after {
-    background: url("@uswds/uswds/img/usa-icons/expand_more.svg") no-repeat
-        center/contain;
+    background: url("@uswds/uswds/img/usa-icons/expand_more.svg") no-repeat center/contain;
     display: inline-block;
     height: 1rem;
     width: 1rem;
@@ -4351,8 +3851,7 @@ dfn {
     .usa-banner__header-action::after {
         background: none;
         background-color: #005ea2;
-        mask: url("@uswds/uswds/img/usa-icons/expand_more.svg") no-repeat
-            center/contain;
+        mask: url("@uswds/uswds/img/usa-icons/expand_more.svg") no-repeat center/contain;
     }
     .usa-banner__header-action::after:hover {
         background-color: #1a4480;
@@ -4534,8 +4033,7 @@ dfn {
         position: relative;
     }
     .usa-banner__button::after {
-        background: url("@uswds/uswds/img/usa-icons/expand_more.svg") no-repeat
-            center/contain;
+        background: url("@uswds/uswds/img/usa-icons/expand_more.svg") no-repeat center/contain;
         display: inline-block;
         height: 1rem;
         width: 1rem;
@@ -4547,8 +4045,7 @@ dfn {
         .usa-banner__button::after {
             background: none;
             background-color: #005ea2;
-            mask: url("@uswds/uswds/img/usa-icons/expand_more.svg") no-repeat
-                center/contain;
+            mask: url("@uswds/uswds/img/usa-icons/expand_more.svg") no-repeat center/contain;
         }
         .usa-banner__button::after:hover {
             background-color: #1a4480;
@@ -4589,8 +4086,7 @@ dfn {
 }
 @media all and (max-width: 39.99em) {
     .usa-banner__button[aria-expanded="true"]::after {
-        background: url("@uswds/uswds/img/usa-icons/close.svg") no-repeat
-            center/contain;
+        background: url("@uswds/uswds/img/usa-icons/close.svg") no-repeat center/contain;
         display: inline-block;
         height: 3rem;
         width: 3rem;
@@ -4602,8 +4098,7 @@ dfn {
         .usa-banner__button[aria-expanded="true"]::after {
             background: none;
             background-color: #005ea2;
-            mask: url("@uswds/uswds/img/usa-icons/close.svg") no-repeat
-                center/contain;
+            mask: url("@uswds/uswds/img/usa-icons/close.svg") no-repeat center/contain;
         }
     }
     .usa-banner__button[aria-expanded="true"]::before {
@@ -4633,8 +4128,7 @@ dfn {
         position: relative;
     }
     .usa-banner__button[aria-expanded="true"]::after {
-        background: url("@uswds/uswds/img/usa-icons/expand_less.svg") no-repeat
-            center/contain;
+        background: url("@uswds/uswds/img/usa-icons/expand_less.svg") no-repeat center/contain;
         display: inline-block;
         height: 1rem;
         width: 1rem;
@@ -4646,8 +4140,7 @@ dfn {
         .usa-banner__button[aria-expanded="true"]::after {
             background: none;
             background-color: #005ea2;
-            mask: url("@uswds/uswds/img/usa-icons/expand_less.svg") no-repeat
-                center/contain;
+            mask: url("@uswds/uswds/img/usa-icons/expand_less.svg") no-repeat center/contain;
         }
         .usa-banner__button[aria-expanded="true"]::after:hover {
             background-color: #1a4480;
@@ -4794,76 +4287,49 @@ dfn {
         outline-offset: 0;
     }
     .usa-breadcrumb__list-item:nth-last-child(2) .usa-breadcrumb__link:hover,
-    .usa-breadcrumb__list-item:nth-last-child(2)
-        .usa-breadcrumb__link.usa-button--hover,
-    .usa-breadcrumb__list-item:nth-last-child(2)
-        .usa-breadcrumb__link:disabled:hover,
-    .usa-breadcrumb__list-item:nth-last-child(2)
-        .usa-breadcrumb__link[aria-disabled="true"]:hover,
-    .usa-breadcrumb__list-item:nth-last-child(2)
-        .usa-breadcrumb__link:disabled.usa-button--hover,
-    .usa-breadcrumb__list-item:nth-last-child(2)
-        .usa-breadcrumb__link[aria-disabled="true"].usa-button--hover,
-    .usa-breadcrumb__list-item:nth-last-child(2)
-        .usa-breadcrumb__link.usa-button--disabled:hover,
-    .usa-breadcrumb__list-item:nth-last-child(2)
-        .usa-breadcrumb__link.usa-button--disabled.usa-button--hover,
+    .usa-breadcrumb__list-item:nth-last-child(2) .usa-breadcrumb__link.usa-button--hover,
+    .usa-breadcrumb__list-item:nth-last-child(2) .usa-breadcrumb__link:disabled:hover,
+    .usa-breadcrumb__list-item:nth-last-child(2) .usa-breadcrumb__link[aria-disabled="true"]:hover,
+    .usa-breadcrumb__list-item:nth-last-child(2) .usa-breadcrumb__link:disabled.usa-button--hover,
+    .usa-breadcrumb__list-item:nth-last-child(2) .usa-breadcrumb__link[aria-disabled="true"].usa-button--hover,
+    .usa-breadcrumb__list-item:nth-last-child(2) .usa-breadcrumb__link.usa-button--disabled:hover,
+    .usa-breadcrumb__list-item:nth-last-child(2) .usa-breadcrumb__link.usa-button--disabled.usa-button--hover,
     .usa-breadcrumb__list-item:nth-last-child(2) .usa-breadcrumb__link:active,
-    .usa-breadcrumb__list-item:nth-last-child(2)
-        .usa-breadcrumb__link.usa-button--active,
-    .usa-breadcrumb__list-item:nth-last-child(2)
-        .usa-breadcrumb__link:disabled:active,
-    .usa-breadcrumb__list-item:nth-last-child(2)
-        .usa-breadcrumb__link[aria-disabled="true"]:active,
-    .usa-breadcrumb__list-item:nth-last-child(2)
-        .usa-breadcrumb__link:disabled.usa-button--active,
-    .usa-breadcrumb__list-item:nth-last-child(2)
-        .usa-breadcrumb__link[aria-disabled="true"].usa-button--active,
-    .usa-breadcrumb__list-item:nth-last-child(2)
-        .usa-breadcrumb__link.usa-button--disabled:active,
-    .usa-breadcrumb__list-item:nth-last-child(2)
-        .usa-breadcrumb__link.usa-button--disabled.usa-button--active,
-    .usa-breadcrumb__list-item:nth-last-child(2)
-        .usa-breadcrumb__link:disabled:focus,
-    .usa-breadcrumb__list-item:nth-last-child(2)
-        .usa-breadcrumb__link[aria-disabled="true"]:focus,
-    .usa-breadcrumb__list-item:nth-last-child(2)
-        .usa-breadcrumb__link:disabled.usa-focus,
-    .usa-breadcrumb__list-item:nth-last-child(2)
-        .usa-breadcrumb__link[aria-disabled="true"].usa-focus,
-    .usa-breadcrumb__list-item:nth-last-child(2)
-        .usa-breadcrumb__link.usa-button--disabled:focus,
-    .usa-breadcrumb__list-item:nth-last-child(2)
-        .usa-breadcrumb__link.usa-button--disabled.usa-focus,
+    .usa-breadcrumb__list-item:nth-last-child(2) .usa-breadcrumb__link.usa-button--active,
+    .usa-breadcrumb__list-item:nth-last-child(2) .usa-breadcrumb__link:disabled:active,
+    .usa-breadcrumb__list-item:nth-last-child(2) .usa-breadcrumb__link[aria-disabled="true"]:active,
+    .usa-breadcrumb__list-item:nth-last-child(2) .usa-breadcrumb__link:disabled.usa-button--active,
+    .usa-breadcrumb__list-item:nth-last-child(2) .usa-breadcrumb__link[aria-disabled="true"].usa-button--active,
+    .usa-breadcrumb__list-item:nth-last-child(2) .usa-breadcrumb__link.usa-button--disabled:active,
+    .usa-breadcrumb__list-item:nth-last-child(2) .usa-breadcrumb__link.usa-button--disabled.usa-button--active,
+    .usa-breadcrumb__list-item:nth-last-child(2) .usa-breadcrumb__link:disabled:focus,
+    .usa-breadcrumb__list-item:nth-last-child(2) .usa-breadcrumb__link[aria-disabled="true"]:focus,
+    .usa-breadcrumb__list-item:nth-last-child(2) .usa-breadcrumb__link:disabled.usa-focus,
+    .usa-breadcrumb__list-item:nth-last-child(2) .usa-breadcrumb__link[aria-disabled="true"].usa-focus,
+    .usa-breadcrumb__list-item:nth-last-child(2) .usa-breadcrumb__link.usa-button--disabled:focus,
+    .usa-breadcrumb__list-item:nth-last-child(2) .usa-breadcrumb__link.usa-button--disabled.usa-focus,
     .usa-breadcrumb__list-item:nth-last-child(2) .usa-breadcrumb__link:disabled,
-    .usa-breadcrumb__list-item:nth-last-child(2)
-        .usa-breadcrumb__link[aria-disabled="true"],
-    .usa-breadcrumb__list-item:nth-last-child(2)
-        .usa-breadcrumb__link.usa-button--disabled {
+    .usa-breadcrumb__list-item:nth-last-child(2) .usa-breadcrumb__link[aria-disabled="true"],
+    .usa-breadcrumb__list-item:nth-last-child(2) .usa-breadcrumb__link.usa-button--disabled {
         -moz-osx-font-smoothing: inherit;
         -webkit-font-smoothing: inherit;
         background-color: transparent;
         box-shadow: none;
         text-decoration: underline;
     }
-    .usa-breadcrumb__list-item:nth-last-child(2)
-        .usa-breadcrumb__link.usa-button--hover {
+    .usa-breadcrumb__list-item:nth-last-child(2) .usa-breadcrumb__link.usa-button--hover {
         color: #1a4480;
     }
-    .usa-breadcrumb__list-item:nth-last-child(2)
-        .usa-breadcrumb__link.usa-button--active {
+    .usa-breadcrumb__list-item:nth-last-child(2) .usa-breadcrumb__link.usa-button--active {
         color: #162e51;
     }
     .usa-breadcrumb__list-item:nth-last-child(2) .usa-breadcrumb__link:disabled,
-    .usa-breadcrumb__list-item:nth-last-child(2)
-        .usa-breadcrumb__link[aria-disabled="true"],
-    .usa-breadcrumb__list-item:nth-last-child(2)
-        .usa-breadcrumb__link.usa-button--disabled {
+    .usa-breadcrumb__list-item:nth-last-child(2) .usa-breadcrumb__link[aria-disabled="true"],
+    .usa-breadcrumb__list-item:nth-last-child(2) .usa-breadcrumb__link.usa-button--disabled {
         color: #c9c9c9;
     }
     .usa-breadcrumb__list-item:nth-last-child(2) .usa-breadcrumb__link::before {
-        background: url("@uswds/uswds/img/usa-icons/arrow_back.svg") no-repeat
-            center/contain;
+        background: url("@uswds/uswds/img/usa-icons/arrow_back.svg") no-repeat center/contain;
         display: inline-block;
         height: 2ex;
         width: 2ex;
@@ -4872,12 +4338,10 @@ dfn {
         margin-right: 0;
     }
     @supports (mask: url("")) {
-        .usa-breadcrumb__list-item:nth-last-child(2)
-            .usa-breadcrumb__link::before {
+        .usa-breadcrumb__list-item:nth-last-child(2) .usa-breadcrumb__link::before {
             background: none;
             background-color: #71767a;
-            mask: url("@uswds/uswds/img/usa-icons/arrow_back.svg") no-repeat
-                center/contain;
+            mask: url("@uswds/uswds/img/usa-icons/arrow_back.svg") no-repeat center/contain;
         }
     }
     .usa-breadcrumb__list-item:nth-last-child(2) .usa-breadcrumb__link:visited {
@@ -4909,8 +4373,7 @@ dfn {
         position: static;
     }
     .usa-breadcrumb__list-item:not(:last-child)::after {
-        background: url("@uswds/uswds/img/usa-icons/navigate_next.svg")
-            no-repeat center/contain;
+        background: url("@uswds/uswds/img/usa-icons/navigate_next.svg") no-repeat center/contain;
         display: inline-block;
         height: 2ex;
         width: 2ex;
@@ -4922,8 +4385,7 @@ dfn {
         .usa-breadcrumb__list-item:not(:last-child)::after {
             background: none;
             background-color: #71767a;
-            mask: url("@uswds/uswds/img/usa-icons/navigate_next.svg") no-repeat
-                center/contain;
+            mask: url("@uswds/uswds/img/usa-icons/navigate_next.svg") no-repeat center/contain;
         }
     }
     .usa-breadcrumb__list-item:not(:last-child)::after {
@@ -5042,23 +4504,17 @@ dfn {
     width: calc(100% + 2px);
 }
 @media all and (min-width: 30em) {
-    .usa-button-group--segmented
-        .usa-button-group__item:last-child
-        > .usa-button {
+    .usa-button-group--segmented .usa-button-group__item:last-child > .usa-button {
         margin-left: -1px;
         width: auto;
     }
 }
-.usa-button-group--segmented
-    .usa-button-group__item:where(:not(:first-child):not(:last-child))
-    > .usa-button {
+.usa-button-group--segmented .usa-button-group__item:where(:not(:first-child):not(:last-child)) > .usa-button {
     border-radius: 0;
     margin-right: -1px;
     margin-left: -1px;
 }
-.usa-button-group--segmented
-    .usa-button-group__item:where(:not(:last-child))
-    .usa-button::before {
+.usa-button-group--segmented .usa-button-group__item:where(:not(:last-child)) .usa-button::before {
     border-right: 1px solid #1a4480;
     bottom: 0;
     content: "";
@@ -5070,35 +4526,23 @@ dfn {
     width: 1px;
     z-index: 3;
 }
-.usa-button-group--segmented
-    .usa-button-group__item:where(:not(:last-child))
-    .usa-button--secondary::before {
+.usa-button-group--segmented .usa-button-group__item:where(:not(:last-child)) .usa-button--secondary::before {
     border-right-color: #b50909;
 }
-.usa-button-group--segmented
-    .usa-button-group__item:where(:not(:last-child))
-    .usa-button--accent-cool::before {
+.usa-button-group--segmented .usa-button-group__item:where(:not(:last-child)) .usa-button--accent-cool::before {
     border-right-color: #28a0cb;
 }
-.usa-button-group--segmented
-    .usa-button-group__item:where(:not(:last-child))
-    .usa-button--base::before {
+.usa-button-group--segmented .usa-button-group__item:where(:not(:last-child)) .usa-button--base::before {
     border-right-color: #565c65;
 }
-.usa-button-group--segmented
-    .usa-button-group__item:where(:not(:last-child))
-    [class*="usa-button"]:disabled::before,
+.usa-button-group--segmented .usa-button-group__item:where(:not(:last-child)) [class*="usa-button"]:disabled::before,
 .usa-button-group--segmented
     .usa-button-group__item:where(:not(:last-child))
     [class*="usa-button"][aria-disabled="true"]::before {
     border-right-color: white;
 }
-.usa-button-group--segmented
-    .usa-button-group__item:where(:not(:last-child))
-    .usa-button:active::before,
-.usa-button-group--segmented
-    .usa-button-group__item:where(:not(:last-child))
-    .usa-button--outline::before {
+.usa-button-group--segmented .usa-button-group__item:where(:not(:last-child)) .usa-button:active::before,
+.usa-button-group--segmented .usa-button-group__item:where(:not(:last-child)) .usa-button--outline::before {
     display: none;
 }
 
@@ -5834,9 +5278,7 @@ dfn {
         padding-left: 0;
         padding-right: 1.5rem;
     }
-    .usa-card--flag.usa-card--media-right
-        .usa-card__media--inset
-        .usa-card__img {
+    .usa-card--flag.usa-card--media-right .usa-card__media--inset .usa-card__img {
         border-radius: 0;
     }
     .usa-card--flag.usa-card--media-right .usa-card__img {
@@ -5854,9 +5296,7 @@ dfn {
         margin-right: -2px;
         margin-left: 0;
     }
-    .usa-card--flag.usa-card--media-right
-        .usa-card__media--exdent
-        .usa-card__img {
+    .usa-card--flag.usa-card--media-right .usa-card__media--exdent .usa-card__img {
         border-radius: 0;
         border-bottom-right-radius: 0.5rem;
         border-top-right-radius: 0.5rem;
@@ -5935,8 +5375,8 @@ dfn {
     width: 2rem;
 }
 .usa-checklist__item.usa-checklist__item--checked::before {
-    background-image: url("@uswds/uswds/img/usa-icons-bg/check--blue-60v.svg"),
-        linear-gradient(transparent, transparent);
+    background-image:
+        url("@uswds/uswds/img/usa-icons-bg/check--blue-60v.svg"), linear-gradient(transparent, transparent);
     background-repeat: no-repeat;
     background-position: center;
     background-size: 1.5rem;
@@ -6386,8 +5826,7 @@ dfn {
     cursor: pointer;
 }
 .usa-footer__primary-link--button::before {
-    background: url("@uswds/uswds/img/usa-icons/expand_more.svg") no-repeat
-        center/contain;
+    background: url("@uswds/uswds/img/usa-icons/expand_more.svg") no-repeat center/contain;
     display: inline-block;
     height: 1.25rem;
     width: 1.25rem;
@@ -6399,8 +5838,7 @@ dfn {
     .usa-footer__primary-link--button::before {
         background: none;
         background-color: currentColor;
-        mask: url("@uswds/uswds/img/usa-icons/expand_more.svg") no-repeat
-            center/contain;
+        mask: url("@uswds/uswds/img/usa-icons/expand_more.svg") no-repeat center/contain;
     }
 }
 .usa-footer__primary-link--button:not([disabled]):focus {
@@ -6428,8 +5866,7 @@ dfn {
     margin-bottom: 0.5rem;
 }
 .usa-footer__primary-link--button[aria-expanded="false"]::before {
-    background: url("@uswds/uswds/img/usa-icons/navigate_next.svg") no-repeat
-        center/contain;
+    background: url("@uswds/uswds/img/usa-icons/navigate_next.svg") no-repeat center/contain;
     display: inline-block;
     height: 1.25rem;
     width: 1.25rem;
@@ -6441,8 +5878,7 @@ dfn {
     .usa-footer__primary-link--button[aria-expanded="false"]::before {
         background: none;
         background-color: currentColor;
-        mask: url("@uswds/uswds/img/usa-icons/navigate_next.svg") no-repeat
-            center/contain;
+        mask: url("@uswds/uswds/img/usa-icons/navigate_next.svg") no-repeat center/contain;
     }
 }
 .usa-footer__primary-link--button[aria-expanded="false"] + .usa-list--unstyled {
@@ -6753,9 +6189,7 @@ dfn {
         text-decoration: none;
     }
 }
-.usa-footer--big
-    .usa-footer__primary-content--collapsible
-    .usa-footer__primary-link {
+.usa-footer--big .usa-footer__primary-content--collapsible .usa-footer__primary-link {
     align-items: center;
     display: flex;
     justify-content: flex-start;
@@ -6766,9 +6200,7 @@ dfn {
     padding-bottom: 1.25rem;
 }
 @media all and (min-width: 30em) {
-    .usa-footer--big
-        .usa-footer__primary-content--collapsible
-        .usa-list--unstyled {
+    .usa-footer--big .usa-footer__primary-content--collapsible .usa-list--unstyled {
         padding-left: 0;
         padding-right: 0;
         padding-bottom: 2rem;
@@ -6990,9 +6422,7 @@ dfn {
         margin-bottom: 0;
     }
 }
-.usa-graphic-list
-    .usa-graphic-list__row:last-child
-    .usa-media-block:last-child {
+.usa-graphic-list .usa-graphic-list__row:last-child .usa-media-block:last-child {
     margin-bottom: 0;
 }
 .usa-graphic-list .usa-media-block__img {
@@ -7294,8 +6724,7 @@ dfn {
     }
 }
 @media all and (min-width: 64em) {
-    .usa-header--basic.usa-header--megamenu
-        .usa-nav__primary-item:last-of-type {
+    .usa-header--basic.usa-header--megamenu .usa-nav__primary-item:last-of-type {
         position: static;
     }
 }
@@ -8044,9 +7473,7 @@ html.usa-js-loading .usa-nav__submenu.usa-megamenu {
         font-size: 0.94rem;
         padding-left: 0.376rem;
     }
-    .mobile-lg\:usa-icon-list--size-xs
-        .usa-icon-list__content
-        .usa-icon-list__title {
+    .mobile-lg\:usa-icon-list--size-xs .usa-icon-list__content .usa-icon-list__title {
         font-family:
             Public Sans Web,
             -apple-system,
@@ -8070,9 +7497,7 @@ html.usa-js-loading .usa-nav__submenu.usa-megamenu {
         font-size: 1rem;
         padding-left: 0.4rem;
     }
-    .mobile-lg\:usa-icon-list--size-sm
-        .usa-icon-list__content
-        .usa-icon-list__title {
+    .mobile-lg\:usa-icon-list--size-sm .usa-icon-list__content .usa-icon-list__title {
         font-family:
             Public Sans Web,
             -apple-system,
@@ -8096,9 +7521,7 @@ html.usa-js-loading .usa-nav__submenu.usa-megamenu {
         font-size: 1.06rem;
         padding-left: 0.424rem;
     }
-    .mobile-lg\:usa-icon-list--size-md
-        .usa-icon-list__content
-        .usa-icon-list__title {
+    .mobile-lg\:usa-icon-list--size-md .usa-icon-list__content .usa-icon-list__title {
         font-family:
             Public Sans Web,
             -apple-system,
@@ -8122,9 +7545,7 @@ html.usa-js-loading .usa-nav__submenu.usa-megamenu {
         font-size: 1.38rem;
         padding-left: 0.552rem;
     }
-    .mobile-lg\:usa-icon-list--size-lg
-        .usa-icon-list__content
-        .usa-icon-list__title {
+    .mobile-lg\:usa-icon-list--size-lg .usa-icon-list__content .usa-icon-list__title {
         font-family:
             Public Sans Web,
             -apple-system,
@@ -8148,9 +7569,7 @@ html.usa-js-loading .usa-nav__submenu.usa-megamenu {
         font-size: 2rem;
         padding-left: 0.8rem;
     }
-    .mobile-lg\:usa-icon-list--size-xl
-        .usa-icon-list__content
-        .usa-icon-list__title {
+    .mobile-lg\:usa-icon-list--size-xl .usa-icon-list__content .usa-icon-list__title {
         font-family:
             Public Sans Web,
             -apple-system,
@@ -8174,9 +7593,7 @@ html.usa-js-loading .usa-nav__submenu.usa-megamenu {
         font-size: 2.5rem;
         padding-left: 1rem;
     }
-    .mobile-lg\:usa-icon-list--size-2xl
-        .usa-icon-list__content
-        .usa-icon-list__title {
+    .mobile-lg\:usa-icon-list--size-2xl .usa-icon-list__content .usa-icon-list__title {
         font-family:
             Public Sans Web,
             -apple-system,
@@ -8200,9 +7617,7 @@ html.usa-js-loading .usa-nav__submenu.usa-megamenu {
         font-size: 3rem;
         padding-left: 1.2rem;
     }
-    .mobile-lg\:usa-icon-list--size-3xl
-        .usa-icon-list__content
-        .usa-icon-list__title {
+    .mobile-lg\:usa-icon-list--size-3xl .usa-icon-list__content .usa-icon-list__title {
         font-family:
             Public Sans Web,
             -apple-system,
@@ -8228,9 +7643,7 @@ html.usa-js-loading .usa-nav__submenu.usa-megamenu {
         font-size: 0.94rem;
         padding-left: 0.376rem;
     }
-    .tablet\:usa-icon-list--size-xs
-        .usa-icon-list__content
-        .usa-icon-list__title {
+    .tablet\:usa-icon-list--size-xs .usa-icon-list__content .usa-icon-list__title {
         font-family:
             Public Sans Web,
             -apple-system,
@@ -8254,9 +7667,7 @@ html.usa-js-loading .usa-nav__submenu.usa-megamenu {
         font-size: 1rem;
         padding-left: 0.4rem;
     }
-    .tablet\:usa-icon-list--size-sm
-        .usa-icon-list__content
-        .usa-icon-list__title {
+    .tablet\:usa-icon-list--size-sm .usa-icon-list__content .usa-icon-list__title {
         font-family:
             Public Sans Web,
             -apple-system,
@@ -8280,9 +7691,7 @@ html.usa-js-loading .usa-nav__submenu.usa-megamenu {
         font-size: 1.06rem;
         padding-left: 0.424rem;
     }
-    .tablet\:usa-icon-list--size-md
-        .usa-icon-list__content
-        .usa-icon-list__title {
+    .tablet\:usa-icon-list--size-md .usa-icon-list__content .usa-icon-list__title {
         font-family:
             Public Sans Web,
             -apple-system,
@@ -8306,9 +7715,7 @@ html.usa-js-loading .usa-nav__submenu.usa-megamenu {
         font-size: 1.38rem;
         padding-left: 0.552rem;
     }
-    .tablet\:usa-icon-list--size-lg
-        .usa-icon-list__content
-        .usa-icon-list__title {
+    .tablet\:usa-icon-list--size-lg .usa-icon-list__content .usa-icon-list__title {
         font-family:
             Public Sans Web,
             -apple-system,
@@ -8332,9 +7739,7 @@ html.usa-js-loading .usa-nav__submenu.usa-megamenu {
         font-size: 2rem;
         padding-left: 0.8rem;
     }
-    .tablet\:usa-icon-list--size-xl
-        .usa-icon-list__content
-        .usa-icon-list__title {
+    .tablet\:usa-icon-list--size-xl .usa-icon-list__content .usa-icon-list__title {
         font-family:
             Public Sans Web,
             -apple-system,
@@ -8358,9 +7763,7 @@ html.usa-js-loading .usa-nav__submenu.usa-megamenu {
         font-size: 2.5rem;
         padding-left: 1rem;
     }
-    .tablet\:usa-icon-list--size-2xl
-        .usa-icon-list__content
-        .usa-icon-list__title {
+    .tablet\:usa-icon-list--size-2xl .usa-icon-list__content .usa-icon-list__title {
         font-family:
             Public Sans Web,
             -apple-system,
@@ -8384,9 +7787,7 @@ html.usa-js-loading .usa-nav__submenu.usa-megamenu {
         font-size: 3rem;
         padding-left: 1.2rem;
     }
-    .tablet\:usa-icon-list--size-3xl
-        .usa-icon-list__content
-        .usa-icon-list__title {
+    .tablet\:usa-icon-list--size-3xl .usa-icon-list__content .usa-icon-list__title {
         font-family:
             Public Sans Web,
             -apple-system,
@@ -8412,9 +7813,7 @@ html.usa-js-loading .usa-nav__submenu.usa-megamenu {
         font-size: 0.94rem;
         padding-left: 0.376rem;
     }
-    .desktop\:usa-icon-list--size-xs
-        .usa-icon-list__content
-        .usa-icon-list__title {
+    .desktop\:usa-icon-list--size-xs .usa-icon-list__content .usa-icon-list__title {
         font-family:
             Public Sans Web,
             -apple-system,
@@ -8438,9 +7837,7 @@ html.usa-js-loading .usa-nav__submenu.usa-megamenu {
         font-size: 1rem;
         padding-left: 0.4rem;
     }
-    .desktop\:usa-icon-list--size-sm
-        .usa-icon-list__content
-        .usa-icon-list__title {
+    .desktop\:usa-icon-list--size-sm .usa-icon-list__content .usa-icon-list__title {
         font-family:
             Public Sans Web,
             -apple-system,
@@ -8464,9 +7861,7 @@ html.usa-js-loading .usa-nav__submenu.usa-megamenu {
         font-size: 1.06rem;
         padding-left: 0.424rem;
     }
-    .desktop\:usa-icon-list--size-md
-        .usa-icon-list__content
-        .usa-icon-list__title {
+    .desktop\:usa-icon-list--size-md .usa-icon-list__content .usa-icon-list__title {
         font-family:
             Public Sans Web,
             -apple-system,
@@ -8490,9 +7885,7 @@ html.usa-js-loading .usa-nav__submenu.usa-megamenu {
         font-size: 1.38rem;
         padding-left: 0.552rem;
     }
-    .desktop\:usa-icon-list--size-lg
-        .usa-icon-list__content
-        .usa-icon-list__title {
+    .desktop\:usa-icon-list--size-lg .usa-icon-list__content .usa-icon-list__title {
         font-family:
             Public Sans Web,
             -apple-system,
@@ -8516,9 +7909,7 @@ html.usa-js-loading .usa-nav__submenu.usa-megamenu {
         font-size: 2rem;
         padding-left: 0.8rem;
     }
-    .desktop\:usa-icon-list--size-xl
-        .usa-icon-list__content
-        .usa-icon-list__title {
+    .desktop\:usa-icon-list--size-xl .usa-icon-list__content .usa-icon-list__title {
         font-family:
             Public Sans Web,
             -apple-system,
@@ -8542,9 +7933,7 @@ html.usa-js-loading .usa-nav__submenu.usa-megamenu {
         font-size: 2.5rem;
         padding-left: 1rem;
     }
-    .desktop\:usa-icon-list--size-2xl
-        .usa-icon-list__content
-        .usa-icon-list__title {
+    .desktop\:usa-icon-list--size-2xl .usa-icon-list__content .usa-icon-list__title {
         font-family:
             Public Sans Web,
             -apple-system,
@@ -8568,9 +7957,7 @@ html.usa-js-loading .usa-nav__submenu.usa-megamenu {
         font-size: 3rem;
         padding-left: 1.2rem;
     }
-    .desktop\:usa-icon-list--size-3xl
-        .usa-icon-list__content
-        .usa-icon-list__title {
+    .desktop\:usa-icon-list--size-3xl .usa-icon-list__content .usa-icon-list__title {
         font-family:
             Public Sans Web,
             -apple-system,
@@ -10855,8 +10242,7 @@ html.usa-js-loading .usa-nav__submenu.usa-megamenu {
     background-image: none;
 }
 .usa-nav__primary button[aria-expanded="false"] span::after {
-    background: url("@uswds/uswds/img/usa-icons/add.svg") no-repeat
-        center/contain;
+    background: url("@uswds/uswds/img/usa-icons/add.svg") no-repeat center/contain;
     display: inline-block;
     height: 1.25rem;
     width: 1.25rem;
@@ -10880,8 +10266,7 @@ html.usa-js-loading .usa-nav__submenu.usa-megamenu {
 }
 @media all and (min-width: 64em) {
     .usa-nav__primary button[aria-expanded="false"] span::after {
-        background: url("@uswds/uswds/img/usa-icons/expand_more.svg") no-repeat
-            center/contain;
+        background: url("@uswds/uswds/img/usa-icons/expand_more.svg") no-repeat center/contain;
         display: inline-block;
         height: 1rem;
         width: 1rem;
@@ -10893,8 +10278,7 @@ html.usa-js-loading .usa-nav__submenu.usa-megamenu {
         .usa-nav__primary button[aria-expanded="false"] span::after {
             background: none;
             background-color: ButtonText;
-            mask: url("@uswds/uswds/img/usa-icons/expand_more.svg") no-repeat
-                center/contain;
+            mask: url("@uswds/uswds/img/usa-icons/expand_more.svg") no-repeat center/contain;
         }
     }
     .usa-nav__primary button[aria-expanded="false"] span::after {
@@ -10916,8 +10300,7 @@ html.usa-js-loading .usa-nav__submenu.usa-megamenu {
     background-image: none;
 }
 .usa-nav__primary button[aria-expanded="true"] span::after {
-    background: url("@uswds/uswds/img/usa-icons/remove.svg") no-repeat
-        center/contain;
+    background: url("@uswds/uswds/img/usa-icons/remove.svg") no-repeat center/contain;
     display: inline-block;
     height: 1.25rem;
     width: 1.25rem;
@@ -10929,8 +10312,7 @@ html.usa-js-loading .usa-nav__submenu.usa-megamenu {
     .usa-nav__primary button[aria-expanded="true"] span::after {
         background: none;
         background-color: ButtonText;
-        mask: url("@uswds/uswds/img/usa-icons/remove.svg") no-repeat
-            center/contain;
+        mask: url("@uswds/uswds/img/usa-icons/remove.svg") no-repeat center/contain;
     }
 }
 .usa-nav__primary button[aria-expanded="true"] span::after {
@@ -10951,8 +10333,7 @@ html.usa-js-loading .usa-nav__submenu.usa-megamenu {
 }
 @media all and (min-width: 64em) and (min-width: 64em) {
     .usa-nav__primary button[aria-expanded="true"] span::after {
-        background: url("@uswds/uswds/img/usa-icons/expand_less.svg") no-repeat
-            center/contain;
+        background: url("@uswds/uswds/img/usa-icons/expand_less.svg") no-repeat center/contain;
         display: inline-block;
         height: 1rem;
         width: 1rem;
@@ -10964,8 +10345,7 @@ html.usa-js-loading .usa-nav__submenu.usa-megamenu {
         .usa-nav__primary button[aria-expanded="true"] span::after {
             background: none;
             background-color: ButtonText;
-            mask: url("@uswds/uswds/img/usa-icons/expand_less.svg") no-repeat
-                center/contain;
+            mask: url("@uswds/uswds/img/usa-icons/expand_less.svg") no-repeat center/contain;
         }
     }
     .usa-nav__primary button[aria-expanded="true"] span::after {
@@ -11033,9 +10413,7 @@ html.usa-js-loading .usa-nav__submenu.usa-megamenu {
         display: inline;
         padding-left: 0.25rem;
     }
-    .usa-nav__secondary-links
-        .usa-nav__secondary-item
-        + .usa-nav__secondary-item::before {
+    .usa-nav__secondary-links .usa-nav__secondary-item + .usa-nav__secondary-item::before {
         color: #dfe1e2;
         content: "|";
         padding-right: 0.25rem;
@@ -11217,8 +10595,7 @@ html.usa-js-loading .usa-nav__submenu.usa-megamenu {
 }
 @media (forced-colors: active) {
     .usa-nav__close::before {
-        background: url("@uswds/uswds/img/usa-icons/close.svg") no-repeat
-            center/contain;
+        background: url("@uswds/uswds/img/usa-icons/close.svg") no-repeat center/contain;
         display: inline-block;
         height: 1.25rem;
         width: 1.25rem;
@@ -11230,8 +10607,7 @@ html.usa-js-loading .usa-nav__submenu.usa-megamenu {
         .usa-nav__close::before {
             background: none;
             background-color: ButtonText;
-            mask: url("@uswds/uswds/img/usa-icons/close.svg") no-repeat
-                center/contain;
+            mask: url("@uswds/uswds/img/usa-icons/close.svg") no-repeat center/contain;
         }
     }
     .usa-nav__close::before {
@@ -11632,8 +11008,7 @@ html.usa-js-loading .usa-nav__submenu.usa-megamenu {
         border: 2px solid transparent;
     }
     .usa-search [type="submit"]::before {
-        background: url("@uswds/uswds/img/usa-icons/search.svg") no-repeat
-            center/contain;
+        background: url("@uswds/uswds/img/usa-icons/search.svg") no-repeat center/contain;
         display: inline-block;
         height: 1.5rem;
         width: 1.5rem;
@@ -11645,8 +11020,7 @@ html.usa-js-loading .usa-nav__submenu.usa-megamenu {
         .usa-search [type="submit"]::before {
             background: none;
             background-color: ButtonText;
-            mask: url("@uswds/uswds/img/usa-icons/search.svg") no-repeat
-                center/contain;
+            mask: url("@uswds/uswds/img/usa-icons/search.svg") no-repeat center/contain;
         }
     }
 }
@@ -11894,10 +11268,7 @@ input[type="search"] {
 .usa-sidenav__sublist .usa-sidenav__sublist a:not(.usa-button) {
     padding-left: 3rem;
 }
-.usa-sidenav__sublist
-    .usa-sidenav__sublist
-    .usa-sidenav__sublist
-    a:not(.usa-button) {
+.usa-sidenav__sublist .usa-sidenav__sublist .usa-sidenav__sublist a:not(.usa-button) {
     padding-left: 4rem;
 }
 
@@ -11936,8 +11307,7 @@ input[type="search"] {
     color: #1b1b1b;
 }
 .usa-site-alert--info .usa-alert:before {
-    background: url("@uswds/uswds/img/usa-icons/info.svg") no-repeat
-        center/contain;
+    background: url("@uswds/uswds/img/usa-icons/info.svg") no-repeat center/contain;
     display: inline-block;
     height: 2rem;
     width: 2rem;
@@ -11952,8 +11322,7 @@ input[type="search"] {
     .usa-site-alert--info .usa-alert:before {
         background: none;
         background-color: #1b1b1b;
-        mask: url("@uswds/uswds/img/usa-icons/info.svg") no-repeat
-            center/contain;
+        mask: url("@uswds/uswds/img/usa-icons/info.svg") no-repeat center/contain;
     }
 }
 .usa-site-alert--info .usa-alert.usa-alert--slim:before {
@@ -12011,8 +11380,7 @@ input[type="search"] {
     color: white;
 }
 .usa-site-alert--emergency .usa-alert:before {
-    background: url("@uswds/uswds/img/usa-icons-bg/error--white.svg") no-repeat
-        center/contain;
+    background: url("@uswds/uswds/img/usa-icons-bg/error--white.svg") no-repeat center/contain;
     display: inline-block;
     height: 2rem;
     width: 2rem;
@@ -12027,8 +11395,7 @@ input[type="search"] {
     .usa-site-alert--emergency .usa-alert:before {
         background: none;
         background-color: white;
-        mask: url("@uswds/uswds/img/usa-icons/error.svg") no-repeat
-            center/contain;
+        mask: url("@uswds/uswds/img/usa-icons/error.svg") no-repeat center/contain;
     }
 }
 .usa-site-alert--emergency .usa-alert.usa-alert--slim:before {
@@ -12337,14 +11704,12 @@ input[type="search"] {
         z-index: 100;
     }
     .usa-step-indicator--counters .usa-step-indicator__segment:last-child:after,
-    .usa-step-indicator--counters-sm
-        .usa-step-indicator__segment:last-child:after {
+    .usa-step-indicator--counters-sm .usa-step-indicator__segment:last-child:after {
         display: none;
     }
 }
 .usa-step-indicator--counters .usa-step-indicator__segment--complete::before,
-.usa-step-indicator--counters-sm
-    .usa-step-indicator__segment--complete::before {
+.usa-step-indicator--counters-sm .usa-step-indicator__segment--complete::before {
     background-color: #162e51;
     box-shadow: 0 0 0 0.25rem white;
     color: white;
@@ -12362,18 +11727,14 @@ input[type="search"] {
     }
 }
 @media all and (min-width: 40em) {
-    .usa-step-indicator--counters.usa-step-indicator--center
-        .usa-step-indicator__segment:first-child:after,
-    .usa-step-indicator--counters-sm.usa-step-indicator--center
-        .usa-step-indicator__segment:first-child:after {
+    .usa-step-indicator--counters.usa-step-indicator--center .usa-step-indicator__segment:first-child:after,
+    .usa-step-indicator--counters-sm.usa-step-indicator--center .usa-step-indicator__segment:first-child:after {
         left: 50%;
         right: 0;
         width: auto;
     }
-    .usa-step-indicator--counters.usa-step-indicator--center
-        .usa-step-indicator__segment:last-child:after,
-    .usa-step-indicator--counters-sm.usa-step-indicator--center
-        .usa-step-indicator__segment:last-child:after {
+    .usa-step-indicator--counters.usa-step-indicator--center .usa-step-indicator__segment:last-child:after,
+    .usa-step-indicator--counters-sm.usa-step-indicator--center .usa-step-indicator__segment:last-child:after {
         display: block;
         left: 0;
         right: 50%;
@@ -12393,8 +11754,7 @@ input[type="search"] {
         padding: calc(0.25rem + 1px);
         top: calc((1.5rem - 0.5rem) / -2);
     }
-    .usa-step-indicator--counters-sm
-        .usa-step-indicator__segment:last-child:after {
+    .usa-step-indicator--counters-sm .usa-step-indicator__segment:last-child:after {
         display: none;
     }
 }
@@ -12443,16 +11803,13 @@ input[type="search"] {
     padding-right: 0.5rem;
     text-align: center;
 }
-.usa-step-indicator--center.usa-step-indicator--no-labels
-    .usa-step-indicator__segment:first-child:after {
+.usa-step-indicator--center.usa-step-indicator--no-labels .usa-step-indicator__segment:first-child:after {
     left: 0;
 }
-.usa-step-indicator--center.usa-step-indicator--no-labels
-    .usa-step-indicator__segment:last-child:after {
+.usa-step-indicator--center.usa-step-indicator--no-labels .usa-step-indicator__segment:last-child:after {
     right: 0;
 }
-.usa-step-indicator--center.usa-step-indicator--counters-sm
-    .usa-step-indicator__segment:before {
+.usa-step-indicator--center.usa-step-indicator--counters-sm .usa-step-indicator__segment:before {
     left: calc(50% - (1.5rem + 0.25rem) / 2);
 }
 
@@ -12637,274 +11994,118 @@ input[type="search"] {
     top: 50%;
     transform: translate(0, -50%);
 }
-.usa-table
-    th[data-sortable]:not([aria-sort])
-    .usa-table__header__button:visited,
-.usa-table
-    th[data-sortable][aria-sort="none"]
-    .usa-table__header__button:visited {
+.usa-table th[data-sortable]:not([aria-sort]) .usa-table__header__button:visited,
+.usa-table th[data-sortable][aria-sort="none"] .usa-table__header__button:visited {
     color: #54278f;
 }
 .usa-table th[data-sortable]:not([aria-sort]) .usa-table__header__button:hover,
-.usa-table
-    th[data-sortable][aria-sort="none"]
-    .usa-table__header__button:hover {
+.usa-table th[data-sortable][aria-sort="none"] .usa-table__header__button:hover {
     color: #1a4480;
 }
 .usa-table th[data-sortable]:not([aria-sort]) .usa-table__header__button:active,
-.usa-table
-    th[data-sortable][aria-sort="none"]
-    .usa-table__header__button:active {
+.usa-table th[data-sortable][aria-sort="none"] .usa-table__header__button:active {
     color: #162e51;
 }
 .usa-table th[data-sortable]:not([aria-sort]) .usa-table__header__button:focus,
-.usa-table
-    th[data-sortable][aria-sort="none"]
-    .usa-table__header__button:focus {
+.usa-table th[data-sortable][aria-sort="none"] .usa-table__header__button:focus {
     outline: 0.25rem solid #2491ff;
     outline-offset: 0;
 }
 .usa-table th[data-sortable]:not([aria-sort]) .usa-table__header__button:hover,
-.usa-table
-    th[data-sortable]:not([aria-sort])
-    .usa-table__header__button.usa-button--hover,
-.usa-table
-    th[data-sortable]:not([aria-sort])
-    .usa-table__header__button:disabled:hover,
-.usa-table
-    th[data-sortable]:not([aria-sort])
-    .usa-table__header__button[aria-disabled="true"]:hover,
-.usa-table
-    th[data-sortable]:not([aria-sort])
-    .usa-table__header__button:disabled.usa-button--hover,
-.usa-table
-    th[data-sortable]:not([aria-sort])
-    .usa-table__header__button[aria-disabled="true"].usa-button--hover,
-.usa-table
-    th[data-sortable]:not([aria-sort])
-    .usa-table__header__button.usa-button--disabled:hover,
-.usa-table
-    th[data-sortable]:not([aria-sort])
-    .usa-table__header__button.usa-button--disabled.usa-button--hover,
+.usa-table th[data-sortable]:not([aria-sort]) .usa-table__header__button.usa-button--hover,
+.usa-table th[data-sortable]:not([aria-sort]) .usa-table__header__button:disabled:hover,
+.usa-table th[data-sortable]:not([aria-sort]) .usa-table__header__button[aria-disabled="true"]:hover,
+.usa-table th[data-sortable]:not([aria-sort]) .usa-table__header__button:disabled.usa-button--hover,
+.usa-table th[data-sortable]:not([aria-sort]) .usa-table__header__button[aria-disabled="true"].usa-button--hover,
+.usa-table th[data-sortable]:not([aria-sort]) .usa-table__header__button.usa-button--disabled:hover,
+.usa-table th[data-sortable]:not([aria-sort]) .usa-table__header__button.usa-button--disabled.usa-button--hover,
 .usa-table th[data-sortable]:not([aria-sort]) .usa-table__header__button:active,
-.usa-table
-    th[data-sortable]:not([aria-sort])
-    .usa-table__header__button.usa-button--active,
-.usa-table
-    th[data-sortable]:not([aria-sort])
-    .usa-table__header__button:disabled:active,
-.usa-table
-    th[data-sortable]:not([aria-sort])
-    .usa-table__header__button[aria-disabled="true"]:active,
-.usa-table
-    th[data-sortable]:not([aria-sort])
-    .usa-table__header__button:disabled.usa-button--active,
-.usa-table
-    th[data-sortable]:not([aria-sort])
-    .usa-table__header__button[aria-disabled="true"].usa-button--active,
-.usa-table
-    th[data-sortable]:not([aria-sort])
-    .usa-table__header__button.usa-button--disabled:active,
-.usa-table
-    th[data-sortable]:not([aria-sort])
-    .usa-table__header__button.usa-button--disabled.usa-button--active,
-.usa-table
-    th[data-sortable]:not([aria-sort])
-    .usa-table__header__button:disabled:focus,
-.usa-table
-    th[data-sortable]:not([aria-sort])
-    .usa-table__header__button[aria-disabled="true"]:focus,
-.usa-table
-    th[data-sortable]:not([aria-sort])
-    .usa-table__header__button:disabled.usa-focus,
-.usa-table
-    th[data-sortable]:not([aria-sort])
-    .usa-table__header__button[aria-disabled="true"].usa-focus,
-.usa-table
-    th[data-sortable]:not([aria-sort])
-    .usa-table__header__button.usa-button--disabled:focus,
-.usa-table
-    th[data-sortable]:not([aria-sort])
-    .usa-table__header__button.usa-button--disabled.usa-focus,
-.usa-table
-    th[data-sortable]:not([aria-sort])
-    .usa-table__header__button:disabled,
-.usa-table
-    th[data-sortable]:not([aria-sort])
-    .usa-table__header__button[aria-disabled="true"],
-.usa-table
-    th[data-sortable]:not([aria-sort])
-    .usa-table__header__button.usa-button--disabled,
+.usa-table th[data-sortable]:not([aria-sort]) .usa-table__header__button.usa-button--active,
+.usa-table th[data-sortable]:not([aria-sort]) .usa-table__header__button:disabled:active,
+.usa-table th[data-sortable]:not([aria-sort]) .usa-table__header__button[aria-disabled="true"]:active,
+.usa-table th[data-sortable]:not([aria-sort]) .usa-table__header__button:disabled.usa-button--active,
+.usa-table th[data-sortable]:not([aria-sort]) .usa-table__header__button[aria-disabled="true"].usa-button--active,
+.usa-table th[data-sortable]:not([aria-sort]) .usa-table__header__button.usa-button--disabled:active,
+.usa-table th[data-sortable]:not([aria-sort]) .usa-table__header__button.usa-button--disabled.usa-button--active,
+.usa-table th[data-sortable]:not([aria-sort]) .usa-table__header__button:disabled:focus,
+.usa-table th[data-sortable]:not([aria-sort]) .usa-table__header__button[aria-disabled="true"]:focus,
+.usa-table th[data-sortable]:not([aria-sort]) .usa-table__header__button:disabled.usa-focus,
+.usa-table th[data-sortable]:not([aria-sort]) .usa-table__header__button[aria-disabled="true"].usa-focus,
+.usa-table th[data-sortable]:not([aria-sort]) .usa-table__header__button.usa-button--disabled:focus,
+.usa-table th[data-sortable]:not([aria-sort]) .usa-table__header__button.usa-button--disabled.usa-focus,
+.usa-table th[data-sortable]:not([aria-sort]) .usa-table__header__button:disabled,
+.usa-table th[data-sortable]:not([aria-sort]) .usa-table__header__button[aria-disabled="true"],
+.usa-table th[data-sortable]:not([aria-sort]) .usa-table__header__button.usa-button--disabled,
 .usa-table th[data-sortable][aria-sort="none"] .usa-table__header__button:hover,
-.usa-table
-    th[data-sortable][aria-sort="none"]
-    .usa-table__header__button.usa-button--hover,
-.usa-table
-    th[data-sortable][aria-sort="none"]
-    .usa-table__header__button:disabled:hover,
-.usa-table
-    th[data-sortable][aria-sort="none"]
-    .usa-table__header__button[aria-disabled="true"]:hover,
-.usa-table
-    th[data-sortable][aria-sort="none"]
-    .usa-table__header__button:disabled.usa-button--hover,
-.usa-table
-    th[data-sortable][aria-sort="none"]
-    .usa-table__header__button[aria-disabled="true"].usa-button--hover,
-.usa-table
-    th[data-sortable][aria-sort="none"]
-    .usa-table__header__button.usa-button--disabled:hover,
-.usa-table
-    th[data-sortable][aria-sort="none"]
-    .usa-table__header__button.usa-button--disabled.usa-button--hover,
-.usa-table
-    th[data-sortable][aria-sort="none"]
-    .usa-table__header__button:active,
-.usa-table
-    th[data-sortable][aria-sort="none"]
-    .usa-table__header__button.usa-button--active,
-.usa-table
-    th[data-sortable][aria-sort="none"]
-    .usa-table__header__button:disabled:active,
-.usa-table
-    th[data-sortable][aria-sort="none"]
-    .usa-table__header__button[aria-disabled="true"]:active,
-.usa-table
-    th[data-sortable][aria-sort="none"]
-    .usa-table__header__button:disabled.usa-button--active,
-.usa-table
-    th[data-sortable][aria-sort="none"]
-    .usa-table__header__button[aria-disabled="true"].usa-button--active,
-.usa-table
-    th[data-sortable][aria-sort="none"]
-    .usa-table__header__button.usa-button--disabled:active,
-.usa-table
-    th[data-sortable][aria-sort="none"]
-    .usa-table__header__button.usa-button--disabled.usa-button--active,
-.usa-table
-    th[data-sortable][aria-sort="none"]
-    .usa-table__header__button:disabled:focus,
-.usa-table
-    th[data-sortable][aria-sort="none"]
-    .usa-table__header__button[aria-disabled="true"]:focus,
-.usa-table
-    th[data-sortable][aria-sort="none"]
-    .usa-table__header__button:disabled.usa-focus,
-.usa-table
-    th[data-sortable][aria-sort="none"]
-    .usa-table__header__button[aria-disabled="true"].usa-focus,
-.usa-table
-    th[data-sortable][aria-sort="none"]
-    .usa-table__header__button.usa-button--disabled:focus,
-.usa-table
-    th[data-sortable][aria-sort="none"]
-    .usa-table__header__button.usa-button--disabled.usa-focus,
-.usa-table
-    th[data-sortable][aria-sort="none"]
-    .usa-table__header__button:disabled,
-.usa-table
-    th[data-sortable][aria-sort="none"]
-    .usa-table__header__button[aria-disabled="true"],
-.usa-table
-    th[data-sortable][aria-sort="none"]
-    .usa-table__header__button.usa-button--disabled {
+.usa-table th[data-sortable][aria-sort="none"] .usa-table__header__button.usa-button--hover,
+.usa-table th[data-sortable][aria-sort="none"] .usa-table__header__button:disabled:hover,
+.usa-table th[data-sortable][aria-sort="none"] .usa-table__header__button[aria-disabled="true"]:hover,
+.usa-table th[data-sortable][aria-sort="none"] .usa-table__header__button:disabled.usa-button--hover,
+.usa-table th[data-sortable][aria-sort="none"] .usa-table__header__button[aria-disabled="true"].usa-button--hover,
+.usa-table th[data-sortable][aria-sort="none"] .usa-table__header__button.usa-button--disabled:hover,
+.usa-table th[data-sortable][aria-sort="none"] .usa-table__header__button.usa-button--disabled.usa-button--hover,
+.usa-table th[data-sortable][aria-sort="none"] .usa-table__header__button:active,
+.usa-table th[data-sortable][aria-sort="none"] .usa-table__header__button.usa-button--active,
+.usa-table th[data-sortable][aria-sort="none"] .usa-table__header__button:disabled:active,
+.usa-table th[data-sortable][aria-sort="none"] .usa-table__header__button[aria-disabled="true"]:active,
+.usa-table th[data-sortable][aria-sort="none"] .usa-table__header__button:disabled.usa-button--active,
+.usa-table th[data-sortable][aria-sort="none"] .usa-table__header__button[aria-disabled="true"].usa-button--active,
+.usa-table th[data-sortable][aria-sort="none"] .usa-table__header__button.usa-button--disabled:active,
+.usa-table th[data-sortable][aria-sort="none"] .usa-table__header__button.usa-button--disabled.usa-button--active,
+.usa-table th[data-sortable][aria-sort="none"] .usa-table__header__button:disabled:focus,
+.usa-table th[data-sortable][aria-sort="none"] .usa-table__header__button[aria-disabled="true"]:focus,
+.usa-table th[data-sortable][aria-sort="none"] .usa-table__header__button:disabled.usa-focus,
+.usa-table th[data-sortable][aria-sort="none"] .usa-table__header__button[aria-disabled="true"].usa-focus,
+.usa-table th[data-sortable][aria-sort="none"] .usa-table__header__button.usa-button--disabled:focus,
+.usa-table th[data-sortable][aria-sort="none"] .usa-table__header__button.usa-button--disabled.usa-focus,
+.usa-table th[data-sortable][aria-sort="none"] .usa-table__header__button:disabled,
+.usa-table th[data-sortable][aria-sort="none"] .usa-table__header__button[aria-disabled="true"],
+.usa-table th[data-sortable][aria-sort="none"] .usa-table__header__button.usa-button--disabled {
     -moz-osx-font-smoothing: inherit;
     -webkit-font-smoothing: inherit;
     background-color: transparent;
     box-shadow: none;
     text-decoration: underline;
 }
-.usa-table
-    th[data-sortable]:not([aria-sort])
-    .usa-table__header__button.usa-button--hover,
-.usa-table
-    th[data-sortable][aria-sort="none"]
-    .usa-table__header__button.usa-button--hover {
+.usa-table th[data-sortable]:not([aria-sort]) .usa-table__header__button.usa-button--hover,
+.usa-table th[data-sortable][aria-sort="none"] .usa-table__header__button.usa-button--hover {
     color: #1a4480;
 }
-.usa-table
-    th[data-sortable]:not([aria-sort])
-    .usa-table__header__button.usa-button--active,
-.usa-table
-    th[data-sortable][aria-sort="none"]
-    .usa-table__header__button.usa-button--active {
+.usa-table th[data-sortable]:not([aria-sort]) .usa-table__header__button.usa-button--active,
+.usa-table th[data-sortable][aria-sort="none"] .usa-table__header__button.usa-button--active {
     color: #162e51;
 }
-.usa-table
-    th[data-sortable]:not([aria-sort])
-    .usa-table__header__button:disabled,
-.usa-table
-    th[data-sortable]:not([aria-sort])
-    .usa-table__header__button[aria-disabled="true"],
-.usa-table
-    th[data-sortable]:not([aria-sort])
-    .usa-table__header__button.usa-button--disabled,
-.usa-table
-    th[data-sortable][aria-sort="none"]
-    .usa-table__header__button:disabled,
-.usa-table
-    th[data-sortable][aria-sort="none"]
-    .usa-table__header__button[aria-disabled="true"],
-.usa-table
-    th[data-sortable][aria-sort="none"]
-    .usa-table__header__button.usa-button--disabled {
+.usa-table th[data-sortable]:not([aria-sort]) .usa-table__header__button:disabled,
+.usa-table th[data-sortable]:not([aria-sort]) .usa-table__header__button[aria-disabled="true"],
+.usa-table th[data-sortable]:not([aria-sort]) .usa-table__header__button.usa-button--disabled,
+.usa-table th[data-sortable][aria-sort="none"] .usa-table__header__button:disabled,
+.usa-table th[data-sortable][aria-sort="none"] .usa-table__header__button[aria-disabled="true"],
+.usa-table th[data-sortable][aria-sort="none"] .usa-table__header__button.usa-button--disabled {
     color: #c9c9c9;
 }
-.usa-table
-    th[data-sortable]:not([aria-sort])
-    .usa-table__header__button
-    .usa-icon,
-.usa-table
-    th[data-sortable][aria-sort="none"]
-    .usa-table__header__button
-    .usa-icon {
+.usa-table th[data-sortable]:not([aria-sort]) .usa-table__header__button .usa-icon,
+.usa-table th[data-sortable][aria-sort="none"] .usa-table__header__button .usa-icon {
     height: 1.5rem;
     width: 1.5rem;
     vertical-align: middle;
 }
-.usa-table
-    th[data-sortable]:not([aria-sort])
-    .usa-table__header__button
-    .usa-icon
-    > g,
-.usa-table
-    th[data-sortable][aria-sort="none"]
-    .usa-table__header__button
-    .usa-icon
-    > g {
+.usa-table th[data-sortable]:not([aria-sort]) .usa-table__header__button .usa-icon > g,
+.usa-table th[data-sortable][aria-sort="none"] .usa-table__header__button .usa-icon > g {
     fill: transparent;
 }
-.usa-table
-    th[data-sortable]:not([aria-sort])
-    .usa-table__header__button
-    .usa-icon
-    > g.unsorted,
-.usa-table
-    th[data-sortable][aria-sort="none"]
-    .usa-table__header__button
-    .usa-icon
-    > g.unsorted {
+.usa-table th[data-sortable]:not([aria-sort]) .usa-table__header__button .usa-icon > g.unsorted,
+.usa-table th[data-sortable][aria-sort="none"] .usa-table__header__button .usa-icon > g.unsorted {
     fill: #1b1b1b;
 }
-.usa-table
-    th[data-sortable]:not([aria-sort])
-    .usa-table__header__button:hover
-    .usa-icon
-    > g.unsorted,
-.usa-table
-    th[data-sortable][aria-sort="none"]
-    .usa-table__header__button:hover
-    .usa-icon
-    > g.unsorted {
+.usa-table th[data-sortable]:not([aria-sort]) .usa-table__header__button:hover .usa-icon > g.unsorted,
+.usa-table th[data-sortable][aria-sort="none"] .usa-table__header__button:hover .usa-icon > g.unsorted {
     fill: black;
 }
 .usa-table th[data-sortable][aria-sort="descending"],
 .usa-table th[data-sortable][aria-sort="ascending"] {
     background-color: #97d4ea;
 }
-.usa-table
-    th[data-sortable][aria-sort="descending"]
-    .usa-table__header__button {
+.usa-table th[data-sortable][aria-sort="descending"] .usa-table__header__button {
     -moz-osx-font-smoothing: inherit;
     -webkit-font-smoothing: inherit;
     color: #005ea2;
@@ -12932,149 +12133,72 @@ input[type="search"] {
     top: 50%;
     transform: translate(0, -50%);
 }
-.usa-table
-    th[data-sortable][aria-sort="descending"]
-    .usa-table__header__button:visited {
+.usa-table th[data-sortable][aria-sort="descending"] .usa-table__header__button:visited {
     color: #54278f;
 }
-.usa-table
-    th[data-sortable][aria-sort="descending"]
-    .usa-table__header__button:hover {
+.usa-table th[data-sortable][aria-sort="descending"] .usa-table__header__button:hover {
     color: #1a4480;
 }
-.usa-table
-    th[data-sortable][aria-sort="descending"]
-    .usa-table__header__button:active {
+.usa-table th[data-sortable][aria-sort="descending"] .usa-table__header__button:active {
     color: #162e51;
 }
-.usa-table
-    th[data-sortable][aria-sort="descending"]
-    .usa-table__header__button:focus {
+.usa-table th[data-sortable][aria-sort="descending"] .usa-table__header__button:focus {
     outline: 0.25rem solid #2491ff;
     outline-offset: 0;
 }
-.usa-table
-    th[data-sortable][aria-sort="descending"]
-    .usa-table__header__button:hover,
-.usa-table
-    th[data-sortable][aria-sort="descending"]
-    .usa-table__header__button.usa-button--hover,
-.usa-table
-    th[data-sortable][aria-sort="descending"]
-    .usa-table__header__button:disabled:hover,
-.usa-table
-    th[data-sortable][aria-sort="descending"]
-    .usa-table__header__button[aria-disabled="true"]:hover,
-.usa-table
-    th[data-sortable][aria-sort="descending"]
-    .usa-table__header__button:disabled.usa-button--hover,
-.usa-table
-    th[data-sortable][aria-sort="descending"]
-    .usa-table__header__button[aria-disabled="true"].usa-button--hover,
-.usa-table
-    th[data-sortable][aria-sort="descending"]
-    .usa-table__header__button.usa-button--disabled:hover,
-.usa-table
-    th[data-sortable][aria-sort="descending"]
-    .usa-table__header__button.usa-button--disabled.usa-button--hover,
-.usa-table
-    th[data-sortable][aria-sort="descending"]
-    .usa-table__header__button:active,
-.usa-table
-    th[data-sortable][aria-sort="descending"]
-    .usa-table__header__button.usa-button--active,
-.usa-table
-    th[data-sortable][aria-sort="descending"]
-    .usa-table__header__button:disabled:active,
-.usa-table
-    th[data-sortable][aria-sort="descending"]
-    .usa-table__header__button[aria-disabled="true"]:active,
-.usa-table
-    th[data-sortable][aria-sort="descending"]
-    .usa-table__header__button:disabled.usa-button--active,
+.usa-table th[data-sortable][aria-sort="descending"] .usa-table__header__button:hover,
+.usa-table th[data-sortable][aria-sort="descending"] .usa-table__header__button.usa-button--hover,
+.usa-table th[data-sortable][aria-sort="descending"] .usa-table__header__button:disabled:hover,
+.usa-table th[data-sortable][aria-sort="descending"] .usa-table__header__button[aria-disabled="true"]:hover,
+.usa-table th[data-sortable][aria-sort="descending"] .usa-table__header__button:disabled.usa-button--hover,
+.usa-table th[data-sortable][aria-sort="descending"] .usa-table__header__button[aria-disabled="true"].usa-button--hover,
+.usa-table th[data-sortable][aria-sort="descending"] .usa-table__header__button.usa-button--disabled:hover,
+.usa-table th[data-sortable][aria-sort="descending"] .usa-table__header__button.usa-button--disabled.usa-button--hover,
+.usa-table th[data-sortable][aria-sort="descending"] .usa-table__header__button:active,
+.usa-table th[data-sortable][aria-sort="descending"] .usa-table__header__button.usa-button--active,
+.usa-table th[data-sortable][aria-sort="descending"] .usa-table__header__button:disabled:active,
+.usa-table th[data-sortable][aria-sort="descending"] .usa-table__header__button[aria-disabled="true"]:active,
+.usa-table th[data-sortable][aria-sort="descending"] .usa-table__header__button:disabled.usa-button--active,
 .usa-table
     th[data-sortable][aria-sort="descending"]
     .usa-table__header__button[aria-disabled="true"].usa-button--active,
-.usa-table
-    th[data-sortable][aria-sort="descending"]
-    .usa-table__header__button.usa-button--disabled:active,
-.usa-table
-    th[data-sortable][aria-sort="descending"]
-    .usa-table__header__button.usa-button--disabled.usa-button--active,
-.usa-table
-    th[data-sortable][aria-sort="descending"]
-    .usa-table__header__button:disabled:focus,
-.usa-table
-    th[data-sortable][aria-sort="descending"]
-    .usa-table__header__button[aria-disabled="true"]:focus,
-.usa-table
-    th[data-sortable][aria-sort="descending"]
-    .usa-table__header__button:disabled.usa-focus,
-.usa-table
-    th[data-sortable][aria-sort="descending"]
-    .usa-table__header__button[aria-disabled="true"].usa-focus,
-.usa-table
-    th[data-sortable][aria-sort="descending"]
-    .usa-table__header__button.usa-button--disabled:focus,
-.usa-table
-    th[data-sortable][aria-sort="descending"]
-    .usa-table__header__button.usa-button--disabled.usa-focus,
-.usa-table
-    th[data-sortable][aria-sort="descending"]
-    .usa-table__header__button:disabled,
-.usa-table
-    th[data-sortable][aria-sort="descending"]
-    .usa-table__header__button[aria-disabled="true"],
-.usa-table
-    th[data-sortable][aria-sort="descending"]
-    .usa-table__header__button.usa-button--disabled {
+.usa-table th[data-sortable][aria-sort="descending"] .usa-table__header__button.usa-button--disabled:active,
+.usa-table th[data-sortable][aria-sort="descending"] .usa-table__header__button.usa-button--disabled.usa-button--active,
+.usa-table th[data-sortable][aria-sort="descending"] .usa-table__header__button:disabled:focus,
+.usa-table th[data-sortable][aria-sort="descending"] .usa-table__header__button[aria-disabled="true"]:focus,
+.usa-table th[data-sortable][aria-sort="descending"] .usa-table__header__button:disabled.usa-focus,
+.usa-table th[data-sortable][aria-sort="descending"] .usa-table__header__button[aria-disabled="true"].usa-focus,
+.usa-table th[data-sortable][aria-sort="descending"] .usa-table__header__button.usa-button--disabled:focus,
+.usa-table th[data-sortable][aria-sort="descending"] .usa-table__header__button.usa-button--disabled.usa-focus,
+.usa-table th[data-sortable][aria-sort="descending"] .usa-table__header__button:disabled,
+.usa-table th[data-sortable][aria-sort="descending"] .usa-table__header__button[aria-disabled="true"],
+.usa-table th[data-sortable][aria-sort="descending"] .usa-table__header__button.usa-button--disabled {
     -moz-osx-font-smoothing: inherit;
     -webkit-font-smoothing: inherit;
     background-color: transparent;
     box-shadow: none;
     text-decoration: underline;
 }
-.usa-table
-    th[data-sortable][aria-sort="descending"]
-    .usa-table__header__button.usa-button--hover {
+.usa-table th[data-sortable][aria-sort="descending"] .usa-table__header__button.usa-button--hover {
     color: #1a4480;
 }
-.usa-table
-    th[data-sortable][aria-sort="descending"]
-    .usa-table__header__button.usa-button--active {
+.usa-table th[data-sortable][aria-sort="descending"] .usa-table__header__button.usa-button--active {
     color: #162e51;
 }
-.usa-table
-    th[data-sortable][aria-sort="descending"]
-    .usa-table__header__button:disabled,
-.usa-table
-    th[data-sortable][aria-sort="descending"]
-    .usa-table__header__button[aria-disabled="true"],
-.usa-table
-    th[data-sortable][aria-sort="descending"]
-    .usa-table__header__button.usa-button--disabled {
+.usa-table th[data-sortable][aria-sort="descending"] .usa-table__header__button:disabled,
+.usa-table th[data-sortable][aria-sort="descending"] .usa-table__header__button[aria-disabled="true"],
+.usa-table th[data-sortable][aria-sort="descending"] .usa-table__header__button.usa-button--disabled {
     color: #c9c9c9;
 }
-.usa-table
-    th[data-sortable][aria-sort="descending"]
-    .usa-table__header__button
-    .usa-icon {
+.usa-table th[data-sortable][aria-sort="descending"] .usa-table__header__button .usa-icon {
     height: 1.5rem;
     width: 1.5rem;
     vertical-align: middle;
 }
-.usa-table
-    th[data-sortable][aria-sort="descending"]
-    .usa-table__header__button
-    .usa-icon
-    > g {
+.usa-table th[data-sortable][aria-sort="descending"] .usa-table__header__button .usa-icon > g {
     fill: transparent;
 }
-.usa-table
-    th[data-sortable][aria-sort="descending"]
-    .usa-table__header__button
-    .usa-icon
-    > g.descending {
+.usa-table th[data-sortable][aria-sort="descending"] .usa-table__header__button .usa-icon > g.descending {
     fill: #1b1b1b;
 }
 .usa-table th[data-sortable][aria-sort="ascending"] .usa-table__header__button {
@@ -13105,149 +12229,70 @@ input[type="search"] {
     top: 50%;
     transform: translate(0, -50%);
 }
-.usa-table
-    th[data-sortable][aria-sort="ascending"]
-    .usa-table__header__button:visited {
+.usa-table th[data-sortable][aria-sort="ascending"] .usa-table__header__button:visited {
     color: #54278f;
 }
-.usa-table
-    th[data-sortable][aria-sort="ascending"]
-    .usa-table__header__button:hover {
+.usa-table th[data-sortable][aria-sort="ascending"] .usa-table__header__button:hover {
     color: #1a4480;
 }
-.usa-table
-    th[data-sortable][aria-sort="ascending"]
-    .usa-table__header__button:active {
+.usa-table th[data-sortable][aria-sort="ascending"] .usa-table__header__button:active {
     color: #162e51;
 }
-.usa-table
-    th[data-sortable][aria-sort="ascending"]
-    .usa-table__header__button:focus {
+.usa-table th[data-sortable][aria-sort="ascending"] .usa-table__header__button:focus {
     outline: 0.25rem solid #2491ff;
     outline-offset: 0;
 }
-.usa-table
-    th[data-sortable][aria-sort="ascending"]
-    .usa-table__header__button:hover,
-.usa-table
-    th[data-sortable][aria-sort="ascending"]
-    .usa-table__header__button.usa-button--hover,
-.usa-table
-    th[data-sortable][aria-sort="ascending"]
-    .usa-table__header__button:disabled:hover,
-.usa-table
-    th[data-sortable][aria-sort="ascending"]
-    .usa-table__header__button[aria-disabled="true"]:hover,
-.usa-table
-    th[data-sortable][aria-sort="ascending"]
-    .usa-table__header__button:disabled.usa-button--hover,
-.usa-table
-    th[data-sortable][aria-sort="ascending"]
-    .usa-table__header__button[aria-disabled="true"].usa-button--hover,
-.usa-table
-    th[data-sortable][aria-sort="ascending"]
-    .usa-table__header__button.usa-button--disabled:hover,
-.usa-table
-    th[data-sortable][aria-sort="ascending"]
-    .usa-table__header__button.usa-button--disabled.usa-button--hover,
-.usa-table
-    th[data-sortable][aria-sort="ascending"]
-    .usa-table__header__button:active,
-.usa-table
-    th[data-sortable][aria-sort="ascending"]
-    .usa-table__header__button.usa-button--active,
-.usa-table
-    th[data-sortable][aria-sort="ascending"]
-    .usa-table__header__button:disabled:active,
-.usa-table
-    th[data-sortable][aria-sort="ascending"]
-    .usa-table__header__button[aria-disabled="true"]:active,
-.usa-table
-    th[data-sortable][aria-sort="ascending"]
-    .usa-table__header__button:disabled.usa-button--active,
-.usa-table
-    th[data-sortable][aria-sort="ascending"]
-    .usa-table__header__button[aria-disabled="true"].usa-button--active,
-.usa-table
-    th[data-sortable][aria-sort="ascending"]
-    .usa-table__header__button.usa-button--disabled:active,
-.usa-table
-    th[data-sortable][aria-sort="ascending"]
-    .usa-table__header__button.usa-button--disabled.usa-button--active,
-.usa-table
-    th[data-sortable][aria-sort="ascending"]
-    .usa-table__header__button:disabled:focus,
-.usa-table
-    th[data-sortable][aria-sort="ascending"]
-    .usa-table__header__button[aria-disabled="true"]:focus,
-.usa-table
-    th[data-sortable][aria-sort="ascending"]
-    .usa-table__header__button:disabled.usa-focus,
-.usa-table
-    th[data-sortable][aria-sort="ascending"]
-    .usa-table__header__button[aria-disabled="true"].usa-focus,
-.usa-table
-    th[data-sortable][aria-sort="ascending"]
-    .usa-table__header__button.usa-button--disabled:focus,
-.usa-table
-    th[data-sortable][aria-sort="ascending"]
-    .usa-table__header__button.usa-button--disabled.usa-focus,
-.usa-table
-    th[data-sortable][aria-sort="ascending"]
-    .usa-table__header__button:disabled,
-.usa-table
-    th[data-sortable][aria-sort="ascending"]
-    .usa-table__header__button[aria-disabled="true"],
-.usa-table
-    th[data-sortable][aria-sort="ascending"]
-    .usa-table__header__button.usa-button--disabled {
+.usa-table th[data-sortable][aria-sort="ascending"] .usa-table__header__button:hover,
+.usa-table th[data-sortable][aria-sort="ascending"] .usa-table__header__button.usa-button--hover,
+.usa-table th[data-sortable][aria-sort="ascending"] .usa-table__header__button:disabled:hover,
+.usa-table th[data-sortable][aria-sort="ascending"] .usa-table__header__button[aria-disabled="true"]:hover,
+.usa-table th[data-sortable][aria-sort="ascending"] .usa-table__header__button:disabled.usa-button--hover,
+.usa-table th[data-sortable][aria-sort="ascending"] .usa-table__header__button[aria-disabled="true"].usa-button--hover,
+.usa-table th[data-sortable][aria-sort="ascending"] .usa-table__header__button.usa-button--disabled:hover,
+.usa-table th[data-sortable][aria-sort="ascending"] .usa-table__header__button.usa-button--disabled.usa-button--hover,
+.usa-table th[data-sortable][aria-sort="ascending"] .usa-table__header__button:active,
+.usa-table th[data-sortable][aria-sort="ascending"] .usa-table__header__button.usa-button--active,
+.usa-table th[data-sortable][aria-sort="ascending"] .usa-table__header__button:disabled:active,
+.usa-table th[data-sortable][aria-sort="ascending"] .usa-table__header__button[aria-disabled="true"]:active,
+.usa-table th[data-sortable][aria-sort="ascending"] .usa-table__header__button:disabled.usa-button--active,
+.usa-table th[data-sortable][aria-sort="ascending"] .usa-table__header__button[aria-disabled="true"].usa-button--active,
+.usa-table th[data-sortable][aria-sort="ascending"] .usa-table__header__button.usa-button--disabled:active,
+.usa-table th[data-sortable][aria-sort="ascending"] .usa-table__header__button.usa-button--disabled.usa-button--active,
+.usa-table th[data-sortable][aria-sort="ascending"] .usa-table__header__button:disabled:focus,
+.usa-table th[data-sortable][aria-sort="ascending"] .usa-table__header__button[aria-disabled="true"]:focus,
+.usa-table th[data-sortable][aria-sort="ascending"] .usa-table__header__button:disabled.usa-focus,
+.usa-table th[data-sortable][aria-sort="ascending"] .usa-table__header__button[aria-disabled="true"].usa-focus,
+.usa-table th[data-sortable][aria-sort="ascending"] .usa-table__header__button.usa-button--disabled:focus,
+.usa-table th[data-sortable][aria-sort="ascending"] .usa-table__header__button.usa-button--disabled.usa-focus,
+.usa-table th[data-sortable][aria-sort="ascending"] .usa-table__header__button:disabled,
+.usa-table th[data-sortable][aria-sort="ascending"] .usa-table__header__button[aria-disabled="true"],
+.usa-table th[data-sortable][aria-sort="ascending"] .usa-table__header__button.usa-button--disabled {
     -moz-osx-font-smoothing: inherit;
     -webkit-font-smoothing: inherit;
     background-color: transparent;
     box-shadow: none;
     text-decoration: underline;
 }
-.usa-table
-    th[data-sortable][aria-sort="ascending"]
-    .usa-table__header__button.usa-button--hover {
+.usa-table th[data-sortable][aria-sort="ascending"] .usa-table__header__button.usa-button--hover {
     color: #1a4480;
 }
-.usa-table
-    th[data-sortable][aria-sort="ascending"]
-    .usa-table__header__button.usa-button--active {
+.usa-table th[data-sortable][aria-sort="ascending"] .usa-table__header__button.usa-button--active {
     color: #162e51;
 }
-.usa-table
-    th[data-sortable][aria-sort="ascending"]
-    .usa-table__header__button:disabled,
-.usa-table
-    th[data-sortable][aria-sort="ascending"]
-    .usa-table__header__button[aria-disabled="true"],
-.usa-table
-    th[data-sortable][aria-sort="ascending"]
-    .usa-table__header__button.usa-button--disabled {
+.usa-table th[data-sortable][aria-sort="ascending"] .usa-table__header__button:disabled,
+.usa-table th[data-sortable][aria-sort="ascending"] .usa-table__header__button[aria-disabled="true"],
+.usa-table th[data-sortable][aria-sort="ascending"] .usa-table__header__button.usa-button--disabled {
     color: #c9c9c9;
 }
-.usa-table
-    th[data-sortable][aria-sort="ascending"]
-    .usa-table__header__button
-    .usa-icon {
+.usa-table th[data-sortable][aria-sort="ascending"] .usa-table__header__button .usa-icon {
     height: 1.5rem;
     width: 1.5rem;
     vertical-align: middle;
 }
-.usa-table
-    th[data-sortable][aria-sort="ascending"]
-    .usa-table__header__button
-    .usa-icon
-    > g {
+.usa-table th[data-sortable][aria-sort="ascending"] .usa-table__header__button .usa-icon > g {
     fill: transparent;
 }
-.usa-table
-    th[data-sortable][aria-sort="ascending"]
-    .usa-table__header__button
-    .usa-icon
-    > g.ascending {
+.usa-table th[data-sortable][aria-sort="ascending"] .usa-table__header__button .usa-icon > g.ascending {
     fill: #1b1b1b;
 }
 .usa-table thead th[aria-sort] {
@@ -13272,12 +12317,7 @@ input[type="search"] {
 .usa-table--borderless thead th[aria-sort] {
     color: #1b1b1b;
 }
-.usa-table--borderless
-    thead
-    th[data-sortable]:not([aria-sort])
-    .usa-table__header__button
-    .usa-icon
-    > g.unsorted {
+.usa-table--borderless thead th[data-sortable]:not([aria-sort]) .usa-table__header__button .usa-icon > g.unsorted {
     fill: #1b1b1b;
 }
 .usa-table--borderless
@@ -13809,25 +12849,20 @@ input[type="search"] {
 
 .usa-checkbox__input:checked + [class*="__label"]::before,
 .usa-checkbox__input:checked:disabled + [class*="__label"]::before,
-.usa-checkbox__input:checked[aria-disabled="true"]
-    + [class*="__label"]::before {
-    background-image: url("@uswds/uswds/img/correct8.svg"),
-        linear-gradient(transparent, transparent);
+.usa-checkbox__input:checked[aria-disabled="true"] + [class*="__label"]::before {
+    background-image: url("@uswds/uswds/img/correct8.svg"), linear-gradient(transparent, transparent);
     background-repeat: no-repeat;
 }
 @media (forced-colors: active) {
     .usa-checkbox__input:checked + [class*="__label"]::before,
     .usa-checkbox__input:checked:disabled + [class*="__label"]::before,
-    .usa-checkbox__input:checked[aria-disabled="true"]
-        + [class*="__label"]::before {
-        background-image: url("@uswds/uswds/img/correct8-alt.svg"),
-            linear-gradient(transparent, transparent);
+    .usa-checkbox__input:checked[aria-disabled="true"] + [class*="__label"]::before {
+        background-image: url("@uswds/uswds/img/correct8-alt.svg"), linear-gradient(transparent, transparent);
         background-repeat: no-repeat;
     }
 }
 .usa-checkbox__input:checked:disabled + [class*="__label"]::before,
-.usa-checkbox__input:checked[aria-disabled="true"]
-    + [class*="__label"]::before {
+.usa-checkbox__input:checked[aria-disabled="true"] + [class*="__label"]::before {
     background-color: rgba(27, 27, 27, 0.3);
 }
 
@@ -13859,16 +12894,14 @@ input[type="search"] {
 
 .usa-checkbox__input:checked + [class*="__label"]::before,
 .usa-checkbox__input:checked:disabled + [class*="__label"]::before,
-.usa-checkbox__input:checked[aria-disabled="true"]
-    + [class*="__label"]::before {
+.usa-checkbox__input:checked[aria-disabled="true"] + [class*="__label"]::before {
     background-position: center center;
     background-size: 0.75rem auto;
 }
 @media print {
     .usa-checkbox__input:checked + [class*="__label"]::before,
     .usa-checkbox__input:checked:disabled + [class*="__label"]::before,
-    .usa-checkbox__input:checked[aria-disabled="true"]
-        + [class*="__label"]::before {
+    .usa-checkbox__input:checked[aria-disabled="true"] + [class*="__label"]::before {
         background-image: none;
         background-color: white;
         content: "✔";
@@ -13878,14 +12911,12 @@ input[type="search"] {
 @media (forced-colors: active) {
     .usa-checkbox__input:checked + [class*="__label"]::before,
     .usa-checkbox__input:checked:disabled + [class*="__label"]::before,
-    .usa-checkbox__input:checked[aria-disabled="true"]
-        + [class*="__label"]::before {
+    .usa-checkbox__input:checked[aria-disabled="true"] + [class*="__label"]::before {
         background-color: ButtonText;
     }
     .usa-checkbox__input:checked + [class*="__label"]::before--tile,
     .usa-checkbox__input:checked:disabled + [class*="__label"]::before--tile,
-    .usa-checkbox__input:checked[aria-disabled="true"]
-        + [class*="__label"]::before--tile {
+    .usa-checkbox__input:checked[aria-disabled="true"] + [class*="__label"]::before--tile {
         background-color: ButtonText;
     }
 }
@@ -13928,8 +12959,7 @@ input[type="search"] {
 }
 */
 .usa-select {
-    background-image: url("@uswds/uswds/img/usa-icons/unfold_more.svg"),
-        linear-gradient(transparent, transparent);
+    background-image: url("@uswds/uswds/img/usa-icons/unfold_more.svg"), linear-gradient(transparent, transparent);
     background-repeat: no-repeat;
     appearance: none;
     background-color: white;
@@ -13975,8 +13005,7 @@ input[type="search"] {
 }
 @media (forced-colors: active) {
     .usa-combo-box--pristine .usa-combo-box__clear-input {
-        background: url("@uswds/uswds/img/usa-icons/close.svg") no-repeat
-            center/contain;
+        background: url("@uswds/uswds/img/usa-icons/close.svg") no-repeat center/contain;
         display: inline-block;
         height: 1rem;
         width: 1rem;
@@ -13988,8 +13017,7 @@ input[type="search"] {
         .usa-combo-box--pristine .usa-combo-box__clear-input {
             background: none;
             background-color: ButtonText;
-            mask: url("@uswds/uswds/img/usa-icons/close.svg") no-repeat
-                center/contain;
+            mask: url("@uswds/uswds/img/usa-icons/close.svg") no-repeat center/contain;
         }
     }
 }
@@ -14030,24 +13058,21 @@ button.usa-combo-box__clear-input:focus {
 }
 
 .usa-combo-box__clear-input {
-    background-image: url("@uswds/uswds/img/usa-icons/close.svg"),
-        linear-gradient(transparent, transparent);
+    background-image: url("@uswds/uswds/img/usa-icons/close.svg"), linear-gradient(transparent, transparent);
     background-repeat: no-repeat;
     display: none;
     right: calc(2.5em + 3px);
 }
 
 .usa-combo-box__toggle-list {
-    background-image: url("@uswds/uswds/img/usa-icons/expand_more.svg"),
-        linear-gradient(transparent, transparent);
+    background-image: url("@uswds/uswds/img/usa-icons/expand_more.svg"), linear-gradient(transparent, transparent);
     background-repeat: no-repeat;
     background-size: auto 2rem;
     right: 1px;
 }
 @media (forced-colors: active) {
     .usa-combo-box__toggle-list {
-        background: url("@uswds/uswds/img/usa-icons/expand_more.svg") no-repeat
-            center/contain;
+        background: url("@uswds/uswds/img/usa-icons/expand_more.svg") no-repeat center/contain;
         display: inline-block;
         height: 1rem;
         width: 1rem;
@@ -14058,8 +13083,7 @@ button.usa-combo-box__clear-input:focus {
         .usa-combo-box__toggle-list {
             background: none;
             background-color: ButtonText;
-            mask: url("@uswds/uswds/img/usa-icons/expand_more.svg") no-repeat
-                center/contain;
+            mask: url("@uswds/uswds/img/usa-icons/expand_more.svg") no-repeat center/contain;
         }
     }
 }
@@ -14137,8 +13161,7 @@ button.usa-combo-box__clear-input:focus {
     outline: 0;
 }
 
-.usa-date-picker__external-input[aria-disabled="true"]
-    + .usa-date-picker__button,
+.usa-date-picker__external-input[aria-disabled="true"] + .usa-date-picker__button,
 .usa-date-picker__calendar__year:disabled,
 .usa-date-picker__calendar__previous-year-chunk:disabled,
 .usa-date-picker__calendar__next-year-chunk:disabled,
@@ -14165,8 +13188,7 @@ button.usa-combo-box__clear-input:focus {
 [aria-disabled="true"].usa-date-picker__button {
     cursor: auto;
 }
-.usa-date-picker__external-input[aria-disabled="true"]
-    + .usa-date-picker__button:hover,
+.usa-date-picker__external-input[aria-disabled="true"] + .usa-date-picker__button:hover,
 .usa-date-picker__calendar__year:hover:disabled,
 .usa-date-picker__calendar__previous-year-chunk:hover:disabled,
 .usa-date-picker__calendar__next-year-chunk:hover:disabled,
@@ -14194,8 +13216,7 @@ button.usa-combo-box__clear-input:focus {
     background-color: initial;
 }
 @media (forced-colors: active) {
-    .usa-date-picker__external-input[aria-disabled="true"]
-        + .usa-date-picker__button:hover,
+    .usa-date-picker__external-input[aria-disabled="true"] + .usa-date-picker__button:hover,
     .usa-date-picker__calendar__year:hover:disabled,
     .usa-date-picker__calendar__previous-year-chunk:hover:disabled,
     .usa-date-picker__calendar__next-year-chunk:hover:disabled,
@@ -14341,8 +13362,7 @@ button.usa-combo-box__clear-input:focus {
 }
 
 .usa-date-picker__button {
-    background-image: url("@uswds/uswds/img/usa-icons/calendar_today.svg"),
-        linear-gradient(transparent, transparent);
+    background-image: url("@uswds/uswds/img/usa-icons/calendar_today.svg"), linear-gradient(transparent, transparent);
     background-repeat: no-repeat;
     align-self: stretch;
     background-color: transparent;
@@ -14353,8 +13373,7 @@ button.usa-combo-box__clear-input:focus {
 }
 @media (forced-colors: active) {
     .usa-date-picker__button {
-        background: url("@uswds/uswds/img/usa-icons/calendar_today.svg")
-            no-repeat center/contain;
+        background: url("@uswds/uswds/img/usa-icons/calendar_today.svg") no-repeat center/contain;
         display: inline-block;
         height: 2.5rem;
         width: 3rem;
@@ -14365,8 +13384,7 @@ button.usa-combo-box__clear-input:focus {
         .usa-date-picker__button {
             background: none;
             background-color: ButtonText;
-            mask: url("@uswds/uswds/img/usa-icons/calendar_today.svg") no-repeat
-                center/contain;
+            mask: url("@uswds/uswds/img/usa-icons/calendar_today.svg") no-repeat center/contain;
         }
     }
     .usa-date-picker__button:not([disabled]):hover {
@@ -14440,14 +13458,13 @@ button.usa-combo-box__clear-input:focus {
 }
 
 .usa-date-picker__calendar__previous-year:not([disabled]) {
-    background-image: url("@uswds/uswds/img/usa-icons/navigate_far_before.svg"),
-        linear-gradient(transparent, transparent);
+    background-image:
+        url("@uswds/uswds/img/usa-icons/navigate_far_before.svg"), linear-gradient(transparent, transparent);
     background-repeat: no-repeat;
 }
 @media (forced-colors: active) {
     .usa-date-picker__calendar__previous-year:not([disabled]) {
-        background: url("@uswds/uswds/img/usa-icons/navigate_far_before.svg")
-            no-repeat center/contain;
+        background: url("@uswds/uswds/img/usa-icons/navigate_far_before.svg") no-repeat center/contain;
         display: inline-block;
         height: 2.5rem;
         width: 3rem;
@@ -14457,21 +13474,18 @@ button.usa-combo-box__clear-input:focus {
         .usa-date-picker__calendar__previous-year:not([disabled]) {
             background: none;
             background-color: ButtonText;
-            mask: url("@uswds/uswds/img/usa-icons/navigate_far_before.svg")
-                no-repeat center/contain;
+            mask: url("@uswds/uswds/img/usa-icons/navigate_far_before.svg") no-repeat center/contain;
         }
     }
 }
 
 .usa-date-picker__calendar__previous-month:not([disabled]) {
-    background-image: url("@uswds/uswds/img/usa-icons/navigate_before.svg"),
-        linear-gradient(transparent, transparent);
+    background-image: url("@uswds/uswds/img/usa-icons/navigate_before.svg"), linear-gradient(transparent, transparent);
     background-repeat: no-repeat;
 }
 @media (forced-colors: active) {
     .usa-date-picker__calendar__previous-month:not([disabled]) {
-        background: url("@uswds/uswds/img/usa-icons/navigate_before.svg")
-            no-repeat center/contain;
+        background: url("@uswds/uswds/img/usa-icons/navigate_before.svg") no-repeat center/contain;
         display: inline-block;
         height: 2.5rem;
         width: 3rem;
@@ -14481,21 +13495,19 @@ button.usa-combo-box__clear-input:focus {
         .usa-date-picker__calendar__previous-month:not([disabled]) {
             background: none;
             background-color: ButtonText;
-            mask: url("@uswds/uswds/img/usa-icons/navigate_before.svg")
-                no-repeat center/contain;
+            mask: url("@uswds/uswds/img/usa-icons/navigate_before.svg") no-repeat center/contain;
         }
     }
 }
 
 .usa-date-picker__calendar__next-year:not([disabled]) {
-    background-image: url("@uswds/uswds/img/usa-icons/navigate_far_next.svg"),
-        linear-gradient(transparent, transparent);
+    background-image:
+        url("@uswds/uswds/img/usa-icons/navigate_far_next.svg"), linear-gradient(transparent, transparent);
     background-repeat: no-repeat;
 }
 @media (forced-colors: active) {
     .usa-date-picker__calendar__next-year:not([disabled]) {
-        background: url("@uswds/uswds/img/usa-icons/navigate_far_next.svg")
-            no-repeat center/contain;
+        background: url("@uswds/uswds/img/usa-icons/navigate_far_next.svg") no-repeat center/contain;
         display: inline-block;
         height: 2.5rem;
         width: 3rem;
@@ -14505,21 +13517,18 @@ button.usa-combo-box__clear-input:focus {
         .usa-date-picker__calendar__next-year:not([disabled]) {
             background: none;
             background-color: ButtonText;
-            mask: url("@uswds/uswds/img/usa-icons/navigate_far_next.svg")
-                no-repeat center/contain;
+            mask: url("@uswds/uswds/img/usa-icons/navigate_far_next.svg") no-repeat center/contain;
         }
     }
 }
 
 .usa-date-picker__calendar__next-month:not([disabled]) {
-    background-image: url("@uswds/uswds/img/usa-icons/navigate_next.svg"),
-        linear-gradient(transparent, transparent);
+    background-image: url("@uswds/uswds/img/usa-icons/navigate_next.svg"), linear-gradient(transparent, transparent);
     background-repeat: no-repeat;
 }
 @media (forced-colors: active) {
     .usa-date-picker__calendar__next-month:not([disabled]) {
-        background: url("@uswds/uswds/img/usa-icons/navigate_next.svg")
-            no-repeat center/contain;
+        background: url("@uswds/uswds/img/usa-icons/navigate_next.svg") no-repeat center/contain;
         display: inline-block;
         height: 2.5rem;
         width: 3rem;
@@ -14529,8 +13538,7 @@ button.usa-combo-box__clear-input:focus {
         .usa-date-picker__calendar__next-month:not([disabled]) {
             background: none;
             background-color: ButtonText;
-            mask: url("@uswds/uswds/img/usa-icons/navigate_next.svg") no-repeat
-                center/contain;
+            mask: url("@uswds/uswds/img/usa-icons/navigate_next.svg") no-repeat center/contain;
         }
     }
 }
@@ -14728,8 +13736,7 @@ button.usa-combo-box__clear-input:focus {
 }
 
 .usa-date-picker__calendar__previous-year-chunk:not([disabled]) {
-    background-image: url("@uswds/uswds/img/usa-icons/navigate_before.svg"),
-        linear-gradient(transparent, transparent);
+    background-image: url("@uswds/uswds/img/usa-icons/navigate_before.svg"), linear-gradient(transparent, transparent);
     background-repeat: no-repeat;
 }
 @media (forced-colors: active) {
@@ -14737,8 +13744,7 @@ button.usa-combo-box__clear-input:focus {
         background-image: none;
     }
     .usa-date-picker__calendar__previous-year-chunk:not([disabled])::after {
-        background: url("@uswds/uswds/img/usa-icons/navigate_before.svg")
-            no-repeat center/contain;
+        background: url("@uswds/uswds/img/usa-icons/navigate_before.svg") no-repeat center/contain;
         display: inline-block;
         height: 2.5rem;
         width: 3rem;
@@ -14750,8 +13756,7 @@ button.usa-combo-box__clear-input:focus {
         .usa-date-picker__calendar__previous-year-chunk:not([disabled])::after {
             background: none;
             background-color: ButtonText;
-            mask: url("@uswds/uswds/img/usa-icons/navigate_before.svg")
-                no-repeat center/contain;
+            mask: url("@uswds/uswds/img/usa-icons/navigate_before.svg") no-repeat center/contain;
         }
     }
     .usa-date-picker__calendar__previous-year-chunk:not([disabled]):hover {
@@ -14761,8 +13766,7 @@ button.usa-combo-box__clear-input:focus {
 }
 
 .usa-date-picker__calendar__next-year-chunk:not([disabled]) {
-    background-image: url("@uswds/uswds/img/usa-icons/navigate_next.svg"),
-        linear-gradient(transparent, transparent);
+    background-image: url("@uswds/uswds/img/usa-icons/navigate_next.svg"), linear-gradient(transparent, transparent);
     background-repeat: no-repeat;
 }
 @media (forced-colors: active) {
@@ -14770,8 +13774,7 @@ button.usa-combo-box__clear-input:focus {
         background-image: none;
     }
     .usa-date-picker__calendar__next-year-chunk:not([disabled])::after {
-        background: url("@uswds/uswds/img/usa-icons/navigate_next.svg")
-            no-repeat center/contain;
+        background: url("@uswds/uswds/img/usa-icons/navigate_next.svg") no-repeat center/contain;
         display: inline-block;
         height: 2.5rem;
         width: 3rem;
@@ -14783,8 +13786,7 @@ button.usa-combo-box__clear-input:focus {
         .usa-date-picker__calendar__next-year-chunk:not([disabled])::after {
             background: none;
             background-color: ButtonText;
-            mask: url("@uswds/uswds/img/usa-icons/navigate_next.svg") no-repeat
-                center/contain;
+            mask: url("@uswds/uswds/img/usa-icons/navigate_next.svg") no-repeat center/contain;
         }
     }
     .usa-date-picker__calendar__next-year-chunk:not([disabled]):hover {
@@ -14983,8 +13985,7 @@ button.usa-combo-box__clear-input:focus {
 }
 
 .usa-file-input__preview-image.is-loading {
-    background-image: url("@uswds/uswds/img/loader.svg"),
-        linear-gradient(transparent, transparent);
+    background-image: url("@uswds/uswds/img/loader.svg"), linear-gradient(transparent, transparent);
     background-repeat: no-repeat;
     background-position: center center;
     background-repeat: no-repeat;
@@ -15002,32 +14003,27 @@ button.usa-combo-box__clear-input:focus {
 }
 
 .usa-file-input__preview-image--pdf {
-    background-image: url("@uswds/uswds/img/file-pdf.svg"),
-        linear-gradient(transparent, transparent);
+    background-image: url("@uswds/uswds/img/file-pdf.svg"), linear-gradient(transparent, transparent);
     background-repeat: no-repeat;
 }
 
 .usa-file-input__preview-image--generic {
-    background-image: url("@uswds/uswds/img/file.svg"),
-        linear-gradient(transparent, transparent);
+    background-image: url("@uswds/uswds/img/file.svg"), linear-gradient(transparent, transparent);
     background-repeat: no-repeat;
 }
 
 .usa-file-input__preview-image--word {
-    background-image: url("@uswds/uswds/img/file-word.svg"),
-        linear-gradient(transparent, transparent);
+    background-image: url("@uswds/uswds/img/file-word.svg"), linear-gradient(transparent, transparent);
     background-repeat: no-repeat;
 }
 
 .usa-file-input__preview-image--excel {
-    background-image: url("@uswds/uswds/img/file-excel.svg"),
-        linear-gradient(transparent, transparent);
+    background-image: url("@uswds/uswds/img/file-excel.svg"), linear-gradient(transparent, transparent);
     background-repeat: no-repeat;
 }
 
 .usa-file-input__preview-image--video {
-    background-image: url("@uswds/uswds/img/file-video.svg"),
-        linear-gradient(transparent, transparent);
+    background-image: url("@uswds/uswds/img/file-video.svg"), linear-gradient(transparent, transparent);
     background-repeat: no-repeat;
 }
 
@@ -143876,22 +142872,12 @@ ul.rb li .timestamp {
 }
 .differ-marks mark {
     border-radius: 3px;
-    background-color: rgba(
-        255,
-        200,
-        0,
-        0.25
-    ); /* transparent allows nested tags to be darker */
+    background-color: rgba(255, 200, 0, 0.25); /* transparent allows nested tags to be darker */
 }
 .differ-marks s {
     text-decoration: none; /* not required, but adding makes it clear we're not using strikethrough */
     border-radius: 3px;
-    background-color: rgba(
-        255,
-        0,
-        0,
-        0.25
-    ); /* transparent allows nested tags to be darker */
+    background-color: rgba(255, 0, 0, 0.25); /* transparent allows nested tags to be darker */
 }
 
 /* just the left side */
@@ -144063,48 +143049,27 @@ pre {
     padding-right: 0;
     overflow: hidden;
 }
-.rs-admindash-component
-    .perreceiver-row
-    .week-column
-    .perday-component
-    .title-row {
+.rs-admindash-component .perreceiver-row .week-column .perday-component .title-row {
     flex-wrap: nowrap;
     font-size: smaller;
     font-weight: bold;
     background-color: white;
     margin: 6px;
 }
-.rs-admindash-component
-    .perreceiver-row
-    .week-column
-    .perday-component
-    .slices-row {
+.rs-admindash-component .perreceiver-row .week-column .perday-component .slices-row {
     display: grid;
     height: 3em;
 }
-.rs-admindash-component
-    .perreceiver-row
-    .week-column
-    .perday-component
-    .slices-row
-    .slice {
+.rs-admindash-component .perreceiver-row .week-column .perday-component .slices-row .slice {
     border-radius: 0.5em;
     border: solid 0.05em #2f2f2f;
     cursor: pointer; /* success-undefined removes */
 }
-.rs-admindash-component
-    .perreceiver-row
-    .week-column
-    .perday-component
-    .slices-row-12 {
+.rs-admindash-component .perreceiver-row .week-column .perday-component .slices-row-12 {
     /** https://developer.mozilla.org/en-US/docs/Web/CSS/grid-template-columns **/
     grid-template-columns: repeat(13, 7.4%);
 }
-.rs-admindash-component
-    .perreceiver-row
-    .week-column
-    .perday-component
-    .slices-row-4 {
+.rs-admindash-component .perreceiver-row .week-column .perday-component .slices-row-4 {
     grid-template-columns: repeat(4, 24%);
 }
 .rs-admindash-component .perreceiver-row .horizontal-scroll {
@@ -144227,10 +143192,7 @@ pre {
 .rs-revision-history .rs-list-diffs-container .rs-accord-list-row .rs-accord {
     overflow-x: hidden;
 }
-.rs-revision-history
-    .rs-list-diffs-container
-    .rs-accord-list-row
-    .rs-list-diffs-items {
+.rs-revision-history .rs-list-diffs-container .rs-accord-list-row .rs-list-diffs-items {
     width: 50%;
     height: 25em;
     overflow-y: scroll;
@@ -144239,11 +143201,7 @@ pre {
     border-style: solid;
     border-color: #005ea2;
 }
-.rs-revision-history
-    .rs-list-diffs-container
-    .rs-accord-list-row
-    .rs-list-diffs-items
-    .rs-accord-row-selected {
+.rs-revision-history .rs-list-diffs-container .rs-accord-list-row .rs-list-diffs-items .rs-accord-row-selected {
     background-color: #005ea2;
     color: white;
     font-weight: bolder;
@@ -145779,13 +144737,11 @@ hr {
 .message-tracker .usa-accordion__button {
     color: white;
     background-color: #005ea2;
-    background-image: url("@uswds/uswds/img/usa-icons-bg/remove--white.svg"),
-        linear-gradient(transparent, transparent);
+    background-image: url("@uswds/uswds/img/usa-icons-bg/remove--white.svg"), linear-gradient(transparent, transparent);
     background-repeat: no-repeat;
 }
 .message-tracker .usa-accordion__button[aria-expanded="false"] {
-    background-image: url("@uswds/uswds/img/usa-icons-bg/add--white.svg"),
-        linear-gradient(transparent, transparent);
+    background-image: url("@uswds/uswds/img/usa-icons-bg/add--white.svg"), linear-gradient(transparent, transparent);
     background-repeat: no-repeat;
 }
 .message-tracker .usa-accordion__button:hover,

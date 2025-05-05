@@ -7,11 +7,7 @@ interface SpinnerProps {
     message?: ReactNode;
 }
 
-function Spinner({
-    size = "default",
-    display = true,
-    message = "",
-}: SpinnerProps) {
+function Spinner({ size = "default", display = true, message = "" }: SpinnerProps) {
     // map prop to css className
     const sizeClassName = {
         default: "grid-container rs-spinner-default",
@@ -21,11 +17,7 @@ function Spinner({
     return (
         <div className="padding-y-4 text-center">
             <div className="grid-row">
-                <div
-                    hidden={!display}
-                    className={sizeClassName}
-                    data-testid="rs-spinner"
-                >
+                <div hidden={!display} className={sizeClassName} data-testid="rs-spinner">
                     <Oval
                         height={60}
                         width={60}
@@ -39,10 +31,7 @@ function Spinner({
             </div>
             {message && (
                 <div className="grid-row">
-                    <div
-                        className="margin-x-auto tablet:grid-col-5 line-height-sans-6"
-                        data-testid="spinner-message"
-                    >
+                    <div className="margin-x-auto tablet:grid-col-5 line-height-sans-6" data-testid="spinner-message">
                         <span>{message}</span>
                     </div>
                 </div>

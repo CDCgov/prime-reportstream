@@ -3,24 +3,16 @@ import { Icon } from "@trussworks/react-uswds";
 
 import { ColumnConfig, TableConfig } from "./Table";
 import { FilterManager } from "../../hooks/filters/UseFilterManager/UseFilterManager";
-import {
-    SortOrder,
-    SortSettingsActionType,
-} from "../../hooks/filters/UseSortOrder/UseSortOrder";
+import { SortOrder, SortSettingsActionType } from "../../hooks/filters/UseSortOrder/UseSortOrder";
 
 interface TableHeaderProps {
     config: TableConfig;
     filterManager: FilterManager | undefined;
     enableEditableRows: boolean | undefined;
 }
-export const TableHeaders = ({
-    filterManager,
-    config,
-    enableEditableRows,
-}: TableHeaderProps) => {
+export const TableHeaders = ({ filterManager, config, enableEditableRows }: TableHeaderProps) => {
     const isSortedColumn = (colConfig: ColumnConfig) =>
-        colConfig.sortable &&
-        filterManager?.sortSettings.column === colConfig.dataAttr;
+        colConfig.sortable && filterManager?.sortSettings.column === colConfig.dataAttr;
 
     const renderArrow = () => {
         const { order, localOrder, locally } = filterManager?.sortSettings ?? {
@@ -29,8 +21,7 @@ export const TableHeaders = ({
             localOrder: "DESC",
         };
 
-        const isOrder = (sortOrder: SortOrder) =>
-            order === sortOrder || (locally && localOrder === sortOrder);
+        const isOrder = (sortOrder: SortOrder) => order === sortOrder || (locally && localOrder === sortOrder);
 
         if (filterManager && isOrder("ASC")) {
             return <Icon.ArrowUpward />;
@@ -86,17 +77,11 @@ export const TableHeaders = ({
                                 }}
                             >
                                 {colConfig.columnHeader}
-                                {isSortedColumn(colConfig)
-                                    ? renderArrow()
-                                    : null}
+                                {isSortedColumn(colConfig) ? renderArrow() : null}
                             </th>
                         );
                     } else {
-                        return (
-                            <th key={colConfig.columnHeader}>
-                                {colConfig.columnHeader}
-                            </th>
-                        );
+                        return <th key={colConfig.columnHeader}>{colConfig.columnHeader}</th>;
                     }
                 })}
                 {enableEditableRows ? (

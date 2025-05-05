@@ -12,10 +12,7 @@ import { USNavLink } from "../USLink";
 
 export function OrgsTable() {
     const { data } = useOrganizationSettingsList();
-    const orgs = useMemo(
-        () => data.toSorted((a, b) => a.name.localeCompare(b.name)),
-        [data],
-    );
+    const orgs = useMemo(() => data.toSorted((a, b) => a.name.localeCompare(b.name)), [data]);
     const [filter, setFilter] = useState("");
     const navigate = useNavigate();
     const { activeMembership, setActiveMembership } = useSessionContext();
@@ -27,10 +24,7 @@ export function OrgsTable() {
         const payload: Partial<MembershipSettings> = {
             parsedName: orgName,
         };
-        if (
-            memberType === MemberType.SENDER ||
-            memberType === MemberType.PRIME_ADMIN
-        ) {
+        if (memberType === MemberType.SENDER || memberType === MemberType.PRIME_ADMIN) {
             payload.service = service ?? "default";
         }
         setActiveMembership(payload);
@@ -44,9 +38,7 @@ export function OrgsTable() {
 
     const saveListToCSVFile = () => {
         const csvbody = orgs
-            .filter((eachOrg) =>
-                searchOrganizationSettingsList(eachOrg, filter),
-            )
+            .filter((eachOrg) => searchOrganizationSettingsList(eachOrg, filter))
             .map((eachOrg) =>
                 [
                     `"`,
@@ -86,21 +78,13 @@ export function OrgsTable() {
 
     const formattedTableData = () => {
         return orgs
-            .filter((eachOrg) =>
-                searchOrganizationSettingsList(eachOrg, filter),
-            )
+            .filter((eachOrg) => searchOrganizationSettingsList(eachOrg, filter))
             .map((eachOrg) => [
                 {
                     columnKey: "Name",
                     columnHeader: "Name",
                     content: (
-                        <span
-                            className={
-                                eachOrg.name === currentOrg
-                                    ? "font-heading-sm text-bold"
-                                    : "font-heading-sm"
-                            }
-                        >
+                        <span className={eachOrg.name === currentOrg ? "font-heading-sm text-bold" : "font-heading-sm"}>
                             {eachOrg.name}
                         </span>
                     ),
@@ -133,9 +117,7 @@ export function OrgsTable() {
                             <Button
                                 data-testid={`${eachOrg.name}_set`}
                                 key={`${eachOrg.name}_select`}
-                                onClick={() =>
-                                    handleSelectOrgClick(`${eachOrg.name}`)
-                                }
+                                onClick={() => handleSelectOrgClick(`${eachOrg.name}`)}
                                 type="button"
                                 className="padding-1 usa-button--outline"
                             >
@@ -144,9 +126,7 @@ export function OrgsTable() {
                             <Button
                                 data-testid={`${eachOrg.name}_edit`}
                                 key={`${eachOrg.name}_edit`}
-                                onClick={() =>
-                                    handleEditOrgClick(`${eachOrg.name}`)
-                                }
+                                onClick={() => handleEditOrgClick(`${eachOrg.name}`)}
                                 type="button"
                                 className="padding-1 usa-button--outline"
                             >
@@ -167,10 +147,7 @@ export function OrgsTable() {
                 <h2>Organizations ({orgs.length})</h2>
                 <form autoComplete="off" className="grid-row">
                     <div className="flex-fill">
-                        <Label
-                            className="font-sans-xs usa-label"
-                            htmlFor="input-filter"
-                        >
+                        <Label className="font-sans-xs usa-label" htmlFor="input-filter">
                             Filter:
                         </Label>
                         <TextInput
@@ -182,10 +159,7 @@ export function OrgsTable() {
                             onChange={(evt) => setFilter(evt.target.value)}
                         />
                     </div>
-                    <USNavLink
-                        href={"/admin/new/org"}
-                        className="usa-button flex-align-self-end height-5"
-                    >
+                    <USNavLink href={"/admin/new/org"} className="usa-button flex-align-self-end height-5">
                         Create New Organization
                     </USNavLink>
                     <Button
@@ -197,12 +171,7 @@ export function OrgsTable() {
                         Save List to CSV
                     </Button>
                 </form>
-                <Table
-                    striped
-                    borderless
-                    sticky
-                    rowData={formattedTableData()}
-                />
+                <Table striped borderless sticky rowData={formattedTableData()} />
             </section>
         </>
     );

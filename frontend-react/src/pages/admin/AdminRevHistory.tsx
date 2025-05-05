@@ -15,11 +15,7 @@ import useSettingsRevisions, {
 import { jsonSortReplacer } from "../../utils/JsonSortReplacer";
 import { formatDate, groupBy } from "../../utils/misc";
 
-type AccordionClickHandler = (
-    key: string,
-    itemClickedKey: string,
-    data: RSSettingRevision,
-) => void;
+type AccordionClickHandler = (key: string, itemClickedKey: string, data: RSSettingRevision) => void;
 
 /**
  * Accordion components need data in specific format
@@ -37,11 +33,7 @@ const dataToAccordionItems = (props: {
     }
 
     // should come back sorted by name and version from server. Sort by name, then by version
-    props.data.sort((a, b) =>
-        a.name === b.name
-            ? a.version - b.version
-            : a.name.localeCompare(b.name),
-    );
+    props.data.sort((a, b) => (a.name === b.name ? a.version - b.version : a.name.localeCompare(b.name)));
 
     // group the data to make generating the prop content logic easier to follow
     const grouped = groupBy(props.data, (each) => each.name);
@@ -50,17 +42,14 @@ const dataToAccordionItems = (props: {
     for (const [key, settings] of Object.entries(grouped)) {
         const items = settings.map((eachSetting) => {
             const itemKey = `key-${eachSetting.id}`;
-            const selectedCss =
-                itemKey === props.selectedKey ? "rs-accord-row-selected" : "";
+            const selectedCss = itemKey === props.selectedKey ? "rs-accord-row-selected" : "";
             return (
                 <Grid
                     row
                     gap={"lg"}
                     className={`font-mono-2xs rs-cursor-arrow ${selectedCss}`}
                     key={itemKey}
-                    onClick={() =>
-                        props.onClickHandler(props.key, itemKey, eachSetting)
-                    }
+                    onClick={() => props.onClickHandler(props.key, itemKey, eachSetting)}
                 >
                     <Grid col="auto" className={"font-mono-xs"}>
                         {eachSetting.version}
@@ -104,11 +93,7 @@ const MainRevHistoryComponent = ({
     ...props
 }: MainComponentProps) => {
     const { data, isLoading, isError } = useSettingsRevisions(props);
-    const msg = isError
-        ? "Failed to load data"
-        : isLoading
-          ? "Loading..."
-          : "Data not found"; // should not be used because `!data` test below but useful for unit test debugging
+    const msg = isError ? "Failed to load data" : isLoading ? "Loading..." : "Data not found"; // should not be used because `!data` test below but useful for unit test debugging
     return (
         <Grid col={"fill"} className={"rs-maxwidth-vw80"}>
             <Grid row gap="md" className={"rs-accord-list-row"}>
@@ -158,8 +143,7 @@ const AdminRevHistoryPage = () => {
 
     const onClickHandler: AccordionClickHandler = useCallback(
         (key: string, itemClickedKey: string, data: RSSettingRevision) => {
-            const normalizeJson = (jsonStr: string): string =>
-                JSON.stringify(JSON.parse(jsonStr), jsonSortReplacer, 2);
+            const normalizeJson = (jsonStr: string): string => JSON.stringify(JSON.parse(jsonStr), jsonSortReplacer, 2);
             const prettyJson = normalizeJson(data.settingJson);
 
             switch (key) {
@@ -182,10 +166,7 @@ const AdminRevHistoryPage = () => {
         <>
             <Helmet>
                 <title>Revision History</title>
-                <meta
-                    property="og:image"
-                    content="/assets/img/opengraph/reportstream.png"
-                />
+                <meta property="og:image" content="/assets/img/opengraph/reportstream.png" />
                 <meta
                     property="og:image:alt"
                     content='"ReportStream" surrounded by an illustration of lines and boxes connected by colorful dots.'
@@ -194,16 +175,11 @@ const AdminRevHistoryPage = () => {
 
             <section className="grid-container margin-top-0">
                 <h4>
-                    Settings Revision History for &quot;{org}&quot;{" "}
-                    {settingType}
+                    Settings Revision History for &quot;{org}&quot; {settingType}
                 </h4>
-                <section className="margin-bottom-5">
-                    Select different versions from each list to compare.
-                </section>
+                <section className="margin-bottom-5">Select different versions from each list to compare.</section>
 
-                <GridContainer
-                    className={"rs-revision-history rs-maxwidth-vw80"}
-                >
+                <GridContainer className={"rs-revision-history rs-maxwidth-vw80"}>
                     <Grid row className={"rs-list-diffs-container"}>
                         <Suspense fallback={<Spinner />}>
                             <MainRevHistoryComponent
@@ -217,11 +193,7 @@ const AdminRevHistoryPage = () => {
                     </Grid>
                     <Grid row>
                         <Grid col={"fill"}>
-                            <StaticCompare
-                                leftText={leftJson}
-                                rightText={rightJson}
-                                jsonDiffMode={true}
-                            />
+                            <StaticCompare leftText={leftJson} rightText={rightJson} jsonDiffMode={true} />
                         </Grid>
                     </Grid>
                     <Grid row>
@@ -231,10 +203,8 @@ const AdminRevHistoryPage = () => {
                                     Flags: <br />
                                     {!leftItem ? null : (
                                         <>
-                                            isDeleted:{" "}
-                                            {String(leftItem.isDeleted)}
-                                            <br /> isActive:{" "}
-                                            {String(leftItem.isActive)}
+                                            isDeleted: {String(leftItem.isDeleted)}
+                                            <br /> isActive: {String(leftItem.isActive)}
                                         </>
                                     )}
                                 </Grid>
@@ -246,10 +216,8 @@ const AdminRevHistoryPage = () => {
                                     Flags: <br />
                                     {!rightItem ? null : (
                                         <>
-                                            isDeleted:{" "}
-                                            {String(rightItem.isDeleted)}
-                                            <br /> isActive:{" "}
-                                            {String(rightItem.isActive)}
+                                            isDeleted: {String(rightItem.isDeleted)}
+                                            <br /> isActive: {String(rightItem.isActive)}
                                         </>
                                     )}
                                 </Grid>

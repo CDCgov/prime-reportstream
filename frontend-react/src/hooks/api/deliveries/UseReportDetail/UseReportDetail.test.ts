@@ -33,8 +33,6 @@ describe("useReportsList", () => {
         const { result } = renderHook(() => useReportsDetail("123"), {
             wrapper: AppWrapper(),
         });
-        await waitFor(() =>
-            expect(result.current.data?.reportId).toEqual("123"),
-        );
+        await waitFor(() => expect(result.current.data?.reportId).toEqual("123"));
     });
 });

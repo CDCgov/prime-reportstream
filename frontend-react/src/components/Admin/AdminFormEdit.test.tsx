@@ -44,8 +44,6 @@ describe("Render DropdownComponent", () => {
         fireEvent.change(screen.getByRole("combobox"), {
             target: { value: ProcessingType.SYNC },
         });
-        expect(
-            screen.getByText(`${ProcessingType.SYNC} value saved`),
-        ).toBeInTheDocument();
+        expect(screen.getByText(`${ProcessingType.SYNC} value saved`)).toBeInTheDocument();
     });
 });

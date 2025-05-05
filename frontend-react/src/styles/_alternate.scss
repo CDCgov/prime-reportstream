@@ -11,67 +11,67 @@ $-alternate-button-bg: "white";
 
 // Split text and bg mixins for singular application
 @mixin u-rs-style-alternate-color {
-    @include set-text-from-bg($-alternate-bg);
+  @include set-text-from-bg($-alternate-bg);
 }
 @mixin u-rs-style-alternate-bg {
-    @include u-bg($-alternate-bg);
+  @include u-bg($-alternate-bg);
 }
 
 // Container/Component level mixins
 @mixin u-rs-style-alternate-nav-link {
-    @include set-text-from-bg($-alternate-bg);
+  @include set-text-from-bg($-alternate-bg);
 
-    &:hover {
-        @include u-color("gray-5");
-    }
+  &:hover {
+    @include u-color("gray-5");
+  }
 
-    &:active {
-        @include u-color("gray-10");
-    }
+  &:active {
+    @include u-color("gray-10");
+  }
 }
 @mixin u-rs-style-alternate-link {
-    @include u-color($-alternate-button-bg);
+  @include u-color($-alternate-button-bg);
 
-    &:visited {
-        @include u-color("accent-warm");
-    }
+  &:visited {
+    @include u-color("accent-warm");
+  }
 
-    &:hover {
-        @include u-color("accent-cool-dark");
-    }
+  &:hover {
+    @include u-color("accent-cool-dark");
+  }
 
-    &:active {
-        @include u-color("accent-cool-darker");
-    }
+  &:active {
+    @include u-color("accent-cool-darker");
+  }
 }
 @mixin u-rs-style-alternate-button {
+  @include set-text-and-bg($-alternate-button-bg);
+
+  &:visited {
     @include set-text-and-bg($-alternate-button-bg);
+  }
 
-    &:visited {
-        @include set-text-and-bg($-alternate-button-bg);
-    }
+  &:hover {
+    @include set-text-and-bg("gray-5");
+  }
 
-    &:hover {
-        @include set-text-and-bg("gray-5");
-    }
-
-    &:active,
-    &.usa-button-big--active {
-        @include set-text-and-bg("gray-10");
-    }
+  &:active,
+  &.usa-button-big--active {
+    @include set-text-and-bg("gray-10");
+  }
 }
 @mixin u-rs-style-alternate-container {
-    @include u-rs-style-alternate-bg;
-    @include u-rs-style-alternate-color;
+  @include u-rs-style-alternate-bg;
+  @include u-rs-style-alternate-color;
 
-    & a,
-    & .usa-link {
-        @include u-rs-style-alternate-link;
-    }
+  & a,
+  & .usa-link {
+    @include u-rs-style-alternate-link;
+  }
 
-    & button,
-    & .usa-button,
-    & .usa-link.usa-button {
-        @include u-rs-style-alternate-button;
-    }
+  & button,
+  & .usa-button,
+  & .usa-link.usa-button {
+    @include u-rs-style-alternate-button;
+  }
 }

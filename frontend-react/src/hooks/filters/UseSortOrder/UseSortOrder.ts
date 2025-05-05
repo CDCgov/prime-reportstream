@@ -25,10 +25,7 @@ interface SortFilter {
     update: Dispatch<SortSettingsAction>;
 }
 
-export const sortSettingsReducer = (
-    state: SortSettings,
-    action: SortSettingsAction,
-): SortSettings => {
+export const sortSettingsReducer = (state: SortSettings, action: SortSettingsAction): SortSettings => {
     const { type, payload } = action;
     switch (type) {
         case SortSettingsActionType.CHANGE_COL:

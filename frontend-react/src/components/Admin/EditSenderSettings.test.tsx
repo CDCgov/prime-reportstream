@@ -15,9 +15,7 @@ const { mockSessionContentReturnValue } = await vi.importMock<
     typeof import("../../contexts/Session/__mocks__/useSessionContext")
 >("../../contexts/Session/useSessionContext");
 
-const mockData: OrgSenderSettingsResource = new TestResponse(
-    ResponseType.SENDER_SETTINGS,
-).data;
+const mockData: OrgSenderSettingsResource = new TestResponse(ResponseType.SENDER_SETTINGS).data;
 let editJsonAndSaveButton: HTMLElement;
 const mockUseToast = vi.mocked(useToast);
 const mockCtx = mockUseToast();
@@ -65,9 +63,8 @@ describe("EditSenderSettings", () => {
         mockSessionContentReturnValue();
         settingsServer.listen();
         settingsServer.use(
-            http.get(
-                `${config.API_ROOT}/settings/organizations/abbott/senders/user1234`,
-                () => HttpResponse.json(mockData),
+            http.get(`${config.API_ROOT}/settings/organizations/abbott/senders/user1234`, () =>
+                HttpResponse.json(mockData),
             ),
         );
     });
@@ -76,14 +73,10 @@ describe("EditSenderSettings", () => {
     describe("should validate name", () => {
         test("name field disabled", async () => {
             await setup();
-            expect(
-                screen.getByLabelText("Name:", { exact: true }),
-            ).toBeDisabled();
+            expect(screen.getByLabelText("Name:", { exact: true })).toBeDisabled();
         });
         describe("on Edit json and save", () => {
-            async function editSetup(
-                data?: Partial<OrgSenderSettingsResource>,
-            ) {
+            async function editSetup(data?: Partial<OrgSenderSettingsResource>) {
                 await setup(data);
                 await userEvent.click(editJsonAndSaveButton);
             }
@@ -94,9 +87,7 @@ describe("EditSenderSettings", () => {
             });
             test("should not display error if name value is valid", async () => {
                 await editSetup();
-                await waitFor(() =>
-                    expect(mockCtx.toast).not.toHaveBeenCalled(),
-                );
+                await waitFor(() => expect(mockCtx.toast).not.toHaveBeenCalled());
             });
         });
     });

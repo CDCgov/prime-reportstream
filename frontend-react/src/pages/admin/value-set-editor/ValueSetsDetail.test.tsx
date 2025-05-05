@@ -40,9 +40,7 @@ const fakeMeta = {
 };
 const mockError = new RSNetworkError(new AxiosError("test-error"));
 
-vi.mock(
-    "../../../hooks/api/lookuptables/UseValueSetActivation/UseValueSetActivation",
-);
+vi.mock("../../../hooks/api/lookuptables/UseValueSetActivation/UseValueSetActivation");
 vi.mock("../../../hooks/api/lookuptables/UseValueSetsMeta/UseValueSetsMeta");
 vi.mock("../../../hooks/api/lookuptables/UseValueSetsTable/UseValueSetsTable");
 vi.mock("../../../hooks/api/lookuptables/UseValueSetsUpdate/UseValueSetUpdate");
@@ -136,11 +134,7 @@ describe("ValueSetsDetail", () => {
         /* Outputs a large error stack...should we consider hiding error stacks in page tests since we
          * test them via the ErrorBoundary test? */
         renderApp(<ValueSetsDetailPage />);
-        expect(
-            screen.getByText(
-                "Our apologies, there was an error loading this content.",
-            ),
-        ).toBeInTheDocument();
+        expect(screen.getByText("Our apologies, there was an error loading this content.")).toBeInTheDocument();
     });
 });
 
@@ -150,12 +144,7 @@ describe("ValueSetsDetailTable", () => {
         mockSaveData.mockImplementation(() => ({}) as any);
         mockActivateTable.mockImplementation(() => ({}) as any);
         renderApp(
-            <ValueSetsDetailTable
-                valueSetName={"error"}
-                setAlert={mockSetAlert}
-                valueSetData={[]}
-                error={mockError}
-            />,
+            <ValueSetsDetailTable valueSetName={"error"} setAlert={mockSetAlert} valueSetData={[]} error={mockError} />,
         );
         expect(mockSetAlert).toHaveBeenCalled();
         expect(mockSetAlert).toHaveBeenCalledWith({
@@ -169,30 +158,20 @@ describe("ValueSetsDetailTable", () => {
         mockSaveData.mockImplementation(
             () =>
                 ({
-                    mutateAsync: mockSaveDataMutate.mockImplementation(() =>
-                        Promise.resolve({ tableVersion: 2 }),
-                    ),
+                    mutateAsync: mockSaveDataMutate.mockImplementation(() => Promise.resolve({ tableVersion: 2 })),
                 }) as any,
         );
 
         mockActivateTable.mockImplementation(
             () =>
                 ({
-                    mutateAsync: mockActivateTableMutate.mockImplementation(
-                        () => Promise.resolve({ tableVersion: 2 }),
-                    ),
+                    mutateAsync: mockActivateTableMutate.mockImplementation(() => Promise.resolve({ tableVersion: 2 })),
                 }) as any,
         );
         const mockSetAlert = vi.fn();
         const fakeRowsCopy = [...fakeRows];
 
-        renderApp(
-            <ValueSetsDetailTable
-                valueSetName={"a-path"}
-                setAlert={mockSetAlert}
-                valueSetData={fakeRows}
-            />,
-        );
+        renderApp(<ValueSetsDetailTable valueSetName={"a-path"} setAlert={mockSetAlert} valueSetData={fakeRows} />);
         const editButtons = screen.getAllByText("Edit");
         const editButton = editButtons[0];
         expect(editButton).toBeInTheDocument();

@@ -20,7 +20,7 @@ export const MainLayoutBase = ({ children }: MainLayoutBaseProps) => {
     const { handle = {} } = matches.at(-1) ?? {};
     const { isContentPage, isFullWidth, isLoginPage } = handle;
     // article element is currently handled within markdownlayout for markdown pages
-    const InnerWrapper = isContentPage ?? isLoginPage ? "div" : ArticleWrapper;
+    const InnerWrapper = (isContentPage ?? isLoginPage) ? "div" : ArticleWrapper;
     const innerWrapperClassnames = classNames(
         isContentPage && !isFullWidth && "width-full grid-row grid-gap-6",
         isFullWidth && "width-full",

@@ -5,8 +5,7 @@ const useScrollToTop = () => {
     const { pathname } = useLocation();
 
     useEffect(() => {
-        const canControlScrollRestoration =
-            "scrollRestoration" in window.history;
+        const canControlScrollRestoration = "scrollRestoration" in window.history;
         if (canControlScrollRestoration) {
             window.history.scrollRestoration = "manual";
         }

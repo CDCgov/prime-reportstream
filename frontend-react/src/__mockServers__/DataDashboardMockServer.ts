@@ -70,10 +70,7 @@ export const makeRSReceiverDeliveryResponseFixture = (
     data: makeRSReceiverDeliveryFixtureArray(deliveryCount),
 });
 
-export const makeRSSubmitterFixture = (
-    id: number,
-    overrides?: Partial<RSSubmitter>,
-): RSSubmitter => ({
+export const makeRSSubmitterFixture = (id: number, overrides?: Partial<RSSubmitter>): RSSubmitter => ({
     id: id.toString() || "123",
     name: overrides?.name ?? "Any facility USA",
     firstReportDate: overrides?.firstReportDate ?? new Date().toString(),
@@ -116,18 +113,12 @@ const handlers = [
             status: 200,
         });
     }),
-    http.post(
-        `${base}/testOrg.testService/deliveries/submitters/search`,
-        ({ request }) => {
-            if (!request.headers.get("authorization")?.includes("TOKEN")) {
-                return HttpResponse.json(null, { status: 401 });
-            }
-            return HttpResponse.json(
-                [makeRSReceiverSubmitterResponseFixture(5)],
-                { status: 200 },
-            );
-        },
-    ),
+    http.post(`${base}/testOrg.testService/deliveries/submitters/search`, ({ request }) => {
+        if (!request.headers.get("authorization")?.includes("TOKEN")) {
+            return HttpResponse.json(null, { status: 401 });
+        }
+        return HttpResponse.json([makeRSReceiverSubmitterResponseFixture(5)], { status: 200 });
+    }),
 ];
 
 export const dataDashboardServer = setupServer(...handlers);

@@ -33,16 +33,10 @@ describe("useReportsList", () => {
         const { result } = renderHook(() => useOrgDeliveries("testService"));
         const fetchResults = await result.current.fetchResults(" ", 10);
         expect(fetchResults).toHaveLength(3);
-        expect(result.current.filterManager.pageSettings.currentPage).toEqual(
-            1,
-        );
+        expect(result.current.filterManager.pageSettings.currentPage).toEqual(1);
         expect(result.current.filterManager.pageSettings.size).toEqual(10);
-        expect(result.current.filterManager.rangeSettings.from).toEqual(
-            "2000-01-01T00:00:00.000Z",
-        );
-        expect(result.current.filterManager.rangeSettings.to).toEqual(
-            "3000-01-01T00:00:00.000Z",
-        );
+        expect(result.current.filterManager.rangeSettings.from).toEqual("2000-01-01T00:00:00.000Z");
+        expect(result.current.filterManager.rangeSettings.to).toEqual("3000-01-01T00:00:00.000Z");
         expect(result.current.filterManager.sortSettings.order).toEqual("DESC");
     });
     describe("when requesting as a receiver", () => {
@@ -69,9 +63,7 @@ describe("useReportsList", () => {
         });
 
         test("fetchResults returns an array of deliveries", async () => {
-            const { result } = renderHook(() =>
-                useOrgDeliveries("testService"),
-            );
+            const { result } = renderHook(() => useOrgDeliveries("testService"));
             const results = await result.current.fetchResults(" ", 10);
 
             expect(results).toHaveLength(3);
@@ -99,9 +91,7 @@ describe("useReportsList", () => {
         });
 
         test("fetchResults returns an empty array", async () => {
-            const { result } = renderHook(() =>
-                useOrgDeliveries("testService"),
-            );
+            const { result } = renderHook(() => useOrgDeliveries("testService"));
             const results = await result.current.fetchResults(" ", 10);
 
             expect(results).toHaveLength(0);

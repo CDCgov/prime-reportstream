@@ -1,7 +1,4 @@
-import useSenderSchemaOptions, {
-    STANDARD_SCHEMA_OPTIONS,
-    StandardSchema,
-} from "./UseSenderSchemaOptions";
+import useSenderSchemaOptions, { STANDARD_SCHEMA_OPTIONS, StandardSchema } from "./UseSenderSchemaOptions";
 import { dummySender } from "../../__mockServers__/OrganizationMockServer";
 import { RSSender } from "../../config/endpoints/settings";
 import { renderHook } from "../../utils/CustomRenderUtils";
@@ -109,9 +106,7 @@ describe("useSenderSchemaOptions", () => {
                 test("returns the de-duplicated standard schema options", () => {
                     const { result } = setup();
                     expect(result.current.isLoading).toEqual(false);
-                    expect(result.current.data).toEqual(
-                        STANDARD_SCHEMA_OPTIONS,
-                    );
+                    expect(result.current.data).toEqual(STANDARD_SCHEMA_OPTIONS);
                 });
             });
         });
