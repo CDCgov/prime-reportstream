@@ -1,13 +1,13 @@
 import { developerResourcesApiSideNav } from "../../../../../../helpers/internal-links";
-import { ResponsesFromReportStreamPage } from "../../../../../../pages/public/developer-resources/documentation/responses-from-reportstream";
+import { SubmissionStatusAndErrorsPage } from "../../../../../../pages/public/developer-resources/documentation/submission-status-and-errors";
 import { test as baseTest } from "../../../../../../test";
 
 export interface SecurityPageFixtures {
-    responsesFromReportStreamPage: ResponsesFromReportStreamPage;
+    submissionStatusAndErrorsPage: SubmissionStatusAndErrorsPage;
 }
 
 const test = baseTest.extend<SecurityPageFixtures>({
-    responsesFromReportStreamPage: async (
+    submissionStatusAndErrorsPage: async (
         {
             page: _page,
             isMockDisabled,
@@ -20,7 +20,7 @@ const test = baseTest.extend<SecurityPageFixtures>({
         },
         use,
     ) => {
-        const page = new ResponsesFromReportStreamPage({
+        const page = new SubmissionStatusAndErrorsPage({
             page: _page,
             isMockDisabled,
             adminLogin,
@@ -36,21 +36,21 @@ const test = baseTest.extend<SecurityPageFixtures>({
 });
 
 test.describe(
-    "Developer Resources / API / Documentation / Responses From ReportStream page",
+    "Developer Resources / API / Documentation / Submission Status And Errors Page",
     {
         tag: "@smoke",
     },
     () => {
-        test("has side nav", async ({ responsesFromReportStreamPage }) => {
-            await responsesFromReportStreamPage.testSidenav(developerResourcesApiSideNav);
+        test("has side nav", async ({ submissionStatusAndErrorsPage }) => {
+            await submissionStatusAndErrorsPage.testSidenav(developerResourcesApiSideNav);
         });
 
-        test("has correct title + heading", async ({ responsesFromReportStreamPage }) => {
-            await responsesFromReportStreamPage.testHeader();
+        test("has correct title + heading", async ({ submissionStatusAndErrorsPage }) => {
+            await submissionStatusAndErrorsPage.testHeader();
         });
 
-        test("footer", async ({ responsesFromReportStreamPage }) => {
-            await responsesFromReportStreamPage.testFooter();
+        test("footer", async ({ submissionStatusAndErrorsPage }) => {
+            await submissionStatusAndErrorsPage.testFooter();
         });
     },
 );
