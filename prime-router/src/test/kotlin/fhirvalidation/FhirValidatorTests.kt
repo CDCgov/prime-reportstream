@@ -16,6 +16,7 @@ class FhirValidatorTests : Logging {
     fun `test FHIR validation SR sample`() {
         validateAndPrintResults("/fhirsamples/SR-bundle-original.fhir.json", false)
         validateAndPrintResults("/fhirsamples/SR-bundle-original.fhir.json")
+        validateAndPrintResults("/fhirsamples/SR-bundle-fixed.fhir.json", false)
     }
 
     // path is in resources folder starting with /
