@@ -75,6 +75,7 @@ import javax.net.ssl.SSLContext
  * and POST HL7 to the reportUrl
  */
 class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
+
     /**
      * Send the content on the specific transport. Return retry information, if needed. Null, if not.
      *
@@ -409,20 +410,18 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
         logger: Logger,
         httpClient: HttpClient,
     ): TokenInfo {
-        httpClient.use { client ->
-            val tokenInfo: TokenInfo = client.submitForm(
-                restTransportInfo.authTokenUrl,
-                formParameters = Parameters.build {
-                    append("grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer") // as specified by WA
-                    append("assertion", credential.assertion)
-                }
+        val tokenInfo: TokenInfo = httpClient.submitForm(
+            restTransportInfo.authTokenUrl,
+            formParameters = Parameters.build {
+                append("grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer") // as specified by WA
+                append("assertion", credential.assertion)
+            }
 
-            ) {
-                expectSuccess = true // throw an exception if not successful
-            }.body()
-            logger.info("Got Token with UserAssertion")
-            return tokenInfo
-        }
+        ) {
+            expectSuccess = true // throw an exception if not successful
+        }.body()
+        logger.info("Got Token with UserAssertion")
+        return tokenInfo
     }
 
     /**
@@ -440,33 +439,31 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
         logger: Logger,
         httpClient: HttpClient,
     ): TokenInfo {
-        httpClient.use { client ->
-            val tokenInfo: TokenInfo = client.submitForm(
-                restTransportInfo.authTokenUrl,
-                formParameters = Parameters.build {
-                    if (restTransportInfo.parameters.isEmpty()) {
-                        // This block is for backward compatible since old
-                        // REST Transport doesn't have parameters.
-                        append("grant_type", "client_credentials")
-                        append("client_id", credential.user)
-                        append("client_secret", credential.apiKey)
-                    } else {
-                        restTransportInfo.parameters.forEach { param ->
-                            when (param.value) {
-                                "client_id" -> append(param.key, credential.user)
-                                "client_secret" -> append(param.key, credential.apiKey)
-                                else -> append(param.key, param.value)
-                            }
+        val tokenInfo: TokenInfo = httpClient.submitForm(
+            restTransportInfo.authTokenUrl,
+            formParameters = Parameters.build {
+                if (restTransportInfo.parameters.isEmpty()) {
+                    // This block is for backward compatible since old
+                    // REST Transport doesn't have parameters.
+                    append("grant_type", "client_credentials")
+                    append("client_id", credential.user)
+                    append("client_secret", credential.apiKey)
+                } else {
+                    restTransportInfo.parameters.forEach { param ->
+                        when (param.value) {
+                            "client_id" -> append(param.key, credential.user)
+                            "client_secret" -> append(param.key, credential.apiKey)
+                            else -> append(param.key, param.value)
                         }
                     }
                 }
-            ) {
-                expectSuccess = true // throw an exception if not successful
-                accept(ContentType.Application.Json)
-            }.body()
-            logger.info("Got Token with UserApiKey")
-            return tokenInfo
-        }
+            }
+        ) {
+            expectSuccess = true // throw an exception if not successful
+            accept(ContentType.Application.Json)
+        }.body()
+        logger.info("Got Token with UserApiKey")
+        return tokenInfo
     }
 
     /**
@@ -484,62 +481,60 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
         logger: Logger,
         httpClient: HttpClient,
     ): TokenInfo {
-        httpClient.use { client ->
-            val restUrl = restTransportInfo.authTokenUrl
-            val idTokenInfoString: String = client.post(restUrl) {
-                expectSuccess = true // throw an exception if not successful
-                buildHeaders(
-                    if (restTransportInfo.authHeaders["Authorization-Type"] == "Basic Auth") {
-                        // Authorization-Type: "Basic Auth" requires the following:
-                        // Header:
-                        //  Authorization : "Basic + base64(username+password)"
-                        // Body:
-                        //  None
-                        restTransportInfo.authHeaders.map { (key, value) ->
-                            if (key == "Authorization-Type" && value == "Basic Auth") {
-                                val credentialString = credential.user + ":" + credential.pass
-                                Pair(
-                                    "Authorization",
-                                    "Basic " + Base64.getEncoder().encodeToString(credentialString.encodeToByteArray())
-                                )
-                            } else {
-                                Pair(key, value)
-                            }
-                        }.toMap()
-                    } else {
-                        restTransportInfo.authHeaders
-                    }
-                )
+        val restUrl = restTransportInfo.authTokenUrl
+        val idTokenInfoString: String = httpClient.post(restUrl) {
+            expectSuccess = true // throw an exception if not successful
+            buildHeaders(
+                if (restTransportInfo.authHeaders[AUTH_TYPE_HEADER] == BASIC) {
+                    // Authorization-Type: "Basic Auth" requires the following:
+                    // Header:
+                    //  Authorization : "Basic + base64(username+password)"
+                    // Body:
+                    //  None
+                    restTransportInfo.authHeaders.map { (key, value) ->
+                        if (key == AUTH_TYPE_HEADER && value == BASIC) {
+                            val credentialString = credential.user + ":" + credential.pass
+                            Pair(
+                                "Authorization",
+                                "Basic " + Base64.getEncoder().encodeToString(credentialString.encodeToByteArray())
+                            )
+                        } else {
+                            Pair(key, value)
+                        }
+                    }.toMap()
+                } else {
+                    restTransportInfo.authHeaders
+                }
+            )
 
-                // Authorization-Type: username/password requires the following:
+            // Authorization-Type: username/password requires the following:
+            // Header:
+            //  Content-Type: application/json
+            //  Authorization: username/password
+            // Body:
+            // { "username": "<username>", "password": "<password>"
+            if (restTransportInfo.authHeaders[AUTH_TYPE_HEADER] == USERPASS) {
+                setBody(mapOf("username" to credential.user, "password" to credential.pass))
+            } else if (restTransportInfo.authHeaders[AUTH_TYPE_HEADER] == EMAILPASS) {
+                // Authorization-Type: email/password requires the following:
                 // Header:
                 //  Content-Type: application/json
                 //  Authorization: username/password
                 // Body:
-                // { "username": "<username>", "password": "<password>"
-                if (restTransportInfo.authHeaders["Authorization-Type"] == "username/password") {
-                    setBody(mapOf("username" to credential.user, "password" to credential.pass))
-                } else if (restTransportInfo.authHeaders["Authorization-Type"] == "email/password") {
-                    // Authorization-Type: email/password requires the following:
-                    // Header:
-                    //  Content-Type: application/json
-                    //  Authorization: username/password
-                    // Body:
-                    // { "email": "<email@domain.com>", "password": "<password>"
-                    setBody(mapOf("email" to credential.user, "password" to credential.pass))
-                }
-            }.body()
-
-            logger.info("Got Token with UserPass")
-
-            val idTokenInfoAccessToken: String = try {
-                Json.decodeFromString<IdToken>(idTokenInfoString).idToken
-            } catch (e: Exception) {
-                idTokenInfoString
+                // { "email": "<email@domain.com>", "password": "<password>"
+                setBody(mapOf("email" to credential.user, "password" to credential.pass))
             }
+        }.body()
 
-            return TokenInfo(accessToken = idTokenInfoAccessToken, expiresIn = 3600)
+        logger.info("Got Token with UserPass")
+
+        val idTokenInfoAccessToken: String = try {
+            Json.decodeFromString<IdToken>(idTokenInfoString).idToken
+        } catch (e: Exception) {
+            idTokenInfoString
         }
+
+        return TokenInfo(accessToken = idTokenInfoAccessToken, expiresIn = 3600)
     }
 
     /**
@@ -555,15 +550,11 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
         encryptionKeyUrl: String,
         headers: Map<String, String>,
         httpClient: HttpClient,
-    ): String {
-        httpClient.use { client ->
-            return client.get(encryptionKeyUrl) {
-                buildHeaders(
-                    headers.map { (key, value) -> Pair(key, value) }.toMap()
-                )
-            }.body<String>()
-        }
-    }
+    ): String = httpClient.get(encryptionKeyUrl) {
+            buildHeaders(
+                headers.map { (key, value) -> Pair(key, value) }.toMap()
+            )
+        }.body<String>()
 
     /**
      * Encrypt the report to the REST service. This is a suspend function, meaning it can get called as an
@@ -617,23 +608,26 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
     ): HttpResponse {
         logger.info(fileName)
         val boundary = "WebAppBoundary"
-        httpClient.use { client ->
-
             val response: HttpResponse = if (headers["method"] == "PUT") {
-                client.put(restUrl) {
+                httpClient.put(restUrl) {
                     build(logger, headers, message, fileName, boundary, reportCreateDate)
                 }
             } else {
-                client.post(restUrl) {
+                httpClient.post(restUrl) {
                     build(logger, headers, message, fileName, boundary, reportCreateDate)
                 }
             }
 
             return response
-        }
     }
 
     companion object {
+
+        private const val AUTH_TYPE_HEADER = "Authorization-Type" // gitleaks:allow
+        private const val BASIC = "Basic Auth"
+        private const val USERPASS = "username/password"
+        private const val EMAILPASS = "email/password"
+
         /** A default value for the timeouts to connect and send messages */
         private const val TIMEOUT = 120_000
 
