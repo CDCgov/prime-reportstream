@@ -335,6 +335,11 @@ tasks.register<ResolveTask>("generateOpenApi") {
     buildClasspath = classpath
     resourcePackages = setOf("gov.cdc.prime.router.azure")
     outputDir = apiDocsSpecDir
+    sortOutput = false
+    alwaysResolveAppPath = false
+    skipResolveAppPath = false
+    readAllResources = true
+    encoding = "UTF-8"
     dependsOn("compileKotlin")
 }
 
@@ -654,18 +659,18 @@ task<Exec>("uploadSwaggerUI") {
 }
 
 tasks.register("killFunc") {
-        val processName = "func"
-        if (org.gradle.internal.os.OperatingSystem.current().isWindows) {
-            exec {
-                workingDir = project.rootDir
-                commandLine = listOf("cmd", "/c", "taskkill /F /IM $processName.exe || exit 0")
-            }
-        } else {
-            exec {
-                workingDir = project.rootDir
-                commandLine = listOf("sh", "-c", "pkill -9 $processName || true")
-            }
+    val processName = "func"
+    if (org.gradle.internal.os.OperatingSystem.current().isWindows) {
+        exec {
+            workingDir = project.rootDir
+            commandLine = listOf("cmd", "/c", "taskkill /F /IM $processName.exe || exit 0")
         }
+    } else {
+        exec {
+            workingDir = project.rootDir
+            commandLine = listOf("sh", "-c", "pkill -9 $processName || true")
+        }
+    }
 }
 
 tasks.register("run") {
