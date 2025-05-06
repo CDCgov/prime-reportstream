@@ -372,10 +372,7 @@ class CheckFunction : Logging {
                     val response = getFromUrl(
                         restTransportType.reportUrl,
                         httpHeaders,
-                        RESTTransport.createDefaultHttpClient(
-                            jksCredential, accessToken,
-                            restTransportType
-                        )
+                        RESTTransport.HttpClientFactory.getClient(jksCredential)
                     )
 
                     if (response.status == HttpStatusCode.InternalServerError) {

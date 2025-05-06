@@ -28,7 +28,6 @@ import io.ktor.client.call.body
 import io.ktor.client.engine.apache.Apache
 import io.ktor.client.plugins.ResponseException
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
-import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.plugins.expectSuccess
 import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logging
@@ -63,6 +62,7 @@ import java.security.KeyStore
 import java.time.OffsetDateTime
 import java.util.Base64
 import java.util.UUID
+import java.util.concurrent.ConcurrentHashMap
 import java.util.logging.Logger
 import javax.crypto.SecretKey
 import javax.crypto.spec.IvParameterSpec
@@ -106,6 +106,8 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
 
         val (credential, jksCredential) = getCredential(restTransportInfo, receiver)
 
+        val client: HttpClient = HttpClientFactory.getClient(jksCredential)
+
         return try {
             // run our call to the endpoint in a blocking fashion
             runBlocking {
@@ -121,16 +123,17 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
                             logger
                         )
 
+                        accessToken?.let {
+                            httpHeaders["Authorization"] = "${getAuthorizationHeader(restTransportInfo)} $it"
+                        }
+
                         // If encryption is needed.
                         if (restTransportInfo.encryptionKeyUrl.isNotEmpty()) {
                             reportContent = encryptTheReport(
                                 reportContent,
                                 restTransportInfo.encryptionKeyUrl,
                                 httpHeaders,
-                                httpClient ?: createDefaultHttpClient(
-                                    jksCredential, accessToken,
-                                    restTransportInfo
-                                )
+                                httpClient ?: client
                             )
                         }
 
@@ -141,10 +144,7 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
                             restTransportInfo.reportUrl,
                             httpHeaders,
                             logger,
-                            httpClient ?: createDefaultHttpClient(
-                                jksCredential, accessToken,
-                                restTransportInfo
-                            ),
+                            httpClient ?: client,
                             header.reportFile.createdAt
                         )
                         val responseBody = response.bodyAsText()
@@ -357,7 +357,7 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
         credential: RestCredential,
         logger: Logger,
     ): String {
-        val tokenClient = httpClient ?: createDefaultHttpClient(jksCredential, null, null)
+        val tokenClient = HttpClientFactory.getClient(jksCredential)
         // get the credential and use it to request an OAuth token
         // Usually credential is a UserApiKey, with an apiKey field (NY)
         // if not, try as UserPass with pass field (OK)
@@ -621,9 +621,40 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
             return response
     }
 
+    object HttpClientFactory {
+        private const val TIMEOUT = 120_000
+        private val cache = ConcurrentHashMap<String?, HttpClient>()
+
+        fun getClient(jksCredential: UserJksCredential?): HttpClient =
+            cache.computeIfAbsent(jksCredential?.jks) {
+                HttpClient(Apache) {
+                    install(Logging) {
+                        logger = io.ktor.client.plugins.logging.Logger.Companion.SIMPLE
+                        level = LogLevel.INFO
+                    }
+                    install(ContentNegotiation) {
+                        json(
+                            Json {
+                            prettyPrint = true
+                            isLenient = true
+                            ignoreUnknownKeys = true
+                        }
+                        )
+                    }
+                    engine {
+                        jksCredential?.let { sslContext = getSslContext(it) }
+                        followRedirects = true
+                        socketTimeout = TIMEOUT
+                        connectTimeout = TIMEOUT
+                        connectionRequestTimeout = TIMEOUT
+                    }
+                }
+            }
+    }
+
     companion object {
 
-        private const val AUTH_TYPE_HEADER = "Authorization-Type" // gitleaks:allow
+        private const val AUTH_TYPE_HEADER = "Authorization-Type"
         private const val BASIC = "Basic Auth"
         private const val USERPASS = "username/password"
         private const val EMAILPASS = "email/password"
@@ -635,48 +666,6 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
         fun getAuthorizationHeader(
             restTransportInfo: RESTTransportType?,
         ): String = restTransportInfo?.headers?.get("BearerToken") ?: "Bearer"
-
-        /** Our default Http Client, with an optional SSL context, and optional auth token */
-        fun createDefaultHttpClient(
-            jks: UserJksCredential?,
-            accessToken: String?,
-            restTransportInfo: RESTTransportType?,
-        ): HttpClient = HttpClient(Apache) {
-                // installs logging into the call to post to the server
-                install(Logging) {
-                    logger = io.ktor.client.plugins.logging.Logger.Companion.SIMPLE
-                    level = LogLevel.INFO // LogLevel.INFO for prod, LogLevel.ALL to view full request
-                }
-
-                // not using Bearer Auth handler due to refresh token behavior
-                accessToken?.let {
-                    // Default to set Bearer prefix
-                    defaultRequest {
-                        header("Authorization", getAuthorizationHeader(restTransportInfo) + " $it")
-                    }
-                }
-                // install contentNegotiation to handle json response
-                install(ContentNegotiation) {
-                    json(
-                        Json {
-                            prettyPrint = true
-                            isLenient = true
-                            ignoreUnknownKeys = true
-                        }
-                    )
-                }
-                // configures the Apache client with our specified timeouts
-                // if we have a JKS, create an SSL context with it
-                engine {
-                    jks?.let { sslContext = getSslContext(jks) }
-                    followRedirects = true
-                    socketTimeout = TIMEOUT
-                    connectTimeout = TIMEOUT
-                    connectionRequestTimeout = TIMEOUT
-                    customizeClient {
-                    }
-                }
-            }
 
         /***
          * Create an SSL context with the provided cert
