@@ -92,7 +92,7 @@ test.describe(
                 const receiverCell = await receiver.getByRole("link").innerText();
                 const orgName = receiverCell.slice(0, receiverCell.indexOf("."));
                 const receiverName = receiverCell.slice(receiverCell.indexOf(".") + 1);
-                await receiver.click();
+                await receiver.getByRole("link").click();
 
                 await expect(lastMileFailuresPage.page).toHaveURL(
                     `/admin/orgreceiversettings/org/${orgName}/receiver/${receiverName}/action/edit`,
