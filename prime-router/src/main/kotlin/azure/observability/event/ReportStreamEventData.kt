@@ -54,6 +54,7 @@ data class ItemEventData(
 enum class ReportStreamEventProperties {
     PROCESSING_ERROR,
     ITEM_FORMAT,
+    ITEM_COUNT,
     VALIDATION_PROFILE,
     FAILING_FILTERS,
     FILTER_TYPE,

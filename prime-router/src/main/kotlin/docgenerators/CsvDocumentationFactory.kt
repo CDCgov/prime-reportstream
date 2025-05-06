@@ -64,7 +64,7 @@ object CsvDocumentationFactory : TableBasedDocumentationFactory(), Logging {
         val csvFormat = CSVFormat.Builder
             .create(CSVFormat.DEFAULT)
             .setHeader(*getHeaders())
-            .build()
+            .get()
         // create a writer
         val csvWriter = CSVPrinter(
             bw,

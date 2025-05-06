@@ -2,6 +2,7 @@ import { HTTPMethods, type RSApiEndpoints, RSEndpoint } from ".";
 
 export enum ReportsUrls {
     TESTING = "/reports/testing",
+    TEST_SENDERS = "/reports/testing/senders",
     TEST_RESULT = "/reports/testing/test",
 }
 
@@ -9,6 +10,13 @@ export interface RSMessage {
     dateCreated?: string;
     fileName: string;
     reportBody: string;
+    senderId: string;
+}
+
+export interface RSMessageSender {
+    id: string;
+    format: string | null;
+    schemaName: string | null;
 }
 
 export interface RSFilterError {
@@ -43,6 +51,11 @@ export const reportsEndpoints: RSApiEndpoints = {
         path: ReportsUrls.TESTING,
         method: HTTPMethods.GET,
         queryKey: "reportsTest",
+    }),
+    testSenders: new RSEndpoint({
+        path: ReportsUrls.TEST_SENDERS,
+        method: HTTPMethods.GET,
+        queryKey: "reportsTestSenders",
     }),
     testResult: new RSEndpoint({
         path: ReportsUrls.TEST_RESULT,
