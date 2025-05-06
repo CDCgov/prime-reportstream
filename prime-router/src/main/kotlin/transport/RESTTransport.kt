@@ -123,8 +123,11 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
                             logger
                         )
 
-                        accessToken?.let {
-                            httpHeaders["Authorization"] = "${getAuthorizationHeader(restTransportInfo)} $it"
+                        // only add a Bearer header for OAuth/JWT flows, not raw API-key flows
+                        if (restTransportInfo.authType != "apiKey") {
+                            accessToken?.let {
+                                httpHeaders["Authorization"] = "${getAuthorizationHeader(restTransportInfo)} $it"
+                            }
                         }
 
                         // If encryption is needed.
@@ -623,10 +626,11 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
 
     object HttpClientFactory {
         private const val TIMEOUT = 120_000
-        private val cache = ConcurrentHashMap<String?, HttpClient>()
+        private val cache = ConcurrentHashMap<String, HttpClient>()
 
-        fun getClient(jksCredential: UserJksCredential?): HttpClient =
-            cache.computeIfAbsent(jksCredential?.jks) {
+        fun getClient(jksCredential: UserJksCredential?): HttpClient {
+            val key = jksCredential?.jks ?: "DEFAULT"
+            return cache.computeIfAbsent(key) {
                 HttpClient(Apache) {
                     install(Logging) {
                         logger = io.ktor.client.plugins.logging.Logger.Companion.SIMPLE
@@ -635,10 +639,10 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
                     install(ContentNegotiation) {
                         json(
                             Json {
-                            prettyPrint = true
-                            isLenient = true
-                            ignoreUnknownKeys = true
-                        }
+                                prettyPrint = true
+                                isLenient = true
+                                ignoreUnknownKeys = true
+                            }
                         )
                     }
                     engine {
@@ -650,6 +654,7 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
                     }
                 }
             }
+        }
     }
 
     companion object {

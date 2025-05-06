@@ -380,8 +380,11 @@ hnm8COa8Kr+bnTqzScpQuOfujHcFEtfcYUGfSS6HusxidwXx+lYi1A==
 
     @Test
     fun `test connecting to mock service credential happy path`() {
+        mockkObject(RESTTransport.HttpClientFactory)
+        every { RESTTransport.HttpClientFactory.getClient(any()) }
+            .returns(mockClientAuthIDTokenOk())
         val header = makeHeader()
-        val mockRestTransport = spyk(RESTTransport(mockClientAuthIDTokenOk()))
+        val mockRestTransport = spyk(RESTTransport())
         val mockPostReportResponse = getHttpResponse(HttpStatusCode.OK)
         every { mockRestTransport.lookupDefaultCredential(any()) }.returns(
             UserPassCredential("test-user", "test-pass")
@@ -406,8 +409,11 @@ hnm8COa8Kr+bnTqzScpQuOfujHcFEtfcYUGfSS6HusxidwXx+lYi1A==
 
     @Test
     fun `test connecting to mock service getToken unhappy path`() {
+        mockkObject(RESTTransport.HttpClientFactory)
+        every { RESTTransport.HttpClientFactory.getClient(any()) }
+            .returns(mockClientAuthError())
         val header = makeHeader()
-        val mockRestTransport = spyk(RESTTransport(mockClientAuthError()))
+        val mockRestTransport = spyk(RESTTransport())
         val mockPostReportResponse = getHttpResponse(HttpStatusCode.InternalServerError)
         every { mockRestTransport.lookupDefaultCredential(any()) }.returns(
             UserApiKeyCredential("test-user", "test-key")
@@ -432,8 +438,11 @@ hnm8COa8Kr+bnTqzScpQuOfujHcFEtfcYUGfSS6HusxidwXx+lYi1A==
 
     @Test
     fun `test connecting to mock service getToken unauthorized`() {
+        mockkObject(RESTTransport.HttpClientFactory)
+        every { RESTTransport.HttpClientFactory.getClient(any()) }
+            .returns(mockClientUnauthorized())
         val header = makeHeader()
-        val mockRestTransport = spyk(RESTTransport(mockClientUnauthorized()))
+        val mockRestTransport = spyk(RESTTransport())
         val mockPostReportResponse = getHttpResponse(HttpStatusCode.Unauthorized)
         every { mockRestTransport.lookupDefaultCredential(any()) }.returns(
             UserApiKeyCredential("test-user", "test-key")
@@ -562,11 +571,13 @@ hnm8COa8Kr+bnTqzScpQuOfujHcFEtfcYUGfSS6HusxidwXx+lYi1A==
 
     @Test
     fun `test creating transport`() {
-        val header = makeHeader()
+        mockkObject(RESTTransport.HttpClientFactory)
+        every { RESTTransport.HttpClientFactory.getClient(any()) } returns mockClientPostOk()
         val mockRestTransport = spyk(RESTTransport())
         every { mockRestTransport.lookupDefaultCredential(any()) }.returns(
             UserApiKeyCredential("test-user", "test-key")
         )
+        val header = makeHeader()
         val retryItems = mockRestTransport.send(
             transportType,
             header,
@@ -584,8 +595,11 @@ hnm8COa8Kr+bnTqzScpQuOfujHcFEtfcYUGfSS6HusxidwXx+lYi1A==
 
     @Test
     fun `test getAuthTokenWithUserApiKey with transport parametters is empty`() {
+        mockkObject(RESTTransport.HttpClientFactory)
+        every { RESTTransport.HttpClientFactory.getClient(any()) }
+            .returns(mockClientAuthOk())
         val header = makeHeader()
-        val mockRestTransport = spyk(RESTTransport(mockClientAuthOk()))
+        val mockRestTransport = spyk(RESTTransport())
 
         // Given:
         //      lookupDefaultCredential returns mock UserApiKeyCredential object to allow
@@ -738,8 +752,11 @@ hnm8COa8Kr+bnTqzScpQuOfujHcFEtfcYUGfSS6HusxidwXx+lYi1A==
 
     @Test
     fun `test getAuthTokenWithUserPass with transport for CDC NBS`() {
+        mockkObject(RESTTransport.HttpClientFactory)
+        every { RESTTransport.HttpClientFactory.getClient(any()) }
+            .returns(mockClientStringTokenOk())
         val header = makeHeader()
-        val mockRestTransport = spyk(RESTTransport(mockClientStringTokenOk()))
+        val mockRestTransport = spyk(RESTTransport())
 
         // Given:
         //      lookupDefaultCredential returns mock UserPassCredential object to allow
@@ -816,8 +833,11 @@ hnm8COa8Kr+bnTqzScpQuOfujHcFEtfcYUGfSS6HusxidwXx+lYi1A==
 
     @Test
     fun `test getAuthTokenWithUserPass with transport for Natus`() {
+        mockkObject(RESTTransport.HttpClientFactory)
+        every { RESTTransport.HttpClientFactory.getClient(any()) }
+            .returns(mockClientStringTokenOk())
         val header = makeHeader()
-        val mockRestTransport = spyk(RESTTransport(mockClientStringTokenOk()))
+        val mockRestTransport = spyk(RESTTransport())
 
         // Given:
         //      lookupDefaultCredential returns mock UserPassCredential object to allow
@@ -866,8 +886,11 @@ hnm8COa8Kr+bnTqzScpQuOfujHcFEtfcYUGfSS6HusxidwXx+lYi1A==
 
     @Test
     fun `test encryption with transport for Natus`() {
+        mockkObject(RESTTransport.HttpClientFactory)
+        every { RESTTransport.HttpClientFactory.getClient(any()) }
+            .returns(mockClientPostOk())
         val header = makeHeader()
-        val mockRestTransport = spyk(RESTTransport(mockClientPostOk()))
+        val mockRestTransport = spyk(RESTTransport())
 
         // Given:
         //      lookupDefaultCredential returns mock UserPassCredential object to allow
@@ -885,6 +908,17 @@ hnm8COa8Kr+bnTqzScpQuOfujHcFEtfcYUGfSS6HusxidwXx+lYi1A==
                         "aesIV": "RTVxM0kyNkp0cDNOVExVRg=="}
             """
         )
+
+        every {
+            runBlocking {
+                mockRestTransport.getAuthTokenWithUserPass(
+                    natusRestTransportTypeLiveEncrypt,
+                    any(),
+                    any(),
+                    any()
+                )
+            }
+        } returns TokenInfo(accessToken = "MockToken", tokenType = "Bearer")
 
         // When:
         //      RESTTransport is called WITH transport.parameters empty
@@ -906,8 +940,11 @@ hnm8COa8Kr+bnTqzScpQuOfujHcFEtfcYUGfSS6HusxidwXx+lYi1A==
 
     @Test
     fun `test  transport postReport with valid file name for Natus`() {
+        mockkObject(RESTTransport.HttpClientFactory)
+        every { RESTTransport.HttpClientFactory.getClient(any()) }
+            .returns(mockClientStringTokenOk())
         val header = makeHeader()
-        val mockRestTransport = spyk(RESTTransport(mockClientStringTokenOk()))
+        val mockRestTransport = spyk(RESTTransport())
         // Given:
         //      lookupDefaultCredential returns mock UserPassCredential object to allow
         //      the getAuthTokenWithUserPass() to be called.
@@ -1120,8 +1157,11 @@ hnm8COa8Kr+bnTqzScpQuOfujHcFEtfcYUGfSS6HusxidwXx+lYi1A==
 
     @Test
     fun `test transport postReport with valid message to oracle-rln--etor-nbs-results`() {
+        mockkObject(RESTTransport.HttpClientFactory)
+        every { RESTTransport.HttpClientFactory.getClient(any()) }
+            .returns(mockClientAuthOk())
         val header = makeHeader()
-        val mockRestTransport = spyk(RESTTransport(mockClientAuthOk()))
+        val mockRestTransport = spyk(RESTTransport())
 
         // Given:
         //      lookupDefaultCredential returns mock UserApiKeyCredential object to allow
