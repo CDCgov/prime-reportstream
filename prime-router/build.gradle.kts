@@ -654,18 +654,18 @@ task<Exec>("uploadSwaggerUI") {
 }
 
 tasks.register("killFunc") {
-        val processName = "func"
-        if (org.gradle.internal.os.OperatingSystem.current().isWindows) {
-            exec {
-                workingDir = project.rootDir
-                commandLine = listOf("cmd", "/c", "taskkill /F /IM $processName.exe || exit 0")
-            }
-        } else {
-            exec {
-                workingDir = project.rootDir
-                commandLine = listOf("sh", "-c", "pkill -9 $processName || true")
-            }
+    val processName = "func"
+    if (org.gradle.internal.os.OperatingSystem.current().isWindows) {
+        exec {
+            workingDir = project.rootDir
+            commandLine = listOf("cmd", "/c", "taskkill /F /IM $processName.exe || exit 0")
         }
+    } else {
+        exec {
+            workingDir = project.rootDir
+            commandLine = listOf("sh", "-c", "pkill -9 $processName || true")
+        }
+    }
 }
 
 tasks.register("run") {
@@ -945,15 +945,11 @@ dependencies {
     implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
     implementation("io.ktor:ktor-serialization-kotlinx:$ktorVersion")
     implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
-    implementation("it.skrape:skrapeit-html-parser:1.3.0-alpha.2")
-    implementation("it.skrape:skrapeit-http-fetcher:1.3.0-alpha.2")
     implementation("org.apache.poi:poi:5.4.1")
     implementation("org.apache.poi:poi-ooxml:5.4.1")
     implementation("org.apache.commons:commons-compress:1.27.1")
     implementation("commons-io:commons-io:2.19.0")
     implementation("com.anyascii:anyascii:0.3.2")
-    // force jsoup since skrapeit-html-parser@1.2.1+ has not updated
-    implementation("org.jsoup:jsoup:1.20.1")
     // https://mvnrepository.com/artifact/io.swagger/swagger-annotations
     implementation("io.swagger:swagger-annotations:1.6.15")
     implementation("io.swagger.core.v3:swagger-jaxrs2:2.2.26")
