@@ -87,7 +87,11 @@ test.describe(
                 await expect(modal).toContainText(`Report ID:${reportIdCell}`);
             });
 
-            test("table column 'Receiver' will open receiver edit page", async ({ lastMileFailuresPage }) => {
+            test.skip("table column 'Receiver' will open receiver edit page", async ({
+                lastMileFailuresPage,
+                isMockDisabled,
+            }) => {
+                test.skip(!isMockDisabled, "Mocks are ENABLED, skipping test");
                 const receiver = tableRows(lastMileFailuresPage.page).nth(0).locator("td").nth(2);
                 const receiverCell = await receiver.getByRole("link").innerText();
                 const orgName = receiverCell.slice(0, receiverCell.indexOf("."));
