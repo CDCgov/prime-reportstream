@@ -601,6 +601,7 @@ class ReportFunction(
                                     to actionHistory.filterParameters(request),
                                 ReportStreamEventProperties.SENDER_NAME to sender.fullName,
                                 ReportStreamEventProperties.FILE_LENGTH to request.headers["content-length"].toString(),
+                                ReportStreamEventProperties.ITEM_COUNT to report.itemCount,
                                 getSenderIP(request)?.let { ReportStreamEventProperties.SENDER_IP to it }
                             ).toMap()
                         )
