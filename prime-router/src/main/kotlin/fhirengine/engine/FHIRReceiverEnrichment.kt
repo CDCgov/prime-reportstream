@@ -171,7 +171,8 @@ class FHIRReceiverEnrichment(
         reportEventService.sendItemEvent(
             eventName = ReportStreamEventName.ITEM_TRANSFORMED,
             childReport = report,
-            pipelineStepName = TaskAction.receiver_enrichment
+            pipelineStepName = TaskAction.receiver_enrichment,
+            queueMessage = queueMessage.toString()
         ) {
             parentReportId(queueMessage.reportId)
             params(

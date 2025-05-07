@@ -3,7 +3,6 @@ package gov.cdc.prime.router.azure.observability.event
 import com.fasterxml.jackson.annotation.JsonKey
 import com.fasterxml.jackson.annotation.JsonUnwrapped
 import com.google.common.base.CaseFormat
-import gov.cdc.prime.reportstream.shared.QueueMessage
 import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import java.time.OffsetDateTime
@@ -19,6 +18,8 @@ import java.util.UUID
  * @param blobUrl the blob url for the outputted report
  * @param pipelineStepName the step that produced the outputted report
  * @param timestamp when the event occurred
+ * @param commitId the current git commit hash
+ * @param queueMessage the azure queue message
  */
 data class ReportEventData(
     val childReportId: UUID,
@@ -29,7 +30,7 @@ data class ReportEventData(
     val pipelineStepName: TaskAction,
     val timestamp: OffsetDateTime,
     val commitId: String,
-    val queueMessage: QueueMessage,
+    val queueMessage: String,
 )
 
 /**
@@ -75,7 +76,6 @@ enum class ReportStreamEventProperties {
     TARGET_FORMAT,
     RETRY_COUNT,
     NEXT_RETRY_TIME,
-    QUEUE_MESSAGE,
     ;
 
     @JsonKey

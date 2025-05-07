@@ -248,7 +248,7 @@ class FHIRFunctions(
                 report,
                 fhirEngine.taskAction,
                 ex.message ?: "",
-                messageContent
+                messageContent.toString()
             ) {
                 params(mapOf(ReportStreamEventProperties.POISON_QUEUE_MESSAGE_ID to poisonQueueMessageId))
             }

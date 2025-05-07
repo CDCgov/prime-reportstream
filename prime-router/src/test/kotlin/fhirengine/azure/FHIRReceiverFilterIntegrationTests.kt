@@ -399,7 +399,8 @@ class FHIRReceiverFilterIntegrationTests : Logging {
                     "",
                     TaskAction.receiver_filter,
                     OffsetDateTime.now(),
-                    Version.commitId
+                    Version.commitId,
+                    queueMessage
                 ),
                 ReportEventData::timestamp,
             )
@@ -581,7 +582,8 @@ class FHIRReceiverFilterIntegrationTests : Logging {
                     "",
                     TaskAction.receiver_filter,
                     OffsetDateTime.now(),
-                    Version.commitId
+                    Version.commitId,
+                    queueMessage
                 ),
                 ReportEventData::timestamp,
             )
@@ -776,7 +778,8 @@ class FHIRReceiverFilterIntegrationTests : Logging {
                     "",
                     TaskAction.receiver_filter,
                     OffsetDateTime.now(),
-                    Version.commitId
+                    Version.commitId,
+                    queueMessage
                 ),
                 ReportEventData::timestamp,
             )
@@ -915,7 +918,8 @@ class FHIRReceiverFilterIntegrationTests : Logging {
                     "",
                     TaskAction.receiver_filter,
                     OffsetDateTime.now(),
-                    Version.commitId
+                    Version.commitId,
+                    queueMessage
                 ),
                 ReportEventData::timestamp,
             )
@@ -1201,7 +1205,8 @@ class FHIRReceiverFilterIntegrationTests : Logging {
                     "",
                     TaskAction.receiver_filter,
                     OffsetDateTime.now(),
-                    Version.commitId
+                    Version.commitId,
+                    queueMessage
                 ),
                 ReportEventData::timestamp,
             )
