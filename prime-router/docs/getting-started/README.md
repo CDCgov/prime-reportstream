@@ -2,14 +2,15 @@
 
 ## Overview
 
-> These pages are a work in progress, please see the [old pages](../docs-deprecated/getting-started/getting-started.md) if something is
+> These pages are a work in progress, please see the [old pages](../docs-deprecated/getting-started/getting-started.md)
+> if something is
 > missing
 
 ## Table of contents
 
 - [Table of contents](#table-of-contents)
 - [Locally installed software prerequisites](#locally-installed-software-prerequisites)
-- [Bulding the baseline](#bulding-the-baseline)
+- [Building the baseline](#building-the-baseline)
     * [First build](#first-build)
     * [Seed the Postgres db and vault](#seed-the-postgres-db-and-vault)
 - [Running ReportStream backend](#running-reportstream-backend)
@@ -49,7 +50,7 @@ you are using an Apple Silicon computer, otherwise they are optional.
 > the `prime_dev` service does not work on Apple Silicon. Likewise, the `builder` service in
 > our `docker-compose.build.yml` does not work.
 
-## Bulding the baseline
+## Building the baseline
 
 ### First build
 
@@ -213,6 +214,23 @@ app__.
 ## Running the static site
 
 ## Troubleshooting
+
+1. If you are having issues at this step:
+   ```bash
+    ./gradlew primeCLI --args "create-credential --type=UserPass --persist=DEFAULT-SFTP --user foo --pass pass"
+   ```
+
+   and are getting the following error:
+
+   ```bash
+   Could not determine the dependencies of task ':prime-router:primeCLI'.
+   Could not resolve all dependencies for configuration ':prime-router:runtimeClasspath'.
+   ```
+   try the following:
+    1. Make sure that your sdk versions are the same in your Gradle settings and in your Project Settings -> SDKs.
+    2. Delete your `.gradle` and `.idea` folder in your home directory.
+    3. Close the project in IntelliJ. In the ellipses of your project, select the `Remove from Recent projects` and
+       reopen the project.
 
 ## Next Steps
 

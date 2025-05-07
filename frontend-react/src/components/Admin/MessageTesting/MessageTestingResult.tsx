@@ -1,5 +1,4 @@
 import { usePDF } from "@react-pdf/renderer";
-import { QueryObserverResult } from "@tanstack/react-query";
 import { Accordion, Button, Icon } from "@trussworks/react-uswds";
 import { type PropsWithChildren } from "react";
 import language from "./language.json";
@@ -15,7 +14,7 @@ export interface MessageTestingResultProps extends PropsWithChildren {
     submittedMessage: RSMessage | null;
     resultData: RSMessageResult;
     handleGoBack: () => void;
-    refetch: () => Promise<QueryObserverResult<RSMessageResult, Error>>;
+    refetch: () => void;
     orgname: string;
     receivername: string;
 }

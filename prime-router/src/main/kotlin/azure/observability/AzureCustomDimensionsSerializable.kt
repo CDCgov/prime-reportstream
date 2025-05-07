@@ -18,8 +18,7 @@ interface AzureCustomDimensionsSerializable {
      */
     fun serialize(): Map<String, String> = JacksonMapperUtilities.jacksonObjectMapper
             .valueToTree<ObjectNode>(this)
-            .fields()
-            .asSequence()
+            .properties()
             .associate { it.key to serializeValue(it.value) }
 
     /**

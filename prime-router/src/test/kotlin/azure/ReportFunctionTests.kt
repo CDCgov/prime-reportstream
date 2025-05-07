@@ -45,11 +45,13 @@ import gov.cdc.prime.router.azure.observability.event.ReportStreamEventService
 import gov.cdc.prime.router.cli.PIIRemovalCommands
 import gov.cdc.prime.router.cli.ProcessFhirCommands
 import gov.cdc.prime.router.common.Environment
+import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.history.DetailedSubmissionHistory
 import gov.cdc.prime.router.history.azure.SubmissionsFacade
 import gov.cdc.prime.router.serializers.Hl7Serializer
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
 import gov.cdc.prime.router.tokens.AuthenticationType
+import gov.cdc.prime.router.tokens.Scope
 import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.ktor.utils.io.core.toByteArray
 import io.mockk.Runs
@@ -923,7 +925,7 @@ class ReportFunctionTests {
         every { BlobAccess.Companion.getBlobContainer(any()) } returns mockedBlobContainerClient
 
         val dateCreated = OffsetDateTime.now()
-        val fileName = UUID.randomUUID().toString() + ".fhir"
+        val fileName = "testOrg.default/" + UUID.randomUUID().toString() + ".fhir"
         val blob1 = BlobItem()
         blob1.name = fileName
         blob1.properties = BlobItemProperties()
@@ -955,10 +957,235 @@ class ReportFunctionTests {
             ReportFunction.TestReportInfo(
                 dateCreated.toString(),
                 fileName,
-                fhirReport
+                fhirReport,
+                "testOrg.default"
             )
         ) + "]"
         )
+    }
+
+    @Nested
+    inner class GetSendersForTestingTool {
+        @Test
+        fun `happy path`() {
+            val sender = UniversalPipelineSender(
+                "full-elr",
+                "phd",
+                MimeFormat.HL7,
+                customerStatus = CustomerStatus.ACTIVE,
+                topic = Topic.FULL_ELR,
+                schemaName = "/testSchema.yml"
+            )
+            val senderOrg = DeepOrganization(
+                "phd",
+                "test",
+                Organization.Jurisdiction.FEDERAL,
+                senders = listOf(sender)
+            )
+
+            val metadata = UnitTestUtils.simpleMetadata
+            val settings = FileSettings().loadOrganizations(senderOrg)
+            val engine = makeEngine(metadata, settings)
+            val reportFunc = spyk(ReportFunction(engine))
+
+            val result = reportFunc.getSenders(MockHttpRequestMessage())
+
+            val senders = listOf(
+                ReportFunction.SenderResponse("None", null, null),
+                ReportFunction.SenderResponse("phd.full-elr", "HL7", "/testSchema.yml")
+            )
+            val sendersString = JacksonMapperUtilities.allowUnknownsMapper.writeValueAsString(senders)
+
+            assert(result.status.value() == 200)
+            assert(result.body.toString() == sendersString)
+        }
+
+        @Test
+        fun `unauthorized `() {
+            val metadata = UnitTestUtils.simpleMetadata
+            val settings = FileSettings().loadOrganizations(oneOrganization)
+            mockkObject(AuthenticatedClaims)
+            every { AuthenticatedClaims.authenticate(any()) } returns null
+
+            val result = ReportFunction(
+                makeEngine(metadata, settings),
+            ).getSenders(MockHttpRequestMessage())
+
+            assert(result.status == HttpStatus.UNAUTHORIZED)
+        }
+
+        @Test
+        fun `always returns None option `() {
+            val metadata = UnitTestUtils.simpleMetadata
+            val settings = FileSettings().loadOrganizations(oneOrganization)
+            val engine = makeEngine(metadata, settings)
+            val reportFunc = spyk(ReportFunction(engine))
+            every { engine.settings.senders } throws (IllegalStateException())
+
+            val result = reportFunc.getSenders(MockHttpRequestMessage())
+
+            val senders = listOf(
+                ReportFunction.SenderResponse("None", null, null),
+            )
+            val sendersString = JacksonMapperUtilities.allowUnknownsMapper.writeValueAsString(senders)
+            assert(result.status.value() == 200)
+            assert(result.body.toString() == sendersString)
+        }
+    }
+
+    @Nested
+    inner class ProcessFhirDataRequest {
+
+        @Test
+        fun `unauthorized `() {
+            val metadata = UnitTestUtils.simpleMetadata
+            val settings = FileSettings().loadOrganizations(oneOrganization)
+            mockkObject(AuthenticatedClaims)
+            every { AuthenticatedClaims.authenticate(any()) } returns null
+
+            val result = ReportFunction(
+                makeEngine(metadata, settings),
+            ).processFhirDataRequest(MockHttpRequestMessage())
+
+            assert(result.status == HttpStatus.UNAUTHORIZED)
+        }
+
+        @Test
+        fun `unauthorized, non admin `() {
+            val metadata = UnitTestUtils.simpleMetadata
+            val settings = FileSettings().loadOrganizations(oneOrganization)
+            mockkObject(AuthenticatedClaims)
+            val claims = mockk<AuthenticatedClaims>()
+            every { claims.authorized(setOf(Scope.primeAdminScope)) } returns false
+            every { AuthenticatedClaims.authenticate(any()) } returns claims
+
+            val result = ReportFunction(
+                makeEngine(metadata, settings),
+            ).processFhirDataRequest(MockHttpRequestMessage())
+
+            assert(result.status == HttpStatus.UNAUTHORIZED)
+        }
+
+        @Test
+        fun `missing receiver name `() {
+            val metadata = UnitTestUtils.simpleMetadata
+            val settings = FileSettings().loadOrganizations(oneOrganization)
+            val req = MockHttpRequestMessage(hl7_valid)
+            req.queryParameters["organizationName"] = "test"
+
+            val result = ReportFunction(
+                makeEngine(metadata, settings),
+            ).processFhirDataRequest(req)
+
+            assert(result.status == HttpStatus.BAD_REQUEST)
+            assert(result.body == "The receiver name is required")
+        }
+
+        @Test
+        fun `missing organization name `() {
+            val metadata = UnitTestUtils.simpleMetadata
+            val settings = FileSettings().loadOrganizations(oneOrganization)
+            val req = MockHttpRequestMessage(hl7_valid)
+            req.queryParameters["receiverName"] = "test"
+            req.queryParameters["organizationName"] = ""
+
+            val result = ReportFunction(
+                makeEngine(metadata, settings),
+            ).processFhirDataRequest(req)
+
+            assert(result.status == HttpStatus.BAD_REQUEST)
+            assert(result.body == "The organization name is required")
+        }
+
+        @Test
+        fun `missing request body `() {
+            val metadata = UnitTestUtils.simpleMetadata
+            val settings = FileSettings().loadOrganizations(oneOrganization)
+            val req = MockHttpRequestMessage()
+            req.queryParameters["receiverName"] = "test"
+            req.queryParameters["organizationName"] = "test"
+
+            val result = ReportFunction(
+                makeEngine(metadata, settings),
+            ).processFhirDataRequest(req)
+
+            assert(result.status == HttpStatus.BAD_REQUEST)
+            assert(result.body == "Input message is blank.")
+        }
+
+        @Test
+        fun `body is not HL7 or FHIR `() {
+            val metadata = UnitTestUtils.simpleMetadata
+            val settings = FileSettings().loadOrganizations(oneOrganization)
+            val engine = makeEngine(metadata, settings)
+            val req = MockHttpRequestMessage("test")
+            req.queryParameters["receiverName"] = "test"
+            req.queryParameters["organizationName"] = "test"
+            req.queryParameters["senderId"] = "testOrg.sender"
+
+            val result = ReportFunction(engine).processFhirDataRequest(req)
+
+            assert(result.status == HttpStatus.BAD_REQUEST)
+            assert(result.body == "Input not recognized as FHIR or HL7.")
+        }
+
+        @Test
+        fun `senderId not blank and sender not found `() {
+            val metadata = UnitTestUtils.simpleMetadata
+            val settings = FileSettings().loadOrganizations(oneOrganization)
+            val engine = makeEngine(metadata, settings)
+            val req = MockHttpRequestMessage(hl7_valid)
+            req.queryParameters["receiverName"] = "test"
+            req.queryParameters["organizationName"] = "test"
+            val senderId = "testOrg.sender"
+            req.queryParameters["senderId"] = senderId
+            every { engine.settings.findSender(any()) } returns null
+
+            val result = ReportFunction(engine).processFhirDataRequest(req)
+
+            assert(result.status == HttpStatus.BAD_REQUEST)
+            assert(result.body == "No sender found for $senderId.")
+        }
+
+        @Test
+        fun `FHIR sender with HL7 input `() {
+            val metadata = UnitTestUtils.simpleMetadata
+            val settings = FileSettings().loadOrganizations(oneOrganization)
+            val engine = makeEngine(metadata, settings)
+            val req = MockHttpRequestMessage(hl7_valid)
+            req.queryParameters["receiverName"] = "test"
+            req.queryParameters["organizationName"] = "test"
+            val senderId = "testOrg.sender"
+            req.queryParameters["senderId"] = senderId
+            val sender = mockk<Sender>()
+            every { engine.settings.findSender(any()) } returns sender
+            every { sender.format.ext } returns "fhir"
+
+            val result = ReportFunction(engine).processFhirDataRequest(req)
+
+            assert(result.status == HttpStatus.BAD_REQUEST)
+            assert(result.body == "Expected FHIR input for selected sender.")
+        }
+
+        @Test
+        fun `Process fhir data request - HL7 sender with FHIR input `() {
+            val metadata = UnitTestUtils.simpleMetadata
+            val settings = FileSettings().loadOrganizations(oneOrganization)
+            val engine = makeEngine(metadata, settings)
+            val req = MockHttpRequestMessage(fhirReport)
+            req.queryParameters["receiverName"] = "test"
+            req.queryParameters["organizationName"] = "test"
+            val senderId = "testOrg.sender"
+            req.queryParameters["senderId"] = senderId
+            val sender = mockk<Sender>()
+            every { engine.settings.findSender(any()) } returns sender
+            every { sender.format.ext } returns "hl7"
+
+            val result = ReportFunction(engine).processFhirDataRequest(req)
+
+            assert(result.status == HttpStatus.BAD_REQUEST)
+            assert(result.body == "Expected HL7 input for selected sender.")
+        }
     }
 
     @Test
