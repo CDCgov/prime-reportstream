@@ -358,7 +358,8 @@ class FHIRDestinationFilterIntegrationTests : Logging {
                     routedReport.bodyUrl,
                     TaskAction.destination_filter,
                     OffsetDateTime.now(),
-                    Version.commitId
+                    Version.commitId,
+                    queueMessage
                 ),
                 ReportEventData::timestamp
             )
@@ -465,7 +466,8 @@ class FHIRDestinationFilterIntegrationTests : Logging {
                 "",
                 TaskAction.destination_filter,
                 OffsetDateTime.now(),
-                Version.commitId
+                Version.commitId,
+                queueMessage
             ),
             ReportEventData::timestamp,
             ReportEventData::childReportId

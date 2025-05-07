@@ -644,8 +644,8 @@ class ActionHistory(
         reportFile.bodyUrl = blobInfo.blobUrl
 
         reportEventService.sendReportEvent(
-            childReport = reportFile,
             eventName = ReportStreamEventName.REPORT_SENT,
+            childReport = reportFile,
             pipelineStepName = TaskAction.send
         ) {
             parentReportId(header.reportFile.reportId)
@@ -722,8 +722,7 @@ class ActionHistory(
                             nextRetryTime?.let {
                                 ReportStreamEventProperties.NEXT_RETRY_TIME to
                                     DateTimeFormatter.ISO_DATE_TIME.format(it)
-                            },
-                            queueMessage?.let { ReportStreamEventProperties.QUEUE_MESSAGE to queueMessage }
+                            }
                         ).toMap()
                     )
                 }

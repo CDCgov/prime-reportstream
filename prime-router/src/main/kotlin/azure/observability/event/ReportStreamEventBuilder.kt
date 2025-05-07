@@ -1,6 +1,5 @@
 package gov.cdc.prime.router.azure.observability.event
 
-import gov.cdc.prime.reportstream.shared.QueueMessage
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.db.enums.TaskAction
@@ -37,7 +36,7 @@ abstract class AbstractReportStreamEventBuilder<T : AzureCustomEvent>(
     private val childBodyUrl: String,
     private val theTopic: Topic?,
     private val pipelineStepName: TaskAction,
-    private val queueMessage: QueueMessage,
+    private val queueMessage: String,
 ) : Logging {
 
     constructor(
@@ -46,7 +45,7 @@ abstract class AbstractReportStreamEventBuilder<T : AzureCustomEvent>(
         theName: ReportStreamEventName,
         report: ReportFile,
         pipelineStepName: TaskAction,
-        queueMessage: QueueMessage,
+        queueMessage: String,
     ) : this(
         reportEventService,
         azureEventService,
@@ -64,7 +63,7 @@ abstract class AbstractReportStreamEventBuilder<T : AzureCustomEvent>(
         theName: ReportStreamEventName,
         report: Report,
         pipelineStepName: TaskAction,
-        queueMessage: QueueMessage,
+        queueMessage: String,
     ) : this(
         reportEventService,
         azureEventService,
@@ -127,7 +126,7 @@ open class ReportStreamReportEventBuilder(
     childBodyUrl: String,
     theTopic: Topic?,
     pipelineStepName: TaskAction,
-    queueMessage: QueueMessage,
+    queueMessage: String = "",
 ) : AbstractReportStreamEventBuilder<ReportStreamReportEvent>(
     reportEventService,
     azureEventService,
@@ -161,7 +160,7 @@ open class ReportStreamItemEventBuilder(
     childBodyUrl: String,
     theTopic: Topic,
     pipelineStepName: TaskAction,
-    queueMessage: QueueMessage,
+    queueMessage: String = "",
 ) : AbstractReportStreamEventBuilder<ReportStreamItemEvent>(
     reportEventService,
     azureEventService,
@@ -218,7 +217,7 @@ class ReportStreamReportProcessingErrorEventBuilder(
     childBodyUrl: String,
     theTopic: Topic?,
     pipelineStepName: TaskAction,
-    queueMessage: QueueMessage,
+    queueMessage: String = "",
     private val error: String,
 ) : ReportStreamReportEventBuilder(
     reportEventService,
@@ -247,7 +246,7 @@ class ReportStreamItemProcessingErrorEventBuilder(
     childBodyUrl: String,
     theTopic: Topic,
     pipelineStepName: TaskAction,
-    queueMessage: QueueMessage,
+    queueMessage: String = "",
     private val error: String,
 ) : ReportStreamItemEventBuilder(
     reportEventService,

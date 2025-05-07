@@ -108,7 +108,7 @@ class FHIRConverter(
         val blobURL: String,
         val blobDigest: String,
         val blobSubFolderName: String,
-        val queueMessage: QueueMessage,
+        val queueMessage: String,
     ) {
 
         companion object {
@@ -139,7 +139,7 @@ class FHIRConverter(
                     blobUrl,
                     blobDigest,
                     blobSubFolderName,
-                    message
+                    message.toString()
                 )
             }
 
@@ -193,7 +193,7 @@ class FHIRConverter(
                     blobUrl,
                     blobDigest,
                     blobSubFolderName,
-                    message
+                    message.toString()
                 )
             }
         }
@@ -310,8 +310,8 @@ class FHIRConverter(
                                     report,
                                     TaskAction.convert,
                                     processedItem.validationError!!.message,
-                                    shouldQueue = true,
-                                    input.queueMessage
+                                    input.queueMessage.toString(),
+                                    shouldQueue = true
                                 ) {
                                     parentReportId(input.reportId)
                                     parentItemIndex(itemIndex.toInt() + 1)
@@ -430,6 +430,7 @@ class FHIRConverter(
                     report,
                     TaskAction.convert,
                     "Submitted report was either empty or could not be parsed into HL7",
+                    input.queueMessage.toString()
                 ) {
                     parentReportId(input.reportId)
                     params(

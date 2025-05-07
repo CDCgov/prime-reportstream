@@ -212,6 +212,7 @@ class SendFunction(
                         eventName = ReportStreamEventName.REPORT_LAST_MILE_FAILURE,
                         childReport = report,
                         pipelineStepName = TaskAction.send,
+                        queueMessage = message
                     ) {
                         params(
                             mapOf(
@@ -219,8 +220,7 @@ class SendFunction(
                                 ReportStreamEventProperties.RECEIVER_NAME to receiver.fullName,
                                 ReportStreamEventProperties.TRANSPORT_TYPE to receiver.transport.toString(),
                                 ReportStreamEventProperties.FILE_LENGTH to fileSize,
-                                ReportStreamEventProperties.FILENAME to externalFileName,
-                                ReportStreamEventProperties.QUEUE_MESSAGE to message
+                                ReportStreamEventProperties.FILENAME to externalFileName
                             )
                         )
                         if (parentReport != null) {

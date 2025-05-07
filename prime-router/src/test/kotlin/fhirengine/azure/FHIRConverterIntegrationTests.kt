@@ -479,7 +479,8 @@ class FHIRConverterIntegrationTests {
                     routedReports[1].bodyUrl,
                     TaskAction.convert,
                     OffsetDateTime.now(),
-                    Version.commitId
+                    Version.commitId,
+                    queueMessage
                 ),
                 ReportEventData::timestamp
             )
@@ -646,7 +647,8 @@ class FHIRConverterIntegrationTests {
                     routedReports[1].bodyUrl,
                     TaskAction.convert,
                     OffsetDateTime.now(),
-                    Version.commitId
+                    Version.commitId,
+                    queueMessage
                 ),
                 ReportEventData::timestamp
             )
@@ -833,7 +835,8 @@ class FHIRConverterIntegrationTests {
                     routedReports[1].bodyUrl,
                     TaskAction.convert,
                     OffsetDateTime.now(),
-                    Version.commitId
+                    Version.commitId,
+                    queueMessage
                 ),
                 ReportEventData::timestamp
             )
@@ -970,7 +973,8 @@ class FHIRConverterIntegrationTests {
                     "",
                     TaskAction.convert,
                     OffsetDateTime.now(),
-                    Version.commitId
+                    Version.commitId,
+                    queueMessage
                 ),
                 ReportEventData::timestamp
             )
