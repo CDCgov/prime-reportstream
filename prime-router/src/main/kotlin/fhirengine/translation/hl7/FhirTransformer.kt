@@ -139,34 +139,29 @@ class FhirTransformer(
                     val value = try {
                         getValue(element, bundle, singleFocusResource, elementContext)
                     } catch (ex: FhirPathUtils.NoZipCodeException) {
-                        if (reportEventService != null) {
-                            val report = Report(
-                                MimeFormat.FHIR,
-                                emptyList(),
-                                parentItemLineageData = emptyList(),
-                                metadata = null,
-                                topic = Topic.FULL_ELR,
-                                nextAction = TaskAction.none
-                            )
+                        val report = Report(
+                            MimeFormat.FHIR,
+                            emptyList(),
+                            parentItemLineageData = emptyList(),
+                            metadata = null,
+                            topic = Topic.FULL_ELR,
+                            nextAction = TaskAction.none
+                        )
 
-                            reportEventService.sendItemEvent(
-                                ReportStreamEventName.ZIP_CODE_LOOKUP_FAIL,
-                                report,
-                                TaskAction.other,
-                                shouldQueue = true
-                            ) {
-                                trackingId(bundle)
-                                params(
-                                    mapOf(
-                                        ReportStreamEventProperties.MISSING_ZIP_CODE to "66666"
-                                    )
+                        reportEventService?.sendItemEvent(
+                            ReportStreamEventName.ZIP_CODE_LOOKUP_FAIL,
+                            report,
+                            TaskAction.other,
+                            shouldQueue = true
+                        ) {
+                            trackingId(bundle)
+                            params(
+                                mapOf(
+                                    ReportStreamEventProperties.MISSING_ZIP_CODE to "66666"
                                 )
-                            }
-
-                            return
-                        } else {
-                            return
+                            )
                         }
+                        return
                     }
 
                     val function = element.function
@@ -210,33 +205,29 @@ class FhirTransformer(
                     try {
                         FhirPathUtils.evaluate(elementContext, bundle, bundle, element.appendToProperty).size
                     } catch (ex: FhirPathUtils.NoZipCodeException) {
-                        if (reportEventService != null) {
-                            val report = Report(
-                                MimeFormat.FHIR,
-                                emptyList(),
-                                parentItemLineageData = emptyList(),
-                                metadata = null,
-                                topic = Topic.FULL_ELR,
-                                nextAction = TaskAction.none
-                            )
+                        val report = Report(
+                            MimeFormat.FHIR,
+                            emptyList(),
+                            parentItemLineageData = emptyList(),
+                            metadata = null,
+                            topic = Topic.FULL_ELR,
+                            nextAction = TaskAction.none
+                        )
 
-                            reportEventService.sendItemEvent(
-                                ReportStreamEventName.ZIP_CODE_LOOKUP_FAIL,
-                                report,
-                                TaskAction.other,
-                                shouldQueue = true
-                            ) {
-                                trackingId(bundle)
-                                params(
-                                    mapOf(
-                                        ReportStreamEventProperties.MISSING_ZIP_CODE to "66666"
-                                    )
+                        reportEventService?.sendItemEvent(
+                            ReportStreamEventName.ZIP_CODE_LOOKUP_FAIL,
+                            report,
+                            TaskAction.other,
+                            shouldQueue = true
+                        ) {
+                            trackingId(bundle)
+                            params(
+                                mapOf(
+                                    ReportStreamEventProperties.MISSING_ZIP_CODE to "66666"
                                 )
-                            }
-                            0
-                        } else {
-                            0
+                            )
                         }
+                        0
                     }
                 } else {
                     0
