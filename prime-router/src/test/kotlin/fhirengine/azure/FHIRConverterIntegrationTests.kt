@@ -166,15 +166,15 @@ class FHIRConverterIntegrationTests {
         sender: Sender,
     ): String = """
         {
-            "type": "convert",
-            "reportId": "${report.id}",
-            "blobURL": "${report.bodyURL}",
-            "digest": "${BlobUtils.digestToString(BlobUtils.sha256Digest(blobContents.toByteArray()))}",
-            "blobSubFolderName": "${sender.fullName}",
-            "topic": "${sender.topic.jsonVal}",
-            "schemaName": "${sender.schemaName}"
+        "type":"convert",
+        "reportId":"${report.id}",
+        "blobURL":"${report.bodyURL}",
+        "digest":"${BlobUtils.digestToString(BlobUtils.sha256Digest(blobContents.toByteArray()))}",
+        "blobSubFolderName":"${sender.fullName}",
+        "topic":"${sender.topic.jsonVal}",
+        "schemaName":"${sender.schemaName}"
         }
-    """.trimIndent()
+        """.trimIndent().replace("\n", "")
 
     private fun generateFHIRConvertSubmissionQueueMessage(
         report: Report,
@@ -184,20 +184,25 @@ class FHIRConverterIntegrationTests {
         // TODO: something is wrong with the Jackson configuration as it should not require the type to parse this
         val headers = mapOf("client_id" to sender.fullName)
         val headersStringMap = headers.entries.joinToString(separator = ",\n") { (key, value) ->
-            """"$key": "$value""""
+            """"$key":"$value""""
         }
         val headersString = "[\"java.util.LinkedHashMap\",{$headersStringMap}]"
         return """
         {
-            "type": "receive-fhir",
-            "reportId": "${report.id}",
-            "blobURL": "${report.bodyURL}",
-            "digest": "${BlobUtils.digestToString(BlobUtils.sha256Digest(blobContents.toByteArray()))}",
-            "blobSubFolderName": "${sender.fullName}",
-            "headers":$headersString
+        "type":"receive",
+        "reportId":"${report.id}",
+        "blobURL":"${report.bodyURL}",
+        "digest":"${BlobUtils.digestToString(BlobUtils.sha256Digest(blobContents.toByteArray()))}",
+        "blobSubFolderName":"${sender.fullName}",
+        "headers":$headersString
         }
-    """.trimIndent()
+        """.trimIndent().replace("\n", "")
     }
+
+    private fun appendMessageQueueName(
+        queueMessage: String,
+        messageQueueName: String,
+    ): String = queueMessage.substringBeforeLast("}") + ",\"messageQueueName\":\"$messageQueueName\"}"
 
     @BeforeEach
     fun beforeEach() {
@@ -480,7 +485,7 @@ class FHIRConverterIntegrationTests {
                     TaskAction.convert,
                     OffsetDateTime.now(),
                     Version.commitId,
-                    queueMessage
+                    appendMessageQueueName(queueMessage, "elr-fhir-convert-submission")
                 ),
                 ReportEventData::timestamp
             )
@@ -648,7 +653,7 @@ class FHIRConverterIntegrationTests {
                     TaskAction.convert,
                     OffsetDateTime.now(),
                     Version.commitId,
-                    queueMessage
+                    appendMessageQueueName(queueMessage, "elr-fhir-convert")
                 ),
                 ReportEventData::timestamp
             )
@@ -836,7 +841,7 @@ class FHIRConverterIntegrationTests {
                     TaskAction.convert,
                     OffsetDateTime.now(),
                     Version.commitId,
-                    queueMessage
+                    appendMessageQueueName(queueMessage, "elr-fhir-convert")
                 ),
                 ReportEventData::timestamp
             )
@@ -974,7 +979,7 @@ class FHIRConverterIntegrationTests {
                     TaskAction.convert,
                     OffsetDateTime.now(),
                     Version.commitId,
-                    queueMessage
+                    appendMessageQueueName(queueMessage, "elr-fhir-convert")
                 ),
                 ReportEventData::timestamp
             )

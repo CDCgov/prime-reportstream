@@ -385,6 +385,7 @@ class FHIRConverter(
                                 ReportStreamEventName.ITEM_ACCEPTED,
                                 report,
                                 TaskAction.convert,
+                                input.queueMessage,
                                 shouldQueue = true
                             ) {
                                 parentReportId(input.reportId)

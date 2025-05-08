@@ -227,22 +227,27 @@ class FHIRReceiverFilterIntegrationTests : Logging {
         )
     }
 
-    fun generateQueueMessage(
+    private fun generateQueueMessage(
         report: Report,
         blobContents: String,
         sender: Sender,
         receiverName: String,
     ): String = """
-            {
-                "type": "${TaskAction.receiver_filter.literal}",
-                "reportId": "${report.id}",
-                "blobURL": "${report.bodyURL}",
-                "digest": "${BlobUtils.digestToString(BlobUtils.sha256Digest(blobContents.toByteArray()))}",
-                "blobSubFolderName": "${sender.fullName}",
-                "topic": "${sender.topic.jsonVal}",
-                "receiverFullName": "$receiverName" 
-            }
-        """.trimIndent()
+        {
+        "type":"${TaskAction.receiver_filter.literal}",
+        "reportId":"${report.id}",
+        "blobURL":"${report.bodyURL}",
+        "digest":"${BlobUtils.digestToString(BlobUtils.sha256Digest(blobContents.toByteArray()))}",
+        "blobSubFolderName":"${sender.fullName}",
+        "topic":"${sender.topic.jsonVal}",
+        "receiverFullName":"$receiverName"
+        }
+        """.trimIndent().replace("\n", "")
+
+    private fun appendTestMessage(
+        queueMessage: String,
+    ): String = queueMessage.substringBeforeLast("}") +
+            ",\"messageQueueName\":\"elr-fhir-receiver-filter\"}"
 
     @Test
     fun `should send valid FHIR report filtered by condition filter`() {
@@ -400,7 +405,7 @@ class FHIRReceiverFilterIntegrationTests : Logging {
                     TaskAction.receiver_filter,
                     OffsetDateTime.now(),
                     Version.commitId,
-                    queueMessage
+                    appendTestMessage(queueMessage)
                 ),
                 ReportEventData::timestamp,
             )
@@ -583,7 +588,7 @@ class FHIRReceiverFilterIntegrationTests : Logging {
                     TaskAction.receiver_filter,
                     OffsetDateTime.now(),
                     Version.commitId,
-                    queueMessage
+                    appendTestMessage(queueMessage)
                 ),
                 ReportEventData::timestamp,
             )
@@ -779,7 +784,7 @@ class FHIRReceiverFilterIntegrationTests : Logging {
                     TaskAction.receiver_filter,
                     OffsetDateTime.now(),
                     Version.commitId,
-                    queueMessage
+                    appendTestMessage(queueMessage)
                 ),
                 ReportEventData::timestamp,
             )
@@ -919,7 +924,7 @@ class FHIRReceiverFilterIntegrationTests : Logging {
                     TaskAction.receiver_filter,
                     OffsetDateTime.now(),
                     Version.commitId,
-                    queueMessage
+                    appendTestMessage(queueMessage)
                 ),
                 ReportEventData::timestamp,
             )
@@ -1206,7 +1211,7 @@ class FHIRReceiverFilterIntegrationTests : Logging {
                     TaskAction.receiver_filter,
                     OffsetDateTime.now(),
                     Version.commitId,
-                    queueMessage
+                    appendTestMessage(queueMessage)
                 ),
                 ReportEventData::timestamp,
             )
