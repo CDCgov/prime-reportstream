@@ -646,7 +646,7 @@ class ActionHistory(
         reportEventService.sendReportEvent(
             eventName = ReportStreamEventName.REPORT_SENT,
             childReport = reportFile,
-            pipelineStepName = TaskAction.send
+            pipelineStepName = TaskAction.send,
         ) {
             parentReportId(header.reportFile.reportId)
             params(
@@ -710,7 +710,7 @@ class ActionHistory(
                         )
                     )
                 )
-                reportEventService.sendItemEvent(eventName, report, TaskAction.send) {
+                reportEventService.sendItemEvent(eventName, report, TaskAction.send, queueMessage ?: "") {
                     trackingId(bundle)
                     parentReportId(itemLineage.parentReportId)
                     childItemIndex(itemLineage.childIndex)
