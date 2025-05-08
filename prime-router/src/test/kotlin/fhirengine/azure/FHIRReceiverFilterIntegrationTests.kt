@@ -247,7 +247,7 @@ class FHIRReceiverFilterIntegrationTests : Logging {
     private fun appendTestMessage(
         queueMessage: String,
     ): String = queueMessage.substringBeforeLast("}") +
-            ",\"messageQueueName\":\"elr-fhir-receiver-filter\"}"
+            ",\"messageQueueName\":\"${QueueMessage.Companion.elrReceiverFilterQueueName}\"}"
 
     @Test
     fun `should send valid FHIR report filtered by condition filter`() {
