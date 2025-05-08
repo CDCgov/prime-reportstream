@@ -19,20 +19,21 @@ are used by ReportStream. If a resource type has a US Public Health profile, the
 then the US Core profile is used. If neither one exists, then the base FHIR R4 profile is used.
 
 ### FHIR Profiles required by ReportStream
-| FHIR Resource Type | Implementation Guide                                                                                                                          | Canonical URL                                                                                         |
-|--------------------|-----------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------|
-| Bundle             | [R4 Bundle](https://hl7.org/fhir/R4/bundle.html)                                                                                              | http://hl7.org/fhir/StructureDefinition/Bundle                                                        |
-| Device             | [R4 Device](https://hl7.org/fhir/R4/device.html)                                                                                              | http://hl7.org/fhir/StructureDefinition/Device                                                        |
-| DiagnosticReport   | [US Core DiagnosticReport](https://hl7.org/fhir/us/core/StructureDefinition-us-core-diagnosticreport-lab.html)                                | http://hl7.org/fhir/us/core/StructureDefinition/us-core-diagnosticreport-lab                          |
-| MessageHeader      | [US Public Health MessageHeader](https://www.hl7.org/fhir/us/ph-library/StructureDefinition-us-ph-messageheader.html)                         | http://hl7.org/fhir/us/ph-library/StructureDefinition/us-ph-messageheader                             |
-| Observation        | [US Public Health Laboratory Result Observation Profile](https://www.hl7.org/fhir/us/ph-library/StructureDefinition-us-ph-messageheader.html) |http://hl7.org/fhir/us/ph-library/StructureDefinition/us-ph-lab-result-observation|
-|Organization| [US Public Health Organization](https://build.fhir.org/ig/HL7/fhir-us-ph-library/StructureDefinition-us-ph-organization.html)                                                                                                             |http://hl7.org/fhir/us/ph-library/StructureDefinition/us-ph-organization|
-|Patient| [US Public Health Patient](https://build.fhir.org/ig/HL7/fhir-us-ph-library/StructureDefinition-us-ph-patient.html)                                                                                                                  |http://hl7.org/fhir/us/ph-library/StructureDefinition/us-ph-patient|
-|Practitioner| [US Core Practitioner](https://hl7.org/fhir/us/core/StructureDefinition-us-core-practitioner.html)                                                                                                                      |http://hl7.org/fhir/us/core/StructureDefinition/us-core-practitioner|
-|PractionerRole| [US Public Health PractitionerRole](https://hl7.org/fhir/us/core/StructureDefinition-us-core-practitioner.html)                                                                                                         |http://hl7.org/fhir/us/ph-library/StructureDefinition/us-ph-practitionerrole|
-|Provenance| [US Core Provenance](https://hl7.org/fhir/us/core/StructureDefinition-us-core-provenance.html)                                                                                                                        |http://hl7.org/fhir/us/core/StructureDefinition/us-core-provenance|
-|Specimen| [US Core Specimen](https://hl7.org/fhir/us/core/StructureDefinition-us-core-specimen.html)                                                                                                                          |http://hl7.org/fhir/us/core/StructureDefinition/us-core-specimen|
-|ServiceRequest| [US Core ServiceRequest](https://hl7.org/fhir/us/core/StructureDefinition-us-core-servicerequest.html)                                                                                                                    |http://hl7.org/fhir/us/core/StructureDefinition/us-core-servicerequest|
+| FHIR Resource Type     | Implementation Guide                                                                                                      | Canonical URL                                   |
+|------------------------|---------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------|
+| Bundle (for reporting) | [US Public Health Reporting Bundle](https://hl7.org/fhir/us/ph-library/StructureDefinition-us-ph-reporting-bundle.html)| http://hl7.org/fhir/us/ph-library/StructureDefinition/us-ph-reporting-bundle |
+| Bundle (for content)   | [US Public Health Content Bundle](http://hl7.org/fhir/us/ph-library/StructureDefinition-us-ph-content-bundle.html)| http://hl7.org/fhir/us/ph-library/StructureDefinition/us-ph-content-bundle |
+|Device            | [R4 Device](https://hl7.org/fhir/R4/device.html)| http://hl7.org/fhir/StructureDefinition/Device                                                        |
+| DiagnosticReport       | [US Core DiagnosticReport](https://hl7.org/fhir/us/core/StructureDefinition-us-core-diagnosticreport-lab.html)| http://hl7.org/fhir/us/core/StructureDefinition/us-core-diagnosticreport-lab |
+| MessageHeader          | [US Public Health MessageHeader](https://www.hl7.org/fhir/us/ph-library/StructureDefinition-us-ph-messageheader.html)| http://hl7.org/fhir/us/ph-library/StructureDefinition/us-ph-messageheader |
+| Observation            | [US Public Health Laboratory Result Observation Profile](https://www.hl7.org/fhir/us/ph-library/StructureDefinition-us-ph-messageheader.html)|http://hl7.org/fhir/us/ph-library/StructureDefinition/us-ph-lab-result-observation|
+| Organization           | [US Public Health Organization](https://build.fhir.org/ig/HL7/fhir-us-ph-library/StructureDefinition-us-ph-organization.html)|http://hl7.org/fhir/us/ph-library/StructureDefinition/us-ph-organization|
+| Patient                | [US Public Health Patient](https://build.fhir.org/ig/HL7/fhir-us-ph-library/StructureDefinition-us-ph-patient.html)|http://hl7.org/fhir/us/ph-library/StructureDefinition/us-ph-patient|
+| Practitioner           | [US Core Practitioner](https://hl7.org/fhir/us/core/StructureDefinition-us-core-practitioner.html)|http://hl7.org/fhir/us/core/StructureDefinition/us-core-practitioner|
+| PractionerRole         | [US Public Health PractitionerRole](https://hl7.org/fhir/us/core/StructureDefinition-us-core-practitioner.html)|http://hl7.org/fhir/us/ph-library/StructureDefinition/us-ph-practitionerrole|
+| Provenance             | [US Core Provenance](https://hl7.org/fhir/us/core/StructureDefinition-us-core-provenance.html)|http://hl7.org/fhir/us/core/StructureDefinition/us-core-provenance|
+| Specimen               | [US Core Specimen](https://hl7.org/fhir/us/core/StructureDefinition-us-core-specimen.html)                                                                                                   |http://hl7.org/fhir/us/core/StructureDefinition/us-core-specimen|
+| ServiceRequest         | [US Core ServiceRequest](https://hl7.org/fhir/us/core/StructureDefinition-us-core-servicerequest.html)                                                                                             |http://hl7.org/fhir/us/core/StructureDefinition/us-core-servicerequest|
 
 # Current FHIR Validation Status
 Currently, RS doesn't perform FHIR validation. There are known non-conformances issues with SimpleReport inputs as well as internally
@@ -131,6 +132,17 @@ usphpl-package.r4.tgz<br />
 
 These were downloaded from the US Core IG and the USPHPL IG. These two zip files contain all the conformance resources
 in order to validate US Core and USPHPL.
+
+## Profile Validation Failures
+
+### US Public Health Reporting Bundle
+A [US Public Health Reporting Bundle](https://hl7.org/fhir/us/ph-library/StructureDefinition-us-ph-reporting-bundle.html)
+is defined to have two entries: a [US Public Health MessageHeader](https://hl7.org/fhir/us/ph-library/StructureDefinition-us-ph-messageheader.html)
+and a [US Public Health Content Bundle](http://hl7.org/fhir/us/ph-library/StructureDefinition/us-ph-content-bundle)
+
+The [US Public Health Content Bundle](http://hl7.org/fhir/us/ph-library/StructureDefinition/us-ph-content-bundle)
+is a collection bundle
+
 
 
 # Detailed validation output

@@ -13,15 +13,29 @@ class FhirValidatorTests : Logging {
     var parser: IParser = ctx.newJsonParser()
 
     @Test
-    fun `test FHIR validation SR sample`() {
+    fun `validate original SR sample`() {
+        // This tests base FHIR R4
         validateAndPrintResults("/fhirsamples/SR-bundle-original.fhir.json", false)
-        validateAndPrintResults("/fhirsamples/SR-bundle-original.fhir.json")
+        // This tests using all recommended profiles
+        validateAndPrintResults("/fhirsamples/SR-bundle-original.fhir.json", true)
+    }
+
+    @Test
+    fun `validate fixed SR sample`() {
+        // This tests base FHIR R4
         validateAndPrintResults("/fhirsamples/SR-bundle-fixed.fhir.json", false)
     }
 
+    @Test
+    fun `validate SR fixed with profiles sample`() {
+        // SR-bundle-fixed-full.fhir.json is intended to pass all recommended profiles
+        validateAndPrintResults("/fhirsamples/SR-bundle-fixed-full.fhir.json", true)
+    }
+
     // path is in resources folder starting with /
-    fun validateAndPrintResults(path: String, addProfiles: Boolean = true) {
-        println("\n\n\n\nValidating resource: $path addProfiles: $addProfiles")
+    // level 1 = errors only, level 2 = errors and warnings, level 3 = errors, warnings, and information notes
+    fun validateAndPrintResults(path: String, addProfiles: Boolean = true, level: Int = 1) {
+        println("\n\n\n\nValidating resource: $path ${if (addProfiles) "with added profiles" else "with base FHIR R4 profiles"}")
         var mark1 = timeSource.markNow()
         val result = validator.validateFhirInResourcesDir(path, addProfiles)
         var mark2 = timeSource.markNow()
@@ -33,15 +47,20 @@ class FhirValidatorTests : Logging {
         val warnings = issues.filter { it.severity == OperationOutcome.IssueSeverity.WARNING }
         val infos = issues.filter { it.severity == OperationOutcome.IssueSeverity.INFORMATION }
         println("There are ${errors.size} errors, ${warnings.size} warnings, and ${infos.size} information notes")
-        println("\nErrors")
-        printErrorReports(errors)
-        println("\n\nWarnings")
-        printWarningReports(warnings)
-//        println("\n\nInformation Notes")
-//        printIssueReports(infos)
+        if (level >= 1) {
+            println("\nErrors")
+            printErrorReports(errors)
+        }
+        if (level >= 2) {
+            println("\n\nWarnings")
+            printWarningReports(warnings)
+        }
+        if (level >= 3) {
+            println("\n\nInformation Notes")
+            printInfoReports(infos)
+        }
     }
 }
-
 fun printErrorReports(issues: List<OperationOutcome.OperationOutcomeIssueComponent>) {
     if (issues.isEmpty()) {
         println("None")
@@ -51,6 +70,7 @@ fun printErrorReports(issues: List<OperationOutcome.OperationOutcomeIssueCompone
             println("    $key:${value.size}")
             for (issue in value) {
                 println("        ${issue.getDiagnostics()}")
+//                println("            location: ${issue.location}")
             }
         }
     }
@@ -66,6 +86,17 @@ fun printWarningReports(issues: List<OperationOutcome.OperationOutcomeIssueCompo
             for (issue in value) {
                 println("        ${issue.getDiagnostics()}")
             }
+        }
+    }
+}
+
+fun printInfoReports(issues: List<OperationOutcome.OperationOutcomeIssueComponent>) {
+    if (issues.isEmpty()) {
+        println("None")
+    } else {
+        val infoGroups = issues.groupBy { it.diagnostics.take(10) }
+        for ((key, value) in infoGroups) {
+            println("    ${value.size} ${value[0].diagnostics}")
         }
     }
 }
