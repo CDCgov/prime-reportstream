@@ -987,7 +987,7 @@ dependencies {
     runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.11.5")
 
     testImplementation(kotlin("test-junit5"))
-    testImplementation("io.mockk:mockk:1.14.0")
+    testImplementation("io.mockk:mockk:1.14.2")
     testImplementation("io.ktor:ktor-client-mock:$ktorVersion")
 
     implementation(project(":shared"))
