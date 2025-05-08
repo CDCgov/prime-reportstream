@@ -32,7 +32,8 @@ class RSFhirValidator : Logging {
 
         // Maps FHIR resource type to profile to be validated against
         val type2url = mapOf(
-            "Bundle" to "http://hl7.org/fhir/StructureDefinition/Bundle",
+            "Bundle" to "http://hl7.org/fhir/us/ph-library/StructureDefinition/us-ph-reporting-bundle",
+            "Bundle2" to "http://hl7.org/fhir/us/ph-library/StructureDefinition/us-ph-content-bundle",
             "Device" to "http://hl7.org/fhir/StructureDefinition/Device",
             "DiagnosticReport" to "http://hl7.org/fhir/us/core/StructureDefinition/us-core-diagnosticreport-lab",
             "MessageHeader" to "http://hl7.org/fhir/us/ph-library/StructureDefinition/us-ph-messageheader",
@@ -40,7 +41,7 @@ class RSFhirValidator : Logging {
             "Organization" to "http://hl7.org/fhir/us/ph-library/StructureDefinition/us-ph-organization",
             "Patient" to "http://hl7.org/fhir/us/ph-library/StructureDefinition/us-ph-patient",
             "Practitioner" to "http://hl7.org/fhir/us/core/StructureDefinition/us-core-practitioner",
-            "PractionerRole" to "http://hl7.org/fhir/us/ph-library/StructureDefinition/us-ph-practitionerrole",
+            "PractitionerRole" to "http://hl7.org/fhir/us/ph-library/StructureDefinition/us-ph-practitionerrole",
             "Provenance" to "http://hl7.org/fhir/us/core/StructureDefinition/us-core-provenance",
             "Specimen" to "http://hl7.org/fhir/us/core/StructureDefinition/us-core-specimen",
             "ServiceRequest" to "http://hl7.org/fhir/us/core/StructureDefinition/us-core-servicerequest",
