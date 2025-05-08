@@ -48,7 +48,7 @@ Learn about our goals and how we are measuring success for this fiscal year (FY)
             tag: "recently-completed",
             body: (
                 <p>
-                    Delaware, New Jersey, Ohio, Pennsylvania, and Washington are able to receive flu and RSV data from ReportStream. 
+                    Republic of Marshall Islands, Utah, and Wyoming are able to receive flu and RSV data from ReportStream.
                 </p>
             ),
         },
@@ -56,7 +56,7 @@ Learn about our goals and how we are measuring success for this fiscal year (FY)
             tag: "recently-completed",
             body: (
                 <p>
-                    Carbon Health onboarded to ReportStream to send COVID, flu, and RSV.
+                    CVS Health onboarded to ReportStream to send COVID and flu.
                 </p>
             ),
         },
@@ -64,7 +64,7 @@ Learn about our goals and how we are measuring success for this fiscal year (FY)
             tag: "working-on-now",
             body: (
                 <p>
-                    Onboard or update current connections for Indiana, New Mexico, Republic of Marshall Islands, Utah, Wisconsin, and Wyoming.
+                    Onboard or update current connections for Indiana, Mississippi, New Hampshire, New Mexico, Puerto Rico, Tennessee, Vermont, and Wisconsin.
                 </p>
             ),
         },
@@ -72,72 +72,76 @@ Learn about our goals and how we are measuring success for this fiscal year (FY)
             tag: "working-on-now",
             body: (
                 <p>
-                    Onboard C2Sense and CVS to ReportStream to send their ELR reportable conditions.
+                    Onboard C2Sense to ReportStream to send their ELR reportable conditions.
                 </p>
             ),
         },
         {
             tag: "next",
             body: (
-                <p>Onboard or update connections for American Samoa, Connecticut, Kentucky, Federated States of Micronesia, Georgia, Michigan, Mississippi, Nebraska, New Hampshire, North Carolina, Northern Mariana Islands, Palau, Puerto Rico, Tennessee, Vermont, Virginia, West Virginia, and Washington D.C.</p>
-            ),
-        },
-        {
-            tag: "next",
-            body: (
-                <p>Route STI conditions (HIV, hepatitis, syphilis, gonorrhea, and chlamydia) from SimpleReport through ReportStream to public health departments. </p>
+                <p>Onboard or update connections for American Samoa, Connecticut, Kentucky, Federated States of Micronesia, Georgia, Michigan, Nebraska, North Carolina, Northern Mariana Islands, Palau, Virginia, West Virginia, and Washington D.C.</p>
             ),
         },
         {
             title:<p>Develop onboarding resources for healthcare organizations to utilize as they connect to ReportStream.</p>,
-            tag: "working-on-now",
-            body: (
-                <p>Design and develop a tool for healthcare organizations to map their local codes to standard coding systems, streamlining a manual step of the onboarding process.</p>
-            ),
-        },
-        {
-            tag: "next",
-            body: (
-                <p>Update and publish documentation for ReportStream’s Submission History API that healthcare organizations to reference as they interpret the status of their messages.</p>
-            ),
-        },
-        {
-            title:<p>Connect ReportStream to one federal healthcare system outside of the CDC.</p>,
             tag: "recently-completed",
             body: (
-                <p>Route test results from MakeMyTestCount.org to the One CDC Data Platform (1CDP) in production.</p>
+                <p>
+                    Design and develop the code mapping tool for healthcare organizations to map their local codes to standard coding systems, streamlining a manual step of the onboarding process.
+                </p>
+            ),
+        },
+        {
+            tag: "recently-completed",
+            body: (
+                <p>
+                    Update and publish documentation for <A href="https://github.com/CDCgov/prime-reportstream/blob/main/prime-router/docs/universal-pipeline/submission-history.md">ReportStream's History API</A> for healthcare organizations to reference as they interpret the status of their messages.
+                </p>
             ),
         },
         {
             tag: "working-on-now",
             body: (
-                <p>Route test results from MakeMyTestCount.org to one STLT in production.</p>
+                <p>Implement a tracking system that allows healthcare organizations to see the status of their connections to STLTs during the testing process.</p>
             ),
         },
         {
             title:<p>Participate in the public health community by partnering with other CDC organizations and engaging with third-party health IT standards/services.</p>,
             tag: "recently-completed",
             body: (
-                <p>Develop opportunity brief to identify next steps for ReportStream to participate in TEFCA.</p>
+                <p>Evaluate opportunities for ReportStream to connect to TEFCA, lab data-enabled RCKMS, and standard vocabulary service(s).</p>
             ),
         },
         {
+            tag: "next",
+            body: (
+                <p>Continue to monitor emerging opportunities for ReportStream to connect to third-party services.</p>
+            ),
+        },
+        {
+            title:<p>Build basic functionality to allow ReportStream to ingest CSV via an API for conditions beyond COVID.</p>,
             tag: "working-on-now",
             body: (
-                <p>Monitor emerging opportunities for ReportStream to integrate with TEFCA, lab data-enabled RCKMS, and standard vocabulary service(s). </p>
+                <p>Identify the minimum data fields required for public health decision-making and map the fields to HL7 or FHIR.</p>
             ),
         },
         {
-            title:<p>Meet the needs of healthcare organizations and STLTs by routing data in accordance with the HL7 LRI/LOI spec.</p>,
-            tag: "recently-completed",
+            tag: "next",
             body: (
-                <p>Implement Basic Synchronous Accept ACKs in Submission API per LRI/LOI spec. </p>
+                <p>Design the technical specifications to enable CSV submission via an API for conditions beyond COVID.</p>
             ),
         },
         {
+            title:<p>Implement logic that detects duplicate reports sent through ReportStream so that they are removed before being routed to STLTs.</p>,
             tag: "working-on-now",
             body: (
-                <p>Identify the immediate needs of users for ACKs that meet the LOI spec in ReportStream.</p>
+                <p>Implement and test the deduplication logic, beginning with hash logging and identifying hash criteria improvements.</p>
+            ),
+        },
+        {
+            tag: "next",
+            body: (
+                <p>Deploy deduplication improvements and monitor.</p>
             ),
         },
     ]}
