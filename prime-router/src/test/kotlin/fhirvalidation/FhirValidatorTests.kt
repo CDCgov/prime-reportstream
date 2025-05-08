@@ -35,7 +35,7 @@ class FhirValidatorTests : Logging {
     // path is in resources folder starting with /
     // level 1 = errors only, level 2 = errors and warnings, level 3 = errors, warnings, and information notes
     fun validateAndPrintResults(path: String, addProfiles: Boolean = true, level: Int = 1) {
-        println("\n\n\n\nValidating resource: $path ${if (addProfiles) "with added profiles" else "with base FHIR R4 profiles"}")
+        println("\n\n\n\nValidating resource: $path ${if (addProfiles) "with profiles" else "with base R4 profiles"}")
         var mark1 = timeSource.markNow()
         val result = validator.validateFhirInResourcesDir(path, addProfiles)
         var mark2 = timeSource.markNow()
