@@ -125,16 +125,16 @@ class FHIRTranslatorIntegrationTests : Logging {
         sender: Sender,
         receiverName: String,
     ): String = """
-            {
-                "type": "${TaskAction.translate.literal}",
-                "reportId": "${report.id}",
-                "blobURL": "${report.bodyURL}",
-                "digest": "${BlobUtils.digestToString(BlobUtils.sha256Digest(blobContents.toByteArray()))}",
-                "blobSubFolderName": "${sender.fullName}",
-                "topic": "${sender.topic.jsonVal}",
-                "receiverFullName": "$receiverName" 
-            }
-        """.trimIndent()
+        {
+        "type":"${TaskAction.translate.literal}",
+        "reportId":"${report.id}",
+        "blobURL":"${report.bodyURL}",
+        "digest":"${BlobUtils.digestToString(BlobUtils.sha256Digest(blobContents.toByteArray()))}",
+        "blobSubFolderName":"${sender.fullName}",
+        "topic":"${sender.topic.jsonVal}",
+        "receiverFullName":"$receiverName" 
+        }
+        """.trimIndent().replace("\n", "")
 
     @Test
     fun `successfully translate for HL7 receiver when isSendOriginal is false`() {

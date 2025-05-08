@@ -148,7 +148,7 @@ class FHIRDestinationFilterIntegrationTests : Logging {
     private fun appendTestMessage(
         queueMessage: String,
     ): String = queueMessage.replace(",\"schemaName\":\"\"", "").substringBeforeLast("}") +
-            ",\"messageQueueName\":\"elr-fhir-destination-filter\"}"
+            ",\"messageQueueName\":\"${QueueMessage.Companion.elrDestinationFilterQueueName}\"}"
 
     @Test
     fun `should send valid FHIR report only to receivers listening to full-elr`() {

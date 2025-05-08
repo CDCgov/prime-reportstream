@@ -485,7 +485,7 @@ class FHIRConverterIntegrationTests {
                     TaskAction.convert,
                     OffsetDateTime.now(),
                     Version.commitId,
-                    appendMessageQueueName(queueMessage, "elr-fhir-convert-submission")
+                    appendMessageQueueName(queueMessage, QueueMessage.Companion.elrSubmissionConvertQueueName)
                 ),
                 ReportEventData::timestamp
             )
@@ -653,7 +653,7 @@ class FHIRConverterIntegrationTests {
                     TaskAction.convert,
                     OffsetDateTime.now(),
                     Version.commitId,
-                    appendMessageQueueName(queueMessage, "elr-fhir-convert")
+                    appendMessageQueueName(queueMessage, QueueMessage.Companion.elrConvertQueueName)
                 ),
                 ReportEventData::timestamp
             )
@@ -841,7 +841,7 @@ class FHIRConverterIntegrationTests {
                     TaskAction.convert,
                     OffsetDateTime.now(),
                     Version.commitId,
-                    appendMessageQueueName(queueMessage, "elr-fhir-convert")
+                    appendMessageQueueName(queueMessage, QueueMessage.Companion.elrConvertQueueName)
                 ),
                 ReportEventData::timestamp
             )
@@ -979,7 +979,7 @@ class FHIRConverterIntegrationTests {
                     TaskAction.convert,
                     OffsetDateTime.now(),
                     Version.commitId,
-                    appendMessageQueueName(queueMessage, "elr-fhir-convert")
+                    appendMessageQueueName(queueMessage, QueueMessage.Companion.elrConvertQueueName)
                 ),
                 ReportEventData::timestamp
             )
