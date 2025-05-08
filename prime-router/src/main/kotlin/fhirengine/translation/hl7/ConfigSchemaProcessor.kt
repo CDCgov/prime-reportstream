@@ -1,5 +1,6 @@
 package gov.cdc.prime.router.fhirengine.translation.hl7
 
+import gov.cdc.prime.router.azure.observability.event.IReportStreamEventService
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.ConfigSchema
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.ConfigSchemaElement
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
@@ -43,6 +44,7 @@ abstract class ConfigSchemaProcessor<
      */
     abstract fun process(
         input: Original,
+        reportEventService: IReportStreamEventService? = null,
     ): Converted
 
     /**

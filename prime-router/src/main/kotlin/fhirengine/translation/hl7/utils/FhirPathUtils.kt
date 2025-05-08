@@ -12,6 +12,7 @@ import org.hl7.fhir.r4.fhirpath.ExpressionNode
 import org.hl7.fhir.r4.fhirpath.FHIRLexer
 import org.hl7.fhir.r4.fhirpath.FHIRPathEngine
 import org.hl7.fhir.r4.hapi.ctx.HapiWorkerContext
+import org.hl7.fhir.r4.model.Address
 import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.BaseDateTimeType
 import org.hl7.fhir.r4.model.BooleanType
@@ -104,9 +105,19 @@ object FhirPathUtils : Logging {
             logger.error("${e.javaClass.name}: FHIR path could not find a specified field in $expression.")
             emptyList()
         }
+
+        if (expression.equals("%resource.postalCode.getStateFromZipCode()")) {
+            if (retVal.first().toString().isEmpty()) {
+                val msg = "getStateFromZipCode() lookup failed for zip code: ${(focusResource as Address)?.postalCode}"
+                logger.info(msg)
+                throw NoZipCodeException(msg)
+            }
+        }
         logger.trace("Evaluated '$expression' to '$retVal'")
         return retVal
     }
+
+    class NoZipCodeException(message: String) : Exception(message)
 
     /**
      * Gets a boolean result from the given [expression] using [rootResource], [contextResource] (which in most cases is

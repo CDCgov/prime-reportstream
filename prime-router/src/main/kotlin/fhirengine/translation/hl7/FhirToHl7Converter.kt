@@ -5,6 +5,7 @@ import ca.uhn.hl7v2.model.Message
 import ca.uhn.hl7v2.util.Terser
 import fhirengine.translation.hl7.utils.FhirPathFunctions
 import gov.cdc.prime.router.azure.BlobAccess
+import gov.cdc.prime.router.azure.observability.event.IReportStreamEventService
 import gov.cdc.prime.router.fhirengine.engine.encodePreserveEncodingChars
 import gov.cdc.prime.router.fhirengine.translation.hl7.config.ContextConfig
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.ConfigSchemaElementProcessingException
@@ -96,7 +97,7 @@ Logging {
      * Convert the given [bundle] to an HL7 message.
      * @return the HL7 message
      */
-    override fun process(input: Bundle): Message {
+    override fun process(input: Bundle, reportEventService: IReportStreamEventService?): Message {
         // Sanity check, but the schema is assumed good to go here
         check(!schemaRef.hl7Class.isNullOrBlank())
         val message = HL7Utils.getMessageInstance(schemaRef.hl7Class!!)
