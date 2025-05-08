@@ -1,7 +1,14 @@
 package gov.cdc.prime.router.fhirengine.translation.hl7
 
 import fhirengine.engine.CustomFhirPathFunctions
+import gov.cdc.prime.router.MimeFormat
+import gov.cdc.prime.router.Report
+import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.BlobAccess
+import gov.cdc.prime.router.azure.db.enums.TaskAction
+import gov.cdc.prime.router.azure.observability.event.IReportStreamEventService
+import gov.cdc.prime.router.azure.observability.event.ReportStreamEventName
+import gov.cdc.prime.router.azure.observability.event.ReportStreamEventProperties
 import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.ConfigSchemaElementProcessingException
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.FhirTransformSchema
@@ -57,7 +64,7 @@ class FhirTransformer(
      * Transform the given [bundle]. The bundle passed in will be updated directly, and will also be returned.
      * @return the transformed bundle
      */
-    override fun process(input: Bundle): Bundle {
+    override fun process(input: Bundle, reportEventService: IReportStreamEventService?): Bundle {
         transformWithSchema(schemaRef, bundle = input, focusResource = input)
         return input
     }
@@ -103,6 +110,7 @@ class FhirTransformer(
         focusResource: Base,
         context: CustomContext,
         debug: Boolean = false,
+        reportEventService: IReportStreamEventService? = null,
     ) {
         val logLevel = if (element.debug || debug) Level.INFO else Level.DEBUG
         logger.trace("Started processing of element ${element.name}...")
@@ -126,7 +134,41 @@ class FhirTransformer(
             FhirTransformSchemaElementAction.SET -> {
                 eligibleFocusResources.forEach { singleFocusResource ->
                     elementContext.focusResource = singleFocusResource
-                    val value = getValue(element, bundle, singleFocusResource, elementContext)
+//                    val value = getValue(element, bundle, singleFocusResource, elementContext)
+
+                    val value = try {
+                        getValue(element, bundle, singleFocusResource, elementContext)
+                    } catch (ex: FhirPathUtils.NoZipCodeException) {
+                        if (reportEventService != null) {
+                            val report = Report(
+                                MimeFormat.FHIR,
+                                emptyList(),
+                                parentItemLineageData = emptyList(),
+                                metadata = null,
+                                topic = Topic.FULL_ELR,
+                                nextAction = TaskAction.none
+                            )
+
+                            reportEventService.sendItemEvent(
+                                ReportStreamEventName.ZIP_CODE_LOOKUP_FAIL,
+                                report,
+                                TaskAction.other,
+                                shouldQueue = true
+                            ) {
+                                trackingId(bundle)
+                                params(
+                                    mapOf(
+                                        ReportStreamEventProperties.MISSING_ZIP_CODE to "66666"
+                                    )
+                                )
+                            }
+
+                            return
+                        } else {
+                            return
+                        }
+                    }
+
                     val function = element.function
                     if (value != null && function != null) {
                         throw SchemaException("Element can only set function or value")
@@ -164,12 +206,41 @@ class FhirTransformer(
                 }
             }
             FhirTransformSchemaElementAction.APPEND -> {
-                val existing =
-                    if (element.appendToProperty != null) {
+                val existing = if (element.appendToProperty != null) {
+                    try {
                         FhirPathUtils.evaluate(elementContext, bundle, bundle, element.appendToProperty).size
-                    } else {
-                        0
+                    } catch (ex: FhirPathUtils.NoZipCodeException) {
+                        if (reportEventService != null) {
+                            val report = Report(
+                                MimeFormat.FHIR,
+                                emptyList(),
+                                parentItemLineageData = emptyList(),
+                                metadata = null,
+                                topic = Topic.FULL_ELR,
+                                nextAction = TaskAction.none
+                            )
+
+                            reportEventService.sendItemEvent(
+                                ReportStreamEventName.ZIP_CODE_LOOKUP_FAIL,
+                                report,
+                                TaskAction.other,
+                                shouldQueue = true
+                            ) {
+                                trackingId(bundle)
+                                params(
+                                    mapOf(
+                                        ReportStreamEventProperties.MISSING_ZIP_CODE to "66666"
+                                    )
+                                )
+                            }
+                            0
+                        } else {
+                            0
+                        }
                     }
+                } else {
+                    0
+                }
                 eligibleFocusResources.forEachIndexed { index, singleFocusResource ->
                     elementContext.focusResource = singleFocusResource
                     val value = getValue(element, bundle, singleFocusResource, elementContext)

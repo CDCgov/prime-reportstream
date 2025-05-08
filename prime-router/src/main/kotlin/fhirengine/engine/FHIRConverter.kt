@@ -323,7 +323,7 @@ class FHIRConverter(
                         } else {
                             // We know from the null check above that this cannot be null
                             val bundle = processedItem.bundle!!
-                            transformer?.process(bundle)
+                            transformer?.process(bundle, reportEventService)
 
                             // make a 'report'
                             val report = Report(

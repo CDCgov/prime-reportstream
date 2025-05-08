@@ -73,6 +73,7 @@ enum class ReportStreamEventProperties {
     RETRY_COUNT,
     NEXT_RETRY_TIME,
     QUEUE_MESSAGE,
+    MISSING_ZIP_CODE,
     ;
 
     @JsonKey
@@ -99,6 +100,7 @@ enum class ReportStreamEventName {
     ITEM_TRANSFORMED,
     ITEM_LAST_MILE_FAILURE,
     ITEM_SEND_ATTEMPT_FAIL,
+    ZIP_CODE_LOOKUP_FAIL,
 }
 
 /**
