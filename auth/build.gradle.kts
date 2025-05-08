@@ -1,7 +1,7 @@
 apply(from = rootProject.file("buildSrc/shared.gradle.kts"))
 
 plugins {
-    id("org.springframework.boot") version "3.4.4"
+    id("org.springframework.boot") version "3.4.5"
     id("io.spring.dependency-management") version "1.1.7"
     id("reportstream.project-conventions")
     kotlin("plugin.spring") version "2.1.20"
@@ -27,8 +27,8 @@ dependencies {
     runtimeOnly("com.nimbusds:oauth2-oidc-sdk:11.23.1")
 
     // okta
-    implementation("com.okta.sdk:okta-sdk-api:22.0.0")
-    runtimeOnly("com.okta.sdk:okta-sdk-impl:22.0.0")
+    implementation("com.okta.sdk:okta-sdk-api:22.0.1")
+    runtimeOnly("com.okta.sdk:okta-sdk-impl:22.0.1")
 
     // Swagger
     implementation("org.springdoc:springdoc-openapi-starter-webflux-ui:2.8.6")

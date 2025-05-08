@@ -293,7 +293,10 @@ test.describe(
                         expect(await tableDataCellValue(dailyDataPage.page, 0, 0)).toEqual(reportId);
                     });
 
-                    test("returns match for Filename", async ({ dailyDataPage }) => {
+                    test("returns match for Filename", async ({ dailyDataPage, isMockDisabled }) => {
+                        // Filename search is currently broken and being tracked
+                        // in ticket #15644 so we must skip UNLESS IT IS MOCKED
+                        test.skip(isMockDisabled, "Mocks are DISABLED, skipping 'returns match for Filename");
                         const fileName = await tableDataCellValue(dailyDataPage.page, 0, 4);
                         await searchInput(dailyDataPage.page).fill(removeDateTime(fileName));
                         await searchButton(dailyDataPage.page).click();
