@@ -133,17 +133,22 @@ class FHIRDestinationFilterIntegrationTests : Logging {
         )
     }
 
-    fun generateQueueMessage(action: TaskAction, report: Report, blobContents: String, sender: Sender): String = """
-            {
-                "type": "${action.literal}",
-                "reportId": "${report.id}",
-                "blobURL": "${report.bodyURL}",
-                "digest": "${BlobUtils.digestToString(BlobUtils.sha256Digest(blobContents.toByteArray()))}",
-                "blobSubFolderName": "${sender.fullName}",
-                "topic": "${sender.topic.jsonVal}",
-                "schemaName": "${sender.schemaName}" 
-            }
-        """.trimIndent()
+    private fun generateQueueMessage(action: TaskAction, report: Report, blobContents: String, sender: Sender): String = """
+        {
+        "type":"${action.literal}",
+        "reportId":"${report.id}",
+        "blobURL":"${report.bodyURL}",
+        "digest":"${BlobUtils.digestToString(BlobUtils.sha256Digest(blobContents.toByteArray()))}",
+        "blobSubFolderName":"${sender.fullName}",
+        "topic":"${sender.topic.jsonVal}",
+        "schemaName":"${sender.schemaName}"
+        }
+        """.trimIndent().replace("\n", "")
+
+    private fun appendTestMessage(
+        queueMessage: String,
+    ): String = queueMessage.replace(",\"schemaName\":\"\"", "").substringBeforeLast("}") +
+            ",\"messageQueueName\":\"elr-fhir-destination-filter\"}"
 
     @Test
     fun `should send valid FHIR report only to receivers listening to full-elr`() {
@@ -359,7 +364,7 @@ class FHIRDestinationFilterIntegrationTests : Logging {
                     TaskAction.destination_filter,
                     OffsetDateTime.now(),
                     Version.commitId,
-                    queueMessage
+                    appendTestMessage(queueMessage)
                 ),
                 ReportEventData::timestamp
             )
@@ -467,7 +472,7 @@ class FHIRDestinationFilterIntegrationTests : Logging {
                 TaskAction.destination_filter,
                 OffsetDateTime.now(),
                 Version.commitId,
-                queueMessage
+                appendTestMessage(queueMessage)
             ),
             ReportEventData::timestamp,
             ReportEventData::childReportId

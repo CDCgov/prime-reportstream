@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import com.fasterxml.jackson.annotation.JsonTypeName
 import gov.cdc.prime.reportstream.shared.QueueMessage
+import gov.cdc.prime.reportstream.shared.QueueMessage.Companion.mapper
 import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.Topic
@@ -47,6 +48,7 @@ data class FhirConvertSubmissionQueueMessage(
 ) : ReportPipelineMessage(),
     QueueMessage.ReceiveInformation {
     override val messageQueueName = QueueMessage.Companion.elrSubmissionConvertQueueName
+    override fun toString(): String = mapper.writeValueAsString(this)
 }
 
 @JsonTypeName("convert")
@@ -59,6 +61,7 @@ data class FhirConvertQueueMessage(
     var schemaName: String = "",
 ) : ReportPipelineMessage() {
     override val messageQueueName = QueueMessage.Companion.elrConvertQueueName
+    override fun toString(): String = mapper.writeValueAsString(this)
 }
 
 @JsonTypeName("destination-filter")
@@ -70,6 +73,7 @@ data class FhirDestinationFilterQueueMessage(
     val topic: Topic,
 ) : ReportPipelineMessage() {
     override val messageQueueName = QueueMessage.Companion.elrDestinationFilterQueueName
+    override fun toString(): String = mapper.writeValueAsString(this)
 }
 
 @JsonTypeName("receiver-enrichment")
@@ -82,6 +86,7 @@ data class FhirReceiverEnrichmentQueueMessage(
     val receiverFullName: String,
 ) : ReportPipelineMessage() {
     override val messageQueueName = QueueMessage.Companion.elrReceiverEnrichmentQueueName
+    override fun toString(): String = mapper.writeValueAsString(this)
 }
 
 @JsonTypeName("receiver-filter")
@@ -94,6 +99,7 @@ data class FhirReceiverFilterQueueMessage(
     val receiverFullName: String,
 ) : ReportPipelineMessage() {
     override val messageQueueName = QueueMessage.Companion.elrReceiverFilterQueueName
+    override fun toString(): String = mapper.writeValueAsString(this)
 }
 
 @JsonTypeName("translate")
@@ -106,6 +112,7 @@ data class FhirTranslateQueueMessage(
     val receiverFullName: String,
 ) : ReportPipelineMessage() {
     override val messageQueueName = QueueMessage.Companion.elrTranslationQueueName
+    override fun toString(): String = mapper.writeValueAsString(this)
 }
 
 abstract class WithEventAction : PrimeRouterQueueMessage() {
