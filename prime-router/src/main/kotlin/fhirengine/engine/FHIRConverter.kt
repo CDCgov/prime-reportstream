@@ -310,7 +310,7 @@ class FHIRConverter(
                                     report,
                                     TaskAction.convert,
                                     processedItem.validationError!!.message,
-                                    input.queueMessage.toString(),
+                                    input.queueMessage,
                                     shouldQueue = true
                                 ) {
                                     parentReportId(input.reportId)
@@ -431,7 +431,7 @@ class FHIRConverter(
                     report,
                     TaskAction.convert,
                     "Submitted report was either empty or could not be parsed into HL7",
-                    input.queueMessage.toString()
+                    input.queueMessage
                 ) {
                     parentReportId(input.reportId)
                     params(
