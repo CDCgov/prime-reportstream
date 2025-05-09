@@ -133,6 +133,12 @@
       customerStatus: active
       schemaName: classpath:/metadata/fhir_transforms/senders/original-pipeline-transforms.yml
       format: HL7
+    - name: ignore-zip #temp, plz delete
+      organizationName: ignore
+      topic: full-elr
+      customerStatus: active
+      schemaName: classpath:/metadata/fhir_transforms/senders/MMTC/mmtc-sender-transform.yml
+      format: HL7
     - name: ignore-elr-elims      # Use this to test elr-elims
       organizationName: ignore
       topic: elr-elims
@@ -1340,3 +1346,24 @@
         - filterName: "routing"
           filterDescription: "Doing fine things for great people."
           filterExpressions: ["true"]
+    - name: DEV_ENRICHMENT_FHIR
+      externalName: Enrichment Development
+      organizationName: development
+      topic: full-elr
+      customerStatus: active
+      jurisdictionalFilter: [ "Bundle.entry.resource.ofType(Patient).address.postalCode.exists() and Bundle.entry.resource.ofType(Patient).address.postalCode = '66666'" ]
+      qualityFilter:
+        - "true"
+      processingModeFilter: [ "true" ]
+      timing:
+        operation: MERGE
+        numberPerDay: 1440 # Every minute
+        initialTime: 00:00
+      translation: !<FHIR>
+        type: "FHIR"
+      transport:
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+        credentialName: DEFAULT-SFTP

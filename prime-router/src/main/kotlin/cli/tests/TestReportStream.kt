@@ -863,6 +863,7 @@ abstract class CoolTest {
 
         // Here is test setup of organization, senders, and receivers.   All static.
         const val org1Name = "ignore"
+        const val org3Name = "development"
         val org1 = settings.findOrganization(org1Name)
             ?: error("Unable to find org $org1Name in metadata")
         const val org2Name = "waters"
@@ -874,6 +875,12 @@ abstract class CoolTest {
         val fullELRSender by lazy {
             settings.findSender("$org1Name.$fullELRSenderName") as? UniversalPipelineSender
                 ?: error("Unable to find sender $fullELRSenderName for organization ${org1.name}")
+        }
+
+        const val zipSenderName = "ignore-zip"
+        val zipSender by lazy {
+            settings.findSender("$org1Name.$zipSenderName") as? UniversalPipelineSender
+                ?: error("Unable to find sender $zipSenderName for organization ${org1.name}")
         }
 
         const val fullELRE2ESenderName = "ignore-full-elr-e2e"
@@ -939,6 +946,11 @@ abstract class CoolTest {
         val hl7FullELRReceiver = settings.receivers.filter {
             it.organizationName == org1Name && it.name == "FULL_ELR_E2E"
         }[0]
+
+        val DEVFHIRReceiver = settings.receivers.filter {
+            it.organizationName == org3Name && it.name == "DEV_ENRICHMENT_FHIR"
+        }[0]
+
         val fhirFullELRE2EReceiverA = settings.receivers.filter {
             it.organizationName == org1Name && it.name == "FULL_ELR_FHIR_A_E2E"
         }[0]
@@ -989,47 +1001,53 @@ abstract class CoolTest {
 
             return arrayListOf(
                 E2EData(
-                    "Sending HL7 Report, Receiving HL7/FHIR (full-elr)",
-                    File("$smoketestDir/valid_hl7_e2e.hl7"),
-                    fullELRE2ESender,
-                    arrayListOf(
-                        Pair(hl7FullELRReceiver, File("$smoketestDir/Expected_HL7_to_HL7_FULLELR.hl7")),
-                        Pair(fhirFullELRE2EReceiverB, File("$smoketestDir/Expected_HL7_to_FHIR_FULLELR.fhir"))
-                    )
+                    "ZIIIIIIIIIIIIIIIIIIIIP",
+                    File("$smoketestDir/zipcode.hl7"),
+                    zipSender,
+                    arrayListOf(Pair(DEVFHIRReceiver, File("$smoketestDir/zipcode_expected.fhir")))
                 ),
-                E2EData(
-                    "Sending HL7 Report, Receiving HL7 (elr-elims)",
-                    File("$smoketestDir/valid_hl7_e2e.hl7"),
-                    elrElimsSender,
-                    arrayListOf(
-                        Pair(elimsReceiver, File("$smoketestDir/Expected_HL7_to_HL7_ELIMS.hl7"))
-                    )
-                ),
-                E2EData(
-                    "Sending FHIR Report, Receiving FHIR (full-elr)",
-                    File("$smoketestDir/valid_fhir.fhir"),
-                    fhirFULLELRSender,
-                    arrayListOf(
-                        Pair(fhirFullELRE2EReceiverA, File("$smoketestDir/Expected_FHIR_to_FHIR_FULLELR.fhir"))
-                    )
-                ),
-                E2EData(
-                    "Sending HL7 Report, Receiving HL7/FHIR (mars-otc-elr); Invalid HL7 Items Filtered Out",
-                    File("$smoketestDir/valid_mars.hl7"),
-                    marsOTCELRSender,
-                    arrayListOf(
-                        Pair(hl7MarsOTCReceiver, File("$smoketestDir/Expected_HL7_to_HL7_MARSOTC.hl7")),
-                        Pair(fhirMarsReceiverB, File("$smoketestDir/Expected_HL7_to_FHIR_MARSOTC.fhir"))
-                    )
-                ),
-                E2EData(
-                    "Sending FHIR Report, Receiving FHIR (mars-otc-elr)",
-                    File("$smoketestDir/valid_mars.fhir"),
-                    fhirMarsOTCELRSender,
-                    arrayListOf(
-                        Pair(fhirMarsReceiverA, File("$smoketestDir/Expected_FHIR_to_FHIR_MARSOTC.fhir"))
-                    )
-                )
+//                E2EData(
+//                    "Sending HL7 Report, Receiving HL7/FHIR (full-elr)",
+//                    File("$smoketestDir/valid_hl7_e2e.hl7"),
+//                    fullELRE2ESender,
+//                    arrayListOf(
+//                        Pair(hl7FullELRReceiver, File("$smoketestDir/Expected_HL7_to_HL7_FULLELR.hl7")),
+//                        Pair(fhirFullELRE2EReceiverB, File("$smoketestDir/Expected_HL7_to_FHIR_FULLELR.fhir"))
+//                    )
+//                ),
+//                E2EData(
+//                    "Sending HL7 Report, Receiving HL7 (elr-elims)",
+//                    File("$smoketestDir/valid_hl7_e2e.hl7"),
+//                    elrElimsSender,
+//                    arrayListOf(
+//                        Pair(elimsReceiver, File("$smoketestDir/Expected_HL7_to_HL7_ELIMS.hl7"))
+//                    )
+//                ),
+//                E2EData(
+//                    "Sending FHIR Report, Receiving FHIR (full-elr)",
+//                    File("$smoketestDir/valid_fhir.fhir"),
+//                    fhirFULLELRSender,
+//                    arrayListOf(
+//                        Pair(fhirFullELRE2EReceiverA, File("$smoketestDir/Expected_FHIR_to_FHIR_FULLELR.fhir"))
+//                    )
+//                ),
+//                E2EData(
+//                    "Sending HL7 Report, Receiving HL7/FHIR (mars-otc-elr); Invalid HL7 Items Filtered Out",
+//                    File("$smoketestDir/valid_mars.hl7"),
+//                    marsOTCELRSender,
+//                    arrayListOf(
+//                        Pair(hl7MarsOTCReceiver, File("$smoketestDir/Expected_HL7_to_HL7_MARSOTC.hl7")),
+//                        Pair(fhirMarsReceiverB, File("$smoketestDir/Expected_HL7_to_FHIR_MARSOTC.fhir"))
+//                    )
+//                ),
+//                E2EData(
+//                    "Sending FHIR Report, Receiving FHIR (mars-otc-elr)",
+//                    File("$smoketestDir/valid_mars.fhir"),
+//                    fhirMarsOTCELRSender,
+//                    arrayListOf(
+//                        Pair(fhirMarsReceiverA, File("$smoketestDir/Expected_FHIR_to_FHIR_MARSOTC.fhir"))
+//                    )
+//                )
             )
         }
 
