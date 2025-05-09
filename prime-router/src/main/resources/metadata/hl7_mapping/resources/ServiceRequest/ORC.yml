@@ -72,7 +72,7 @@ elements:
     resourceIndex: xadIndex
 
   - name: ordering-facility-phone-number
-    condition: '%context.requester.resolve().is(PractitionerRole) and %resource.use.exists()'
+    condition: '%context.requester.resolve().is(PractitionerRole)'
     resource: '%resource.requester.resolve().organization.resolve().telecom'
     schema: classpath:/metadata/hl7_mapping/datatypes/contactPoint/XTN.yml
     resourceIndex: telecomIndex
