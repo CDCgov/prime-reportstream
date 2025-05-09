@@ -15,7 +15,7 @@ import assertk.assertions.isNotNull
 import assertk.assertions.isNull
 import assertk.assertions.isTrue
 import ca.uhn.fhir.context.FhirContext
-import ca.uhn.hl7v2.model.v27.segment.MSH
+import ca.uhn.hl7v2.model.v251.segment.MSH
 import ca.uhn.hl7v2.util.Hl7InputStreamMessageIterator
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.CodeStringConditionFilter
@@ -706,6 +706,30 @@ class FHIRBundleHelpersTests {
     }
 
     @Test
+    fun `Test enhance bundle metadata 2-5-1`() {
+        // set up
+        val actionLogger = ActionLogger()
+        val fhirBundle = File("src/test/resources/fhirengine/engine/fhir_without_patient.fhir").readText()
+        val messages = FhirTranscoder.getBundles(fhirBundle, actionLogger)
+        assertThat(messages).isNotEmpty()
+        val bundle = messages[0]
+        assertThat(bundle).isNotNull()
+
+        // create the hl7 message
+        val hl7Message = File("src/test/resources/fhirengine/engine/hl7_with_birth_time.hl7").readText()
+        val parsedHl7Message = Hl7InputStreamMessageIterator(hl7Message.byteInputStream()).next()
+
+        assertThat(parsedHl7Message["MSH"] is MSH).isTrue()
+
+        bundle.enhanceBundleMetadata(parsedHl7Message)
+
+        val expectedDate = Date(1612994857000) // Wednesday, February 10, 2021 10:07:37 PM GMT
+        assertThat(bundle.timestamp).isEqualTo(expectedDate)
+        assertThat(bundle.identifier.value).isEqualTo("371784")
+        assertThat(bundle.identifier.system).isEqualTo("https://reportstream.cdc.gov/prime-router")
+    }
+
+    @Test
     fun `Test enhance bundle metadata 2-7`() {
         // set up
         val actionLogger = ActionLogger()
@@ -719,7 +743,7 @@ class FHIRBundleHelpersTests {
         val hl7Message = File("src/test/resources/fhirengine/engine/hl7_2.7.hl7").readText()
         val parsedHl7Message = Hl7InputStreamMessageIterator(hl7Message.byteInputStream()).next()
 
-        assertThat(parsedHl7Message["MSH"] is MSH).isTrue()
+        assertThat(parsedHl7Message["MSH"] is ca.uhn.hl7v2.model.v27.segment.MSH).isTrue()
 
         bundle.enhanceBundleMetadata(parsedHl7Message)
 
