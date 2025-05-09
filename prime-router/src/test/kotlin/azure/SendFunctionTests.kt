@@ -219,7 +219,14 @@ class SendFunctionTests {
         mockkConstructor(ActionHistory::class)
         mockkConstructor(ReportStreamEventService::class)
         every {
-            anyConstructed<ReportStreamEventService>().sendReportEvent(any(), any<ReportFile>(), any(), any(), any())
+            anyConstructed<ReportStreamEventService>().sendReportEvent(
+                any(),
+                any<ReportFile>(),
+                any(),
+                any(),
+                any(),
+                any()
+            )
         } returns Unit
 
         every { anyConstructed<ActionHistory>().setActionType(TaskAction.send_error) } returns Unit
@@ -246,7 +253,7 @@ class SendFunctionTests {
                 ReportStreamEventName.ITEM_LAST_MILE_FAILURE, any(), any(), any(), any(), any(), any(), any(), any()
             )
             anyConstructed<ReportStreamEventService>().sendReportEvent(
-                ReportStreamEventName.REPORT_LAST_MILE_FAILURE, any<ReportFile>(), any(), any(), any()
+                ReportStreamEventName.REPORT_LAST_MILE_FAILURE, any<ReportFile>(), any(), any(), any(), any()
             )
         }
     }

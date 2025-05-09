@@ -339,7 +339,8 @@ class FhirDestinationFilterTests {
                     "test",
                     TaskAction.destination_filter,
                     OffsetDateTime.now(),
-                    Version.commitId
+                    Version.commitId,
+                    message.toString()
                 ),
                 ReportEventData::timestamp,
             )
@@ -518,7 +519,8 @@ class FhirDestinationFilterTests {
                         "",
                         TaskAction.destination_filter,
                         OffsetDateTime.now(),
-                        Version.commitId
+                        Version.commitId,
+                        message.toString()
                     ),
                     ReportEventData::timestamp
                 )

@@ -95,7 +95,8 @@ class ReportEventServiceTest {
                 "",
                 TaskAction.send,
                 OffsetDateTime.now(),
-                Version.commitId
+                Version.commitId,
+                ""
             ),
                 ReportEventData::timestamp
         )
@@ -139,7 +140,8 @@ class ReportEventServiceTest {
                 "",
                 TaskAction.send,
                 OffsetDateTime.now(),
-                Version.commitId
+                Version.commitId,
+                ""
             ),
                 ReportEventData::timestamp
         )

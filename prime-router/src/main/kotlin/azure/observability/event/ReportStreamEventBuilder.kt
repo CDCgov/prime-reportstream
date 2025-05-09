@@ -19,6 +19,7 @@ import java.util.UUID
  * @param childBodyUrl the blob url of the outputted report
  * @param theTopic the topic that the report/item is part of
  * @param pipelineStepName the pipeline step producing the event
+ * @param queueMessage the azure queue message associated with this event
  *
  * Additional properties can be set for the event via an initializer
  * - [AbstractReportStreamEventBuilder.parentReportId] will configure the id of the inputted report
@@ -35,6 +36,7 @@ abstract class AbstractReportStreamEventBuilder<T : AzureCustomEvent>(
     private val childBodyUrl: String,
     private val theTopic: Topic?,
     private val pipelineStepName: TaskAction,
+    private val queueMessage: String,
 ) : Logging {
 
     constructor(
@@ -43,6 +45,7 @@ abstract class AbstractReportStreamEventBuilder<T : AzureCustomEvent>(
         theName: ReportStreamEventName,
         report: ReportFile,
         pipelineStepName: TaskAction,
+        queueMessage: String,
     ) : this(
         reportEventService,
         azureEventService,
@@ -50,7 +53,8 @@ abstract class AbstractReportStreamEventBuilder<T : AzureCustomEvent>(
         report.reportId,
         report.bodyUrl,
         report.schemaTopic,
-        pipelineStepName
+        pipelineStepName,
+        queueMessage
     )
 
     constructor(
@@ -59,6 +63,7 @@ abstract class AbstractReportStreamEventBuilder<T : AzureCustomEvent>(
         theName: ReportStreamEventName,
         report: Report,
         pipelineStepName: TaskAction,
+        queueMessage: String,
     ) : this(
         reportEventService,
         azureEventService,
@@ -66,7 +71,8 @@ abstract class AbstractReportStreamEventBuilder<T : AzureCustomEvent>(
         report.id,
         report.bodyURL,
         report.schema.topic,
-        pipelineStepName
+        pipelineStepName,
+        queueMessage
     )
     var theParams: Map<ReportStreamEventProperties, Any> = emptyMap()
     var theParentReportId: UUID? = null
@@ -86,7 +92,8 @@ abstract class AbstractReportStreamEventBuilder<T : AzureCustomEvent>(
             childBodyUrl,
             theParentReportId,
             pipelineStepName,
-            theTopic
+            theTopic,
+            queueMessage
         )
 
     fun send() {
@@ -119,6 +126,7 @@ open class ReportStreamReportEventBuilder(
     childBodyUrl: String,
     theTopic: Topic?,
     pipelineStepName: TaskAction,
+    queueMessage: String = "",
 ) : AbstractReportStreamEventBuilder<ReportStreamReportEvent>(
     reportEventService,
     azureEventService,
@@ -126,7 +134,8 @@ open class ReportStreamReportEventBuilder(
     childReportId,
     childBodyUrl,
     theTopic,
-    pipelineStepName
+    pipelineStepName,
+    queueMessage
 ) {
 
     override fun buildEvent(): ReportStreamReportEvent = ReportStreamReportEvent(
@@ -151,6 +160,7 @@ open class ReportStreamItemEventBuilder(
     childBodyUrl: String,
     theTopic: Topic,
     pipelineStepName: TaskAction,
+    queueMessage: String = "",
 ) : AbstractReportStreamEventBuilder<ReportStreamItemEvent>(
     reportEventService,
     azureEventService,
@@ -158,7 +168,8 @@ open class ReportStreamItemEventBuilder(
     childReportId,
     childBodyUrl,
     theTopic,
-    pipelineStepName
+    pipelineStepName,
+    queueMessage
 ) {
     private var theParentItemIndex = 1
     private var theChildIndex = 1
@@ -206,6 +217,7 @@ class ReportStreamReportProcessingErrorEventBuilder(
     childBodyUrl: String,
     theTopic: Topic?,
     pipelineStepName: TaskAction,
+    queueMessage: String = "",
     private val error: String,
 ) : ReportStreamReportEventBuilder(
     reportEventService,
@@ -214,7 +226,8 @@ class ReportStreamReportProcessingErrorEventBuilder(
     childReportId,
     childBodyUrl,
     theTopic,
-    pipelineStepName
+    pipelineStepName,
+    queueMessage
 ) {
     override fun buildEvent(): ReportStreamReportEvent = ReportStreamReportEvent(
             getReportEventData(),
@@ -233,6 +246,7 @@ class ReportStreamItemProcessingErrorEventBuilder(
     childBodyUrl: String,
     theTopic: Topic,
     pipelineStepName: TaskAction,
+    queueMessage: String = "",
     private val error: String,
 ) : ReportStreamItemEventBuilder(
     reportEventService,
@@ -241,7 +255,8 @@ class ReportStreamItemProcessingErrorEventBuilder(
     childReportId,
     childBodyUrl,
     theTopic,
-    pipelineStepName
+    pipelineStepName,
+    queueMessage
 ) {
     override fun buildEvent(): ReportStreamItemEvent = ReportStreamItemEvent(
             getReportEventData(),

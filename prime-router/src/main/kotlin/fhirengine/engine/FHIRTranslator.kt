@@ -182,7 +182,8 @@ class FHIRTranslator(
         reportEventService.sendItemEvent(
             eventName = ReportStreamEventName.ITEM_TRANSFORMED,
             childReport = report,
-            pipelineStepName = TaskAction.translate
+            pipelineStepName = TaskAction.translate,
+            queueMessage = message.toString()
         ) {
             parentReportId(message.reportId)
             params(

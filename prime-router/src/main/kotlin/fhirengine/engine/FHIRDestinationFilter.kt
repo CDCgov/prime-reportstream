@@ -189,7 +189,8 @@ class FHIRDestinationFilter(
                     reportEventService.sendItemEvent(
                         eventName = ReportStreamEventName.ITEM_ROUTED,
                         childReport = report,
-                        pipelineStepName = TaskAction.destination_filter
+                        pipelineStepName = TaskAction.destination_filter,
+                        queueMessage = queueMessage.toString()
                     ) {
                         parentReportId(queueMessage.reportId)
                         params(
@@ -268,7 +269,8 @@ class FHIRDestinationFilter(
                 reportEventService.sendItemEvent(
                     eventName = ReportStreamEventName.ITEM_NOT_ROUTED,
                     childReport = report,
-                    pipelineStepName = TaskAction.destination_filter
+                    pipelineStepName = TaskAction.destination_filter,
+                    queueMessage = queueMessage.toString()
                 ) {
                     parentReportId(queueMessage.reportId)
                     trackingId(bundle)
