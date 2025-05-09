@@ -9,6 +9,7 @@ elements:
 
   - name: order-note
     resource: "%resource.basedOn.resolve().note | %resource.result.resolve().where(code.coding.extension('https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code').value.where(code in ('55735004' | '840539006')).exists().not())"
+    condition: '%resource.text.exists() or %resource.code.coding.display.exists()'
     schema: classpath:/metadata/hl7_mapping/receivers/Common/observation-to-nte/unwanted-conditions-to-notes.yml
 
 
