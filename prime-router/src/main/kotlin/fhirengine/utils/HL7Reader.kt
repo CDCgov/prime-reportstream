@@ -23,7 +23,6 @@ import org.apache.logging.log4j.kotlin.logger
 import java.util.Date
 import ca.uhn.hl7v2.model.v251.segment.MSH as v251_MSH
 import ca.uhn.hl7v2.model.v27.segment.MSH as v27_MSH
-import fhirengine.translation.hl7.structures.nistelr251.segment.MSH as NIST_MSH
 
 private const val MSH_SEGMENT_NAME = "MSH"
 
@@ -137,7 +136,6 @@ class HL7Reader {
          * @return the timestamp or null if not specified
          */
         fun getMessageTimestamp(message: Message): Date? = when (val structure = message[MSH_SEGMENT_NAME]) {
-                is NIST_MSH -> structure.msh7_DateTimeOfMessage.ts1_Time.valueAsDate
                 is v27_MSH -> structure.msh7_DateTimeOfMessage.valueAsDate
                 is v251_MSH -> structure.msh7_DateTimeOfMessage.ts1_Time.valueAsDate
                 else -> null
@@ -148,7 +146,6 @@ class HL7Reader {
          * @return the type of message ex. ORU
          */
         fun getMessageType(message: Message): String = when (val structure = message[MSH_SEGMENT_NAME]) {
-                is NIST_MSH -> structure.msh9_MessageType.msg1_MessageCode.toString()
                 is v27_MSH -> structure.msh9_MessageType.msg1_MessageCode.toString()
                 is v251_MSH -> structure.msh9_MessageType.msg1_MessageCode.toString()
                 else -> ""
@@ -181,7 +178,6 @@ class HL7Reader {
          * Reads MSH.3 which is the Sending Application field
          */
         fun getSendingApplication(message: Message): String? = when (val structure = message[MSH_SEGMENT_NAME]) {
-                is NIST_MSH -> structure.msh3_SendingApplication.encode()
                 is v27_MSH -> structure.msh3_SendingApplication.encode()
                 is v251_MSH -> structure.msh3_SendingApplication.encode()
                 else -> null
@@ -191,7 +187,6 @@ class HL7Reader {
          * Reads MSH.4 which is the Sending Facility field
          */
         fun getSendingFacility(message: Message): String? = when (val structure = message[MSH_SEGMENT_NAME]) {
-                is NIST_MSH -> structure.msh4_SendingFacility.encode()
                 is v27_MSH -> structure.msh4_SendingFacility.encode()
                 is v251_MSH -> structure.msh4_SendingFacility.encode()
                 else -> null
@@ -201,7 +196,6 @@ class HL7Reader {
          * Reads MSH.10 which is the Message Control ID field
          */
         fun getMessageControlId(message: Message): String? = when (val structure = message[MSH_SEGMENT_NAME]) {
-                is NIST_MSH -> structure.msh10_MessageControlID.encode()
                 is v27_MSH -> structure.msh10_MessageControlID.encode()
                 is v251_MSH -> structure.msh10_MessageControlID.encode()
                 else -> null
@@ -211,7 +205,6 @@ class HL7Reader {
          * Reads MSH.15 which is the Accept Acknowledgment Type field
          */
         fun getAcceptAcknowledgmentType(message: Message): String? = when (val structure = message[MSH_SEGMENT_NAME]) {
-                is NIST_MSH -> structure.msh15_AcceptAcknowledgmentType.encode()
                 is v27_MSH -> structure.msh15_AcceptAcknowledgmentType.encode()
                 is v251_MSH -> structure.msh15_AcceptAcknowledgmentType.encode()
                 else -> null
