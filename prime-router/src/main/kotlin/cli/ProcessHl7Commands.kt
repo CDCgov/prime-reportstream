@@ -43,8 +43,21 @@ class ProcessHl7Commands :
         val starterFile = starterFile.inputStream().readBytes().toString(Charsets.UTF_8)
         if (starterFile.isBlank()) throw CliktError("File ${this.starterFile.absolutePath} is empty.")
 
-        val comparisonFile = comparisonFile.inputStream().readBytes().toString(Charsets.UTF_8)
+        var comparisonFile = comparisonFile.inputStream().readBytes().toString(Charsets.UTF_8)
         if (comparisonFile.isBlank()) throw CliktError("File ${this.comparisonFile.absolutePath} is empty.")
+
+        // TODO: remove after shadow migrations are done. This is specifically for comparing bulk upload files
+        if (comparisonFile.contains("ID12345-6789")) {
+            var reorderedFile = comparisonFile.substringBefore("MSH")
+            val results = comparisonFile.split("MSH")
+            for (i in 1..37) {
+                val resultWithId = results.filter { result -> result.contains("ID12345-6789$i&") }
+                val clean = resultWithId.first().replace("BTS|37\r", "").replace("FTS|1\r", "")
+                reorderedFile += "MSH$clean"
+            }
+            reorderedFile += "BTS|37\n" + "FTS|1"
+            comparisonFile = reorderedFile
+        }
 
         val starterMessages = Hl7InputStreamMessageStringIterator(starterFile.byteInputStream()).asSequence()
             .map { rawItem ->
