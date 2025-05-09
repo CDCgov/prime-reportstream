@@ -201,7 +201,7 @@ class HL7DiffHelper {
                     return listOf(
                         Hl7Diff(
                             segmentIndex,
-                            " $inputComponents # $outputComponents ",
+                            "Difference in number of components. Input: $inputComponents, Output: $outputComponents ",
                             "",
                             fieldNumber,
                             secondaryFieldNum,
@@ -213,7 +213,8 @@ class HL7DiffHelper {
                     return listOf(
                         Hl7Diff(
                             segmentIndex,
-                            """  $inputExtraComponents # $outputExtraComponents
+                            """Difference in number of extra components. 
+                                |Input: $inputExtraComponents Output: $outputExtraComponents
                             """.trimMargin(),
                             "",
                             fieldNumber,
@@ -250,7 +251,7 @@ class HL7DiffHelper {
                 return listOf(
                     Hl7Diff(
                         segmentIndex,
-                        " ${input.javaClass} # ${output.javaClass}.",
+                        "Difference in type of field, ${input.javaClass}, ${output.javaClass}.",
                         "",
                         fieldNumber,
                         secondaryFieldNum,
@@ -314,7 +315,7 @@ class HL7DiffHelper {
             val outputText = if (output.isEmpty()) {
                 ""
             } else {
-                "# $output."
+                ", $output."
             }
 
             val tertiaryFieldNumberText = if (tertiaryFieldNumber == null) {
@@ -331,9 +332,9 @@ class HL7DiffHelper {
 
             val fieldNumberText = fieldNum?.toString() ?: ""
 
-            return "$segmentIndex." +
+            return "Difference between messages at $segmentIndex." +
                 "$fieldNumberText$secondaryFieldNumberText$tertiaryFieldNumberText" +
-                " # $input$outputText"
+                " Differences: $input$outputText"
         }
     }
 
