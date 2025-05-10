@@ -27,14 +27,14 @@ export const checkJson = (jsonTextValue: string): { valid: boolean; offset: numb
     } catch (err: any) {
         // message like `'Unexpected token _ in JSON at position 164'`
         // or           `Unexpected end of JSON input`
-        const errorMsg = err?.message || "unknown error";
+        const errorMsg = err?.message ?? "unknown error";
 
         // parse out the position and try to select it for them.
         // NOTE: if "at position N" string not found, then assume mistake is at the end
         let offset = jsonTextValue.length;
         const findPositionMatch = errorMsg?.matchAll(/position (\d+)/gi)?.next();
         if (findPositionMatch?.value?.length === 2) {
-            const possibleOffset = parseInt(findPositionMatch.value[1] || -1);
+            const possibleOffset = parseInt(findPositionMatch.value[1] ?? -1);
             if (!isNaN(possibleOffset) && possibleOffset !== -1) {
                 offset = possibleOffset;
             }
@@ -53,7 +53,7 @@ export function isValidServiceName(text: string): boolean {
  */
 export async function getErrorDetailFromResponse(e: any) {
     const errorResponse = await e?.response?.json();
-    return errorResponse?.error ? errorResponse.error : e.toString();
+    return errorResponse?.error ?? e.toString();
 }
 
 export enum VersionWarningType {
@@ -73,7 +73,7 @@ export function getVersionWarning(warningType: VersionWarningType, settings: any
         case VersionWarningType.FULL:
             return `WARNING! A change has been made to the setting you're trying to update by 
                     '${
-                        settings?.createdBy || "UNKNOWN"
+                        settings?.createdBy ?? "UNKNOWN"
                     }'. Please coordinate with that user and return to update the setting 
                     again, if needed`;
     }

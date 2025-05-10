@@ -1,19 +1,9 @@
-import {
-    Checkbox,
-    Grid,
-    Label,
-    Select,
-    Textarea,
-    TextInput,
-} from "@trussworks/react-uswds";
+import { Checkbox, Grid, Label, Select, Textarea, TextInput } from "@trussworks/react-uswds";
 import { useRef } from "react";
 
 import { showToast } from "../../contexts/Toast";
 import { checkJson } from "../../utils/misc";
-import {
-    getListOfEnumValues,
-    ReportStreamSettingsEnum,
-} from "../../utils/TemporarySettingsAPITypes";
+import { getListOfEnumValues, ReportStreamSettingsEnum } from "../../utils/TemporarySettingsAPITypes";
 
 export interface TextInputComponentProps {
     fieldname: string;
@@ -24,15 +14,13 @@ export interface TextInputComponentProps {
     toolTip?: JSX.Element;
 }
 
-export const TextInputComponent = (
-    params: TextInputComponentProps,
-): JSX.Element => {
+export const TextInputComponent = (params: TextInputComponentProps): JSX.Element => {
     const key = params.fieldname;
     return (
         <Grid row>
             <Grid col={3}>
                 <Label htmlFor={params.fieldname}>{params.label}:</Label>
-                {params.toolTip ? params.toolTip : null}
+                {params.toolTip ?? null}
             </Grid>
             <Grid col={9}>
                 <TextInput
@@ -62,23 +50,17 @@ export const TextAreaComponent = (params: {
 }): JSX.Element => {
     const inputRef = useRef<HTMLTextAreaElement>(null);
     let defaultValue = JSON.stringify(params?.defaultvalue, undefined, 2);
-    if (
-        defaultValue === "null" ||
-        defaultValue === "[]" ||
-        defaultValue === "{}"
-    ) {
+    if (defaultValue === "null" || defaultValue === "[]" || defaultValue === "{}") {
         defaultValue = "";
     }
 
     const key = params.fieldname;
-    const defaultnullvalue = params.defaultnullvalue
-        ? params.defaultnullvalue
-        : null;
+    const defaultnullvalue = params.defaultnullvalue ?? null;
     return (
         <Grid row>
             <Grid col={3}>
                 <Label htmlFor={params.fieldname}>{params.label}:</Label>
-                {params.toolTip ? params.toolTip : null}
+                {params.toolTip ?? null}
             </Grid>
             <Grid col={9}>
                 <Textarea
@@ -95,10 +77,7 @@ export const TextAreaComponent = (params: {
                             // checkJson made sure the following JSON.parse won't throw.
                             params.savefunc(JSON.parse(text));
                         } else {
-                            showToast(
-                                `JSON data generated an error "${errorMsg}"`,
-                                "error",
-                            );
+                            showToast(`JSON data generated an error "${errorMsg}"`, "error");
                         }
                     }}
                     disabled={params.disabled}
@@ -150,7 +129,7 @@ export const DropdownComponent = (params: DropdownProps): JSX.Element => {
         <Grid row>
             <Grid col={3}>
                 <Label htmlFor={params.fieldname}>{params.label}:</Label>
-                {params.toolTip ? params.toolTip : null}
+                {params.toolTip ?? null}
             </Grid>
             <Grid col={9}>
                 <Select

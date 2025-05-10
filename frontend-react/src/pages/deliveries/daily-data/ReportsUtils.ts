@@ -4,7 +4,7 @@ import config from "../../../config";
 import { RSReportInterface } from "../../../utils/ReportUtils";
 
 const { RS_API_URL } = config;
-export const reportDetailURL = (id: string, base?: string) => `${base ? base : RS_API_URL}/api/history/report/${id}`;
+export const reportDetailURL = (id: string, base?: string) => `${base ?? RS_API_URL}/api/history/report/${id}`;
 
 export const getReportAndDownload = (
     reportId: string,

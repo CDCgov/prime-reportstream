@@ -15,17 +15,12 @@ interface TableInfoProps {
     legend?: ReactNode;
     datasetAction?: DatasetAction;
 }
-export const TableInfo = ({
-    title,
-    legend,
-    datasetAction,
-    rowToEdit,
-}: TableInfoProps) => {
+export const TableInfo = ({ title, legend, datasetAction, rowToEdit }: TableInfoProps) => {
     return (
         <div className="grid-col-12 display-flex flex-align-end flex-justify-between">
             <div className="grid-col-8 display-flex flex-column">
                 {title ? <h2>{title}</h2> : null}
-                {legend ? legend : null}
+                {legend ?? null}
             </div>
             <div className="grid-col-2 display-flex flex-column">
                 {datasetAction ? (
