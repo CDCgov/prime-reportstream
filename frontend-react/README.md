@@ -2,7 +2,7 @@
 
 ## Run the React application
 
-Our new React front-end is straightforward to get up and running on your machine. First, ensure the following dependencies are 
+Our new React front-end is straightforward to get up and running on your machine. First, ensure the following dependencies are
 installed:
 
 - `node` (see .nvmrc for version specification) via `nvm`
