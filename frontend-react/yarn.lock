@@ -3300,12 +3300,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/sanitize-html@npm:^2.15.0":
-  version: 2.15.0
-  resolution: "@types/sanitize-html@npm:2.15.0"
+"@types/sanitize-html@npm:^2.16.0":
+  version: 2.16.0
+  resolution: "@types/sanitize-html@npm:2.16.0"
   dependencies:
     htmlparser2: ^8.0.0
-  checksum: 77a21ddea7de41a6a6a80f3b1f4f7336f12e87fbd5b87b1697ff4f2ff22f98549367c9221158bfc0fbf5a2fc9fc74d0265f848d4e765ad10dd2dc38ccdcdf674
+  checksum: 988cbdecce06b858fc5c92ed5573eb984852234be4ea4001ad703a9f0a00a491d788cfb0e3002b2cc01180e2598e7c8f9e5836fbe795601740aa91df3345d564
   languageName: node
   linkType: hard
 
@@ -10772,7 +10772,7 @@ __metadata:
     "@types/react-dom": ^18.3.1
     "@types/react-router-dom": ^5.3.3
     "@types/react-scroll-sync": ^0.9.0
-    "@types/sanitize-html": ^2.15.0
+    "@types/sanitize-html": ^2.16.0
     "@uswds/uswds": 3.7.1
     "@vitejs/plugin-react": ^4.3.4
     "@vitest/coverage-istanbul": ^3.1.2
