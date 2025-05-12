@@ -560,7 +560,7 @@ class FHIRConverter(
                                         )
                                     )
                                     reportEventService.sendItemProcessingError(
-                                        ReportStreamEventName.ITEM_CONVERT_INVALID_CONDITION_MAPPING,
+                                        ReportStreamEventName.ITEM_INVALID_CONDITION_MAPPING,
                                         report,
                                         TaskAction.convert,
                                         it.message,
