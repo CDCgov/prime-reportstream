@@ -53,6 +53,84 @@ jobs:
       - name: Run linting
         run: yarn run lint
 
+  pa11y:
+    name: Run Pa11y 508 Compliance Check
+    needs: lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out changes
+        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938
+      - name: Use Node.js with yarn
+        uses: actions/setup-node@0a44ba7841725637a19e28fa30b79a866c81b0a6
+        with:
+          node-version-file: frontend-react/.nvmrc
+          cache: yarn
+          cache-dependency-path: frontend-react/yarn.lock
+      - name: Yarn install
+        run: yarn install
+      - name: Start Frontend Server
+        run: |
+          yarn run dev --host 0.0.0.0 --port 3000 &
+          echo $! > server.pid
+          sleep 5  # Wait for the server to start up
+          echo
+          echo "Checking for sitemap on localhost:3000"
+          # Use curl --fail to exit with error if server/sitemap isn't ready
+          if ! curl --output /dev/null --silent --head --fail ${{ env.LOCAL_SITEMAP_URL }}; then
+            echo "❌ Server failed to start or sitemap not present at ${{ env.LOCAL_SITEMAP_URL }}"
+            exit 1
+          else
+            echo "✅ Server started successfully and sitemap accessible"
+          fi
+      - name: Install pa11y-ci 
+        run: |
+          echo "Install dependencies"
+          sudo apt-get update && sudo apt-get install -y jq
+
+          # Install pa11y-ci instead of pa11y
+          echo "Installing pa11y-ci locally"
+          npm install pa11y-ci pa11y-ci-reporter-cli-summary --no-save --legacy-peer-deps
+          npx pa11y-ci --version 
+      - name: Run Pa11y Check using pa11y-ci 
+        env:
+          # attempt to force args via env var - most reliable method tried
+          PUPPETEER_LAUNCH_ARGS: "--no-sandbox --disable-setuid-sandbox"
+        run: |
+          SITEMAP_URL="${{ env.LOCAL_SITEMAP_URL }}"
+          echo "Local Sitemap URL: $SITEMAP_URL"
+          echo "Checking pa11y-ci is installed and accessible"
+          npx pa11y-ci --version
+
+          if [ $? -ne 0 ]; then
+            echo "❌ pa11y-ci installation failed"
+            exit 1
+          else
+            echo "✅ pa11y-ci installed."
+            echo "Verifying PUPPETEER_LAUNCH_ARGS: [$PUPPETEER_LAUNCH_ARGS]"
+            echo "Running pa11y-ci against sitemap $SITEMAP_URL"
+
+            # Run pa11y-ci with the sitemap URL
+            npx pa11y-ci --sitemap "$SITEMAP_URL" \
+              --sitemap-find "https://reportstream.cdc.gov" \
+              --sitemap-replace "http://localhost:3000" \
+              --config ./.pa11yci
+
+            echo "Pa11y CI checks complete"
+          fi
+
+      - name: Stop Frontend Server
+        # Stop the server and remove the PID file even if Pa11y fails
+        if: ${{ always() }}
+        run: |
+          echo "Stopping Frontend Server"
+          # Check if PID file exists before trying to kill
+          if [ -f server.pid ]; then
+            kill $(cat server.pid)
+            rm server.pid
+          else
+            echo "Server PID file not found."
+          fi
+
 # matts: temporarily disabling pa11y check to unblock deployment 
   # pa11y:
   #   name: Run Pa11y 508 Compliance Check
@@ -152,6 +230,9 @@ jobs:
   #       run: |
   #         echo "Stopping Frontend Server"
   #         kill $(cat server.pid)
+  #         rm -f server.pid
+
+
 
 
 
