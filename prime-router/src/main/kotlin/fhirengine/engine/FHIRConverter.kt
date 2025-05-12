@@ -539,7 +539,7 @@ class FHIRConverter(
                                         }
                                     )
                                 }
-                                //TODO Send item event.
+                                // TODO Send item event.
                                 val report = Report(
                                     MimeFormat.FHIR,
                                     emptyList(),
