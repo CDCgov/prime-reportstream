@@ -29,7 +29,7 @@ import java.io.FileInputStream
 import java.nio.charset.StandardCharsets
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
-import java.util.*
+import java.util.Properties
 
 apply(from = rootProject.file("buildSrc/shared.gradle.kts"))
 
