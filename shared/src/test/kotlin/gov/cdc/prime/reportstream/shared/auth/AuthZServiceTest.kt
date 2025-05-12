@@ -1,6 +1,8 @@
 package gov.cdc.prime.reportstream.shared.auth
 
+import gov.cdc.prime.reportstream.shared.auth.jwt.OktaGroupsJWT
 import gov.cdc.prime.reportstream.shared.auth.jwt.OktaGroupsJWTReader
+import io.mockk.every
 import io.mockk.mockk
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -41,4 +43,5 @@ class AuthZServiceTest {
             false
         )
     }
+
 }
