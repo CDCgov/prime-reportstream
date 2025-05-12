@@ -13,6 +13,25 @@ elements:
     value: [ '""' ]
     action: DELETE
 
+
+  - name: cvs-organization-facility-name
+    resource: 'Bundle.entry.resource.ofType(Organization).identifier.where(extension.value = "HD.1")'
+    condition: '%resource.value.exists()'
+    bundleProperty: '%resource.value'
+    value: [ '"CVS Health"' ]
+
+  - name: cvs-organization-facility-CLIA
+    resource: 'Bundle.entry.resource.ofType(Organization).identifier.where(extension.value.contains("HD.2"))'
+    condition: '%resource.value.exists()'
+    bundleProperty: '%resource.value'
+    value: [ '"41D1044579"' ]
+
+  - name: cvs-organization-facility-id-type
+    resource: 'Bundle.entry.resource.ofType(Organization).identifier.where(extension.value.contains("HD.2"))'
+    condition: '%resource.type.coding.code.exists()'
+    bundleProperty: '%resource.type.coding.code'
+    value: [ '"CLIA"' ]
+
   - name: cvs-suppress-observations-without-code-extension
     resource: 'Bundle.entry.resource.ofType(Observation).where(code.coding.where(extension("https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code").exists().not()))'
     condition: '%resource.exists()'
@@ -64,18 +83,24 @@ elements:
     bundleProperty: '%resource.value.coding.code'
     valueSet:
       values:
-        POSITIVE: 260373001
+        POSITIVE: 10828004
         DETECTED: 260373001
-        NEGATIVE: 260415000
+        NEGATIVE: 260385009
         NOTDETECTED: 260415000
         INVALID: 455371000124106
         OTHER: 445297001
 
-  - name: cvs-spm-4-other-code
+  - name: cvs-spm-4-unknown-code
     resource: 'Bundle.entry.resource.ofType(Specimen)'
     condition: '%resource.type.exists() and %resource.type.coding.code.upper() = "OTHER"'
-    value: [ '"445297001"' ]
+    value: [ '"87100004"' ]
     bundleProperty: '%resource.type.coding.code'
+
+  - name: cvs-spm-4-unknown-description
+    resource: 'Bundle.entry.resource.ofType(Specimen)'
+    condition: '%resource.type.exists()'
+    value: [ '"Topography unknown (body structure)"' ]
+    bundleProperty: '%resource.type.coding.display'
 
   - name: cvs-spm-4-sct
     resource: 'Bundle.entry.resource.ofType(Specimen).type.coding'

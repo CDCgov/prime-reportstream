@@ -67,10 +67,27 @@ elements:
     value: [ '"L"' ]
     hl7Spec: [ '%{PID}-11-7' ]
 
+  - name: la-patient-name-type
+    condition: 'true'
+    value: [ '"L"' ]
+    hl7Spec: [ '%{PID}-5-7' ]
+
   - name: la-patient-county-codes
     condition: 'Bundle.entry.resource.ofType(Patient).address.district.empty().not() and Bundle.entry.resource.ofType(Patient).address.state.empty().not()' 
     hl7Spec: [ '/PATIENT_RESULT/PATIENT/PID-11-9' ]
     value: ["FIPSCountyLookup(Bundle.entry.resource.ofType(Patient).address.district,Bundle.entry.resource.ofType(Patient).address.state)[0]"]
+
+  - name: la-patient-id-assigning-facility-system
+    value: ["Bundle.entry.resource.ofType(Patient).identifier.where(extension.value = 'PID.3').system"]
+    hl7Spec: [ '/PATIENT_RESULT/PATIENT/PID-3-6-1' ]
+
+  - name: la-patient-id-assigning-facility-system-universal-id
+    value: [ "Bundle.entry.resource.ofType(Patient).identifier.where(extension.value = 'PID.3').system.extension('https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id').value" ]
+    hl7Spec: [ '/PATIENT_RESULT/PATIENT/PID-3-6-2' ]
+
+  - name: la-patient-id-assigning-facility-system-universal-id-type
+    value: [ "Bundle.entry.resource.ofType(Patient).identifier.where(extension.value = 'PID.3').system.extension('https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type').value" ]
+    hl7Spec: [ '/PATIENT_RESULT/PATIENT/PID-3-6-3' ]
 
   - name: observation-result-with-aoe
     # LA does not want AOEs at all, so this is overridden to prevent identified AOEs from mapping to an HL7 segment
