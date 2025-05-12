@@ -539,6 +539,45 @@ class FHIRConverter(
                                         }
                                     )
                                 }
+                                //TODO Send item event.
+                                val report = Report(
+                                    MimeFormat.FHIR,
+                                    emptyList(),
+                                    parentItemLineageData = listOf(
+                                        Report.ParentItemLineageData(input.reportId, item.index + 1)
+                                    ),
+                                    metadata = this.metadata,
+                                    topic = input.topic,
+                                    nextAction = TaskAction.destination_filter
+                                )
+                                val bundleDigestExtractor = BundleDigestExtractor(
+                                    FhirPathBundleDigestLabResultExtractorStrategy(
+                                        CustomContext(
+                                            item.bundle!!,
+                                            item.bundle!!,
+                                            mutableMapOf(),
+                                            CustomFhirPathFunctions()
+                                        )
+                                    )
+                                )
+                                reportEventService.sendItemEvent(
+                                    ReportStreamEventName.ITEM_CONVERT_INVALID_CONDITION_MAPPING,
+                                    report,
+                                    TaskAction.convert,
+                                    shouldQueue = true
+                                ) {
+                                    parentReportId(input.reportId)
+                                    parentItemIndex(item.index + 1)
+                                    trackingId(item.bundle!!)
+                                    params(
+                                        mapOf(
+                                            ReportStreamEventProperties.BUNDLE_DIGEST
+                                                to bundleDigestExtractor.generateDigest(item.bundle!!),
+                                            ReportStreamEventProperties.ITEM_FORMAT to format,
+                                            ReportStreamEventProperties.ENRICHMENTS to input.schemaName
+                                        )
+                                    )
+                                }
                             }
                         }
                     }
