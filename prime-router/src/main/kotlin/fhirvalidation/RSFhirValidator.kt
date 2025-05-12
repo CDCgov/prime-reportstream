@@ -19,8 +19,11 @@ import org.hl7.fhir.common.hapi.validation.support.ValidationSupportChain
 import org.hl7.fhir.common.hapi.validation.validator.FhirInstanceValidator
 import org.hl7.fhir.instance.model.api.IBaseResource
 import org.hl7.fhir.r4.model.Bundle
+import java.io.ByteArrayInputStream
 import java.io.File
+import java.io.InputStream
 import java.net.URL
+import java.nio.charset.StandardCharsets
 
 class RSFhirValidator : Logging {
 
@@ -79,8 +82,53 @@ class RSFhirValidator : Logging {
     }
 
     fun validateResource(url: URL, addProfiles: Boolean = true): ValidationResult? {
-        val resource = parser.parseResource(url.openStream())
+        var stream: InputStream
+        if (url.file.endsWith("json5")) {
+            stream = removeJson5comments(url)
+        } else {
+            stream = url.openStream()
+        }
+        val resource = parser.parseResource(stream)
         return validateResource(resource, addProfiles)
+    }
+
+    // I want to use JSON5 so that I can have JSON with comments
+    // This hack removes the comments so that it can be parsed as regular JSON
+    // It's too hard to integrate a real JSON5 parser
+    // It's definitely a hack
+//    private fun removeJson5comments(url: URL): InputStream {
+//        fun trimEndComments(input: String): String {
+//            val index = input.indexOf("//")
+//            return if (index != -1) {
+//                input.substring(0, index).trimEnd()  // Keep everything before the comment and trim the end
+//            } else {
+//                input.trimEnd()  // Return the original string if no comment found
+//            }
+//        }
+//        val file = File(url.toURI())
+//        val cleanedContent = file.useLines { lines ->
+//            lines.map { trimEndComments(it) }.joinToString("\n")
+//        }
+//        val stringContent = StringReader(cleanedContent).readText()
+//        return ByteArrayInputStream(stringContent.toByteArray(StandardCharsets.UTF_8)) // Convert to InputStream
+//    }
+
+    private fun trimEndComments(input: String): String {
+        val index = input.indexOf("//")
+        return if (index != -1) {
+            input.substring(0, index).trimEnd() // Keep everything before the comment and trim the end
+        } else {
+            input.trimEnd() // Return the original string if no comment found
+        }
+    }
+
+    private fun removeJson5comments(url: URL): InputStream {
+        val file = File(url.toURI())
+        val cleanedContent = file.useLines { lines ->
+            lines.map { trimEndComments(it) }.joinToString("\n")
+        }
+        return ByteArrayInputStream(cleanedContent.toByteArray(StandardCharsets.UTF_8))
+//        return ByteArrayInputStream(cleanedContent.toByteArray(StandardCharsets.UTF_8))
     }
 
     // path should be within resources folder starting with /

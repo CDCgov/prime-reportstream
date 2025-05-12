@@ -11,6 +11,7 @@ import gov.cdc.prime.router.azure.Event
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.common.BaseEngine
 import org.apache.logging.log4j.kotlin.Logging
+import java.time.Duration
 import java.time.OffsetDateTime
 import kotlin.math.ceil
 import kotlin.math.roundToInt
@@ -46,8 +47,9 @@ class BatchDeciderFunction(private val workflowEngine: WorkflowEngine = Workflow
                     //  (how many actions with BATCH for receiver
                     .forEach { rec ->
                         val (queueMessages, isEmpty) = determineQueueMessageCount(rec, txn)
-
-                        repeat(queueMessages) {
+                        val interval = rec.timing!!.timeBetweenBatches
+                        repeat(queueMessages) { idx ->
+                            val delay = Duration.ofSeconds(interval).multipliedBy(idx.toLong())
                             // build 'batch' event
                             val event = BatchEvent(Event.EventAction.BATCH, rec.fullName, isEmpty)
                             val queueName = if (rec.topic.isUniversalPipeline) {
@@ -56,7 +58,7 @@ class BatchDeciderFunction(private val workflowEngine: WorkflowEngine = Workflow
                                 BatchConstants.Queue.COVID_BATCH_QUEUE
                             }
 
-                            workflowEngine.queue.sendMessageToQueue(event, queueName)
+                            workflowEngine.queue.sendMessageToQueue(event, queueName, delay)
                         }
                     }
             }

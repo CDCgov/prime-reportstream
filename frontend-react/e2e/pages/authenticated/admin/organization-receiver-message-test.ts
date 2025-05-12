@@ -25,6 +25,7 @@ export class OrganizationReceiverMessageTestPage extends BasePage {
 
     readonly form: Locator;
     readonly addCustomMessageButton: Locator;
+    readonly senderDropdown: Locator;
     readonly submitCustomMessageButton: Locator;
     readonly cancelCustomMessageButton: Locator;
     readonly customMessageTextArea: Locator;
@@ -54,11 +55,12 @@ export class OrganizationReceiverMessageTestPage extends BasePage {
         this.testMessages = [];
         this.customI = 0;
         this.form = this.page.getByRole("form");
-        this.addCustomMessageButton = this.form.getByRole("button", { name: "Test custom message" });
-        this.submitCustomMessageButton = this.form.getByRole("button", { name: "Add" });
+        this.addCustomMessageButton = this.form.getByRole("button", { name: "Add custom message" });
+        this.senderDropdown = this.page.locator("#sender-dropdown");
+        this.submitCustomMessageButton = this.page.getByRole("button", { name: "Add custom message" });
         this.cancelCustomMessageButton = this.form.getByRole("button", { name: "Cancel" });
         this.customMessageTextArea = this.form.getByRole("textbox", { name: "Custom message text" });
-        this.submitButton = this.form.getByRole("button", { name: "Run test" });
+        this.submitButton = this.page.getByRole("button", { name: "Run test" });
         this.submitStatus = this.page
             .getByRole("status")
             .or(this.page.getByRole("alert"))
@@ -147,6 +149,7 @@ export class OrganizationReceiverMessageTestPage extends BasePage {
     async addCustomMessage(message: string) {
         await this.addCustomMessageButton.click();
         await this.customMessageTextArea.fill(message);
+        await this.senderDropdown.selectOption({ index: 0 });
         await this.submitCustomMessageButton.click();
         this.customI++;
         const fileName = `Custom message ${this.customI}`;

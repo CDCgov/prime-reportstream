@@ -34,10 +34,7 @@ export interface RSErrorBoundaryProps extends PropsWithChildren {
               },
     ) => void;
     resetKeys?: any[];
-    fallback?: ReactElement<
-        unknown,
-        string | FunctionComponent | typeof Component
-    > | null;
+    fallback?: ReactElement<unknown, string | FunctionComponent | typeof Component> | null;
     fallbackRender?: (props: FallbackProps) => ReactNode;
     FallbackComponent?: ComponentType<FallbackProps>;
 }
@@ -48,11 +45,7 @@ const fallbackElement = <ErrorPage type="message" />;
  * Error boundary that redirects to session-based rsConsole if one not directly provided (can
  * be disabled).
  **/
-function RSErrorBoundary({
-    rsConsole,
-    isGlobalConsole,
-    ...props
-}: RSErrorBoundaryProps) {
+function RSErrorBoundary({ rsConsole, isGlobalConsole, ...props }: RSErrorBoundaryProps) {
     // default fallback
     const boundaryProps = (
         !props.FallbackComponent && !props.fallback && !props.fallbackRender
@@ -64,8 +57,7 @@ function RSErrorBoundary({
     ) as ErrorBoundaryProps;
 
     // Try to get rsConsole from session if not disabled
-    if (!rsConsole && !isGlobalConsole)
-        return <RSErrorSessionBoundary {...boundaryProps} />;
+    if (!rsConsole && !isGlobalConsole) return <RSErrorSessionBoundary {...boundaryProps} />;
 
     return <RSErrorUnknownBoundary rsConsole={rsConsole} {...boundaryProps} />;
 }
@@ -80,9 +72,7 @@ function RSErrorBoundary({
  *      {withThrowableError(<MyComponent />)}
  *  </div>
  * )*/
-export const withCatch = (component: JSX.Element) => (
-    <RSErrorBoundary>{component}</RSErrorBoundary>
-);
+export const withCatch = (component: JSX.Element) => <RSErrorBoundary>{component}</RSErrorBoundary>;
 /** For wrapping with Suspense when a spinner is required while data loads for a component
  * @example
  * // As proxy
@@ -93,9 +83,7 @@ export const withCatch = (component: JSX.Element) => (
  *      {withSuspense(<MyComponent />)}
  *  </div>
  * )*/
-export const withSuspense = (component: JSX.Element) => (
-    <Suspense fallback={<Spinner />}>{component}</Suspense>
-);
+export const withSuspense = (component: JSX.Element) => <Suspense fallback={<Spinner />}>{component}</Suspense>;
 /** For wrapping with an RSErrorBoundary and Suspense when making network calls.
  * To use these two wrappers at varying DOM levels, use {@link withCatch}
  * and {@link withSuspense}

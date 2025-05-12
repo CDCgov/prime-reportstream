@@ -11,31 +11,14 @@ class FhirValidatorTests : Logging {
     val timeSource = TimeSource.Monotonic
     var ctx = RSFhirValidator.ctx
     var parser: IParser = ctx.newJsonParser()
-
-    @Test
-    fun `validate original SR sample`() {
-        // This tests base FHIR R4
-        validateAndPrintResults("/fhirsamples/SR-bundle-original.fhir.json", false)
-        // This tests using all recommended profiles
-        validateAndPrintResults("/fhirsamples/SR-bundle-original.fhir.json", true)
-    }
-
-    @Test
-    fun `validate fixed SR sample`() {
-        // This tests base FHIR R4
-        validateAndPrintResults("/fhirsamples/SR-bundle-fixed.fhir.json", false)
-    }
-
-    @Test
-    fun `validate SR fixed with profiles sample`() {
-        // SR-bundle-fixed-full.fhir.json is intended to pass all recommended profiles
-        validateAndPrintResults("/fhirsamples/SR-bundle-fixed-full.fhir.json", true)
-    }
-
     // path is in resources folder starting with /
     // level 1 = errors only, level 2 = errors and warnings, level 3 = errors, warnings, and information notes
+
     fun validateAndPrintResults(path: String, addProfiles: Boolean = true, level: Int = 1) {
-        println("\n\n\n\nValidating resource: $path ${if (addProfiles) "with profiles" else "with base R4 profiles"}")
+        println(
+            "\n\n\n\nValidating resource: " +
+            "$path ${if (addProfiles) "with Public Health profiles" else "with base R4 profiles"}"
+        )
         var mark1 = timeSource.markNow()
         val result = validator.validateFhirInResourcesDir(path, addProfiles)
         var mark2 = timeSource.markNow()
@@ -60,50 +43,70 @@ class FhirValidatorTests : Logging {
             printInfoReports(infos)
         }
     }
-}
-fun printErrorReports(issues: List<OperationOutcome.OperationOutcomeIssueComponent>) {
-    if (issues.isEmpty()) {
-        println("None")
-    } else {
-        val issuesByCode = issues.groupBy { it.details.coding[0].code }
-        for ((key, value) in issuesByCode) {
-            println("    $key:${value.size}")
-            for (issue in value) {
-                println("        ${issue.getDiagnostics()}")
+
+    fun printErrorReports(issues: List<OperationOutcome.OperationOutcomeIssueComponent>) {
+        if (issues.isEmpty()) {
+            println("None")
+        } else {
+            val issuesByCode = issues.groupBy { it.details.coding[0].code }
+            for ((key, value) in issuesByCode) {
+                println("    $key:${value.size}")
+                for (issue in value) {
+                    println("        ${issue.getDiagnostics()}")
 //                println("            location: ${issue.location}")
+                }
             }
         }
     }
-}
 
-fun printWarningReports(issues: List<OperationOutcome.OperationOutcomeIssueComponent>) {
-    if (issues.isEmpty()) {
-        println("None")
-    } else {
-        val warningGroups = issues.groupBy { it.diagnostics.take(10) }
-        for ((key, value) in warningGroups) {
-            println("    $key:${value.size}")
-            for (issue in value) {
-                println("        ${issue.getDiagnostics()}")
+    fun printWarningReports(issues: List<OperationOutcome.OperationOutcomeIssueComponent>) {
+        if (issues.isEmpty()) {
+            println("None")
+        } else {
+            val warningGroups = issues.groupBy { it.diagnostics.take(10) }
+            for ((key, value) in warningGroups) {
+                println("    $key:${value.size}")
+                for (issue in value) {
+                    println("        ${issue.getDiagnostics()}")
+                }
             }
         }
     }
-}
 
-fun printInfoReports(issues: List<OperationOutcome.OperationOutcomeIssueComponent>) {
-    if (issues.isEmpty()) {
-        println("None")
-    } else {
-        val infoGroups = issues.groupBy { it.diagnostics.take(10) }
-        for ((key, value) in infoGroups) {
-            println("    ${value.size} ${value[0].diagnostics}")
+    fun printInfoReports(issues: List<OperationOutcome.OperationOutcomeIssueComponent>) {
+        if (issues.isEmpty()) {
+            println("None")
+        } else {
+            val infoGroups = issues.groupBy { it.diagnostics.take(10) }
+            for ((key, value) in infoGroups) {
+                println("    ${value.size} ${value[0].diagnostics}")
+            }
         }
     }
-}
 
-// Not really a test. This is used to add RS profiles to a fhir.json file
+    @Test
+    fun `validate original SR sample`() {
+        // This tests base FHIR R4
+        validateAndPrintResults("/fhirsamples/SR-bundle-original.fhir.json", false)
+        // This tests using all recommended profiles
+        validateAndPrintResults("/fhirsamples/SR-bundle-original.fhir.json", true)
+    }
+
+    @Test
+    fun `validate fixed SR sample`() {
+        // This tests base FHIR R4
+        validateAndPrintResults("/fhirsamples/SR-bundle-fixed.fhir.json", false)
+    }
+
+    @Test
+    fun `validate SR fixed with profiles sample`() {
+        // SR-bundle-fixed-full.fhir.json is intended to pass all recommended profiles
+        validateAndPrintResults("/fhirsamples/SR-bundle-fixed-full.fhir.json", true)
+    }
+
 //    @Test
-//    fun `test addFhirProfiles`() {
-//        validator.addFhirProfiles("/Users/jaj/repos/cdc/prime-reportstream/prime-router/src/test/resources/fhirsamples/SR-bundle.fhir.json")
-// //            validator.addFhirProfiles("/Users/jaj/repos/cdc/prime-reportstream/prime-router/src/test/resources/fhirsamples/simple-patient.fhir.json")
-//        }
+//    fun `validate random sample`() {
+//        // SR-bundle-fixed-full.fhir.json is intended to pass all recommended profiles
+//        validateAndPrintResults("/fhirsamples/SR-bundle-fixed-full.fhir.json5", false)
+//    }
+}
