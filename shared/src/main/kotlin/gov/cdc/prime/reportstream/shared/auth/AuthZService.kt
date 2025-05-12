@@ -1,5 +1,6 @@
 package gov.cdc.prime.reportstream.shared.auth
 
+import gov.cdc.prime.reportstream.shared.auth.jwt.OktaGroupsJWTConstants
 import gov.cdc.prime.reportstream.shared.auth.jwt.OktaGroupsJWTReader
 
 /**
