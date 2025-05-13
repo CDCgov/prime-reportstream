@@ -608,6 +608,7 @@ class ActionHistory(
         reportService: ReportService,
         transportType: String,
         lineages: List<ItemLineage>?,
+        queueMessage: String,
     ) {
         if (isReportAlreadyTracked(sentReportId)) {
             error(
@@ -644,9 +645,10 @@ class ActionHistory(
         reportFile.bodyUrl = blobInfo.blobUrl
 
         reportEventService.sendReportEvent(
-            childReport = reportFile,
             eventName = ReportStreamEventName.REPORT_SENT,
-            pipelineStepName = TaskAction.send
+            childReport = reportFile,
+            pipelineStepName = TaskAction.send,
+            queueMessage = queueMessage,
         ) {
             parentReportId(header.reportFile.reportId)
             params(
@@ -665,7 +667,7 @@ class ActionHistory(
             receiver,
             null,
             null,
-            null,
+            queueMessage,
             reportEventService,
             reportService
         )
@@ -710,7 +712,7 @@ class ActionHistory(
                         )
                     )
                 )
-                reportEventService.sendItemEvent(eventName, report, TaskAction.send) {
+                reportEventService.sendItemEvent(eventName, report, TaskAction.send, queueMessage ?: "") {
                     trackingId(bundle)
                     parentReportId(itemLineage.parentReportId)
                     childItemIndex(itemLineage.childIndex)
@@ -722,8 +724,7 @@ class ActionHistory(
                             nextRetryTime?.let {
                                 ReportStreamEventProperties.NEXT_RETRY_TIME to
                                     DateTimeFormatter.ISO_DATE_TIME.format(it)
-                            },
-                            queueMessage?.let { ReportStreamEventProperties.QUEUE_MESSAGE to queueMessage }
+                            }
                         ).toMap()
                     )
                 }
