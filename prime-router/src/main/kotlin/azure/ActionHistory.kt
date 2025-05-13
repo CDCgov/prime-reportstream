@@ -608,6 +608,7 @@ class ActionHistory(
         reportService: ReportService,
         transportType: String,
         lineages: List<ItemLineage>?,
+        queueMessage: String,
     ) {
         if (isReportAlreadyTracked(sentReportId)) {
             error(
@@ -647,6 +648,7 @@ class ActionHistory(
             eventName = ReportStreamEventName.REPORT_SENT,
             childReport = reportFile,
             pipelineStepName = TaskAction.send,
+            queueMessage = queueMessage,
         ) {
             parentReportId(header.reportFile.reportId)
             params(
@@ -665,7 +667,7 @@ class ActionHistory(
             receiver,
             null,
             null,
-            null,
+            queueMessage,
             reportEventService,
             reportService
         )

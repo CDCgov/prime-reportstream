@@ -131,7 +131,9 @@ class SendFunctionTests {
             val header = makeIgnoreDotCSVHeader()
             nextEvent = block(header, null, null)
         }
-        every { sftpTransport.send(any(), any(), any(), any(), any(), any(), any(), any(), any(), any()) }.returns(null)
+        every {
+            sftpTransport.send(any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any())
+        }.returns(null)
         every { workflowEngine.recordAction(any()) }.returns(Unit)
         every { workflowEngine.azureEventService.trackEvent(any()) }.returns(Unit)
         every { workflowEngine.reportService.getRootReports(any()) } returns reportList
@@ -161,7 +163,9 @@ class SendFunctionTests {
             val header = makeIgnoreDotHL7NullHeader()
             nextEvent = block(header, null, null)
         }
-        every { nullTransport.send(any(), any(), any(), any(), any(), any(), any(), any(), any(), any()) }.returns(null)
+        every {
+            nullTransport.send(any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any())
+        }.returns(null)
         every { workflowEngine.recordAction(any()) }.returns(Unit)
         every { workflowEngine.azureEventService.trackEvent(any()) }.returns(Unit)
         every { workflowEngine.reportService.getRootReports(any()) } returns reportList
@@ -174,7 +178,7 @@ class SendFunctionTests {
         SendFunction(workflowEngine).run(event.toQueueMessage(), context)
 
         // Verify
-        verify { nullTransport.send(any(), any(), any(), any(), any(), any(), any(), any(), any(), any()) }
+        verify { nullTransport.send(any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any()) }
         verify { workflowEngine.recordAction(match { it.action.actionName == TaskAction.send }) }
         assertThat(nextEvent).isNotNull()
         assertThat(nextEvent!!.eventAction).isEqualTo(Event.EventAction.NONE)
@@ -193,7 +197,9 @@ class SendFunctionTests {
             val header = makeIgnoreDotCSVHeader()
             nextEvent = block(header, null, null)
         }
-        every { sftpTransport.send(any(), any(), any(), any(), any(), any(), any(), any(), any(), any()) }.returns(null)
+        every {
+            sftpTransport.send(any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any())
+        }.returns(null)
         every { workflowEngine.recordAction(any()) }.returns(Unit)
         every { workflowEngine.azureEventService.trackEvent(any()) }.returns(Unit)
         every { workflowEngine.reportService.getRootReports(any()) } returns reportList
@@ -238,7 +244,7 @@ class SendFunctionTests {
         }
         setupWorkflow()
         every {
-            sftpTransport.send(any(), any(), any(), any(), any(), any(), any(), any(), any(), any())
+            sftpTransport.send(any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any())
         }.returns(RetryToken.allItems)
         every { workflowEngine.recordAction(any()) }.returns(Unit)
         every { workflowEngine.db } returns mockk<DatabaseAccess>(relaxed = true)
@@ -272,7 +278,7 @@ class SendFunctionTests {
             nextEvent = block(header, null, null)
         }
         setupWorkflow()
-        every { sftpTransport.send(any(), any(), any(), any(), any(), any(), any(), any(), any(), any()) }
+        every { sftpTransport.send(any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any()) }
             .returns(RetryToken.allItems)
         every { workflowEngine.recordAction(any()) }.returns(Unit)
         every { workflowEngine.db } returns mockk<DatabaseAccess>()
@@ -306,7 +312,7 @@ class SendFunctionTests {
             )
         }
         setupWorkflow()
-        every { sftpTransport.send(any(), any(), any(), any(), any(), any(), any(), any(), any(), any()) }
+        every { sftpTransport.send(any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any()) }
             .returns(RetryToken.allItems)
         every { workflowEngine.recordAction(any()) }.returns(Unit)
         every { workflowEngine.db } returns mockk<DatabaseAccess>()
@@ -343,7 +349,7 @@ class SendFunctionTests {
             )
         }
         setupWorkflow()
-        every { sftpTransport.send(any(), any(), any(), any(), any(), any(), any(), any(), any(), any()) }
+        every { sftpTransport.send(any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any()) }
             .returns(RetryToken.allItems)
         every { workflowEngine.recordAction(any()) }.returns(Unit)
         every { workflowEngine.db } returns mockk<DatabaseAccess>(relaxed = true)

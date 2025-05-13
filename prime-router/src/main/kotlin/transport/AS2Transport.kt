@@ -56,6 +56,7 @@ class AS2Transport(val metadata: Metadata? = null) :
         reportEventService: IReportStreamEventService,
         reportService: ReportService,
         lineages: List<ItemLineage>?,
+        queueMessage: String,
     ): RetryItems? {
         // DevNote: This code is similar to the SFTP code in structure
         //
@@ -87,6 +88,7 @@ class AS2Transport(val metadata: Metadata? = null) :
                 reportService,
                 this::class.java.simpleName,
                 lineages,
+                queueMessage
             )
             actionHistory.trackItemLineages(Report.createItemLineagesFromDb(header, sentReportId))
             null

@@ -414,7 +414,8 @@ class ActionHistoryTests {
             mockReportEventService,
             mockReportService,
             "",
-            lineages
+            lineages,
+            ""
         )
 
         // assert
@@ -449,7 +450,8 @@ class ActionHistoryTests {
                 mockReportEventService,
                 mockReportService,
                 "",
-                lineages
+                lineages,
+                ""
             )
         }
     }
@@ -543,7 +545,8 @@ class ActionHistoryTests {
             mockReportEventService,
             mockReportService,
             "",
-            lineages
+            lineages,
+            ""
         )
 
         val actionHistory2 = ActionHistory(TaskAction.receive)
@@ -557,7 +560,8 @@ class ActionHistoryTests {
             mockReportEventService,
             mockReportService,
             "",
-            lineages
+            lineages,
+            ""
         )
 
         // assert
@@ -916,7 +920,8 @@ class ActionHistoryTests {
             mockReportEventService,
             mockReportService,
             "",
-            lineages
+            lineages,
+            ""
         )
         val actionHistory2 = ActionHistory(TaskAction.receive)
         actionHistory2.action
@@ -930,7 +935,8 @@ class ActionHistoryTests {
             mockReportEventService,
             mockReportService,
             "",
-            lineages
+            lineages,
+            ""
         )
         assertThat(actionHistory1.reportsOut[uuid]).isNotNull()
         assertThat(actionHistory2.reportsOut[uuid2]).isNotNull()
