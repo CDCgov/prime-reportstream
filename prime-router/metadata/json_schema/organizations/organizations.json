@@ -717,6 +717,11 @@
               "type": "boolean"
             }
           }
+        },
+        "timeBetweenBatches": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Delay interval between consecutive batches, in seconds. Must be non-negative."
         }
       },
       "required": [
