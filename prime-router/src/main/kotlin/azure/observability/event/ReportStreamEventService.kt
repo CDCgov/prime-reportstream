@@ -262,7 +262,8 @@ class ReportStreamEventService(
             childReport.id,
             childReport.bodyURL,
             childReport.schema.topic,
-            pipelineStepName
+            pipelineStepName,
+            queueMessage
         ).apply(
             initializer
         )
@@ -288,7 +289,8 @@ class ReportStreamEventService(
             childReport.reportId,
             childReport.bodyUrl,
             childReport.schemaTopic,
-            pipelineStepName
+            pipelineStepName,
+            queueMessage
         ).apply(
             initializer
         )
