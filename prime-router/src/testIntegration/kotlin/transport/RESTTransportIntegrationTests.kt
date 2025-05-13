@@ -317,7 +317,9 @@ hnm8COa8Kr+bnTqzScpQuOfujHcFEtfcYUGfSS6HusxidwXx+lYi1A==
             context,
             actionHistory,
             mockk<IReportStreamEventService>(relaxed = true),
-            mockk<ReportService>(relaxed = true)
+            mockk<ReportService>(relaxed = true),
+            listOf(),
+            ""
         )
         assertThat(retryItems).isNull()
         assertThat(actionHistory.action.httpStatus).isNotNull()
@@ -344,7 +346,9 @@ hnm8COa8Kr+bnTqzScpQuOfujHcFEtfcYUGfSS6HusxidwXx+lYi1A==
             context,
             actionHistory,
             mockk<IReportStreamEventService>(relaxed = true),
-            mockk<ReportService>(relaxed = true)
+            mockk<ReportService>(relaxed = true),
+            listOf(),
+            ""
         )
         assertThat(retryItems).isNull()
         assertThat(actionHistory.action.httpStatus).isNotNull()
@@ -369,7 +373,9 @@ hnm8COa8Kr+bnTqzScpQuOfujHcFEtfcYUGfSS6HusxidwXx+lYi1A==
             context,
             actionHistory,
             mockk<IReportStreamEventService>(relaxed = true),
-            mockk<ReportService>(relaxed = true)
+            mockk<ReportService>(relaxed = true),
+            listOf(),
+            ""
         )
         assertThat(retryItems).isNull()
         assertThat(actionHistory.action.httpStatus).isNotNull()
@@ -394,7 +400,9 @@ hnm8COa8Kr+bnTqzScpQuOfujHcFEtfcYUGfSS6HusxidwXx+lYi1A==
             context,
             actionHistory,
             mockk<IReportStreamEventService>(relaxed = true),
-            mockk<ReportService>(relaxed = true)
+            mockk<ReportService>(relaxed = true),
+            listOf(),
+            ""
         )
         assertThat(retryItems).isNull()
         assertThat(actionHistory.action.httpStatus).isNotNull()
@@ -419,7 +427,9 @@ hnm8COa8Kr+bnTqzScpQuOfujHcFEtfcYUGfSS6HusxidwXx+lYi1A==
             context,
             actionHistory,
             mockk<IReportStreamEventService>(relaxed = true),
-            mockk<ReportService>(relaxed = true)
+            mockk<ReportService>(relaxed = true),
+            listOf(),
+            ""
         )
         assertThat(retryItems).isNotNull()
         assertThat(actionHistory.action.httpStatus).isNotNull()
@@ -444,7 +454,9 @@ hnm8COa8Kr+bnTqzScpQuOfujHcFEtfcYUGfSS6HusxidwXx+lYi1A==
             context,
             actionHistory,
             mockk<IReportStreamEventService>(relaxed = true),
-            mockk<ReportService>(relaxed = true)
+            mockk<ReportService>(relaxed = true),
+            listOf(),
+            ""
         )
         assertThat(retryItems).isNull()
         assertThat(actionHistory.action.httpStatus).isNotNull()
@@ -469,7 +481,9 @@ hnm8COa8Kr+bnTqzScpQuOfujHcFEtfcYUGfSS6HusxidwXx+lYi1A==
             context,
             actionHistory,
             mockk<IReportStreamEventService>(relaxed = true),
-            mockk<ReportService>(relaxed = true)
+            mockk<ReportService>(relaxed = true),
+            listOf(),
+            ""
         )
         assertThat(retryItems).isNull()
         assertThat(actionHistory.action.httpStatus).isNotNull()
@@ -494,7 +508,9 @@ hnm8COa8Kr+bnTqzScpQuOfujHcFEtfcYUGfSS6HusxidwXx+lYi1A==
             context,
             actionHistory,
             mockk<IReportStreamEventService>(relaxed = true),
-            mockk<ReportService>(relaxed = true)
+            mockk<ReportService>(relaxed = true),
+            listOf(),
+            ""
         )
         assertThat(retryItems).isNotNull()
         assertThat(actionHistory.action.httpStatus).isNotNull()
@@ -519,7 +535,9 @@ hnm8COa8Kr+bnTqzScpQuOfujHcFEtfcYUGfSS6HusxidwXx+lYi1A==
             context,
             actionHistory,
             mockk<IReportStreamEventService>(relaxed = true),
-            mockk<ReportService>(relaxed = true)
+            mockk<ReportService>(relaxed = true),
+            listOf(),
+            ""
         )
         assertThat(retryItems).isNotNull()
         assertThat(actionHistory.action.httpStatus).isNotNull()
@@ -544,7 +562,9 @@ hnm8COa8Kr+bnTqzScpQuOfujHcFEtfcYUGfSS6HusxidwXx+lYi1A==
             context,
             actionHistory,
             mockk<IReportStreamEventService>(relaxed = true),
-            mockk<ReportService>(relaxed = true)
+            mockk<ReportService>(relaxed = true),
+            listOf(),
+            ""
         )
         assertThat(retryItems).isNotNull()
         assertThat(actionHistory.action.httpStatus).isNotNull()
@@ -566,7 +586,9 @@ hnm8COa8Kr+bnTqzScpQuOfujHcFEtfcYUGfSS6HusxidwXx+lYi1A==
             context,
             actionHistory,
             mockk<IReportStreamEventService>(relaxed = true),
-            mockk<ReportService>(relaxed = true)
+            mockk<ReportService>(relaxed = true),
+            listOf(),
+            ""
         )
         assertThat(retryItems).isNotNull()
     }
@@ -589,9 +611,17 @@ hnm8COa8Kr+bnTqzScpQuOfujHcFEtfcYUGfSS6HusxidwXx+lYi1A==
         // When:
         //      RESTTransport is called WITH transport.parameters empty
         val retryItems = mockRestTransport.send(
-            transportType, header, reportId, "test", null,
-            context, actionHistory, mockk<IReportStreamEventService>(relaxed = true),
-            mockk<ReportService>(relaxed = true)
+            transportType,
+            header,
+            reportId,
+            "test",
+            null,
+            context,
+            actionHistory,
+            mockk<IReportStreamEventService>(relaxed = true),
+            mockk<ReportService>(relaxed = true),
+            listOf(),
+            ""
         )
 
         // Then:
@@ -623,9 +653,17 @@ hnm8COa8Kr+bnTqzScpQuOfujHcFEtfcYUGfSS6HusxidwXx+lYi1A==
         // When:
         //      RESTTransport is called WITH flexionRestTransportType which has transport.parameters
         val retryItems = mockRestTransport.send(
-            flexionRestTransportType, header, reportId, "test", null,
-            context, actionHistory, mockk<IReportStreamEventService>(relaxed = true),
-            mockk<ReportService>(relaxed = true)
+            flexionRestTransportType,
+            header,
+            reportId,
+            "test",
+            null,
+            context,
+            actionHistory,
+            mockk<IReportStreamEventService>(relaxed = true),
+            mockk<ReportService>(relaxed = true),
+            listOf(),
+            ""
         )
 
         // Then:
@@ -651,9 +689,17 @@ hnm8COa8Kr+bnTqzScpQuOfujHcFEtfcYUGfSS6HusxidwXx+lYi1A==
         )
 
         val retryItems = mockRestTransport.send(
-            flexionRestTransportType, header, reportId, "test", null,
-            context, actionHistory, mockk<IReportStreamEventService>(relaxed = true),
-            mockk<ReportService>(relaxed = true)
+            flexionRestTransportType,
+            header,
+            reportId,
+            "test",
+            null,
+            context,
+            actionHistory,
+            mockk<IReportStreamEventService>(relaxed = true),
+            mockk<ReportService>(relaxed = true),
+            listOf(),
+            ""
         )
         assertThat(retryItems).isNull()
     }
@@ -670,9 +716,17 @@ hnm8COa8Kr+bnTqzScpQuOfujHcFEtfcYUGfSS6HusxidwXx+lYi1A==
         )
 
         val retryItems = mockRestTransport.send(
-            flexionRestTransportTypeWithJwtParams, header, reportId, "test", null,
-            context, actionHistory, mockk<IReportStreamEventService>(relaxed = true),
-            mockk<ReportService>(relaxed = true)
+            flexionRestTransportTypeWithJwtParams,
+            header,
+            reportId,
+            "test",
+            null,
+            context,
+            actionHistory,
+            mockk<IReportStreamEventService>(relaxed = true),
+            mockk<ReportService>(relaxed = true),
+            listOf(),
+            ""
         )
         assertThat(retryItems).isNull()
     }
@@ -715,9 +769,17 @@ hnm8COa8Kr+bnTqzScpQuOfujHcFEtfcYUGfSS6HusxidwXx+lYi1A==
         // When:
         //      RESTTransport is called WITH transport.parameters empty
         val retryItems = mockRestTransport.send(
-            nbsRestTransportTypeLive, header, reportId, "test", null,
-            context, actionHistory, mockk<IReportStreamEventService>(relaxed = true),
-            mockk<ReportService>(relaxed = true)
+            nbsRestTransportTypeLive,
+            header,
+            reportId,
+            "test",
+            null,
+            context,
+            actionHistory,
+            mockk<IReportStreamEventService>(relaxed = true),
+            mockk<ReportService>(relaxed = true),
+            listOf(),
+            ""
         )
 
         // Then:
@@ -742,9 +804,17 @@ hnm8COa8Kr+bnTqzScpQuOfujHcFEtfcYUGfSS6HusxidwXx+lYi1A==
             TokenInfo(accessToken = "MockToken", tokenType = "bearer")
         )
         val retryItems = mockRestTransport.send(
-            nbsRestTransportTypeLive, header, reportId, "test", null,
-            context, actionHistory, mockk<IReportStreamEventService>(relaxed = true),
-            mockk<ReportService>(relaxed = true)
+            nbsRestTransportTypeLive,
+            header,
+            reportId,
+            "test",
+            null,
+            context,
+            actionHistory,
+            mockk<IReportStreamEventService>(relaxed = true),
+            mockk<ReportService>(relaxed = true),
+            listOf(),
+            ""
         )
         assertThat(retryItems).isNull()
     }
@@ -779,9 +849,17 @@ hnm8COa8Kr+bnTqzScpQuOfujHcFEtfcYUGfSS6HusxidwXx+lYi1A==
         // When:
         //      RESTTransport is called WITH transport.parameters empty
         val retryItems = mockRestTransport.send(
-            natusRestTransportTypeLive, header, reportId, "test", null,
-            context, actionHistory, mockk<IReportStreamEventService>(relaxed = true),
-            mockk<ReportService>(relaxed = true)
+            natusRestTransportTypeLive,
+            header,
+            reportId,
+            "test",
+            null,
+            context,
+            actionHistory,
+            mockk<IReportStreamEventService>(relaxed = true),
+            mockk<ReportService>(relaxed = true),
+            listOf(),
+            ""
         )
 
         // Then:
@@ -829,9 +907,17 @@ hnm8COa8Kr+bnTqzScpQuOfujHcFEtfcYUGfSS6HusxidwXx+lYi1A==
         // When:
         //      RESTTransport is called WITH transport.parameters empty
         val retryItems = mockRestTransport.send(
-            natusRestTransportTypeLiveEncrypt, header, reportId, "test", null,
-            context, actionHistory, mockk<IReportStreamEventService>(relaxed = true),
-            mockk<ReportService>(relaxed = true)
+            natusRestTransportTypeLiveEncrypt,
+            header,
+            reportId,
+            "test",
+            null,
+            context,
+            actionHistory,
+            mockk<IReportStreamEventService>(relaxed = true),
+            mockk<ReportService>(relaxed = true),
+            listOf(),
+            ""
         )
 
         assertThat(retryItems).isNull()
@@ -867,7 +953,9 @@ hnm8COa8Kr+bnTqzScpQuOfujHcFEtfcYUGfSS6HusxidwXx+lYi1A==
             context,
             actionHistory,
             mockk<IReportStreamEventService>(relaxed = true),
-            mockk<ReportService>(relaxed = true)
+            mockk<ReportService>(relaxed = true),
+            listOf(),
+            ""
         )
 
         // Then:
@@ -899,9 +987,17 @@ hnm8COa8Kr+bnTqzScpQuOfujHcFEtfcYUGfSS6HusxidwXx+lYi1A==
             TokenInfo(accessToken = "MockToken", tokenType = "bearer")
         )
         val retryItems = mockRestTransport.send(
-            natusRestTransportTypeLive, header, reportId, "test", null,
-            context, actionHistory, mockk<IReportStreamEventService>(relaxed = true),
-            mockk<ReportService>(relaxed = true)
+            natusRestTransportTypeLive,
+            header,
+            reportId,
+            "test",
+            null,
+            context,
+            actionHistory,
+            mockk<IReportStreamEventService>(relaxed = true),
+            mockk<ReportService>(relaxed = true),
+            listOf(),
+            ""
         )
         assertThat(retryItems).isNull()
     }
@@ -953,9 +1049,17 @@ hnm8COa8Kr+bnTqzScpQuOfujHcFEtfcYUGfSS6HusxidwXx+lYi1A==
         )
 
         val retryItems = mockRestTransport.send(
-            okRestTransportTypeLive, header, reportId, "test", null,
-            context, actionHistory, mockk<IReportStreamEventService>(relaxed = true),
-            mockk<ReportService>(relaxed = true)
+            okRestTransportTypeLive,
+            header,
+            reportId,
+            "test",
+            null,
+            context,
+            actionHistory,
+            mockk<IReportStreamEventService>(relaxed = true),
+            mockk<ReportService>(relaxed = true),
+            listOf(),
+            ""
         )
         assertThat(retryItems).isNull()
     }
@@ -1001,9 +1105,17 @@ hnm8COa8Kr+bnTqzScpQuOfujHcFEtfcYUGfSS6HusxidwXx+lYi1A==
         // When:
         //      RESTTransport is called WITH transport.parameters empty
         val retryItems = mockRestTransport.send(
-            epicRestTransportTypeLive, header, reportId, "test", null,
-            context, actionHistory, mockk<IReportStreamEventService>(relaxed = true),
-            mockk<ReportService>(relaxed = true)
+            epicRestTransportTypeLive,
+            header,
+            reportId,
+            "test",
+            null,
+            context,
+            actionHistory,
+            mockk<IReportStreamEventService>(relaxed = true),
+            mockk<ReportService>(relaxed = true),
+            listOf(),
+            ""
         )
 
         // Then:
@@ -1047,9 +1159,17 @@ hnm8COa8Kr+bnTqzScpQuOfujHcFEtfcYUGfSS6HusxidwXx+lYi1A==
         // When:
         //      RESTTransport is called WITH flexionRestTransportType which has transport.parameters
         val retryItems = mockRestTransport.send(
-            oracleRlNRestTransport, header, reportId, "test", null,
-            context, actionHistory, mockk<IReportStreamEventService>(relaxed = true),
-            mockk<ReportService>(relaxed = true)
+            oracleRlNRestTransport,
+            header,
+            reportId,
+            "test",
+            null,
+            context,
+            actionHistory,
+            mockk<IReportStreamEventService>(relaxed = true),
+            mockk<ReportService>(relaxed = true),
+            listOf(),
+            ""
         )
 
         // Then:

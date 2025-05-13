@@ -99,6 +99,7 @@ class FHIRConverter(
      * @param schemaName the FHIR transform to apply
      * @param blobURL the URL for the blob to convert
      * @param blobDigest the digest of the blob contents
+     * @param queueMessage the original azure queue message
      */
     data class FHIRConvertInput(
         val reportId: UUID,
@@ -107,6 +108,7 @@ class FHIRConverter(
         val blobURL: String,
         val blobDigest: String,
         val blobSubFolderName: String,
+        val queueMessage: String,
     ) {
 
         companion object {
@@ -136,7 +138,8 @@ class FHIRConverter(
                     schemaName,
                     blobUrl,
                     blobDigest,
-                    blobSubFolderName
+                    blobSubFolderName,
+                    message.toString()
                 )
             }
 
@@ -189,7 +192,8 @@ class FHIRConverter(
                     schemaName,
                     blobUrl,
                     blobDigest,
-                    blobSubFolderName
+                    blobSubFolderName,
+                    message.toString()
                 )
             }
         }
@@ -306,6 +310,7 @@ class FHIRConverter(
                                     report,
                                     TaskAction.convert,
                                     processedItem.validationError!!.message,
+                                    input.queueMessage,
                                     shouldQueue = true
                                 ) {
                                     parentReportId(input.reportId)
@@ -380,6 +385,7 @@ class FHIRConverter(
                                 ReportStreamEventName.ITEM_ACCEPTED,
                                 report,
                                 TaskAction.convert,
+                                input.queueMessage,
                                 shouldQueue = true
                             ) {
                                 parentReportId(input.reportId)
@@ -424,7 +430,8 @@ class FHIRConverter(
                     ReportStreamEventName.REPORT_NOT_PROCESSABLE,
                     report,
                     TaskAction.convert,
-                    "Submitted report was either empty or could not be parsed into HL7"
+                    "Submitted report was either empty or could not be parsed into HL7",
+                    input.queueMessage
                 ) {
                     parentReportId(input.reportId)
                     params(

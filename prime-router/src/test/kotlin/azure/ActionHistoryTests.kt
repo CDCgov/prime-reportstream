@@ -30,6 +30,7 @@ import gov.cdc.prime.router.azure.observability.bundleDigest.BundleDigest
 import gov.cdc.prime.router.azure.observability.bundleDigest.BundleDigestExtractor
 import gov.cdc.prime.router.azure.observability.event.AzureEventService
 import gov.cdc.prime.router.azure.observability.event.ReportEventData
+import gov.cdc.prime.router.azure.observability.event.ReportStreamEventName
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventService
 import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.fhirengine.engine.FhirConvertQueueMessage
@@ -334,6 +335,7 @@ class ActionHistoryTests {
 
     @Test
     fun `test trackSentReport`() {
+        // setup
         val uuid = UUID.randomUUID()
         val org =
             DeepOrganization(
@@ -377,12 +379,14 @@ class ActionHistoryTests {
             "http://blobUrl",
             TaskAction.send,
             OffsetDateTime.now(),
+            "",
             ""
         )
         every {
-            mockReportEventService.sendReportEvent(any(), any<ReportFile>(), any(), any(), any())
+            mockReportEventService.sendReportEvent(any(), any<ReportFile>(), any(), any(), any(), any())
         } returns Unit
-        every { mockReportEventService.sendItemEvent(any(), any<ReportFile>(), any(), any(), any()) } returns Unit
+        every { mockReportEventService.sendItemEvent(any(), any<ReportFile>(), any(), any(), any(), any()) } returns
+            Unit
         mockkObject(Report)
         mockkObject(FhirTranscoder)
         every { FhirTranscoder.decode(any(), any()) } returns mockk<Bundle>()
@@ -394,20 +398,10 @@ class ActionHistoryTests {
         every { header.content } returns "".toByteArray()
         every { inReportFile.itemCount } returns 15
         every { inReportFile.reportId } returns uuid
-        every { Report.createItemLineagesFromDb(any(), any()) } returns listOf(
-            ItemLineage(
-            1,
-            header.reportFile.reportId,
-            1,
-            uuid,
-            1,
-            "",
-            "",
-            OffsetDateTime.now(),
-            ""
-        )
-        )
+        val lineages = listOf(ItemLineage(1, header.reportFile.reportId, 1, uuid, 1, "", "", OffsetDateTime.now(), ""))
         val orgReceiver = org.receivers[0]
+
+        // act
         val actionHistory1 = ActionHistory(TaskAction.receive)
         actionHistory1.action
         actionHistory1.trackSentReport(
@@ -419,8 +413,12 @@ class ActionHistoryTests {
             header,
             mockReportEventService,
             mockReportService,
+            "",
+            lineages,
             ""
         )
+
+        // assert
         assertThat(actionHistory1.reportsOut[uuid]).isNotNull()
         val reportFile = actionHistory1.reportsOut[uuid]!!
         assertThat(reportFile.schemaName).isEqualTo("schema1")
@@ -437,8 +435,8 @@ class ActionHistoryTests {
         assertThat(reportFile.itemCount).isEqualTo(15)
         assertThat(actionHistory1.action.externalName).isEqualTo("filename1")
         verify(exactly = 1) {
-            mockReportEventService.sendReportEvent(any(), any<ReportFile>(), any(), any(), any())
-            mockReportEventService.sendItemEvent(any(), any<ReportFile>(), any(), any(), any())
+            mockReportEventService.sendReportEvent(any(), any<ReportFile>(), any(), any(), any(), any())
+            mockReportEventService.sendItemEvent(any(), any<ReportFile>(), any(), any(), any(), any())
         }
         // not allowed to track the same report twice.
         assertFailure {
@@ -451,6 +449,8 @@ class ActionHistoryTests {
                 header,
                 mockReportEventService,
                 mockReportService,
+                "",
+                lineages,
                 ""
             )
         }
@@ -458,6 +458,7 @@ class ActionHistoryTests {
 
     @Test
     fun `test trackSentReport very long schema name`() {
+        // setup
         val uuid = UUID.randomUUID()
         val longNameWithClasspath =
             "classpath:/metadata/hl7_mapping/receivers/STLTs/REALLY_LONG_STATE_NAME/REALLY_LONG_STATE_NAME.yml"
@@ -504,6 +505,7 @@ class ActionHistoryTests {
             "http://blobUrl",
             TaskAction.send,
             OffsetDateTime.now(),
+            "",
             ""
         )
         mockkObject(BlobAccess.Companion)
@@ -520,29 +522,19 @@ class ActionHistoryTests {
         every { anyConstructed<BundleDigestExtractor>().generateDigest(any()) } returns mockk<BundleDigest>()
         val header = mockk<WorkflowEngine.Header>()
         every {
-            mockReportEventService.sendReportEvent(any(), any<ReportFile>(), any(), any(), any())
+            mockReportEventService.sendReportEvent(any(), any<ReportFile>(), any(), any(), any(), any())
         } returns Unit
-        every { mockReportEventService.sendItemEvent(any(), any<ReportFile>(), any(), any(), any()) } returns Unit
+        every { mockReportEventService.sendItemEvent(any(), any<ReportFile>(), any(), any(), any(), any()) } returns
+            Unit
         val inReportFile = mockk<ReportFile>()
         every { header.reportFile } returns inReportFile
         every { header.content } returns "".toByteArray()
         every { inReportFile.itemCount } returns 15
         every { inReportFile.reportId } returns uuid
-        every { Report.createItemLineagesFromDb(any(), any()) } returns listOf(
-            ItemLineage(
-            1,
-            header.reportFile.reportId,
-            1,
-            uuid,
-            1,
-            "",
-            "",
-            OffsetDateTime.now(),
-            ""
-        )
-        )
-        val actionHistory1 = ActionHistory(TaskAction.receive)
+        val lineages = listOf(ItemLineage(1, header.reportFile.reportId, 1, uuid, 1, "", "", OffsetDateTime.now(), ""))
 
+        // act
+        val actionHistory1 = ActionHistory(TaskAction.receive)
         actionHistory1.trackSentReport(
             org.receivers[0],
             uuid,
@@ -552,14 +544,12 @@ class ActionHistoryTests {
             header,
             mockReportEventService,
             mockReportService,
+            "",
+            lineages,
             ""
         )
-        assertThat(actionHistory1.reportsOut[uuid]).isNotNull()
-        assertThat(actionHistory1.reportsOut[uuid]?.schemaName)
-            .isEqualTo("g/receivers/STLTs/REALLY_LONG_STATE_NAME/REALLY_LONG_STATE_NAME")
 
         val actionHistory2 = ActionHistory(TaskAction.receive)
-
         actionHistory2.trackSentReport(
             org.receivers[1],
             uuid,
@@ -569,14 +559,132 @@ class ActionHistoryTests {
             header,
             mockReportEventService,
             mockReportService,
+            "",
+            lineages,
             ""
         )
+
+        // assert
+        assertThat(actionHistory1.reportsOut[uuid]).isNotNull()
+        assertThat(actionHistory1.reportsOut[uuid]?.schemaName)
+            .isEqualTo("g/receivers/STLTs/REALLY_LONG_STATE_NAME/REALLY_LONG_STATE_NAME")
         assertThat(actionHistory2.reportsOut[uuid]).isNotNull()
         assertThat(actionHistory2.reportsOut[uuid]?.schemaName)
             .isEqualTo("STED/NESTED/STLTs/REALLY_LONG_STATE_NAME/REALLY_LONG_STATE_NAME")
         verify(exactly = 2) {
-            mockReportEventService.sendReportEvent(any(), any<ReportFile>(), any(), any(), any())
-            mockReportEventService.sendItemEvent(any(), any<ReportFile>(), any(), any(), any())
+            mockReportEventService.sendReportEvent(any(), any<ReportFile>(), any(), any(), any(), any())
+            mockReportEventService.sendItemEvent(any(), any<ReportFile>(), any(), any(), any(), any())
+        }
+    }
+
+    @Test
+    fun `test trackItemSendState tracks events for multiple items`() {
+        // setup
+        val receiver = mockk<Receiver>()
+        val eventName = ReportStreamEventName.REPORT_SENT
+        val reportFile = mockk<ReportFile>()
+        val lineages = listOf(
+            ItemLineage(1, UUID.randomUUID(), 1, UUID.randomUUID(), 1, "", "", OffsetDateTime.now(), ""),
+            ItemLineage(1, UUID.randomUUID(), 1, UUID.randomUUID(), 1, "", "", OffsetDateTime.now(), "")
+        )
+
+        val mockReportEventService = mockk<ReportStreamEventService>()
+        val mockReportService = mockk<ReportService>()
+        every {
+            mockReportService.getReportForItemAtTask(any(), any(), any())
+        } returns mockk<ReportFile>(relaxed = true)
+
+        mockkObject(BlobAccess.Companion)
+        every { BlobAccess.downloadBlob(any(), any()) } returns ""
+        mockkObject(FhirTranscoder)
+        val mockBundle = mockk<Bundle>()
+        every { FhirTranscoder.decode(any(), any()) } returns mockBundle
+        mockkConstructor(BundleDigestExtractor::class)
+        every { anyConstructed<BundleDigestExtractor>().generateDigest(any()) } returns mockk<BundleDigest>()
+
+        every { mockReportEventService.sendItemEvent(any(), any<ReportFile>(), any(), any(), any(), any()) } returns
+            Unit
+
+        // act
+        val actionHistory1 = ActionHistory(TaskAction.receive)
+        actionHistory1.trackItemSendState(
+            eventName,
+            reportFile,
+            lineages,
+            receiver,
+            2,
+            OffsetDateTime.now(),
+            "header",
+            mockReportEventService,
+            mockReportService
+        )
+
+        // assert
+        verify(exactly = 2) {
+            mockReportEventService.sendItemEvent(eventName, reportFile, TaskAction.send, any(), any(), any())
+        }
+    }
+
+    @Test
+    fun `test trackItemSendState does not track items when receive step report not found`() {
+        // setup
+        val receiver = mockk<Receiver>()
+        val reportFile = mockk<ReportFile>()
+        val lineages = listOf(
+            ItemLineage(1, UUID.randomUUID(), 1, UUID.randomUUID(), 1, "", "", OffsetDateTime.now(), "")
+        )
+        val mockReportEventService = mockk<ReportStreamEventService>()
+        val mockReportService = mockk<ReportService>()
+
+        // the lookup for the receiver step report file fails
+        every { mockReportService.getReportForItemAtTask(any(), any(), any()) } returns null
+
+        // act
+        val actionHistory1 = ActionHistory(TaskAction.receive)
+        actionHistory1.trackItemSendState(
+            ReportStreamEventName.REPORT_SENT,
+            reportFile,
+            lineages,
+            receiver,
+            2,
+            OffsetDateTime.now(),
+            "header",
+            mockReportEventService,
+            mockReportService
+        )
+
+        // assert
+        verify(exactly = 0) {
+            mockReportEventService.sendItemEvent(any(), any<ReportFile>(), any(), any(), any(), any())
+        }
+    }
+
+    @Test
+    fun `test trackItemSendState does not track items when no items are sent`() {
+        // setup
+        val receiver = mockk<Receiver>()
+        val reportFile1 = mockk<ReportFile>()
+        val mockReportEventService = mockk<ReportStreamEventService>()
+        val mockReportService = mockk<ReportService>()
+        val lineages = listOf<ItemLineage>()
+
+        // act
+        val actionHistory1 = ActionHistory(TaskAction.receive)
+        actionHistory1.trackItemSendState(
+            ReportStreamEventName.REPORT_SENT,
+            reportFile1,
+            lineages,
+            receiver,
+            2,
+            OffsetDateTime.now(),
+            "header",
+            mockReportEventService,
+            mockReportService
+        )
+
+        // assert
+        verify(exactly = 0) {
+            mockReportEventService.sendItemEvent(any(), any<ReportFile>(), any(), any(), any(), any())
         }
     }
 
@@ -730,7 +838,7 @@ class ActionHistoryTests {
     }
 
     @Test
-    fun `test trackSentReportSameFilenameDifferentReceiver`() {
+    fun `test trackSentReport when the same filename goes to two different receivers`() {
         val uuid = UUID.randomUUID()
         val uuid2 = UUID.randomUUID()
         val org =
@@ -772,6 +880,7 @@ class ActionHistoryTests {
             "http://blobUrl",
             TaskAction.send,
             OffsetDateTime.now(),
+            "",
             ""
         )
         mockkObject(BlobAccess.Companion)
@@ -788,27 +897,17 @@ class ActionHistoryTests {
         every { anyConstructed<BundleDigestExtractor>().generateDigest(any()) } returns mockk<BundleDigest>()
         val header = mockk<WorkflowEngine.Header>()
         every {
-            mockReportEventService.sendReportEvent(any(), any<ReportFile>(), any(), any(), any())
+            mockReportEventService.sendReportEvent(any(), any<ReportFile>(), any(), any(), any(), any())
         } returns Unit
-        every { mockReportEventService.sendItemEvent(any(), any<ReportFile>(), any(), any(), any()) } returns Unit
+        every { mockReportEventService.sendItemEvent(any(), any<ReportFile>(), any(), any(), any(), any()) } returns
+            Unit
         val inReportFile = mockk<ReportFile>()
         every { header.reportFile } returns inReportFile
         every { header.content } returns "".toByteArray()
         every { inReportFile.itemCount } returns 15
         every { inReportFile.reportId } returns uuid
-        every { Report.createItemLineagesFromDb(any(), any()) } returns listOf(
-            ItemLineage(
-            1,
-            header.reportFile.reportId,
-            1,
-            uuid,
-            1,
-            "",
-            "",
-            OffsetDateTime.now(),
-            ""
-        )
-        )
+        val lineages = listOf(ItemLineage(1, header.reportFile.reportId, 1, uuid, 1, "", "", OffsetDateTime.now(), ""))
+        every { Report.createItemLineagesFromDb(any(), any()) } returns lineages
         val actionHistory1 = ActionHistory(TaskAction.receive)
         actionHistory1.action
         actionHistory1.trackSentReport(
@@ -820,9 +919,10 @@ class ActionHistoryTests {
             header,
             mockReportEventService,
             mockReportService,
+            "",
+            lineages,
             ""
         )
-        assertThat(actionHistory1.reportsOut[uuid]).isNotNull()
         val actionHistory2 = ActionHistory(TaskAction.receive)
         actionHistory2.action
         actionHistory2.trackSentReport(
@@ -834,15 +934,18 @@ class ActionHistoryTests {
             header,
             mockReportEventService,
             mockReportService,
+            "",
+            lineages,
             ""
         )
+        assertThat(actionHistory1.reportsOut[uuid]).isNotNull()
         assertThat(actionHistory2.reportsOut[uuid2]).isNotNull()
         assertNotEquals(blobUrls[0], blobUrls[1])
         assertContains(blobUrls[0], org.receivers[0].fullName)
         assertContains(blobUrls[1], org.receivers[1].fullName)
         verify(exactly = 2) {
-            mockReportEventService.sendReportEvent(any(), any<ReportFile>(), any(), any(), any())
-            mockReportEventService.sendItemEvent(any(), any<ReportFile>(), any(), any(), any())
+            mockReportEventService.sendReportEvent(any(), any<ReportFile>(), any(), any(), any(), any())
+            mockReportEventService.sendItemEvent(any(), any<ReportFile>(), any(), any(), any(), any())
         }
     }
 

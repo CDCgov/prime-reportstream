@@ -122,8 +122,17 @@ class SoapTransportIntegrationTests : TransportIntegrationTests() {
             UserPassCredential(UUID.randomUUID().toString(), UUID.randomUUID().toString())
         )
         val retryItems = mockSoapTransport.send(
-            transportType, header, reportId, "test", null, context, actionHistory,
-            mockk<IReportStreamEventService>(relaxed = true), mockk<ReportService>(relaxed = true)
+            transportType,
+            header,
+            reportId,
+            "test",
+            null,
+            context,
+            actionHistory,
+            mockk<IReportStreamEventService>(relaxed = true),
+            mockk<ReportService>(relaxed = true),
+            listOf(),
+            ""
         )
         assertThat(retryItems).isNull()
     }
@@ -144,7 +153,9 @@ class SoapTransportIntegrationTests : TransportIntegrationTests() {
             context,
             actionHistory,
             mockk<IReportStreamEventService>(relaxed = true),
-            mockk<ReportService>(relaxed = true)
+            mockk<ReportService>(relaxed = true),
+            listOf(),
+            ""
         )
         assertThat(retryItems).isNotNull()
     }

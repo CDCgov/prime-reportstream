@@ -5,6 +5,8 @@ import ca.uhn.fhir.fhirpath.FhirPathExecutionException
 import ca.uhn.hl7v2.model.Message
 import ca.uhn.hl7v2.model.Segment
 import ca.uhn.hl7v2.util.Terser
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.SerializationFeature
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.CliktError
 import com.github.ajalt.clikt.core.ProgramResult
@@ -27,6 +29,7 @@ import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.ConditionStamper
 import gov.cdc.prime.router.azure.LookupTableConditionMapper
+import gov.cdc.prime.router.azure.ReportFunction.MessageOrBundleStringified
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.azure.observability.event.IReportStreamEventService
@@ -139,9 +142,11 @@ class ProcessFhirCommands :
      */
     private val senderSchemaParam by option("-s", "--sender-schema", help = "Sender schema location")
 
+    private val defaultInputSchema = "./metadata/HL7/catchall"
+
     private val inputSchema by option(
         "--input-schema", help = "Mapping schema for input file"
-    ).default("./metadata/HL7/catchall")
+    ).default(defaultInputSchema)
 
     private val hl7DiffHelper = HL7DiffHelper()
 
@@ -177,8 +182,9 @@ class ProcessFhirCommands :
                 orgNameParam,
                 senderSchemaParam,
                 true,
-                oktaAccessToken
-            )
+                oktaAccessToken,
+                inputSchema
+                )
         if (messageOrBundle.message != null) {
             outputResult(messageOrBundle.message!!)
         } else if (messageOrBundle.bundle != null) {
@@ -196,7 +202,8 @@ class ProcessFhirCommands :
         senderSchema: String?,
         isCli: Boolean,
         accessToken: String,
-    ): MessageOrBundle {
+        inputSchema: String = defaultInputSchema,
+        ): MessageOrBundle {
         // Read the contents of the file
         val contents = inputFile.inputStream().readBytes().toString(Charsets.UTF_8)
         if (contents.isBlank()) throw CliktError("File ${inputFile.absolutePath} is empty.")
@@ -209,10 +216,10 @@ class ProcessFhirCommands :
             // HL7 to FHIR conversion
             inputFileType == "HL7" &&
                 (
-                (outputFormat == MimeFormat.FHIR.toString()) ||
+                (isCli && outputFormat == MimeFormat.FHIR.toString()) ||
                     (receiver != null && receiver.format == MimeFormat.FHIR)
                 ) -> {
-                val fhirMessage = convertHl7ToFhir(contents).first
+                val fhirMessage = convertHl7ToFhir(contents, inputSchema).first
                 messageOrBundle.bundle = fhirMessage
                 handleSendAndReceiverFhirEnrichments(messageOrBundle, receiver, senderSchema, isCli)
 
@@ -259,7 +266,7 @@ class ProcessFhirCommands :
                             (receiver.format == MimeFormat.HL7 || receiver.format == MimeFormat.HL7_BATCH)
                         )
                 ) -> {
-                val (bundle2, inputMessage) = convertHl7ToFhir(contents)
+                val (bundle2, inputMessage) = convertHl7ToFhir(contents, inputSchema)
 
                 messageOrBundle.bundle = bundle2
                 handleSendAndReceiverFhirEnrichments(messageOrBundle, receiver, senderSchema, isCli)
@@ -270,7 +277,7 @@ class ProcessFhirCommands :
                     isCli,
                     messageOrBundle
                 )
-                if (diffHl7Output != null && isCli) {
+                if (isCli && diffHl7Output != null) {
                     val differences = hl7DiffHelper.diffHl7(messageOrBundle.message!!, inputMessage)
                     echo("-------diff output")
                     echo("There were ${differences.size} differences between the input and output")
@@ -297,7 +304,9 @@ class ProcessFhirCommands :
             else -> null
         }
 
-        handleSenderTransforms(messageOrBundle, senderSchemaName)
+        if (senderSchemaName != null) {
+            handleSenderTransforms(messageOrBundle, senderSchemaName)
+        }
 
         if (receiver != null && messageOrBundle.bundle != null) {
             handleReceiverFilters(receiver, messageOrBundle, isCli)
@@ -461,7 +470,36 @@ class ProcessFhirCommands :
         override var receiverTransformErrors: MutableList<String> = mutableListOf(),
         override var receiverTransformWarnings: MutableList<String> = mutableListOf(),
         override var filterErrors: MutableList<FilterError> = mutableListOf(),
-    ) : MessageOrBundleParent()
+    ) : MessageOrBundleParent() {
+
+        override fun toString(): String {
+            val message = if (this.message != null) {
+                this.message.toString()
+            } else {
+                null
+            }
+
+            val bundle = if (this.bundle != null) {
+                FhirTranscoder.encode(this.bundle!!)
+            } else {
+                null
+            }
+
+            return ObjectMapper().configure(SerializationFeature.FAIL_ON_SELF_REFERENCES, false).writeValueAsString(
+                MessageOrBundleStringified(
+                    message,
+                    bundle,
+                    senderTransformErrors,
+                    senderTransformWarnings,
+                    enrichmentSchemaErrors,
+                    senderTransformWarnings,
+                    receiverTransformErrors,
+                    receiverTransformWarnings,
+                    filterErrors,
+                )
+            )
+        }
+    }
 
     private fun getReceiver(
         environment: Environment,
@@ -564,7 +602,7 @@ class ProcessFhirCommands :
      * look like.
      * @return a FHIR bundle and the parsed HL7 input that represents the data in the one HL7 message
      */
-    private fun convertHl7ToFhir(hl7String: String): Pair<Bundle, Message> {
+    private fun convertHl7ToFhir(hl7String: String, schema: String): Pair<Bundle, Message> {
         val hasFiveEncodingChars = hl7MessageHasFiveEncodingChars(hl7String)
         // Some HL7 2.5.1 implementations have adopted the truncation character # that was added in 2.7
         // However, the library used to encode the HL7 message throws an error it there are more than 4 encoding
@@ -581,7 +619,7 @@ class ProcessFhirCommands :
             Terser.set(msh, 2, 0, 1, 1, "^~\\&#")
         }
         // search hl7 profile map and create translator with config path if found
-        var fhirMessage = HL7toFhirTranslator(inputSchema).translate(hl7message)
+        val fhirMessage = HL7toFhirTranslator(schema).translate(hl7message)
 
         val stamper = ConditionStamper(LookupTableConditionMapper(Metadata.getInstance()))
         fhirMessage.getObservations().forEach { observation ->
@@ -592,19 +630,17 @@ class ProcessFhirCommands :
     }
 
     /**
+     * Apply sender schema to bundle
      * @throws CliktError if senderSchema is present, but unable to be read.
-     * @return If senderSchema is present, apply it, otherwise just return the input bundle.
      */
-    private fun handleSenderTransforms(messageOrBundle: MessageOrBundle, senderSchema: String?) {
-        if (senderSchema != null) {
-            val transformer = FhirTransformer(
-                senderSchema,
-                errors = messageOrBundle.senderTransformErrors,
-                warnings = messageOrBundle.senderTransformWarnings
-            )
-            val returnedBundle = transformer.process(messageOrBundle.bundle!!)
-            messageOrBundle.bundle = returnedBundle
-        }
+    private fun handleSenderTransforms(messageOrBundle: MessageOrBundle, senderSchema: String) {
+        val transformer = FhirTransformer(
+            senderSchema,
+            errors = messageOrBundle.senderTransformErrors,
+            warnings = messageOrBundle.senderTransformWarnings
+        )
+        val returnedBundle = transformer.process(messageOrBundle.bundle!!)
+        messageOrBundle.bundle = returnedBundle
     }
 
     /**
@@ -913,6 +949,7 @@ class NoopReportStreamEventService : IReportStreamEventService {
         eventName: ReportStreamEventName,
         childReport: Report,
         pipelineStepName: TaskAction,
+        queueMessage: String,
         shouldQueue: Boolean,
         initializer: ReportStreamReportEventBuilder.() -> Unit,
     ): Unit = throw NotImplementedError()
@@ -921,6 +958,7 @@ class NoopReportStreamEventService : IReportStreamEventService {
         eventName: ReportStreamEventName,
         childReport: ReportFile,
         pipelineStepName: TaskAction,
+        queueMessage: String,
         shouldQueue: Boolean,
         initializer: ReportStreamReportEventBuilder.() -> Unit,
     ): Unit = throw NotImplementedError()
@@ -930,6 +968,7 @@ class NoopReportStreamEventService : IReportStreamEventService {
         childReport: ReportFile,
         pipelineStepName: TaskAction,
         error: String,
+        queueMessage: String,
         shouldQueue: Boolean,
         initializer: ReportStreamReportProcessingErrorEventBuilder.() -> Unit,
     ): Unit = throw NotImplementedError()
@@ -939,6 +978,7 @@ class NoopReportStreamEventService : IReportStreamEventService {
         childReport: Report,
         pipelineStepName: TaskAction,
         error: String,
+        queueMessage: String,
         shouldQueue: Boolean,
         initializer: ReportStreamReportProcessingErrorEventBuilder.() -> Unit,
     ): Unit = throw NotImplementedError()
@@ -947,6 +987,7 @@ class NoopReportStreamEventService : IReportStreamEventService {
         eventName: ReportStreamEventName,
         childReport: Report,
         pipelineStepName: TaskAction,
+        queueMessage: String,
         shouldQueue: Boolean,
         initializer: ReportStreamItemEventBuilder.() -> Unit,
     ): Unit = throw NotImplementedError()
@@ -955,6 +996,7 @@ class NoopReportStreamEventService : IReportStreamEventService {
         eventName: ReportStreamEventName,
         childReport: ReportFile,
         pipelineStepName: TaskAction,
+        queueMessage: String,
         shouldQueue: Boolean,
         initializer: ReportStreamItemEventBuilder.() -> Unit,
     ): Unit = throw NotImplementedError()
@@ -964,6 +1006,7 @@ class NoopReportStreamEventService : IReportStreamEventService {
         childReport: ReportFile,
         pipelineStepName: TaskAction,
         error: String,
+        queueMessage: String,
         shouldQueue: Boolean,
         initializer: ReportStreamItemProcessingErrorEventBuilder.() -> Unit,
     ): Unit = throw NotImplementedError()
@@ -973,6 +1016,7 @@ class NoopReportStreamEventService : IReportStreamEventService {
         childReport: Report,
         pipelineStepName: TaskAction,
         error: String,
+        queueMessage: String,
         shouldQueue: Boolean,
         initializer: ReportStreamItemProcessingErrorEventBuilder.() -> Unit,
     ): Unit = throw NotImplementedError()
@@ -983,6 +1027,7 @@ class NoopReportStreamEventService : IReportStreamEventService {
         parentReportId: UUID?,
         pipelineStepName: TaskAction,
         topic: Topic?,
+        queueMessage: String,
     ): ReportEventData = throw NotImplementedError()
 
     override fun getItemEventData(

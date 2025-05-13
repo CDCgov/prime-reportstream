@@ -107,6 +107,9 @@ prime-router/.vault/env/**
 # Gradle files
 **/.gradle/**
 
+# Kotlin Gradle plugin data, see https://kotlinlang.org/docs/whatsnew20.html#new-directory-for-kotlin-data-in-gradle-projects
+**/.kotlin/**
+
 # Gitleaks
 gitleaks.report.json
 gitleaks.log

@@ -1,10 +1,36 @@
-- name: Run Trivy vulnerability scanner
-  uses: aquasecurity/trivy-action@master
-  with:
-    scan-type: image
-    image-ref: ${{ github.repository }}/${{ steps.parse_tag.outputs.image }}:test
-    format: table
-    exit-code: 1
-    ignore-unfixed: true
-    vuln-type: os,library
-    severity: MEDIUM,HIGH,CRITICAL
+name: "Trivy Vulnerability Scanner"
+description: "Scan Docker images for vulnerabilities using Trivy"
+inputs:
+  image-name:
+    description: "The name of the Docker image to scan"
+    required: true
+  image-version:
+    description: "The version/tag of the Docker image to scan"
+    required: true
+    default: "latest"
+  registry-prefix:
+    description: "The registry prefix for the image (e.g., ghcr.io)"
+    required: false
+    default: "ghcr.io"
+  exit-on-error:
+    description: "Whether to exit with error code if vulnerabilities are found"
+    required: false
+    default: "false"
+  severity-level:
+    description: "Comma-separated list of severity levels to check"
+    required: false
+    default: "MEDIUM,HIGH,CRITICAL"
+
+runs:
+  using: "composite"
+  steps:
+    - name: Run Trivy vulnerability scanner
+      uses: aquasecurity/trivy-action@master
+      with:
+        scan-type: image
+        image-ref: "${{ inputs.registry-prefix }}/${{ inputs.image-name }}:${{ inputs.image-version }}"
+        format: table
+        exit-code: ${{ inputs.exit-on-error == 'true' && '1' || '0' }}
+        ignore-unfixed: true
+        vuln-type: os,library
+        severity: ${{ inputs.severity-level }}

@@ -44,6 +44,8 @@ import org.jooq.impl.SQLDataType
 import java.net.URI
 import java.net.URISyntaxException
 import java.time.LocalDateTime
+import java.time.OffsetDateTime
+import java.time.format.DateTimeFormatter
 
 /**
  * This is a container class that holds information to be stored, about a single action,
@@ -591,6 +593,10 @@ class ActionHistory(
         }
     }
 
+    /**
+     * Use this to record history info about a sent report.
+     * Creates Azure Events for sent Report and Items.
+     */
     fun trackSentReport(
         receiver: Receiver,
         sentReportId: ReportId,
@@ -601,6 +607,8 @@ class ActionHistory(
         reportEventService: IReportStreamEventService,
         reportService: ReportService,
         transportType: String,
+        lineages: List<ItemLineage>?,
+        queueMessage: String,
     ) {
         if (isReportAlreadyTracked(sentReportId)) {
             error(
@@ -637,9 +645,10 @@ class ActionHistory(
         reportFile.bodyUrl = blobInfo.blobUrl
 
         reportEventService.sendReportEvent(
-            childReport = reportFile,
             eventName = ReportStreamEventName.REPORT_SENT,
-            pipelineStepName = TaskAction.send
+            childReport = reportFile,
+            pipelineStepName = TaskAction.send,
+            queueMessage = queueMessage,
         ) {
             parentReportId(header.reportFile.reportId)
             params(
@@ -651,7 +660,36 @@ class ActionHistory(
             )
         }
 
-        val lineages = Report.createItemLineagesFromDb(header, sentReportId)
+        trackItemSendState(
+            ReportStreamEventName.ITEM_SENT,
+            reportFile,
+            lineages,
+            receiver,
+            null,
+            null,
+            queueMessage,
+            reportEventService,
+            reportService
+        )
+
+        reportsOut[reportFile.reportId] = reportFile
+    }
+
+    /**
+     * Use this to create Azure Events for items in the send step.
+     * Pulls Item history from receiver filter step before Items were batched.
+     */
+    fun trackItemSendState(
+        eventName: ReportStreamEventName,
+        report: ReportFile,
+        lineages: List<ItemLineage>?,
+        receiver: Receiver,
+        nextRetryCount: Int?,
+        nextRetryTime: OffsetDateTime?,
+        queueMessage: String?,
+        reportEventService: IReportStreamEventService,
+        reportService: ReportService,
+    ) {
         lineages?.forEach { itemLineage ->
             val receiverFilterReportFile = reportService.getReportForItemAtTask(
                 itemLineage.parentReportId,
@@ -674,23 +712,26 @@ class ActionHistory(
                         )
                     )
                 )
-                reportEventService.sendItemEvent(ReportStreamEventName.ITEM_SENT, reportFile, TaskAction.send) {
+                reportEventService.sendItemEvent(eventName, report, TaskAction.send, queueMessage ?: "") {
                     trackingId(bundle)
-                    parentReportId(header.reportFile.reportId)
+                    parentReportId(itemLineage.parentReportId)
                     childItemIndex(itemLineage.childIndex)
                     params(
-                        mapOf(
-                            ReportStreamEventProperties.BUNDLE_DIGEST
-                                to bundleDigestExtractor.generateDigest(bundle),
+                        listOfNotNull(
+                            ReportStreamEventProperties.BUNDLE_DIGEST to bundleDigestExtractor.generateDigest(bundle),
                             ReportStreamEventProperties.RECEIVER_NAME to receiver.fullName,
-                        )
+                            nextRetryCount?.let { ReportStreamEventProperties.RETRY_COUNT to it },
+                            nextRetryTime?.let {
+                                ReportStreamEventProperties.NEXT_RETRY_TIME to
+                                    DateTimeFormatter.ISO_DATE_TIME.format(it)
+                            }
+                        ).toMap()
                     )
                 }
             } else {
                 logger.error("No translate report found for sent item.")
             }
         }
-        reportsOut[reportFile.reportId] = reportFile
     }
 
     /**

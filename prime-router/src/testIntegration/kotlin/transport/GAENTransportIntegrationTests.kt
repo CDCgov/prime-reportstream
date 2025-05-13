@@ -144,7 +144,9 @@ class GAENTransportIntegrationTests : TransportIntegrationTests() {
             context,
             actionHistory,
             mockk<IReportStreamEventService>(relaxed = true),
-            mockk<ReportService>(relaxed = true)
+            mockk<ReportService>(relaxed = true),
+            listOf(),
+            ""
         )
 
         assertThat(retryItems).isNull()
@@ -177,7 +179,9 @@ class GAENTransportIntegrationTests : TransportIntegrationTests() {
             context,
             actionHistory,
             mockk<IReportStreamEventService>(relaxed = true),
-            mockk<ReportService>(relaxed = true)
+            mockk<ReportService>(relaxed = true),
+            listOf(),
+            ""
         )
 
         assertThat(RetryToken.isAllItems(retryItems)).isTrue()
@@ -210,7 +214,9 @@ class GAENTransportIntegrationTests : TransportIntegrationTests() {
             context,
             actionHistory,
             mockk<IReportStreamEventService>(relaxed = true),
-            mockk<ReportService>(relaxed = true)
+            mockk<ReportService>(relaxed = true),
+            listOf(),
+            ""
         )
 
         assertThat(retryItems).isNull()
@@ -244,7 +250,9 @@ class GAENTransportIntegrationTests : TransportIntegrationTests() {
             context,
             actionHistory,
             mockk<IReportStreamEventService>(relaxed = true),
-            mockk<ReportService>(relaxed = true)
+            mockk<ReportService>(relaxed = true),
+            listOf(),
+            ""
         )
 
         assertThat(retryItems).isNull()

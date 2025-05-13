@@ -13,6 +13,7 @@ import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.TransportType
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.WorkflowEngine
+import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
 import gov.cdc.prime.router.azure.observability.event.IReportStreamEventService
 import gov.cdc.prime.router.report.ReportService
 import org.thymeleaf.TemplateEngine
@@ -35,6 +36,8 @@ class EmailTransport : ITransport {
         actionHistory: ActionHistory, // not used by emailer
         reportEventService: IReportStreamEventService,
         reportService: ReportService,
+        lineages: List<ItemLineage>?,
+        queueMessage: String,
     ): RetryItems? {
         val emailTransport = transportType as EmailTransportType
         val content = buildContent(header)

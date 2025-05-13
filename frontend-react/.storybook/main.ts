@@ -1,5 +1,5 @@
 import type { StorybookConfig } from "@storybook/react-vite";
-import remarkToc from "remark-mdx-toc";
+import { remarkMdxToc } from "remark-mdx-toc";
 
 const config: StorybookConfig = {
     stories: ["../src/**/*.stories.mdx", "../src/**/*.stories.@(js|jsx|ts|tsx)"],
@@ -13,7 +13,7 @@ const config: StorybookConfig = {
             options: {
                 mdxPluginOptions: {
                     mdxCompileOptions: {
-                        remarkPlugins: [remarkToc],
+                        remarkPlugins: [remarkMdxToc],
                     },
                 },
             },
