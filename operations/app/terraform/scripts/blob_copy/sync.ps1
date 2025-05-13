@@ -1,16 +1,15 @@
 # Sync Azure Blob Storage for BC/DR using AzCopy
 
 # Configuration - Correct account names and container name as confirmed
-$primaryAccount = "pdhprodpublic"            # Primary storage account (Standard_GRS)
-$secondaryAccount = "pdhprodterraform"       # Secondary storage account (Standard_RAGRS)
+$primaryAccount = "<primaty-account>"            # Primary storage account (Standard_GRS)
+$secondaryAccount = "<secondary-account>"       # Secondary storage account (Standard_RAGRS)
 $resourceGroup = "prime-data-hub-prod"       # Resource group name
-$container = "terraformstate"                # Blob container name
+$container = "<container>"                # Blob container name
 
 # Obtain Primary Storage Account Key
-$primaryKey = az storage account keys list --account-name $primaryAccount --resource-group $resourceGroup --query '[0].value' -o tsv
-
+$primaryKey = $(az storage account keys list --account-name $primaryAccount --resource-group $resourceGroup --query '[0].value' -o tsv)
 # Obtain Secondary Storage Account Key
-$secondaryKey = az storage account keys list --account-name $secondaryAccount --resource-group $resourceGroup --query '[0].value' -o tsv
+$secondaryKey = $(az storage account keys list --account-name $secondaryAccount --resource-group $resourceGroup --query '[0].value' -o tsv)
 
 # Display Sync Start Message
 Write-Output "Initiating blob storage sync from primary to secondary..."
