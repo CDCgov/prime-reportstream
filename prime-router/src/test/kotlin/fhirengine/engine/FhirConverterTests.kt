@@ -733,7 +733,7 @@ class FhirConverterTests {
         @Test
         fun `should log an error and return no bundles if the message is empty`() {
             mockkObject(BlobAccess)
-            val input = FHIRConverter.FHIRConvertInput(UUID.randomUUID(), Topic.FULL_ELR, "", "", "", "")
+            val input = FHIRConverter.FHIRConvertInput(UUID.randomUUID(), Topic.FULL_ELR, "", "", "", "", "")
             val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process) as FHIRConverter)
             val actionLogger = ActionLogger()
             every { BlobAccess.downloadBlob(any(), any()) } returns ""
@@ -759,7 +759,15 @@ class FhirConverterTests {
             every { mockMessage.topic } returns Topic.FULL_ELR
             every { mockMessage.reportId } returns UUID.randomUUID()
             every { BlobAccess.downloadBlob(any(), any()) } returns simpleHL7
-            val input = FHIRConverter.FHIRConvertInput(UUID.randomUUID(), Topic.FULL_ELR, "", "", "", "")
+            val input = FHIRConverter.FHIRConvertInput(
+                UUID.randomUUID(),
+                Topic.FULL_ELR,
+                "",
+                "",
+                "",
+                "",
+                mockMessage.toString()
+            )
             val bundles = engine.process(MimeFormat.HL7, input, actionLogger)
             assertThat(bundles).isEmpty()
             assertThat(
@@ -775,7 +783,7 @@ class FhirConverterTests {
             val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process) as FHIRConverter)
             val actionLogger = ActionLogger()
             every { BlobAccess.downloadBlob(any(), any()) } returns "test,1,2"
-            val input = FHIRConverter.FHIRConvertInput(UUID.randomUUID(), Topic.FULL_ELR, "", "", "", "")
+            val input = FHIRConverter.FHIRConvertInput(UUID.randomUUID(), Topic.FULL_ELR, "", "", "", "", "")
             val bundles = engine.process(MimeFormat.CSV, input, actionLogger)
             assertThat(bundles).isEmpty()
             assertThat(actionLogger.errors.map { it.detail.message })
@@ -788,7 +796,7 @@ class FhirConverterTests {
             val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process) as FHIRConverter)
             val actionLogger = ActionLogger()
             every { BlobAccess.downloadBlob(any(), any()) } returns "{\"id\":}"
-            val input = FHIRConverter.FHIRConvertInput(UUID.randomUUID(), Topic.FULL_ELR, "", "", "", "")
+            val input = FHIRConverter.FHIRConvertInput(UUID.randomUUID(), Topic.FULL_ELR, "", "", "", "", "")
             val processedItems = engine.process(MimeFormat.FHIR, input, actionLogger)
             assertThat(processedItems).hasSize(1)
             assertThat(processedItems.first().bundle).isNull()
@@ -819,7 +827,15 @@ class FhirConverterTests {
             every { mockMessage.topic } returns Topic.FULL_ELR
             every { mockMessage.reportId } returns UUID.randomUUID()
             every { BlobAccess.downloadBlob(any(), any()) } returns "{\"id\":\"1\", \"resourceType\":\"Bundle\"}"
-            val input = FHIRConverter.FHIRConvertInput(UUID.randomUUID(), Topic.FULL_ELR, "", "", "", "")
+            val input = FHIRConverter.FHIRConvertInput(
+                UUID.randomUUID(),
+                Topic.FULL_ELR,
+                "",
+                "",
+                "",
+                "",
+                mockMessage.toString()
+            )
             val processedItems = engine.process(MimeFormat.FHIR, input, actionLogger)
             assertThat(processedItems).hasSize(1)
             assertThat(processedItems.first().bundle).isNull()
@@ -839,7 +855,15 @@ class FhirConverterTests {
             every {
                 BlobAccess.downloadBlob(any(), any())
             } returns unparseableHL7
-            val input = FHIRConverter.FHIRConvertInput(UUID.randomUUID(), Topic.FULL_ELR, "", "", "", "")
+            val input = FHIRConverter.FHIRConvertInput(
+                UUID.randomUUID(),
+                Topic.FULL_ELR,
+                "",
+                "",
+                "",
+                "",
+                mockMessage.toString()
+            )
             val processedItems = engine.process(MimeFormat.HL7, input, actionLogger)
             assertThat(processedItems).hasSize(1)
             assertThat(processedItems.first().bundle).isNull()
@@ -875,7 +899,15 @@ class FhirConverterTests {
             every {
                 BlobAccess.downloadBlob(any(), any())
             } returns simpleHL7
-            val input = FHIRConverter.FHIRConvertInput(UUID.randomUUID(), Topic.FULL_ELR, "", "", "", "")
+            val input = FHIRConverter.FHIRConvertInput(
+                UUID.randomUUID(),
+                Topic.FULL_ELR,
+                "",
+                "",
+                "",
+                "",
+                mockMessage.toString()
+            )
             val processedItems = engine.process(MimeFormat.HL7, input, actionLogger)
             assertThat(processedItems).hasSize(1)
             assertThat(processedItems.first().bundle).isNull()
@@ -905,7 +937,15 @@ class FhirConverterTests {
             every {
                 BlobAccess.downloadBlob(any(), any())
             } returns simpleHL7
-            val input = FHIRConverter.FHIRConvertInput(UUID.randomUUID(), Topic.FULL_ELR, "", "", "", "")
+            val input = FHIRConverter.FHIRConvertInput(
+                UUID.randomUUID(),
+                Topic.FULL_ELR,
+                "",
+                "",
+                "",
+                "",
+                mockMessage.toString()
+            )
             val processedItems = engine.process(MimeFormat.HL7, input, actionLogger)
             assertThat(processedItems).hasSize(1)
             assertThat(processedItems.first().bundle).isNull()
@@ -932,7 +972,15 @@ class FhirConverterTests {
             } returns """{\"id\":}
                 {"id":"1", "resourceType":"Bundle"}
             """.trimMargin()
-            val input = FHIRConverter.FHIRConvertInput(UUID.randomUUID(), Topic.FULL_ELR, "", "", "", "")
+            val input = FHIRConverter.FHIRConvertInput(
+                UUID.randomUUID(),
+                Topic.FULL_ELR,
+                "",
+                "",
+                "",
+                "",
+                mockMessage.toString()
+            )
             val processedItems = engine.process(MimeFormat.FHIR, input, actionLogger)
             assertThat(processedItems).hasSize(2)
             assertThat(actionLogger.errors.map { it.detail.message }).contains(
@@ -960,7 +1008,15 @@ class FhirConverterTests {
             every {
                 BlobAccess.downloadBlob(any(), any())
             } returns simpleHL7
-            val input = FHIRConverter.FHIRConvertInput(UUID.randomUUID(), Topic.FULL_ELR, "", "", "", "")
+            val input = FHIRConverter.FHIRConvertInput(
+                UUID.randomUUID(),
+                Topic.FULL_ELR,
+                "",
+                "",
+                "",
+                "",
+                mockMessage.toString()
+            )
             val bundles = engine.process(MimeFormat.HL7, input, actionLogger)
             assertThat(bundles).hasSize(1)
             assertThat(actionLogger.errors).isEmpty()
@@ -981,7 +1037,15 @@ class FhirConverterTests {
             every {
                 BlobAccess.downloadBlob(any(), any())
             } returns simpleHL7 + "\n" + simpleHL7 + "\n" + simpleHL7
-            val input = FHIRConverter.FHIRConvertInput(UUID.randomUUID(), Topic.FULL_ELR, "", "", "", "")
+            val input = FHIRConverter.FHIRConvertInput(
+                UUID.randomUUID(),
+                Topic.FULL_ELR,
+                "",
+                "",
+                "",
+                "",
+                mockMessage.toString()
+            )
             val bundles = engine.process(MimeFormat.HL7, input, actionLogger)
             assertThat(bundles).hasSize(3)
             assertThat(actionLogger.errors).isEmpty()
@@ -1003,7 +1067,15 @@ class FhirConverterTests {
             every {
                 BlobAccess.downloadBlob(any(), any())
             } returns simpleHL7
-            val input = FHIRConverter.FHIRConvertInput(UUID.randomUUID(), Topic.FULL_ELR, "", "", "", "")
+            val input = FHIRConverter.FHIRConvertInput(
+                UUID.randomUUID(),
+                Topic.FULL_ELR,
+                "",
+                "",
+                "",
+                "",
+                mockMessage.toString()
+            )
             val bundles = engine.process(MimeFormat.HL7, input, actionLogger)
             assertThat(bundles).hasSize(1)
             assertThat(actionLogger.errors).isEmpty()

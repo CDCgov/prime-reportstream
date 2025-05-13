@@ -37,6 +37,7 @@ class EmailTransport : ITransport {
         reportEventService: IReportStreamEventService,
         reportService: ReportService,
         lineages: List<ItemLineage>?,
+        queueMessage: String,
     ): RetryItems? {
         val emailTransport = transportType as EmailTransportType
         val content = buildContent(header)
