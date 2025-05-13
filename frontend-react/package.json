@@ -179,7 +179,7 @@
     "jsdom": "^26.1.0",
     "lint-staged": "^16.0.0",
     "mockdate": "^3.0.5",
-    "msw": "^2.7.5",
+    "msw": "^2.8.2",
     "npm-run-all": "^4.1.5",
     "otpauth": "^9.4.0",
     "patch-package": "^8.0.0",
