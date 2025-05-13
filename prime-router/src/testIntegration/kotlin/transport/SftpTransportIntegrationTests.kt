@@ -179,7 +179,8 @@ class SftpTransportIntegrationTests : TransportIntegrationTests() {
             f.actionHistory,
             mockk<IReportStreamEventService>(relaxed = true),
             mockk<ReportService>(relaxed = true),
-            listOf()
+            listOf(),
+            ""
         )
 
         // successful SFTP upload
@@ -222,7 +223,8 @@ class SftpTransportIntegrationTests : TransportIntegrationTests() {
             f.actionHistory,
             mockk<IReportStreamEventService>(relaxed = true),
             mockk<ReportService>(relaxed = true),
-            listOf()
+            listOf(),
+            ""
         )
 
         // successful SFTP upload
@@ -265,7 +267,8 @@ class SftpTransportIntegrationTests : TransportIntegrationTests() {
             f.actionHistory,
             mockk<IReportStreamEventService>(relaxed = true),
             mockk<ReportService>(relaxed = true),
-            listOf()
+            listOf(),
+            ""
         )
 
         // successful SFTP upload
@@ -291,7 +294,8 @@ class SftpTransportIntegrationTests : TransportIntegrationTests() {
             f.actionHistory,
             mockk<IReportStreamEventService>(relaxed = true),
             mockk<ReportService>(relaxed = true),
-            listOf()
+            listOf(),
+            ""
         )
 
         // asserts that the initial null check works
@@ -324,7 +328,8 @@ class SftpTransportIntegrationTests : TransportIntegrationTests() {
             f.actionHistory,
             mockk<IReportStreamEventService>(relaxed = true),
             mockk<ReportService>(relaxed = true),
-            listOf()
+            listOf(),
+            ""
         )
 
         // asserts that missing credentials will fail SFTP
@@ -365,7 +370,8 @@ class SftpTransportIntegrationTests : TransportIntegrationTests() {
             f.actionHistory,
             mockk<IReportStreamEventService>(relaxed = true),
             mockk<ReportService>(relaxed = true),
-            listOf()
+            listOf(),
+            ""
         )
 
         // asserts that authentication error will result in error
@@ -399,7 +405,8 @@ class SftpTransportIntegrationTests : TransportIntegrationTests() {
             f.actionHistory,
             mockk<IReportStreamEventService>(relaxed = true),
             mockk<ReportService>(relaxed = true),
-            listOf()
+            listOf(),
+            ""
         )
 
         // asserts that invalid credential types will result in error
