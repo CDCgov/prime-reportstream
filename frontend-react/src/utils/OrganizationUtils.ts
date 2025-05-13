@@ -1,8 +1,4 @@
-import type {
-    AccessToken,
-    CustomUserClaims,
-    UserClaims,
-} from "@okta/okta-auth-js";
+import type { AccessToken, CustomUserClaims, UserClaims } from "@okta/okta-auth-js";
 
 import { PERMISSIONS } from "./UsefulTypes";
 import type { RSService } from "../config/endpoints/settings";
@@ -28,9 +24,7 @@ export interface AccessTokenWithRSClaims extends AccessToken {
 }
 
 /* Parses the array of organizations (strings) from an AccessToken */
-export const getOktaGroups = (
-    accessToken: AccessToken | undefined,
-): string[] => {
+export const getOktaGroups = (accessToken: AccessToken | undefined): string[] => {
     if (!accessToken?.claims) return [];
     return toRSClaims(accessToken.claims).organization || [];
 };
@@ -45,11 +39,7 @@ export const parseOrgName = (group: string | undefined): string => {
      * Sender - has an OktaGroup name beginning with DHSender_
      * Receiver - has an OktaGroup name beginning with DHxx_ where xx is any state code
      * Non-standard - has no associated OktaGroup and is already the org value in the db table */
-    const groupType = isStandardGroup
-        ? isSenderGroup
-            ? "sender"
-            : "receiver"
-        : "non-standard";
+    const groupType = isStandardGroup ? (isSenderGroup ? "sender" : "receiver") : "non-standard";
 
     switch (groupType) {
         case "sender":
@@ -61,7 +51,7 @@ export const parseOrgName = (group: string | undefined): string => {
             return group ? group.replace("DH", "").replace(/_/g, "-") : "";
         case "non-standard":
             // simple_report -> simple_report
-            return group ? group : "";
+            return group ?? "";
     }
 };
 
@@ -104,14 +94,11 @@ export const getTypeOfGroup = (org: string) => {
     }
 };
 
-export const extractSenderName = (org: string) =>
-    org.split(".")?.[1] || undefined;
+export const extractSenderName = (org: string) => org.split(".")?.[1] || undefined;
 
 /** This method constructs membership settings
  * @remarks This will put you as a default sender if you are not in a specific sender group */
-export const getSettingsFromOrganization = (
-    org: string,
-): MembershipSettings => {
+export const getSettingsFromOrganization = (org: string): MembershipSettings => {
     const parsedName = parseOrgName(org);
     const memberType = getTypeOfGroup(org);
     let senderName = extractSenderName(org);
@@ -127,16 +114,12 @@ export const getSettingsFromOrganization = (
     };
 };
 
-export const membershipsFromToken = (
-    claims: UserClaims = {} as UserClaims,
-): MembershipSettings | null => {
+export const membershipsFromToken = (claims: UserClaims = {} as UserClaims): MembershipSettings | null => {
     const rsClaims = toRSClaims(claims);
     // Check if we have any organization claims
     if (!rsClaims?.organization?.length) {
         return null;
     }
-    const orgClaim =
-        rsClaims.organization.find((org) => org === PRIME_ADMINS) ??
-        rsClaims.organization[0];
+    const orgClaim = rsClaims.organization.find((org) => org === PRIME_ADMINS) ?? rsClaims.organization[0];
     return getSettingsFromOrganization(orgClaim);
 };
