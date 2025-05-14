@@ -1,6 +1,7 @@
 package gov.cdc.prime.router.cli
 
 import com.github.ajalt.clikt.core.CliktCommand
+import com.github.ajalt.clikt.core.Context
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.types.enum
@@ -11,11 +12,13 @@ import org.apache.logging.log4j.kotlin.Logging
 class SyncTranslationSchemaCommand :
     CliktCommand(
         name = "syncSchemas",
-        // TODO
-        help = """"
-    """.trimMargin()
     ),
     Logging {
+    override fun help(context: Context): String {
+        // TODO
+        return """"
+    """.trimMargin()
+    }
 
     private val translationSchemaManager = TranslationSchemaManager()
 
