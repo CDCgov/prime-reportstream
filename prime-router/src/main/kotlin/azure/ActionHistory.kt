@@ -19,7 +19,6 @@ import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.ActionHistory.ReceivedReportSenderParameters.Companion.removeExcludedParameters
-import gov.cdc.prime.router.azure.db.Tables.ACTION
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
 import gov.cdc.prime.router.azure.db.tables.pojos.CovidResultMetadata
@@ -303,30 +302,24 @@ class ActionHistory(
      */
     fun trackActionParams(actionParams: String) {
         if (actionParams.isEmpty()) return
-        val tmp = if (action.actionParams.isNullOrBlank()) actionParams else "${action.actionParams}, $actionParams"
-        // truncate if data is longer than maximum length of db column
-        val max = ACTION.ACTION_PARAMS.dataType.length()
-        // truncate if needed
-        action.actionParams = if (max > 0) {
-            tmp.take(max)
-        } else {
-            tmp
-        }
+        action.actionParams =
+            if (action.actionParams.isNullOrBlank()) {
+                actionParams
+            } else {
+                "${action.actionParams}, $actionParams"
+            }
     }
 
     /**
      * Always appends
      */
     fun trackActionResult(actionResult: String) {
-        val tmp = if (action.actionResult.isNullOrBlank()) actionResult else "${action.actionResult}, $actionResult"
-        // truncate if data is longer than maximum length of db column
-        val max = ACTION.ACTION_RESULT.dataType.length()
-        // truncate if needed
-        action.actionResult = if (max > 0) {
-            tmp.take(max)
-        } else {
-            tmp
-        }
+        action.actionResult =
+            if (action.actionResult.isNullOrBlank()) {
+                actionResult
+            } else {
+                "${action.actionResult}, $actionResult"
+            }
     }
 
     /**
@@ -368,16 +361,8 @@ class ActionHistory(
         if (clientParam.isNotBlank()) {
             try {
                 val (sendingOrg, sendingOrgClient) = Sender.parseFullName(clientParam)
-                action.sendingOrg = if (ACTION.SENDING_ORG.dataType.length() > 0) {
-                    sendingOrg.take(ACTION.SENDING_ORG.dataType.length())
-                } else {
-                    sendingOrg
-                }
-                action.sendingOrgClient = if (ACTION.SENDING_ORG_CLIENT.dataType.length() > 0) {
-                    sendingOrgClient.take(ACTION.SENDING_ORG_CLIENT.dataType.length())
-                } else {
-                    sendingOrgClient
-                }
+                action.sendingOrg = sendingOrg
+                action.sendingOrgClient = sendingOrgClient
             } catch (e: Exception) {
                 logger.warn(
                     "Exception tracking sender: ${e.localizedMessage} ${e.stackTraceToString()}"
