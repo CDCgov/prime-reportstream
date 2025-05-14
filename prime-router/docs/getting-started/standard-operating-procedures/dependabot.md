@@ -24,6 +24,32 @@ Below are the steps for how to most safely check and merge in the dependabot PRs
     3. Leave a brief comment (i.e. "tested locally"), select Approve and click Submit review
     4. At the bottom of the Conversation tab, click on Update branch, then Enable auto-merge (squash)
 
+## Front-end Dependabot instructions
+1. Pull down the branch
+
+2. Pull latest from main
+
+    `git pull origin main --no-rebase`
+
+3. Run the following in /frontend-react
+
+    `yarn cache clean`
+
+    `rm -rf node_modules  package-lock.json`
+
+    `yarn install`
+
+5. Make sure there are no unit test errors 
+
+    `yarn run test:ci`
+
+6. Run the frontend and do a quick sweep of your local RS
+
+    `yarn run dev`
+
+7. If all is good, Review the changes in github and merge the PR. Alternatively, you can create a PR that has multiple Dependabot changes.
+
+
 ## Identifying Library Version Conflicts
 Updates to library versions can create conflicts when another library is dependent on an older version of the given library.
 1. Run the command `./gradlew dependencies | grep <library name>`.
