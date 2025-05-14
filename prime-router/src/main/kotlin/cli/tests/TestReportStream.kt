@@ -1,6 +1,7 @@
 package gov.cdc.prime.router.cli.tests
 
 import com.github.ajalt.clikt.core.CliktCommand
+import com.github.ajalt.clikt.core.Context
 import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
@@ -59,8 +60,9 @@ enum class TestStatus(val description: String) {
  */
 class TestReportStream :
     CliktCommand(
-    name = "test",
-    help = """Run tests of the Router functions
+        name = "test",
+    ) {
+    override fun help(context: Context): String = """Run tests of the Router functions
 
 Database connection info is supplied by environment variables.
 Examples for local host, and Azure Staging, respectively:
@@ -87,8 +89,8 @@ Examples:
  ./prime test --run ping,end2end --env staging --key xxxxxxx       Runs the ping and end2end tests in azure Staging
 ```
 
-    """,
-) {
+    """
+
     val defaultWorkingDir = "./build/csv_test_files"
 
     /**

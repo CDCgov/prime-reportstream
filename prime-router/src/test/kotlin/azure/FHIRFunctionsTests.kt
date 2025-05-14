@@ -8,7 +8,6 @@ import gov.cdc.prime.router.azure.observability.event.IReportStreamEventService
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventName
 import gov.cdc.prime.router.azure.observability.event.ReportStreamReportProcessingErrorEventBuilder
 import gov.cdc.prime.router.common.UniversalPipelineTestUtils
-import gov.cdc.prime.router.common.UniversalPipelineTestUtils.createFHIRFunctionsInstance
 import gov.cdc.prime.router.fhirengine.azure.FHIRFunctions
 import gov.cdc.prime.router.fhirengine.engine.FHIRConverter
 import gov.cdc.prime.router.metadata.LookupTable
@@ -87,6 +86,7 @@ class FHIRFunctionsTests {
                 any(),
                 any(),
                 any(),
+                any(),
                 capture(init)
             )
         } returns Unit
@@ -106,6 +106,7 @@ class FHIRFunctionsTests {
                 any<ReportFile>(),
                 TaskAction.convert,
                 "Error",
+                any(),
                 any(),
                 init.captured
             )

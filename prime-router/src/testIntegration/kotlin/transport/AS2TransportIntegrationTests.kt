@@ -128,7 +128,8 @@ class AS2TransportIntegrationTests {
                 actionHistory,
                 mockk<IReportStreamEventService>(relaxed = true),
                 mockk<ReportService>(relaxed = true),
-                listOf()
+                listOf(),
+                ""
             )
 
         assertThat(retryItems).isNull()
@@ -156,7 +157,8 @@ class AS2TransportIntegrationTests {
                 actionHistory,
                 mockk<IReportStreamEventService>(relaxed = true),
                 mockk<ReportService>(relaxed = true),
-                listOf()
+                listOf(),
+                "testQueue"
             )
 
         assertThat(retryItems).isSameInstanceAs(RetryToken.allItems)
