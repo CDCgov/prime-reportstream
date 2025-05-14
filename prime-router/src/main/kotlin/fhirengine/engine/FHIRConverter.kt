@@ -527,56 +527,58 @@ class FHIRConverter(
                             val result = stamper.stampObservation(observation)
                             if (!result.success) {
                                 val logger = actionLogger.getItemLogger(item.index + 1, observation.id)
-                                val actionLogMessage: List<ActionLogDetail> = when (result.failures.isEmpty()) {
-                                    true -> listOf(UnmappableConditionMessage())
-                                    else -> result.failures.map {
+                                if (result.failures.isEmpty()) {
+                                    logger.warn(UnmappableConditionMessage())
+                                } else {
+                                    val actionLogMessage = result.failures.map {
                                         UnmappableConditionMessage(
                                             it.failures.map { it.code },
                                             it.source
                                         )
                                     }
-                                }
-                                logger.warn(actionLogMessage)
+                                    logger.warn(actionLogMessage)
 
-                                actionLogMessage.forEach {
-                                    val report = Report(
-                                        MimeFormat.FHIR,
-                                        emptyList(),
-                                        parentItemLineageData = listOf(
-                                            Report.ParentItemLineageData(input.reportId, item.index + 1)
-                                        ),
-                                        metadata = this.metadata,
-                                        topic = input.topic,
-                                        nextAction = TaskAction.destination_filter
-                                    )
-                                    val bundleDigestExtractor = BundleDigestExtractor(
-                                        FhirPathBundleDigestLabResultExtractorStrategy(
-                                            CustomContext(
-                                                item.bundle!!,
-                                                item.bundle!!,
-                                                mutableMapOf(),
-                                                CustomFhirPathFunctions()
+                                    actionLogMessage.forEach {
+                                        val report = Report(
+                                            MimeFormat.FHIR,
+                                            emptyList(),
+                                            parentItemLineageData = listOf(
+                                                Report.ParentItemLineageData(input.reportId, item.index + 1)
+                                            ),
+                                            metadata = this.metadata,
+                                            topic = input.topic,
+                                            nextAction = TaskAction.destination_filter
+                                        )
+                                        val bundleDigestExtractor = BundleDigestExtractor(
+                                            FhirPathBundleDigestLabResultExtractorStrategy(
+                                                CustomContext(
+                                                    item.bundle!!,
+                                                    item.bundle!!,
+                                                    mutableMapOf(),
+                                                    CustomFhirPathFunctions()
+                                                )
                                             )
                                         )
-                                    )
-                                    reportEventService.sendItemProcessingError(
-                                        ReportStreamEventName.ITEM_INVALID_CONDITION_MAPPING,
-                                        report,
-                                        TaskAction.convert,
-                                        it.message,
-                                        shouldQueue = true,
-                                    ) {
-                                        parentReportId(input.reportId)
-                                        parentItemIndex(item.index + 1)
-                                        trackingId(item.bundle!!)
-                                        params(
-                                            mapOf(
-                                                ReportStreamEventProperties.BUNDLE_DIGEST
-                                                    to bundleDigestExtractor.generateDigest(item.bundle!!),
-                                                ReportStreamEventProperties.ITEM_FORMAT to format,
-                                                ReportStreamEventProperties.ENRICHMENTS to input.schemaName
+                                        reportEventService.sendItemProcessingError(
+                                            ReportStreamEventName.ITEM_INVALID_CONDITION_MAPPING,
+                                            report,
+                                            TaskAction.convert,
+                                            it.message,
+                                            input.queueMessage,
+                                            shouldQueue = true,
+                                        ) {
+                                            parentReportId(input.reportId)
+                                            parentItemIndex(item.index + 1)
+                                            trackingId(item.bundle!!)
+                                            params(
+                                                mapOf(
+                                                    ReportStreamEventProperties.BUNDLE_DIGEST
+                                                        to bundleDigestExtractor.generateDigest(item.bundle!!),
+                                                    ReportStreamEventProperties.ITEM_FORMAT to format,
+                                                    ReportStreamEventProperties.ENRICHMENTS to input.schemaName
+                                                )
                                             )
-                                        )
+                                        }
                                     }
                                 }
                             }
