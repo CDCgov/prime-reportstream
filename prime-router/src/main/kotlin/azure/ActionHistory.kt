@@ -40,9 +40,6 @@ import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.report.ReportService
 import io.ktor.http.HttpStatusCode
 import org.apache.logging.log4j.kotlin.Logging
-import org.jooq.impl.SQLDataType
-import java.net.URI
-import java.net.URISyntaxException
 import java.time.LocalDateTime
 import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
@@ -307,10 +304,14 @@ class ActionHistory(
     fun trackActionParams(actionParams: String) {
         if (actionParams.isEmpty()) return
         val tmp = if (action.actionParams.isNullOrBlank()) actionParams else "${action.actionParams}, $actionParams"
-        // kluge to get the max size of the varchar
+        // truncate if data is longer than maximum length of db column
         val max = ACTION.ACTION_PARAMS.dataType.length()
         // truncate if needed
-        action.actionParams = tmp.chunked(size = max)[0]
+        action.actionParams = if (max > 0) {
+            tmp.take(max)
+        } else {
+            tmp
+        }
     }
 
     /**
@@ -318,13 +319,13 @@ class ActionHistory(
      */
     fun trackActionResult(actionResult: String) {
         val tmp = if (action.actionResult.isNullOrBlank()) actionResult else "${action.actionResult}, $actionResult"
+        // truncate if data is longer than maximum length of db column
         val max = ACTION.ACTION_RESULT.dataType.length()
-        // max is 0 for the CLOB type. we're using CLOB for the action_result now because we want
-        // bigly strings, not just small sad 2048 strings
-        action.actionResult = if (ACTION.ACTION_RESULT.dataType == SQLDataType.CLOB && max == 0) {
-            tmp
+        // truncate if needed
+        action.actionResult = if (max > 0) {
+            tmp.take(max)
         } else {
-            tmp.chunked(size = max)[0]
+            tmp
         }
     }
 
@@ -367,8 +368,16 @@ class ActionHistory(
         if (clientParam.isNotBlank()) {
             try {
                 val (sendingOrg, sendingOrgClient) = Sender.parseFullName(clientParam)
-                action.sendingOrg = sendingOrg.take(ACTION.SENDING_ORG.dataType.length())
-                action.sendingOrgClient = sendingOrgClient.take(ACTION.SENDING_ORG_CLIENT.dataType.length())
+                action.sendingOrg = if (ACTION.SENDING_ORG.dataType.length() > 0) {
+                    sendingOrg.take(ACTION.SENDING_ORG.dataType.length())
+                } else {
+                    sendingOrg
+                }
+                action.sendingOrgClient = if (ACTION.SENDING_ORG_CLIENT.dataType.length() > 0) {
+                    sendingOrgClient.take(ACTION.SENDING_ORG_CLIENT.dataType.length())
+                } else {
+                    sendingOrgClient
+                }
             } catch (e: Exception) {
                 logger.warn(
                     "Exception tracking sender: ${e.localizedMessage} ${e.stackTraceToString()}"
@@ -436,7 +445,7 @@ class ActionHistory(
         reportFile.nextAction = report.nextAction
         reportFile.sendingOrg = source.organization
         reportFile.sendingOrgClient = source.client
-        reportFile.schemaName = trimSchemaNameToMaxLength(report.schema.name)
+        reportFile.schemaName = report.schema.name
         reportFile.schemaTopic = report.schema.topic
         reportFile.bodyUrl = blobInfo.blobUrl
         reportFile.bodyFormat = blobInfo.format.toString()
@@ -488,7 +497,7 @@ class ActionHistory(
         reportFile.nextAction = TaskAction.send
         reportFile.receivingOrg = receiver.organizationName
         reportFile.receivingOrgSvc = receiver.name
-        reportFile.schemaName = trimSchemaNameToMaxLength(report.schema.name)
+        reportFile.schemaName = report.schema.name
         reportFile.schemaTopic = report.schema.topic
         reportFile.bodyUrl = blobInfo.blobUrl
         reportFile.bodyFormat = blobInfo.format.toString()
@@ -521,7 +530,7 @@ class ActionHistory(
         reportFile.reportId = report.id
         reportFile.receivingOrg = receiver.organizationName
         reportFile.receivingOrgSvc = receiver.name
-        reportFile.schemaName = trimSchemaNameToMaxLength(report.schema.name)
+        reportFile.schemaName = report.schema.name
         reportFile.schemaTopic = report.schema.topic
         reportFile.itemCount = report.itemCount
         reportFile.bodyFormat = report.bodyFormat.toString()
@@ -549,7 +558,7 @@ class ActionHistory(
         val reportFile = ReportFile()
 
         reportFile.reportId = report.id
-        reportFile.schemaName = trimSchemaNameToMaxLength(report.schema.name)
+        reportFile.schemaName = report.schema.name
         reportFile.schemaTopic = report.schema.topic
         reportFile.itemCountBeforeQualFilter = report.itemCountBeforeQualFilter
 
@@ -633,7 +642,7 @@ class ActionHistory(
         reportFile.reportId = sentReportId
         reportFile.receivingOrg = receiver.organizationName
         reportFile.receivingOrgSvc = receiver.name
-        reportFile.schemaName = trimSchemaNameToMaxLength(receiver.schemaName)
+        reportFile.schemaName = receiver.schemaName
         reportFile.schemaTopic = receiver.topic
         reportFile.externalName = filename
         action.externalName = filename
@@ -755,7 +764,7 @@ class ActionHistory(
         reportFile.reportId = externalReportId // child report
         reportFile.receivingOrg = parentReportFile.receivingOrg
         reportFile.receivingOrgSvc = parentReportFile.receivingOrgSvc
-        reportFile.schemaName = trimSchemaNameToMaxLength(parentReportFile.schemaName)
+        reportFile.schemaName = parentReportFile.schemaName
         reportFile.schemaTopic = parentReportFile.schemaTopic
         reportFile.externalName = parentReportFile.externalName
         action.externalName = parentReportFile.externalName
@@ -876,21 +885,6 @@ class ActionHistory(
     }
 
     companion object : Logging {
-
-        // The schema_name column only support 63 characters
-        // If the schemaName is a URI grab the path and then take the last 63
-        // otherwise just take the last 63
-        // TODO: #13598
-        fun trimSchemaNameToMaxLength(schemaName: String?): String? {
-            if (schemaName == null) {
-                return schemaName
-            }
-            return try {
-                URI(schemaName).path.replace(".yml", "").takeLast(63)
-            } catch (ex: URISyntaxException) {
-                schemaName.takeLast(63)
-            }
-        }
 
         /**
          * Get rid of this once we have moved away from the old Task table.  In the meantime,
