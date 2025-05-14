@@ -312,6 +312,7 @@
         whenEmpty:
           action: "NONE"
           onlyOncePerDay: false
+        timeBetweenBatches: 60
       description: ""
       transport:
         type: SFTP
