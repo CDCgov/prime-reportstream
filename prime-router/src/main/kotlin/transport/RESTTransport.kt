@@ -12,6 +12,7 @@ import gov.cdc.prime.router.TransportType
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
+import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
 import gov.cdc.prime.router.azure.observability.event.IReportStreamEventService
 import gov.cdc.prime.router.credentials.CredentialHelper
 import gov.cdc.prime.router.credentials.CredentialRequestReason
@@ -93,6 +94,8 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
         actionHistory: ActionHistory,
         reportEventService: IReportStreamEventService,
         reportService: ReportService,
+        lineages: List<ItemLineage>?,
+        queueMessage: String,
     ): RetryItems? {
         val logger: Logger = context.logger
 
@@ -158,7 +161,9 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
                             header,
                             reportEventService,
                             reportService,
-                            this::class.java.simpleName
+                            this::class.java.simpleName,
+                            lineages,
+                            queueMessage
                         )
                         actionHistory.trackItemLineages(Report.createItemLineagesFromDb(header, sentReportId))
                     } catch (t: Throwable) {

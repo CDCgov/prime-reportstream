@@ -36,6 +36,8 @@ import gov.cdc.prime.router.azure.observability.bundleDigest.BundleDigestLabResu
 import gov.cdc.prime.router.azure.observability.event.AzureEventUtils
 import gov.cdc.prime.router.azure.observability.event.InMemoryAzureEventService
 import gov.cdc.prime.router.azure.observability.event.ItemEventData
+import gov.cdc.prime.router.azure.observability.event.OrderingFacilitySummary
+import gov.cdc.prime.router.azure.observability.event.PerformerSummary
 import gov.cdc.prime.router.azure.observability.event.ReportEventData
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventName
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventProperties
@@ -164,15 +166,15 @@ class FHIRConverterIntegrationTests {
         sender: Sender,
     ): String = """
         {
-            "type": "convert",
-            "reportId": "${report.id}",
-            "blobURL": "${report.bodyURL}",
-            "digest": "${BlobUtils.digestToString(BlobUtils.sha256Digest(blobContents.toByteArray()))}",
-            "blobSubFolderName": "${sender.fullName}",
-            "topic": "${sender.topic.jsonVal}",
-            "schemaName": "${sender.schemaName}"
+        "type":"convert",
+        "reportId":"${report.id}",
+        "blobURL":"${report.bodyURL}",
+        "digest":"${BlobUtils.digestToString(BlobUtils.sha256Digest(blobContents.toByteArray()))}",
+        "blobSubFolderName":"${sender.fullName}",
+        "topic":"${sender.topic.jsonVal}",
+        "schemaName":"${sender.schemaName}"
         }
-    """.trimIndent()
+        """.trimIndent().replace("\n", "")
 
     private fun generateFHIRConvertSubmissionQueueMessage(
         report: Report,
@@ -182,20 +184,25 @@ class FHIRConverterIntegrationTests {
         // TODO: something is wrong with the Jackson configuration as it should not require the type to parse this
         val headers = mapOf("client_id" to sender.fullName)
         val headersStringMap = headers.entries.joinToString(separator = ",\n") { (key, value) ->
-            """"$key": "$value""""
+            """"$key":"$value""""
         }
         val headersString = "[\"java.util.LinkedHashMap\",{$headersStringMap}]"
         return """
         {
-            "type": "receive-fhir",
-            "reportId": "${report.id}",
-            "blobURL": "${report.bodyURL}",
-            "digest": "${BlobUtils.digestToString(BlobUtils.sha256Digest(blobContents.toByteArray()))}",
-            "blobSubFolderName": "${sender.fullName}",
-            "headers":$headersString
+        "type":"receive",
+        "reportId":"${report.id}",
+        "blobURL":"${report.bodyURL}",
+        "digest":"${BlobUtils.digestToString(BlobUtils.sha256Digest(blobContents.toByteArray()))}",
+        "blobSubFolderName":"${sender.fullName}",
+        "headers":$headersString
         }
-    """.trimIndent()
+        """.trimIndent().replace("\n", "")
     }
+
+    private fun appendMessageQueueName(
+        queueMessage: String,
+        messageQueueName: String,
+    ): String = queueMessage.substringBeforeLast("}") + ",\"messageQueueName\":\"$messageQueueName\"}"
 
     @BeforeEach
     fun beforeEach() {
@@ -477,7 +484,8 @@ class FHIRConverterIntegrationTests {
                     routedReports[1].bodyUrl,
                     TaskAction.convert,
                     OffsetDateTime.now(),
-                    Version.commitId
+                    Version.commitId,
+                    appendMessageQueueName(queueMessage, QueueMessage.Companion.elrSubmissionConvertQueueName)
                 ),
                 ReportEventData::timestamp
             )
@@ -501,8 +509,19 @@ class FHIRConverterIntegrationTests {
                                 )
                             ),
                         patientState = listOf("TX"),
-                        orderingFacilityState = listOf("FL"),
-                        performerState = emptyList(),
+                        orderingFacilitySummaries = listOf(
+                            OrderingFacilitySummary(
+                                orderingFacilityName = "Avante at Ormond Beach",
+                                orderingFacilityState = "FL"
+                            )
+                        ),
+                        performerSummaries = listOf(
+                            PerformerSummary(
+                                performerName = "Unknown",
+                                performerState = "Unknown",
+                                performerCLIA = "10D0876999"
+                            )
+                        ),
                         eventType = "ORU^R01^ORU_R01"
                     ),
                     ReportStreamEventProperties.ENRICHMENTS to ""
@@ -633,7 +652,8 @@ class FHIRConverterIntegrationTests {
                     routedReports[1].bodyUrl,
                     TaskAction.convert,
                     OffsetDateTime.now(),
-                    Version.commitId
+                    Version.commitId,
+                    appendMessageQueueName(queueMessage, QueueMessage.Companion.elrConvertQueueName)
                 ),
                 ReportEventData::timestamp
             )
@@ -657,8 +677,19 @@ class FHIRConverterIntegrationTests {
                                 )
                             ),
                         patientState = listOf("TX"),
-                        orderingFacilityState = listOf("FL"),
-                        performerState = emptyList(),
+                        orderingFacilitySummaries = listOf(
+                            OrderingFacilitySummary(
+                                orderingFacilityName = "Avante at Ormond Beach",
+                                orderingFacilityState = "FL"
+                            )
+                        ),
+                        performerSummaries = listOf(
+                            PerformerSummary(
+                                performerName = "Unknown",
+                                performerState = "Unknown",
+                                performerCLIA = "10D0876999"
+                            )
+                        ),
                         eventType = "ORU^R01^ORU_R01"
                     ),
                     ReportStreamEventProperties.ENRICHMENTS to ""
@@ -809,7 +840,8 @@ class FHIRConverterIntegrationTests {
                     routedReports[1].bodyUrl,
                     TaskAction.convert,
                     OffsetDateTime.now(),
-                    Version.commitId
+                    Version.commitId,
+                    appendMessageQueueName(queueMessage, QueueMessage.Companion.elrConvertQueueName)
                 ),
                 ReportEventData::timestamp
             )
@@ -833,8 +865,8 @@ class FHIRConverterIntegrationTests {
                                 )
                             ),
                         patientState = emptyList(),
-                        orderingFacilityState = emptyList(),
-                        performerState = emptyList(),
+                        orderingFacilitySummaries = emptyList(),
+                        performerSummaries = emptyList(),
                         eventType = "ORU^R01^ORU_R01"
                     ),
                     ReportStreamEventProperties.ENRICHMENTS to ""
@@ -946,7 +978,8 @@ class FHIRConverterIntegrationTests {
                     "",
                     TaskAction.convert,
                     OffsetDateTime.now(),
-                    Version.commitId
+                    Version.commitId,
+                    appendMessageQueueName(queueMessage, QueueMessage.Companion.elrConvertQueueName)
                 ),
                 ReportEventData::timestamp
             )

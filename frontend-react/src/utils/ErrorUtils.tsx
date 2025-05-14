@@ -30,9 +30,8 @@ export const handleErrorWithAlert = ({
         rsConsole.warn(logMessage);
     }
     // attempt to extract more helpful error from response
-    const { response: { data: { error: errorString = null } = {} } = {} } =
-        error;
-    const message = errorString || error.toString();
+    const { response: { data: { error: errorString = null } = {} } = {} } = error;
+    const message = errorString ?? error.toString();
     if (setAlert) {
         setAlert({ type: "error", message });
     }

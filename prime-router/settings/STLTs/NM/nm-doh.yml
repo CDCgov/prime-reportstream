@@ -13,7 +13,7 @@
       topic: "full-elr"
       customerStatus: "active"
       translation:
-        schemaName: "azure:/metadata/hl7_mapping/receivers/STLTs/NM/NM-receiver-transform.yml"
+        schemaName: "classpath:/metadata/hl7_mapping/receivers/STLTs/NM/NM-receiver-transform.yml"
         useTestProcessingMode: false
         useBatchHeaders: true
         receivingApplicationName: "NMDOH^2.16.840.1.113883.3.5364^ISO"
@@ -45,7 +45,7 @@
         applyOTCDefault: false
         useOrderingFacilityName: "STANDARD"
         valueSetOverrides: {}
-        nameFormat: "APHL_LIGHT"
+        nameFormat: "nm-filename"
         receivingOrganization: "elr"
         convertPositiveDateTimeOffsetToNegative: false
         stripInvalidCharsRegex: null
@@ -67,7 +67,9 @@
         - "Bundle.entry.resource.ofType(Patient).where(address.line[0].empty() and address.postalCode.empty() and telecom.where(system = 'phone').value.empty() and telecom.where(system = 'email').value.empty()).count() = 0"
         - "((Bundle.entry.resource.ofType(Specimen).collection.collectedPeriod.exists() or Bundle.entry.resource.ofType(Specimen).collection.collected.exists())
            or (Bundle.entry.resource.ofType(ServiceRequest).occurrence.exists() or Bundle.entry.resource.ofType(Observation).effective.exists()))"
-      routingFilter: [ ]
+      routingFilter:
+        - "Bundle.entry.resource.ofType(DiagnosticReport).where(status in 'final'|'corrected').exists()"
+        - "Bundle.entry.resource.ofType(MessageHeader).extension('https://reportstream.cdc.gov/fhir/StructureDefinition/sender-id').where(value in ('SimpleReport')).exists()"
       processingModeFilter: []
       reverseTheQualityFilter: false
       conditionFilter:
@@ -78,7 +80,7 @@
       deidentifiedValue: ""
       timing:
         operation: "MERGE"
-        numberPerDay: 12
+        numberPerDay: 1440
         initialTime: "01:25"
         timeZone: "EASTERN"
         maxReportCount: 100
@@ -86,13 +88,15 @@
           action: "NONE"
           onlyOncePerDay: false
       description: ""
-      transport:
+      transport: !<SFTP>
         type: SFTP
         host: sftp
         port: 22
         filePath: ./upload
         credentialName: DEFAULT-SFTP
       externalName: null
-      enrichmentSchemaNames: []
+      enrichmentSchemaNames:
+        - "classpath:/metadata/fhir_transforms/common/use-county-lookup.yml"
+        - "classpath:/metadata/fhir_transforms/common/suppress-obx-18.yml"
       timeZone: null
       dateTimeFormat: "OFFSET"

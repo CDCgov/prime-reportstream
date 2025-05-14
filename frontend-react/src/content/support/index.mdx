@@ -132,7 +132,7 @@ import site from "../../content/site.json";
                     {
                         id: "how-does-reportstream-make-sure-public-health-agencies-dont-receive-duplicate-data",
                         headingLevel: "h4",
-                        title: "How does ReportStream make sure public health agencies don’t receive duplicate data?",
+                        title: "How does ReportStream make sure public health agencies don't receive duplicate data?",
                         content: (<p>
                             Our filtering process uses CLIA numbers to remove any duplicate data.
                             The filters are based on which organizations are already connected directly to a public health
@@ -204,7 +204,7 @@ import site from "../../content/site.json";
 
                             <p>
                             View specific reporting requirements for <A href="https://www.cdc.gov/covid/php/lab/reporting-lab-data.html">COVID-19</A>
-                            {" "} and for <A href="https://www.cdc.gov/poxvirus/mpox/lab-personnel/report-results.html">mpox</A>.
+                            {" "} and for <A href="https://www.cdc.gov/mpox/hcp/laboratories/reporting-test-results.html?CDC_AAref_Val=https://www.cdc.gov/poxvirus/mpox/lab-personnel/report-results.html">mpox</A>.
                             </p>
                         </>)
                     },
@@ -221,7 +221,7 @@ import site from "../../content/site.json";
                         headingLevel: "h4",
                         title: "How do I set up my public/private key pair?",
                         content: (<>
-                            <p>You can find detailed instructions in our <A href="/developer-resources/api">API guide</A>.</p>
+                            <p>You can find detailed instructions in our <A href={site.developerResources.apiOnboardingGuide.url}>API onboarding guide</A>.</p>
 
                             <p><b>Note:</b> Through this authentication process, you generate both a public and private key.
                             You only share the public key with ReportStream.</p>
@@ -243,7 +243,7 @@ import site from "../../content/site.json";
                         title: "How do I map to the LIVD table?",
                         content: (<>
                             <p>
-                                LOINC In Vitro Diagnostic (LIVD) mapping provides several data elements you’ll need for your ReportStream <A href="/developer-resources/api/getting-started">test file</A>. Including:
+                                LOINC In Vitro Diagnostic (LIVD) mapping provides several data elements you'll need for your ReportStream <A href={site.developerResources.url}>test file</A>. Including:
                             </p>
 
                             <ul>
@@ -252,7 +252,7 @@ import site from "../../content/site.json";
                                 <li>Test performed code</li>
                             </ul>
 
-                            <p>If you do not know what devices you’ll be reporting for, contact your lab.</p>
+                            <p>If you do not know what devices you'll be reporting for, contact your lab.</p>
 
                             <p>
                                 When you know the devices you are reporting for, you can use the LIVD mapping table to
@@ -279,8 +279,8 @@ import site from "../../content/site.json";
                         </CardHeader>
                         <CardBody>
                             - [Get started sending data](/getting-started/sending-data)
-                            - [API guide](/developer-resources/api)
-                            - [Developer resources](/developer-resources)
+                            - <A href={site.developerResources.apiOnboardingGuide.url}>API onboarding guide</A>
+                            - <A href={site.developerResources.url}>Developer resources</A>
                         </CardBody>
                     </Card>
                 </CardGroup>

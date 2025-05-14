@@ -36,6 +36,7 @@ import gov.cdc.prime.router.azure.observability.event.AzureEventService
 import gov.cdc.prime.router.azure.observability.event.AzureEventUtils
 import gov.cdc.prime.router.azure.observability.event.InMemoryAzureEventService
 import gov.cdc.prime.router.azure.observability.event.ItemEventData
+import gov.cdc.prime.router.azure.observability.event.OrderingFacilitySummary
 import gov.cdc.prime.router.azure.observability.event.ReportEventData
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventName
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventProperties
@@ -226,22 +227,27 @@ class FHIRReceiverFilterIntegrationTests : Logging {
         )
     }
 
-    fun generateQueueMessage(
+    private fun generateQueueMessage(
         report: Report,
         blobContents: String,
         sender: Sender,
         receiverName: String,
     ): String = """
-            {
-                "type": "${TaskAction.receiver_filter.literal}",
-                "reportId": "${report.id}",
-                "blobURL": "${report.bodyURL}",
-                "digest": "${BlobUtils.digestToString(BlobUtils.sha256Digest(blobContents.toByteArray()))}",
-                "blobSubFolderName": "${sender.fullName}",
-                "topic": "${sender.topic.jsonVal}",
-                "receiverFullName": "$receiverName" 
-            }
-        """.trimIndent()
+        {
+        "type":"${TaskAction.receiver_filter.literal}",
+        "reportId":"${report.id}",
+        "blobURL":"${report.bodyURL}",
+        "digest":"${BlobUtils.digestToString(BlobUtils.sha256Digest(blobContents.toByteArray()))}",
+        "blobSubFolderName":"${sender.fullName}",
+        "topic":"${sender.topic.jsonVal}",
+        "receiverFullName":"$receiverName"
+        }
+        """.trimIndent().replace("\n", "")
+
+    private fun appendTestMessage(
+        queueMessage: String,
+    ): String = queueMessage.substringBeforeLast("}") +
+            ",\"messageQueueName\":\"${QueueMessage.Companion.elrReceiverFilterQueueName}\"}"
 
     @Test
     fun `should send valid FHIR report filtered by condition filter`() {
@@ -398,7 +404,8 @@ class FHIRReceiverFilterIntegrationTests : Logging {
                     "",
                     TaskAction.receiver_filter,
                     OffsetDateTime.now(),
-                    Version.commitId
+                    Version.commitId,
+                    appendTestMessage(queueMessage)
                 ),
                 ReportEventData::timestamp,
             )
@@ -419,8 +426,13 @@ class FHIRReceiverFilterIntegrationTests : Logging {
                     observationSummaries = AzureEventUtils.getObservationSummaries(bundle),
                     eventType = "ORU/ACK - Unsolicited transmission of an observation message",
                     patientState = listOf("CA"),
-                    performerState = emptyList(),
-                    orderingFacilityState = listOf("CA")
+                    performerSummaries = emptyList(),
+                    orderingFacilitySummaries = listOf(
+                        OrderingFacilitySummary(
+                            orderingFacilityName = "Winchester House",
+                            orderingFacilityState = "CA"
+                        )
+                    )
                 ),
                 ReportStreamEventProperties.RECEIVER_NAME to receiver.fullName
             )
@@ -575,7 +587,8 @@ class FHIRReceiverFilterIntegrationTests : Logging {
                     "",
                     TaskAction.receiver_filter,
                     OffsetDateTime.now(),
-                    Version.commitId
+                    Version.commitId,
+                    appendTestMessage(queueMessage)
                 ),
                 ReportEventData::timestamp,
             )
@@ -596,8 +609,13 @@ class FHIRReceiverFilterIntegrationTests : Logging {
                         observationSummaries = AzureEventUtils.getObservationSummaries(bundle),
                         eventType = "ORU/ACK - Unsolicited transmission of an observation message",
                         patientState = listOf("CA"),
-                        performerState = emptyList(),
-                        orderingFacilityState = listOf("CA")
+                        performerSummaries = emptyList(),
+                        orderingFacilitySummaries = listOf(
+                            OrderingFacilitySummary(
+                                orderingFacilityName = "Winchester House",
+                                orderingFacilityState = "CA"
+                            )
+                        )
                     ),
                     ReportStreamEventProperties.RECEIVER_NAME to receiver.fullName
                 )
@@ -765,7 +783,8 @@ class FHIRReceiverFilterIntegrationTests : Logging {
                     "",
                     TaskAction.receiver_filter,
                     OffsetDateTime.now(),
-                    Version.commitId
+                    Version.commitId,
+                    appendTestMessage(queueMessage)
                 ),
                 ReportEventData::timestamp,
             )
@@ -786,8 +805,13 @@ class FHIRReceiverFilterIntegrationTests : Logging {
                     observationSummaries = AzureEventUtils.getObservationSummaries(bundle),
                     eventType = "ORU/ACK - Unsolicited transmission of an observation message",
                     patientState = listOf("CA"),
-                    performerState = emptyList(),
-                    orderingFacilityState = listOf("CA")
+                    performerSummaries = emptyList(),
+                    orderingFacilitySummaries = listOf(
+                        OrderingFacilitySummary(
+                            orderingFacilityName = "Winchester House",
+                            orderingFacilityState = "CA"
+                        )
+                    )
                 ),
                 ReportStreamEventProperties.RECEIVER_NAME to receiver.fullName
             )
@@ -899,7 +923,8 @@ class FHIRReceiverFilterIntegrationTests : Logging {
                     "",
                     TaskAction.receiver_filter,
                     OffsetDateTime.now(),
-                    Version.commitId
+                    Version.commitId,
+                    appendTestMessage(queueMessage)
                 ),
                 ReportEventData::timestamp,
             )
@@ -920,8 +945,8 @@ class FHIRReceiverFilterIntegrationTests : Logging {
                     observationSummaries = AzureEventUtils.getObservationSummaries(bundle),
                     eventType = "ORU^R01^ORU_R01",
                     patientState = emptyList(),
-                    performerState = emptyList(),
-                    orderingFacilityState = emptyList()
+                    performerSummaries = emptyList(),
+                    orderingFacilitySummaries = emptyList()
                 ),
                 ReportStreamEventProperties.RECEIVER_NAME to receiver.fullName
             )
@@ -1185,7 +1210,8 @@ class FHIRReceiverFilterIntegrationTests : Logging {
                     "",
                     TaskAction.receiver_filter,
                     OffsetDateTime.now(),
-                    Version.commitId
+                    Version.commitId,
+                    appendTestMessage(queueMessage)
                 ),
                 ReportEventData::timestamp,
             )
@@ -1206,8 +1232,13 @@ class FHIRReceiverFilterIntegrationTests : Logging {
                     observationSummaries = AzureEventUtils.getObservationSummaries(bundle),
                     eventType = "ORU/ACK - Unsolicited transmission of an observation message",
                     patientState = listOf("CO"),
-                    performerState = emptyList(),
-                    orderingFacilityState = listOf("CO")
+                    performerSummaries = emptyList(),
+                    orderingFacilitySummaries = listOf(
+                        OrderingFacilitySummary(
+                            orderingFacilityName = "******************************",
+                            orderingFacilityState = "CO"
+                        )
+                    )
                 ),
                 ReportStreamEventProperties.RECEIVER_NAME to receiver.fullName
             )

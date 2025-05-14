@@ -30,6 +30,7 @@ import gov.cdc.prime.router.azure.observability.event.AzureEventService
 import gov.cdc.prime.router.azure.observability.event.AzureEventUtils
 import gov.cdc.prime.router.azure.observability.event.InMemoryAzureEventService
 import gov.cdc.prime.router.azure.observability.event.ItemEventData
+import gov.cdc.prime.router.azure.observability.event.OrderingFacilitySummary
 import gov.cdc.prime.router.azure.observability.event.ReportEventData
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventName
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventProperties
@@ -132,17 +133,22 @@ class FHIRDestinationFilterIntegrationTests : Logging {
         )
     }
 
-    fun generateQueueMessage(action: TaskAction, report: Report, blobContents: String, sender: Sender): String = """
-            {
-                "type": "${action.literal}",
-                "reportId": "${report.id}",
-                "blobURL": "${report.bodyURL}",
-                "digest": "${BlobUtils.digestToString(BlobUtils.sha256Digest(blobContents.toByteArray()))}",
-                "blobSubFolderName": "${sender.fullName}",
-                "topic": "${sender.topic.jsonVal}",
-                "schemaName": "${sender.schemaName}" 
-            }
-        """.trimIndent()
+    private fun generateQueueMessage(action: TaskAction, report: Report, blobContents: String, sender: Sender): String = """
+        {
+        "type":"${action.literal}",
+        "reportId":"${report.id}",
+        "blobURL":"${report.bodyURL}",
+        "digest":"${BlobUtils.digestToString(BlobUtils.sha256Digest(blobContents.toByteArray()))}",
+        "blobSubFolderName":"${sender.fullName}",
+        "topic":"${sender.topic.jsonVal}",
+        "schemaName":"${sender.schemaName}"
+        }
+        """.trimIndent().replace("\n", "")
+
+    private fun appendTestMessage(
+        queueMessage: String,
+    ): String = queueMessage.replace(",\"schemaName\":\"\"", "").substringBeforeLast("}") +
+            ",\"messageQueueName\":\"${QueueMessage.Companion.elrDestinationFilterQueueName}\"}"
 
     @Test
     fun `should send valid FHIR report only to receivers listening to full-elr`() {
@@ -357,7 +363,8 @@ class FHIRDestinationFilterIntegrationTests : Logging {
                     routedReport.bodyUrl,
                     TaskAction.destination_filter,
                     OffsetDateTime.now(),
-                    Version.commitId
+                    Version.commitId,
+                    appendTestMessage(queueMessage)
                 ),
                 ReportEventData::timestamp
             )
@@ -377,8 +384,13 @@ class FHIRDestinationFilterIntegrationTests : Logging {
                         observationSummaries = AzureEventUtils.getObservationSummaries(bundle),
                         eventType = "ORU/ACK - Unsolicited transmission of an observation message",
                         patientState = listOf("CO"),
-                        performerState = emptyList(),
-                        orderingFacilityState = listOf("CO")
+                        performerSummaries = emptyList(),
+                        orderingFacilitySummaries = listOf(
+                            OrderingFacilitySummary(
+                                orderingFacilityName = "******************************",
+                                orderingFacilityState = "CO"
+                            )
+                        )
                     )
                 )
             )
@@ -459,7 +471,8 @@ class FHIRDestinationFilterIntegrationTests : Logging {
                 "",
                 TaskAction.destination_filter,
                 OffsetDateTime.now(),
-                Version.commitId
+                Version.commitId,
+                appendTestMessage(queueMessage)
             ),
             ReportEventData::timestamp,
             ReportEventData::childReportId
@@ -479,8 +492,13 @@ class FHIRDestinationFilterIntegrationTests : Logging {
                 observationSummaries = AzureEventUtils.getObservationSummaries(bundle),
                 eventType = "ORU/ACK - Unsolicited transmission of an observation message",
                 patientState = listOf("CO"),
-                performerState = emptyList(),
-                orderingFacilityState = listOf("CO")
+                performerSummaries = emptyList(),
+                orderingFacilitySummaries = listOf(
+                    OrderingFacilitySummary(
+                        orderingFacilityName = "******************************",
+                        orderingFacilityState = "CO"
+                    )
+                )
             )
         )
         )

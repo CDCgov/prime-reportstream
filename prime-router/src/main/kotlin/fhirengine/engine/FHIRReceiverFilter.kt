@@ -203,7 +203,7 @@ class FHIRReceiverFilter(
             val (keptObservations, filteredObservations) = allObservations.partition { observation ->
                 conditionFilters.any { filter ->
                     FhirPathUtils.evaluateCondition(
-                        CustomContext(bundle, observation, shorthandLookupTable, CustomFhirPathFunctions()),
+                        CustomContext(bundle, observation, mutableMapOf(), CustomFhirPathFunctions()),
                         observation,
                         bundle,
                         bundle,
@@ -236,7 +236,7 @@ class FHIRReceiverFilter(
                     }
                 }
                 ReceiverFilterEvaluationResult.Success(
-                    bundle.filterObservations(conditionFilters, shorthandLookupTable)
+                    bundle.filterObservations(conditionFilters)
                 )
             }
         } else if (mappedConditionFilters.isNotEmpty()) {
@@ -296,7 +296,7 @@ class FHIRReceiverFilter(
         val filtersEvaluated = filters.map { filter ->
             Pair(
                 FhirPathUtils.evaluateCondition(
-                    CustomContext(bundle, bundle, shorthandLookupTable, CustomFhirPathFunctions()),
+                    CustomContext(bundle, bundle, mutableMapOf(), CustomFhirPathFunctions()),
                     bundle,
                     bundle,
                     bundle,
@@ -474,7 +474,8 @@ class FHIRReceiverFilter(
                     reportEventService.sendItemEvent(
                         eventName = ReportStreamEventName.ITEM_FILTER_FAILED,
                         childReport = emptyReport,
-                        pipelineStepName = TaskAction.receiver_filter
+                        pipelineStepName = TaskAction.receiver_filter,
+                        queueMessage = queueMessage.toString()
                     ) {
                         parentReportId(queueMessage.reportId)
                         trackingId(bundle)

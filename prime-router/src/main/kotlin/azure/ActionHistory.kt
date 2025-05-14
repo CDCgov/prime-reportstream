@@ -8,6 +8,7 @@ import com.microsoft.azure.functions.HttpStatusType
 import com.networknt.org.apache.commons.validator.routines.InetAddressValidator
 import fhirengine.engine.CustomFhirPathFunctions
 import gov.cdc.prime.reportstream.shared.BlobUtils
+import gov.cdc.prime.reportstream.shared.QueueMessage
 import gov.cdc.prime.router.ActionLog
 import gov.cdc.prime.router.ActionLogLevel
 import gov.cdc.prime.router.ClientSource
@@ -43,6 +44,8 @@ import org.jooq.impl.SQLDataType
 import java.net.URI
 import java.net.URISyntaxException
 import java.time.LocalDateTime
+import java.time.OffsetDateTime
+import java.time.format.DateTimeFormatter
 
 /**
  * This is a container class that holds information to be stored, about a single action,
@@ -114,6 +117,11 @@ class ActionHistory(
     val messages = mutableListOf<Event>()
 
     /**
+     * FHIR Queue Messages to be queued in an azure queue as part of the result of this action.
+     */
+    val fhirQueueMessages = mutableListOf<QueueMessage>()
+
+    /**
      *
      * Collection of all the parent-child report relationships created by this action.
      *
@@ -138,6 +146,11 @@ class ActionHistory(
     /** Adds a queue event to the messages property to be added to the queue later */
     private fun trackEvent(event: Event) {
         messages.add(event)
+    }
+
+    /** Adds a FHIR queue message to the fhirQueueMessages list to be added to the queue later */
+    fun trackFhirMessage(message: QueueMessage) {
+        fhirQueueMessages.add(message)
     }
 
     /**
@@ -580,6 +593,10 @@ class ActionHistory(
         }
     }
 
+    /**
+     * Use this to record history info about a sent report.
+     * Creates Azure Events for sent Report and Items.
+     */
     fun trackSentReport(
         receiver: Receiver,
         sentReportId: ReportId,
@@ -590,6 +607,8 @@ class ActionHistory(
         reportEventService: IReportStreamEventService,
         reportService: ReportService,
         transportType: String,
+        lineages: List<ItemLineage>?,
+        queueMessage: String,
     ) {
         if (isReportAlreadyTracked(sentReportId)) {
             error(
@@ -626,9 +645,10 @@ class ActionHistory(
         reportFile.bodyUrl = blobInfo.blobUrl
 
         reportEventService.sendReportEvent(
-            childReport = reportFile,
             eventName = ReportStreamEventName.REPORT_SENT,
-            pipelineStepName = TaskAction.send
+            childReport = reportFile,
+            pipelineStepName = TaskAction.send,
+            queueMessage = queueMessage,
         ) {
             parentReportId(header.reportFile.reportId)
             params(
@@ -640,7 +660,36 @@ class ActionHistory(
             )
         }
 
-        val lineages = Report.createItemLineagesFromDb(header, sentReportId)
+        trackItemSendState(
+            ReportStreamEventName.ITEM_SENT,
+            reportFile,
+            lineages,
+            receiver,
+            null,
+            null,
+            queueMessage,
+            reportEventService,
+            reportService
+        )
+
+        reportsOut[reportFile.reportId] = reportFile
+    }
+
+    /**
+     * Use this to create Azure Events for items in the send step.
+     * Pulls Item history from receiver filter step before Items were batched.
+     */
+    fun trackItemSendState(
+        eventName: ReportStreamEventName,
+        report: ReportFile,
+        lineages: List<ItemLineage>?,
+        receiver: Receiver,
+        nextRetryCount: Int?,
+        nextRetryTime: OffsetDateTime?,
+        queueMessage: String?,
+        reportEventService: IReportStreamEventService,
+        reportService: ReportService,
+    ) {
         lineages?.forEach { itemLineage ->
             val receiverFilterReportFile = reportService.getReportForItemAtTask(
                 itemLineage.parentReportId,
@@ -663,23 +712,26 @@ class ActionHistory(
                         )
                     )
                 )
-                reportEventService.sendItemEvent(ReportStreamEventName.ITEM_SENT, reportFile, TaskAction.send) {
+                reportEventService.sendItemEvent(eventName, report, TaskAction.send, queueMessage ?: "") {
                     trackingId(bundle)
-                    parentReportId(header.reportFile.reportId)
+                    parentReportId(itemLineage.parentReportId)
                     childItemIndex(itemLineage.childIndex)
                     params(
-                        mapOf(
-                            ReportStreamEventProperties.BUNDLE_DIGEST
-                                to bundleDigestExtractor.generateDigest(bundle),
+                        listOfNotNull(
+                            ReportStreamEventProperties.BUNDLE_DIGEST to bundleDigestExtractor.generateDigest(bundle),
                             ReportStreamEventProperties.RECEIVER_NAME to receiver.fullName,
-                        )
+                            nextRetryCount?.let { ReportStreamEventProperties.RETRY_COUNT to it },
+                            nextRetryTime?.let {
+                                ReportStreamEventProperties.NEXT_RETRY_TIME to
+                                    DateTimeFormatter.ISO_DATE_TIME.format(it)
+                            }
+                        ).toMap()
                     )
                 }
             } else {
                 logger.error("No translate report found for sent item.")
             }
         }
-        reportsOut[reportFile.reportId] = reportFile
     }
 
     /**
@@ -767,6 +819,16 @@ class ActionHistory(
         messages.forEach { event ->
             workflowEngine.queue.sendMessage(event)
             logger.debug("Queued event: ${event.toQueueMessage()}")
+        }
+    }
+
+    /**
+     *  Sends any FHIR queue messages to the appropriate queue
+     */
+    fun queueFhirMessages(workflowEngine: WorkflowEngine) {
+        fhirQueueMessages.forEach { message ->
+            workflowEngine.queue.sendMessage(message.messageQueueName, message.serialize())
+            logger.debug("FHIR Message queued: $message")
         }
     }
 
