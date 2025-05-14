@@ -30,5 +30,6 @@ interface ITransport {
         reportEventService: IReportStreamEventService,
         reportService: ReportService,
         lineages: List<ItemLineage>?,
+        queueMessage: String,
     ): RetryItems?
 }
