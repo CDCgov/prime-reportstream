@@ -1,6 +1,7 @@
 package gov.cdc.prime.router.cli
 
 import com.github.ajalt.clikt.core.CliktCommand
+import com.github.ajalt.clikt.core.Context
 import com.github.ajalt.clikt.core.PrintMessage
 import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.flag
@@ -21,9 +22,11 @@ import kotlin.io.path.name
 
 class SenderFilesCommand :
     CliktCommand(
-    name = "sender-files",
-    help = "For a specified report, trace each item's ancestry and retrieve the source files submitted by senders."
-) {
+        name = "sender-files",
+    ) {
+    override fun help(
+        context: Context,
+    ): String = "For a specified report, trace each item's ancestry and retrieve the source files submitted by senders."
     // Command Line Parameters
 
     private val env by option(
@@ -87,7 +90,7 @@ class SenderFilesCommand :
             OktaCommand.fetchAccessToken(environment.value.oktaApp)
                 ?: abort(
                     "Invalid access token. " +
-                            "Run ./prime login to fetch/refresh your access token for the $env environment."
+                        "Run ./prime login to fetch/refresh your access token for the $env environment."
                 )
         }
     }
