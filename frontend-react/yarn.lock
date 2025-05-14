@@ -1355,16 +1355,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/runtime@npm:^7.12.5, @babel/runtime@npm:^7.13.0, @babel/runtime@npm:^7.16.3, @babel/runtime@npm:^7.17.8, @babel/runtime@npm:^7.20.13, @babel/runtime@npm:^7.7.2, @babel/runtime@npm:^7.7.6":
-  version: 7.26.7
-  resolution: "@babel/runtime@npm:7.26.7"
-  dependencies:
-    regenerator-runtime: ^0.14.0
-  checksum: a1664a08f3f4854b895b540cca2f5f5c6c1993b5fb788c9615d70fc201e16bb254df8e0550c83eaf2749a14d87775e11a7c9ded6161203e9da7a4a323d546925
-  languageName: node
-  linkType: hard
-
-"@babel/runtime@npm:^7.27.0, @babel/runtime@npm:^7.27.1":
+"@babel/runtime@npm:^7.12.5, @babel/runtime@npm:^7.13.0, @babel/runtime@npm:^7.16.3, @babel/runtime@npm:^7.17.8, @babel/runtime@npm:^7.20.13, @babel/runtime@npm:^7.27.0, @babel/runtime@npm:^7.7.2, @babel/runtime@npm:^7.7.6":
   version: 7.27.1
   resolution: "@babel/runtime@npm:7.27.1"
   checksum: 11339838a54783e5b14e04d94d7a4d032e9965c5823f3f687e41556fa40344ae7aeb57c535720b7a74ab3e8217def7834a6f1a665ee55bbb3befede141419913
@@ -12901,7 +12892,6 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "react-frontend@workspace:."
   dependencies:
-    "@babel/runtime": ^7.27.1
     "@eslint/compat": ^1.2.9
     "@eslint/js": ^9.26.0
     "@mdx-js/react": ^3.1.0
