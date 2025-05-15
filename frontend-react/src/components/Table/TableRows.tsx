@@ -1,11 +1,5 @@
 import { Button } from "@trussworks/react-uswds";
-import {
-    Dispatch,
-    SetStateAction,
-    useCallback,
-    useMemo,
-    useState,
-} from "react";
+import { Dispatch, SetStateAction, useCallback, useMemo, useState } from "react";
 
 import { ColumnData } from "./ColumnData";
 import { ColumnConfig, RowSideEffect } from "./Table";
@@ -82,10 +76,7 @@ const TableRow = ({
             ))}
             {enableEditableRows ? (
                 <td key={`${rowIndex}:EDIT`}>
-                    <Button
-                        type="submit"
-                        onClick={() => saveRowOrSetEditing(rowIndex)}
-                    >
+                    <Button type="submit" onClick={() => saveRowOrSetEditing(rowIndex)}>
                         {editButtonLabel}
                     </Button>
                 </td>
@@ -123,7 +114,7 @@ export const TableRows = ({
             throw new Error("Editing not enabled or no row to edit");
         }
 
-        const rowToUpdate = updatedRow ? updatedRow : rowsToDisplay[rowToEdit];
+        const rowToUpdate = updatedRow ?? rowsToDisplay[rowToEdit];
         const rowValues = { ...rowToUpdate };
         // update the field value in the given row
         rowValues[field] = value;
@@ -176,10 +167,7 @@ export const TableRows = ({
         <tbody className={className}>
             {rowsToDisplay.map((object: TableRowData, rowIndex: number) => {
                 // Caps page size when filterManager exists
-                if (
-                    filterManager &&
-                    rowIndex >= filterManager?.pageSettings.size
-                ) {
+                if (filterManager && rowIndex >= filterManager?.pageSettings.size) {
                     return null;
                 }
                 // note comparison to `rows` length rather than `rowsToDisplay` to make sure
@@ -193,12 +181,8 @@ export const TableRows = ({
                         rowToEdit={rowToEdit}
                         updateRow={updateFieldForRow}
                         enableEditableRows={enableEditableRows}
-                        saveRowOrSetEditing={(id) =>
-                            void saveRowOrSetEditing(id)
-                        }
-                        editButtonLabel={
-                            rowToEdit === rowIndex ? "Save" : "Edit"
-                        }
+                        saveRowOrSetEditing={(id) => void saveRowOrSetEditing(id)}
+                        editButtonLabel={rowToEdit === rowIndex ? "Save" : "Edit"}
                         key={rowIndex}
                         isNew={isNewRow}
                     />
