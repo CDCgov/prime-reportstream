@@ -6,8 +6,125 @@ elements:
     bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/sender-id").value[x]'
     value: [ '"cvs-health"' ]
 
+  - name: cvs-organization-facility-name
+    resource: 'Bundle.entry.resource.ofType(Organization).identifier.where(extension.value = "HD.1")'
+    condition: '%resource.value.exists()'
+    bundleProperty: '%resource.value'
+    value: [ '"CVS Health"' ]
+
+  - name: cvs-organization-facility-CLIA
+    resource: 'Bundle.entry.resource.ofType(Organization).identifier.where(extension.value.contains("HD.2"))'
+    condition: '%resource.value.exists()'
+    bundleProperty: '%resource.value'
+    value: [ '"41D1044579"' ]
+
+  - name: cvs-organization-facility-id-type
+    resource: 'Bundle.entry.resource.ofType(Organization).identifier.where(extension.value.contains("HD.2"))'
+    condition: '%resource.type.coding.code.exists()'
+    bundleProperty: '%resource.type.coding.code'
+    value: [ '"CLIA"' ]
+
+  - name: cvs-pid-10-race-code
+    resource: "Bundle.entry.resource.ofType(Patient)"
+    condition: "%resource.extension('http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd').exists().not()"
+    bundleProperty: "%resource.extension('http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd').valueCodeableConcept.coding.code"
+    value: [ "'UNK'" ]
+
+  - name: cvs-pid-10-race-display
+    resource: "Bundle.entry.resource.ofType(Patient)"
+    condition: "%resource.extension('http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd').value.coding.code = 'UNK'"
+    bundleProperty: "%resource.extension('http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd').valueCodeableConcept.coding.display"
+    value: [ "'Unknown'" ]
+
+  - name: cvs-pid-10-race-coding
+    resource: 'Bundle.entry.resource.ofType(Patient).extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").value'
+    bundleProperty: '%resource.coding.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding").value[x]'
+    value: [ '"coding"' ]
+
+  - name: cvs-pid-10-race-coding-system
+    resource: 'Bundle.entry.resource.ofType(Patient).extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").value'
+    condition: "%resource.coding.code = 'UNK'"
+    bundleProperty: '%resource.coding.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system").value[x]'
+    value: [ '"NULLFL"' ]
+
+  - name: cvs-pid-22-ethnic-group-default-text
+    resource: "Bundle.entry.resource.ofType(Patient)"
+    condition: "%resource.extension('https://reportstream.cdc.gov/fhir/StructureDefinition/ethnic-group').exists().not()"
+    bundleProperty: "%resource.extension('https://reportstream.cdc.gov/fhir/StructureDefinition/ethnic-group').valueCodeableConcept.coding.display"
+    value: [ "'Unknown'" ]
+
+  - name: cvs-pid-22-patient-ethnic-group-code-coding
+    resource: 'Bundle.entry.resource.ofType(Patient).extension("https://reportstream.cdc.gov/fhir/StructureDefinition/ethnic-group").value'
+    bundleProperty: '%resource.coding.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding").value[x]'
+    value: [ '"coding"' ]
+
+  - name: cvs-obr-17-order-callback-phone-equipment-type-default
+    resource: "Bundle.entry.resource.ofType(ServiceRequest).extension('https://reportstream.cdc.gov/fhir/StructureDefinition/obr-observation-request').extension('https://reportstream.cdc.gov/fhir/StructureDefinition/callback-number').value.extension('https://reportstream.cdc.gov/fhir/StructureDefinition/xtn-contact-point')"
+    condition: "%resource.extension('XTN.3').value.exists().not()"
+    bundleProperty: "%resource.extension('XTN.3').value[x]"
+    value: ['"PH"']
+
+  - name: cvs-orc-14-requester-callback-phone-equipment-type-default
+    resource: "Bundle.entry.resource.ofType(ServiceRequest).requester.extension('https://reportstream.cdc.gov/fhir/StructureDefinition/callback-number').value.extension('https://reportstream.cdc.gov/fhir/StructureDefinition/xtn-contact-point')"
+    condition: "%resource.extension('XTN.3').value.exists().not()"
+    bundleProperty: "%resource.extension('XTN.3').value[x]"
+    value: ['"PH"']
+
+# START ORC22: This is hacky solution for replacing an incomplete OrderingFacility Address with the Performing Address. This only replaces the address if either
+# the address line or the state are empty. Ideal solution would be to use a custom function to directly replace one address with the other instead of replacing
+# the fields one by one.
+  - name: cvs-orc-set-ordering-facility-address-to-performing-address-if-blank-temp
+    resource: "Bundle.entry.resource.ofType(ServiceRequest).requester.resolve().practitioner.resolve().address"
+    condition: "Bundle.entry.resource.ofType(ServiceRequest).requester.resolve().organization.resolve().address.line.exists().not() or Bundle.entry.resource.ofType(ServiceRequest).requester.resolve().organization.resolve().address.state.exists().not()"
+    bundleProperty: "Bundle.entry.resource.ofType(ServiceRequest).requester.resolve().organization.resolve().address.state"
+    value: ["'replacing'"]
+
+  - name: cvs-orc-set-ordering-facility-address-to-performing-address-if-blank-line
+    resource: "Bundle.entry.resource.ofType(ServiceRequest).requester.resolve().practitioner.resolve().address"
+    condition: "Bundle.entry.resource.ofType(ServiceRequest).requester.resolve().organization.resolve().address.state = 'replacing'"
+    bundleProperty: "Bundle.entry.resource.ofType(ServiceRequest).requester.resolve().organization.resolve().address.line"
+    value: ["%resource.line"]
+
+  - name: cvs-orc-set-ordering-facility-address-to-performing-address-if-blank-sad-line
+    resource: "Bundle.entry.resource.ofType(ServiceRequest).requester.resolve().practitioner.resolve().address"
+    condition: "Bundle.entry.resource.ofType(ServiceRequest).requester.resolve().organization.resolve().address.state = 'replacing'"
+    bundleProperty: 'Bundle.entry.resource.ofType(ServiceRequest).requester.resolve().organization.resolve().address.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/xad-address").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/sad-address-line").extension("SAD.1").value[x]'
+    value: [ '%resource.line[0]' ]
+
+  - name: cvs-orc-set-ordering-facility-address-to-performing-address-if-blank-xad-line
+    resource: "Bundle.entry.resource.ofType(ServiceRequest).requester.resolve().practitioner.resolve().address"
+    condition: "Bundle.entry.resource.ofType(ServiceRequest).requester.resolve().organization.resolve().address.state = 'replacing'"
+    bundleProperty: 'Bundle.entry.resource.ofType(ServiceRequest).requester.resolve().organization.resolve().address.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/xad-address").extension("XAD.2").value[x]'
+    value: [ '%resource.line[1]' ]
+
+  - name: cvs-orc-set-ordering-facility-address-to-performing-address-if-blank-city
+    resource: "Bundle.entry.resource.ofType(ServiceRequest).requester.resolve().practitioner.resolve().address"
+    condition: "Bundle.entry.resource.ofType(ServiceRequest).requester.resolve().organization.resolve().address.state = 'replacing'"
+    bundleProperty: "Bundle.entry.resource.ofType(ServiceRequest).requester.resolve().organization.resolve().address.city"
+    value: ["%resource.city"]
+
+  - name: cvs-orc-set-ordering-facility-address-to-performing-address-if-blank-postalCode
+    resource: "Bundle.entry.resource.ofType(ServiceRequest).requester.resolve().practitioner.resolve().address"
+    condition: "Bundle.entry.resource.ofType(ServiceRequest).requester.resolve().organization.resolve().address.state = 'replacing'"
+    bundleProperty: "Bundle.entry.resource.ofType(ServiceRequest).requester.resolve().organization.resolve().address.postalCode"
+    value: ["%resource.postalCode"]
+
+  - name: cvs-orc-set-ordering-facility-address-to-performing-address-if-blank-state
+    resource: "Bundle.entry.resource.ofType(ServiceRequest).requester.resolve().practitioner.resolve().address"
+    condition: "Bundle.entry.resource.ofType(ServiceRequest).requester.resolve().organization.resolve().address.state = 'replacing'"
+    bundleProperty: "Bundle.entry.resource.ofType(ServiceRequest).requester.resolve().organization.resolve().address.state"
+    value: ["%resource.state"]
+#END ORC22
+
   - name: cvs-suppress-observations-without-code
     resource: 'Bundle.entry.resource.ofType(Observation).where(code.coding.exists().not())'
+    condition: '%resource.exists()'
+    bundleProperty: '%resource.value[x]'
+    value: [ '""' ]
+    action: DELETE
+
+  - name: cvs-suppress-observations-without-observation-value
+    resource: 'Bundle.entry.resource.ofType(Observation).where(value.exists().not())'
     condition: '%resource.exists()'
     bundleProperty: '%resource.value[x]'
     value: [ '""' ]
@@ -57,6 +174,12 @@ elements:
     bundleProperty: '%resource.value.coding.system'
     value: [ '"http://snomed.info/sct"' ]
 
+  - name: cvs-obx-15-reference-code-system-default
+    resource: "Bundle.entry.resource.ofType(Observation).performer.resolve().where(extension('https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field').value = 'OBX.15').extension('https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-organization')"
+    condition: "%resource.value.coding.extension('https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system').value.exists().not()"
+    bundleProperty: "%resource.value.coding.extension('https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system').value[x]"
+    value: [ '"CLIA"' ]
+
   - name: cvs-obx-5-display-to-snomed-code
     resource: 'Bundle.entry.resource.ofType(Observation)'
     condition: '%resource.value.coding.code.exists().not()'
@@ -64,18 +187,24 @@ elements:
     bundleProperty: '%resource.value.coding.code'
     valueSet:
       values:
-        POSITIVE: 260373001
+        POSITIVE: 10828004
         DETECTED: 260373001
-        NEGATIVE: 260415000
+        NEGATIVE: 260385009
         NOTDETECTED: 260415000
         INVALID: 455371000124106
         OTHER: 445297001
 
-  - name: cvs-spm-4-other-code
+  - name: cvs-spm-4-unknown-code
     resource: 'Bundle.entry.resource.ofType(Specimen)'
     condition: '%resource.type.exists() and %resource.type.coding.code.upper() = "OTHER"'
-    value: [ '"445297001"' ]
+    value: [ '"87100004"' ]
     bundleProperty: '%resource.type.coding.code'
+
+  - name: cvs-spm-4-unknown-description
+    resource: 'Bundle.entry.resource.ofType(Specimen)'
+    condition: '%resource.type.exists()'
+    value: [ '"Topography unknown (body structure)"' ]
+    bundleProperty: '%resource.type.coding.display'
 
   - name: cvs-spm-4-sct
     resource: 'Bundle.entry.resource.ofType(Specimen).type.coding'
