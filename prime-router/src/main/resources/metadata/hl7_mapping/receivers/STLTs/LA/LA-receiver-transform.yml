@@ -92,3 +92,10 @@ elements:
   - name: observation-result-with-aoe
     # LA does not want AOEs at all, so this is overridden to prevent identified AOEs from mapping to an HL7 segment
     resource: '%resource.result.resolve()'
+
+  # suppress PV1 and PV2 segments
+  - name: encounter-pv1
+    condition: false
+
+  - name: encounter-pv2
+    condition: false
