@@ -2,6 +2,7 @@ FROM cgr.dev/chainguard/wolfi-base:latest
 
 
 RUN apk update && \
+    apk upgrade --no-cache && \
     apk add --no-cache dnsmasq
 
 # Expose the DNS port
