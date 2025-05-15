@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Test
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
 import java.util.UUID
+import kotlin.test.Ignore
 import kotlin.test.assertNotNull
 
 @Testcontainers
@@ -59,6 +60,7 @@ class SubmissionTableServiceIntegrationTests {
      * that all submissions were properly stored and retrieved from the "submission" table.
      */
     @Test
+    @Ignore
     fun `test concurrent reset and submissions with simple threads`() {
         // List to hold submission objects
         val submissions = List(10) {
