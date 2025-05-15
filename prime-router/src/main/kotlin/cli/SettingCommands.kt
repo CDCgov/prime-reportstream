@@ -3,9 +3,11 @@ package gov.cdc.prime.router.cli
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.github.ajalt.clikt.core.CliktCommand
+import com.github.ajalt.clikt.core.Context
 import com.github.ajalt.clikt.core.PrintMessage
 import com.github.ajalt.clikt.core.ProgramResult
 import com.github.ajalt.clikt.core.subcommands
+import com.github.ajalt.clikt.core.terminal
 import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
@@ -50,7 +52,9 @@ private const val organizationsFile = "settings/organizations.yml"
  * It has a composable set of methods for listing, getting, diffing, putting and deleting settings.
  * The idea is to make concrete commands clear and concise by building primitives in this class.
  */
-abstract class SettingCommand(name: String, help: String) : CliktCommand(name = name, help = help) {
+abstract class SettingCommand(name: String, val help: String) : CliktCommand(name = name) {
+    override fun help(context: Context): String = help
+
     internal val env by option(
         "-e", "--env",
         metavar = "<name>",
@@ -689,9 +693,10 @@ abstract class DiffSettingCommand(name: String, help: String, val settingType: S
  */
 class OrganizationSettings :
     CliktCommand(
-    name = "organization",
-    help = "Fetch and update settings for an organization"
-) {
+        name = "organization",
+    ) {
+    override fun help(context: Context): String = "Fetch and update settings for an organization"
+
     init {
         subcommands(
             ListOrganizationSetting(),
@@ -712,9 +717,9 @@ class OrganizationSettings :
 
 class ListOrganizationSetting :
     SettingCommand(
-    name = "list",
-    help = "List the setting names of all organizations"
-) {
+        name = "list",
+        help = "List the setting names of all organizations"
+    ) {
     override fun run() {
         val output = listNames(environment, oktaAccessToken, SettingType.ORGANIZATION, "")
         writeOutput(output.joinToString("\n"))
@@ -723,40 +728,41 @@ class ListOrganizationSetting :
 
 class GetOrganizationSetting :
     GetSettingCommand(
-    name = "get",
-    help = "Fetch an organization's settings",
-    settingType = SettingType.ORGANIZATION,
-)
+        name = "get",
+        help = "Fetch an organization's settings",
+        settingType = SettingType.ORGANIZATION,
+    )
 
 class PutOrganizationSetting :
     PutSettingCommand(
-    name = "set",
-    help = "Update an organization's settings",
-    settingType = SettingType.ORGANIZATION
-)
+        name = "set",
+        help = "Update an organization's settings",
+        settingType = SettingType.ORGANIZATION
+    )
 
 class DeleteOrganizationSetting :
     DeleteSettingCommand(
-    name = "remove",
-    help = "Remove an organization",
-    settingType = SettingType.ORGANIZATION,
-)
+        name = "remove",
+        help = "Remove an organization",
+        settingType = SettingType.ORGANIZATION,
+    )
 
 class DiffOrganizationSetting :
     DiffSettingCommand(
-    name = "diff",
-    help = "Compare an organization's setting from an environment to those in an file",
-    settingType = SettingType.ORGANIZATION
-)
+        name = "diff",
+        help = "Compare an organization's setting from an environment to those in an file",
+        settingType = SettingType.ORGANIZATION
+    )
 
 /**
  * Sender setting commands
  */
 class SenderSettings :
     CliktCommand(
-    name = "sender",
-    help = "Fetch and update settings for a sender"
-) {
+        name = "sender",
+    ) {
+    override fun help(context: Context): String = "Fetch and update settings for a sender"
+
     init {
         subcommands(
             ListSenderSetting(),
@@ -774,47 +780,48 @@ class SenderSettings :
 
 class ListSenderSetting :
     ListSettingCommand(
-    name = "list",
-    help = "List all sender names for an organization",
-    settingType = SettingType.SENDER,
-)
+        name = "list",
+        help = "List all sender names for an organization",
+        settingType = SettingType.SENDER,
+    )
 
 class GetSenderSetting :
     GetSettingCommand(
-    name = "get",
-    help = "Fetch a sender's settings",
-    settingType = SettingType.SENDER,
-)
+        name = "get",
+        help = "Fetch a sender's settings",
+        settingType = SettingType.SENDER,
+    )
 
 class PutSenderSetting :
     PutSettingCommand(
-    name = "set",
-    help = "Update a sender's settings",
-    settingType = SettingType.SENDER,
-)
+        name = "set",
+        help = "Update a sender's settings",
+        settingType = SettingType.SENDER,
+    )
 
 class DeleteSenderSetting :
     DeleteSettingCommand(
-    name = "remove",
-    help = "Remove a sender",
-    settingType = SettingType.SENDER,
-)
+        name = "remove",
+        help = "Remove a sender",
+        settingType = SettingType.SENDER,
+    )
 
 class DiffSenderSetting :
     DiffSettingCommand(
-    name = "diff",
-    help = "Compare sender's settings from an environment to those in a file",
-    settingType = SettingType.SENDER,
-)
+        name = "diff",
+        help = "Compare sender's settings from an environment to those in a file",
+        settingType = SettingType.SENDER,
+    )
 
 /**
  * Receiver setting commands
  */
 class ReceiverSettings :
     CliktCommand(
-    name = "receiver",
-    help = "Fetch and update settings for a receiver"
-) {
+        name = "receiver",
+    ) {
+    override fun help(context: Context): String = "Fetch and update settings for a receiver"
+
     init {
         subcommands(
             ListReceiverSetting(),
@@ -832,47 +839,48 @@ class ReceiverSettings :
 
 class ListReceiverSetting :
     ListSettingCommand(
-    name = "list",
-    help = "Fetch the receiver names for an organization",
-    settingType = SettingType.RECEIVER,
-)
+        name = "list",
+        help = "Fetch the receiver names for an organization",
+        settingType = SettingType.RECEIVER,
+    )
 
 class GetReceiverSetting :
     GetSettingCommand(
-    name = "get",
-    help = "Fetch a receiver's settings",
-    settingType = SettingType.RECEIVER,
-)
+        name = "get",
+        help = "Fetch a receiver's settings",
+        settingType = SettingType.RECEIVER,
+    )
 
 class PutReceiverSetting :
     PutSettingCommand(
-    name = "set",
-    help = "Update a receiver's settings",
-    settingType = SettingType.RECEIVER,
-)
+        name = "set",
+        help = "Update a receiver's settings",
+        settingType = SettingType.RECEIVER,
+    )
 
 class DeleteReceiverSetting :
     DeleteSettingCommand(
-    name = "remove",
-    help = "Remove a receiver",
-    settingType = SettingType.RECEIVER,
-)
+        name = "remove",
+        help = "Remove a receiver",
+        settingType = SettingType.RECEIVER,
+    )
 
 class DiffReceiverSetting :
     DiffSettingCommand(
-    name = "diff",
-    help = "Compare a receiver's settings from an environment to those in a file",
-    settingType = SettingType.RECEIVER,
-)
+        name = "diff",
+        help = "Compare a receiver's settings from an environment to those in a file",
+        settingType = SettingType.RECEIVER,
+    )
 
 /**
  * Update multiple settings
  */
 class MultipleSettings :
     CliktCommand(
-    name = "multiple-settings",
-    help = "Fetch and update multiple settings"
-) {
+        name = "multiple-settings",
+    ) {
+    override fun help(context: Context): String = "Fetch and update multiple settings"
+
     init {
         subcommands(PutMultipleSettings(), GetMultipleSettings(), DiffMultipleSettings())
     }
@@ -884,9 +892,9 @@ class MultipleSettings :
 
 class PutMultipleSettings :
     SettingCommand(
-    name = "set",
-    help = "Set all settings from a 'organizations.yml' file"
-) {
+        name = "set",
+        help = "Set all settings from a 'organizations.yml' file"
+    ) {
     private val inputFile by inputOption
     private val skipValidation: Boolean by skipValidationOption
 
@@ -970,9 +978,9 @@ class PutMultipleSettings :
 
 class DiffMultipleSettings :
     SettingCommand(
-    name = "diff",
-    help = "Compare all the settings from an environment to those in a file"
-) {
+        name = "diff",
+        help = "Compare all the settings from an environment to those in a file"
+    ) {
     private val inputFile by inputOption
 
     override fun run() {
@@ -989,9 +997,9 @@ class DiffMultipleSettings :
 
 class GetMultipleSettings :
     SettingCommand(
-    name = "get",
-    help = "Get all settings from an environment in yaml format"
-) {
+        name = "get",
+        help = "Get all settings from an environment in yaml format"
+    ) {
     val filter by option(
         "-f", "--filter",
         help = "filter the organizations, only returning those with names that start with <filter>",

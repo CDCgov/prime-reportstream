@@ -1,6 +1,7 @@
 package gov.cdc.prime.router.cli
 
 import com.github.ajalt.clikt.core.CliktCommand
+import com.github.ajalt.clikt.core.Context
 import com.github.ajalt.clikt.core.PrintMessage
 import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.option
@@ -48,9 +49,9 @@ private const val localTokenFileName = "accessToken.json"
  */
 class LoginCommand :
     OktaCommand(
-    name = "login",
-    help = "Login to the ReportStream authorization service"
-) {
+        name = "login",
+        help = "Login to the ReportStream authorization service"
+    ) {
     private var redirectResult: String? = null
     private var server: HttpServer? = null
 
@@ -139,15 +140,15 @@ class LoginCommand :
         clientId: String,
         oktaBaseUrl: String,
     ): TokenInfo = HttpClientUtils.submitFormT(
-            url = "$oktaBaseUrl$oktaTokenPath",
-            formParams = mapOf(
-                Pair("grant_type", "authorization_code"),
-                Pair("redirect_uri", "$redirectHost:$redirectPort$redirectPath"),
-                Pair("client_id", clientId),
-                Pair("code", code),
-                Pair("code_verifier", codeVerifier)
-            )
+        url = "$oktaBaseUrl$oktaTokenPath",
+        formParams = mapOf(
+            Pair("grant_type", "authorization_code"),
+            Pair("redirect_uri", "$redirectHost:$redirectPort$redirectPath"),
+            Pair("client_id", clientId),
+            Pair("code", code),
+            Pair("code_verifier", codeVerifier)
         )
+    )
 
     private fun generateCodeVerifier(): String {
         val bytes = Random.nextBytes(32)
@@ -168,12 +169,13 @@ class LoginCommand :
  */
 class LogoutCommand :
     OktaCommand(
-    name = "logout",
-    help = "Logout of the ReportStream authorization service"
-) {
+        name = "logout",
+        help = "Logout of the ReportStream authorization service"
+    ) {
     val env by option(
         "--env", help = "Disconnect from <name> environment", metavar = "name", envvar = "PRIME_ENVIRONMENT"
     ).choice("local", "test", "staging", "prod").default("local", "local")
+
     override fun run() {
         val oktaApp = Environment.get(env).oktaApp ?: abort("No need to logout from this environment")
         deleteAccessTokenFile(oktaApp)
@@ -184,7 +186,9 @@ class LogoutCommand :
 /**
  * Shared stuff between login and logout
  */
-abstract class OktaCommand(name: String, help: String) : CliktCommand(name = name, help = help) {
+abstract class OktaCommand(name: String, val help: String) : CliktCommand(name = name) {
+    override fun help(context: Context): String = help
+
     enum class OktaApp { DH_TEST, DH_PROD, DH_STAGE, DH_DEV }
 
     data class AccessTokenFile(val token: String, val clientId: String, val expiresAt: LocalDateTime)
@@ -222,15 +226,15 @@ abstract class OktaCommand(name: String, help: String) : CliktCommand(name = nam
          * @return the Okta access token, a dummy token if [app] is null. or null if there is no valid token
          */
         fun fetchAccessToken(app: OktaApp?): String? = if (app == null) {
-                dummyOktaAccessToken
+            dummyOktaAccessToken
+        } else {
+            val accessTokenFile = readAccessTokenFile(app)
+            if (accessTokenFile != null && isValidToken(app, accessTokenFile)) {
+                accessTokenFile.token
             } else {
-                val accessTokenFile = readAccessTokenFile(app)
-                if (accessTokenFile != null && isValidToken(app, accessTokenFile)) {
-                    accessTokenFile.token
-                } else {
-                    null
-                }
+                null
             }
+        }
 
         fun readAccessTokenFile(app: OktaApp): AccessTokenFile? {
             val filePath = primeAccessFilePath(app)
