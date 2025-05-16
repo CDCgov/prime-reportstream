@@ -1,5 +1,7 @@
 package gov.cdc.prime.router.fhirvalidation
 
+import at.syntaxerror.json5.JSONObject
+import at.syntaxerror.json5.JSONParser
 import ca.uhn.fhir.context.FhirContext
 import ca.uhn.fhir.context.support.DefaultProfileValidationSupport
 import ca.uhn.fhir.validation.FhirValidator
@@ -11,19 +13,14 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.ArrayNode
 import com.fasterxml.jackson.databind.node.ObjectNode
 import org.apache.logging.log4j.kotlin.Logging
-import org.hl7.fhir.common.hapi.validation.support.CommonCodeSystemsTerminologyService
-import org.hl7.fhir.common.hapi.validation.support.InMemoryTerminologyServerValidationSupport
-import org.hl7.fhir.common.hapi.validation.support.NpmPackageValidationSupport
-import org.hl7.fhir.common.hapi.validation.support.SnapshotGeneratingValidationSupport
-import org.hl7.fhir.common.hapi.validation.support.ValidationSupportChain
+import org.hl7.fhir.common.hapi.validation.support.*
 import org.hl7.fhir.common.hapi.validation.validator.FhirInstanceValidator
 import org.hl7.fhir.instance.model.api.IBaseResource
 import org.hl7.fhir.r4.model.Bundle
-import java.io.ByteArrayInputStream
+import org.hl7.fhir.r4.model.OperationOutcome
 import java.io.File
-import java.io.InputStream
+import java.io.PrintStream
 import java.net.URL
-import java.nio.charset.StandardCharsets
 
 class RSFhirValidator : Logging {
 
@@ -34,20 +31,23 @@ class RSFhirValidator : Logging {
         val mapper = ObjectMapper()
 
         // Maps FHIR resource type to profile to be validated against
+        // These profiles are only used if meta/profile is not specified in input resource
+        // Bundle2 is a placeholder for a future, less simplistic profile supplier
+        // That will be able to handle nested bundles with different profiles, prpbably using FhirPath
         val type2url = mapOf(
-            "Bundle" to "http://hl7.org/fhir/us/ph-library/StructureDefinition/us-ph-reporting-bundle",
-            "Bundle2" to "http://hl7.org/fhir/us/ph-library/StructureDefinition/us-ph-content-bundle",
-            "Device" to "http://hl7.org/fhir/StructureDefinition/Device",
-            "DiagnosticReport" to "http://hl7.org/fhir/us/core/StructureDefinition/us-core-diagnosticreport-lab",
-            "MessageHeader" to "http://hl7.org/fhir/us/ph-library/StructureDefinition/us-ph-messageheader",
-            "Observation" to "http://hl7.org/fhir/us/ph-library/StructureDefinition/us-ph-lab-result-observation",
-            "Organization" to "http://hl7.org/fhir/us/ph-library/StructureDefinition/us-ph-organization",
-            "Patient" to "http://hl7.org/fhir/us/ph-library/StructureDefinition/us-ph-patient",
-            "Practitioner" to "http://hl7.org/fhir/us/core/StructureDefinition/us-core-practitioner",
-            "PractitionerRole" to "http://hl7.org/fhir/us/ph-library/StructureDefinition/us-ph-practitionerrole",
-            "Provenance" to "http://hl7.org/fhir/us/core/StructureDefinition/us-core-provenance",
-            "Specimen" to "http://hl7.org/fhir/us/core/StructureDefinition/us-core-specimen",
-            "ServiceRequest" to "http://hl7.org/fhir/us/core/StructureDefinition/us-core-servicerequest",
+                "Bundle" to "http://hl7.org/fhir/us/ph-library/StructureDefinition/us-ph-reporting-bundle",
+                "Bundle2" to "http://hl7.org/fhir/us/ph-library/StructureDefinition/us-ph-content-bundle",
+                "Device" to "http://hl7.org/fhir/StructureDefinition/Device",
+                "DiagnosticReport" to "http://hl7.org/fhir/us/core/StructureDefinition/us-core-diagnosticreport-lab",
+                "MessageHeader" to "http://hl7.org/fhir/us/ph-library/StructureDefinition/us-ph-messageheader",
+                "Observation" to "http://hl7.org/fhir/us/ph-library/StructureDefinition/us-ph-lab-result-observation",
+                "Organization" to "http://hl7.org/fhir/us/ph-library/StructureDefinition/us-ph-organization",
+                "Patient" to "http://hl7.org/fhir/us/ph-library/StructureDefinition/us-ph-patient",
+                "Practitioner" to "http://hl7.org/fhir/us/core/StructureDefinition/us-core-practitioner",
+                "PractitionerRole" to "http://hl7.org/fhir/us/ph-library/StructureDefinition/us-ph-practitionerrole",
+                "Provenance" to "http://hl7.org/fhir/us/core/StructureDefinition/us-core-provenance",
+                "Specimen" to "http://hl7.org/fhir/us/core/StructureDefinition/us-core-specimen",
+                "ServiceRequest" to "http://hl7.org/fhir/us/core/StructureDefinition/us-core-servicerequest",
         )
 
         fun getPackageValidator(): FhirValidator? {
@@ -56,12 +56,12 @@ class RSFhirValidator : Logging {
             val usphpl = NpmPackageValidationSupport(ctx)
             usphpl.loadPackageFromClasspath("usphpl-package.r4.tgz")
             val supportChain = ValidationSupportChain(
-                usphpl,
-                usCore,
-                DefaultProfileValidationSupport(ctx),
-                CommonCodeSystemsTerminologyService(ctx),
-                InMemoryTerminologyServerValidationSupport(ctx),
-                SnapshotGeneratingValidationSupport(ctx)
+                    usphpl,
+                    usCore,
+                    DefaultProfileValidationSupport(ctx),
+                    CommonCodeSystemsTerminologyService(ctx),
+                    InMemoryTerminologyServerValidationSupport(ctx),
+                    SnapshotGeneratingValidationSupport(ctx)
             )
             return getFhirValidator(supportChain)
         }
@@ -82,56 +82,30 @@ class RSFhirValidator : Logging {
     }
 
     fun validateResource(url: URL, addProfiles: Boolean = true): ValidationResult? {
-        var stream: InputStream
-        if (url.file.endsWith("json5")) {
-            stream = removeJson5comments(url)
-        } else {
-            stream = url.openStream()
-        }
-        val resource = parser.parseResource(stream)
+        return validateResource(url.file, addProfiles)
+    }
+
+    fun validateResource(str: String, addProfiles: Boolean = true): ValidationResult? {
+        return validateResource(File(str), addProfiles)
+    }
+
+    fun validateResource(file: File, addProfiles: Boolean = true): ValidationResult? {
+        var str = getJsonString(file)
+        val resource = parser.parseResource(str)
         return validateResource(resource, addProfiles)
     }
 
-    // I want to use JSON5 so that I can have JSON with comments
-    // This hack removes the comments so that it can be parsed as regular JSON
-    // It's too hard to integrate a real JSON5 parser
-    // It's definitely a hack
-//    private fun removeJson5comments(url: URL): InputStream {
-//        fun trimEndComments(input: String): String {
-//            val index = input.indexOf("//")
-//            return if (index != -1) {
-//                input.substring(0, index).trimEnd()  // Keep everything before the comment and trim the end
-//            } else {
-//                input.trimEnd()  // Return the original string if no comment found
-//            }
-//        }
-//        val file = File(url.toURI())
-//        val cleanedContent = file.useLines { lines ->
-//            lines.map { trimEndComments(it) }.joinToString("\n")
-//        }
-//        val stringContent = StringReader(cleanedContent).readText()
-//        return ByteArrayInputStream(stringContent.toByteArray(StandardCharsets.UTF_8)) // Convert to InputStream
-//    }
-
-    private fun trimEndComments(input: String): String {
-        val index = input.indexOf("//")
-        return if (index != -1) {
-            input.substring(0, index).trimEnd() // Keep everything before the comment and trim the end
-        } else {
-            input.trimEnd() // Return the original string if no comment found
+    // If file name ends with "json5" then convert to regular json
+    private fun getJsonString(file: File): String {
+        var text = file.readText(Charsets.UTF_8)
+        if (file.path.endsWith("json5")) {
+            val job = JSONObject(JSONParser(text));
+            text = job.toString()
         }
+        return text
     }
 
-    private fun removeJson5comments(url: URL): InputStream {
-        val file = File(url.toURI())
-        val cleanedContent = file.useLines { lines ->
-            lines.map { trimEndComments(it) }.joinToString("\n")
-        }
-        return ByteArrayInputStream(cleanedContent.toByteArray(StandardCharsets.UTF_8))
-//        return ByteArrayInputStream(cleanedContent.toByteArray(StandardCharsets.UTF_8))
-    }
-
-    // path should be within resources folder starting with /
+    // path should be within resources folder and the name should start with /
     fun validateFhirInResourcesDir(path: String, addProfiles: Boolean = true): ValidationResult? {
         val url: URL = javaClass.getResource(path)
         return validateResource(url, addProfiles)
@@ -176,7 +150,6 @@ class RSFhirValidator : Logging {
                 val ob = node as ObjectNode
                 if (ob.has("resourceType")) {
                     val type = ob.get("resourceType").asText()
-                    println(type)
                     val url = type2url[type]
                     if (url != null) {
                         addNodeProfile(ob, url)
@@ -202,6 +175,68 @@ class RSFhirValidator : Logging {
             profile.add(profileUrl)
         }
     }
+
+    // level 1 = errors only, level 2 = errors and warnings, level 3 = errors, warnings, and information notes
+    fun printResults(result: ValidationResult?, level: Int = 1, out: PrintStream = System.out) {
+        val outcome: OperationOutcome = result?.toOperationOutcome() as OperationOutcome
+        val issues = outcome.getIssue()
+        val errors = issues.filter { it.severity == OperationOutcome.IssueSeverity.ERROR }
+        val warnings = issues.filter { it.severity == OperationOutcome.IssueSeverity.WARNING }
+        val infos = issues.filter { it.severity == OperationOutcome.IssueSeverity.INFORMATION }
+        out.println("There are ${errors.size} errors, ${warnings.size} warnings, and ${infos.size} information notes")
+        if (level >= 1) {
+            out.println("\nErrors")
+            printErrorReports(errors, out)
+        }
+        if (level >= 2) {
+            out.println("\n\nWarnings")
+            printWarningReports(warnings, out)
+        }
+        if (level >= 3) {
+            out.println("\n\nInformation Notes")
+            printInfoReports(infos, out)
+        }
+    }
+
+    fun printErrorReports(issues: List<OperationOutcome.OperationOutcomeIssueComponent>, out: PrintStream) {
+        if (issues.isEmpty()) {
+            out.println("None")
+        } else {
+            val issuesByCode = issues.groupBy { it.details.coding[0].code }
+            for ((key, value) in issuesByCode) {
+                out.println("    $key:${value.size}")
+                for (issue in value) {
+                    out.println("        ${issue.getDiagnostics()}")
+                }
+            }
+        }
+    }
+
+    fun printWarningReports(issues: List<OperationOutcome.OperationOutcomeIssueComponent>, out: PrintStream) {
+        if (issues.isEmpty()) {
+            out.println("None")
+        } else {
+            val warningGroups = issues.groupBy { it.diagnostics.take(10) }
+            for ((key, value) in warningGroups) {
+                out.println("    $key:${value.size}")
+                for (issue in value) {
+                    out.println("        ${issue.getDiagnostics()}")
+                }
+            }
+        }
+    }
+
+    fun printInfoReports(issues: List<OperationOutcome.OperationOutcomeIssueComponent>, out: PrintStream) {
+        if (issues.isEmpty()) {
+            out.println("None")
+        } else {
+            val infoGroups = issues.groupBy { it.diagnostics.take(10) }
+            for ((key, value) in infoGroups) {
+                out.println("    ${value.size} ${value[0].diagnostics}")
+            }
+        }
+    }
+
 }
 
 // A validator that directly loads profiles to validator

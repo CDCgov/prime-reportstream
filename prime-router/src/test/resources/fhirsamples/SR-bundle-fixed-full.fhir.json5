@@ -1,5 +1,4 @@
 // This file is JSON5 so it can have comments
-
 {
   "resourceType": "Bundle",
   "id": "SR-full-conforming-ELR-report",
@@ -39,8 +38,8 @@
 //              "display": "Report Laboratory Result"
 //          },
         "eventCoding": {
-          "system": "http://hl7.org/fhir/us/ph-library/CodeSystem/us-ph-message-events",
-          "code": "elr-message"
+          "system": "http://hl7.org/fhir/us/ph-library/CodeSystem/us-ph-codesystem-message-types",
+          "code": "message-report"
         },
         "destination": [
           {
@@ -49,7 +48,7 @@
           }
         ],
         "sender": {
-          "reference": "urn:uuid:719ec8ad-cf59-405a-9832-c4065945c130"
+          "reference": "urn:uuid:002ec8ad-cf59-405a-9832-c4065945c130"
         },
         "source": {
           "extension": [
@@ -89,7 +88,7 @@
           }
         ]
       }
-    },
+    }, // MessageHeader
     {
       "fullUrl": "urn:uuid:0013e628-2a6d-4d73-a854-b5a7b7c0b634",
       "resource": {
@@ -761,9 +760,9 @@
           }
         ]
       }
-    },
+    }, // Bundle
     {
-      "fullUrl": "urn:uuid:719ec8ad-cf59-405a-9832-c4065945c130",
+      "fullUrl": "urn:uuid:002ec8ad-cf59-405a-9832-c4065945c130",
       "resource": {
         "resourceType": "Organization",
         "id": "719ec8ad-cf59-405a-9832-c4065945c130",
@@ -801,6 +800,6 @@
           }
         ]
       }
-    }
+    } // Organization
   ]
 }
