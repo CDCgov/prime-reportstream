@@ -567,10 +567,10 @@ class ActionHistoryTests {
         // assert
         assertThat(actionHistory1.reportsOut[uuid]).isNotNull()
         assertThat(actionHistory1.reportsOut[uuid]?.schemaName)
-            .isEqualTo(longNameWithClasspath)
+            .isEqualTo("g/receivers/STLTs/REALLY_LONG_STATE_NAME/REALLY_LONG_STATE_NAME")
         assertThat(actionHistory2.reportsOut[uuid]).isNotNull()
         assertThat(actionHistory2.reportsOut[uuid]?.schemaName)
-            .isEqualTo(longNameWithoutClasspath)
+            .isEqualTo("STED/NESTED/STLTs/REALLY_LONG_STATE_NAME/REALLY_LONG_STATE_NAME")
         verify(exactly = 2) {
             mockReportEventService.sendReportEvent(any(), any<ReportFile>(), any(), any(), any(), any())
             mockReportEventService.sendItemEvent(any(), any<ReportFile>(), any(), any(), any(), any())
@@ -947,6 +947,13 @@ class ActionHistoryTests {
             mockReportEventService.sendReportEvent(any(), any<ReportFile>(), any(), any(), any(), any())
             mockReportEventService.sendItemEvent(any(), any<ReportFile>(), any(), any(), any(), any())
         }
+    }
+
+    @Test
+    fun `test trimSchemaNameToMaxLength malformed URI`() {
+        val longMalformedURI = ":very_very:_long_name//with a badly formed URI that causes a parse exception"
+        val trimmed = ActionHistory.trimSchemaNameToMaxLength((longMalformedURI))
+        assertThat(trimmed).isEqualTo("ong_name//with a badly formed URI that causes a parse exception")
     }
 
     @Test
