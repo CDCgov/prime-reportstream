@@ -201,7 +201,7 @@ class HL7DiffHelper {
                     return listOf(
                         Hl7Diff(
                             segmentIndex,
-                            "Difference in number of components. Input: $inputComponents, Output: $outputComponents ",
+                            "$inputComponents@$outputComponents",
                             "",
                             fieldNumber,
                             secondaryFieldNum,
@@ -213,8 +213,7 @@ class HL7DiffHelper {
                     return listOf(
                         Hl7Diff(
                             segmentIndex,
-                            """Difference in number of extra components. 
-                                |Input: $inputExtraComponents Output: $outputExtraComponents
+                            """$inputExtraComponents@$outputExtraComponents
                             """.trimMargin(),
                             "",
                             fieldNumber,
@@ -251,7 +250,7 @@ class HL7DiffHelper {
                 return listOf(
                     Hl7Diff(
                         segmentIndex,
-                        "Difference in type of field, ${input.javaClass}, ${output.javaClass}.",
+                        "${input.javaClass}@${output.javaClass}",
                         "",
                         fieldNumber,
                         secondaryFieldNum,
@@ -315,7 +314,7 @@ class HL7DiffHelper {
             val outputText = if (output.isEmpty()) {
                 ""
             } else {
-                ", $output."
+                "@$output"
             }
 
             val tertiaryFieldNumberText = if (tertiaryFieldNumber == null) {
@@ -332,9 +331,9 @@ class HL7DiffHelper {
 
             val fieldNumberText = fieldNum?.toString() ?: ""
 
-            return "Difference between messages at $segmentIndex." +
+            return "$segmentIndex." +
                 "$fieldNumberText$secondaryFieldNumberText$tertiaryFieldNumberText" +
-                " Differences: $input$outputText"
+                "@$input$outputText"
         }
     }
 

@@ -49,4 +49,5 @@ elements:
 
   - name: order-note
     resource: '%resource.basedOn.resolve().note | %resource.basedOn.resolve().supportingInfo.resolve().where(meta.tag.code = "AOE")'
+    condition: '%resource.text.exists() or %resource.code.coding.display.exists()'
     schema: classpath:/metadata/hl7_mapping/receivers/Common/observation-to-nte/aoe-note.yml

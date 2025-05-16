@@ -1,0 +1,7 @@
+elements:
+
+  # find all phone numbers under XTN.1 and change them to (000)000-0000 format
+  - name: adjust-phone-number-format
+    resource: 'Bundle.descendants().where(url="https://reportstream.cdc.gov/fhir/StructureDefinition/xtn-contact-point").extension("XTN.1")'
+    value: [ '%resource.value.getPhoneNumberFull()' ]
+    bundleProperty: '%resource.value[x]'
