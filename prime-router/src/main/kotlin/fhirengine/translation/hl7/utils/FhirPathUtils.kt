@@ -107,7 +107,7 @@ object FhirPathUtils : Logging {
         }
 
         if (expression.equals("%resource.postalCode.getStateFromZipCode()")) {
-            if (retVal != null && retVal.first().toString().isEmpty()) {
+            if (retVal != null && retVal.first().toString()?.isEmpty() == true) {
                 val msg = "getStateFromZipCode() lookup failed for zip code: ${(focusResource as Address)?.postalCode}"
                 logger.error(msg)
             }
