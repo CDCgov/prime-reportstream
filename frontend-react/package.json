@@ -14,7 +14,7 @@
     "@rest-hooks/rest": "^3.0.3",
     "@tanstack/react-query": "^5.75.7",
     "@tanstack/react-query-devtools": "^5.75.7",
-    "@trussworks/react-uswds": "^9.1.0",
+    "@trussworks/react-uswds": "^10.0.1",
     "@uswds/uswds": "3.7.1",
     "axios": "^1.9.0",
     "classnames": "^2.5.1",
