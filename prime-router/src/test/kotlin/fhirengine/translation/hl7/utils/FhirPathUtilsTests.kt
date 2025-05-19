@@ -24,16 +24,12 @@ import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkClass
-import io.mockk.mockkConstructor
 import io.mockk.spyk
 import io.mockk.verify
 import org.apache.logging.log4j.kotlin.KotlinLogger
 import org.hl7.fhir.exceptions.PathEngineException
-import org.hl7.fhir.r4.fhirpath.ExpressionNode
 import org.hl7.fhir.r4.fhirpath.FHIRLexer
-import org.hl7.fhir.r4.fhirpath.FHIRPathEngine
 import org.hl7.fhir.r4.model.Address
-import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.Bundle
 import org.hl7.fhir.r4.model.DateTimeType
 import org.hl7.fhir.r4.model.DateType
@@ -43,7 +39,6 @@ import org.hl7.fhir.r4.model.InstantType
 import org.hl7.fhir.r4.model.Observation
 import org.hl7.fhir.r4.model.Patient
 import org.hl7.fhir.r4.model.ServiceRequest
-import org.hl7.fhir.r4.model.StringType
 import org.hl7.fhir.r4.model.TimeType
 import org.junit.jupiter.api.BeforeEach
 import java.util.Date
@@ -210,43 +205,30 @@ class FhirPathUtilsTests {
     fun `test evaluate logs error when zip code lookup fails`() {
         val path = "%resource.postalCode.getStateFromZipCode()"
 
+        // Bundle Setup
         val bundle = Bundle()
-        bundle.id = "abc123"
         val address = Address()
         val missingZipCode = "66666"
         address.postalCode = missingZipCode
-
         val patient = Patient()
-        patient.id = "ghi789"
         patient.address.add(address)
         val entry1 = Bundle.BundleEntryComponent()
         entry1.resource = patient
         bundle.addEntry(entry1)
 
-        // pathEngine.evaluate() will return an empty list when zip lookup fails
-        val zipLookupResults: MutableList<Base> = mutableListOf(StringType(""))
-
-        // need an ExpressionNode to let the mock resolve the evaluate call
-        val expressionNode = ExpressionNode(1)
-        // setting the kind allows the ExpressionNode to properly init
-        expressionNode.kind = ExpressionNode.Kind.Name
-        expressionNode.name = "expname"
-
-        mockkConstructor(FHIRPathEngine::class)
-        every { anyConstructed<FHIRPathEngine>().parse(path) } returns expressionNode
-        every {
-            anyConstructed<FHIRPathEngine>().evaluate(null, address, bundle, bundle, expressionNode)
-        } returns zipLookupResults
-
+        // Mocking Setup
         val fhirPathUtils = spyk(FhirPathUtils)
         val mockedLogger = mockk<KotlinLogger>()
-
+        val appContext = mockkClass(CustomContext::class)
+        every { appContext.customFhirFunctions }.returns(CustomFhirPathFunctions())
         every { fhirPathUtils.logger } returns mockedLogger
         every { mockedLogger.error(any<String>()) } returns Unit
         every { mockedLogger.trace(any<String>()) } returns Unit
 
-        assertThat(fhirPathUtils.evaluate(null, address, bundle, path).first().isEmpty)
+        // Act
+        assertThat(fhirPathUtils.evaluate(appContext, address, bundle, path).first().isEmpty)
 
+        // Assert
         verify {
             mockedLogger.error(
                 "getStateFromZipCode() lookup failed for zip code: $missingZipCode"
