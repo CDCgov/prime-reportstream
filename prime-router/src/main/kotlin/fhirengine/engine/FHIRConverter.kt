@@ -530,14 +530,56 @@ class FHIRConverter(
                                 if (result.failures.isEmpty()) {
                                     logger.warn(UnmappableConditionMessage())
                                 } else {
-                                    logger.warn(
-                                        result.failures.map {
-                                            UnmappableConditionMessage(
-                                                it.failures.map { it.code },
-                                                it.source
+                                    val actionLogMessage = result.failures.map {
+                                        UnmappableConditionMessage(
+                                            it.failures.map { it.code },
+                                            it.source
+                                        )
+                                    }
+                                    logger.warn(actionLogMessage)
+
+                                    actionLogMessage.forEach {
+                                        val report = Report(
+                                            MimeFormat.FHIR,
+                                            emptyList(),
+                                            parentItemLineageData = listOf(
+                                                Report.ParentItemLineageData(input.reportId, item.index + 1)
+                                            ),
+                                            metadata = this.metadata,
+                                            topic = input.topic,
+                                            nextAction = TaskAction.destination_filter
+                                        )
+                                        val bundleDigestExtractor = BundleDigestExtractor(
+                                            FhirPathBundleDigestLabResultExtractorStrategy(
+                                                CustomContext(
+                                                    item.bundle!!,
+                                                    item.bundle!!,
+                                                    mutableMapOf(),
+                                                    CustomFhirPathFunctions()
+                                                )
+                                            )
+                                        )
+                                        reportEventService.sendItemProcessingError(
+                                            ReportStreamEventName.ITEM_INVALID_CONDITION_MAPPING,
+                                            report,
+                                            TaskAction.convert,
+                                            it.message,
+                                            input.queueMessage,
+                                            shouldQueue = true,
+                                        ) {
+                                            parentReportId(input.reportId)
+                                            parentItemIndex(item.index + 1)
+                                            trackingId(item.bundle!!)
+                                            params(
+                                                mapOf(
+                                                    ReportStreamEventProperties.BUNDLE_DIGEST
+                                                        to bundleDigestExtractor.generateDigest(item.bundle!!),
+                                                    ReportStreamEventProperties.ITEM_FORMAT to format,
+                                                    ReportStreamEventProperties.ENRICHMENTS to input.schemaName
+                                                )
                                             )
                                         }
-                                    )
+                                    }
                                 }
                             }
                         }

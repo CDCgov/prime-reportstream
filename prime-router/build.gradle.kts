@@ -36,7 +36,7 @@ apply(from = rootProject.file("buildSrc/shared.gradle.kts"))
 plugins {
     val kotlinVersion by System.getProperties()
     id("reportstream.project-conventions")
-    id("org.flywaydb.flyway") version "11.8.0"
+    id("org.flywaydb.flyway") version "11.8.1"
     id("nu.studer.jooq") version "9.0"
     id("com.github.johnrengelman.shadow") version "8.1.1"
     id("com.microsoft.azure.azurefunctions") version "1.16.1"
@@ -847,7 +847,7 @@ buildscript {
         // will need to be removed once this issue is resolved in Maven.
         classpath("net.minidev:json-smart:2.5.2")
         // as per flyway v10 docs the postgres flyway module must be on the project buildpath
-        classpath("org.flywaydb:flyway-database-postgresql:11.8.0")
+        classpath("org.flywaydb:flyway-database-postgresql:11.8.1")
     }
 }
 
@@ -892,7 +892,7 @@ dependencies {
     implementation("io.github.oshai:kotlin-logging-jvm:7.0.7")
     implementation("com.github.doyaaaaaken:kotlin-csv-jvm:1.10.0")
     implementation("tech.tablesaw:tablesaw-core:0.44.1")
-    implementation("com.github.ajalt.clikt:clikt-jvm:4.4.0")
+    implementation("com.github.ajalt.clikt:clikt-jvm:5.0.3")
 
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:$jacksonVersion")
     implementation("com.fasterxml.jackson.core:jackson-databind:$jacksonVersion")
@@ -928,8 +928,8 @@ dependencies {
     implementation("commons-io:commons-io:2.19.0")
     implementation("org.postgresql:postgresql:42.7.4")
     implementation("com.zaxxer:HikariCP:6.3.0")
-    implementation("org.flywaydb:flyway-core:11.8.0")
-    implementation("org.flywaydb:flyway-database-postgresql:11.8.0")
+    implementation("org.flywaydb:flyway-core:11.8.1")
+    implementation("org.flywaydb:flyway-database-postgresql:11.8.1")
     implementation("org.commonmark:commonmark:0.24.0")
     implementation("com.google.guava:guava:33.4.8-jre")
     implementation("com.helger.as2:as2-lib:5.1.5")
@@ -980,7 +980,7 @@ dependencies {
 
     // validations
     implementation("com.networknt:json-schema-validator:1.5.6")
-    implementation("io.konform:konform-jvm:0.4.0")
+    implementation("io.konform:konform-jvm:0.11.1")
 
     runtimeOnly("com.okta.jwt:okta-jwt-verifier-impl:0.5.7")
     runtimeOnly("com.squareup.okio:okio:3.11.0")

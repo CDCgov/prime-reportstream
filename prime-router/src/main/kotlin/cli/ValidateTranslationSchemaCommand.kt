@@ -2,6 +2,7 @@ package gov.cdc.prime.router.cli
 
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.CliktError
+import com.github.ajalt.clikt.core.Context
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.types.enum
@@ -12,7 +13,11 @@ import org.apache.logging.log4j.kotlin.Logging
 class ValidateTranslationSchemaCommand :
     CliktCommand(
         name = "validateSchemas",
-        help = """"Commands to validate translation schemas in a particular environment
+    ),
+    Logging {
+    override fun help(
+        context: Context,
+    ): String = """"Commands to validate translation schemas in a particular environment
         | It works by taking the kind of schema to validate and the azure connection details/
         | 
         | Each schema is accompanied with an input and output file and is validated by running the schema
@@ -26,8 +31,6 @@ class ValidateTranslationSchemaCommand :
         | If an unexpected error occurs please confirm that the files in directory are correct; i.e.
         | adding a FHIR -> FHIR transform into the hl7_mapping directory will cause an exception.
     """.trimMargin()
-    ),
-    Logging {
 
     private val translationSchemaManager = TranslationSchemaManager()
 
