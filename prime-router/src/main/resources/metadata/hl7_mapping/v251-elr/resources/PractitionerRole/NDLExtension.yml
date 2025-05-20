@@ -1,7 +1,0 @@
-# $schema: ./../../../../../../../../metadata/json_schema/fhir/fhir-to-hl7-mapping.json
-
-elements:
-
-  - name: ndl-9-patient-location-type
-    value: [ '%resource.extension("NDL.9").value' ]
-    hl7Spec: [ '%{hl7NDLField}-9' ]

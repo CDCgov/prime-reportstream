@@ -13,7 +13,7 @@
       topic: "full-elr"
       customerStatus: "active"
       translation:
-        schemaName: "azure:/metadata/hl7_mapping/receivers/STLTs/UT/UT-receiver-transform.yml"
+        schemaName: "classpath:/metadata/hl7_mapping/receivers/STLTs/UT/UT-receiver-transform.yml"
         useTestProcessingMode: false
         useBatchHeaders: true
         receivingApplicationName: null
@@ -57,28 +57,34 @@
           truncateHl7Fields: []
           customLengthHl7Fields: {}
       jurisdictionalFilter:
-        - "(Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state = 'UT') or (Bundle.entry.resource.ofType(Patient).address.state = 'UT')"
+        - "(Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state\
+      \ = 'UT') or (Bundle.entry.resource.ofType(Patient).address.state = 'UT')"
       qualityFilter:
-        - "Bundle.identifier.value.exists()"
+        - "((Bundle.entry.resource.ofType(Specimen).collection.collectedPeriod.exists()\
+      \ or Bundle.entry.resource.ofType(Specimen).collection.collected.exists()) or\
+      \ (Bundle.entry.resource.ofType(ServiceRequest).occurrence.exists() or Bundle.entry.resource.ofType(Observation).effective.exists()))"
+        - "Bundle.entry.resource.ofType(Patient).birthDate.exists()"
         - "Bundle.entry.resource.ofType(Patient).name.family.exists()"
         - "Bundle.entry.resource.ofType(Patient).name.given.count() > 0"
-        - "Bundle.entry.resource.ofType(Patient).birthDate.exists()"
-        - "Bundle.entry.resource.ofType(Specimen).where(type.empty()).count() = 0"
-        - "Bundle.entry.resource.ofType(Patient).where(address.line[0].empty() and address.postalCode.empty() and telecom.where(system = 'phone').value.empty() and telecom.where(system = 'email').value.empty()).count() = 0"
-        - "((Bundle.entry.resource.ofType(Specimen).collection.collectedPeriod.exists() or Bundle.entry.resource.ofType(Specimen).collection.collected.exists())
-           or (Bundle.entry.resource.ofType(ServiceRequest).occurrence.exists() or Bundle.entry.resource.ofType(Observation).effective.exists()))"
-      routingFilter: []
+        - "Bundle.entry.resource.ofType(Patient).where(address.line[0].empty() and address.postalCode.empty()\
+      \ and telecom.where(system = 'phone').value.empty() and telecom.where(system\
+      \ = 'email').value.empty()).count() = 0"
+        - "Bundle.entry.resource.ofType(Specimen).type.exists()"
+        - "Bundle.identifier.value.exists()"
+      routingFilter:
+        - "Bundle.entry.resource.ofType(MessageHeader).extension('https://reportstream.cdc.gov/fhir/StructureDefinition/sender-id').where(value\
+      \ in ('SimpleReport' | 'cvs-health')).exists()"
       processingModeFilter: []
       reverseTheQualityFilter: false
       conditionFilter:
-        # Accept COVID only
-        - "(%resource.code.coding.extension('https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code').value.where(code in ('840539006')).exists())"
+        - "(%resource.interpretation.coding.code = 'A' and %resource.code.coding.extension('https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code').value.where(code\
+      \ in ('55735004'|'541131000124102'|'840539006'|'6142004'|'414015000')).exists())"
       mappedConditionFilter: []
       deidentify: false
       deidentifiedValue: ""
       timing:
         operation: "MERGE"
-        numberPerDay: 12
+        numberPerDay: 1440
         initialTime: "01:09"
         timeZone: "EASTERN"
         maxReportCount: 100
@@ -92,7 +98,9 @@
         filePath: "/in"
         credentialName: null
         type: "SFTP"
-      externalName: null
+      externalName: ""
       enrichmentSchemaNames: []
+      routingFilters: []
       timeZone: null
       dateTimeFormat: "OFFSET"
+

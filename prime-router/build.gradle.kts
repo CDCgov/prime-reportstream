@@ -36,7 +36,7 @@ apply(from = rootProject.file("buildSrc/shared.gradle.kts"))
 plugins {
     val kotlinVersion by System.getProperties()
     id("reportstream.project-conventions")
-    id("org.flywaydb.flyway") version "11.7.2"
+    id("org.flywaydb.flyway") version "11.8.1"
     id("nu.studer.jooq") version "9.0"
     id("com.github.johnrengelman.shadow") version "8.1.1"
     id("com.microsoft.azure.azurefunctions") version "1.16.1"
@@ -46,7 +46,7 @@ plugins {
     id("com.avast.gradle.docker-compose") version "0.17.12"
     id("org.jetbrains.kotlin.plugin.serialization") version "$kotlinVersion"
     id("com.nocwriter.runsql") version ("1.0.3")
-    id("io.swagger.core.v3.swagger-gradle-plugin") version "2.2.23"
+    id("io.swagger.core.v3.swagger-gradle-plugin") version "2.2.30"
 }
 
 // retrieve the current commit hash
@@ -76,7 +76,7 @@ val javaVersion = when (appJvmTarget.target) {
 }
 val ktorVersion = "2.3.12"
 val kotlinVersion by System.getProperties()
-val jacksonVersion = "2.18.3"
+val jacksonVersion = "2.19.0"
 jacoco.toolVersion = "0.8.12"
 
 // Local database information, first one wins:
@@ -335,6 +335,11 @@ tasks.register<ResolveTask>("generateOpenApi") {
     buildClasspath = classpath
     resourcePackages = setOf("gov.cdc.prime.router.azure")
     outputDir = apiDocsSpecDir
+    sortOutput = false
+    alwaysResolveAppPath = false
+    skipResolveAppPath = false
+    readAllResources = true
+    encoding = "UTF-8"
     dependsOn("compileKotlin")
 }
 
@@ -654,18 +659,18 @@ task<Exec>("uploadSwaggerUI") {
 }
 
 tasks.register("killFunc") {
-        val processName = "func"
-        if (org.gradle.internal.os.OperatingSystem.current().isWindows) {
-            exec {
-                workingDir = project.rootDir
-                commandLine = listOf("cmd", "/c", "taskkill /F /IM $processName.exe || exit 0")
-            }
-        } else {
-            exec {
-                workingDir = project.rootDir
-                commandLine = listOf("sh", "-c", "pkill -9 $processName || true")
-            }
+    val processName = "func"
+    if (org.gradle.internal.os.OperatingSystem.current().isWindows) {
+        exec {
+            workingDir = project.rootDir
+            commandLine = listOf("cmd", "/c", "taskkill /F /IM $processName.exe || exit 0")
         }
+    } else {
+        exec {
+            workingDir = project.rootDir
+            commandLine = listOf("sh", "-c", "pkill -9 $processName || true")
+        }
+    }
 }
 
 tasks.register("run") {
@@ -842,7 +847,7 @@ buildscript {
         // will need to be removed once this issue is resolved in Maven.
         classpath("net.minidev:json-smart:2.5.2")
         // as per flyway v10 docs the postgres flyway module must be on the project buildpath
-        classpath("org.flywaydb:flyway-database-postgresql:11.7.2")
+        classpath("org.flywaydb:flyway-database-postgresql:11.8.1")
     }
 }
 
@@ -887,7 +892,7 @@ dependencies {
     implementation("io.github.oshai:kotlin-logging-jvm:7.0.7")
     implementation("com.github.doyaaaaaken:kotlin-csv-jvm:1.10.0")
     implementation("tech.tablesaw:tablesaw-core:0.44.1")
-    implementation("com.github.ajalt.clikt:clikt-jvm:4.4.0")
+    implementation("com.github.ajalt.clikt:clikt-jvm:5.0.3")
 
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:$jacksonVersion")
     implementation("com.fasterxml.jackson.core:jackson-databind:$jacksonVersion")
@@ -916,18 +921,18 @@ dependencies {
     implementation("com.hierynomus:sshj:0.39.0")
     implementation("com.jcraft:jsch:0.1.55")
     implementation("org.apache.poi:poi:5.4.1")
-    implementation("org.apache.commons:commons-csv:1.12.0")
+    implementation("org.apache.commons:commons-csv:1.14.0")
     implementation("org.apache.commons:commons-lang3:3.17.0")
     implementation("org.apache.commons:commons-text:1.13.1")
     implementation("commons-codec:commons-codec:1.18.0")
     implementation("commons-io:commons-io:2.19.0")
     implementation("org.postgresql:postgresql:42.7.4")
     implementation("com.zaxxer:HikariCP:6.3.0")
-    implementation("org.flywaydb:flyway-core:11.7.2")
-    implementation("org.flywaydb:flyway-database-postgresql:11.7.2")
+    implementation("org.flywaydb:flyway-core:11.8.1")
+    implementation("org.flywaydb:flyway-database-postgresql:11.8.1")
     implementation("org.commonmark:commonmark:0.24.0")
     implementation("com.google.guava:guava:33.4.8-jre")
-    implementation("com.helger.as2:as2-lib:5.1.4")
+    implementation("com.helger.as2:as2-lib:5.1.5")
     implementation("org.bouncycastle:bcprov-jdk15to18:1.80")
     implementation("org.bouncycastle:bcprov-jdk18on:1.80")
     implementation("org.bouncycastle:bcmail-jdk15to18:1.80")
@@ -945,18 +950,14 @@ dependencies {
     implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
     implementation("io.ktor:ktor-serialization-kotlinx:$ktorVersion")
     implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
-    implementation("it.skrape:skrapeit-html-parser:1.3.0-alpha.2")
-    implementation("it.skrape:skrapeit-http-fetcher:1.3.0-alpha.2")
     implementation("org.apache.poi:poi:5.4.1")
     implementation("org.apache.poi:poi-ooxml:5.4.1")
     implementation("org.apache.commons:commons-compress:1.27.1")
     implementation("commons-io:commons-io:2.19.0")
     implementation("com.anyascii:anyascii:0.3.2")
-    // force jsoup since skrapeit-html-parser@1.2.1+ has not updated
-    implementation("org.jsoup:jsoup:1.19.1")
     // https://mvnrepository.com/artifact/io.swagger/swagger-annotations
     implementation("io.swagger:swagger-annotations:1.6.15")
-    implementation("io.swagger.core.v3:swagger-jaxrs2:2.2.23")
+    implementation("io.swagger.core.v3:swagger-jaxrs2:2.2.30")
     // https://mvnrepository.com/artifact/javax.ws.rs/javax.ws.rs-api
     implementation("javax.ws.rs:javax.ws.rs-api:2.1.1")
     // https://mvnrepository.com/artifact/javax.servlet/javax.servlet-api
@@ -979,7 +980,7 @@ dependencies {
 
     // validations
     implementation("com.networknt:json-schema-validator:1.5.6")
-    implementation("io.konform:konform-jvm:0.4.0")
+    implementation("io.konform:konform-jvm:0.11.1")
 
     runtimeOnly("com.okta.jwt:okta-jwt-verifier-impl:0.5.7")
     runtimeOnly("com.squareup.okio:okio:3.11.0")
@@ -987,7 +988,7 @@ dependencies {
     runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.11.5")
 
     testImplementation(kotlin("test-junit5"))
-    testImplementation("io.mockk:mockk:1.14.0")
+    testImplementation("io.mockk:mockk:1.14.2")
     testImplementation("io.ktor:ktor-client-mock:$ktorVersion")
 
     implementation(project(":shared"))

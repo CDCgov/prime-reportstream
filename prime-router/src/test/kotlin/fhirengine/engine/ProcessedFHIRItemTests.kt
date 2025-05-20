@@ -4,7 +4,7 @@ import assertk.assertThat
 import assertk.assertions.isEqualTo
 import fhirengine.engine.ProcessedFHIRItem
 import fhirengine.engine.ProcessedHL7Item
-import fhirengine.translation.hl7.structures.nistelr251.message.ORU_R01
+import fhirengine.translation.hl7.structures.fhirinventory.message.ORU_R01
 import gov.cdc.prime.router.ErrorCode
 import org.hl7.fhir.r4.model.Bundle
 import org.junit.jupiter.api.Test

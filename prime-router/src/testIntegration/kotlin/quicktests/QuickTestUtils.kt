@@ -3,6 +3,7 @@ package quicktests
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import assertk.assertions.isGreaterThan
+import com.github.ajalt.clikt.core.main
 import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.MimeFormat

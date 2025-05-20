@@ -3,6 +3,7 @@ package gov.cdc.prime.router.cli
 import ca.uhn.hl7v2.util.Hl7InputStreamMessageStringIterator
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.CliktError
+import com.github.ajalt.clikt.core.Context
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.types.file
@@ -14,10 +15,13 @@ import gov.cdc.prime.router.fhirengine.utils.HL7Reader
  */
 class ProcessHl7Commands :
     CliktCommand(
-    name = "hl7data",
-    help = "Compare HL7 Fields. This is the structure used for the segment numbering in th output: " +
-        "https://hl7-definition.caristix.com/v2/HL7v2.5.1/TriggerEvents/ORU_R01."
-) {
+        name = "hl7data",
+    ) {
+    override fun help(
+        context: Context,
+    ): String = "Compare HL7 Fields. This is the structure used for the segment numbering in th output: " +
+            "https://hl7-definition.caristix.com/v2/HL7v2.5.1/TriggerEvents/ORU_R01."
+
     /**
      * The file to compare to
      */

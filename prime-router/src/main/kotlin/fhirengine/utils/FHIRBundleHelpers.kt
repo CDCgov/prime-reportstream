@@ -407,7 +407,6 @@ fun Bundle.enhanceBundleMetadata(hl7Message: Message) {
 
     // The HL7 message ID
     this.identifier.value = when (val mshSegment = hl7Message["MSH"]) {
-        is fhirengine.translation.hl7.structures.nistelr251.segment.MSH -> mshSegment.messageControlID.value
         is ca.uhn.hl7v2.model.v27.segment.MSH -> mshSegment.messageControlID.value
         is ca.uhn.hl7v2.model.v251.segment.MSH -> mshSegment.messageControlID.value
         else -> ""
