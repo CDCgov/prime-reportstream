@@ -1,4 +1,5 @@
 #OBX-29
+elements:
 - name: suppress-obx-29-for-aoe
   resource: 'Bundle.entry.resource.ofType(ServiceRequest).supportingInfo.resolve()'
   condition: '%resource.exists()'
