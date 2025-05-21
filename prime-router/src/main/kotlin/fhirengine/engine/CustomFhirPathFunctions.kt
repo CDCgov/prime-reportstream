@@ -187,7 +187,6 @@ class CustomFhirPathFunctions : FhirPathFunctions {
 
     /**
      * Get a fake value to use for a specific type of field
-     * @param focus not actually required here. What we call it on is completely irrelevant
      * @param parameters takes a field type which is based off of element type with an optional second param for state,
      * required for types city, postal code,
      * @param metadata used to get the geo data table
