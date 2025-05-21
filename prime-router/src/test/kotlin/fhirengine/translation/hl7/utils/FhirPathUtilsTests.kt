@@ -58,7 +58,7 @@ class FhirPathUtilsTests {
         clearAllMocks()
     }
 
-    @Test // ignore
+    @Test
     fun `test parse fhir path`() {
         // We can do some level of validation on a FHIR path string without an actual bundle
 
@@ -260,7 +260,7 @@ class FhirPathUtilsTests {
         }
     }
 
-    @Test // ignore
+    @Test
     fun `test evaluateString`() {
         val a = ORU_R01()
         val terser = Terser(a)
