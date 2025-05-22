@@ -1,6 +1,6 @@
 hl7Class: ca.uhn.hl7v2.model.v251.message.ORU_R01
 
-extends: classpath:/metadata/hl7_mapping/ORU_R01/ORU_R01-base.yml
+extends: classpath:/metadata/hl7_mapping/ORU_R01/ORU_R01-shadow.yml
 
 constants:
   MSH: '/MSH'
