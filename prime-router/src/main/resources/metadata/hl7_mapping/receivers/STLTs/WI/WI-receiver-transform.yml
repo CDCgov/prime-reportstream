@@ -1,11 +1,21 @@
 hl7Class: ca.uhn.hl7v2.model.v251.message.ORU_R01
 
-extends: classpath:/metadata/hl7_mapping/ORU_R01/ORU_R01-base.yml
+extends: classpath:/metadata/hl7_mapping/ORU_R01/ORU_R01-shadow.yml
 
 elements:
+
+  - name: ms-name-of-the-sender-application-Namespace-Id
+    condition: 'true'
+    value: [ '"CDC PRIME - Atlanta, Georgia (Dekalb)"' ]
+    hl7Spec: [ 'MSH-3-1' ]
 
   - name: wi-patient-race-coding-system
     resource: 'Bundle.entry.resource.ofType(Patient).extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").value.coding'
     condition: '%resource.code.exists()'
     value: [ '%resource.system.getCodingSystemMapping()' ]
     hl7Spec: [ '/PATIENT_RESULT/PATIENT/PID-10-3' ]
+
+  - name: wi-patient-county-codes
+    condition: 'Bundle.entry.resource.ofType(Patient).address.district.empty().not() and Bundle.entry.resource.ofType(Patient).address.state.empty().not()'
+    hl7Spec: [ '/PATIENT_RESULT/PATIENT/PID-11-9' ]
+    value: ["FIPSCountyLookup(Bundle.entry.resource.ofType(Patient).address.district,Bundle.entry.resource.ofType(Patient).address.state)[0]"]
