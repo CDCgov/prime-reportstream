@@ -1,9 +1,9 @@
 hl7Class: ca.uhn.hl7v2.model.v251.message.ORU_R01
 
-extends: classpath:/metadata/hl7_mapping/ORU_R01/ORU_R01-base.yml
+extends: classpath:/metadata/hl7_mapping/ORU_R01/ORU_R01-shadow.yml
 
 constants:
-  hl7OBXField: '/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION/OBX'
+  ORC: '/PATIENT_RESULT/ORDER_OBSERVATION/ORC'
 
 elements:
 
@@ -13,6 +13,6 @@ elements:
     value: [ '%resource.system.getCodingSystemMapping()' ]
     hl7Spec: [ '/PATIENT_RESULT/PATIENT/PID-10-3' ]
 
-  # Suppress the XON.10 value in Organization
-  - name: suppress-organization-orc-21-10
-    schema: classpath:/metadata/hl7_mapping/receivers/Common/remove-orc-21-10/remove-orc-21-10.yml
+  - name: pr-unwanted-fields
+    value: [ '""' ]
+    hl7Spec: [ '%{ORC}-21-10' ]
