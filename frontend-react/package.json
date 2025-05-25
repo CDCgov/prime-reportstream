@@ -189,7 +189,7 @@
     "remark-frontmatter": "^5.0.0",
     "remark-mdx-frontmatter": "^5.1.0",
     "remark-mdx-toc": "^0.3.1",
-    "sass": "^1.87.0",
+    "sass": "^1.89.0",
     "storybook": "^8.6.12",
     "ts-node": "^10.9.2",
     "tslib": "^2.8.1",
