@@ -4486,15 +4486,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@trussworks/react-uswds@npm:^9.1.0":
-  version: 9.1.0
-  resolution: "@trussworks/react-uswds@npm:9.1.0"
+"@trussworks/react-uswds@npm:^10.0.1":
+  version: 10.0.1
+  resolution: "@trussworks/react-uswds@npm:10.0.1"
   peerDependencies:
+    "@types/react": ^16.x || ^17.x || ^18.x || ^19.x
+    "@types/react-dom": ^16.x || ^17.x || ^18.x || ^19.x
     "@uswds/uswds": ^3.7.1
     focus-trap-react: ^10.2.3
-    react: ^16.x || ^17.x || ^18.x
-    react-dom: ^16.x || ^17.x || ^18.x
-  checksum: 907613e6bc42d7b304f69e52556ab78b0df86adcb24453cf9616805786e5940a3dbdd55bf6f03270c41dd672cfda1a4fdb9331ff64dd8c7beeecaa578771783c
+    react: ^16.x || ^17.x || ^18.x || ^19.x
+    react-dom: ^16.x || ^17.x || ^18.x || ^19.x
+  checksum: d826f3f8c3b4a76d93f48fa2e16aa0ea72c76eb894b88f4c06bbf42a7101c7780e1ac840f4d5d39d5c3c9a76a368a2d67ed4ad0df58f22d34e3fa8595b66f5ef
   languageName: node
   linkType: hard
 
@@ -12695,7 +12697,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"prop-types@npm:^15.5.7, prop-types@npm:^15.6.2, prop-types@npm:^15.8.1":
+"prop-types@npm:^15.6.2, prop-types@npm:^15.8.1":
   version: 15.8.1
   resolution: "prop-types@npm:15.8.1"
   dependencies:
@@ -12936,7 +12938,7 @@ __metadata:
     "@testing-library/jest-dom": ^6.6.3
     "@testing-library/react": ^16.3.0
     "@testing-library/user-event": ^14.6.1
-    "@trussworks/react-uswds": ^9.1.0
+    "@trussworks/react-uswds": ^10.0.1
     "@types/dompurify": ^3.2.0
     "@types/dotenv-flow": ^3.3.3
     "@types/eslint__js": ^9.14.0
@@ -13006,7 +13008,7 @@ __metadata:
     react-query-kit: ^3.3.1
     react-router: ^6.28.2
     react-router-dom: ^6.28.2
-    react-scroll-sync: ^0.11.3
+    react-scroll-sync: ^1.0.2
     react-toastify: ^11.0.5
     rehype-raw: ^7.0.0
     rehype-slug: ^5.1.0
@@ -13153,15 +13155,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-scroll-sync@npm:^0.11.3":
-  version: 0.11.3
-  resolution: "react-scroll-sync@npm:0.11.3"
-  dependencies:
-    prop-types: ^15.5.7
+"react-scroll-sync@npm:^1.0.2":
+  version: 1.0.2
+  resolution: "react-scroll-sync@npm:1.0.2"
   peerDependencies:
-    react: 16.x || 17.x || 18.x
-    react-dom: 16.x || 17.x || 18.x
-  checksum: 2aa9b02dd6ba6aceb3094e09ab2a9373cfdcff61d836b77f28619a487154a00e038c7945c8644ac55ee7839b46868f47fe425e4c1d09eb85a97bc52fb51014e9
+    react: 16.x || 17.x || 18.x || 19.x
+    react-dom: 16.x || 17.x || 18.x || 19.x
+  checksum: 4da981081ae90a52c7c1d7e1a7bd16bc6996e3931c2e4f4609bf1164c43c26542d0b0112892284c31c6983ed36a1bb3dfb6da8a9f535e66cc4ff8b6e16ea0878
   languageName: node
   linkType: hard
 
