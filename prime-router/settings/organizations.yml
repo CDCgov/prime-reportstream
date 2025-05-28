@@ -1,6 +1,6 @@
 # $schema: ./../metadata/json_schema/organizations/organizations.json
 ---
-#t
+#
 # This file runs in environments (ie. your desktop) where the 'localhost' host name resolves
 #
 - name: waters
