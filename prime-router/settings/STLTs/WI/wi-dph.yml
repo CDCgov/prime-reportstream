@@ -97,12 +97,17 @@
       type: "SFTP"
     externalName: null
     enrichmentSchemaNames:
-        - "classpath:/metadata/fhir_transforms/common/observation-end-datetime.yml"
-        - "classpath:/metadata/fhir_transforms/common/livd-lookup.yml"
-        - "classpath:/metadata/fhir_transforms/common/use-pid-14-for-email.yml"
-        - "classpath:/metadata/fhir_transforms/common/suppress-xtn-12.yml"
-        - "classpath:/metadata/fhir_transforms/common/suppress-device-information.yml"
-        - "classpath:/metadata/fhir_transforms/common/adjust-phone-number.yml"
+      - "classpath:/metadata/fhir_transforms/common/observation-end-datetime.yml"
+      - "classpath:/metadata/fhir_transforms/common/livd-lookup.yml"
+      - "classpath:/metadata/fhir_transforms/common/suppress-patient-info.yml"
+      - "classpath:/metadata/fhir_transforms/common/suppress-xtn-12.yml"
+      - "classpath:/metadata/fhir_transforms/common/modify-aoe-values.yml"
+      - "classpath:/metadata/fhir_transforms/common/use-county-lookup.yml"
+      - "classpath:/metadata/fhir_transforms/common/adjust-ordering-provider.yml"
+      - "classpath:/metadata/fhir_transforms/common/race-code-system-lookup.yml"
+      - "classpath:/metadata/fhir_transforms/common/suppress-obx-aoe.yml"
+      - "classpath:/metadata/fhir_transforms/common/adjust-phone-number.yml"
+      - "classpath:/metadata/fhir_transforms/common/suppress-device-information.yml"
     timeZone: null
     dateTimeFormat: "OFFSET"
   - name: "elr-test"
