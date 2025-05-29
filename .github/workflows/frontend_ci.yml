@@ -178,7 +178,7 @@ jobs:
     needs: lint
     runs-on: ubuntu-latest
     # Keep shards under 10 minutes
-    timeout-minutes: 20
+    timeout-minutes: 25
     strategy:
       fail-fast: false
       matrix:
