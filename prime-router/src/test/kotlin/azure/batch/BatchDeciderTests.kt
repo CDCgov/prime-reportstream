@@ -14,11 +14,11 @@ import gov.cdc.prime.router.azure.QueueAccess
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.mockk.clearAllMocks
+import io.mockk.coVerifyOrder
 import io.mockk.every
 import io.mockk.mockkClass
 import io.mockk.spyk
 import io.mockk.verify
-import io.mockk.verifyOrder
 import org.jooq.tools.jdbc.MockConnection
 import org.jooq.tools.jdbc.MockDataProvider
 import org.jooq.tools.jdbc.MockResult
@@ -208,7 +208,7 @@ class BatchDeciderTests {
         BatchDeciderFunction(engine).run("", null)
 
         // verify three enqueues with delays of 0, 2, and 4 minutes to the COVID queue
-        verifyOrder {
+        coVerifyOrder {
             queueMock.sendMessageToQueue(
                 any<BatchEvent>(), BatchConstants.Queue.COVID_BATCH_QUEUE, Duration.ZERO
             )

@@ -18,6 +18,8 @@ import java.util.UUID
  * @param blobUrl the blob url for the outputted report
  * @param pipelineStepName the step that produced the outputted report
  * @param timestamp when the event occurred
+ * @param commitId the current git commit hash
+ * @param queueMessage the azure queue message
  */
 data class ReportEventData(
     val childReportId: UUID,
@@ -28,6 +30,7 @@ data class ReportEventData(
     val pipelineStepName: TaskAction,
     val timestamp: OffsetDateTime,
     val commitId: String,
+    val queueMessage: String,
 )
 
 /**
@@ -73,7 +76,6 @@ enum class ReportStreamEventProperties {
     TARGET_FORMAT,
     RETRY_COUNT,
     NEXT_RETRY_TIME,
-    QUEUE_MESSAGE,
     ;
 
     @JsonKey
@@ -100,6 +102,7 @@ enum class ReportStreamEventName {
     ITEM_TRANSFORMED,
     ITEM_LAST_MILE_FAILURE,
     ITEM_SEND_ATTEMPT_FAIL,
+    ITEM_INVALID_CONDITION_MAPPING,
 }
 
 /**
