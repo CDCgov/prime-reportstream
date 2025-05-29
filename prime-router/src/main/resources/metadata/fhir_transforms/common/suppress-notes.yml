@@ -1,0 +1,10 @@
+elements:
+  - name: suppress-note-extension
+    resource: 'Bundle.entry.resource.ofType(ServiceRequest).note.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/note-type")'
+    bundleProperty: '%resource.value[x]'
+    value: [ '""' ]
+
+  - name: suppress-note
+    resource: 'Bundle.entry.resource.ofType(ServiceRequest).note'
+    bundleProperty: '%resource.text'
+    value: [ '""' ]
