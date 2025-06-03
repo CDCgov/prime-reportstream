@@ -1,0 +1,510 @@
+name: Frontend CI/CD Docker
+
+on:
+  push:
+    branches:
+      - devsecops/matts/test-frontend 
+    paths:
+      - 'frontend-react/**'
+      - '.github/workflows/forntend-cicd_docker.yml' 
+  pull_request:
+    branches:
+      - devsecops/matts/test-frontend 
+    paths:
+      - 'frontend-react/**'
+      - '.github/workflows/forntend-cicd_docker.yml' 
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+env:
+  IMAGE_NAME: frontend-react 
+  WORKING_DIRECTORY: ./frontend-react
+  # Environment variables from frontend_ci.yml for tests
+  TEST_ADMIN_USERNAME: ${{ secrets.TEST_ADMIN_USERNAME }}
+  TEST_ADMIN_PASSWORD: ${{ secrets.TEST_ADMIN_PASSWORD }}
+  TEST_SENDER_USERNAME: ${{ secrets.TEST_SENDER_USERNAME }}
+  TEST_SENDER_PASSWORD: ${{ secrets.TEST_SENDER_PASSWORD }}
+  TEST_RECEIVER_USERNAME: ${{ secrets.TEST_RECEIVER_USERNAME }}
+  TEST_RECEIVER_PASSWORD: ${{ secrets.TEST_RECEIVER_PASSWORD }}
+
+jobs:
+  lint_and_unit_test:
+    name: Lint & Unit Test Frontend
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ env.WORKING_DIRECTORY }}
+        shell: bash
+    permissions:
+      contents: read # Required to checkout the code
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '${{ env.WORKING_DIRECTORY }}/.nvmrc'
+          cache: 'yarn'
+          cache-dependency-path: '${{ env.WORKING_DIRECTORY }}/yarn.lock'
+
+      - name: Install dependencies
+        run: yarn install --immutable
+
+      - name: Run linters
+        run: yarn run lint
+
+      - name: Run tests
+        run: yarn run test:ci
+
+  chromatic_analysis:
+    name: Chromatic Analysis
+    if: github.event.sender.login != 'dependabot[bot]' && (github.event_name == 'pull_request')
+    needs: lint_and_unit_test
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ env.WORKING_DIRECTORY }}
+        shell: bash
+    permissions:
+      contents: read
+      pull-requests: write # For PR comments
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Required by Chromatic
+          ref: ${{ github.event.pull_request.head.sha }} # Checkout PR HEAD commit
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '${{ env.WORKING_DIRECTORY }}/.nvmrc'
+          cache: 'yarn'
+          cache-dependency-path: '${{ env.WORKING_DIRECTORY }}/yarn.lock'
+
+      - name: Install dependencies
+        run: yarn install --immutable
+
+      - name: Run Chromatic
+        id: chromatic
+        uses: chromaui/action@f4e60a7072abcac4203f4ca50613f28e199a52ba # Specific SHA from frontend_ci.yml
+        with:
+          workingDir: ${{ env.WORKING_DIRECTORY }}
+          projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
+          ignoreLastBuildOnBranch: true 
+          onlyChanged: true
+          exitZeroOnChanges: true 
+          exitOnceUploaded: true
+
+      - name: Find Previous Chromatic Comment
+        id: find_chromatic_comment
+        uses: peter-evans/find-comment@v3
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          comment-author: "github-actions[bot]"
+          body-regex: 'Branch deployed to Chromatic 🚀'
+
+      - name: Delete Previous Chromatic Comment
+        if: steps.find_chromatic_comment.outputs.comment-id != ''
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            github.rest.issues.deleteComment({
+              comment_id: ${{ steps.find_chromatic_comment.outputs.comment-id }},
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+            })
+
+      - name: Create New Chromatic Comment
+        uses: peter-evans/create-or-update-comment@v4
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          body: |
+            Branch deployed to Chromatic 🚀.
+            - ${{ steps.chromatic.outputs.changeCount && format('⚠️ Detected {0} tests with visual changes.', steps.chromatic.outputs.changeCount) || '✅ No visual changes detected.' }}
+            - ${{ steps.chromatic.outputs.errorCount > 0 && format('❌ {0} tests failed!', steps.chromatic.outputs.errorCount) || '✅ All tests passed.' }}
+
+            View via:
+            - Chromatic: ${{ steps.chromatic.outputs.url }}
+            - Storybook: ${{ steps.chromatic.outputs.storybookUrl }}
+
+  build_docker_image:
+    name: Build Docker Image
+    runs-on: ubuntu-latest
+    needs: lint_and_unit_test
+    outputs:
+      image_tag: ${{ steps.get_sha.outputs.sha_short }}
+      image_name_sha: ${{ env.IMAGE_NAME }}:${{ steps.get_sha.outputs.sha_short }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Get short SHA
+        id: get_sha
+        run: echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: ${{ env.WORKING_DIRECTORY }}
+          file: ${{ env.WORKING_DIRECTORY }}/Dockerfile
+          push: false 
+          load: true 
+          tags: ${{ env.IMAGE_NAME }}:${{ steps.get_sha.outputs.sha_short }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+      
+      - name: Start Docker container
+        run: |
+          docker run -d -p 3000:3000 --name ${{ env.IMAGE_NAME }}_${{ matrix.shardIndex }} ${{ needs.build_docker_image.outputs.image_name_sha }}
+          echo "Waiting for application to start..."
+          timeout 60s bash -c 'until curl -sf http://localhost:3000; do sleep 1; done' || (docker logs ${{ env.IMAGE_NAME }}_${{ matrix.shardIndex }} && exit 1)
+          docker ps
+    
+
+  e2e_tests:
+    name: E2E tests
+    needs: build_docker_image
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ env.WORKING_DIRECTORY }}
+        shell: bash
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        shardIndex: [1, 2, 3, 4, 5, 6]
+        shardTotal: [6]
+    steps:
+      - name: Add swapfile
+        working-directory: /
+        run: |
+          sudo swapoff -a
+          sudo fallocate -l 15G /mnt/swapfile
+          sudo chmod 600 /mnt/swapfile
+          sudo mkswap /mnt/swapfile
+          sudo swapon /mnt/swapfile
+          sudo swapon --show
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '${{ env.WORKING_DIRECTORY }}/.nvmrc'
+          cache: 'yarn'
+          cache-dependency-path: '${{ env.WORKING_DIRECTORY }}/yarn.lock'
+
+      - name: Install dependencies (including Playwright)
+        run: yarn install --immutable
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps
+
+      - name: Start Docker container
+        run: |
+          docker run -d -p 3000:3000 --name ${{ env.IMAGE_NAME }}_${{ matrix.shardIndex }} ${{ needs.build_docker_image.outputs.image_name_sha }}
+          echo "Waiting for application to start..."
+          timeout 60s bash -c 'until curl -sf http://localhost:3000; do sleep 1; done' || (docker logs ${{ env.IMAGE_NAME }}_${{ matrix.shardIndex }} && exit 1)
+          docker ps
+
+      - name: Run E2E tests
+        env:
+          PLAYWRIGHT_BASE_URL: http://localhost:3000 
+        run: yarn run test:e2e --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}
+
+      - name: Stop and remove Docker container
+        if: always()
+        run: |
+          docker logs ${{ env.IMAGE_NAME }}_${{ matrix.shardIndex }} || true
+          docker stop ${{ env.IMAGE_NAME }}_${{ matrix.shardIndex }} || true
+          docker rm ${{ env.IMAGE_NAME }}_${{ matrix.shardIndex }} || true
+
+      - name: Upload E2E test data
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-e2e-data--shard-${{ matrix.shardIndex }}
+          path: ${{ env.WORKING_DIRECTORY }}/e2e-data 
+          retention-days: 1
+
+  e2e_tests_result:
+    if: ${{ always() && needs.build_docker_image.result == 'success' }}
+    runs-on: ubuntu-latest
+    name: E2E Tests Result
+    needs: [e2e_tests]
+    steps:
+      - run: |
+          result="${{ needs.e2e_tests.result }}"
+          echo "E2E tests overall result: $result"
+          if [[ $result == "success" || $result == "skipped" ]]; then
+            exit 0
+          else
+            exit 1
+          fi
+        working-directory: /
+
+  merge_e2e_reports:
+    name: Merge E2E Reports & Comment
+    needs: [lint_and_unit_test, e2e_tests]
+    if: ${{ !cancelled() && needs.e2e_tests.result == 'success' && (github.event_name == 'pull_request') }}
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ env.WORKING_DIRECTORY }}
+        shell: bash
+    permissions:
+      contents: read
+      pull-requests: write 
+    env:
+      COMMENT: ''
+      WARNING_LOG_FILE: e2e-data/frontend-warnings.json
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '${{ env.WORKING_DIRECTORY }}/.nvmrc'
+          cache: 'yarn'
+          cache-dependency-path: '${{ env.WORKING_DIRECTORY }}/yarn.lock'
+
+      - name: Install dependencies
+        run: yarn install --immutable
+
+      - name: Download E2E reports
+        uses: actions/download-artifact@v4
+        with:
+          path: ${{ env.WORKING_DIRECTORY }}/downloaded-e2e-artifacts
+          pattern: frontend-e2e-data--shard-*
+
+      - name: Prepare blob reports for merging
+        run: |
+          mkdir -p e2e-blobs-for-merge
+          find downloaded-e2e-artifacts/frontend-e2e-data--shard-*/ -name "*.zip" -exec cp {} e2e-blobs-for-merge/ \;
+          echo "Collected blob reports:"
+          ls e2e-blobs-for-merge/
+
+      - name: Merge reports
+        run: npx playwright merge-reports --reporter html,github ./e2e-blobs-for-merge
+
+      - name: Organize merged report
+        run: |
+          mkdir -p e2e-data/report
+          mv playwright-report/* e2e-data/report/
+          rmdir playwright-report
+          find e2e-data/report -name "*.zip" -delete || true
+          rm -rf e2e-data/report/resources || true
+
+      - name: Upload final E2E data
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-e2e-data--attempt-${{ github.run_attempt }}
+          path: ${{ env.WORKING_DIRECTORY }}/e2e-data
+          retention-days: 7
+
+      - name: Find Previous Warnings Comment
+        id: comment_find
+        uses: peter-evans/find-comment@v3
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          comment-author: "github-actions[bot]"
+          body-regex: '⚠️ Broken Links ⚠️'
+
+      - name: Delete Previous Warnings Comment
+        if: ${{ steps.comment_find.outputs.comment-id != '' }}
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            github.rest.issues.deleteComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              comment_id: ${{ steps.comment_find.outputs.comment-id }},
+            })
+
+      - name: Set Broken Links Comment
+        id: set-comment
+        run: |
+          full_warning_log_file="${{ env.WORKING_DIRECTORY }}/${{ env.WARNING_LOG_FILE }}"
+          if [ -f "$full_warning_log_file" ]; then
+            local_comment="## ⚠️ Broken Links ⚠️\n\n"
+            while IFS= read -r row; do
+              URL=$(echo $row | jq -r '.url')
+              ERROR=$(echo $row | jq -r '.message')
+              local_comment="${local_comment}❌ $URL\n\n**Error:** \`$ERROR\`\n\n---\n\n"
+            done < <(jq -c '.[]' "$full_warning_log_file")
+            {
+              echo "COMMENT<<EOF_COMMENT_MARKER"
+              echo -e "$local_comment"
+              echo "EOF_COMMENT_MARKER"
+            } >> $GITHUB_ENV
+          else
+            echo "Warning log file $full_warning_log_file not found."
+            {
+              echo "COMMENT<<EOF_COMMENT_MARKER"
+              echo "" # Ensure COMMENT is empty
+              echo "EOF_COMMENT_MARKER"
+            } >> $GITHUB_ENV
+          fi
+        shell: bash
+
+      - name: Create New Comment
+        if: ${{ env.COMMENT != '' && env.COMMENT != '\n' }}
+        uses: peter-evans/create-or-update-comment@v4
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          body: ${{ env.COMMENT }}
+
+#  pa11y_docker_test:
+#    name: Pa11y 508 Compliance (Docker)
+#    needs: build_docker_image
+#    if: github.event.sender.login != 'dependabot[bot]' && (github.event_name == 'pull_request' || github.event_name == 'push')
+#    runs-on: ubuntu-latest
+#    defaults:
+#      run:
+#        working-directory: ${{ env.WORKING_DIRECTORY }}
+#        shell: bash
+#    env:
+#      LOCAL_SITEMAP_URL: "http://localhost:3000/sitemap.xml"
+#      PUPPETEER_LAUNCH_ARGS: "--no-sandbox --disable-setuid-sandbox"
+#    steps:
+#      - name: Checkout code
+#        uses: actions/checkout@v4
+#
+#      - name: Set up Node.js
+#        uses: actions/setup-node@v4
+#        with:
+#          node-version-file: '${{ env.WORKING_DIRECTORY }}/.nvmrc'
+#          cache: 'yarn'
+#          cache-dependency-path: '${{ env.WORKING_DIRECTORY }}/yarn.lock'
+#
+#      - name: Install dependencies (for pa11y runner/config if any)
+#        run: yarn install --immutable
+#
+#      - name: Install Pa11y and jq
+#        run: |
+#          sudo apt-get update && sudo apt-get install -y jq
+#          npm install pa11y@8.0.0 --no-save --legacy-peer-deps # As per frontend_ci.yml
+#          npx pa11y --version
+#        working-directory: / # Install pa11y globally or in a temp dir if preferred
+#
+#      - name: Start Docker container
+#        run: |
+#          docker run -d -p 3000:3000 --name ${{ env.IMAGE_NAME }}_pa11y ${{ needs.build_docker_image.outputs.image_name_sha }}
+#          echo "Waiting for application to start..."
+#          timeout 60s bash -c 'until curl -sf http://localhost:3000; do sleep 1; done' || (docker logs ${{ env.IMAGE_NAME }}_pa11y && exit 1)
+#          docker ps
+#        working-directory: / # Run docker commands from root
+#
+#      - name: Run Pa11y Check
+#        run: |
+#          SITEMAP_URL="${{ env.LOCAL_SITEMAP_URL }}"
+#          echo "Local Sitemap URL for Pa11y: $SITEMAP_URL"
+#
+#          if ! curl -s "$SITEMAP_URL" -o sitemap.xml; then
+#            echo "❌ Failed to download sitemap from $SITEMAP_URL or sitemap not accessible"
+#            docker logs ${{ env.IMAGE_NAME }}_pa11y
+#            exit 1
+#          fi
+#
+#          if [ ! -s sitemap.xml ]; then
+#            echo "❌ Sitemap.xml is empty."
+#            exit 1
+#          fi
+#
+#          # Extract URLs, assuming pa11y.json is in ${{ env.WORKING_DIRECTORY }}
+#          # Ensure paths in pa11y.json are relative or adjust as needed.
+#          # The sed command replaces a potential production domain with localhost for testing.
+#          grep -oP '(?<=<loc>).*?(?=</loc>)' sitemap.xml | sed "s|https://reportstream.cdc.gov|http://localhost:3000|g" > sitemap_urls.txt
+#
+#          if [ -s sitemap_urls.txt ]; then
+#            echo "✅ URLs extracted successfully:"
+#            cat sitemap_urls.txt
+#            echo "Running Pa11y WCAG2AA checks..."
+#            # Assuming pa11y.json is in the working directory (frontend-react)
+#            for f in $(cat sitemap_urls.txt); do npx pa11y -c ./pa11y.json -e htmlcs -e axe -d -s WCAG2AA "$f"; done
+#            echo "Pa11y WCAG2AA checks complete"
+#          else
+#            echo "❌ No URLs found in sitemap.xml."
+#            exit 1
+#          fi
+#
+#      - name: Stop and remove Docker container
+#        if: always()
+#        run: |
+#          docker logs ${{ env.IMAGE_NAME }}_pa11y || true
+#          docker stop ${{ env.IMAGE_NAME }}_pa11y || true
+#          docker rm ${{ env.IMAGE_NAME }}_pa11y || true
+#        working-directory: / # Run docker commands from root
+
+  deploy_to_staging:
+    name: Deploy Frontend to Staging
+    runs-on: ubuntu-latest
+    needs:
+      - lint_and_unit_test
+      - chromatic_analysis
+      - build_docker_image
+      - e2e_tests_result
+      # - pa11y_docker_test # Add pa11y as a dependency for deployment
+    if: github.event_name == 'push' # Or adjust to your specific staging deployment trigger, e.g., push to a specific branch
+    environment: staging # Define this environment in GitHub repository settings
+
+    permissions:
+      contents: read
+      id-token: write # Required for OIDC login to Azure
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Azure
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Log in to Azure Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ secrets.ACR_NAME }}.azurecr.io
+          # Username and password are not needed when using azure/login@v2 with sufficient permissions
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: ${{ env.WORKING_DIRECTORY }}
+          file: ${{ env.WORKING_DIRECTORY }}/Dockerfile
+          push: true
+          tags: |
+            ${{ secrets.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:${{ needs.build_docker_image.outputs.image_tag }}
+            ${{ secrets.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:latest
+          cache-from: type=gha # Leverage cache from build_docker_image job
+          cache-to: type=gha,mode=max
+
+      - name: Deploy to Azure Web App (Example)
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: ${{ secrets.AZURE_WEBAPP_NAME_FRONTEND_STAGING }} # Ensure this secret contains your staging app name
+          images: '${{ secrets.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:${{ needs.build_docker_image.outputs.image_tag }}'
+
+      - name: Azure logout
+        if: always()
+        run: |
+          az logout || true
+          az account clear || true
