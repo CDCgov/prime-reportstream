@@ -25,7 +25,7 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.boot:spring-boot-testcontainers")
-    testImplementation("org.xmlunit:xmlunit-core:2.10.0")
+    testImplementation("org.xmlunit:xmlunit-core:2.10.2")
     testImplementation("org.mockito.kotlin:mockito-kotlin:5.4.0")
     testImplementation("org.apache.commons:commons-compress:1.27.1")
     testImplementation("org.springframework.security:spring-security-test")
