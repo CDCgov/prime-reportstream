@@ -8107,15 +8107,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-plugin-testing-library@npm:^7.1.1":
-  version: 7.1.1
-  resolution: "eslint-plugin-testing-library@npm:7.1.1"
+"eslint-plugin-testing-library@npm:^7.4.0":
+  version: 7.4.0
+  resolution: "eslint-plugin-testing-library@npm:7.4.0"
   dependencies:
     "@typescript-eslint/scope-manager": ^8.15.0
     "@typescript-eslint/utils": ^8.15.0
   peerDependencies:
     eslint: ^8.57.0 || ^9.0.0
-  checksum: d9adc8ebff79e311eda8b800336b01d95f12d185ad327add83486906b5de555b6932fef793ea8423fbb268774a43fca7876dc1308b69cd1765e6c6bcffd3351d
+  checksum: b7c7801e91e13e06099c17d64de6c9aefe29ec235714c13458efad899e8146e471138f476d39b66538519655f6ceee19b1008caa7da48a31449bad4f64199245
   languageName: node
   linkType: hard
 
@@ -12977,7 +12977,7 @@ __metadata:
     eslint-plugin-react-hooks: ^5.2.0
     eslint-plugin-react-refresh: ^0.4.20
     eslint-plugin-storybook: ^0.12.0
-    eslint-plugin-testing-library: ^7.1.1
+    eslint-plugin-testing-library: ^7.4.0
     eslint-plugin-vitest: ^0.5.4
     export-to-csv-fix-source-map: ^0.2.1
     focus-trap-react: ^11.0.3
