@@ -94,7 +94,6 @@
         type: "SFTP"
       externalName: null
       enrichmentSchemaNames:
-        - "classpath:/metadata/fhir_transforms/common/use-pid-14-for-email.yml"
         - "classpath:/metadata/fhir_transforms/common/suppress-non-npi.yml"
         - "classpath:/metadata/fhir_transforms/common/observation-end-datetime.yml"
         - "classpath:/metadata/fhir_transforms/common/livd-lookup.yml"
@@ -107,6 +106,5 @@
         - "classpath:/metadata/fhir_transforms/common/suppress-obx-aoe.yml"
         - "classpath:/metadata/fhir_transforms/common/adjust-phone-number.yml"
         - "classpath:/metadata/fhir_transforms/common/suppress-device-information.yml"
-        - "classpath:/metadata/fhir_transforms/common/suppress-qst.yml"
       timeZone: null
       dateTimeFormat: "OFFSET"
