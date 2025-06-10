@@ -2,6 +2,7 @@ package gov.cdc.prime.router.tests.quicktests
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
+import com.github.ajalt.clikt.core.main
 import com.github.doyaaaaaken.kotlincsv.dsl.csvReader
 import gov.cdc.prime.router.cli.ProcessData
 import org.junit.jupiter.api.DynamicTest

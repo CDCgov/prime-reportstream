@@ -16,7 +16,7 @@ website (https://reportstream.cdc.gov) for further details.
 PRIME ReportStream a sibling project to [PRIME SimpleReport](https://simplereport.gov) which is better way to report
 COVID-19 rapid tests.
 
-PRIME ReportStream is a membersdfsadf of the [Open CDC](https://open.cdc.gov/) community.
+PRIME ReportStream is a member of the [Open CDC](https://open.cdc.gov/) community.
 
 **Problem Scope**
 

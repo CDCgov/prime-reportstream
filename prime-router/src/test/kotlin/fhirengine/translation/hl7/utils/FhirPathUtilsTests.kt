@@ -16,19 +16,24 @@ import ca.uhn.hl7v2.model.v251.message.ORU_R01
 import ca.uhn.hl7v2.util.Terser
 import fhirengine.engine.CustomFhirPathFunctions
 import fhirengine.engine.CustomTranslationFunctions
+import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.fhirengine.config.HL7TranslationConfig
 import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
+import gov.cdc.prime.router.metadata.LookupTable
 import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkClass
+import io.mockk.mockkConstructor
+import io.mockk.mockkObject
 import io.mockk.spyk
 import io.mockk.verify
 import org.apache.logging.log4j.kotlin.KotlinLogger
 import org.hl7.fhir.exceptions.PathEngineException
 import org.hl7.fhir.r4.fhirpath.FHIRLexer
+import org.hl7.fhir.r4.model.Address
 import org.hl7.fhir.r4.model.Bundle
 import org.hl7.fhir.r4.model.DateTimeType
 import org.hl7.fhir.r4.model.DateType
@@ -36,9 +41,12 @@ import org.hl7.fhir.r4.model.DiagnosticReport
 import org.hl7.fhir.r4.model.Extension
 import org.hl7.fhir.r4.model.InstantType
 import org.hl7.fhir.r4.model.Observation
+import org.hl7.fhir.r4.model.Patient
 import org.hl7.fhir.r4.model.ServiceRequest
 import org.hl7.fhir.r4.model.TimeType
 import org.junit.jupiter.api.BeforeEach
+import tech.tablesaw.api.StringColumn
+import tech.tablesaw.api.Table
 import java.util.Date
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
@@ -195,6 +203,59 @@ class FhirPathUtilsTests {
             mockedLogger.error(
                 "FHIRLexerException: Error in ?? at 1, 1: Found # expecting a token name. " +
                     "Trying to evaluate: Bundle.#*(\$&id.exists()."
+            )
+        }
+    }
+
+    @Test
+    fun `test evaluate logs error when zip code lookup fails`() {
+        // Path that triggers the zip code lookup
+        val path = "%resource.postalCode.getStateFromZipCode()"
+
+        // Bundle Setup
+        val bundle = Bundle()
+        val address = Address()
+        val missingZipCode = "66666"
+        address.postalCode = missingZipCode
+        val patient = Patient()
+        patient.address.add(address)
+        val entry1 = Bundle.BundleEntryComponent()
+        entry1.resource = patient
+        bundle.addEntry(entry1)
+
+        // FhirPathUtils Mocking Setup
+        val appContext = mockkClass(CustomContext::class)
+        every { appContext.customFhirFunctions }.returns(CustomFhirPathFunctions())
+        val fhirPathUtils = spyk(FhirPathUtils)
+        val mockedLogger = mockk<KotlinLogger>()
+        every { fhirPathUtils.logger } returns mockedLogger
+        every { mockedLogger.error(any<String>()) } returns Unit
+        every { mockedLogger.trace(any<String>()) } returns Unit
+
+        // CustomFhirPathFunctions Mocking Setup
+        val testTable = Table.create(
+            "zip-code-data",
+            StringColumn.create("state_fips", "40", "48", "6"),
+            StringColumn.create("state", "Oklahoma", "Texas", "California"),
+            StringColumn.create("state_abbr", "OK", "TX", "CA"),
+            StringColumn.create("zipcode", "73949", "73949", "92356"),
+            StringColumn.create("county", "Texas", "Sherman", "San Bernardino"),
+            StringColumn.create("city", "Texhoma", "", "Lucerne valley")
+
+        )
+        val testLookupTable = LookupTable(name = "zip-code-data", table = testTable)
+        mockkConstructor(Metadata::class)
+        every { anyConstructed<Metadata>().findLookupTable("zip-code-data") } returns testLookupTable
+        mockkObject(Metadata)
+        every { Metadata.getInstance() } returns UnitTestUtils.simpleMetadata
+
+        // Act
+        assertThat(fhirPathUtils.evaluate(appContext, address, bundle, path).first().isEmpty)
+
+        // Assert
+        verify {
+            mockedLogger.error(
+                "getStateFromZipCode() lookup failed for zip code: $missingZipCode"
             )
         }
     }

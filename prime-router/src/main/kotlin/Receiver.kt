@@ -176,6 +176,7 @@ open class Receiver(
      * @param numberPerDay Number of batches per day must be 1 to 3600
      * @param initialTime The time of the day to first send. Must be format of hh:mm.
      * @param timeZone the time zone of the initial sending
+     * @param timeBetweenBatches the delay interval in seconds to apply between consecutive batches, if specified
      */
     data class Timing(
         val operation: BatchOperation = BatchOperation.NONE,
@@ -184,6 +185,7 @@ open class Receiver(
         val timeZone: USTimeZone = USTimeZone.EASTERN,
         val maxReportCount: Int = 100,
         val whenEmpty: WhenEmpty = WhenEmpty(),
+        val timeBetweenBatches: Long = 0L,
     ) {
         /**
          * Calculate the next event time.

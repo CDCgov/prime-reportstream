@@ -7,18 +7,23 @@ import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.Topic
+import gov.cdc.prime.router.azure.BatchEvent
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.QueueAccess
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.mockk.clearAllMocks
+import io.mockk.coVerifyOrder
 import io.mockk.every
 import io.mockk.mockkClass
 import io.mockk.spyk
+import io.mockk.verify
 import org.jooq.tools.jdbc.MockConnection
 import org.jooq.tools.jdbc.MockDataProvider
 import org.jooq.tools.jdbc.MockResult
+import java.time.Duration
+import java.time.OffsetDateTime
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -176,5 +181,44 @@ class BatchDeciderTests {
         assertEquals(true, result1.second)
         assertEquals(0, result2.first)
         assertEquals(false, result2.second)
+    }
+
+    @Test
+    fun `run should enqueue correct number of batch messages with appropriate delays`() {
+        // ensure this receiver is considered valid and due to batch
+        every { timing1.isValid() } returns true
+        // stub the default‐arg overload for batchInPrevious60Seconds()
+        every { timing1.batchInPrevious60Seconds(any<OffsetDateTime>()) } returns true
+
+        every { timing1.numberPerDay } returns 1
+        every { timing1.maxReportCount } returns 2
+        every { timing1.timeBetweenBatches } returns 120
+        every { timing1.whenEmpty } returns Receiver.WhenEmpty()
+
+        val settings = FileSettings().loadOrganizations(oneOrganization)
+        val engine = makeEngine(settings)
+
+        // 5 records → ceil(5/2) = 3 messages
+        every { engine.db.fetchNumReportsNeedingBatch(any(), any(), any()) } returns 5
+
+        // record all three invocations
+        every { queueMock.sendMessageToQueue(any(), any(), any()) } returns Unit
+
+        // run the code under test
+        BatchDeciderFunction(engine).run("", null)
+
+        // verify three enqueues with delays of 0, 2, and 4 minutes to the COVID queue
+        coVerifyOrder {
+            queueMock.sendMessageToQueue(
+                any<BatchEvent>(), BatchConstants.Queue.COVID_BATCH_QUEUE, Duration.ZERO
+            )
+            queueMock.sendMessageToQueue(
+                any<BatchEvent>(), BatchConstants.Queue.COVID_BATCH_QUEUE, Duration.ofMinutes(2)
+            )
+            queueMock.sendMessageToQueue(
+                any<BatchEvent>(), BatchConstants.Queue.COVID_BATCH_QUEUE, Duration.ofMinutes(4)
+            )
+        }
+        verify(exactly = 3) { queueMock.sendMessageToQueue(any(), any(), any()) }
     }
 }

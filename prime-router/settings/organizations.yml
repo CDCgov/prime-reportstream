@@ -38,6 +38,7 @@
         initialTime: "00:00"
         timeZone: "EASTERN"
         maxReportCount: 10000
+        timeBetweenBatches: 60
       description: ""
       transport:
         type: SFTP
