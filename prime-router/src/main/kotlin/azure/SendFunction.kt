@@ -173,9 +173,9 @@ class SendFunction(
 
     /**
      * This method handles our retry logic. There are four basic scenarios:
-     *   - Last Mile Failure 1. A send_error has been logged elsewhere. There will be no more retries.
+     *   - Last Mile Failure A. A send_error has been logged elsewhere. There will be no more retries.
      *   - Success. No send error has been logged and no more items are left to be sent.
-     *   - Last Mile Failure 2. No send error has been logged yet but all retry attempts are exhausted.
+     *   - Last Mile Failure B. No send error has been logged yet but all retry attempts are exhausted.
      *   - Retry. No send error has been logged and the retry limit has not been reached yet.
      *
      *  @return a ReportEvent to complete pipeline processing
@@ -196,7 +196,7 @@ class SendFunction(
             // mapOf() in kotlin is `1` based (not `0`), but always +1
             val nextRetryCount = (retryToken?.retryCount ?: 0) + 1
 
-            // Last Mile Failure 1
+            // Last Mile Failure A: unrecoverable send_error occurred
             if (actionHistory.action.actionName.toString() == "send_error") {
                 // We didn't get here without a send attempt, and it definitely failed.
                 logRetryEvent(
@@ -231,7 +231,7 @@ class SendFunction(
 
             // No send errors, but still items to retry
             if (nextRetryCount > retryDurationInMin.size) {
-                // Last Mile Failure 2
+                // Last Mile Failure B: No retries remaining
                 return logLastMileFailureEvent(
                     report,
                     receiver,
