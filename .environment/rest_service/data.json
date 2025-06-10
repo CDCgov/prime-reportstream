@@ -72,8 +72,8 @@
           "uuid": "",
           "body": "{\r\n  \"status\": \"Success\",\r\n  \"statusDesc\": \"Received. LIN:4299844\",\r\n  \"respTrackingId\": \"UT-20211119-746000000-54\"\r\n}",
           "latency": 0,
-          "statusCode": 200,
-          "label": "Created",
+          "statusCode": 400,
+          "label": "Bad Request",
           "headers": [
             {
               "key": "",

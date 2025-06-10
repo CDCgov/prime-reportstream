@@ -48,19 +48,19 @@ const val defaultMaxDurationValue = 120L
 // This is +/- around the actual retry, so they are spread out by up to 2x the value
 // It should always be > than the first entry of the retryDurationInMin above
 const val initialRetryInMin = 10
-const val ditherRetriesInSec = (initialRetryInMin / 2 * 60)
+const val ditherRetriesInSec = (initialRetryInMin / 2)
 
 // Note: failure point is the SUM of all retry delays.
-val retryDurationInMin = mapOf(
-    1 to (initialRetryInMin * 1L), // dither might subtract half from this value
-    2 to 60L, // 1hr10m later
-    3 to (4 * 60L), // 5hr 10m since submission
-    4 to (12 * 60L), // 17hr 10m since submission
-    5 to (24 * 60L) //  1d 17r 10m since submission
-)
+// val retryDurationInMin = mapOf(
+//    1 to (initialRetryInMin * 1L), // dither might subtract half from this value
+//    2 to 60L, // 1hr10m later
+//    3 to (4 * 60L), // 5hr 10m since submission
+//    4 to (12 * 60L), // 17hr 10m since submission
+//    5 to (24 * 60L) //  1d 17r 10m since submission
+// )
 
 // Use this for testing retries:
-// val retryDuration = mapOf(1 to 1L, 2 to 1L, 3 to 1L, 4 to 1L, 5 to 1L)
+ val retryDurationInMin = mapOf(1 to 1L, 2 to 1L, 3 to 1L, 4 to 1L, 5 to 1L)
 
 class SendFunction(
     private val workflowEngine: WorkflowEngine = WorkflowEngine(),

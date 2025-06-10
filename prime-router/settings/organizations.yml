@@ -262,9 +262,9 @@
         receivingFacilityName: "CO"
       transport:
         type: SFTP
-        host: sftp
-        port: 22
-        filePath: ./upload
+        host: blah
+        port: 3434
+        filePath: ./not
         credentialName: DEFAULT-SFTP
     - name: FULL_ELR_E2E      # For the E2E UP test
       externalName: Ignore FULL_ELR_E2E
@@ -905,6 +905,33 @@
         type: REST
         authTokenUrl: http://rest-webservice:3001/token
         reportUrl: http://rest-webservice:3001/report
+        headers:
+          UPHN-INFOMAP: '{}'
+    - name: REST_TEST_UP
+      externalName: Ignore REST_TEST_UP
+      organizationName: ignore
+      topic: full-elr
+      customerStatus: active
+      qualityFilter:
+        - "Bundle.entry.resource.ofType(MessageHeader).id.exists()"
+      processingModeFilter:
+        - "Bundle.entry.resource.ofType(MessageHeader).meta.tag.where(system = 'http://terminology.hl7.org/CodeSystem/v2-0103').code.exists() and Bundle.entry.resource.ofType(MessageHeader).meta.tag.where(system = 'http://terminology.hl7.org/CodeSystem/v2-0103').code = 'P'"
+      jurisdictionalFilter: [ "(Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state.exists() and Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state = 'IG') or (Bundle.entry.resource.ofType(Patient).address.state.exists() and Bundle.entry.resource.ofType(Patient).address.state = 'IG')" ]
+      translation:
+        schemaName: "classpath:/metadata/hl7_mapping/receivers/STLTs/CO/CO.yml"
+        useTestProcessingMode: false
+        useBatchHeaders: false
+        type: "HL7"
+        receivingApplicationName: "CO-ELR"
+        receivingFacilityName: "CO"
+      timing:
+        operation: MERGE
+        numberPerDay: 1440 # Every minute
+        initialTime: 00:00
+      transport:
+        type: REST
+        authTokenUrl: http://localhost:3001/token
+        reportUrl: http://localhost:3001/report
         headers:
           UPHN-INFOMAP: '{}'
     - name: SOAP_TEST

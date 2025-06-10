@@ -250,6 +250,11 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
         Preconditions.checkArgument(receiver.transport is RESTTransportType)
         val receiverFullName = receiver.fullName
         val credentialLabel = CredentialHelper.formCredentialLabel(fromReceiverName = receiverFullName)
+
+        if (receiver.name == "REST_TEST_UP") {
+            return UserApiKeyCredential("test-user", "test-key")
+        }
+
         return CredentialHelper.getCredentialService().fetchCredential(
             credentialLabel,
             "RESTTransport",

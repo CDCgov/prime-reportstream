@@ -154,7 +154,7 @@ class End2EndUniversalPipeline : CoolTest() {
      * Times out after 150 seconds, mostly for breathing room in staging.
      */
     private suspend fun pauseForBatchProcess(environment: Environment, reportId: ReportId?): String {
-        val maxPollSecs = 150
+        val maxPollSecs = 75
         val pollSleepSecs = 5
         var timeElapsedSecs = 0
         var overallStatus = ""
