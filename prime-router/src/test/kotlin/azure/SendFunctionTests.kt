@@ -302,10 +302,10 @@ class SendFunctionTests {
             anyConstructed<ActionHistory>().trackItemSendState(
                 ReportStreamEventName.ITEM_SEND_ATTEMPT_FAIL, any(), any(), any(), any(), any(), any(), any(), any()
             )
+            anyConstructed<ActionHistory>().setActionType(TaskAction.send_warning)
         }
         assertThat(nextEvent!!.eventAction).isEqualTo(Event.EventAction.SEND)
         assertThat(nextEvent!!.retryToken?.retryCount).isEqualTo(stillRetriesLeft + 1)
-        verify(exactly = 1) { anyConstructed<ActionHistory>().setActionType(TaskAction.send_warning) }
         assertThat(nextEvent!!.at!!.isAfter(OffsetDateTime.now())).isTrue()
         nextEvent!!.retryToken?.toJSON()?.let {
             assertThat(it.contains("\"retryCount\":${stillRetriesLeft + 1}")).isTrue()
@@ -336,6 +336,7 @@ class SendFunctionTests {
 
         // Verify
         verify(exactly = 1) {
+            anyConstructed<ActionHistory>().setActionType(TaskAction.send_error)
             anyConstructed<ActionHistory>().trackItemSendState(
                 ReportStreamEventName.ITEM_LAST_MILE_FAILURE, any(), any(), any(), any(), any(), any(), any(), any()
             )
@@ -345,7 +346,6 @@ class SendFunctionTests {
         }
         assertThat(nextEvent!!.eventAction).isEqualTo(Event.EventAction.SEND_ERROR)
         assertThat(nextEvent!!.retryToken).isNull()
-        verify(exactly = 1) { anyConstructed<ActionHistory>().setActionType(TaskAction.send_error) }
     }
 
     @Test // Last Mile Failure B
@@ -372,6 +372,7 @@ class SendFunctionTests {
 
         // Verify
         verify(exactly = 1) {
+            anyConstructed<ActionHistory>().setActionType(TaskAction.send_error)
             anyConstructed<ActionHistory>().trackItemSendState(
                 ReportStreamEventName.ITEM_LAST_MILE_FAILURE, any(), any(), any(), any(), any(), any(), any(), any()
             )
@@ -381,7 +382,6 @@ class SendFunctionTests {
         }
         assertThat(nextEvent!!.eventAction).isEqualTo(Event.EventAction.SEND_ERROR)
         assertThat(nextEvent!!.retryToken).isNull()
-        verify(exactly = 1) { anyConstructed<ActionHistory>().setActionType(TaskAction.send_error) }
     }
 
     @Test // Last Mile Failure A
@@ -392,8 +392,6 @@ class SendFunctionTests {
         setupLogger()
         setupWorkflow()
         mockAzureEvents()
-
-        every { anyConstructed<ActionHistory>().action.actionName } returns TaskAction.send_error
         every { anyConstructed<ActionHistory>().action.actionResult } returns Unit.toString()
 
         every { workflowEngine.handleReportEvent(any(), any()) }.answers {
@@ -402,7 +400,8 @@ class SendFunctionTests {
             val header = makeIgnoreDotRESTHeader()
             nextEvent = block(header, RetryToken(stillRetriesLeft, RetryToken.allItems), null)
         }
-        // In this scenario transport.send() is setting the send_error
+        // Error unique to transport type occurred and transport.send() is setting send_error
+        every { anyConstructed<ActionHistory>().action.actionName } returns TaskAction.send_error
         every { restTransport.send(any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any()) }
             .returns(null)
 
