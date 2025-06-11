@@ -15,6 +15,9 @@ elements:
     value: [ '""' ]
     hl7Spec: [ /PATIENT_RESULT/ORDER_OBSERVATION/ORC-21-7 ]
 
+  - name: order-note
+    condition: '%resource.text.exists()'
+
   # Suppresses facility email from ORC-21
   - name: ordering-facility-phone-number
     condition: '%context.requester.resolve().is(PractitionerRole) and %resource.use.exists()'
