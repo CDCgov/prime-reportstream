@@ -105,5 +105,6 @@
         - "classpath:/metadata/fhir_transforms/common/suppress-obx-aoe.yml"
         - "classpath:/metadata/fhir_transforms/common/adjust-phone-number.yml"
         - "classpath:/metadata/fhir_transforms/common/suppress-device-information.yml"
+        - "classpath:/metadata/fhir_transforms/common/suppress-non-npi.yml"
       timeZone: null
       dateTimeFormat: "OFFSET"
