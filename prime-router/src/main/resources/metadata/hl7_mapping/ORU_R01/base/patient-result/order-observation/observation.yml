@@ -12,9 +12,6 @@ elements:
       hl7ObservationPath: '/PATIENT_RESULT(%{patientIndex})/ORDER_OBSERVATION(%{orderIndex})/OBSERVATION'
 
   - name: order-note
-    resource: '%resource.basedOn.resolve().note'
-    condition: '%resource.text.exists()'
-    schema: classpath:/metadata/hl7_mapping/datatypes/annotation/NTE.yml
+    resource: '%resource.basedOn.resolve().note.where(text.exists())'
+    schema: classpath:/metadata/hl7_mapping/ORU_R01/base/patient-result/order-observation/order-note.yml
     resourceIndex: noteIndex
-    constants:
-      hl7NotePath: '/PATIENT_RESULT(%{patientIndex})/ORDER_OBSERVATION(%{orderIndex})'

@@ -1,0 +1,9 @@
+# $schema: ./../../../../../../../../../metadata/json_schema/fhir/fhir-to-hl7-mapping.json
+
+elements:
+
+  - name: order-note
+    resource: '%resource'
+    schema: classpath:/metadata/hl7_mapping/datatypes/annotation/NTE.yml
+    constants:
+      hl7NotePath: '/PATIENT_RESULT(%{patientIndex})/ORDER_OBSERVATION(%{orderIndex})'
