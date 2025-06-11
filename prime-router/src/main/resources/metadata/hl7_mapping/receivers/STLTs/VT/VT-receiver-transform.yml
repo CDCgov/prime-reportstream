@@ -10,13 +10,9 @@ constants:
   OBR: '/PATIENT_RESULT/ORDER_OBSERVATION/OBR'
 
 elements:
-  - name: observation-result-with-aoe
-    # VT does not want AOEs at all, so this is overridden to prevent identified AOEs from mapping to an HL7 segment
-    resource: '%resource.result.resolve()'
-
   - name: vt-patient-race-coding-system
     resource: 'Bundle.entry.resource.ofType(Patient).extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").value.coding'
-    condition: '%resource.code.exists()'
+    condition: '%resource.system.exists()'
     value: [ '%resource.system.getCodingSystemMapping()' ]
     hl7Spec: [ '/PATIENT_RESULT/PATIENT/PID-10-3' ]
 
@@ -103,3 +99,7 @@ elements:
   - name: vt-receiving-application-universal-id-type
     value: [ '"ISO"' ]
     hl7Spec: [ 'MSH-6-3' ]
+
+  - name: observation-result-with-aoe
+    # VT does not want AOEs at all, so this is overridden to prevent identified AOEs from mapping to an HL7 segment
+    resource: '%resource.result.resolve()'
