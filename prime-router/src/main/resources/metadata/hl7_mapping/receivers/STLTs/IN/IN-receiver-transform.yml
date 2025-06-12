@@ -1,9 +1,6 @@
 hl7Class: ca.uhn.hl7v2.model.v251.message.ORU_R01
 
-extends: classpath:/metadata/hl7_mapping/ORU_R01/ORU_R01-base.yml
-
-constants:
-  hl7OBXField: '/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION/OBX'
+extends: classpath:/metadata/hl7_mapping/ORU_R01/ORU_R01-shadow.yml
 
 elements:
 
@@ -14,9 +11,11 @@ elements:
   hl7Spec: [ '/PATIENT_RESULT/PATIENT/PID-10-3' ]
 
 - name: in-sending-facility
+  condition: 'true'
   value: [ '"IN-ELR"' ]
   hl7Spec: [ 'MSH-5-1' ]
 
 - name: in-receiving-application
+  condition: 'true'
   value: [ '"IDOH"' ]
   hl7Spec: [ 'MSH-6-1' ]
