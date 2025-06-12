@@ -1,0 +1,28 @@
+
+constants:
+  npiResource: '%resource.identifier.where(extension("https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id").value = "NPI")'
+
+elements:
+  - name: set-obr-16-10-if-not-practitioner
+    resource: 'Bundle.entry.resource.ofType(Practitioner)'
+    condition: '%npiResource.value.exists().not()'
+    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/xcn-practitioner").extension("XCN.10").value[x]'
+    value: [ '"U"' ]
+
+  - name: set-obr-16-10-if-practitioner
+    resource: 'Bundle.entry.resource.ofType(Practitioner)'
+    condition: '%npiResource.value.exists()'
+    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/xcn-practitioner").extension("XCN.10").value[x]'
+    value: [ '"L"' ]
+
+  - name: set-obr-16-13-if-not-practitioner
+    resource: 'Bundle.entry.resource.ofType(Practitioner)'
+    condition: '%npiResource.value.exists().not()'
+    bundleProperty: '%resource.identifier.type.coding.code'
+    value: [ '"U"' ]
+
+  - name: set-obr-16-13-if-practitioner
+    resource: 'Bundle.entry.resource.ofType(Practitioner)'
+    condition: '%npiResource.value.exists()'
+    bundleProperty: '%resource.identifier.type.coding.code'
+    value: [ '"NPI"' ]
