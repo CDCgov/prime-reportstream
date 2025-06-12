@@ -1,0 +1,21 @@
+# $schema: ../../../../../../metadata/json_schema/fhir/fhir-to-fhir-transform.json
+
+elements:
+  # Override and copy start time with time from Specimen.collection.collected (specimen collected date time)
+  - name: observation-start-datetime-from-specimen-collected-time
+    resource: 'Bundle.entry.resource.ofType(Specimen)'
+    condition: '%resource.collection.collected.is(dateTime)'
+    bundleProperty: 'Bundle.entry.resource.ofType(DiagnosticReport).effectivePeriod.start'
+    value: [ '%resource.collection.collected.value' ]
+
+  # Add extension to start time to make it a HL7 datetime
+  - name: observation-start-datetime2
+    resource: 'Bundle.entry.resource.ofType(DiagnosticReport).effective'
+    bundleProperty: '%resource.start.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time").value[x]'
+    value: [ '%resource.start' ]
+
+  # Add end time using start time
+  - name: observation-end-datetime
+    resource: 'Bundle.entry.resource.ofType(DiagnosticReport).effective'
+    bundleProperty: '%resource.end'
+    value: [ '%resource.start' ]
