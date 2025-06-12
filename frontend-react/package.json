@@ -187,7 +187,7 @@
     "prettier": "^3.5.3",
     "react-error-boundary": "^6.0.0",
     "remark-frontmatter": "^5.0.0",
-    "remark-mdx-frontmatter": "^5.1.0",
+    "remark-mdx-frontmatter": "^5.2.0",
     "remark-mdx-toc": "^0.3.1",
     "sass": "^1.87.0",
     "storybook": "^8.6.12",
