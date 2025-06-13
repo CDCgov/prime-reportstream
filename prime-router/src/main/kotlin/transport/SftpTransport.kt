@@ -124,7 +124,16 @@ class SftpTransport :
             } else {
                 sftpTransportInfo.port
             }
-            return connect(host, port, credential ?: lookupCredentials(receiver))
+            val properties = HashMap<String, String>()
+            properties["SFTP_HOST"] = host
+            properties["SFTP_PORT"] = port
+            if (sftpTransportInfo.connectionTimeout != null) {
+                properties["SFTP_CONNECTION_TIMEOUT"] = sftpTransportInfo.connectionTimeout
+            }
+            if (sftpTransportInfo.readTimeout != null) {
+                properties["SFTP_READTIMEOUT"] = sftpTransportInfo.readTimeout
+            }
+            return connect(properties, credential ?: lookupCredentials(receiver))
         }
 
         /**
@@ -150,14 +159,21 @@ class SftpTransport :
         }
 
         private fun connect(
-            host: String,
-            port: String,
+            properties: Map<String, String>,
             credential: SftpCredential,
         ): SSHClient {
+            val host = properties["SFTP_HOST"]
+            val port = properties["SFTP_PORT"]?.toInt() ?: 22
             val sshClient = createDefaultSSHClient()
+            if (properties["SFTP_CONNECTION_TIMEOUT"] != null) {
+                sshClient.connectTimeout = properties["SFTP_CONNECTION_TIMEOUT"]?.toInt()!!
+            }
+            if (properties["SFTP_READ_TIMEOUT"] != null) {
+                sshClient.timeout = properties["SFTP_READ_TIMEOUT"]?.toInt()!!
+            }
             try {
                 sshClient.addHostKeyVerifier(PromiscuousVerifier())
-                sshClient.connect(host, port.toInt())
+                sshClient.connect(host, port)
                 when (credential) {
                     is UserPassCredential -> sshClient.authPassword(credential.user, credential.pass)
                     is UserPemCredential -> {
