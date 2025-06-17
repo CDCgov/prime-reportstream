@@ -226,9 +226,14 @@ jobs:
     steps:
       - run: |
           result="${{ needs.e2e_tests.result }}"
+          echo "E2E Tests result: $result"
           if [[ $result == "success" || $result == "skipped" ]]; then
             exit 0
+          elif [[ $result == "cancelled" ]]; then
+            echo "The E2E tests were cancelled. Investigate the shard logs for the cause."
+            exit 1
           else
+            echo "The E2E tests failed."
             exit 1
           fi
         working-directory: /

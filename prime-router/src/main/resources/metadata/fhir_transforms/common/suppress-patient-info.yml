@@ -1,0 +1,14 @@
+# suppressNonNPI: true
+# suppressNonNPI: true
+elements:
+- name: suppress-patient-pid-22-9
+  resource: 'Bundle.entry.resource.ofType(Patient).extension("https://reportstream.cdc.gov/fhir/StructureDefinition/ethnic-group").value'
+  condition: '%resource.text.exists()'
+  value: [ '""' ]
+  bundleProperty: '%resource.text'
+
+- name: suppress-patient-tribal-original-text
+  resource: 'Bundle.entry.resource.ofType(Patient).extension("http://hl7.org/fhir/StructureDefinition/patient-citizenship").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/code").value'
+  condition: '%resource.text.exists()'
+  value: [ '""' ]
+  bundleProperty: '%resource.text'

@@ -34,6 +34,7 @@ object CustomFHIRFunctions : FhirPathFunctions {
         GetPhoneNumberAreaCode,
         GetPhoneNumberLocalNumber,
         GetPhoneNumberExtension,
+        GetPhoneNumberFull,
         GetCodingSystemMapping,
         Split,
         GetId,
@@ -80,6 +81,10 @@ object CustomFHIRFunctions : FhirPathFunctions {
 
             CustomFHIRFunctionNames.GetPhoneNumberExtension -> {
                 FunctionDetails("extract extension from FHIR phone number", 0, 0)
+            }
+
+            CustomFHIRFunctionNames.GetPhoneNumberFull -> {
+                FunctionDetails("extract full phone number from FHIR phone number", 0, 0)
             }
 
             CustomFHIRFunctionNames.HasPhoneNumberExtension -> {
@@ -170,6 +175,10 @@ object CustomFHIRFunctions : FhirPathFunctions {
                     getPhoneNumberExtension(focus)
                 }
 
+                CustomFHIRFunctionNames.GetPhoneNumberFull -> {
+                    getPhoneNumberFull(focus)
+                }
+
                 CustomFHIRFunctionNames.HasPhoneNumberExtension -> {
                     hasPhoneNumberExtension(focus)
                 }
@@ -249,6 +258,25 @@ object CustomFHIRFunctions : FhirPathFunctions {
         val primVal = focus[0].primitiveValue()
         val part = PhoneUtilities.getPhoneNumberPart(primVal, PhonePart.Extension)
         return if (part != null) mutableListOf(IntegerType(part)) else mutableListOf()
+    }
+
+    /**
+     * Gets the full phone number with area code and local number from
+     * the full FHIR phone number stored in the [focus] element.
+     * @return a mutable list containing the full phone number with area code if present
+     */
+    private fun getPhoneNumberFull(focus: MutableList<Base>): MutableList<Base> {
+        val primVal = focus[0].primitiveValue()
+        val areaCodePart = PhoneUtilities.getPhoneNumberPart(primVal, PhonePart.AreaCode)
+        val localNumberPart = PhoneUtilities.getPhoneNumberPart(primVal, PhonePart.Local)
+        if (areaCodePart != null && localNumberPart != null) {
+            val nationalNumber = String.format(
+                "(%s)%s-%s",
+                areaCodePart, localNumberPart.substring(0, 3), localNumberPart.substring(3)
+            )
+            return mutableListOf(StringType(nationalNumber))
+        }
+        return mutableListOf()
     }
 
     /**
