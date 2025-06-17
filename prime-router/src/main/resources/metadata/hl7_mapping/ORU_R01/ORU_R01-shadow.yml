@@ -1,0 +1,32 @@
+# $schema: ./../../../../../../metadata/json_schema/fhir/fhir-to-hl7-mapping.json
+
+hl7Class: ca.uhn.hl7v2.model.v27.message.ORU_R01
+extends: classpath:/metadata/hl7_mapping/ORU_R01/ORU_R01-base.yml
+
+elements:
+  - name: obx-shadow
+    resource: 'Bundle.entry.resource.ofType(Observation)'
+    condition: '%resource.count() > 0'
+    schema: classpath:/metadata/hl7_mapping/ORU_R01/OBX-shadow.yml
+    resourceIndex: resultIndex
+
+  # ORC 21.7
+  - name: orc-identifier-type-code
+    value: [ '""' ]
+    hl7Spec: [ /PATIENT_RESULT/ORDER_OBSERVATION/ORC-21-7 ]
+
+  - name: order-note
+    condition: '%resource.text.exists()'
+
+  # Suppresses facility email from ORC-21
+  - name: ordering-facility-phone-number
+    condition: '%context.requester.resolve().is(PractitionerRole) and %resource.use.exists()'
+
+  # Suppress the XON.10 value in Organization
+  # prime-router/src/main/resources/metadata/hl7_mapping/receivers/Common/remove-orc-21-10/remove-orc-21-10.yml
+  # TODO remove if new extension for ORU-R01 base
+  - name: suppress-organization-orc-21-10
+    resource: 'Bundle.entry.resource.ofType(ServiceRequest).requester.resolve().organization.resolve().extension("https://reportstream.cdc.gov/fhir/StructureDefinition/xon-organization").extension("XON.10")'
+    condition: '%resource.value.exists()'
+    value: [ '""' ]
+    hl7Spec: [ '/PATIENT_RESULT/ORDER_OBSERVATION/ORC-21-10' ]
