@@ -161,7 +161,7 @@ jobs:
     needs: lint_and_unit_test
     outputs:
       image_tag: ${{ steps.get_sha.outputs.sha_short }}
-      # Output the fully qualified GHCR image name
+      # Fully qualified GHCR image name
       image_name_sha: ghcr.io/${{ steps.case_vars.outputs.owner_lc }}/${{ env.IMAGE_NAME }}:${{ steps.get_sha.outputs.sha_short }}
     steps:
       - name: Checkout code
@@ -187,8 +187,8 @@ jobs:
           load: true 
           provenance: false # Set to false for local testing with act
           tags: |
-            ${{ env.IMAGE_NAME }}:ci # For local smoke test in this job
-            ghcr.io/${{ steps.case_vars.outputs.owner_lc }}/${{ env.IMAGE_NAME }}:${{ steps.get_sha.outputs.sha_short }} # For output and e2e tests
+            ghcr.io/${{ steps.case_vars.outputs.owner_lc }}/${{ env.IMAGE_NAME }}:${{ steps.get_sha.outputs.sha_short }}
+            ghcr.io/${{ steps.case_vars.outputs.owner_lc }}/${{ env.IMAGE_NAME }}:ci
           cache-from: type=gha
           cache-to: type=gha,mode=max
       
