@@ -7142,15 +7142,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"dompurify@npm:^3.2.5":
-  version: 3.2.5
-  resolution: "dompurify@npm:3.2.5"
+"dompurify@npm:^3.2.6":
+  version: 3.2.6
+  resolution: "dompurify@npm:3.2.6"
   dependencies:
     "@types/trusted-types": ^2.0.7
   dependenciesMeta:
     "@types/trusted-types":
       optional: true
-  checksum: bd3b40810cc74312970dc6b99d38450ec839c81fb56c27d2c1b815ce0206b73e9cd4fe2e9021f735a1aaebf017990a63e6454e7d9c893f72b365b94d030ec9c4
+  checksum: 4d002997dbae13f6bdf0e6be014384129c83b1ee8cd3fca9d96f95b9142d1e96256924466a2fc25e7ffb6ede54290e5c4a7d1bd10f9b14cfa07928dd799c3b42
   languageName: node
   linkType: hard
 
@@ -12964,7 +12964,7 @@ __metadata:
     cross-env: ^7.0.3
     date-fns: ^4.1.0
     date-fns-tz: ^3.2.0
-    dompurify: ^3.2.5
+    dompurify: ^3.2.6
     dotenv-flow: ^4.1.0
     eslint: ^9.26.0
     eslint-config-prettier: ^10.1.2
@@ -13014,7 +13014,7 @@ __metadata:
     remark-mdx-frontmatter: ^5.1.0
     remark-mdx-toc: ^0.3.1
     rest-hooks: ^6.1.7
-    sanitize-html: ^2.16.0
+    sanitize-html: ^2.17.0
     sass: ^1.87.0
     storybook: ^8.6.12
     ts-node: ^10.9.2
@@ -13900,9 +13900,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"sanitize-html@npm:^2.16.0":
-  version: 2.16.0
-  resolution: "sanitize-html@npm:2.16.0"
+"sanitize-html@npm:^2.17.0":
+  version: 2.17.0
+  resolution: "sanitize-html@npm:2.17.0"
   dependencies:
     deepmerge: ^4.2.2
     escape-string-regexp: ^4.0.0
@@ -13910,7 +13910,7 @@ __metadata:
     is-plain-object: ^5.0.0
     parse-srcset: ^1.0.2
     postcss: ^8.3.11
-  checksum: 45db6c331e3579c5c07c991712b50ae1e2f34b4ca894e2dc2c727949d071f946323e3a209f9167c4ee0d95ce0f7058b12816da00b3a41ac6b09dc19497ec05db
+  checksum: 15de8f6dd1f093330fd156cfbb8f8fcee24073869ce55ab07c20c09e21e98619679566ff45670e1e8ef17acc761e7be8429add20b42c5d6208f997a6dcd25a6d
   languageName: node
   linkType: hard
 
