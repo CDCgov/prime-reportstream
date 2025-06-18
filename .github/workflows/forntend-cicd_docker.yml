@@ -21,7 +21,6 @@ concurrency:
 env:
   IMAGE_NAME: frontend-react 
   WORKING_DIRECTORY: ./frontend-react
-  # Environment variables from frontend_ci.yml for tests
   TEST_ADMIN_USERNAME: ${{ secrets.TEST_ADMIN_USERNAME }}
   TEST_ADMIN_PASSWORD: ${{ secrets.TEST_ADMIN_PASSWORD }}
   TEST_SENDER_USERNAME: ${{ secrets.TEST_SENDER_USERNAME }}
@@ -171,9 +170,16 @@ jobs:
         id: get_sha
         run: echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
 
+      - name: Debug repository owner (for act)
+        if: env.ACT # This step will only run if the ACT environment variable is set, common for act runs
+        run: |
+          echo "In act environment, github.repository_owner is: ${{ github.repository_owner }}"
+          raw_owner="${{ github.repository_owner }}"
+          processed_owner_lc=$(echo "$raw_owner" | tr '[:upper:]' '[:lower:]' | sed 's/://g' | sed 's/[^a-z0-9-]//g')
+          echo "In act environment, processed owner_lc will be: $processed_owner_lc"
       - name: Get lowercase repository owner
         id: case_vars
-        run: echo "owner_lc=$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
+        run: echo "owner_lc=$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]' | sed 's/://g' | sed 's/[^a-z0-9-]//g')" >> $GITHUB_OUTPUT
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -194,9 +200,9 @@ jobs:
       
       - name: Start Docker container
         run: |
-          docker run -d -p 3000:8080 --name ${{ env.IMAGE_NAME }} ${{ env.IMAGE_NAME }}:ci
+          docker run -d -p 3000:8080 --name ${{ env.IMAGE_NAME }} ghcr.io/${{ steps.case_vars.outputs.owner_lc }}/${{ env.IMAGE_NAME }}:ci
           echo "Container ${{ env.IMAGE_NAME }} started with ID $(docker ps -qf name=${{ env.IMAGE_NAME }}). Waiting for application..."
-          # Give Nginx a moment to initialize, especially if logs were empty previously
+          # Give Nginx a moment to initialize
           sleep 5
           if ! timeout 55s bash -c 'until curl -sf http://localhost:3000; do sleep 1; done'; then
             echo "Health check failed for http://localhost:3000."
