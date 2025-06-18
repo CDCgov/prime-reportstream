@@ -6,7 +6,7 @@ on:
       - devsecops/matts/test-frontend 
     paths:
       - 'frontend-react/**'
-      - '.github/workflows/forntend-cicd_docker.yml' 
+      - '.github/workflows/frontend-ci_docker.yml' 
   pull_request:
     branches:
       - devsecops/matts/test-frontend 
