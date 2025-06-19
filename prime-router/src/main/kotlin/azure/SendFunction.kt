@@ -171,6 +171,15 @@ class SendFunction(
         }
     }
 
+    /**
+     * This method handles our retry logic. There are four basic scenarios:
+     *   - Last Mile Failure A. A send_error has been logged elsewhere. There will be no more retries.
+     *   - Success. No send error has been logged and no more items are left to be sent.
+     *   - Last Mile Failure B. No send error has been logged yet but all retry attempts are exhausted.
+     *   - Retry. No send error has been logged and the retry limit has not been reached yet.
+     *
+     *  @return a ReportEvent to complete pipeline processing
+     */
     private fun handleRetry(
         nextRetryItems: List<String>,
         report: ReportFile,
@@ -184,96 +193,176 @@ class SendFunction(
         message: String,
     ): ReportEvent {
         withLoggingContext(SendFunctionLoggingContext(report.reportId, receiver.fullName)) {
-            return if (nextRetryItems.isEmpty()) {
-                // All OK
-                logger.info("Successfully sent report: $report.reportId to ${receiver.fullName}")
-                ReportEvent(Event.EventAction.NONE, report.reportId, isEmptyBatch)
+            // mapOf() in kotlin is `1` based (not `0`), but always +1
+            val nextRetryCount = (retryToken?.retryCount ?: 0) + 1
+
+            // Last Mile Failure A: unrecoverable send_error occurred
+            if (actionHistory.action.actionName.toString() == "send_error") {
+                // We didn't get here without a send attempt, and it definitely failed.
+                logRetryEvent(
+                    nextRetryItems,
+                    nextRetryCount,
+                    report,
+                    receiver,
+                    actionHistory,
+                    isEmptyBatch,
+                    lineages,
+                    message
+                )
+
+                return logLastMileFailureEvent(
+                    report,
+                    receiver,
+                    content,
+                    externalFileName,
+                    actionHistory,
+                    isEmptyBatch,
+                    lineages,
+                    message
+                )
+            }
+
+            // No send errors, and no items to retry
+            if (nextRetryItems.isEmpty()) {
+                // Success!
+                logger.info("Successfully sent report: ${report.reportId} to ${receiver.fullName}")
+                return ReportEvent(Event.EventAction.NONE, report.reportId, isEmptyBatch)
+            }
+
+            // No send errors, but still items to retry
+            if (nextRetryCount > retryDurationInMin.size) {
+                // Last Mile Failure B: No retries remaining
+                return logLastMileFailureEvent(
+                    report,
+                    receiver,
+                    content,
+                    externalFileName,
+                    actionHistory,
+                    isEmptyBatch,
+                    lineages,
+                    message
+                )
             } else {
-                // mapOf() in kotlin is `1` based (not `0`), but always +1
-                val nextRetryCount = (retryToken?.retryCount ?: 0) + 1
-                if (nextRetryCount > retryDurationInMin.size) {
-                    // Stop retrying and just put the task into an error state
-                    val msg = "All retries failed.  Manual Intervention Required.  " +
-                        "Send Error report for: $report.reportId to ${receiver.fullName}"
-                    actionHistory.setActionType(TaskAction.send_error)
-                    actionHistory.trackActionResult(msg)
-                    logger.warn("Failed to send report: $report.reportId to ${receiver.fullName}")
-                    if (receiver.customerStatus == CustomerStatus.ACTIVE) {
-                        logger.fatal("${actionHistory.action.actionResult}")
-                    } else {
-                        logger.error("${actionHistory.action.actionResult}")
-                    }
-                    val fileSize = content?.size ?: 0
-                    // The last mile failure event has a slightly different pattern because we do not generate a child
-                    // report as an output for this event so the childReport is the input to the send step and the
-                    // parent report is the input to the batch step
-                    // TODO: https://github.com/CDCgov/prime-reportstream/issues/15369
-                    val parentReport = workflowEngine.db.fetchParentReport(report.reportId)
-                    reportEventService.sendReportEvent(
-                        eventName = ReportStreamEventName.REPORT_LAST_MILE_FAILURE,
-                        childReport = report,
-                        pipelineStepName = TaskAction.send,
-                        queueMessage = message
-                    ) {
-                        params(
-                            mapOf(
-                                ReportStreamEventProperties.PROCESSING_ERROR to msg,
-                                ReportStreamEventProperties.RECEIVER_NAME to receiver.fullName,
-                                ReportStreamEventProperties.TRANSPORT_TYPE to receiver.transport.toString(),
-                                ReportStreamEventProperties.FILE_LENGTH to fileSize,
-                                ReportStreamEventProperties.FILENAME to externalFileName
-                            )
-                        )
-                        if (parentReport != null) {
-                            parentReportId(parentReport.reportId)
-                        }
-                    }
-
-                    actionHistory.trackItemSendState(
-                        ReportStreamEventName.ITEM_LAST_MILE_FAILURE,
-                        report,
-                        lineages,
-                        receiver,
-                        null,
-                        null,
-                        message,
-                        reportEventService,
-                        workflowEngine.reportService
-                    )
-
-                    // required for pipeline processing
-                    ReportEvent(Event.EventAction.SEND_ERROR, report.reportId, isEmptyBatch)
-                } else {
-                    // retry using a back-off strategy
-                    val waitMinutes = retryDurationInMin.getOrDefault(nextRetryCount, defaultMaxDurationValue)
-                    val randomSeconds = Random.nextInt(ditherRetriesInSec * -1, ditherRetriesInSec)
-                    val nextRetryTime = OffsetDateTime.now().plusSeconds(waitMinutes * 60 + randomSeconds)
-                    val nextRetryToken = RetryToken(nextRetryCount, nextRetryItems)
-                    val submittedReportIds = workflowEngine.reportService.getRootReports(report.reportId).map {
-                        it.reportId
-                    }
-                    val msg = "Send Failed.  Will retry sending report: $report.reportId to ${receiver.fullName}" +
-                        " in $waitMinutes minutes and $randomSeconds seconds at $nextRetryTime." +
-                        " Corresponding submitted ReportIds: $submittedReportIds"
-                    logger.warn(msg)
-                    actionHistory.setActionType(TaskAction.send_warning)
-                    actionHistory.trackActionResult(msg)
-
-                    actionHistory.trackItemSendState(
-                        ReportStreamEventName.ITEM_SEND_ATTEMPT_FAIL,
-                        report,
-                        lineages,
-                        receiver,
-                        nextRetryCount,
-                        nextRetryTime,
-                        message,
-                        reportEventService,
-                        workflowEngine.reportService
-                    )
-
-                    ReportEvent(Event.EventAction.SEND, report.reportId, isEmptyBatch, nextRetryTime, nextRetryToken)
-                }
+                // Keep Retrying
+                return logRetryEvent(
+                    nextRetryItems,
+                    nextRetryCount,
+                    report,
+                    receiver,
+                    actionHistory,
+                    isEmptyBatch,
+                    lineages,
+                    message
+                )
             }
         }
+    }
+
+    /**
+     * Create logging and Azure Events when a send attempt has failed.
+     * This will create logs/events for each item which failed sending.
+     */
+    private fun logRetryEvent(
+        nextRetryItems: List<String>,
+        nextRetryCount: Int,
+        report: ReportFile,
+        receiver: Receiver,
+        actionHistory: ActionHistory,
+        isEmptyBatch: Boolean,
+        lineages: List<ItemLineage>?,
+        message: String,
+    ): ReportEvent {
+        // retry using a back-off strategy
+        val waitMinutes = retryDurationInMin.getOrDefault(nextRetryCount, defaultMaxDurationValue)
+        val randomSeconds = Random.nextInt(ditherRetriesInSec * -1, ditherRetriesInSec)
+        val nextRetryTime = OffsetDateTime.now().plusSeconds(waitMinutes)
+        val nextRetryToken = RetryToken(nextRetryCount, nextRetryItems)
+        val msg = "Send Failed.  Will retry sending report: ${report.reportId} to ${receiver.fullName}" +
+            " in $waitMinutes minutes and $randomSeconds seconds at $nextRetryTime."
+
+        logger.warn(msg)
+        actionHistory.setActionType(TaskAction.send_warning)
+        actionHistory.trackActionResult(msg)
+        actionHistory.trackItemSendState(
+            ReportStreamEventName.ITEM_SEND_ATTEMPT_FAIL,
+            report,
+            lineages,
+            receiver,
+            nextRetryCount,
+            nextRetryTime,
+            message,
+            reportEventService,
+            workflowEngine.reportService
+        )
+
+        return ReportEvent(Event.EventAction.SEND, report.reportId, isEmptyBatch, nextRetryTime, nextRetryToken)
+    }
+
+    /**
+     * Create logging and Azure Events for when a Last Mile Failure occurs.
+     * This will create logs/events for at the Report level, as well as for each Item..
+     */
+    private fun logLastMileFailureEvent(
+        report: ReportFile,
+        receiver: Receiver,
+        content: ByteArray?,
+        externalFileName: String,
+        actionHistory: ActionHistory,
+        isEmptyBatch: Boolean,
+        lineages: List<ItemLineage>?,
+        message: String,
+    ): ReportEvent {
+        // Stop retrying and just put the task into an error state
+        val msg = "All retries failed.  Manual Intervention Required.  " +
+            "Send Error report for: ${report.reportId} to ${receiver.fullName}"
+        actionHistory.setActionType(TaskAction.send_error)
+        actionHistory.trackActionResult(msg)
+        logger.warn("Failed to send report: ${report.reportId} to ${receiver.fullName}")
+
+        if (receiver.customerStatus == CustomerStatus.ACTIVE) {
+            logger.fatal("${actionHistory.action.actionResult}")
+        } else {
+            logger.error("${actionHistory.action.actionResult}")
+        }
+
+        val fileSize = content?.size ?: 0
+        // The last mile failure event has a slightly different pattern because we do not generate a child
+        // report as an output for this event so the childReport is the input to the send step and the
+        // parent report is the input to the batch step
+        val parentReport = workflowEngine.db.fetchFirstParentReport(report.reportId)
+
+        reportEventService.sendReportEvent(
+            eventName = ReportStreamEventName.REPORT_LAST_MILE_FAILURE,
+            childReport = report,
+            pipelineStepName = TaskAction.send,
+            queueMessage = message
+        ) {
+            params(
+                mapOf(
+                    ReportStreamEventProperties.PROCESSING_ERROR to msg,
+                    ReportStreamEventProperties.RECEIVER_NAME to receiver.fullName,
+                    ReportStreamEventProperties.TRANSPORT_TYPE to (receiver.transport?.type ?: ""),
+                    ReportStreamEventProperties.FILE_LENGTH to fileSize,
+                    ReportStreamEventProperties.FILENAME to externalFileName
+                )
+            )
+            if (parentReport != null) {
+                parentReportId(parentReport.reportId)
+            }
+        }
+
+        actionHistory.trackItemSendState(
+            ReportStreamEventName.ITEM_LAST_MILE_FAILURE,
+            report,
+            lineages,
+            receiver,
+            null,
+            null,
+            message,
+            reportEventService,
+            workflowEngine.reportService
+        )
+
+        return ReportEvent(Event.EventAction.SEND_ERROR, report.reportId, isEmptyBatch)
     }
 }

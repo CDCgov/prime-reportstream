@@ -654,8 +654,9 @@ class DatabaseAccess(val create: DSLContext) : Logging {
     }
 
     /**
-     * Uses the report lineage table to find the parent report for the passed in UUID
-     *
+     * Uses the report lineage table to find the parent report for the passed in UUID.
+     * CAUTION: If two results are returned this will create a TooManyRowsException, which would happen
+     *   for any batched report with items from different submitted reports.
      *
      * @param childReportId the id of the child to fetch the parent
      * @return the parent report
@@ -666,6 +667,20 @@ class DatabaseAccess(val create: DSLContext) : Logging {
             .on(REPORT_LINEAGE.PARENT_REPORT_ID.eq(REPORT_FILE.REPORT_ID))
             .where(REPORT_LINEAGE.CHILD_REPORT_ID.eq(childReportId))
             .fetchOneInto(ReportFile::class.java)
+
+    /**
+     * Uses the report lineage table to find the parent report for the passed in UUID.
+     * Either returns a single result or none.
+     *
+     * @param childReportId the id of the child to fetch the parent
+     * @return the parent report
+     */
+    fun fetchFirstParentReport(childReportId: UUID): ReportFile? = create
+        .select(REPORT_FILE.asterisk()).from(REPORT_FILE)
+        .join(REPORT_LINEAGE)
+        .on(REPORT_LINEAGE.PARENT_REPORT_ID.eq(REPORT_FILE.REPORT_ID))
+        .where(REPORT_LINEAGE.CHILD_REPORT_ID.eq(childReportId))
+        .fetchAnyInto(ReportFile::class.java)
 
     fun fetchChildReports(
         parentReportId: UUID,
