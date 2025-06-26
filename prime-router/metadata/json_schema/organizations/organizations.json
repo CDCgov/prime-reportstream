@@ -1066,6 +1066,28 @@
             }
           ]
         },
+        "connectionTimeout": {
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": 0
+            },
+            {
+              "type": "string"
+            }
+          ]
+        },
+        "readTimeout": {
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": 0
+            },
+            {
+              "type": "string"
+            }
+          ]
+        },
         "filePath": {
           "type": "string"
         },
