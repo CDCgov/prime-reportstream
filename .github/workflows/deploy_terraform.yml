@@ -27,6 +27,8 @@ jobs:
       - name: Build vars
         id: build_vars
         uses: ./.github/actions/build-vars
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
   confirm_changes:
     name: Check Terraform Stats - ${{ needs.pre_job.outputs.env_name }}

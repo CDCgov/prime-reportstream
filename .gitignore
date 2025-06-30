@@ -1,3 +1,6 @@
+# local `act` secrets, like GITHUB_TOKEN=ghp_....
+.secrets
+ 
 # Compiled class file
 *.class
 
