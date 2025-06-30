@@ -3,8 +3,8 @@
     "timeout": 120000,
     "wait": "[data-loaded='true']",
     "chromeLaunchConfig": {
-      "executablePath": "/usr/bin/google-chrome-stable", // Force using the known Chrome path
-      "args": [] // rely on PUPPETEER_LAUNCH_ARGS env var for sandbox args
+      "executablePath": "/usr/bin/google-chrome-stable", 
+      "args": [] 
     },
     "headers": {
       "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
