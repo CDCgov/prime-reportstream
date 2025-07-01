@@ -4486,15 +4486,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@trussworks/react-uswds@npm:^9.1.0":
-  version: 9.1.0
-  resolution: "@trussworks/react-uswds@npm:9.1.0"
+"@trussworks/react-uswds@npm:^10.0.2":
+  version: 10.0.2
+  resolution: "@trussworks/react-uswds@npm:10.0.2"
   peerDependencies:
+    "@types/react": ^16.x || ^17.x || ^18.x || ^19.x
+    "@types/react-dom": ^16.x || ^17.x || ^18.x || ^19.x
     "@uswds/uswds": ^3.7.1
     focus-trap-react: ^10.2.3
-    react: ^16.x || ^17.x || ^18.x
-    react-dom: ^16.x || ^17.x || ^18.x
-  checksum: 907613e6bc42d7b304f69e52556ab78b0df86adcb24453cf9616805786e5940a3dbdd55bf6f03270c41dd672cfda1a4fdb9331ff64dd8c7beeecaa578771783c
+    react: ^16.x || ^17.x || ^18.x || ^19.x
+    react-dom: ^16.x || ^17.x || ^18.x || ^19.x
+  checksum: 609aa6f9783f4d05e4dacf0912e6b8d775783fc669307356a18631c0e183b39bf0efddb0e2ee4486dd97be85a931884b063491955cd832fa6067f2a24568acc8
   languageName: node
   linkType: hard
 
@@ -8694,27 +8696,27 @@ __metadata:
   languageName: node
   linkType: hard
 
-"focus-trap-react@npm:^11.0.3":
-  version: 11.0.3
-  resolution: "focus-trap-react@npm:11.0.3"
+"focus-trap-react@npm:^11.0.4":
+  version: 11.0.4
+  resolution: "focus-trap-react@npm:11.0.4"
   dependencies:
-    focus-trap: ^7.6.4
+    focus-trap: ^7.6.5
     tabbable: ^6.2.0
   peerDependencies:
     "@types/react": ^18.0.0 || ^19.0.0
     "@types/react-dom": ^18.0.0 || ^19.0.0
     react: ^18.0.0 || ^19.0.0
     react-dom: ^18.0.0 || ^19.0.0
-  checksum: 36150d76545a8c758201648263bc04c71a84d086b20702896ca034f1ef793821121ed548d236724202b435e352a7c1cf96b12951c66ee4f38058eb185586a78e
+  checksum: 05377bfef741ead3f283d8b81edcaa4f81f5ead96335f193e359892034348f85a3c788ba00624485eb2c267ad691b5dd5908be4366c14203b65ce0d571e1aab8
   languageName: node
   linkType: hard
 
-"focus-trap@npm:^7.6.4":
-  version: 7.6.4
-  resolution: "focus-trap@npm:7.6.4"
+"focus-trap@npm:^7.6.5":
+  version: 7.6.5
+  resolution: "focus-trap@npm:7.6.5"
   dependencies:
     tabbable: ^6.2.0
-  checksum: 8a71f21ff165fac9f9e79d117233392903a36f30ee03ce0970c8739ea66f7f9bb6c0f2b8da648221daa915fdb90ffb808565e8c31086909fbc02f6de8e08a0df
+  checksum: c50c333dbc59b43556aecdf348846948eb0e382724f0a0a7bb917716bc9bd27bca0394e70d55f94f04130aa25aadfec57e56cdcb0275329f17998dcbd4dcbf43
   languageName: node
   linkType: hard
 
@@ -12695,7 +12697,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"prop-types@npm:^15.5.7, prop-types@npm:^15.6.2, prop-types@npm:^15.8.1":
+"prop-types@npm:^15.6.2, prop-types@npm:^15.8.1":
   version: 15.8.1
   resolution: "prop-types@npm:15.8.1"
   dependencies:
@@ -12936,7 +12938,7 @@ __metadata:
     "@testing-library/jest-dom": ^6.6.3
     "@testing-library/react": ^16.3.0
     "@testing-library/user-event": ^14.6.1
-    "@trussworks/react-uswds": ^9.1.0
+    "@trussworks/react-uswds": ^10.0.2
     "@types/dompurify": ^3.2.0
     "@types/dotenv-flow": ^3.3.3
     "@types/eslint__js": ^9.14.0
@@ -12980,7 +12982,7 @@ __metadata:
     eslint-plugin-testing-library: ^7.1.1
     eslint-plugin-vitest: ^0.5.4
     export-to-csv-fix-source-map: ^0.2.1
-    focus-trap-react: ^11.0.3
+    focus-trap-react: ^11.0.4
     globals: ^16.1.0
     history: ^5.3.0
     html-to-text: ^9.0.5
@@ -13006,7 +13008,7 @@ __metadata:
     react-query-kit: ^3.3.1
     react-router: ^6.28.2
     react-router-dom: ^6.28.2
-    react-scroll-sync: ^0.11.3
+    react-scroll-sync: ^1.0.2
     react-toastify: ^11.0.5
     rehype-raw: ^7.0.0
     rehype-slug: ^5.1.0
@@ -13153,15 +13155,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-scroll-sync@npm:^0.11.3":
-  version: 0.11.3
-  resolution: "react-scroll-sync@npm:0.11.3"
-  dependencies:
-    prop-types: ^15.5.7
+"react-scroll-sync@npm:^1.0.2":
+  version: 1.0.2
+  resolution: "react-scroll-sync@npm:1.0.2"
   peerDependencies:
-    react: 16.x || 17.x || 18.x
-    react-dom: 16.x || 17.x || 18.x
-  checksum: 2aa9b02dd6ba6aceb3094e09ab2a9373cfdcff61d836b77f28619a487154a00e038c7945c8644ac55ee7839b46868f47fe425e4c1d09eb85a97bc52fb51014e9
+    react: 16.x || 17.x || 18.x || 19.x
+    react-dom: 16.x || 17.x || 18.x || 19.x
+  checksum: 4da981081ae90a52c7c1d7e1a7bd16bc6996e3931c2e4f4609bf1164c43c26542d0b0112892284c31c6983ed36a1bb3dfb6da8a9f535e66cc4ff8b6e16ea0878
   languageName: node
   linkType: hard
 
