@@ -930,7 +930,7 @@ dependencies {
     implementation("com.zaxxer:HikariCP:6.3.0")
     implementation("org.flywaydb:flyway-core:11.8.1")
     implementation("org.flywaydb:flyway-database-postgresql:11.8.1")
-    implementation("org.commonmark:commonmark:0.24.0")
+    implementation("org.commonmark:commonmark:0.25.0")
     implementation("com.google.guava:guava:33.4.8-jre")
     implementation("com.helger.as2:as2-lib:5.1.5")
     implementation("org.bouncycastle:bcprov-jdk15to18:1.80")
