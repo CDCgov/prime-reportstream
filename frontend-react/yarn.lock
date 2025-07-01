@@ -13011,7 +13011,7 @@ __metadata:
     rehype-raw: ^7.0.0
     rehype-slug: ^5.1.0
     remark-frontmatter: ^5.0.0
-    remark-mdx-frontmatter: ^5.1.0
+    remark-mdx-frontmatter: ^5.2.0
     remark-mdx-toc: ^0.3.1
     rest-hooks: ^6.1.7
     sanitize-html: ^2.16.0
@@ -13409,9 +13409,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"remark-mdx-frontmatter@npm:^5.1.0":
-  version: 5.1.0
-  resolution: "remark-mdx-frontmatter@npm:5.1.0"
+"remark-mdx-frontmatter@npm:^5.2.0":
+  version: 5.2.0
+  resolution: "remark-mdx-frontmatter@npm:5.2.0"
   dependencies:
     "@types/mdast": ^4.0.0
     estree-util-value-to-estree: ^3.0.0
@@ -13419,7 +13419,7 @@ __metadata:
     unified: ^11.0.0
     unist-util-mdx-define: ^1.0.0
     yaml: ^2.0.0
-  checksum: a7fed19271a05ded93a20911235ee5310ad159542fd032314a12ae1039c2016a1d1ad48031f35ee50e796ee1a6f4d0adfd6b67862906e9f9c0f06885c4fbde43
+  checksum: 938eae955610c15f5eb197ad22c94496e2b89c36f2311d9af7d30a6083fe2cd4145f3ad1816f0e6c4673b3ee8debb0764510f83eb943608a863fbe413ba0e37f
   languageName: node
   linkType: hard
 
