@@ -35,6 +35,8 @@ jobs:
       - name: Build vars
         id: build_vars
         uses: ./.github/actions/build-vars
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
   build_router:
     name: Build Router
@@ -126,4 +128,3 @@ jobs:
         if: ${{ steps.check_changes.outcome == 'failure' }}
         run: |
           false
-

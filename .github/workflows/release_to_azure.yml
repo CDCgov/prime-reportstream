@@ -40,6 +40,7 @@ jobs:
         id: build_vars
         uses: ./.github/actions/build-vars
         with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           sp-creds: ${{ env.AZURE_CREDENTIALS }}
 
   build_router_release:
