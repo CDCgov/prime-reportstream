@@ -13,7 +13,7 @@ repositories {
 
 dependencies {
     implementation("org.apache.commons:commons-lang3:3.17.0")
-    implementation("com.nimbusds:nimbus-jose-jwt:10.1")
+    implementation("com.nimbusds:nimbus-jose-jwt:10.3.1")
     testImplementation("org.jetbrains.kotlin:kotlin-test")
     testImplementation("com.willowtreeapps.assertk:assertk-jvm:0.28.1")
     testImplementation("org.apache.commons:commons-compress:1.27.1")
