@@ -89,6 +89,7 @@ jobs:
           ./gradlew :prime-router:primeCLI --args='validate-yaml --type FhirToHL7Mapping --dir src/main/resources/metadata/hl7_mapping'
           ./gradlew :prime-router:primeCLI --args='validate-yaml --type HL7ToFhirMappingMessageTemplate --dir metadata/HL7/catchall/hl7/message'
           ./gradlew :prime-router:primeCLI --args='validate-yaml --type HL7ToFhirMappingResourceTemplate --dir metadata/HL7 --exclude-dir metadata/HL7/catchall/hl7/message metadata/HL7/catchall/hl7/codesystem --exclude-file metadata/HL7/catchall/fhir/resourcemapping.yml metadata/HL7/catchall/hl7/resource/Common.yml'
+          free; df -h
 
       - name: Check for Uncommited Schema Docs
         id: check_changes
