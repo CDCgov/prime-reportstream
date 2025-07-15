@@ -41,7 +41,9 @@ class DatabaseDeliveryAccess(db: DatabaseAccess = BaseEngine.databaseAccessSingl
         organization: String,
         orgService: String?,
     ): Condition {
-//      This is a temporary fix to make the daily data page show data for reports routed through the ELR ELIMS topic since reports routed through the ELR-ELIMS topic skip the batch step. There are plans to have a dashboard for receivers that works for all messages routed through RS.
+        // This is a temporary fix to make the daily data page show data for reports routed through the ELR ELIMS topic
+        // since reports routed through the ELR-ELIMS topic skip the batch step. There are plans to have a dashboard
+        // for receivers that works for all messages routed through RS.
         val org = BaseEngine.settingsProviderSingleton.findOrganization(organization)
 
         var filter = if (org?.featureFlags?.contains("ELIMS_DATA") == true) {
