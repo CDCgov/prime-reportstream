@@ -12,7 +12,7 @@ repositories {
 }
 
 dependencies {
-    implementation("org.apache.commons:commons-lang3:3.17.0")
+    implementation("org.apache.commons:commons-lang3:3.18.0")
     implementation("com.nimbusds:nimbus-jose-jwt:10.1")
     testImplementation("org.jetbrains.kotlin:kotlin-test")
     testImplementation("com.willowtreeapps.assertk:assertk-jvm:0.28.1")
