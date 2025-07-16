@@ -922,7 +922,7 @@ dependencies {
     implementation("com.jcraft:jsch:0.1.55")
     implementation("org.apache.poi:poi:5.4.1")
     implementation("org.apache.commons:commons-csv:1.14.0")
-    implementation("org.apache.commons:commons-lang3:3.16.0")
+    implementation("org.apache.commons:commons-lang3:3.18.0")
     implementation("org.apache.commons:commons-text:1.13.1")
     implementation("commons-codec:commons-codec:1.18.0")
     implementation("commons-io:commons-io:2.19.0")
