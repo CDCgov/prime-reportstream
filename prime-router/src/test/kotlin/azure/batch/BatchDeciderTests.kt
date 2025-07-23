@@ -203,6 +203,8 @@ class BatchDeciderTests {
 
         // 5 records → ceil(5/2) = 3 messages
         every { engine.db.fetchNumReportsNeedingBatch(any(), any(), any()) } returns 5
+        // Testing this out to see if this is where DatabaseAccess.Transact is being called
+        every { engine.db.checkRecentlySent(any(), any(), any(), any()) }.answers { true }
 
         // record all three invocations
         every { queueMock.sendMessageToQueue(any(), any(), any()) } returns Unit
