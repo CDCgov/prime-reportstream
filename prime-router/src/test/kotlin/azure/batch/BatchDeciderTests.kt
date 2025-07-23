@@ -109,7 +109,7 @@ class BatchDeciderTests {
     @Test
     fun `Test with receiver getting empty on every batch`() {
         // Setup
-        every { queueMock.sendMessageToQueue(any(), any()) } returns Unit
+        every { queueMock.sendMessageToQueue(any(), any(), any()) } returns Unit
         every { timing1.isValid() } returns true
         every { timing1.batchInPrevious60Seconds(any()) } returns true
         every { timing1.numberPerDay } returns 1440
