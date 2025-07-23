@@ -22,9 +22,9 @@ import io.mockk.verify
 import org.jooq.tools.jdbc.MockConnection
 import org.jooq.tools.jdbc.MockDataProvider
 import org.jooq.tools.jdbc.MockResult
+import org.junit.jupiter.api.BeforeEach
 import java.time.Duration
 import java.time.OffsetDateTime
-import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -75,7 +75,7 @@ class BatchDeciderTests {
             .queueAccess(queueMock)
             .build()
 
-    @BeforeTest
+    @BeforeEach
     fun reset() {
         clearAllMocks()
     }
@@ -193,7 +193,7 @@ class BatchDeciderTests {
         // stub the default‐arg overload for batchInPrevious60Seconds()
         every { timing1.batchInPrevious60Seconds(any<OffsetDateTime>()) } returns true
 
-        every { timing1.numberPerDay } returns 1
+        every { timing1.numberPerDay } returns 10
         every { timing1.maxReportCount } returns 2
         every { timing1.timeBetweenBatches } returns 120
         every { timing1.whenEmpty } returns Receiver.WhenEmpty()
