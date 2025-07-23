@@ -81,40 +81,40 @@ class BatchDeciderTests {
     }
 
     @Test
-    fun `Test with no receiver getting empty batch file`() {
+    fun `Test receivers with no WhenEmpty action set to will not queue an empty batch`() {
         // Setup
-        every { queueMock.sendMessageToQueue(any(), any()) } returns Unit
+        val doesNotQueueEmptyBatch = Pair(0, false)
         every { timing1.isValid() } returns true
-        every { timing1.numberPerDay } returns 1
-        every { timing1.maxReportCount } returns 1
+        every { timing1.numberPerDay } returns 10
+        every { timing1.maxReportCount } returns 10
+        // Receiver defaults to NONE action when empty, will not send empty batches
         every { timing1.whenEmpty } returns Receiver.WhenEmpty()
         every { timing1.batchInPrevious60Seconds(any()) } returns true
-
         val settings = FileSettings().loadOrganizations(oneOrganization)
         val engine = makeEngine(settings)
+        every { engine.db.fetchNumReportsNeedingBatch(any(), any(), any()) }.answers { 0 }
 
-        every { engine.db.fetchNumReportsNeedingBatch(any(), any(), any()) }.answers {
-            0
-        }
-        every { queueMock.sendMessage(any()) }.returns(Unit)
-
-        // Invoke batch decider run
         var result = BatchDeciderFunction(engine).determineQueueMessageCount(oneOrganization.receivers[0], null)
 
-        // Verify that the reciever will not be put in the batch queue
-        assertEquals(0, result.first)
-        assertEquals(false, result.second)
+        // Verify that the reciever will not queue an empty batch
+        assertEquals(result, doesNotQueueEmptyBatch)
     }
 
     @Test
-    fun `Test with receiver getting empty on every batch`() {
+    fun `Test receivers with onlyOncePerDay set to false will queue multiple empty batches per day`() {
         // Setup
-        every { queueMock.sendMessageToQueue(any(), any(), any()) } returns Unit
+        val willQueueEmptyBatch = Pair(1, true)
         every { timing1.isValid() } returns true
         every { timing1.batchInPrevious60Seconds(any()) } returns true
         every { timing1.numberPerDay } returns 1440
         every { timing1.maxReportCount } returns 500
         every { timing1.timeBetweenBatches } returns 10
+        val settings = FileSettings().loadOrganizations(oneOrganization, universalPipelineOrg)
+        val engine = makeEngine(settings)
+        val covidReceiver = oneOrganization.receivers[0]
+        val upReceiver = universalPipelineOrg.receivers[0]
+
+        // Receiver is set to SEND when empty, only send once per day is FALSE
         every { timing1.whenEmpty }.answers {
             Receiver.WhenEmpty(
                 Receiver.EmptyOperation.SEND,
@@ -122,35 +122,42 @@ class BatchDeciderTests {
             )
         }
 
-        val settings = FileSettings().loadOrganizations(oneOrganization, universalPipelineOrg)
-        val engine = makeEngine(settings)
+        every { engine.db.fetchNumReportsNeedingBatch(any(), any(), any()) }.answers { 0 }
 
-        every { engine.db.fetchNumReportsNeedingBatch(any(), any(), any()) }.answers {
-            0
-        }
+        // No batches have been sent yet today
+        every { engine.db.checkRecentlySent(any(), any(), any(), any()) }.answers { false }
 
-        // Invoke batch decider run
-        var result1 = BatchDeciderFunction(engine).determineQueueMessageCount(oneOrganization.receivers[0], null)
-        var result2 = BatchDeciderFunction(engine).determineQueueMessageCount(oneOrganization.receivers[0], null)
-        val result3 = BatchDeciderFunction(engine).determineQueueMessageCount(universalPipelineOrg.receivers[0], null)
-        BatchDeciderFunction(engine).run("", context = null)
-        BatchDeciderFunction(engine).run("", context = null)
+        // Check that the receivers will queue first empty batch of the day
+        val firstCovidReceiverResult = BatchDeciderFunction(engine).determineQueueMessageCount(covidReceiver, null)
+        val firstUPReceiverResult = BatchDeciderFunction(engine).determineQueueMessageCount(upReceiver, null)
+        assertEquals(firstCovidReceiverResult, willQueueEmptyBatch)
+        assertEquals(firstUPReceiverResult, willQueueEmptyBatch)
 
-        assertEquals(1, result1.first)
-        assertEquals(true, result1.second)
-        assertEquals(1, result2.first)
-        assertEquals(true, result2.second)
-        assertEquals(result3, Pair(1, true))
+        // Update mocking to show that a batch has already been sent in last 24 hours
+        every { engine.db.checkRecentlySent(any(), any(), any(), any()) }.answers { true }
+
+        // Now check that receivers will still queue a second empty batch
+        val secondCovidReceiverResult = BatchDeciderFunction(engine).determineQueueMessageCount(covidReceiver, null)
+        val secondUPReceiverResult = BatchDeciderFunction(engine).determineQueueMessageCount(upReceiver, null)
+        assertEquals(secondCovidReceiverResult, willQueueEmptyBatch)
+        assertEquals(secondUPReceiverResult, willQueueEmptyBatch)
     }
 
     @Test
-    fun `Test with receiver getting empty once per day`() {
+    fun `Test receivers with onlyOncePerDay set to true will only queue one empty batch per day`() {
         // Setup
-        every { queueMock.sendMessageToQueue(any(), any()) } returns Unit
+        val willQueueEmptyBatch = Pair(1, true)
+        val doesNotQueueEmptyBatch = Pair(0, false)
         every { timing1.isValid() } returns true
         every { timing1.batchInPrevious60Seconds(any()) } returns true
         every { timing1.numberPerDay } returns 1440
         every { timing1.maxReportCount } returns 500
+        val settings = FileSettings().loadOrganizations(oneOrganization, universalPipelineOrg)
+        val engine = makeEngine(settings)
+        val covidReceiver = oneOrganization.receivers[0]
+        val upReceiver = universalPipelineOrg.receivers[0]
+
+        // Receiver is set to SEND when empty, only send once per day is TRUE
         every { timing1.whenEmpty }.answers {
             Receiver.WhenEmpty(
                 Receiver.EmptyOperation.SEND,
@@ -158,30 +165,25 @@ class BatchDeciderTests {
             )
         }
 
-        val settings = FileSettings().loadOrganizations(oneOrganization)
-        val engine = makeEngine(settings)
+        every { engine.db.fetchNumReportsNeedingBatch(any(), any(), any()) }.answers { 0 }
 
-        every { engine.db.fetchNumReportsNeedingBatch(any(), any(), any()) }.answers {
-            0
-        }
-        every { engine.db.checkRecentlySent(any(), any(), any(), any()) }.answers {
-            false
-        }
+        // No batches have been sent yet today
+        every { engine.db.checkRecentlySent(any(), any(), any(), any()) }.answers { false }
 
-        // Invoke batch decider run
-        var result1 = BatchDeciderFunction(engine).determineQueueMessageCount(oneOrganization.receivers[0], null)
+        // Check that the receivers will queue first empty batch of the day
+        val firstCovidReceiverResult = BatchDeciderFunction(engine).determineQueueMessageCount(covidReceiver, null)
+        val firstUPReceiverResult = BatchDeciderFunction(engine).determineQueueMessageCount(upReceiver, null)
+        assertEquals(firstCovidReceiverResult, willQueueEmptyBatch)
+        assertEquals(firstUPReceiverResult, willQueueEmptyBatch)
 
-        // change response of recentlySent
-        every { engine.db.checkRecentlySent(any(), any(), any(), any()) }.answers {
-            true
-        }
+        // Update mocking to show that a batch has already been sent in last 24 hours
+        every { engine.db.checkRecentlySent(any(), any(), any(), any()) }.answers { true }
 
-        var result2 = BatchDeciderFunction(engine).determineQueueMessageCount(oneOrganization.receivers[0], null)
-
-        assertEquals(1, result1.first)
-        assertEquals(true, result1.second)
-        assertEquals(0, result2.first)
-        assertEquals(false, result2.second)
+        // Now check that receivers will NOT queue a second empty batch
+        val secondCovidReceiverResult = BatchDeciderFunction(engine).determineQueueMessageCount(covidReceiver, null)
+        val secondUPReceiverResult = BatchDeciderFunction(engine).determineQueueMessageCount(upReceiver, null)
+        assertEquals(secondCovidReceiverResult, doesNotQueueEmptyBatch)
+        assertEquals(secondUPReceiverResult, doesNotQueueEmptyBatch)
     }
 
     @Test // todo
