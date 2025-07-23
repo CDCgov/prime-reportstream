@@ -114,6 +114,7 @@ class BatchDeciderTests {
         every { timing1.batchInPrevious60Seconds(any()) } returns true
         every { timing1.numberPerDay } returns 1440
         every { timing1.maxReportCount } returns 500
+        every { timing1.timeBetweenBatches } returns 10
         every { timing1.whenEmpty }.answers {
             Receiver.WhenEmpty(
                 Receiver.EmptyOperation.SEND,
