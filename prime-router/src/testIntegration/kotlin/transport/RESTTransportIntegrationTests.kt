@@ -37,10 +37,9 @@ import io.ktor.http.content.OutgoingContent
 import io.ktor.http.headersOf
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.util.Attributes
-import io.ktor.util.InternalAPI
 import io.ktor.util.date.GMTDate
 import io.ktor.utils.io.ByteReadChannel
-import io.ktor.utils.io.core.ByteReadPacket
+import io.ktor.utils.io.InternalAPI
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
@@ -49,6 +48,8 @@ import io.mockk.mockkObject
 import io.mockk.spyk
 import io.mockk.verify
 import kotlinx.coroutines.runBlocking
+import kotlinx.io.Buffer
+import kotlinx.io.Source
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.assertDoesNotThrow
@@ -251,7 +252,7 @@ hnm8COa8Kr+bnTqzScpQuOfujHcFEtfcYUGfSS6HusxidwXx+lYi1A==
         val call = mockk<HttpClientCall> {
             every { client } returns mockk {}
             coEvery { body(io.ktor.util.reflect.typeInfo<String>()) } returns "Rest Transport Test Call Body"
-            coEvery { bodyNullable(io.ktor.util.reflect.typeInfo<ByteReadPacket>()) } returns ByteReadPacket.Empty
+            coEvery { bodyNullable(io.ktor.util.reflect.typeInfo<Source>()) } returns Buffer()
             every { coroutineContext } returns EmptyCoroutineContext
             every { attributes } returns Attributes()
             every { request } returns object : HttpRequest {
@@ -267,7 +268,7 @@ hnm8COa8Kr+bnTqzScpQuOfujHcFEtfcYUGfSS6HusxidwXx+lYi1A==
                 override val call: HttpClientCall = this@mockk
 
                 @InternalAPI
-                override val content: ByteReadChannel = ByteReadChannel(body)
+                override val rawContent: ByteReadChannel = ByteReadChannel(body)
                 override val coroutineContext: CoroutineContext = EmptyCoroutineContext
                 override val headers: Headers = Headers.Empty
                 override val requestTime: GMTDate = GMTDate.START
