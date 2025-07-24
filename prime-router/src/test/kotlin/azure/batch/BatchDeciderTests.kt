@@ -16,7 +16,6 @@ import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.mockk.clearAllMocks
 import io.mockk.coVerifyOrder
 import io.mockk.every
-import io.mockk.mockk
 import io.mockk.mockkClass
 import io.mockk.spyk
 import io.mockk.verify
@@ -189,7 +188,6 @@ class BatchDeciderTests {
 
     // This test fails the first time it is run in the GitHub build on every single build. Skipping for now.
     @Test
-    @Ignore
     fun `run should enqueue correct number of batch messages with appropriate delays`() {
         // ensure this receiver is considered valid and due to batch
         every { timing1.isValid() } returns true
