@@ -16,9 +16,11 @@ import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.mockk.clearAllMocks
 import io.mockk.coVerifyOrder
 import io.mockk.every
+import io.mockk.mockk
 import io.mockk.mockkClass
 import io.mockk.spyk
 import io.mockk.verify
+import org.jooq.Configuration
 import org.jooq.tools.jdbc.MockConnection
 import org.jooq.tools.jdbc.MockDataProvider
 import org.jooq.tools.jdbc.MockResult
@@ -197,6 +199,11 @@ class BatchDeciderTests {
         every { timing1.maxReportCount } returns 2
         every { timing1.timeBetweenBatches } returns 120
         every { timing1.whenEmpty } returns Receiver.WhenEmpty()
+
+        every { accessSpy.transact(any()) } answers {
+            val txn = mockk<Configuration>()
+            firstArg<(Configuration?) -> Unit>().invoke(txn)
+        }
 
         val settings = FileSettings().loadOrganizations(oneOrganization)
         val engine = makeEngine(settings)
