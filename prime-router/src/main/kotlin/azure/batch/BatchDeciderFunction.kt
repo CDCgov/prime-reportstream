@@ -34,7 +34,7 @@ class BatchDeciderFunction(private val workflowEngine: WorkflowEngine = Workflow
         context: ExecutionContext?,
     ) {
         logger.trace("$batchDecider: Starting")
-//        try {
+        try {
             workflowEngine.db.transact { txn ->
                 // TODO: if for some reason the batch decider misses proper calculation of a receiver's batch run
                 //  we would want to pull all receivers with BATCH records that have next_action_at in the past and
@@ -64,10 +64,10 @@ class BatchDeciderFunction(private val workflowEngine: WorkflowEngine = Workflow
             }
 
             logger.trace("$batchDecider: Ending")
-//        } catch (e: Exception) {
-//            // Catching all exceptions, so Azure does not auto-implement the queue retry
-//            logger.error("$batchDecider function exception", e)
-//        }
+        } catch (e: Exception) {
+            // Catching all exceptions, so Azure does not auto-implement the queue retry
+            logger.error("$batchDecider function exception", e)
+        }
     }
 
     /**
