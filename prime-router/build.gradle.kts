@@ -74,7 +74,7 @@ val javaVersion = when (appJvmTarget.target) {
     "21" -> JavaVersion.VERSION_21
     else -> JavaVersion.VERSION_17
 }
-val ktorVersion = "2.3.13"
+val ktorVersion = "2.3.12"
 val kotlinVersion by System.getProperties()
 val jacksonVersion = "2.19.0"
 jacoco.toolVersion = "0.8.12"
@@ -990,6 +990,19 @@ dependencies {
     testImplementation(kotlin("test-junit5"))
     testImplementation("io.mockk:mockk:1.14.2")
     testImplementation("io.ktor:ktor-client-mock:$ktorVersion")
+
+    // Proposed changes to resolve security issues
+    // Dependency constraints to address CVEs in transitive dependencies
+    // These will force Gradle to use the specified versions for these libraries
+    // regardless of what other dependencies might request.
+    // constraints {
+    //     implementation("net.minidev:json-smart:2.5.2") {
+    //         because("CVE-2024-57699: Addresses uncontrolled recursion vulnerability")
+    //     }
+    //     implementation("io.netty:netty-handler:4.1.118.Final") {
+    //         because("CVE-2025-24970: Addresses improper input validation vulnerability")
+    //     }
+    // }
 
     implementation(project(":shared"))
     implementation(kotlin("script-runtime"))
