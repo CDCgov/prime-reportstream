@@ -1,73 +1,37 @@
 variable "environment" {
   type        = string
-  description = "Target Environment"
+  description = "The target environment (e.g., 'test', 'staging', 'prod')."
 }
 
 variable "resource_group" {
   type        = string
-  description = "Resource Group Name"
+  description = "The name of the resource group for the application, not the database."
 }
 
-variable "resource_prefix" {
+variable "database_resource_group_name" {
   type        = string
-  description = "Resource Prefix"
+  description = "The name of the resource group where the external PostgreSQL servers are located."
 }
 
-variable "location" {
+variable "primary_server_name" {
   type        = string
-  description = "Database Server Location"
+  description = "The name of the primary PostgreSQL server to look up."
 }
 
-variable "rsa_key_2048" {
-  type        = string
-  description = "Name of the 2048 length RSA key in the Key Vault. Omitting will use Azure-managed key instead of a customer-key."
+variable "replica_server_names" {
+  type        = list(string)
+  description = "A list of names for the read replica PostgreSQL servers to look up."
+  default     = []
 }
 
-variable "aad_group_postgres_admin" {
-  type        = string
-  description = "Azure Active Directory Group ID for postgres_admin"
+variable "database_names" {
+  type        = list(string)
+  description = "A list of database names to look up on the primary server."
+  default     = []
 }
 
 variable "is_metabase_env" {
   type        = bool
-  description = "Should Metabase be deployed in this environment"
-}
-
-variable "use_cdc_managed_vnet" {
-  type        = bool
-  description = "If the environment should be deployed to the CDC managed VNET"
-}
-
-variable "postgres_user" {}
-variable "postgres_pass" {
-  sensitive = true
-}
-variable "postgres_readonly_user" {}
-variable "postgres_readonly_pass" {
-  sensitive = true
-}
-variable "db_sku_name" {}
-variable "db_version" {}
-variable "db_storage_mb" {}
-variable "db_auto_grow" {}
-variable "db_prevent_destroy" {}
-
-variable "db_threat_detection" {}
-variable "db_replica" {}
-variable "application_key_vault_id" {}
-
-variable "dns_vnet" {}
-
-variable "subnets" {
-  description = "A set of all available subnet combinations"
-}
-
-variable "dns_zones" {
-  description = "A set of all available dns zones"
-}
-variable "flex_instances" {
-  default = []
-}
-variable "flex_sku_name" {
-  default = "GP_Standard_D4ds_v4"
+  description = "Flag to indicate if the Metabase database should be looked up. If true, 'metabase' must be in `var.database_names`."
+  default     = false
 }
