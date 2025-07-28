@@ -73,9 +73,9 @@ module "container_registry" {
 module "database" {
   source = "../../modules/database"
 
-  environment                  = local.init.environment
-  resource_group               = local.init.resource_group_name
-  is_metabase_env              = local.init.is_metabase_env
+  environment     = local.init.environment
+  resource_group  = local.init.resource_group_name
+  is_metabase_env = local.init.is_metabase_env
 
   # Parameters for looking up the external database resources
   database_resource_group_name = local.database.database_resource_group_name
