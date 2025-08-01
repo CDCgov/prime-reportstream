@@ -983,7 +983,7 @@ dependencies {
     implementation("io.konform:konform-jvm:0.11.1")
 
     runtimeOnly("com.okta.jwt:okta-jwt-verifier-impl:0.5.7")
-    runtimeOnly("com.squareup.okio:okio:3.11.0")
+    runtimeOnly("com.squareup.okio:okio:3.16.0")
     runtimeOnly("io.jsonwebtoken:jjwt-impl:0.11.5")
     runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.11.5")
 
