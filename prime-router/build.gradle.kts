@@ -46,7 +46,7 @@ plugins {
     id("com.avast.gradle.docker-compose") version "0.17.12"
     id("org.jetbrains.kotlin.plugin.serialization") version "$kotlinVersion"
     id("com.nocwriter.runsql") version ("1.0.3")
-    id("io.swagger.core.v3.swagger-gradle-plugin") version "2.2.30"
+    id("io.swagger.core.v3.swagger-gradle-plugin") version "2.2.35"
 }
 
 // retrieve the current commit hash
@@ -957,7 +957,7 @@ dependencies {
     implementation("com.anyascii:anyascii:0.3.2")
     // https://mvnrepository.com/artifact/io.swagger/swagger-annotations
     implementation("io.swagger:swagger-annotations:1.6.15")
-    implementation("io.swagger.core.v3:swagger-jaxrs2:2.2.30")
+    implementation("io.swagger.core.v3:swagger-jaxrs2:2.2.35")
     // https://mvnrepository.com/artifact/javax.ws.rs/javax.ws.rs-api
     implementation("javax.ws.rs:javax.ws.rs-api:2.1.1")
     // https://mvnrepository.com/artifact/javax.servlet/javax.servlet-api
