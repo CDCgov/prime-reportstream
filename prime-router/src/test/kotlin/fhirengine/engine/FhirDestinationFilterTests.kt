@@ -542,80 +542,81 @@ class FhirDestinationFilterTests {
                         1,
                         "1234d1d1-95fe-462c-8ac6-46728dba581c"
                     )
-                    assertThat(event.params).isEqualTo(
-                        mapOf(
-                        ReportStreamEventProperties.BUNDLE_DIGEST to BundleDigestLabResult(
-                            observationSummaries = listOf(
-                                ObservationSummary(
-                                    listOf(
-                                        TestSummary(
-                                            listOf(
-                                                CodeSummary(
-                                                    snomedSystem,
-                                                    "840539006",
-                                                    @Suppress("ktlint:standard:max-line-length")
-                                                    "Disease caused by severe acute respiratory syndrome coronavirus 2 (disorder)",
-                                                    "Unknown"
-                                                )
-                                            ),
-                                            loincSystem,
-                                            "94558-4",
-                                        )
-                                    ),
-                                    listOf(
-                                        CodeSummary(
-                                            system = "http://terminology.hl7.org/CodeSystem/v2-0078",
-                                            code = "N",
-                                            display = "Normal",
-                                            memberOid = "Unknown"
-                                        )
+                )
+                assertThat(event.params).isEqualTo(
+                    mapOf(
+                    ReportStreamEventProperties.BUNDLE_DIGEST to BundleDigestLabResult(
+                        observationSummaries = listOf(
+                            ObservationSummary(
+                                listOf(
+                                    TestSummary(
+                                        listOf(
+                                            CodeSummary(
+                                                snomedSystem,
+                                                "840539006",
+                                                @Suppress("ktlint:standard:max-line-length")
+                                                "Disease caused by severe acute respiratory syndrome coronavirus 2 (disorder)",
+                                                "Unknown"
+                                            )
+                                        ),
+                                        loincSystem,
+                                        "94558-4",
                                     )
                                 ),
-                                ObservationSummary(
-                                    listOf(
-                                        TestSummary(
-                                            testPerformedCode = "95418-0",
-                                            testPerformedSystem = loincSystem
-                                        )
+                                listOf(
+                                    CodeSummary(
+                                        system = "http://terminology.hl7.org/CodeSystem/v2-0078",
+                                        code = "N",
+                                        display = "Normal",
+                                        memberOid = "Unknown"
                                     )
-                                ),
-                                ObservationSummary(
-                                    listOf(
-                                        TestSummary(
-                                            testPerformedCode = "95417-2",
-                                            testPerformedSystem = loincSystem
-                                        )
-                                    )
-                                ),
-                                ObservationSummary(
-                                    listOf(
-                                        TestSummary(
-                                            testPerformedCode = "95421-4",
-                                            testPerformedSystem = loincSystem
-                                        )
-                                    )
-                                ),
-                                ObservationSummary(
-                                    listOf(
-                                        TestSummary(
-                                            testPerformedCode = "95419-8",
-                                            testPerformedSystem = loincSystem
-                                        )
-                                    )
-                                ),
-                            ),
-                            patientState = listOf("CA"),
-                            performerSummaries = emptyList(),
-                            orderingFacilitySummaries = listOf(
-                                OrderingFacilitySummary(
-                                    orderingFacilityName = "Winchester House",
-                                    orderingFacilityState = "CA"
                                 )
                             ),
-                            eventType = "ORU/ACK - Unsolicited transmission of an observation message"
-                        )
+                            ObservationSummary(
+                                listOf(
+                                    TestSummary(
+                                        testPerformedCode = "95418-0",
+                                        testPerformedSystem = loincSystem
+                                    )
+                                )
+                            ),
+                            ObservationSummary(
+                                listOf(
+                                    TestSummary(
+                                        testPerformedCode = "95417-2",
+                                        testPerformedSystem = loincSystem
+                                    )
+                                )
+                            ),
+                            ObservationSummary(
+                                listOf(
+                                    TestSummary(
+                                        testPerformedCode = "95421-4",
+                                        testPerformedSystem = loincSystem
+                                    )
+                                )
+                            ),
+                            ObservationSummary(
+                                listOf(
+                                    TestSummary(
+                                        testPerformedCode = "95419-8",
+                                        testPerformedSystem = loincSystem
+                                    )
+                                )
+                            ),
+                        ),
+                        patientState = listOf("CA"),
+                        performerSummaries = emptyList(),
+                        orderingFacilitySummaries = listOf(
+                            OrderingFacilitySummary(
+                                orderingFacilityName = "Winchester House",
+                                orderingFacilityState = "CA"
+                            )
+                        ),
+                        eventType = "ORU/ACK - Unsolicited transmission of an observation message"
                     )
-                    )
+                )
+            )
         }
 
         // assert
