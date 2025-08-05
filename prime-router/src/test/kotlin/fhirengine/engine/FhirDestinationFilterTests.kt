@@ -36,6 +36,7 @@ import gov.cdc.prime.router.azure.observability.event.OrderingFacilitySummary
 import gov.cdc.prime.router.azure.observability.event.ReportEventData
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventProperties
 import gov.cdc.prime.router.azure.observability.event.ReportStreamItemEvent
+import gov.cdc.prime.router.azure.observability.event.SubmissionEventData
 import gov.cdc.prime.router.azure.observability.event.TestSummary
 import gov.cdc.prime.router.report.ReportService
 import gov.cdc.prime.router.unittest.UnitTestUtils
@@ -242,6 +243,7 @@ class FhirDestinationFilterTests {
         every { reportServiceMock.getRootReports(any()) } returns listOf(rootReport)
         every { reportServiceMock.getRootItemIndex(any(), any()) } returns 1
         every { accessSpy.fetchReportFile(any()) } returns rootReport
+        every { reportServiceMock.getReportForItemAtTask(any(), any(), any()) } returns rootReport
 
         return FHIREngine.Builder()
             .metadata(metadata)
@@ -334,7 +336,6 @@ class FhirDestinationFilterTests {
                 ReportEventData(
                     actionHistory.reportsOut.values.first().reportId,
                     message.reportId,
-                    listOf(submittedId),
                     Topic.FULL_ELR,
                     "test",
                     TaskAction.destination_filter,
@@ -344,13 +345,18 @@ class FhirDestinationFilterTests {
                 ),
                 ReportEventData::timestamp,
             )
+            assertThat(event.submissionEventData).isEqualTo(
+                SubmissionEventData(
+                    listOf(submittedId),
+                    "[\"sendingOrg.sendingOrgClient\"]"
+                )
+            )
             assertThat(event.itemEventData).isEqualTo(
                 ItemEventData(
                     1,
                     1,
                     1,
-                    "1234d1d1-95fe-462c-8ac6-46728dba581c",
-                    "sendingOrg.sendingOrgClient"
+                    "1234d1d1-95fe-462c-8ac6-46728dba581c"
                 )
             )
             assertThat(event.params)
@@ -514,7 +520,6 @@ class FhirDestinationFilterTests {
                     ReportEventData(
                         actionHistory.reportsOut.values.first().reportId,
                         message.reportId,
-                        listOf(submittedId),
                         Topic.FULL_ELR,
                         "",
                         TaskAction.destination_filter,
@@ -524,14 +529,18 @@ class FhirDestinationFilterTests {
                     ),
                     ReportEventData::timestamp
                 )
-                    assertThat(event.itemEventData).isEqualTo(
-                        ItemEventData(
-                            1,
-                            1,
-                            1,
-                            "1234d1d1-95fe-462c-8ac6-46728dba581c",
-                            "sendingOrg.sendingOrgClient"
-                        )
+                assertThat(event.submissionEventData).isEqualTo(
+                    SubmissionEventData(
+                        listOf(submittedId),
+                        "[\"sendingOrg.sendingOrgClient\"]"
+                    )
+                )
+                assertThat(event.itemEventData).isEqualTo(
+                    ItemEventData(
+                        1,
+                        1,
+                        1,
+                        "1234d1d1-95fe-462c-8ac6-46728dba581c"
                     )
                     assertThat(event.params).isEqualTo(
                         mapOf(

@@ -42,6 +42,7 @@ import gov.cdc.prime.router.azure.observability.event.ReportStreamEventName
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventProperties
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventService
 import gov.cdc.prime.router.azure.observability.event.ReportStreamItemEvent
+import gov.cdc.prime.router.azure.observability.event.SubmissionEventData
 import gov.cdc.prime.router.common.TestcontainersUtils
 import gov.cdc.prime.router.common.UniversalPipelineTestUtils
 import gov.cdc.prime.router.common.validFHIRRecord1
@@ -399,7 +400,6 @@ class FHIRReceiverFilterIntegrationTests : Logging {
                 ReportEventData(
                     routedReport.reportId,
                     report.id,
-                    listOf(report.id),
                     Topic.FULL_ELR,
                     "",
                     TaskAction.receiver_filter,
@@ -409,13 +409,18 @@ class FHIRReceiverFilterIntegrationTests : Logging {
                 ),
                 ReportEventData::timestamp,
             )
+            assertThat(event.submissionEventData).isEqualTo(
+                SubmissionEventData(
+                    listOf(report.id),
+                    "[\"phd.Test Sender\"]"
+                )
+            )
             assertThat(event.itemEventData).isEqualTo(
                 ItemEventData(
                     1,
                     1,
                     1,
-                    "1234d1d1-95fe-462c-8ac6-46728dba581c",
-                    "phd.Test Sender"
+                    "1234d1d1-95fe-462c-8ac6-46728dba581c"
                 )
             )
             assertThat(event.params).isEqualTo(
@@ -582,7 +587,6 @@ class FHIRReceiverFilterIntegrationTests : Logging {
                 ReportEventData(
                     routedReport.reportId,
                     report.id,
-                    listOf(report.id),
                     Topic.FULL_ELR,
                     "",
                     TaskAction.receiver_filter,
@@ -592,13 +596,18 @@ class FHIRReceiverFilterIntegrationTests : Logging {
                 ),
                 ReportEventData::timestamp,
             )
+            assertThat(event.submissionEventData).isEqualTo(
+                SubmissionEventData(
+                    listOf(report.id),
+                    "[\"phd.Test Sender\"]"
+                )
+            )
             assertThat(event.itemEventData).isEqualTo(
                 ItemEventData(
                     1,
                     1,
                     1,
-                    "1234d1d1-95fe-462c-8ac6-46728dba581c",
-                    "phd.Test Sender"
+                    "1234d1d1-95fe-462c-8ac6-46728dba581c"
                 )
             )
             assertThat(event.params).isEqualTo(
@@ -778,7 +787,6 @@ class FHIRReceiverFilterIntegrationTests : Logging {
                 ReportEventData(
                     routedReport.reportId,
                     report.id,
-                    listOf(report.id),
                     Topic.FULL_ELR,
                     "",
                     TaskAction.receiver_filter,
@@ -788,13 +796,18 @@ class FHIRReceiverFilterIntegrationTests : Logging {
                 ),
                 ReportEventData::timestamp,
             )
+            assertThat(event.submissionEventData).isEqualTo(
+                SubmissionEventData(
+                    listOf(report.id),
+                    "[\"phd.Test Sender\"]"
+                )
+            )
             assertThat(event.itemEventData).isEqualTo(
                 ItemEventData(
                     1,
                     1,
                     1,
-                    "1234d1d1-95fe-462c-8ac6-46728dba581c",
-                    "phd.Test Sender"
+                    "1234d1d1-95fe-462c-8ac6-46728dba581c"
                 )
             )
             assertThat(event.params).isEqualTo(
@@ -918,7 +931,6 @@ class FHIRReceiverFilterIntegrationTests : Logging {
                 ReportEventData(
                     routedReport.reportId,
                     report.id,
-                    listOf(report.id),
                     Topic.FULL_ELR,
                     "",
                     TaskAction.receiver_filter,
@@ -928,13 +940,18 @@ class FHIRReceiverFilterIntegrationTests : Logging {
                 ),
                 ReportEventData::timestamp,
             )
+            assertThat(event.submissionEventData).isEqualTo(
+                SubmissionEventData(
+                    listOf(report.id),
+                    "[\"phd.Test Sender\"]"
+                )
+            )
             assertThat(event.itemEventData).isEqualTo(
                 ItemEventData(
                     1,
                     1,
                     1,
-                    "1234d1d1-95fe-462c-8ac6-46728dba581c",
-                    "phd.Test Sender"
+                    "1234d1d1-95fe-462c-8ac6-46728dba581c"
                 )
             )
             assertThat(event.params).isEqualTo(
@@ -1205,7 +1222,6 @@ class FHIRReceiverFilterIntegrationTests : Logging {
                 ReportEventData(
                     routedReport.reportId,
                     report.id,
-                    listOf(report.id),
                     Topic.FULL_ELR,
                     "",
                     TaskAction.receiver_filter,
@@ -1215,13 +1231,18 @@ class FHIRReceiverFilterIntegrationTests : Logging {
                 ),
                 ReportEventData::timestamp,
             )
+            assertThat(event.submissionEventData).isEqualTo(
+                SubmissionEventData(
+                    listOf(report.id),
+                    "[\"phd.Test Sender\"]"
+                )
+            )
             assertThat(event.itemEventData).isEqualTo(
                 ItemEventData(
                     1,
                     1,
                     1,
-                    "MT_COCNB_ORU_NBPHELR.1.5348467",
-                    "phd.Test Sender"
+                    "MT_COCNB_ORU_NBPHELR.1.5348467"
                 )
             )
             assertThat(event.params).isEqualTo(

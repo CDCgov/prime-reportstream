@@ -90,7 +90,6 @@ class ReportEventServiceTest {
             ReportEventData(
                 sentNode.node.reportId,
                 translateNode.node.reportId,
-                listOf(submittedReport.node.reportId),
                 Topic.FULL_ELR,
                 "",
                 TaskAction.send,
@@ -135,7 +134,6 @@ class ReportEventServiceTest {
             ReportEventData(
                 submittedReport.node.reportId,
                 null,
-                listOf(),
                 Topic.FULL_ELR,
                 "",
                 TaskAction.send,
@@ -214,8 +212,7 @@ class ReportEventServiceTest {
                 1,
                 1,
                 1,
-                "",
-                "phd.elr-hl7-sender"
+                ""
             )
         )
     }

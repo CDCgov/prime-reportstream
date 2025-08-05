@@ -36,6 +36,7 @@ import gov.cdc.prime.router.azure.observability.event.ReportStreamEventName
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventProperties
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventService
 import gov.cdc.prime.router.azure.observability.event.ReportStreamItemEvent
+import gov.cdc.prime.router.azure.observability.event.SubmissionEventData
 import gov.cdc.prime.router.common.TestcontainersUtils
 import gov.cdc.prime.router.common.UniversalPipelineTestUtils
 import gov.cdc.prime.router.common.UniversalPipelineTestUtils.fetchChildReports
@@ -358,7 +359,6 @@ class FHIRDestinationFilterIntegrationTests : Logging {
                 ReportEventData(
                     routedReport.reportId,
                     report.id,
-                    listOf(report.id),
                     Topic.FULL_ELR,
                     routedReport.bodyUrl,
                     TaskAction.destination_filter,
@@ -368,13 +368,18 @@ class FHIRDestinationFilterIntegrationTests : Logging {
                 ),
                 ReportEventData::timestamp
             )
+            assertThat(event.submissionEventData).isEqualTo(
+                SubmissionEventData(
+                    listOf(report.id),
+                    "[\"phd.Test Sender\"]"
+                )
+            )
             assertThat(event.itemEventData).isEqualTo(
                 ItemEventData(
                     1,
                     1,
                     1,
-                    "MT_COCNB_ORU_NBPHELR.1.5348467",
-                    "phd.Test Sender"
+                    "MT_COCNB_ORU_NBPHELR.1.5348467"
                 )
             )
             assertThat(event.params).isEqualTo(
@@ -466,7 +471,6 @@ class FHIRDestinationFilterIntegrationTests : Logging {
             ReportEventData(
                 UUID.randomUUID(),
                 report.id,
-                listOf(report.id),
                 Topic.FULL_ELR,
                 "",
                 TaskAction.destination_filter,
@@ -477,13 +481,18 @@ class FHIRDestinationFilterIntegrationTests : Logging {
             ReportEventData::timestamp,
             ReportEventData::childReportId
         )
+        assertThat(event.submissionEventData).isEqualTo(
+            SubmissionEventData(
+                listOf(report.id),
+                "[\"phd.Test Sender\"]"
+            )
+        )
         assertThat(event.itemEventData).isEqualTo(
             ItemEventData(
                 1,
                 1,
                 1,
-                "MT_COCNB_ORU_NBPHELR.1.5348467",
-                "phd.Test Sender"
+                "MT_COCNB_ORU_NBPHELR.1.5348467"
             )
         )
         assertThat(event.params).isEqualTo(
