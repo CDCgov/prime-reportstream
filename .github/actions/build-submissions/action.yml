@@ -39,7 +39,7 @@ runs:
         distribution: "temurin"
         cache: "gradle"
 
-    - uses: gradle/actions/setup-gradle@d156388eb19639ec20ade50009f3d199ce1e2808
+    - uses: gradle/actions/setup-gradle@017a9effdb900e5b5b2fddfb590a105619dca3c3
 
     - name: Lint
       if: inputs.run-integration-tests == 'true'
