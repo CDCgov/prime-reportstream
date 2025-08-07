@@ -7,9 +7,7 @@ on:
       - main
     paths:
       -  "prime-router/**"
-      -  "submissions/**"
       -  "shared/**"
-      -  "auth/**"
 
 jobs:
   pre_job:
@@ -31,7 +29,7 @@ jobs:
     strategy:
         fail-fast: false
         matrix:
-            folder: [prime-router, submissions, auth, shared]
+            folder: [prime-router, shared]
     steps:
       - uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938
       - uses: snyk/actions/setup@b98d498629f1c368650224d6d212bf7dfa89e4bf
@@ -44,6 +42,6 @@ jobs:
       - uses: gradle/actions/setup-gradle@d156388eb19639ec20ade50009f3d199ce1e2808
       - name: Snyk Monitor
         working-directory: ${{ matrix.folder }}
-        run: snyk monitor --org=prime-reportstream
+        run: snyk monitor --org=prime-reportstream --target-reference="main"
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
