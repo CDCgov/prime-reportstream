@@ -18,6 +18,10 @@ inputs:
   skip-schema-validation:
     description: "Skip schema validation step"
     default: true
+  integration-test-forks:
+    description: "Number of parallel forks for integration tests (auto-detect if not specified)"
+    required: false
+    default: "auto"
 
 runs:
   using: "composite"
@@ -147,10 +151,55 @@ runs:
         ./gradlew :prime-router:reloadSettings
       shell: bash
 
-    # Integrations tests require the metadata catalog
-    - name: Run Integration Tests
+    - name: Configure integration test parallelization
       if: inputs.run-integration-tests == 'true'
-      run: ./gradlew :prime-router:testIntegration -Pshowtests
+      shell: bash
+      run: |
+        # Auto-detect optimal parallelization based on runner specs
+        CORES=$(nproc)
+        MEMORY_GB=$(free -g | grep '^Mem' | awk '{print $2}')
+        
+        if [ "${{ inputs.integration-test-forks }}" = "auto" ]; then
+          # Conservative approach: use half the cores, with safety limits
+          FORKS=$((CORES / 2))
+          FORKS=$(( FORKS > 6 ? 6 : FORKS ))  # Max 6 forks for stability
+          FORKS=$(( FORKS < 1 ? 1 : FORKS ))  # Min 1 fork
+        else
+          FORKS=${{ inputs.integration-test-forks }}
+        fi
+        
+        # Calculate memory per fork (leave some buffer for system)
+        MEMORY_PER_FORK=$(( (MEMORY_GB * 80 / 100) / FORKS ))  # 80% of total memory
+        MEMORY_PER_FORK=$(( MEMORY_PER_FORK > 3 ? 3 : MEMORY_PER_FORK ))  # Max 3GB per fork
+        MEMORY_PER_FORK=$(( MEMORY_PER_FORK < 1 ? 1 : MEMORY_PER_FORK ))  # Min 1GB per fork
+        
+        echo "INTEGRATION_TEST_FORKS=$FORKS" >> $GITHUB_ENV
+        echo "INTEGRATION_TEST_MEMORY=${MEMORY_PER_FORK}g" >> $GITHUB_ENV
+        
+        echo "🖥️  Runner specifications detected:"
+        echo "   CPU cores available: $CORES"
+        echo "   Total memory: ${MEMORY_GB}GB"
+        echo ""
+        echo "🧪 Integration test configuration:"
+        echo "   Parallel forks: $FORKS"
+        echo "   Memory per fork: ${MEMORY_PER_FORK}GB"
+        echo "   Expected speedup: ~$((100 - (100 / FORKS)))% (theoretical)"
+
+    # Integrations tests require the metadata catalog
+    - name: Run Integration Tests (Parallel)
+      if: inputs.run-integration-tests == 'true'
+      run: |
+        # Create a temporary gradle.properties with parallel settings
+        echo "org.gradle.parallel=true" >> gradle.properties
+        echo "org.gradle.workers.max=$INTEGRATION_TEST_FORKS" >> gradle.properties
+        echo "org.gradle.jvmargs=-Xmx$INTEGRATION_TEST_MEMORY -XX:+UseParallelGC" >> gradle.properties
+        
+        echo "📝 Gradle parallel configuration:"
+        echo "   Max workers: $INTEGRATION_TEST_FORKS"
+        echo "   JVM args: -Xmx$INTEGRATION_TEST_MEMORY -XX:+UseParallelGC"
+        echo ""
+        
+        ./gradlew :prime-router:testIntegration -Pshowtests
       shell: bash
 
     - name: Publish Integration Test Results
