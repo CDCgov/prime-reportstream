@@ -167,17 +167,8 @@ runs:
           exit 1
         fi
 
-    - name: Quick Unit Test Check (Early Detection)
-      if: inputs.run-integration-tests == 'true'
-      shell: bash
-      run: |
-        echo "🧪 Running critical unit tests first for early failure detection..."
-        # Run a subset of fast unit tests to catch major issues early
-        ./gradlew :prime-router:test --tests "*Test" -Dtest.quick=true --fail-fast --no-daemon || {
-          echo "❌ Critical unit tests failed - stopping build early"
-          exit 1
-        }
-        echo "✅ Critical unit tests passed"
+    # Early unit test check removed to avoid flaky test failures
+    # The main build process will run all tests properly
 
     - name: Build Prime Router Package (Optimized)
       uses: ./.github/actions/retry
