@@ -522,24 +522,25 @@ class ReportStreamEventService(
         childItemIndex: Int,
         parentReportId: UUID?,
         isItemEvent: Boolean,
-    ): SubmissionEventData { // todo clean up the else if logic, formatting, etc.
+    ): SubmissionEventData {
         val submittedReports = if (!isItemEvent && parentReportId != null) {
             reportService.getRootReports(parentReportId)
         } else if (isItemEvent && parentReportId != null) {
             val rootReport = reportService.getReportForItemAtTask(parentReportId, childItemIndex, TaskAction.receive)
             if (rootReport == null) {
+                // When invoked from the Convert step, the parent report is the submitted report.
                 listOf(dbAccess.fetchReportFile(parentReportId))
             } else {
                 listOf(rootReport)
             }
         } else {
+            // When invoked from the Receive step, the parent report id will be null.
             emptyList()
         }
 
         val submittedReportIds = submittedReports
             .map { it.reportId }
             .ifEmpty { if (parentReportId != null) listOf(parentReportId) else emptyList() }
-
         val submittedReportSenders = submittedReports.joinToString(separator = ", ", prefix = "[", postfix = "]") {
             "\"${it.sendingOrg}.${it.sendingOrgClient}\""
         }
