@@ -70,34 +70,23 @@ jobs:
         run: |
           echo "🔍 Running YAML validation with fail-fast..."
           
-          # Run validations with fail-fast and in parallel where possible
+          # Run validations sequentially to avoid Gradle lock contention
           set -e  # Exit immediately on first failure
           
           echo "📝 Validating Organizations YAML..."
-          ./gradlew :prime-router:primeCLI --args='validate-yaml --type Organizations --file settings/organizations.yml --dir settings/STLTs' &
-          pid1=$!
+          ./gradlew :prime-router:primeCLI --args='validate-yaml --type Organizations --file settings/organizations.yml --dir settings/STLTs'
           
           echo "📝 Validating FHIR Transform YAML..."
-          ./gradlew :prime-router:primeCLI --args='validate-yaml --type FhirToFhirTransform --dir src/main/resources/metadata/fhir_transforms' &
-          pid2=$!
+          ./gradlew :prime-router:primeCLI --args='validate-yaml --type FhirToFhirTransform --dir src/main/resources/metadata/fhir_transforms'
           
           echo "📝 Validating HL7 Mapping YAML..."
-          ./gradlew :prime-router:primeCLI --args='validate-yaml --type FhirToHL7Mapping --dir src/main/resources/metadata/hl7_mapping' &
-          pid3=$!
-          
-          # Wait for first batch
-          wait $pid1 $pid2 $pid3
+          ./gradlew :prime-router:primeCLI --args='validate-yaml --type FhirToHL7Mapping --dir src/main/resources/metadata/hl7_mapping'
           
           echo "📝 Validating Message Template YAML..."
-          ./gradlew :prime-router:primeCLI --args='validate-yaml --type HL7ToFhirMappingMessageTemplate --dir metadata/HL7/catchall/hl7/message' &
-          pid4=$!
+          ./gradlew :prime-router:primeCLI --args='validate-yaml --type HL7ToFhirMappingMessageTemplate --dir metadata/HL7/catchall/hl7/message'
           
           echo "📝 Validating Resource Template YAML..."
-          ./gradlew :prime-router:primeCLI --args='validate-yaml --type HL7ToFhirMappingResourceTemplate --dir metadata/HL7 --exclude-dir metadata/HL7/catchall/hl7/message metadata/HL7/catchall/hl7/codesystem --exclude-file metadata/HL7/catchall/fhir/resourcemapping.yml metadata/HL7/catchall/hl7/resource/Common.yml' &
-          pid5=$!
-          
-          # Wait for second batch
-          wait $pid4 $pid5
+          ./gradlew :prime-router:primeCLI --args='validate-yaml --type HL7ToFhirMappingResourceTemplate --dir metadata/HL7 --exclude-dir metadata/HL7/catchall/hl7/message metadata/HL7/catchall/hl7/codesystem --exclude-file metadata/HL7/catchall/fhir/resourcemapping.yml metadata/HL7/catchall/hl7/resource/Common.yml'
           
           echo "✅ All YAML validation passed"
           free; df -h
