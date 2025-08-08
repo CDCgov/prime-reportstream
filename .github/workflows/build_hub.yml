@@ -64,24 +64,7 @@ jobs:
       - name: "Check out changes"
         uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938
 
-      - name: Build backend
-        uses: ./.github/actions/build-backend
-        with:
-          version: ${{ github.run_id }}
-          upload-build: false
-          run-integration-tests: true
-          sp-creds: ${{ env.AZURE_CREDENTIALS }}
-
-      - name: Generate New Schema Docs
-        working-directory: ./
-        run: |
-          free; df -h
-          # Clean the docs before regenerating
-          rm -rf prime-router/docs/docs_deprecated/schema_documentation/*
-          ./gradlew :prime-router:generatedocs
-          free; df -h
-
-      - name: Validate YAML (Parallel with Early Fail)
+      - name: Validate YAML (Early Fail)
         working-directory: ./
         timeout-minutes: 10
         run: |
@@ -117,6 +100,23 @@ jobs:
           wait $pid4 $pid5
           
           echo "✅ All YAML validation passed"
+          free; df -h
+
+      - name: Build backend
+        uses: ./.github/actions/build-backend
+        with:
+          version: ${{ github.run_id }}
+          upload-build: false
+          run-integration-tests: true
+          sp-creds: ${{ env.AZURE_CREDENTIALS }}
+
+      - name: Generate New Schema Docs
+        working-directory: ./
+        run: |
+          free; df -h
+          # Clean the docs before regenerating
+          rm -rf prime-router/docs/docs_deprecated/schema_documentation/*
+          ./gradlew :prime-router:generatedocs
           free; df -h
 
       - name: Check for Uncommited Schema Docs
