@@ -71,6 +71,32 @@ jobs:
           distribution: "temurin"
           cache: "gradle"
 
+      - name: Start PostgreSQL
+        working-directory: prime-router
+        run: |
+          echo "🐘 Starting PostgreSQL (needed for Build backend)..."
+          docker compose -f docker-compose.postgres.yml up -d --remove-orphans
+          
+          echo "⏳ Waiting for PostgreSQL to be ready..."
+          for i in {1..30}; do
+            if docker compose -f docker-compose.postgres.yml ps postgresql | grep -q "Up"; then
+              echo "✅ PostgreSQL container is running"
+              break
+            fi
+            echo "⏳ Waiting for PostgreSQL container... ($i/30)"
+            sleep 2
+          done
+          
+          # Additional check for database readiness
+          for i in {1..20}; do
+            if docker compose -f docker-compose.postgres.yml exec -T postgresql pg_isready -U prime -d prime_data_hub >/dev/null 2>&1; then
+              echo "✅ PostgreSQL database is ready"
+              break
+            fi
+            echo "⏳ Waiting for database to be ready... ($i/20)"
+            sleep 3
+          done
+
       - name: Build backend
         uses: ./.github/actions/build-backend
         with:
