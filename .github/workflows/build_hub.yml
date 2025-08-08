@@ -71,63 +71,6 @@ jobs:
           distribution: "temurin"
           cache: "gradle"
 
-      - name: Start PostgreSQL for YAML Validation
-        working-directory: prime-router
-        run: |
-          echo "🐘 Starting PostgreSQL (needed for YAML validation)..."
-          docker compose -f docker-compose.postgres.yml up -d --remove-orphans
-          
-          echo "⏳ Waiting for PostgreSQL to be ready..."
-          for i in {1..30}; do
-            if docker compose -f docker-compose.postgres.yml ps postgresql | grep -q "Up"; then
-              echo "✅ PostgreSQL container is running"
-              break
-            fi
-            echo "⏳ Waiting for PostgreSQL container... ($i/30)"
-            sleep 2
-          done
-          
-          # Additional check for database readiness
-          for i in {1..20}; do
-            if docker compose -f docker-compose.postgres.yml exec -T postgresql pg_isready -U prime -d prime_data_hub >/dev/null 2>&1; then
-              echo "✅ PostgreSQL database is ready"
-              break
-            fi
-            echo "⏳ Waiting for database to be ready... ($i/20)"
-            sleep 3
-          done
-
-      - name: Validate YAML (Early Fail)
-        working-directory: ./
-        timeout-minutes: 10
-        run: |
-          echo "🔍 Running YAML validation with fail-fast..."
-          
-          # Run validations sequentially to avoid Gradle lock contention
-          set -e  # Exit immediately on first failure
-          
-          # Set database environment variables for YAML validation
-          export DB_USER='prime'
-          export DB_PASSWORD='changeIT!'
-          
-          echo "📝 Validating Organizations YAML..."
-          ./gradlew :prime-router:compileKotlin :prime-router:primeCLI --args='validate-yaml --type Organizations --file settings/organizations.yml --dir settings/STLTs' --no-daemon
-          
-          echo "📝 Validating FHIR Transform YAML..."
-          ./gradlew :prime-router:primeCLI --args='validate-yaml --type FhirToFhirTransform --dir prime-router/src/main/resources/metadata/fhir_transforms' --no-daemon
-          
-          echo "📝 Validating HL7 Mapping YAML..."
-          ./gradlew :prime-router:primeCLI --args='validate-yaml --type FhirToHL7Mapping --dir prime-router/src/main/resources/metadata/hl7_mapping' --no-daemon
-          
-          echo "📝 Validating Message Template YAML..."
-          ./gradlew :prime-router:primeCLI --args='validate-yaml --type HL7ToFhirMappingMessageTemplate --dir metadata/HL7/catchall/hl7/message' --no-daemon
-          
-          echo "📝 Validating Resource Template YAML..."
-          ./gradlew :prime-router:primeCLI --args='validate-yaml --type HL7ToFhirMappingResourceTemplate --dir metadata/HL7 --exclude-dir metadata/HL7/catchall/hl7/message metadata/HL7/catchall/hl7/codesystem --exclude-file metadata/HL7/catchall/fhir/resourcemapping.yml metadata/HL7/catchall/hl7/resource/Common.yml' --no-daemon
-          
-          echo "✅ All YAML validation passed"
-          free; df -h
-
       - name: Build backend
         uses: ./.github/actions/build-backend
         with:
@@ -143,6 +86,33 @@ jobs:
           # Clean the docs before regenerating
           rm -rf prime-router/docs/docs_deprecated/schema_documentation/*
           ./gradlew :prime-router:generatedocs
+          free; df -h
+
+      - name: Validate YAML (Sequential)
+        working-directory: ./
+        timeout-minutes: 10
+        run: |
+          echo "🔍 Running YAML validation..."
+          
+          # Run validations sequentially to avoid Gradle lock contention
+          set -e  # Exit immediately on first failure
+          
+          echo "📝 Validating Organizations YAML..."
+          ./gradlew :prime-router:primeCLI --args='validate-yaml --type Organizations --file settings/organizations.yml --dir settings/STLTs'
+          
+          echo "📝 Validating FHIR Transform YAML..."
+          ./gradlew :prime-router:primeCLI --args='validate-yaml --type FhirToFhirTransform --dir prime-router/src/main/resources/metadata/fhir_transforms'
+          
+          echo "📝 Validating HL7 Mapping YAML..."
+          ./gradlew :prime-router:primeCLI --args='validate-yaml --type FhirToHL7Mapping --dir prime-router/src/main/resources/metadata/hl7_mapping'
+          
+          echo "📝 Validating Message Template YAML..."
+          ./gradlew :prime-router:primeCLI --args='validate-yaml --type HL7ToFhirMappingMessageTemplate --dir metadata/HL7/catchall/hl7/message'
+          
+          echo "📝 Validating Resource Template YAML..."
+          ./gradlew :prime-router:primeCLI --args='validate-yaml --type HL7ToFhirMappingResourceTemplate --dir metadata/HL7 --exclude-dir metadata/HL7/catchall/hl7/message metadata/HL7/catchall/hl7/codesystem --exclude-file metadata/HL7/catchall/fhir/resourcemapping.yml metadata/HL7/catchall/hl7/resource/Common.yml'
+          
+          echo "✅ All YAML validation passed"
           free; df -h
 
       - name: Check for Uncommited Schema Docs
