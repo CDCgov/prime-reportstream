@@ -170,18 +170,33 @@ runs:
     # Early unit test check removed to avoid flaky test failures
     # The main build process will run all tests properly
 
-    - name: Build Prime Router Package (Optimized)
+    - name: Build Prime Router Package (Optimized with Enhanced Test Parallelization)
       uses: ./.github/actions/retry
       with:
         timeout_minutes: 15
         max_attempts: 1
         retry_wait_seconds: 10
         command: |
-          echo "🏗️  Starting optimized Gradle build..."
+          echo "🏗️  Starting optimized Gradle build with enhanced parallelization..."
           echo "   - Dependencies should already be cached/downloaded"
           echo "   - Using parallel processing and build cache"
+          echo "   - Enhanced unit test parallelization"
           
-          # Use parallel builds and incremental compilation
+          # Auto-detect optimal parallelization for unit tests too
+          CORES=$(nproc)
+          MEMORY_GB=$(free -g | grep '^Mem' | awk '{print $2}')
+          
+          # Calculate optimal unit test forks (more aggressive than integration tests)
+          UNIT_TEST_FORKS=$((CORES * 3 / 4))  # Use 75% of cores for unit tests
+          UNIT_TEST_FORKS=$(( UNIT_TEST_FORKS > 8 ? 8 : UNIT_TEST_FORKS ))  # Max 8 for stability
+          UNIT_TEST_FORKS=$(( UNIT_TEST_FORKS < 1 ? 1 : UNIT_TEST_FORKS ))  # Min 1
+          
+          echo "🧪 Unit test parallelization:"
+          echo "   CPU cores: $CORES"
+          echo "   Unit test forks: $UNIT_TEST_FORKS"
+          echo "   Expected speedup: ~$((100 - (100 / UNIT_TEST_FORKS)))%"
+          
+          # Use parallel builds, enhanced test parallelization, and build cache
           ./gradlew :prime-router:package -x fatjar -Pshowtests \
             --parallel \
             --build-cache \
@@ -189,9 +204,10 @@ runs:
             --no-daemon \
             -Dorg.gradle.parallel=true \
             -Dorg.gradle.caching=true \
-            -Dorg.gradle.workers.max=4
+            -Dorg.gradle.workers.max=4 \
+            -Dorg.gradle.test.maxParallelForks=$UNIT_TEST_FORKS
             
-          echo "✅ Gradle build completed with optimizations"
+          echo "✅ Gradle build completed with enhanced parallelization"
         shell: bash
 
     - name: Tar router files
