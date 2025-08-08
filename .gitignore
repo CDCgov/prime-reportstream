@@ -134,6 +134,3 @@ storybook-static
 
 # dotnet
 **/.config
-
-# Act workflow testing directory
-.act-testing/

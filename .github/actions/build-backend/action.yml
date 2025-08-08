@@ -46,168 +46,26 @@ runs:
         distribution: "temurin"
         cache: "gradle"
 
-    - name: Enhanced Gradle Caching
-      uses: actions/cache@v4
-      with:
-        path: |
-          ~/.gradle/caches
-          ~/.gradle/wrapper
-          prime-router/.gradle/caches
-          prime-router/.gradle/wrapper
-        key: gradle-${{ runner.os }}-${{ hashFiles('prime-router/**/*.gradle*', 'prime-router/**/gradle-wrapper.properties') }}
-        restore-keys: |
-          gradle-${{ runner.os }}-
-
-    - name: Cache Docker Images
-      uses: actions/cache@v4
-      with:
-        path: /tmp/docker-cache
-        key: docker-${{ runner.os }}-${{ hashFiles('prime-router/docker-compose*.yml') }}
-        restore-keys: |
-          docker-${{ runner.os }}-
-
     - uses: gradle/actions/setup-gradle@d156388eb19639ec20ade50009f3d199ce1e2808
-      with:
-        cache-disabled: true  # We're handling caching explicitly above
 
-    - name: Start PostgreSQL First
+    - name: Lint
       if: inputs.run-integration-tests == 'true'
+      run: ./gradlew :prime-router:ktlintCheck
+      shell: bash
+
+    - name: Spin up build containers
       working-directory: prime-router
       shell: bash
-      run: |
-        echo "🐘 Starting PostgreSQL (needed for Gradle tasks)..."
-        docker compose -f docker-compose.postgres.yml up -d --remove-orphans
-        
-        echo "⏳ Waiting for PostgreSQL to be ready..."
-        for i in {1..30}; do
-          if docker compose -f docker-compose.postgres.yml ps postgresql | grep -q "Up"; then
-            echo "✅ PostgreSQL container is running"
-            break
-          fi
-          echo "⏳ Waiting for PostgreSQL container... ($i/30)"
-          sleep 2
-        done
-        
-        # Additional check for database readiness
-        for i in {1..20}; do
-          if docker compose -f docker-compose.postgres.yml exec -T postgresql pg_isready -U prime -d prime_data_hub >/dev/null 2>&1; then
-            echo "✅ PostgreSQL database is ready"
-            break
-          fi
-          echo "⏳ Waiting for database to be ready... ($i/20)"
-          sleep 3
-        done
+      run: docker compose -f docker-compose.postgres.yml up -d
 
-    - name: Early Failure Detection - Lint & Compile Check
-      if: inputs.run-integration-tests == 'true'
-      shell: bash
-      run: |
-        echo "🔍 Running early failure detection checks..."
-        
-        # Lint check - fail fast if code style issues
-        echo "📝 Checking code style..."
-        ./gradlew :prime-router:ktlintCheck
-        
-        # Quick compilation check - fail fast if compilation issues
-        echo "🔧 Checking compilation..."
-        ./gradlew :prime-router:compileKotlin -x test --no-daemon
-        
-        echo "✅ Early checks passed - proceeding with full build"
-
-    - name: Load Docker Cache and Start Remaining Containers (Parallel)
-      if: inputs.run-integration-tests == 'true'
-      working-directory: prime-router
-      shell: bash
-      run: |
-        echo "🚀 Starting remaining containers in parallel..."
-        
-        # Load Docker cache if available
-        echo "💾 Loading Docker image cache..."
-        if [ -f /tmp/docker-cache/images.tar ]; then
-          echo "📦 Found cached Docker images, loading..."
-          docker load < /tmp/docker-cache/images.tar || echo "⚠️ Cache load failed, will rebuild"
-        else
-          echo "📝 No Docker cache found, will build from scratch"
-        fi
-        
-        # PostgreSQL already started, now start other containers in parallel
-        echo "🏗️  Building and starting remaining container images in parallel..."
-        (
-          # Build and start storage emulators
-          docker compose -f docker-compose.yml up -d azurite azurite-stage --remove-orphans
-          echo "✅ Storage emulators ready"
-        ) &
-        azurite_pid=$!
-        
-        (
-          # Start SFTP server
-          docker compose -f docker-compose.yml up -d sftp --remove-orphans  
-          echo "✅ SFTP server ready"
-        ) &
-        sftp_pid=$!
-        
-        # Set up directories while containers start
-        echo "🗂️  Setting up directories..."
-        mkdir -p .vault/env
-        touch .vault/env/.env.local
-        
-        # Wait for remaining containers
-        wait $azurite_pid $sftp_pid
-        echo "✅ All containers ready"
-
-    - name: Verify PostgreSQL for Unit Tests
-      working-directory: prime-router
-      shell: bash
-      run: |
-        # PostgreSQL should already be running from earlier step
-        if docker compose -f docker-compose.postgres.yml ps postgresql | grep -q "Up"; then
-          echo "✅ PostgreSQL is running and ready for unit tests"
-        else
-          echo "❌ PostgreSQL is not running - this shouldn't happen"
-          exit 1
-        fi
-
-    # Early unit test check removed to avoid flaky test failures
-    # The main build process will run all tests properly
-
-    - name: Build Prime Router Package (Optimized with Enhanced Test Parallelization)
+    - name: Build Prime Router Package
       uses: ./.github/actions/retry
       with:
-        timeout_minutes: 15
-        max_attempts: 1
-        retry_wait_seconds: 10
+        timeout_minutes: 30
+        max_attempts: 2
+        retry_wait_seconds: 30
         command: |
-          echo "🏗️  Starting optimized Gradle build with enhanced parallelization..."
-          echo "   - Dependencies should already be cached/downloaded"
-          echo "   - Using parallel processing and build cache"
-          echo "   - Enhanced unit test parallelization"
-          
-          # Auto-detect optimal parallelization for unit tests too
-          CORES=$(nproc)
-          MEMORY_GB=$(free -g | grep '^Mem' | awk '{print $2}')
-          
-          # Calculate optimal unit test forks (more aggressive than integration tests)
-          UNIT_TEST_FORKS=$((CORES * 3 / 4))  # Use 75% of cores for unit tests
-          UNIT_TEST_FORKS=$(( UNIT_TEST_FORKS > 8 ? 8 : UNIT_TEST_FORKS ))  # Max 8 for stability
-          UNIT_TEST_FORKS=$(( UNIT_TEST_FORKS < 1 ? 1 : UNIT_TEST_FORKS ))  # Min 1
-          
-          echo "🧪 Unit test parallelization:"
-          echo "   CPU cores: $CORES"
-          echo "   Unit test forks: $UNIT_TEST_FORKS"
-          echo "   Expected speedup: ~$((100 - (100 / UNIT_TEST_FORKS)))%"
-          
-          # Use parallel builds, enhanced test parallelization, and build cache
-          ./gradlew :prime-router:package -x fatjar -Pshowtests \
-            --parallel \
-            --build-cache \
-            --configuration-cache \
-            --no-daemon \
-            -Dorg.gradle.parallel=true \
-            -Dorg.gradle.caching=true \
-            -Dorg.gradle.workers.max=4 \
-            -Dorg.gradle.test.maxParallelForks=$UNIT_TEST_FORKS
-            
-          echo "✅ Gradle build completed with enhanced parallelization"
+          ./gradlew :prime-router:package -x fatjar -Pshowtests
         shell: bash
 
     - name: Tar router files
