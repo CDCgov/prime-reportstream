@@ -54,7 +54,7 @@ runs:
           ~/.gradle/wrapper
           prime-router/.gradle/caches
           prime-router/.gradle/wrapper
-        key: gradle-${{ runner.os }}-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+        key: gradle-${{ runner.os }}-${{ hashFiles('prime-router/**/*.gradle*', 'prime-router/**/gradle-wrapper.properties') }}
         restore-keys: |
           gradle-${{ runner.os }}-
 
@@ -62,7 +62,7 @@ runs:
       uses: actions/cache@v4
       with:
         path: /tmp/docker-cache
-        key: docker-${{ runner.os }}-${{ hashFiles('prime-router/docker-compose*.yml', '**/.environment/docker/**') }}
+        key: docker-${{ runner.os }}-${{ hashFiles('prime-router/docker-compose*.yml') }}
         restore-keys: |
           docker-${{ runner.os }}-
 
@@ -76,7 +76,7 @@ runs:
       shell: bash
       run: |
         echo "🐘 Starting PostgreSQL (needed for Gradle tasks)..."
-        docker compose -f docker-compose.postgres.yml up -d
+        docker compose -f docker-compose.postgres.yml up -d --remove-orphans
         
         echo "⏳ Waiting for PostgreSQL to be ready..."
         for i in {1..30}; do
@@ -134,14 +134,14 @@ runs:
         echo "🏗️  Building and starting remaining container images in parallel..."
         (
           # Build and start storage emulators
-          docker compose -f docker-compose.yml up -d azurite azurite-stage
+          docker compose -f docker-compose.yml up -d azurite azurite-stage --remove-orphans
           echo "✅ Storage emulators ready"
         ) &
         azurite_pid=$!
         
         (
           # Start SFTP server
-          docker compose -f docker-compose.yml up -d sftp  
+          docker compose -f docker-compose.yml up -d sftp --remove-orphans  
           echo "✅ SFTP server ready"
         ) &
         sftp_pid=$!
@@ -263,7 +263,7 @@ runs:
       working-directory: prime-router
       run: |
         echo "🔐 Starting Vault for secret management..."
-        docker compose -f docker-compose.yml up -d vault
+        docker compose -f docker-compose.yml up -d vault --remove-orphans
         
         echo "⏳ Waiting for vault to generate environment configuration..."
         timeout=60
@@ -288,7 +288,7 @@ runs:
       run: |
         echo "🚀 Starting Prime Router application container..."
         # prime_dev depends on vault env vars and azurite (both should be ready)
-        docker compose -f docker-compose.yml up -d prime_dev
+        docker compose -f docker-compose.yml up -d prime_dev --remove-orphans
         
         echo "✅ All containers started"
       shell: bash
