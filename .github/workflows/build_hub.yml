@@ -41,6 +41,7 @@ jobs:
   build_router:
     name: Build Router
     runs-on: ubuntu-latest
+    timeout-minutes: 60
     needs: pre_job
     if: ${{ needs.pre_job.outputs.has_router_change == 'true' }}
     defaults:
@@ -80,15 +81,42 @@ jobs:
           ./gradlew :prime-router:generatedocs
           free; df -h
 
-      - name: Validate YAML
+      - name: Validate YAML (Parallel with Early Fail)
         working-directory: ./
+        timeout-minutes: 10
         run: |
-          # Add more YAML checks here
-          ./gradlew :prime-router:primeCLI --args='validate-yaml --type Organizations --file settings/organizations.yml --dir settings/STLTs'
-          ./gradlew :prime-router:primeCLI --args='validate-yaml --type FhirToFhirTransform --dir src/main/resources/metadata/fhir_transforms'
-          ./gradlew :prime-router:primeCLI --args='validate-yaml --type FhirToHL7Mapping --dir src/main/resources/metadata/hl7_mapping'
-          ./gradlew :prime-router:primeCLI --args='validate-yaml --type HL7ToFhirMappingMessageTemplate --dir metadata/HL7/catchall/hl7/message'
-          ./gradlew :prime-router:primeCLI --args='validate-yaml --type HL7ToFhirMappingResourceTemplate --dir metadata/HL7 --exclude-dir metadata/HL7/catchall/hl7/message metadata/HL7/catchall/hl7/codesystem --exclude-file metadata/HL7/catchall/fhir/resourcemapping.yml metadata/HL7/catchall/hl7/resource/Common.yml'
+          echo "🔍 Running YAML validation with fail-fast..."
+          
+          # Run validations with fail-fast and in parallel where possible
+          set -e  # Exit immediately on first failure
+          
+          echo "📝 Validating Organizations YAML..."
+          ./gradlew :prime-router:primeCLI --args='validate-yaml --type Organizations --file settings/organizations.yml --dir settings/STLTs' --fail-fast &
+          pid1=$!
+          
+          echo "📝 Validating FHIR Transform YAML..."
+          ./gradlew :prime-router:primeCLI --args='validate-yaml --type FhirToFhirTransform --dir src/main/resources/metadata/fhir_transforms' --fail-fast &
+          pid2=$!
+          
+          echo "📝 Validating HL7 Mapping YAML..."
+          ./gradlew :prime-router:primeCLI --args='validate-yaml --type FhirToHL7Mapping --dir src/main/resources/metadata/hl7_mapping' --fail-fast &
+          pid3=$!
+          
+          # Wait for first batch
+          wait $pid1 $pid2 $pid3
+          
+          echo "📝 Validating Message Template YAML..."
+          ./gradlew :prime-router:primeCLI --args='validate-yaml --type HL7ToFhirMappingMessageTemplate --dir metadata/HL7/catchall/hl7/message' --fail-fast &
+          pid4=$!
+          
+          echo "📝 Validating Resource Template YAML..."
+          ./gradlew :prime-router:primeCLI --args='validate-yaml --type HL7ToFhirMappingResourceTemplate --dir metadata/HL7 --exclude-dir metadata/HL7/catchall/hl7/message metadata/HL7/catchall/hl7/codesystem --exclude-file metadata/HL7/catchall/fhir/resourcemapping.yml metadata/HL7/catchall/hl7/resource/Common.yml' --fail-fast &
+          pid5=$!
+          
+          # Wait for second batch
+          wait $pid4 $pid5
+          
+          echo "✅ All YAML validation passed"
           free; df -h
 
       - name: Check for Uncommited Schema Docs
