@@ -131,21 +131,12 @@ runs:
         mkdir -p .vault/env
         touch .vault/env/.env.local
         
-        # Start Gradle build in parallel - this is the key optimization
-        echo "🏗️  Starting Gradle build in parallel..."
-        (
-          cd /Users/matts/work/CDC/repos/prime-reportstream
-          echo "📦 Pre-downloading Gradle dependencies..."
-          ./gradlew :prime-router:dependencies --parallel --quiet || echo "⚠️ Dependency download had issues, continuing..."
-        ) &
-        gradle_deps_pid=$!
-        
-        # Wait for PostgreSQL first (needed for unit tests)
+        # Wait for PostgreSQL first (needed for tests)
         wait $postgres_pid
         echo "✅ PostgreSQL ready for tests"
         
-        # Continue with container startup while build progresses
-        wait $azurite_pid $sftp_pid $gradle_deps_pid
+        # Continue with other container startup (dependency caching will handle optimization)
+        wait $azurite_pid $sftp_pid
         echo "✅ Containers and dependency download completed"
 
     - name: Start Postgres for Unit Tests
