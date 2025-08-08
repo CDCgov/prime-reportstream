@@ -373,8 +373,8 @@ runs:
         echo "   Fail-fast: enabled for early detection"
         echo ""
         
-        # Add fail-fast flag and timeout for early detection
-        ./gradlew :prime-router:testIntegration -Pshowtests --fail-fast
+        # Run integration tests with early detection
+        ./gradlew :prime-router:testIntegration -Pshowtests
       shell: bash
 
     - name: Publish Integration Test Results
@@ -403,8 +403,8 @@ runs:
         max_attempts: 1
         retry_wait_seconds: 10
         command: |
-          ./gradlew :prime-router:reloadCredentials --fail-fast
-          ./gradlew :prime-router:testSmoke --fail-fast
+          ./gradlew :prime-router:reloadCredentials
+          ./gradlew :prime-router:testSmoke
         shell: bash
 
     - name: Dump docker logs
