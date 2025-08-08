@@ -98,7 +98,7 @@ jobs:
           done
 
       - name: Validate YAML (Early Fail)
-        working-directory: ./
+        working-directory: prime-router
         timeout-minutes: 10
         run: |
           echo "🔍 Running YAML validation with fail-fast..."
@@ -110,24 +110,20 @@ jobs:
           export DB_USER='prime'
           export DB_PASSWORD='changeIT!'
           
-          # Compile the project normally (database is now available)
-          echo "🔧 Compiling project for YAML validation..."
-          ./gradlew :prime-router:compileKotlin --no-daemon
-          
           echo "📝 Validating Organizations YAML..."
-          ./gradlew :prime-router:primeCLI --args='validate-yaml --type Organizations --file settings/organizations.yml --dir settings/STLTs'
+          ../gradlew compileKotlin primeCLI --args='validate-yaml --type Organizations --file ../settings/organizations.yml --dir ../settings/STLTs' --no-daemon
           
           echo "📝 Validating FHIR Transform YAML..."
-          ./gradlew :prime-router:primeCLI --args='validate-yaml --type FhirToFhirTransform --dir src/main/resources/metadata/fhir_transforms'
+          ../gradlew primeCLI --args='validate-yaml --type FhirToFhirTransform --dir src/main/resources/metadata/fhir_transforms' --no-daemon
           
           echo "📝 Validating HL7 Mapping YAML..."
-          ./gradlew :prime-router:primeCLI --args='validate-yaml --type FhirToHL7Mapping --dir src/main/resources/metadata/hl7_mapping'
+          ../gradlew primeCLI --args='validate-yaml --type FhirToHL7Mapping --dir src/main/resources/metadata/hl7_mapping' --no-daemon
           
           echo "📝 Validating Message Template YAML..."
-          ./gradlew :prime-router:primeCLI --args='validate-yaml --type HL7ToFhirMappingMessageTemplate --dir metadata/HL7/catchall/hl7/message'
+          ../gradlew primeCLI --args='validate-yaml --type HL7ToFhirMappingMessageTemplate --dir ../metadata/HL7/catchall/hl7/message' --no-daemon
           
           echo "📝 Validating Resource Template YAML..."
-          ./gradlew :prime-router:primeCLI --args='validate-yaml --type HL7ToFhirMappingResourceTemplate --dir metadata/HL7 --exclude-dir metadata/HL7/catchall/hl7/message metadata/HL7/catchall/hl7/codesystem --exclude-file metadata/HL7/catchall/fhir/resourcemapping.yml metadata/HL7/catchall/hl7/resource/Common.yml'
+          ../gradlew primeCLI --args='validate-yaml --type HL7ToFhirMappingResourceTemplate --dir ../metadata/HL7 --exclude-dir ../metadata/HL7/catchall/hl7/message ../metadata/HL7/catchall/hl7/codesystem --exclude-file ../metadata/HL7/catchall/fhir/resourcemapping.yml ../metadata/HL7/catchall/hl7/resource/Common.yml' --no-daemon
           
           echo "✅ All YAML validation passed"
           free; df -h
