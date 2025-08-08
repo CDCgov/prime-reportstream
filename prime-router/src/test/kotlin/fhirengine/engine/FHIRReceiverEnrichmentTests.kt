@@ -80,6 +80,7 @@ class FHIRReceiverEnrichmentTests {
         every { reportServiceMock.getRootReport(any()) } returns rootReport
         every { reportServiceMock.getRootReports(any()) } returns listOf(rootReport)
         every { reportServiceMock.getRootItemIndex(any(), any()) } returns 1
+        every { reportServiceMock.getReportForItemAtTask(any(), any(), any()) } returns rootReport
 
         return FHIREngine.Builder()
             .metadata(metadata)
