@@ -71,6 +71,32 @@ jobs:
           distribution: "temurin"
           cache: "gradle"
 
+      - name: Start PostgreSQL for YAML Validation
+        working-directory: prime-router
+        run: |
+          echo "🐘 Starting PostgreSQL (needed for YAML validation)..."
+          docker compose -f docker-compose.postgres.yml up -d --remove-orphans
+          
+          echo "⏳ Waiting for PostgreSQL to be ready..."
+          for i in {1..30}; do
+            if docker compose -f docker-compose.postgres.yml ps postgresql | grep -q "Up"; then
+              echo "✅ PostgreSQL container is running"
+              break
+            fi
+            echo "⏳ Waiting for PostgreSQL container... ($i/30)"
+            sleep 2
+          done
+          
+          # Additional check for database readiness
+          for i in {1..20}; do
+            if docker compose -f docker-compose.postgres.yml exec -T postgresql pg_isready -U prime -d prime_data_hub >/dev/null 2>&1; then
+              echo "✅ PostgreSQL database is ready"
+              break
+            fi
+            echo "⏳ Waiting for database to be ready... ($i/20)"
+            sleep 3
+          done
+
       - name: Validate YAML (Early Fail)
         working-directory: ./
         timeout-minutes: 10
@@ -80,7 +106,11 @@ jobs:
           # Run validations sequentially to avoid Gradle lock contention
           set -e  # Exit immediately on first failure
           
-          # Compile the project first to make primeCLI task available
+          # Set database environment variables for YAML validation
+          export DB_USER='prime'
+          export DB_PASSWORD='changeIT!'
+          
+          # Compile the project normally (database is now available)
           echo "🔧 Compiling project for YAML validation..."
           ./gradlew :prime-router:compileKotlin --no-daemon
           
