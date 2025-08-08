@@ -363,7 +363,6 @@ runs:
     # Integrations tests require the metadata catalog
     - name: Run Integration Tests (Parallel with Early Failure Detection)
       if: inputs.run-integration-tests == 'true'
-      timeout-minutes: 25
       run: |
         # Create a temporary gradle.properties with parallel settings and fail-fast
         echo "org.gradle.parallel=true" >> gradle.properties
@@ -400,7 +399,6 @@ runs:
 
     - name: Smoke tests (Fast Fail)
       if: inputs.run-integration-tests == 'true'
-      timeout-minutes: 15
       uses: ./.github/actions/retry
       with:
         timeout_minutes: 12
