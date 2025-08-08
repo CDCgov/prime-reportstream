@@ -70,6 +70,34 @@ runs:
       with:
         cache-disabled: true  # We're handling caching explicitly above
 
+    - name: Start PostgreSQL First
+      if: inputs.run-integration-tests == 'true'
+      working-directory: prime-router
+      shell: bash
+      run: |
+        echo "🐘 Starting PostgreSQL (needed for Gradle tasks)..."
+        docker compose -f docker-compose.postgres.yml up -d
+        
+        echo "⏳ Waiting for PostgreSQL to be ready..."
+        for i in {1..30}; do
+          if docker compose -f docker-compose.postgres.yml ps postgresql | grep -q "Up"; then
+            echo "✅ PostgreSQL container is running"
+            break
+          fi
+          echo "⏳ Waiting for PostgreSQL container... ($i/30)"
+          sleep 2
+        done
+        
+        # Additional check for database readiness
+        for i in {1..20}; do
+          if docker compose -f docker-compose.postgres.yml exec -T postgresql pg_isready -U prime -d prime_data_hub >/dev/null 2>&1; then
+            echo "✅ PostgreSQL database is ready"
+            break
+          fi
+          echo "⏳ Waiting for database to be ready... ($i/20)"
+          sleep 3
+        done
+
     - name: Early Failure Detection - Lint & Compile Check
       if: inputs.run-integration-tests == 'true'
       shell: bash
@@ -86,12 +114,12 @@ runs:
         
         echo "✅ Early checks passed - proceeding with full build"
 
-    - name: Load Docker Cache and Start Containers (Parallel)
+    - name: Load Docker Cache and Start Remaining Containers (Parallel)
       if: inputs.run-integration-tests == 'true'
       working-directory: prime-router
       shell: bash
       run: |
-        echo "🚀 Starting optimized container and build process..."
+        echo "🚀 Starting remaining containers in parallel..."
         
         # Load Docker cache if available
         echo "💾 Loading Docker image cache..."
@@ -102,16 +130,8 @@ runs:
           echo "📝 No Docker cache found, will build from scratch"
         fi
         
-        # Start containers and build in parallel for maximum overlap
-        echo "🚀 Starting containers and build in parallel..."
-        
-        # Start postgres (needed for tests) - highest priority
-        echo "🐘 Starting PostgreSQL..."
-        docker compose -f docker-compose.postgres.yml up -d &
-        postgres_pid=$!
-        
-        # Start building other Docker images in background  
-        echo "🏗️  Building container images in background..."
+        # PostgreSQL already started, now start other containers in parallel
+        echo "🏗️  Building and starting remaining container images in parallel..."
         (
           # Build and start storage emulators
           docker compose -f docker-compose.yml up -d azurite azurite-stage
@@ -131,24 +151,20 @@ runs:
         mkdir -p .vault/env
         touch .vault/env/.env.local
         
-        # Wait for PostgreSQL first (needed for tests)
-        wait $postgres_pid
-        echo "✅ PostgreSQL ready for tests"
-        
-        # Continue with other container startup (dependency caching will handle optimization)
+        # Wait for remaining containers
         wait $azurite_pid $sftp_pid
-        echo "✅ Containers and dependency download completed"
+        echo "✅ All containers ready"
 
-    - name: Start Postgres for Unit Tests
+    - name: Verify PostgreSQL for Unit Tests
       working-directory: prime-router
       shell: bash
       run: |
-        # Ensure postgres is available for unit tests (if not already started)
-        if ! docker compose -f docker-compose.postgres.yml ps postgresql | grep -q "Up"; then
-          echo "🐘 Starting PostgreSQL for unit tests..."
-          docker compose -f docker-compose.postgres.yml up -d
+        # PostgreSQL should already be running from earlier step
+        if docker compose -f docker-compose.postgres.yml ps postgresql | grep -q "Up"; then
+          echo "✅ PostgreSQL is running and ready for unit tests"
         else
-          echo "✅ PostgreSQL already running"
+          echo "❌ PostgreSQL is not running - this shouldn't happen"
+          exit 1
         fi
 
     - name: Quick Unit Test Check (Early Detection)
