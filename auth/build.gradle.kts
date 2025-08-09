@@ -31,7 +31,7 @@ dependencies {
     runtimeOnly("com.okta.sdk:okta-sdk-impl:22.0.1")
 
     // Swagger
-    implementation("org.springdoc:springdoc-openapi-starter-webflux-ui:2.8.6")
+    implementation("org.springdoc:springdoc-openapi-starter-webflux-ui:2.8.8")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.security:spring-security-test")
