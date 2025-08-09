@@ -83,8 +83,11 @@ runs:
           sleep 3
         done
         
-        # Set up vault directories
+        # Set up vault directories with proper permissions
+        echo "🗂️  Setting up vault directories..."
         mkdir -p .vault/env
+        sudo chown -R $(whoami):$(whoami) .vault/
+        chmod -R 755 .vault/
         touch .vault/env/.env.local
         
         echo "✅ All containers started and PostgreSQL is ready"
