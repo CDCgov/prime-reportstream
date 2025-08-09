@@ -53,10 +53,49 @@ runs:
       run: ./gradlew :prime-router:ktlintCheck
       shell: bash
 
-    - name: Spin up build containers
+    - name: Start all containers together
+      if: inputs.run-integration-tests == 'true'
       working-directory: prime-router
       shell: bash
-      run: docker compose -f docker-compose.postgres.yml up -d
+      run: |
+        echo "🚀 Starting all required containers together..."
+        
+        # Start all containers in a coordinated way to avoid conflicts
+        docker compose -f docker-compose.postgres.yml -f docker-compose.yml up -d postgresql azurite azurite-stage sftp vault
+        
+        echo "⏳ Waiting for PostgreSQL to be ready..."
+        for i in {1..30}; do
+          if docker compose -f docker-compose.postgres.yml ps postgresql | grep -q "Up"; then
+            echo "✅ PostgreSQL container is running"
+            break
+          fi
+          echo "⏳ Waiting for PostgreSQL container... ($i/30)"
+          sleep 2
+        done
+        
+        # Additional check for database readiness
+        for i in {1..20}; do
+          if docker compose -f docker-compose.postgres.yml exec -T postgresql pg_isready -U prime -d prime_data_hub >/dev/null 2>&1; then
+            echo "✅ PostgreSQL database is ready for connections"
+            break
+          fi
+          echo "⏳ Waiting for database to be ready... ($i/20)"
+          sleep 3
+        done
+        
+        # Set up vault directories
+        mkdir -p .vault/env
+        touch .vault/env/.env.local
+        
+        echo "✅ All containers started and PostgreSQL is ready"
+
+    - name: Simple container startup (non-integration tests)
+      if: inputs.run-integration-tests != 'true'
+      working-directory: prime-router
+      shell: bash
+      run: |
+        echo "🐘 Starting PostgreSQL for build only..."
+        docker compose -f docker-compose.postgres.yml up -d postgresql
 
     - name: Build Prime Router Package
       uses: ./.github/actions/retry
@@ -116,13 +155,10 @@ runs:
         # This path is from the root of the repo as needed by the plugin
         files: prime-router/build/test-results/test/**/*.xml
 
-    - name: Start Vault and Wait for Configuration
+    - name: Wait for Vault Configuration and Start Application
       if: inputs.run-integration-tests == 'true'
       working-directory: prime-router
       run: |
-        echo "🔐 Starting Vault for secret management..."
-        docker compose -f docker-compose.yml up -d vault --remove-orphans
-        
         echo "⏳ Waiting for vault to generate environment configuration..."
         timeout=60
         elapsed=0
@@ -137,18 +173,11 @@ runs:
         fi
         
         echo "✅ Vault configuration loaded successfully"
-      shell: bash
-
-    - name: Start Application Container
-      if: inputs.run-integration-tests == 'true'
-      working-directory: prime-router
-      id: spin_containers
-      run: |
-        echo "🚀 Starting Prime Router application container..."
-        # prime_dev depends on vault env vars and azurite (both should be ready)
-        docker compose -f docker-compose.yml up -d prime_dev --remove-orphans
         
-        echo "✅ All containers started"
+        echo "🚀 Starting Prime Router application container..."
+        docker compose -f docker-compose.yml up -d prime_dev
+        
+        echo "✅ All containers are now running"
       shell: bash
 
     - name: Wait for Application Health Check
