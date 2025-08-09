@@ -1,32 +1,31 @@
 package gov.cdc.prime.router
 
 import gov.cdc.prime.router.tokens.Jwk
-import io.jsonwebtoken.SignatureAlgorithm
-import io.jsonwebtoken.security.Keys
+import io.jsonwebtoken.Jwts.SIG
 import java.security.interfaces.RSAPublicKey
 import java.util.Base64
 
 // TODO: https://github.com/CDCgov/prime-reportstream/issues/8659
 // This test class be removed
 class SettingsProviderTest {
-    val keyPair = Keys.keyPairFor(SignatureAlgorithm.RS256)
-    val pubKey = keyPair.getPublic() as RSAPublicKey
+    val keyPair = SIG.RS256.keyPair().build()
+    val pubKey = keyPair.public as RSAPublicKey
 
     val scopeOne = "simple_report.default.report"
     val scopeTwo = "simple_report.default.*"
 
     val jwkOne = Jwk(
-        pubKey.getAlgorithm(),
-        n = Base64.getUrlEncoder().encodeToString(pubKey.getModulus().toByteArray()),
-        e = Base64.getUrlEncoder().encodeToString(pubKey.getPublicExponent().toByteArray()),
+        pubKey.algorithm,
+        n = Base64.getUrlEncoder().encodeToString(pubKey.modulus.toByteArray()),
+        e = Base64.getUrlEncoder().encodeToString(pubKey.publicExponent.toByteArray()),
         alg = "RS256",
         use = "sig",
     )
 
     val jwkTwo = Jwk(
-        pubKey.getAlgorithm(),
-        n = Base64.getUrlEncoder().encodeToString(pubKey.getModulus().toByteArray()),
-        e = Base64.getUrlEncoder().encodeToString(pubKey.getPublicExponent().toByteArray()),
+        pubKey.algorithm,
+        n = Base64.getUrlEncoder().encodeToString(pubKey.modulus.toByteArray()),
+        e = Base64.getUrlEncoder().encodeToString(pubKey.publicExponent.toByteArray()),
         alg = "RS256",
         use = "sig",
     )
