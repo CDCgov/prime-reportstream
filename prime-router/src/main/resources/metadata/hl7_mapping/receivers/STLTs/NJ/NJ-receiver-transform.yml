@@ -57,3 +57,35 @@ elements:
   - name: nj-receiving-facility-universal-id-type
     value: [ '"ISO"' ]
     hl7Spec: [ MSH-6-3 ]
+
+  # If the Ordering Provider information is unknown, 
+  # complete with the Ordering Facility Information
+  # ORC 24.1
+  - name: nj-ordering-provider-street1
+    condition: 'Bundle.entry.resource.ofType(Practitioner).address.line.exists().not()'
+    value: ['Bundle.entry.resource.ofType(Organization).address.line[0]']
+    hl7Spec: [/PATIENT_RESULT/ORDER_OBSERVATION/ORC-24-1]
+
+  # ORC 24.2
+  - name: nj-ordering-provider-street2
+    condition: 'Bundle.entry.resource.ofType(Practitioner).address.line.exists().not() and Bundle.entry.resource.ofType(Organization).address.line[1].exists()'
+    value: ['Bundle.entry.resource.ofType(Organization).address.line[1]']
+    hl7Spec: [/PATIENT_RESULT/ORDER_OBSERVATION/ORC-24-2]
+
+  # ORC 24.3
+  - name: nj-ordering-provider-city
+    condition: 'Bundle.entry.resource.ofType(Practitioner).address.city.exists().not()'
+    value: ['Bundle.entry.resource.ofType(Organization).address.city']
+    hl7Spec: [/PATIENT_RESULT/ORDER_OBSERVATION/ORC-24-3]
+
+  # ORC 24.4
+  - name: nj-ordering-provider-state
+    condition: 'Bundle.entry.resource.ofType(Practitioner).address.state.exists().not()'
+    value: ['Bundle.entry.resource.ofType(Organization).address.state']
+    hl7Spec: [/PATIENT_RESULT/ORDER_OBSERVATION/ORC-24-4]
+
+  # ORC 24.5
+  - name: nj-ordering-provider-zip
+    condition: 'Bundle.entry.resource.ofType(Practitioner).address.postalCode.exists().not()'
+    value: ['Bundle.entry.resource.ofType(Organization).address.postalCode']
+    hl7Spec: [/PATIENT_RESULT/ORDER_OBSERVATION/ORC-24-5]
