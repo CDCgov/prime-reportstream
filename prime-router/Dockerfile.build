@@ -13,7 +13,7 @@
 # (and in fact, probably less than the actual builder container image). This is a small optimization that will make your life
 # a tad bit easier when you are rebuilding the builder image
 #
-FROM cgr.dev/chainguard/wolfi-base:latest@sha256:b72df108f3388c82b0638bcfbad1511d85c60593e67fb8f8a968255f7e0588df AS downloader
+FROM cgr.dev/chainguard/wolfi-base:latest@sha256:73c232274a987eac99caee0b412cc44a992874ab4a70e48e8cc8d62babbbda27 AS downloader
 ARG GRADLE_VERSION=8.10.2
 ARG AFCT_VERSION=4.0.7317 # Updated to latest stable v4
 
@@ -40,7 +40,7 @@ RUN wget -o /tmp/azure.functions.download.log https://github.com/Azure/azure-fun
 #
 # STAGE 2: Build the actual container that does the build
 #
-FROM cgr.dev/chainguard/wolfi-base:latest@sha256:b72df108f3388c82b0638bcfbad1511d85c60593e67fb8f8a968255f7e0588df AS builder
+FROM cgr.dev/chainguard/wolfi-base:latest@sha256:73c232274a987eac99caee0b412cc44a992874ab4a70e48e8cc8d62babbbda27 AS builder
 ARG JAVA_VERSION=17
 
 # Install pre-requisites and security updates
