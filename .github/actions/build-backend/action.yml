@@ -162,7 +162,7 @@ runs:
         if [ "${{ inputs.integration-test-forks }}" = "auto" ]; then
           # Conservative approach: use half the cores, with safety limits
           FORKS=$((CORES / 2))
-          FORKS=$(( FORKS > 6 ? 6 : FORKS ))  # Max 6 forks for stability
+          FORKS=$(( FORKS > 3 ? 3 : FORKS ))  # Max 3 forks to reduce external API pressure
           FORKS=$(( FORKS < 1 ? 1 : FORKS ))  # Min 1 fork
         else
           FORKS=${{ inputs.integration-test-forks }}
@@ -199,8 +199,14 @@ runs:
         echo "   JVM args: -Xmx$INTEGRATION_TEST_MEMORY -XX:+UseParallelGC"
         echo ""
         
-        # Run integration tests with parallel configuration
-        ./gradlew :prime-router:testIntegration -Pshowtests
+        # Run integration tests with parallel configuration and retry logic
+        ./gradlew :prime-router:testIntegration -Pshowtests --continue || {
+          echo "⚠️  First attempt failed, waiting 30s before retry..."
+          sleep 30
+          echo "🔄 Retrying integration tests with reduced parallelism..."
+          echo "org.gradle.workers.max=1" >> gradle.properties
+          ./gradlew :prime-router:testIntegration -Pshowtests --rerun-tasks
+        }
       shell: bash
 
     - name: Publish Integration Test Results
