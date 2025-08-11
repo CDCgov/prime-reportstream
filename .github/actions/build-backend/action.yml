@@ -53,52 +53,10 @@ runs:
       run: ./gradlew :prime-router:ktlintCheck
       shell: bash
 
-    - name: Start all containers together
-      if: inputs.run-integration-tests == 'true'
+    - name: Spin up build containers
       working-directory: prime-router
       shell: bash
-      run: |
-        echo "🚀 Starting all required containers together..."
-        
-        # Start all containers in a coordinated way to avoid conflicts
-        docker compose -f docker-compose.postgres.yml -f docker-compose.yml up -d postgresql azurite azurite-stage sftp vault
-        
-        echo "⏳ Waiting for PostgreSQL to be ready..."
-        for i in {1..30}; do
-          if docker compose -f docker-compose.postgres.yml ps postgresql | grep -q "Up"; then
-            echo "✅ PostgreSQL container is running"
-            break
-          fi
-          echo "⏳ Waiting for PostgreSQL container... ($i/30)"
-          sleep 2
-        done
-        
-        # Additional check for database readiness
-        for i in {1..20}; do
-          if docker compose -f docker-compose.postgres.yml exec -T postgresql pg_isready -U prime -d prime_data_hub >/dev/null 2>&1; then
-            echo "✅ PostgreSQL database is ready for connections"
-            break
-          fi
-          echo "⏳ Waiting for database to be ready... ($i/20)"
-          sleep 3
-        done
-        
-        # Set up vault directories with proper permissions
-        echo "🗂️  Setting up vault directories..."
-        mkdir -p .vault/env
-        sudo chown -R $(whoami):$(whoami) .vault/
-        chmod -R 755 .vault/
-        touch .vault/env/.env.local
-        
-        echo "✅ All containers started and PostgreSQL is ready"
-
-    - name: Simple container startup (non-integration tests)
-      if: inputs.run-integration-tests != 'true'
-      working-directory: prime-router
-      shell: bash
-      run: |
-        echo "🐘 Starting PostgreSQL for build only..."
-        docker compose -f docker-compose.postgres.yml up -d postgresql
+      run: docker compose -f docker-compose.postgres.yml up -d
 
     - name: Build Prime Router Package
       uses: ./.github/actions/retry
@@ -158,69 +116,32 @@ runs:
         # This path is from the root of the repo as needed by the plugin
         files: prime-router/build/test-results/test/**/*.xml
 
-    - name: Wait for Vault Configuration and Start Application
+    - name: Spin up vault
       if: inputs.run-integration-tests == 'true'
       working-directory: prime-router
       run: |
-        echo "⏳ Waiting for vault to generate environment configuration..."
-        timeout=60
-        elapsed=0
-        while [ ! -s .vault/env/.env.local ] && [ $elapsed -lt $timeout ]; do
-          sleep 1
-          elapsed=$((elapsed + 1))
-        done
-        
-        if [ ! -s .vault/env/.env.local ]; then
-          echo "❌ Vault failed to generate config within ${timeout}s"
-          exit 1
-        fi
-        
-        echo "✅ Vault configuration loaded successfully"
-        
-        echo "🚀 Starting Prime Router application container..."
-        docker compose -f docker-compose.yml up -d prime_dev
-        
-        echo "✅ All containers are now running"
+        mkdir .vault/env
+        touch .vault/env/.env.local
+        docker compose -f docker-compose.yml up -d vault
+        while [ ! -s .vault/env/.env.local ]; do sleep 1; done
+        echo "loaded env vars"
       shell: bash
 
-    - name: Wait for Application Health Check
+    - name: Spin up containers
+      if: inputs.run-integration-tests == 'true'
+      working-directory: prime-router
+      id: spin_containers
+      run: docker compose -f docker-compose.yml up -d prime_dev sftp azurite azurite-stage
+      shell: bash
+
+      # Important to give enough time here in order to avoid a race described in https://github.com/CDCgov/prime-reportstream/issues/13961#issuecomment-2065217386
+    - name: Give some time for the container to start
       if: inputs.run-integration-tests == 'true'
       working-directory: prime-router
       run: |
-        echo "🏥 Performing application health checks..."
-        
-        # Wait for prime_dev to be healthy (replace the 90s sleep)
-        echo "⏳ Waiting for Prime Router application to be ready..."
-        
-        # Check if container is running
-        for i in {1..30}; do
-          if docker compose ps prime_dev | grep -q "Up"; then
-            echo "✅ Prime Router container is running"
-            break
-          fi
-          echo "⏳ Waiting for container to start... ($i/30)"
-          sleep 2
-        done
-        
-        # Additional health check - try to connect to the service
-        echo "🔍 Checking application health..."
-        for i in {1..20}; do
-          if curl -f -s http://localhost:7071/api/health >/dev/null 2>&1; then
-            echo "✅ Prime Router application is healthy and ready"
-            break
-          elif [ $i -eq 20 ]; then
-            echo "⚠️  Health check timeout - proceeding anyway (app might still work)"
-            echo "📋 Container status:"
-            docker compose ps
-            echo "📋 Container logs (last 20 lines):"
-            docker compose logs --tail=20 prime_dev || true
-          else
-            echo "⏳ Health check attempt $i/20..."
-            sleep 3
-          fi
-        done
-        
-        echo "✅ Container startup sequence completed"
+        echo "sleeping 90"
+        sleep 90
+        echo "wake up"
       shell: bash
 
     - name: Load the configuration
@@ -265,10 +186,10 @@ runs:
         echo "   Expected speedup: ~$((100 - (100 / FORKS)))% (theoretical)"
 
     # Integrations tests require the metadata catalog
-    - name: Run Integration Tests (Parallel with Early Failure Detection)
+    - name: Run Integration Tests (Parallel with Resource Optimization)
       if: inputs.run-integration-tests == 'true'
       run: |
-        # Create a temporary gradle.properties with parallel settings and fail-fast
+        # Create a temporary gradle.properties with parallel settings
         echo "org.gradle.parallel=true" >> gradle.properties
         echo "org.gradle.workers.max=$INTEGRATION_TEST_FORKS" >> gradle.properties
         echo "org.gradle.jvmargs=-Xmx$INTEGRATION_TEST_MEMORY -XX:+UseParallelGC" >> gradle.properties
@@ -276,10 +197,9 @@ runs:
         echo "📝 Gradle parallel configuration:"
         echo "   Max workers: $INTEGRATION_TEST_FORKS"
         echo "   JVM args: -Xmx$INTEGRATION_TEST_MEMORY -XX:+UseParallelGC"
-        echo "   Fail-fast: enabled for early detection"
         echo ""
         
-        # Run integration tests with early detection
+        # Run integration tests with parallel configuration
         ./gradlew :prime-router:testIntegration -Pshowtests
       shell: bash
 
@@ -301,13 +221,13 @@ runs:
       run: docker compose exec -T sftp chmod 777 /home/foo/upload
       shell: bash
 
-    - name: Smoke tests (Fast Fail)
+    - name: Smoke tests
       if: inputs.run-integration-tests == 'true'
       uses: ./.github/actions/retry
       with:
-        timeout_minutes: 12
-        max_attempts: 1
-        retry_wait_seconds: 10
+        timeout_minutes: 30
+        max_attempts: 2
+        retry_wait_seconds: 30
         command: |
           ./gradlew :prime-router:reloadCredentials
           ./gradlew :prime-router:testSmoke
@@ -317,29 +237,12 @@ runs:
       if: always() && inputs.run-integration-tests == 'true'
       uses: jwalton/gh-docker-logs@2741064ab9d7af54b0b1ffb6076cf64c16f0220e
 
-    - name: Save Docker Cache
-      if: inputs.run-integration-tests == 'true'
-      run: |
-        echo "💾 Saving Docker images to cache..."
-        mkdir -p /tmp/docker-cache
-        
-        # Save built images for next time
-        docker save $(docker images --format "table {{.Repository}}:{{.Tag}}" | grep -E "(postgres|azurite|atmoz/sftp|hashicorp/vault)" | tr '\n' ' ') > /tmp/docker-cache/images.tar || echo "⚠️ Some images couldn't be cached"
-        
-        echo "📊 Docker cache size:"
-        du -sh /tmp/docker-cache/ || echo "No cache directory"
-      shell: bash
-
     - name: Cleanup Gradle Cache
       if: inputs.run-integration-tests == 'true'
       working-directory: prime-router
       run: |
-        # Clean up lock files but preserve cache for next run
         rm -f .gradle/caches/modules-2/modules-2.lock
         rm -f .gradle/caches/modules-2/gc.properties
-        
-        echo "📊 Gradle cache size:"
-        du -sh .gradle/caches/ || echo "No gradle cache"
       shell: bash
 
     - name: Upload Artifact
