@@ -11,18 +11,44 @@ updates:
     directory: "/operations"
     schedule:
       interval: "weekly"
+      day: "sunday"
+      time: "05:00"
+      timezone: "US/Eastern"
   - package-ecosystem: "docker"
     directory: "/prime-router"
     schedule:
-      interval: "monthly"
+      interval: "weekly"
+      day: "sunday"
+      time: "05:00"
+      timezone: "US/Eastern"
   - package-ecosystem: "docker"
     directory: "/.environment/docker/docker-compose"
     schedule:
-      interval: "monthly"
+      interval: "weekly"
+      day: "sunday"
+      time: "05:00"
+      timezone: "US/Eastern"
   - package-ecosystem: "docker"
     directory: "/frontend-react"
     schedule:
-      interval: "monthly"
+      interval: "weekly"
+      day: "sunday"
+      time: "05:00"
+      timezone: "US/Eastern"
+  - package-ecosystem: "docker"
+    directory: "/operations/utils/postgres"
+    schedule:
+      interval: "weekly"
+      day: "sunday"
+      time: "05:00"
+      timezone: "US/Eastern"
+  - package-ecosystem: "docker"
+    directory: "/operations/dnsmasq"
+    schedule:
+      interval: "weekly"
+      day: "sunday"
+      time: "05:00"
+      timezone: "US/Eastern"
 
   # slack-boltjs-app (chatops)
   - package-ecosystem: "gitsubmodule"
