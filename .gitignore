@@ -136,4 +136,4 @@ gitleaks.log
 storybook-static
 
 # dotnet
-**/.config.act-testing
+**/.config
