@@ -348,7 +348,7 @@ class FhirDestinationFilterTests {
             assertThat(event.submissionEventData).isEqualTo(
                 SubmissionEventData(
                     listOf(submittedId),
-                    "[\"sendingOrg.sendingOrgClient\"]"
+                    listOf("sendingOrg.sendingOrgClient")
                 )
             )
             assertThat(event.itemEventData).isEqualTo(
@@ -532,7 +532,7 @@ class FhirDestinationFilterTests {
                 assertThat(event.submissionEventData).isEqualTo(
                     SubmissionEventData(
                         listOf(submittedId),
-                        "[\"sendingOrg.sendingOrgClient\"]"
+                        listOf("sendingOrg.sendingOrgClient")
                     )
                 )
                 assertThat(event.itemEventData).isEqualTo(

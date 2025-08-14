@@ -492,7 +492,7 @@ class FHIRConverterIntegrationTests {
             assertThat(event.submissionEventData).isEqualTo(
                 SubmissionEventData(
                     listOf(receiveReport.id),
-                    "[\"phd.hl7-elr-no-transform\"]"
+                    listOf("phd.hl7-elr-no-transform")
                 )
             )
             assertThat(event.itemEventData).isEqualTo(
@@ -664,7 +664,7 @@ class FHIRConverterIntegrationTests {
             assertThat(event.submissionEventData).isEqualTo(
                 SubmissionEventData(
                     listOf(receiveReport.id),
-                    "[\"phd.hl7-elr-no-transform\"]"
+                    listOf("phd.hl7-elr-no-transform")
                 )
             )
             assertThat(event.itemEventData).isEqualTo(
@@ -856,7 +856,7 @@ class FHIRConverterIntegrationTests {
             assertThat(event.submissionEventData).isEqualTo(
                 SubmissionEventData(
                     listOf(receiveReport.id),
-                    "[\"phd.fhir-elr-no-transform\"]"
+                    listOf("phd.fhir-elr-no-transform")
                 )
             )
             assertThat(event.itemEventData).isEqualTo(
@@ -998,7 +998,7 @@ class FHIRConverterIntegrationTests {
             assertThat(event.submissionEventData).isEqualTo(
                 SubmissionEventData(
                     listOf(receiveReport.id),
-                    "[\"phd.marsotc-hl7-sender\"]"
+                    listOf("phd.marsotc-hl7-sender")
                 )
             )
             assertThat(event.itemEventData).isEqualTo(

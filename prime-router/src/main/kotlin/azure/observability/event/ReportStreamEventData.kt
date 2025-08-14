@@ -53,7 +53,7 @@ data class ItemEventData(
  * @param submittedReportIds all the submitted reports that the outputted report ids has items from.
  * @param sender the sender of the item
  */
-data class SubmissionEventData(val submittedReportIds: List<UUID>, val sender: String?)
+data class SubmissionEventData(val submittedReportIds: List<UUID>, val sender: List<String>)
 
 /**
  * This enum contains properties values that can be used in creating params for ReportStream events

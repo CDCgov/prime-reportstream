@@ -412,7 +412,7 @@ class FHIRReceiverFilterIntegrationTests : Logging {
             assertThat(event.submissionEventData).isEqualTo(
                 SubmissionEventData(
                     listOf(report.id),
-                    "[\"phd.Test Sender\"]"
+                    listOf("phd.Test Sender")
                 )
             )
             assertThat(event.itemEventData).isEqualTo(
@@ -599,7 +599,7 @@ class FHIRReceiverFilterIntegrationTests : Logging {
             assertThat(event.submissionEventData).isEqualTo(
                 SubmissionEventData(
                     listOf(report.id),
-                    "[\"phd.Test Sender\"]"
+                    listOf("phd.Test Sender")
                 )
             )
             assertThat(event.itemEventData).isEqualTo(
@@ -799,7 +799,7 @@ class FHIRReceiverFilterIntegrationTests : Logging {
             assertThat(event.submissionEventData).isEqualTo(
                 SubmissionEventData(
                     listOf(report.id),
-                    "[\"phd.Test Sender\"]"
+                    listOf("phd.Test Sender")
                 )
             )
             assertThat(event.itemEventData).isEqualTo(
@@ -943,7 +943,7 @@ class FHIRReceiverFilterIntegrationTests : Logging {
             assertThat(event.submissionEventData).isEqualTo(
                 SubmissionEventData(
                     listOf(report.id),
-                    "[\"phd.Test Sender\"]"
+                    listOf("phd.Test Sender")
                 )
             )
             assertThat(event.itemEventData).isEqualTo(
@@ -1234,7 +1234,7 @@ class FHIRReceiverFilterIntegrationTests : Logging {
             assertThat(event.submissionEventData).isEqualTo(
                 SubmissionEventData(
                     listOf(report.id),
-                    "[\"phd.Test Sender\"]"
+                    listOf("phd.Test Sender")
                 )
             )
             assertThat(event.itemEventData).isEqualTo(

@@ -140,12 +140,7 @@ class ReportEventServiceTest {
 
         val data = reportEventService.getSubmissionEventData(1, null)
 
-        assertThat(data).isEqualTo(
-            SubmissionEventData(
-                listOf(),
-                "[]"
-            )
-        )
+        assertThat(data).isEqualTo(SubmissionEventData(emptyList(), emptyList()))
     }
 
     @Test
@@ -166,7 +161,7 @@ class ReportEventServiceTest {
         assertThat(data).isEqualTo(
             SubmissionEventData(
                 listOf(receivedReportId),
-                "[\"${receivedReportFile.sendingOrg}.${receivedReportFile.sendingOrgClient}\"]"
+                listOf("${receivedReportFile.sendingOrg}.${receivedReportFile.sendingOrgClient}")
             )
         )
     }
@@ -189,8 +184,10 @@ class ReportEventServiceTest {
         assertThat(data).isEqualTo(
             SubmissionEventData(
                 listOf(receivedReportId, receivedReportId2),
-                "[\"${receivedReportFile.sendingOrg}.${receivedReportFile.sendingOrgClient}\"," +
-                    " \"${receivedReportFile2.sendingOrg}.${receivedReportFile2.sendingOrgClient}\"]"
+                listOf(
+                    "${receivedReportFile.sendingOrg}.${receivedReportFile.sendingOrgClient}",
+                    "${receivedReportFile2.sendingOrg}.${receivedReportFile2.sendingOrgClient}"
+                )
             )
         )
     }
@@ -210,12 +207,7 @@ class ReportEventServiceTest {
 
         val data = reportEventService.getSubmissionEventData(1, null, true)
 
-        assertThat(data).isEqualTo(
-            SubmissionEventData(
-                listOf(),
-                "[]"
-            )
-        )
+        assertThat(data).isEqualTo(SubmissionEventData(emptyList(), emptyList()))
     }
 
     @Test
@@ -236,7 +228,7 @@ class ReportEventServiceTest {
         assertThat(data).isEqualTo(
             SubmissionEventData(
                 listOf(receivedReportId),
-                "[\"${receivedReportFile.sendingOrg}.${receivedReportFile.sendingOrgClient}\"]"
+                listOf("${receivedReportFile.sendingOrg}.${receivedReportFile.sendingOrgClient}")
             )
         )
     }
@@ -259,7 +251,7 @@ class ReportEventServiceTest {
         assertThat(data).isEqualTo(
             SubmissionEventData(
                 listOf(receivedReportId),
-                "[\"${receivedReportFile.sendingOrg}.${receivedReportFile.sendingOrgClient}\"]"
+                listOf("${receivedReportFile.sendingOrg}.${receivedReportFile.sendingOrgClient}")
             )
         )
     }

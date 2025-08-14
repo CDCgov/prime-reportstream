@@ -541,9 +541,7 @@ class ReportStreamEventService(
         val submittedReportIds = submittedReports
             .map { it.reportId }
             .ifEmpty { if (parentReportId != null) listOf(parentReportId) else emptyList() }
-        val submittedReportSenders = submittedReports.joinToString(separator = ", ", prefix = "[", postfix = "]") {
-            "\"${it.sendingOrg}.${it.sendingOrgClient}\""
-        }
+        val submittedReportSenders = submittedReports.map { "${it.sendingOrg}.${it.sendingOrgClient}" }
 
         return SubmissionEventData(submittedReportIds as List<UUID>, submittedReportSenders)
     }

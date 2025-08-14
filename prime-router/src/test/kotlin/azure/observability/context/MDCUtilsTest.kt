@@ -100,7 +100,7 @@ class MDCUtilsTest {
             ),
             SubmissionEventData(
                 emptyList(),
-                "sender"
+                listOf("sender")
             ),
             mapOf(
                 ReportStreamEventProperties.FILENAME to "filename"
@@ -132,7 +132,7 @@ class MDCUtilsTest {
             ),
             SubmissionEventData(
                 emptyList(),
-                "sender"
+                listOf("sender")
             ),
             ItemEventData(
                 1,
@@ -156,7 +156,7 @@ class MDCUtilsTest {
             assertThat(context["parentItemIndex"]).isEqualTo("1")
             assertThat(context["submittedItemIndex"]).isEqualTo("1")
             assertThat(context["trackingId"]).isEqualTo("tracking")
-            assertThat(context["sender"]).isEqualTo("sender")
+            assertThat(context["sender"]).isEqualTo("[\"sender\"]")
         }
     }
 }

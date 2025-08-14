@@ -371,7 +371,7 @@ class FHIRDestinationFilterIntegrationTests : Logging {
             assertThat(event.submissionEventData).isEqualTo(
                 SubmissionEventData(
                     listOf(report.id),
-                    "[\"phd.Test Sender\"]"
+                    listOf("phd.Test Sender")
                 )
             )
             assertThat(event.itemEventData).isEqualTo(
@@ -484,7 +484,7 @@ class FHIRDestinationFilterIntegrationTests : Logging {
         assertThat(event.submissionEventData).isEqualTo(
             SubmissionEventData(
                 listOf(report.id),
-                "[\"phd.Test Sender\"]"
+                listOf("phd.Test Sender")
             )
         )
         assertThat(event.itemEventData).isEqualTo(
