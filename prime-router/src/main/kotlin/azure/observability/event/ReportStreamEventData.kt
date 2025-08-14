@@ -13,7 +13,6 @@ import java.util.UUID
  *
  * @param childReportId the report id of the outputted report
  * @param parentReportId the optional report if of the inputted report
- * @param submittedReportIds all the submitted reports that the outputted report ids has items from.
  * @param topic the [Topic] that the report is part of
  * @param blobUrl the blob url for the outputted report
  * @param pipelineStepName the step that produced the outputted report
@@ -24,7 +23,6 @@ import java.util.UUID
 data class ReportEventData(
     val childReportId: UUID,
     val parentReportId: UUID?,
-    val submittedReportIds: List<UUID>,
     val topic: Topic?,
     val blobUrl: String,
     val pipelineStepName: TaskAction,
@@ -40,15 +38,22 @@ data class ReportEventData(
  * @param parentItemIndex the index the item in the input report
  * @param submittedItemIndex the index of the item in the submitted report
  * @param trackingId a unique identifier for the item as it goes through the pipeline
- * @param sender the sender of the item
  */
 data class ItemEventData(
     val childItemIndex: Int,
     val parentItemIndex: Int?,
     val submittedItemIndex: Int?,
     val trackingId: String?,
-    val sender: String,
 )
+
+/**
+ * Data class is used in ReportStream item and report events. Consolidates database calls
+ * that both need.
+ *
+ * @param submittedReportIds all the submitted reports that the outputted report ids has items from.
+ * @param sender the sender of the item
+ */
+data class SubmissionEventData(val submittedReportIds: List<UUID>, val sender: List<String>)
 
 /**
  * This enum contains properties values that can be used in creating params for ReportStream events
@@ -115,6 +120,8 @@ data class ReportStreamReportEvent(
     @JsonUnwrapped
     val reportEventData: ReportEventData,
     @JsonUnwrapped
+    val submissionEventData: SubmissionEventData,
+    @JsonUnwrapped
     val params: Map<ReportStreamEventProperties, Any>,
 ) : AzureCustomEvent
 
@@ -128,6 +135,8 @@ data class ReportStreamReportEvent(
 data class ReportStreamItemEvent(
     @JsonUnwrapped
     val reportEventData: ReportEventData,
+    @JsonUnwrapped
+    val submissionEventData: SubmissionEventData,
     @JsonUnwrapped
     val itemEventData: ItemEventData,
     @JsonUnwrapped

@@ -41,6 +41,7 @@ import gov.cdc.prime.router.azure.observability.event.ReportStreamItemEventBuild
 import gov.cdc.prime.router.azure.observability.event.ReportStreamItemProcessingErrorEventBuilder
 import gov.cdc.prime.router.azure.observability.event.ReportStreamReportEventBuilder
 import gov.cdc.prime.router.azure.observability.event.ReportStreamReportProcessingErrorEventBuilder
+import gov.cdc.prime.router.azure.observability.event.SubmissionEventData
 import gov.cdc.prime.router.cli.CommandUtilities.Companion.abort
 import gov.cdc.prime.router.cli.helpers.HL7DiffHelper
 import gov.cdc.prime.router.common.Environment
@@ -1044,4 +1045,10 @@ class NoopReportStreamEventService : IReportStreamEventService {
         parentItemIndex: Int,
         trackingId: String?,
     ): ItemEventData = throw NotImplementedError()
+
+    override fun getSubmissionEventData(
+        childItemIndex: Int,
+        parentReportId: UUID?,
+        isItemEvent: Boolean,
+    ): SubmissionEventData = throw NotImplementedError()
 }
