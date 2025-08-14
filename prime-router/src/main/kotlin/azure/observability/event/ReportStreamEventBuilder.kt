@@ -96,6 +96,8 @@ abstract class AbstractReportStreamEventBuilder<T : AzureCustomEvent>(
             queueMessage
         )
 
+    abstract fun getSubmissionEventData(): SubmissionEventData
+
     fun send() {
             val event = buildEvent()
             sendToAzure(event)
@@ -140,8 +142,14 @@ open class ReportStreamReportEventBuilder(
 
     override fun buildEvent(): ReportStreamReportEvent = ReportStreamReportEvent(
             getReportEventData(),
+            getSubmissionEventData(),
             theParams
         )
+
+    override fun getSubmissionEventData(): SubmissionEventData = reportEventService.getSubmissionEventData(
+        0,
+        theParentReportId
+    )
 }
 
 /**
@@ -199,8 +207,15 @@ open class ReportStreamItemEventBuilder(
         )
     }
 
+    override fun getSubmissionEventData(): SubmissionEventData = reportEventService.getSubmissionEventData(
+        theChildIndex,
+        theParentReportId,
+        true
+    )
+
     override fun buildEvent(): ReportStreamItemEvent = ReportStreamItemEvent(
             getReportEventData(),
+            getSubmissionEventData(),
             getItemEventData(),
             theParams
         )
@@ -231,6 +246,7 @@ class ReportStreamReportProcessingErrorEventBuilder(
 ) {
     override fun buildEvent(): ReportStreamReportEvent = ReportStreamReportEvent(
             getReportEventData(),
+            getSubmissionEventData(),
             theParams + mapOf(ReportStreamEventProperties.PROCESSING_ERROR to error)
         )
 }
@@ -260,6 +276,7 @@ class ReportStreamItemProcessingErrorEventBuilder(
 ) {
     override fun buildEvent(): ReportStreamItemEvent = ReportStreamItemEvent(
             getReportEventData(),
+            getSubmissionEventData(),
             getItemEventData(),
             theParams + mapOf(ReportStreamEventProperties.PROCESSING_ERROR to error)
         )
