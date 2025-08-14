@@ -225,6 +225,20 @@ interface IReportStreamEventService {
         parentItemIndex: Int,
         trackingId: String?,
     ): ItemEventData
+
+    /**
+     * Retrieves submission data relevant to items and reports.
+     *
+     * @param childItemIndex the index of this item in the outputted report
+     * @param parentReportId the parent report id
+     * @param isItemEvent flags if the data being retrieved is for a specific item or an entire report.
+     * @return [SubmissionEventData]
+     */
+    fun getSubmissionEventData(
+        childItemIndex: Int,
+        parentReportId: UUID?,
+        isItemEvent: Boolean = false,
+    ): SubmissionEventData
 }
 
 /**
@@ -477,25 +491,16 @@ class ReportStreamEventService(
         pipelineStepName: TaskAction,
         topic: Topic?,
         queueMessage: String,
-    ): ReportEventData {
-        val submittedReportIds = if (parentReportId != null) {
-            reportService.getRootReports(parentReportId)
-        } else {
-            emptyList()
-        }.map { it.reportId }.ifEmpty { if (parentReportId != null) listOf(parentReportId) else emptyList() }
-
-        return ReportEventData(
-            childReportId,
-            parentReportId,
-            submittedReportIds,
-            topic,
-            childBodyUrl,
-            pipelineStepName,
-            OffsetDateTime.now(),
-            Version.commitId,
-            queueMessage
-        )
-    }
+    ): ReportEventData = ReportEventData(
+        childReportId,
+        parentReportId,
+        topic,
+        childBodyUrl,
+        pipelineStepName,
+        OffsetDateTime.now(),
+        Version.commitId,
+        queueMessage
+    )
 
     override fun getItemEventData(
         childItemIndex: Int,
@@ -505,15 +510,39 @@ class ReportStreamEventService(
     ): ItemEventData {
         val submittedIndex = reportService.getRootItemIndex(parentReportId, parentItemIndex) ?: parentItemIndex
 
-        val rootReport =
-                reportService.getRootReports(parentReportId).firstOrNull() ?: dbAccess.fetchReportFile(parentReportId)
-
         return ItemEventData(
             childItemIndex,
             parentItemIndex,
             submittedIndex,
-            trackingId,
-            "${rootReport.sendingOrg}.${rootReport.sendingOrgClient}"
+            trackingId
         )
+    }
+
+    override fun getSubmissionEventData(
+        childItemIndex: Int,
+        parentReportId: UUID?,
+        isItemEvent: Boolean,
+    ): SubmissionEventData {
+        val submittedReports = if (!isItemEvent && parentReportId != null) {
+            reportService.getRootReports(parentReportId)
+        } else if (isItemEvent && parentReportId != null) {
+            val rootReport = reportService.getReportForItemAtTask(parentReportId, childItemIndex, TaskAction.receive)
+            if (rootReport == null) {
+                // When invoked from the Convert step, the parent report is the submitted report.
+                listOf(dbAccess.fetchReportFile(parentReportId))
+            } else {
+                listOf(rootReport)
+            }
+        } else {
+            // When invoked from the Receive step, the parent report id will be null.
+            emptyList()
+        }
+
+        val submittedReportIds = submittedReports
+            .map { it.reportId }
+            .ifEmpty { if (parentReportId != null) listOf(parentReportId) else emptyList() }
+        val submittedReportSenders = submittedReports.map { "${it.sendingOrg}.${it.sendingOrgClient}" }
+
+        return SubmissionEventData(submittedReportIds as List<UUID>, submittedReportSenders)
     }
 }
