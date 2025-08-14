@@ -23,6 +23,7 @@ import gov.cdc.prime.router.fhirengine.translation.hl7.schema.ConfigSchemaReader
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.ConverterSchemaElement
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.HL7ConverterSchema
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
+import gov.cdc.prime.router.fhirengine.translation.hl7.utils.helpers.SchemaReferenceResolverHelper
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.metadata.LivdLookup
 import gov.cdc.prime.router.unittest.UnitTestUtils
@@ -445,8 +446,12 @@ class FhirToHl7ConverterTests {
 
         // Use a file based schema which will fail as we do not have enough data in the bundle
         val transformer = FhirToHl7Converter(
-            "classpath:/fhirengine/translation/hl7/schema/schema-read-test-01/ORU_R01.yml",
-            mockk<BlobAccess.BlobContainerMetadata>(), warnings = mutableListOf(), errors = mutableListOf()
+            SchemaReferenceResolverHelper.retrieveHl7SchemaReference(
+                "classpath:/fhirengine/translation/hl7/schema/schema-read-test-01/ORU_R01.yml",
+                mockk<BlobAccess.BlobContainerMetadata>()
+            ),
+            warnings = mutableListOf(),
+            errors = mutableListOf()
         )
 
         transformer.process(bundle)

@@ -57,6 +57,7 @@ import gov.cdc.prime.router.fhirengine.translation.hl7.FhirTransformer
 import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
+import gov.cdc.prime.router.fhirengine.translation.hl7.utils.helpers.SchemaReferenceResolverHelper
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.fhirengine.utils.HL7Reader
 import gov.cdc.prime.router.fhirengine.utils.getObservations
@@ -332,7 +333,7 @@ class ProcessFhirCommands :
         if (!schemaNames.isNullOrEmpty()) {
             schemaNames.split(",").forEach { currentEnrichmentSchemaName ->
                 val transformer = FhirTransformer(
-                    currentEnrichmentSchemaName,
+                    SchemaReferenceResolverHelper.retrieveFhirSchemaReference(currentEnrichmentSchemaName),
                     errors = messageOrBundle.enrichmentSchemaErrors,
                     warnings = messageOrBundle.enrichmentSchemaWarnings
                 )
@@ -573,8 +574,10 @@ class ProcessFhirCommands :
 
         if (receiverTransformSchemaName != null) {
             val message = FhirToHl7Converter(
-                receiverTransformSchemaName,
-                BlobAccess.BlobContainerMetadata.build("metadata", Environment.get().storageEnvVar),
+                SchemaReferenceResolverHelper.retrieveHl7SchemaReference(
+                    receiverTransformSchemaName,
+                    BlobAccess.BlobContainerMetadata.build("metadata", Environment.get().storageEnvVar)
+                ),
                 context = FhirToHl7Context(
                     CustomFhirPathFunctions(),
                     config = HL7TranslationConfig(
@@ -640,7 +643,7 @@ class ProcessFhirCommands :
      */
     private fun handleSenderTransforms(messageOrBundle: MessageOrBundle, senderSchema: String) {
         val transformer = FhirTransformer(
-            senderSchema,
+            SchemaReferenceResolverHelper.retrieveFhirSchemaReference(senderSchema),
             errors = messageOrBundle.senderTransformErrors,
             warnings = messageOrBundle.senderTransformWarnings
         )
