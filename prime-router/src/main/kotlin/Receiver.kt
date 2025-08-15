@@ -1,11 +1,10 @@
 package gov.cdc.prime.router
 
 import com.fasterxml.jackson.annotation.JsonIgnore
-import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.common.DateUtilities
-import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Converter
 import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
+import gov.cdc.prime.router.fhirengine.translation.hl7.utils.helpers.SchemaReferenceResolverHelper
 import java.time.LocalTime
 import java.time.OffsetDateTime
 import java.time.ZoneId
@@ -174,7 +173,7 @@ open class Receiver(
      *
      * @param operation MERGE will combine all reports in the batch into a single batch
      * @param numberPerDay Number of batches per day must be 1 to 3600
-     * @param initialTime The time of the day to first send. Must be format of hh:mm.
+     * @param initialTime The time of the day to first send. Must be of format of hh:mm.
      * @param timeZone the time zone of the initial sending
      * @param timeBetweenBatches the delay interval in seconds to apply between consecutive batches, if specified
      */
@@ -263,11 +262,11 @@ open class Receiver(
             if (this.topic.isUniversalPipeline) {
                 try {
                     FhirToHl7Converter(
-                        translation.schemaName,
-                        BlobAccess.BlobContainerMetadata.build(
-                            "metadata",
-                            Environment.get().storageEnvVar
-                        )
+                        SchemaReferenceResolverHelper.retrieveHl7SchemaReference(translation.schemaName),
+                        strict = false,
+                        terser = null,
+                        errors = mutableListOf(),
+                        warnings = mutableListOf(),
                     )
                 } catch (e: SchemaException) {
                     return e.message
@@ -283,7 +282,7 @@ open class Receiver(
     }
 
     companion object {
-        const val fullNameSeparator = "."
+        const val FULL_NAME_SEPARATOR = "."
 
         /** Global function to create receiver fullNames using
          * the [organizationName] and the [receiverName].
@@ -291,7 +290,7 @@ open class Receiver(
         fun createFullName(
             organizationName: String,
             receiverName: String,
-        ): String = "$organizationName$fullNameSeparator$receiverName"
+        ): String = "$organizationName$FULL_NAME_SEPARATOR$receiverName"
 
         fun parseFullName(fullName: String): Pair<String, String> {
             val splits = fullName.split(Sender.fullNameSeparator)

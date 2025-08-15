@@ -26,6 +26,7 @@ import gov.cdc.prime.router.fhirengine.translation.HL7toFhirTranslator
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Context
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Converter
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirTransformer
+import gov.cdc.prime.router.fhirengine.translation.hl7.utils.helpers.SchemaReferenceResolverHelper
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.fhirengine.utils.HL7Reader
 import gov.cdc.prime.router.fhirengine.utils.filterObservations
@@ -492,14 +493,18 @@ class TranslationTests {
             }
 
             val hl7 = FhirToHl7Converter(
-                schema,
-                false,
+                SchemaReferenceResolverHelper.retrieveHl7SchemaReference(
+                    schema,
+                    mockk<BlobAccess.BlobContainerMetadata>()
+                ),
+                strict = false,
                 context = FhirToHl7Context(
                     CustomFhirPathFunctions(),
                     config = translationConfig,
                     translationFunctions = CustomTranslationFunctions()
                 ),
-                blobConnectionInfo = mockk<BlobAccess.BlobContainerMetadata>()
+                errors = mutableListOf(),
+                warnings = mutableListOf(),
             ).process(fhirBundle)
             return hl7.encodePreserveEncodingChars().byteInputStream()
         }
@@ -513,8 +518,10 @@ class TranslationTests {
             if (!schema.isNullOrEmpty()) {
                 schema.split(",").forEach { currentEnrichmentSchema ->
                     fhirBundle = FhirTransformer(
-                        currentEnrichmentSchema,
-                        blobConnectionInfo = mockk<BlobAccess.BlobContainerMetadata>()
+                        SchemaReferenceResolverHelper.retrieveFhirSchemaReference(
+                            currentEnrichmentSchema,
+                        mockk<BlobAccess.BlobContainerMetadata>()
+                        )
                     ).process(fhirBundle)
                 }
             }

@@ -23,6 +23,7 @@ import gov.cdc.prime.router.fhirengine.translation.hl7.schema.ConfigSchemaReader
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.ConverterSchemaElement
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.HL7ConverterSchema
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
+import gov.cdc.prime.router.fhirengine.translation.hl7.utils.helpers.SchemaReferenceResolverHelper
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.metadata.LivdLookup
 import gov.cdc.prime.router.unittest.UnitTestUtils
@@ -445,8 +446,12 @@ class FhirToHl7ConverterTests {
 
         // Use a file based schema which will fail as we do not have enough data in the bundle
         val transformer = FhirToHl7Converter(
-            "classpath:/fhirengine/translation/hl7/schema/schema-read-test-01/ORU_R01.yml",
-            mockk<BlobAccess.BlobContainerMetadata>(), warnings = mutableListOf(), errors = mutableListOf()
+            SchemaReferenceResolverHelper.retrieveHl7SchemaReference(
+                "classpath:/fhirengine/translation/hl7/schema/schema-read-test-01/ORU_R01.yml",
+                mockk<BlobAccess.BlobContainerMetadata>()
+            ),
+            warnings = mutableListOf(),
+            errors = mutableListOf()
         )
 
         transformer.process(bundle)
@@ -687,7 +692,7 @@ class FhirToHl7ConverterTests {
                     classpath:/fhirengine/translation/hl7/schema/schema-test-overrides/ORU_R01.yml
             """.trimIndent(),
             schemaClass = HL7ConverterSchema::class.java,
-            blobConnectionInfo = mockBlobContainerMetadata
+            SchemaReferenceResolverHelper.getSchemaServiceProviders(mockBlobContainerMetadata)
         )
 
         val extendedSchema = ConfigSchemaReader.fromFile(
@@ -695,7 +700,7 @@ class FhirToHl7ConverterTests {
                     classpath:/fhirengine/translation/hl7/schema/schema-test-overrides/ORU_R01_extended.yml
             """.trimIndent(),
             schemaClass = HL7ConverterSchema::class.java,
-            blobConnectionInfo = mockBlobContainerMetadata
+            SchemaReferenceResolverHelper.getSchemaServiceProviders(mockBlobContainerMetadata)
         )
 
         val extendedSchemaOverridesSoftware = ConfigSchemaReader.fromFile(
@@ -703,19 +708,19 @@ class FhirToHl7ConverterTests {
                     classpath:/fhirengine/translation/hl7/schema/schema-test-overrides/ORU_R01_extended_overrides_software.yml
             """.trimIndent(),
             schemaClass = HL7ConverterSchema::class.java,
-            blobConnectionInfo = mockBlobContainerMetadata
+            SchemaReferenceResolverHelper.getSchemaServiceProviders(mockBlobContainerMetadata)
         )
 
         val extendedSchemaOverridesXon = ConfigSchemaReader.fromFile(
             "classpath:/fhirengine/translation/hl7/schema/schema-test-overrides/ORU_R01_extended_overrides_xon.yml",
             schemaClass = HL7ConverterSchema::class.java,
-            blobConnectionInfo = mockBlobContainerMetadata
+            SchemaReferenceResolverHelper.getSchemaServiceProviders(mockBlobContainerMetadata)
         )
 
         val extendedExtendedSchema = ConfigSchemaReader.fromFile(
             "classpath:/fhirengine/translation/hl7/schema/schema-test-overrides/ORU_R01_extended_extended.yml",
             schemaClass = HL7ConverterSchema::class.java,
-            blobConnectionInfo = mockBlobContainerMetadata
+            SchemaReferenceResolverHelper.getSchemaServiceProviders(mockBlobContainerMetadata)
         )
 
         @Test

@@ -358,6 +358,13 @@ tasks.register<Copy>("copyApiSwaggerUI") {
 
 tasks.withType<Test>().configureEach {
     maxParallelForks = (Runtime.getRuntime().availableProcessors() / 2).takeIf { it > 0 } ?: 1
+    if ("AzureWebJobsStorage" !in System.getenv()) {
+        environment["AzureWebJobsStorage"] = "test-AzureWebJobsStorage"
+        println(
+            "'AzureWebJobsStorage' was not defined for testing and has been set to: " +
+                environment["AzureWebJobsStorage"]
+        )
+    }
 }
 
 tasks.processResources {
