@@ -692,7 +692,7 @@ class FhirToHl7ConverterTests {
                     classpath:/fhirengine/translation/hl7/schema/schema-test-overrides/ORU_R01.yml
             """.trimIndent(),
             schemaClass = HL7ConverterSchema::class.java,
-            blobConnectionInfo = mockBlobContainerMetadata
+            SchemaReferenceResolverHelper.getSchemaServiceProviders(mockBlobContainerMetadata)
         )
 
         val extendedSchema = ConfigSchemaReader.fromFile(
@@ -700,7 +700,7 @@ class FhirToHl7ConverterTests {
                     classpath:/fhirengine/translation/hl7/schema/schema-test-overrides/ORU_R01_extended.yml
             """.trimIndent(),
             schemaClass = HL7ConverterSchema::class.java,
-            blobConnectionInfo = mockBlobContainerMetadata
+            SchemaReferenceResolverHelper.getSchemaServiceProviders(mockBlobContainerMetadata)
         )
 
         val extendedSchemaOverridesSoftware = ConfigSchemaReader.fromFile(
@@ -708,19 +708,19 @@ class FhirToHl7ConverterTests {
                     classpath:/fhirengine/translation/hl7/schema/schema-test-overrides/ORU_R01_extended_overrides_software.yml
             """.trimIndent(),
             schemaClass = HL7ConverterSchema::class.java,
-            blobConnectionInfo = mockBlobContainerMetadata
+            SchemaReferenceResolverHelper.getSchemaServiceProviders(mockBlobContainerMetadata)
         )
 
         val extendedSchemaOverridesXon = ConfigSchemaReader.fromFile(
             "classpath:/fhirengine/translation/hl7/schema/schema-test-overrides/ORU_R01_extended_overrides_xon.yml",
             schemaClass = HL7ConverterSchema::class.java,
-            blobConnectionInfo = mockBlobContainerMetadata
+            SchemaReferenceResolverHelper.getSchemaServiceProviders(mockBlobContainerMetadata)
         )
 
         val extendedExtendedSchema = ConfigSchemaReader.fromFile(
             "classpath:/fhirengine/translation/hl7/schema/schema-test-overrides/ORU_R01_extended_extended.yml",
             schemaClass = HL7ConverterSchema::class.java,
-            blobConnectionInfo = mockBlobContainerMetadata
+            SchemaReferenceResolverHelper.getSchemaServiceProviders(mockBlobContainerMetadata)
         )
 
         @Test

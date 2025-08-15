@@ -7,10 +7,10 @@ import gov.cdc.prime.router.fhirengine.translation.hl7.schema.ConfigSchemaElemen
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.FhirTransformSchema
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.FhirTransformSchemaElement
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.FhirTransformSchemaElementAction
-import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.fhirTransformSchemaFromFile
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirBundleUtils
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
+import gov.cdc.prime.router.fhirengine.translation.hl7.utils.helpers.SchemaReferenceResolverHelper
 import gov.cdc.prime.router.fhirengine.utils.deleteResource
 import org.apache.logging.log4j.Level
 import org.hl7.fhir.exceptions.FHIRException
@@ -48,7 +48,7 @@ class FhirTransformer(
         errors: MutableList<String> = mutableListOf(),
         warnings: MutableList<String> = mutableListOf(),
     ) : this(
-        schemaRef = fhirTransformSchemaFromFile(schema, blobConnectionInfo),
+        schemaRef = SchemaReferenceResolverHelper.retrieveFhirSchemaReference(schema, blobConnectionInfo),
         errors = errors,
         warnings = warnings
     )

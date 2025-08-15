@@ -54,4 +54,27 @@ class SchemaReferenceResolverHelperTests {
         assertNotNull(schemaRef)
         assertTrue(schemaRef.isValid())
     }
+
+    @Test
+    fun `test getSchemaServiceProviders`() {
+        val providers = SchemaReferenceResolverHelper.getSchemaServiceProviders()
+        assertNotNull(providers)
+        assertEquals(3, providers.size)
+        assertNotNull(providers.get("file"))
+        assertNotNull(providers.get("classpath"))
+        assertNotNull(providers.get("azure"))
+    }
+
+    @Test
+    fun `test getSchemaServiceProviders with blobInfo`() {
+        val providers =
+            SchemaReferenceResolverHelper.getSchemaServiceProviders(
+                mockk<BlobAccess.BlobContainerMetadata>()
+            )
+        assertNotNull(providers)
+        assertEquals(3, providers.size)
+        assertNotNull(providers.get("file"))
+        assertNotNull(providers.get("classpath"))
+        assertNotNull(providers.get("azure"))
+    }
 }
