@@ -215,12 +215,14 @@ tasks.test {
 
 tasks.javadoc.configure {
     actions.clear()
-    dependsOn(tasks.dokkaHtml)
+    dependsOn(tasks.dokkaGenerate)
 }
 
-tasks.dokkaHtml.configure {
+dokka {
     val docsDir = File(buildDir, "/docs/dokka")
-    outputDirectory.set(docsDir)
+    dokkaPublications.html {
+        outputDirectory.set(docsDir)
+    }
 }
 
 tasks.jacocoTestReport {
@@ -629,7 +631,7 @@ tasks.register("quickPackage") {
     tasks["compileTestKotlin"].enabled = false
     tasks["migrate"].enabled = false
     tasks["flywayMigrate"].enabled = false
-    tasks["dokkaHtml"].enabled = false
+    tasks["dokkaGenerate"].enabled = false
 }
 
 /**
@@ -695,7 +697,7 @@ tasks.register("quickRun") {
     tasks["compileTestKotlin"].enabled = false
     tasks["migrate"].enabled = false
     tasks["flywayMigrate"].enabled = false
-    tasks["dokkaHtml"].enabled = false
+    tasks["dokkaGenerate"].enabled = false
 }
 
 tasks.register("tiQuickRun") {
