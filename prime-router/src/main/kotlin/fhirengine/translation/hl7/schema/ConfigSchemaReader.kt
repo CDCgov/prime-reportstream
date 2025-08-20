@@ -137,7 +137,7 @@ object ConfigSchemaReader : Logging {
     ): Schema {
         val schemaServiceProvider = schemaServiceProviders.get(schemaUri.scheme)
         if (schemaServiceProvider == null) {
-            throw SchemaException("Unexpected scheme: ${schemaUri.scheme}")
+            throw SchemaException("No schema service provider found for: ${schemaUri.scheme}")
         }
         val rawSchema =
             readOneYamlSchema(schemaServiceProvider.getInputStream(schemaUri), schemaClass)

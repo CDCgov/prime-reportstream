@@ -18,7 +18,7 @@ class SchemaReferenceResolverHelperTests {
         assertNotNull(blobInfo)
         assertEquals("metadata", blobInfo.containerName)
         // This is set in build.gradle.kts
-//        assertEquals("test-AzureWebJobsStorage", blobInfo.connectionString)
+        assertEquals("test-AzureWebJobsStorage", blobInfo.connectionString)
     }
 
     @Test
