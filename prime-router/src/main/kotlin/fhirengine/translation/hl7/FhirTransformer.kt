@@ -1,13 +1,10 @@
 package gov.cdc.prime.router.fhirengine.translation.hl7
 
 import fhirengine.engine.CustomFhirPathFunctions
-import gov.cdc.prime.router.azure.BlobAccess
-import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.ConfigSchemaElementProcessingException
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.FhirTransformSchema
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.FhirTransformSchemaElement
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.FhirTransformSchemaElementAction
-import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.fhirTransformSchemaFromFile
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirBundleUtils
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
@@ -35,23 +32,6 @@ class FhirTransformer(
     private val extensionRegex = """^extension\(["'](?<extensionUrl>[^'"]+)["']\)""".toRegex()
     private val valueXRegex = Regex("""value[A-Z][a-z]*""")
     private val indexRegex = Regex("""(?<child>.*)\[%?(?<indexVar>[0-9A-Za-z]*)\]""")
-
-    /**
-     * Transform a FHIR bundle based on the [schema] in the [schemaFolder] location.
-     */
-    constructor(
-        schema: String,
-        blobConnectionInfo: BlobAccess.BlobContainerMetadata = BlobAccess.BlobContainerMetadata.build(
-            "metadata",
-            Environment.get().storageEnvVar
-        ),
-        errors: MutableList<String> = mutableListOf(),
-        warnings: MutableList<String> = mutableListOf(),
-    ) : this(
-        schemaRef = fhirTransformSchemaFromFile(schema, blobConnectionInfo),
-        errors = errors,
-        warnings = warnings
-    )
 
     /**
      * Transform the given [bundle]. The bundle passed in will be updated directly, and will also be returned.
