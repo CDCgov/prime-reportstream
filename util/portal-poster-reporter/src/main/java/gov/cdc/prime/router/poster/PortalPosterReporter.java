@@ -34,11 +34,11 @@ public class PortalPosterReporter implements CommandLineRunner {
     @Value("${gov.cdc.prime.router.poster.url}")
     private String url;
 
-    @Value("${gov.cdc.prime.router.poster.client}")
-    private String client;
+    @Value("${gov.cdc.prime.router.poster.token}")
+    private String token;
 
-    @Value("${gov.cdc.prime.router.poster.x.functions.key}")
-    private String xFunctionsKey;
+    @Value("${gov.cdc.prime.router.poster.organization}")
+    private String organization;
 
     @Override
     public void run(String... args) throws Exception {
@@ -65,11 +65,12 @@ public class PortalPosterReporter implements CommandLineRunner {
                 log.debug("splitLine: {}", (Object) splitLine);
                 // Make the submission history call to ReportStream.
                 HttpHeaders requestHeaders = new HttpHeaders();
-                requestHeaders.set("client", client);
-                requestHeaders.set("x-functions-key", xFunctionsKey);
+                requestHeaders.set(HttpHeaders.AUTHORIZATION, "Bearer " + token);
+                requestHeaders.set("authentication-type", "okta");
+                requestHeaders.set("Organization", organization);
                 HttpEntity<String> entity = new HttpEntity<>(requestHeaders);
                 try {
-                    ResponseEntity<String> result = restTemplate.exchange(URI.create(String.format(url, splitLine[4])), HttpMethod.GET, entity, String.class);
+                    ResponseEntity<String> result = restTemplate.exchange(URI.create(String.format(url, splitLine[3])), HttpMethod.GET, entity, String.class);
                     log.info("result: {}", result);
                     ObjectMapper mapper = new ObjectMapper();
                     JsonNode jsonNode = mapper.readTree(result.getBody());
