@@ -215,12 +215,14 @@ tasks.test {
 
 tasks.javadoc.configure {
     actions.clear()
-    dependsOn(tasks.dokkaHtml)
+    dependsOn(tasks.dokkaGenerate)
 }
 
-tasks.dokkaHtml.configure {
+dokka {
     val docsDir = File(buildDir, "/docs/dokka")
-    outputDirectory.set(docsDir)
+    dokkaPublications.html {
+        outputDirectory.set(docsDir)
+    }
 }
 
 tasks.jacocoTestReport {
@@ -358,6 +360,13 @@ tasks.register<Copy>("copyApiSwaggerUI") {
 
 tasks.withType<Test>().configureEach {
     maxParallelForks = (Runtime.getRuntime().availableProcessors() / 2).takeIf { it > 0 } ?: 1
+    if ("AzureWebJobsStorage" !in System.getenv()) {
+        environment["AzureWebJobsStorage"] = "test-AzureWebJobsStorage"
+        println(
+            "'AzureWebJobsStorage' was not defined for testing and has been set to: " +
+                environment["AzureWebJobsStorage"]
+        )
+    }
 }
 
 tasks.processResources {
@@ -622,7 +631,7 @@ tasks.register("quickPackage") {
     tasks["compileTestKotlin"].enabled = false
     tasks["migrate"].enabled = false
     tasks["flywayMigrate"].enabled = false
-    tasks["dokkaHtml"].enabled = false
+    tasks["dokkaGenerate"].enabled = false
 }
 
 /**
@@ -688,7 +697,7 @@ tasks.register("quickRun") {
     tasks["compileTestKotlin"].enabled = false
     tasks["migrate"].enabled = false
     tasks["flywayMigrate"].enabled = false
-    tasks["dokkaHtml"].enabled = false
+    tasks["dokkaGenerate"].enabled = false
 }
 
 tasks.register("tiQuickRun") {
