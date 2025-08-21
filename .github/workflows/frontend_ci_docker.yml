@@ -112,7 +112,7 @@ jobs:
 
       - name: Run Chromatic
         id: chromatic
-        uses: chromaui/action@f4e60a7072abcac4203f4ca50613f28e199a52ba # Specific SHA from frontend_ci.yml
+        uses: chromaui/action@58d9ffb36c90c97a02d061544ecc849cc4a242a9 # Specific SHA from frontend_ci.yml
         with:
           workingDir: ${{ env.WORKING_DIRECTORY }}
           projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
