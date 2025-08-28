@@ -37,7 +37,7 @@ locals {
     # Deployments may fail if not always on
     always_on                = true
     environment              = var.environment
-    linux_fx_version         = "PYTHON|3.9"
+    linux_fx_version         = "PYTHON|3.11"
     FUNCTIONS_WORKER_RUNTIME = "python"
   }
   # Set network configuration

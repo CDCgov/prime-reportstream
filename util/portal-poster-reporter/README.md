@@ -19,8 +19,9 @@ The steps for running the application are as follows:
 
 1. Configure the desired values in the application.properties file.
 2. Compile the application.
-3. Run the application and evaluate the results.
-4. Repeat as necessary.
+3. Log into ReportStream to get token (update the value in **application.properties**).
+4. Run the application and evaluate the results.
+5. Repeat as necessary.
 
 ### Configure the Desired Values in the application.properties File
 The following properties are used by **Portal Poster**:
@@ -29,17 +30,35 @@ The following properties are used by **Portal Poster**:
 
 **gov.cdc.prime.router.poster.url** - The full URL associated with the ReportStream submission history endpoint (e.g., http://localhost:7071/api/waters/report/%s/history/ for local testing).
 
-**gov.cdc.prime.router.poster.client** - The value to be used in the **client** HTTP header (e.g., simple_report.csvuploader).
+**gov.cdc.prime.router.poster.organization** - The value to be used in the **Organization** HTTP header (e.g., simple_report).
 
-**gov.cdc.prime.router.poster.x.functions.key** - The Azure key used for authentication (ignored for local testing).
+**gov.cdc.prime.router.poster.token** - The Okta (OAuth) token used for authentication (ignored for local testing).
 
 **gov.cdc.prime.router.poster.wait.time.in.seconds** - The number of seconds to wait between each HTTP invocation (e.g., 5).
 
-**gov.cdc.prime.router.poster.input.file** - The canonical path to the location of the input file (e.g., /Users/bill/projects/report-stream/user-stories/17978/portal-poster-reporter/20250609-123005-portal-poster-history.csv).
+**gov.cdc.prime.router.poster.input.file** - The canonical path to the location of the input file (e.g., **/Users/bill/projects/report-stream/user-stories/17978/portal-poster-reporter/20250609-123005-portal-poster-history.csv**).
 
 
 ### Compile The Application
 Simpley execute `./gradlew clean build` in the project directory.
+
+### Log into ReportStream to Get Token
+Use the **prime** script to retireve the Okta (Oauth) token.
+
+```./prime --env prod```
+
+Look in **~/.prime/DH_PROD/accessToken** to get the value for the OAuth token.
+
+```
+% cat .prime/DH_PROD/accessToken.json                                              
+{
+  "token" : "<REDACTED>",
+  "clientId" : "<REDACTED>",
+  "expiresAt" : "2025-08-20T13:44:33.961924"
+}
+```
+
+Copy the value for token and update `gov.cdc.prime.router.poster.token` in **application.properties**.
 
 ### Run the Application and Evaluate the Results
 Execute `./gradlew bootRun` from the command line (or from within your IDE).  Output will be logged both to the console and to `portal-poster-reporter.log`.
