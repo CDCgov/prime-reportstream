@@ -45,7 +45,7 @@ public class PortalPosterReporter implements CommandLineRunner {
         log.info("Starting PortalPosterReporter...");
         log.info("Input file: {}", inputFile);
         BufferedWriter submissionHistoryWriter = getSubmissionHistoryFile();
-        submissionHistoryWriter.write("Report ID,Min of Created At: Minute,Min of Organization - Org → Organization Name,id,submission id,destinationCount,overallStatus");
+        submissionHistoryWriter.write("Report ID,Min of Created At: Minute,Min of Organization - Org → Organization Name,id,submission id,destinationCount,overallStatus, receiver, receiverId");
         submissionHistoryWriter.newLine();
         // Loop through input CSV file.
         // Send one file every waitTimeInSeconds seconds.
@@ -76,8 +76,11 @@ public class PortalPosterReporter implements CommandLineRunner {
                     JsonNode jsonNode = mapper.readTree(result.getBody());
                     String destinationCount = jsonNode.get("destinationCount").asText();
                     String overallStatus = jsonNode.get("overallStatus").asText();
-                    log.info("input id=[{}], id=[{}], submissionId=[{}], destinationCount=[{}], overallStatus=[{}].", splitLine[0], splitLine[3], splitLine[4], destinationCount, overallStatus);
-                    submissionHistoryWriter.write(splitLine[0] + "," + splitLine[1] + "," + splitLine[2] + "," + splitLine[3] + "," + splitLine[4] +  "," + destinationCount + "," + overallStatus);
+                    JsonNode destinations = jsonNode.get("destinations");
+                    String receiver = destinations.get(0).get("organization").asText();
+                    String receiverId = destinations.get(0).get("organization_id").asText();
+                    log.info("input id=[{}], id=[{}], submissionId=[{}], destinationCount=[{}], overallStatus=[{}], receiver=[{}], receiver id=[{}].", splitLine[0], splitLine[3], splitLine[4], destinationCount, overallStatus, receiver, receiverId);
+                    submissionHistoryWriter.write(splitLine[0] + "," + splitLine[1] + "," + splitLine[2] + "," + splitLine[3] + "," + splitLine[4] +  "," + destinationCount + "," + overallStatus + "," + receiver + "," + receiverId);
                     submissionHistoryWriter.newLine();
                 } catch (Exception e) {
                     log.error("Error retrieving submission history for [{}]", splitLine[4], e);
