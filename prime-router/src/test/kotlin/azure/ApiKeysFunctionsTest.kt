@@ -14,8 +14,7 @@ import gov.cdc.prime.router.tokens.AuthenticationType
 import gov.cdc.prime.router.tokens.Jwk
 import gov.cdc.prime.router.tokens.JwkSet
 import gov.cdc.prime.router.tokens.oktaSystemAdminGroup
-import io.jsonwebtoken.SignatureAlgorithm
-import io.jsonwebtoken.security.Keys
+import io.jsonwebtoken.Jwts.SIG
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
@@ -46,36 +45,36 @@ class ApiKeysFunctionsTest {
         null
     )
 
-    val keyPair = Keys.keyPairFor(SignatureAlgorithm.RS256)
-    val pubKey = keyPair.getPublic() as RSAPublicKey
-    val keyPair2 = Keys.keyPairFor(SignatureAlgorithm.RS256)
-    val pubKey2 = keyPair2.getPublic() as RSAPublicKey
-    val keyPair3 = Keys.keyPairFor(SignatureAlgorithm.RS256)
-    val pubKey3 = keyPair2.getPublic() as RSAPublicKey
+    val keyPair = SIG.RS256.keyPair().build()
+    val pubKey = keyPair.public as RSAPublicKey
+    val keyPair2 = SIG.RS256.keyPair().build()
+    val pubKey2 = keyPair2.public as RSAPublicKey
+    val keyPair3 = SIG.RS256.keyPair().build()
+    val pubKey3 = keyPair3.public as RSAPublicKey
 
     var encodedPubKey: String? = null
     val jwk = Jwk(
-        pubKey.getAlgorithm(),
+        pubKey.algorithm,
         kid = "key1",
-        n = Base64.getUrlEncoder().encodeToString(pubKey.getModulus().toByteArray()),
-        e = Base64.getUrlEncoder().encodeToString(pubKey.getPublicExponent().toByteArray()),
+        n = Base64.getUrlEncoder().encodeToString(pubKey.modulus.toByteArray()),
+        e = Base64.getUrlEncoder().encodeToString(pubKey.publicExponent.toByteArray()),
         alg = "RS256",
         use = "sig",
     )
     val jwk2 = Jwk(
-        pubKey.getAlgorithm(),
+        pubKey.algorithm,
         kid = "key2",
-        n = Base64.getUrlEncoder().encodeToString(pubKey2.getModulus().toByteArray()),
-        e = Base64.getUrlEncoder().encodeToString(pubKey2.getPublicExponent().toByteArray()),
+        n = Base64.getUrlEncoder().encodeToString(pubKey2.modulus.toByteArray()),
+        e = Base64.getUrlEncoder().encodeToString(pubKey2.publicExponent.toByteArray()),
         alg = "RS256",
         use = "sig",
     )
 
     val jwk3 = Jwk(
-        pubKey.getAlgorithm(),
+        pubKey.algorithm,
         kid = "key3",
-        n = Base64.getUrlEncoder().encodeToString(pubKey3.getModulus().toByteArray()),
-        e = Base64.getUrlEncoder().encodeToString(pubKey3.getPublicExponent().toByteArray()),
+        n = Base64.getUrlEncoder().encodeToString(pubKey3.modulus.toByteArray()),
+        e = Base64.getUrlEncoder().encodeToString(pubKey3.publicExponent.toByteArray()),
         alg = "RS256",
         use = "sig",
     )

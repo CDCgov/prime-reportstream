@@ -16,6 +16,7 @@ import org.apache.logging.log4j.kotlin.Logging
 import tokens.Server2ServerAuthenticationException
 import tokens.Server2ServerError
 import java.security.Key
+import java.security.PublicKey
 import java.security.SignatureException
 import java.util.Date
 import java.util.UUID
@@ -58,12 +59,12 @@ class Server2ServerAuthentication(val workflowEngine: WorkflowEngine) : Logging 
         // See https://github.com/jwtk/jjwt/issues/86
         val i = jwsString.lastIndexOf('.')
         val withoutSignature = jwsString.substring(0, i + 1)
-        val jwt = Jwts.parserBuilder()
-            .setAllowedClockSkewSeconds(MAX_CLOCK_SKEW_SECONDS)
+        val jwt = Jwts.parser()
+            .clockSkewSeconds(MAX_CLOCK_SKEW_SECONDS)
             .build()
-            .parseClaimsJwt(withoutSignature)
+            .parseUnsecuredClaims(withoutSignature)
 
-        val claims = jwt.body
+        val claims = jwt.payload
         val headers = jwt.header
         val issuer = claims.issuer // client_id
         val maybeKid = headers["kid"] as String?
@@ -129,13 +130,13 @@ class Server2ServerAuthentication(val workflowEngine: WorkflowEngine) : Logging 
         actionHistory: ActionHistory? = null,
     ): Boolean {
         try {
-            val jws = Jwts.parserBuilder()
-                .setAllowedClockSkewSeconds(MAX_CLOCK_SKEW_SECONDS)
-                .setSigningKey(key)
+            val jws = Jwts.parser()
+                .clockSkewSeconds(MAX_CLOCK_SKEW_SECONDS)
+                .verifyWith(key as PublicKey)
                 .build()
-                .parseClaimsJws(jwsString)
-            val jti = jws.body.id
-            val exp = jws.body.expiration
+                .parseSignedClaims(jwsString)
+            val jti = jws.payload.id
+            val exp = jws.payload.expiration
             if (jti == null) {
                 logErr(actionHistory, "AccessToken Request Denied: SenderToken has null JWT ID.  Rejecting.")
                 return false
@@ -243,7 +244,7 @@ class Server2ServerAuthentication(val workflowEngine: WorkflowEngine) : Logging 
         val subject = scopeAuthorized + "_" + UUID.randomUUID()
         // Keep it small:  The signed token we send back only has two claims in it.
         val token = Jwts.builder()
-            .setExpiration(expirationDate) // exp
+            .expiration(expirationDate) // exp
             .claim("scope", scopeAuthorized)
             .claim("sub", subject)
             .signWith(secret).compact()
@@ -281,28 +282,28 @@ class Server2ServerAuthentication(val workflowEngine: WorkflowEngine) : Logging 
             }
             val secret = lookup.getReportStreamTokenSigningSecret()
             // Check the signature.  Throws JwtException on problems.
-            val jws = Jwts.parserBuilder()
-                .setSigningKey(secret)
+            val jws = Jwts.parser()
+                .verifyWith(secret)
                 .build()
-                .parseClaimsJws(accessToken)
-            if (jws.body == null) {
+                .parseSignedClaims(accessToken)
+            if (jws.payload == null) {
                 logger.error("AccessToken check failed - no claims.  Not authenticated.")
                 return null
             }
-            val subject = jws.body["sub"] as? String
+            val subject = jws.payload["sub"] as? String
             if (subject == null) {
                 logger.error("AccessToken missing subject.  Not authenticated.")
                 return null
             } else {
                 logger.info("checking AccessToken $subject")
             }
-            if (isExpiredToken(jws.body.expiration)) {
+            if (isExpiredToken(jws.payload.expiration)) {
                 logger.error("AccessToken $subject expired.  Not authenticated.")
                 return null
             }
             logger.info("AccessToken $subject : authenticated.")
             // convert the JWS Claims obj to our ReportStream AuthenticatedClaims obj
-            return AuthenticatedClaims(jws.body, AuthenticationType.Server2Server)
+            return AuthenticatedClaims(jws.payload, AuthenticationType.Server2Server)
         } catch (ex: JwtException) {
             logger.error("AccessToken not authenticated: $ex")
             return null
