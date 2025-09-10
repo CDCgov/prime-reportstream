@@ -546,7 +546,7 @@ val generateVersionObject = tasks.register("generateVersionObject") {
         sourceFile.writeText(
             """
         package gov.cdc.prime.router.version
-        
+
         /**
          * Supplies information for the current build.
          * This file is generated via Gradle task prior to compile time and should always contain the current commit hash.
@@ -639,9 +639,12 @@ tasks.register("quickPackage") {
  */
 dockerCompose {
 //    projectName = "prime-router" // docker-composer has this setter broken as of 0.16.4
-    setProjectName("rs-prime-router") // this is a workaround for the broken setter for projectName  
+    setProjectName("rs-prime-router") // this is a workaround for the broken setter for projectName
     useComposeFiles.addAll("docker-compose.secure-multiarch.yml")
-    startedServices.addAll("rs-postgresql", "rs-vault", "rs-azurite", "rs-azurite-stage", "rs-sftp", "rs-soap-webservice", "rs-rest-webservice")
+    startedServices.addAll(
+        "rs-postgresql", "rs-vault", "rs-azurite", "rs-azurite-stage",
+        "rs-sftp", "rs-soap-webservice", "rs-rest-webservice"
+    )
     stopContainers.set(false)
     waitForTcpPorts.set(false)
     // Starting in version 0.17 the plugin changed the default to true, meaning our docker compose yaml files
@@ -660,7 +663,7 @@ tasks.azureFunctionsRun {
     // Disable JMX to prevent port 9090 conflicts with multiple instances
     azurefunctions.localDebug = "transport=dt_socket,server=y,suspend=n,address=5005"
     env["JAVA_OPTS"] = "-Dcom.sun.management.jmxremote=false"
-    
+
     // Reduce verbose Azure Functions output for cleaner validation
     env["AzureFunctionsJobHost__logging__logLevel__default"] = "Warning"
     env["AzureFunctionsJobHost__logging__logLevel__Function"] = "Information"
@@ -711,7 +714,7 @@ tasks.register("quickRun") {
 tasks.register("quickRunRS") {
     group = rootProject.description ?: ""
     description = "Run Azure functions with rs- prefixed hardened infrastructure (for validation testing)"
-    dependsOn("killFunc", "azureFunctionsRun") 
+    dependsOn("killFunc", "azureFunctionsRun")
     tasks["test"].enabled = false
     tasks["jacocoTestReport"].enabled = false
     tasks["compileTestKotlin"].enabled = false

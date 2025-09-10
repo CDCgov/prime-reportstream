@@ -1,3 +1,4 @@
+@file:Suppress("UnusedImport")
 import java.net.URI
 
 pluginManagement {
@@ -15,3 +16,4 @@ sourceControl {
 // Single-project build for rs-prime-router
 rootProject.name = "rs-prime-router"
 rootProject.buildFileName = "build.gradle.matts-testing.kts"
+
