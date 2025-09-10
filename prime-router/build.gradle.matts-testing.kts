@@ -100,6 +100,7 @@ val dbPassword = (
 val dbUrl = (
     project.properties[KEY_DB_URL]
         ?: System.getenv(KEY_DB_URL)
+        ?: System.getenv("POSTGRES_URL")
         ?: "jdbc:postgresql://localhost:5432/prime_data_hub"
     ) as String
 
