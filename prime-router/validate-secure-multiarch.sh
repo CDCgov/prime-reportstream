@@ -725,7 +725,7 @@ start_api_and_load_data() {
     print_info "Setting up rs-prime-router environment for standard Gradle..."
     export COMPOSE_PROJECT_NAME=rs-prime-router
     export COMPOSE_FILE=docker-compose.secure-multiarch.yml
-    export POSTGRES_URL="jdbc:postgresql://localhost:5432/prime_data_hub"
+    export POSTGRES_URL="jdbc:postgresql://rs-postgresql:5432/prime_data_hub"
     export POSTGRES_USER="prime"
     export POSTGRES_PASSWORD="changeIT!"
     
