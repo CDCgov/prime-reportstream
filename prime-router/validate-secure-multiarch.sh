@@ -30,6 +30,7 @@ PLATFORM=""
 API_TEST=false
 E2E_TESTS=false
 FULL_GRADLE_TESTS=false
+LINT_CHECK=false
 for arg in "$@"; do
     case $arg in
         --help|-h)
@@ -44,6 +45,7 @@ for arg in "$@"; do
             echo "  --api-test             Test containerized API using prime_router_hardened service"
             echo "  --e2e-tests            Run end-to-end tests (HL7/FHIR submission, data pipeline)"
             echo "  --full-gradle-tests    Run complete Gradle test suite (1338+ tests)"
+            echo "  --lint                 Run code style validation (ktlint) and exit"
             echo "  --platform=PLATFORM    Force specific platform (linux/amd64 or linux/arm64)"
             echo "  --clean-tests          Clean only test results and exit (preserves build artifacts)"
             echo "  --help, -h             Show this help message"
@@ -90,6 +92,9 @@ for arg in "$@"; do
         --full-gradle-tests)
             FULL_GRADLE_TESTS=true
             ;;
+        --lint)
+            LINT_CHECK=true
+            ;;
         --platform=*)
             PLATFORM="${arg#*=}"
             ;;
@@ -129,9 +134,34 @@ preserve_test_results() {
     echo "  • Clean with: ./validate-secure-multiarch.sh --clean-tests"
 }
 
+# Test results management functions
+run_linting_check() {
+    print_header "Code Style Validation (ktlint)"
+    
+    print_info "Running ktlint check on all source files..."
+    cd ..
+    
+    if ./gradlew :prime-router:ktlintCheck; then
+        print_success "All code style checks passed"
+        cd prime-router
+        exit 0
+    else
+        print_error "Code style violations found"
+        print_info "Fix with: ./gradlew :prime-router:ktlintFormat"
+        print_info "Report location: build/reports/ktlint/"
+        cd prime-router
+        exit 1
+    fi
+}
+
 # Handle clean-tests-only flag
 if [ "$CLEAN_TESTS_ONLY" = true ]; then
     clean_test_results_only
+fi
+
+# Handle lint-only flag
+if [ "$LINT_CHECK" = true ]; then
+    run_linting_check
 fi
 
 print_header "Prime Router Multi-Architecture Hardened Infrastructure Validation"
