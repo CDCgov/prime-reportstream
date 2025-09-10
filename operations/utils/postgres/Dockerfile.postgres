@@ -1,5 +1,5 @@
 # Builder
-FROM cgr.dev/chainguard/wolfi-base:latest@sha256:7afaeb1ffbc9c33c21b9ddbd96a80140df1a5fa95aed6411b210bcb404e75c11 AS builder
+FROM cgr.dev/chainguard/wolfi-base:latest@sha256:898e4f30d920607c58acc01eabdfc9ac0725fb83b780d695542b3c3a3d265e48 AS builder
 
 ENV PG_VERSION=16.6
 ENV PG_SRC_DIR=/usr/local/src/postgresql
@@ -26,12 +26,12 @@ RUN wget -q https://ftp.postgresql.org/pub/source/v${PG_VERSION}/postgresql-${PG
     tar -xf postgresql-${PG_VERSION}.tar.gz && \
     mv postgresql-${PG_VERSION} ${PG_SRC_DIR} && \
     cd ${PG_SRC_DIR} && \
-    ./configure --prefix=/usr/local/postgres --with-openssl --with-readline && \
+    CFLAGS="-std=gnu11" ./configure --prefix=/usr/local/postgres --with-openssl --with-readline && \
     make -j$(nproc) && \
     make install
 
 # Runtime
-FROM cgr.dev/chainguard/wolfi-base:latest@sha256:7afaeb1ffbc9c33c21b9ddbd96a80140df1a5fa95aed6411b210bcb404e75c11
+FROM cgr.dev/chainguard/wolfi-base:latest@sha256:898e4f30d920607c58acc01eabdfc9ac0725fb83b780d695542b3c3a3d265e48
 
 RUN apk add --no-cache \
     bash \
@@ -51,18 +51,12 @@ ENV PGDATA="/var/lib/postgresql/data"
 RUN addgroup -S postgres && adduser -S postgres -G postgres && \
     mkdir -p ${PGDATA} && chown -R postgres:postgres ${PGDATA}
 
-USER postgres
+# Copy initialization script
+COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
-RUN initdb --locale=C -D ${PGDATA} && \
-    echo "listen_addresses='*'" >> ${PGDATA}/postgresql.conf && \
-    echo "host all all 0.0.0.0/0 md5" >> ${PGDATA}/pg_hba.conf && \
-    pg_ctl -D ${PGDATA} -o "-c listen_addresses='*'" -w start && \
-    psql --username=postgres -c "CREATE USER rsuser WITH PASSWORD 'password';" && \
-    psql --username=postgres -c "ALTER USER rsuser WITH SUPERUSER;" && \
-    psql --username=postgres -c "CREATE DATABASE mydb OWNER rsuser;" && \
-    pg_ctl -D ${PGDATA} -m fast -w stop
+USER postgres
 
 EXPOSE 5432
 
-ENTRYPOINT ["/usr/local/postgres/bin/postgres"]
-CMD ["-D", "/var/lib/postgresql/data"]
+ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
