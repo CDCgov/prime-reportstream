@@ -387,18 +387,18 @@ build_hardened_image() {
     print_info "Building hardened image for $PLATFORM using existing JAR..."
     docker build --pull --platform="$PLATFORM" \
                  -f Dockerfile.hardened \
-                 -t prime-router-hardened:latest \
+                 -t rs-rs-prime-router-hardened:latest \
                  .
     
     print_success "Hardened image built successfully"
     
     # Display image information
-    IMAGE_SIZE=$(docker images prime-router-hardened:latest --format "{{.Size}}")
+    IMAGE_SIZE=$(docker images rs-prime-router-hardened:latest --format "{{.Size}}")
     print_info "Image size: $IMAGE_SIZE"
     
     # Test basic functionality
     print_info "Testing Java runtime in hardened image..."
-    if docker run --rm --platform="$PLATFORM" prime-router-hardened:latest java -version 2>&1 | grep -q "openjdk version"; then
+    if docker run --rm --platform="$PLATFORM" rs-prime-router-hardened:latest java -version 2>&1 | grep -q "openjdk version"; then
         print_success "Java 17 runtime verified in hardened image"
     else
         print_error "Java runtime test failed in hardened image"
@@ -462,7 +462,7 @@ run_security_scans() {
         --skip-files "azure-functions-host/Microsoft.Azure.WebJobs.Script.WebHost.r2r.ni.r2rmap" \
         --skip-files "home/site/wwwroot/metadata/tables/local/LOINC.csv" \
         --quiet \
-        prime-router-hardened:latest 2>/dev/null; then
+        rs-prime-router-hardened:latest 2>/dev/null; then
         print_success "Security scan completed for hardened image"
     else
         print_warning "Security scan encountered issues for hardened image"
@@ -474,10 +474,10 @@ run_security_scans() {
     echo "Severity Levels: $SEVERITY_LEVELS"
     
     IMAGES=(
-        "prime-router-postgresql:latest:Custom PostgreSQL (Wolfi-based)"
-        "hashicorp/vault:latest:HashiCorp Vault"
-        "mcr.microsoft.com/azure-storage/azurite:3.34.0:Azure Storage Emulator"  
-        "atmoz/sftp:alpine:SFTP Server"
+        "rs-postgresql:latest:Custom PostgreSQL (Wolfi-based)"
+        "rs-vault:latest:HashiCorp Vault"
+        "rs-azurite:latest:Azure Storage Emulator"  
+        "rs-sftp:latest:SFTP Server"
     )
     
     for image_info in "${IMAGES[@]}"; do
@@ -548,12 +548,11 @@ start_infrastructure() {
     # Step 4: Start hardened PostgreSQL with Flyway-compatible configuration
     print_info "Starting hardened PostgreSQL with Flyway-compatible authentication..."
     docker run -d --name rs-postgresql \
-        --network rs-prime-router-network \
+        --network host \
         -e POSTGRES_USER=prime \
         -e POSTGRES_PASSWORD="changeIT!" \
         -e POSTGRES_DB=prime_data_hub \
-        -p 5432:5432 \
-        prime-router-postgresql:latest
+        rs-postgresql:latest
     
     # Using the newest version of hardened PostgreSQL image which:
     # - Has md5 authentication configured in entrypoint script (line 11)
@@ -594,7 +593,7 @@ start_infrastructure() {
     
     # Vault health check
     for i in {1..15}; do
-        if curl -sf http://localhost:8200/v1/sys/health 2>/dev/null | grep -q '"initialized":true'; then
+        if curl -sf http://127.0.0.1:8200/v1/sys/health 2>/dev/null | grep -q '"initialized":true'; then
             print_success "Vault is healthy and initialized"
             break
         elif [ $i -eq 15 ]; then
@@ -606,7 +605,7 @@ start_infrastructure() {
     
     # Azurite health check  
     for i in {1..15}; do
-        if curl -sf http://localhost:10000/devstoreaccount1?comp=list &>/dev/null; then
+        if curl -sf http://127.0.0.1:10000/devstoreaccount1?comp=list &>/dev/null; then
             print_success "Azurite is healthy and responding"
             break
         elif [ $i -eq 15 ]; then
@@ -725,7 +724,7 @@ start_api_and_load_data() {
     print_info "Setting up rs-prime-router environment for standard Gradle..."
     export COMPOSE_PROJECT_NAME=rs-prime-router
     export COMPOSE_FILE=docker-compose.secure-multiarch.yml
-    export POSTGRES_URL="jdbc:postgresql://rs-postgresql:5432/prime_data_hub"
+    export POSTGRES_URL="jdbc:postgresql://127.0.0.1:5432/prime_data_hub"
     export POSTGRES_USER="prime"
     export POSTGRES_PASSWORD="changeIT!"
     
@@ -755,7 +754,7 @@ start_api_and_load_data() {
         fi
         
         # Test basic API responsiveness with shorter timeout
-        if curl --max-time 3 -sf http://localhost:7071/api/lookuptables/list &>/dev/null; then
+        if curl --max-time 3 -sf http://127.0.0.1:7071/api/lookuptables/list &>/dev/null; then
             print_success "Prime Router API is responsive"
             api_ready=true
             break
@@ -804,7 +803,7 @@ start_api_and_load_data() {
     # Check if the lookup tables actually loaded by checking API response
     print_info "Verifying lookup tables loaded successfully via API..."
     for i in {1..6}; do
-        response=$(curl --max-time 5 -s http://localhost:7071/api/lookuptables/list 2>/dev/null)
+        response=$(curl --max-time 5 -s http://127.0.0.1:7071/api/lookuptables/list 2>/dev/null)
         table_count=$(echo "$response" | grep -o "tableName" | wc -l | tr -d ' ')
         
         if [ "$table_count" -gt 20 ]; then
@@ -847,7 +846,7 @@ start_api_and_load_data() {
     print_info "Performing final API functionality verification..."
     
     # Test that lookup tables API works (this confirms schema catalog and data loading)
-    test_response=$(curl -s http://localhost:7071/api/lookuptables/list 2>/dev/null)
+    test_response=$(curl -s http://127.0.0.1:7071/api/lookuptables/list 2>/dev/null)
     if echo "$test_response" | grep -q "tableName" && echo "$test_response" | grep -q "LIVD"; then
         table_count=$(echo "$test_response" | grep -o "tableName" | wc -l | tr -d ' ')
         print_success "API fully functional with schema catalog and lookup tables ($table_count tables)"
@@ -866,7 +865,7 @@ test_api_endpoints() {
     
     # Test 1: API Health Check (using working lookup tables endpoint for health verification)
     print_info "Testing API health endpoint..."
-    if curl -sf http://localhost:7071/api/lookuptables/list &>/dev/null; then
+    if curl -sf http://127.0.0.1:7071/api/lookuptables/list &>/dev/null; then
         print_success "API health verified via lookup tables endpoint"
     else
         print_error "API health check failed - lookup tables endpoint not responding"
@@ -875,7 +874,7 @@ test_api_endpoints() {
     
     # Test 2: Lookup Tables API 
     print_info "Testing lookup tables API..."
-    response=$(curl -s http://localhost:7071/api/lookuptables/list 2>/dev/null)
+    response=$(curl -s http://127.0.0.1:7071/api/lookuptables/list 2>/dev/null)
     if echo "$response" | grep -q "tableName" && echo "$response" | grep -q "LIVD-SARS-CoV-2"; then
         table_count=$(echo "$response" | grep -o "tableName" | wc -l | tr -d ' ')
         print_success "Lookup tables API working ($table_count tables loaded)"
@@ -891,7 +890,7 @@ PID|1||1234567890^^^ASSIGNMENT||DOE^JANE^|||F|||||||||||||||||||||
 OBR|1|123456^LAB^123456^LAB|123456|94531-1^SARS-CoV-2 RNA^LN|||202308151200|||||||||||||||F
 OBX|1|CWE|94531-1^SARS-CoV-2 RNA^LN||260373001^Detected^SCT|||A|||F"
     
-    response=$(curl -s -X POST "http://localhost:7071/api/reports?client=ignore.ignore-full-elr-e2e" \
+    response=$(curl -s -X POST "http://127.0.0.1:7071/api/reports?client=ignore.ignore-full-elr-e2e" \
         -H "Content-Type: application/hl7-v2" \
         -H "client: ignore.ignore-full-elr-e2e" \
         -d "$hl7_message" 2>/dev/null)
@@ -904,7 +903,7 @@ OBX|1|CWE|94531-1^SARS-CoV-2 RNA^LN||260373001^Detected^SCT|||A|||F"
     
     # Test 4: Organization Settings API
     print_info "Testing organization settings API..."
-    if curl -sf http://localhost:7071/api/settings/organizations &>/dev/null; then
+    if curl -sf http://127.0.0.1:7071/api/settings/organizations &>/dev/null; then
         print_success "Organization settings API is accessible"
     else
         print_info "Organization settings API may need authentication or specific parameters"
@@ -923,7 +922,7 @@ run_e2e_tests() {
     # Test 1: API Health Check (using lookup tables endpoint - known to work)
     print_info "Running API health check..."
     for attempt in {1..3}; do
-        if curl -s -f http://localhost:7071/api/lookuptables/list >/dev/null 2>&1; then
+        if curl -s -f http://127.0.0.1:7071/api/lookuptables/list >/dev/null 2>&1; then
             print_success "API health check passed"
             E2E_RESULTS="${E2E_RESULTS}API_HEALTH:PASS "
             break
@@ -938,8 +937,8 @@ run_e2e_tests() {
     
     # Test 2: Database Operations via API
     print_info "Testing database operations via API..."
-    if curl -s -f http://localhost:7071/api/lookuptables/list >/dev/null 2>&1; then
-        response=$(curl -s http://localhost:7071/api/lookuptables/list 2>/dev/null)
+    if curl -s -f http://127.0.0.1:7071/api/lookuptables/list >/dev/null 2>&1; then
+        response=$(curl -s http://127.0.0.1:7071/api/lookuptables/list 2>/dev/null)
         if echo "$response" | grep -q "LIVD-SARS-CoV-2\|sender-automation\|tableName"; then
             table_count=$(echo "$response" | grep -o "tableName" | wc -l | tr -d ' ')
             print_success "Database operations working ($table_count tables loaded)"
@@ -960,7 +959,7 @@ PID|1||1234567890^^^ASSIGNMENT||DOE^JANE^|||F|||||||||||||||||||||
 OBR|1|123456^LAB^123456^LAB|123456|94531-1^SARS-CoV-2 RNA^LN|||202308151200|||||||||||||||F
 OBX|1|CWE|94531-1^SARS-CoV-2 RNA^LN||260373001^Detected^SCT|||A|||F"
     
-    response=$(curl -s -X POST "http://localhost:7071/api/reports?client=ignore.ignore-full-elr-e2e" \
+    response=$(curl -s -X POST "http://127.0.0.1:7071/api/reports?client=ignore.ignore-full-elr-e2e" \
         -H "Content-Type: application/hl7-v2" \
         -H "client: ignore.ignore-full-elr-e2e" \
         -d "$hl7_message" 2>/dev/null)
@@ -1000,7 +999,7 @@ OBX|1|CWE|94531-1^SARS-CoV-2 RNA^LN||260373001^Detected^SCT|||A|||F"
       ]
     }'
     
-    response=$(curl -s -X POST "http://localhost:7071/api/reports?client=ignore.ignore-full-elr-e2e" \
+    response=$(curl -s -X POST "http://127.0.0.1:7071/api/reports?client=ignore.ignore-full-elr-e2e" \
         -H "Content-Type: application/fhir+ndjson" \
         -H "client: ignore.ignore-full-elr-e2e" \
         -d "$fhir_bundle" 2>/dev/null)
@@ -1016,7 +1015,7 @@ OBX|1|CWE|94531-1^SARS-CoV-2 RNA^LN||260373001^Detected^SCT|||A|||F"
     # Test 5: Report History API (if we have a report ID)
     if [[ -n "$REPORT_ID" ]]; then
         print_info "Testing report history API with reportId..."
-        if curl -s -f "http://localhost:7071/api/history/report?reportId=$REPORT_ID" >/dev/null 2>&1; then
+        if curl -s -f "http://127.0.0.1:7071/api/history/report?reportId=$REPORT_ID" >/dev/null 2>&1; then
             print_success "Report history API working"
             E2E_RESULTS="${E2E_RESULTS}REPORT_HISTORY:PASS "
         else
@@ -1033,17 +1032,17 @@ OBX|1|CWE|94531-1^SARS-CoV-2 RNA^LN||260373001^Detected^SCT|||A|||F"
     integration_score=0
     
     # Database connectivity through API
-    if curl -s http://localhost:7071/api/lookuptables/list | grep -q "tableName" 2>/dev/null; then
+    if curl -s http://127.0.0.1:7071/api/lookuptables/list | grep -q "tableName" 2>/dev/null; then
         ((integration_score++))
     fi
     
     # Storage connectivity
-    if curl -s "http://localhost:10000/devstoreaccount1?comp=list" >/dev/null 2>&1; then
+    if curl -s "http://127.0.0.1:10000/devstoreaccount1?comp=list" >/dev/null 2>&1; then
         ((integration_score++))
     fi
     
     # Vault connectivity
-    if curl -s http://localhost:8200/v1/sys/health >/dev/null 2>&1; then
+    if curl -s http://127.0.0.1:8200/v1/sys/health >/dev/null 2>&1; then
         ((integration_score++))
     fi
     
@@ -1342,7 +1341,7 @@ EOF
     # Wait for containerized API to be ready
     print_info "Waiting for containerized Prime Router API to be ready..."
     for i in {1..40}; do
-        if curl -sf http://localhost:7071/api &>/dev/null; then
+        if curl -sf http://127.0.0.1:7071/api &>/dev/null; then
             print_success "Containerized Prime Router API is ready"
             break
         elif [ $i -eq 40 ]; then
@@ -1368,7 +1367,7 @@ EOF
     
     # Test containerized API endpoints
     print_info "Testing containerized /api endpoint..."
-    if curl -sf http://localhost:7071/api | grep -q "Prime"; then
+    if curl -sf http://127.0.0.1:7071/api | grep -q "Prime"; then
         print_success "Containerized /api endpoint responded correctly"
     else
         print_error "Containerized /api endpoint test failed"
@@ -1376,14 +1375,14 @@ EOF
     fi
     
     print_info "Testing containerized /api/reports endpoint..."
-    if curl -sf http://localhost:7071/api/reports &>/dev/null; then
+    if curl -sf http://127.0.0.1:7071/api/reports &>/dev/null; then
         print_success "Containerized /api/reports endpoint is accessible"
     else
         print_warning "Containerized /api/reports endpoint may not be fully ready"
     fi
     
     print_info "Testing containerized /api/waters endpoint..."
-    if curl -sf http://localhost:7071/api/waters &>/dev/null; then
+    if curl -sf http://127.0.0.1:7071/api/waters &>/dev/null; then
         print_success "Containerized /api/waters endpoint is accessible"
     else
         print_warning "Containerized /api/waters endpoint may not be fully ready"
@@ -1407,7 +1406,7 @@ generate_report() {
     echo "ARCHITECTURE INFORMATION:" >> validation-report.txt
     echo "  Host Architecture: $HOST_ARCH" >> validation-report.txt
     echo "  Target Platform: $PLATFORM" >> validation-report.txt
-    echo "  Docker Image: prime-router-hardened:latest ($ARCH_TAG)" >> validation-report.txt
+    echo "  Docker Image: rs-prime-router-hardened:latest ($ARCH_TAG)" >> validation-report.txt
     echo "" >> validation-report.txt
     
     echo "INFRASTRUCTURE VALIDATION:" >> validation-report.txt
@@ -1429,7 +1428,7 @@ generate_report() {
     echo "PERFORMANCE METRICS:" >> validation-report.txt
     echo "  Platform: $PLATFORM" >> validation-report.txt
     if command -v docker &> /dev/null; then
-        IMAGE_SIZE=$(docker images prime-router-hardened:latest --format "{{.Size}}")
+        IMAGE_SIZE=$(docker images rs-prime-router-hardened:latest --format "{{.Size}}")
         echo "  Image Size: $IMAGE_SIZE" >> validation-report.txt
     fi
     echo "" >> validation-report.txt

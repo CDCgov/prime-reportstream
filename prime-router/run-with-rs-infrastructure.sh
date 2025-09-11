@@ -17,12 +17,11 @@ docker-compose -f docker-compose.secure-multiarch.yml up -d rs-vault
 # Start hardened PostgreSQL manually (image exists locally)
 echo " Starting hardened PostgreSQL..."
 docker run -d --name rs-postgresql \
-    --network rs-prime-router-network \
+    --network host \
     -e POSTGRES_USER=prime \
     -e POSTGRES_PASSWORD="changeIT!" \
     -e POSTGRES_DB=prime_data_hub \
-    -p 5432:5432 \
-    prime-router-postgresql:latest
+    rs-postgresql:latest
 
 # Start remaining services
 docker-compose -f docker-compose.secure-multiarch.yml up -d rs-azurite rs-azurite-stage rs-sftp rs-soap-webservice rs-rest-webservice
@@ -56,13 +55,13 @@ echo "   ./gradlew testSmoke             # Run smoke tests"
 echo "   ./gradlew testEnd2End           # Run E2E tests"
 echo ""
 echo " Services running on:"
-echo "   PostgreSQL: localhost:5432"
-echo "   Vault: localhost:8200" 
-echo "   Azurite: localhost:10000-10002"
-echo "   SFTP: localhost:2222"
-echo "   SOAP: localhost:8087"
-echo "   REST: localhost:3001"
-echo "   Azurite Stage: localhost:11000-11001"
+echo "   PostgreSQL: 127.0.0.1:5432"
+echo "   Vault: 127.0.0.1:8200" 
+echo "   Azurite: 127.0.0.1:10000-10002"
+echo "   SFTP: 127.0.0.1:2222"
+echo "   SOAP: 127.0.0.1:8087"
+echo "   REST: 127.0.0.1:3001"
+echo "   Azurite Stage: 127.0.0.1:11000-11001"
 echo ""
 echo " To stop rs- infrastructure:"
 echo "   docker-compose -f docker-compose.secure-multiarch.yml down"

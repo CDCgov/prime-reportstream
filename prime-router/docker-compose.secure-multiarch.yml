@@ -5,9 +5,10 @@ services:
   # Hardened Multi-Architecture Prime Router with Azure Functions
   rs-prime-router-hardened:
     container_name: rs-prime-router-app-hardened
-    image: prime-router-hardened:latest
+    image: rs-prime-router-hardened:latest
     platform: ${DOCKER_DEFAULT_PLATFORM:-linux/amd64}
     working_dir: /home/site/wwwroot
+    network_mode: host
     environment:
       # Azure Functions Configuration
       - AzureWebJobsScriptRoot=/home/site/wwwroot
@@ -19,20 +20,19 @@ services:
       # Database Configuration
       - POSTGRES_USER=prime
       - POSTGRES_PASSWORD=changeIT!
-      - POSTGRES_URL=jdbc:postgresql://rs-postgresql:5432/prime_data_hub
+      - POSTGRES_URL=jdbc:postgresql://127.0.0.1:5432/prime_data_hub
       
       # Azure Storage Configuration (Azurite)
-      - AZURE_STORAGE_CONNECTION_STRING=DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://rs-azurite:10000/devstoreaccount1;QueueEndpoint=http://rs-azurite:10001/devstoreaccount1;TableEndpoint=http://rs-azurite:10002/devstoreaccount1
+      - AZURE_STORAGE_CONNECTION_STRING=DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;QueueEndpoint=http://127.0.0.1:10001/devstoreaccount1;TableEndpoint=http://127.0.0.1:10002/devstoreaccount1
       
       # Vault Configuration  
-      - VAULT_API_ADDR=http://rs-vault:8200
+      - VAULT_API_ADDR=http://127.0.0.1:8200
       - VAULT_TOKEN=test-token
       
       # SFTP Configuration
-      - SFTP_HOST=rs-sftp
+      - SFTP_HOST=127.0.0.1
       - SFTP_PORT=22
-    ports:
-      - "7071:80"  # Azure Functions host port
+    # Note: Using host networking - no port mapping needed
     volumes:
       # Complete Azure Functions directory structure
       - type: bind
@@ -53,8 +53,7 @@ services:
       - rs-vault
       - rs-azurite
       - rs-sftp
-    networks:
-      - rs-network
+    network_mode: host
     restart: unless-stopped
     # Security: Run as non-root user (already configured in hardened image)
     user: "nonroot:nonroot"
@@ -75,6 +74,7 @@ services:
       context: ../operations/utils/postgres
       dockerfile: Dockerfile.postgres
     platform: linux/amd64  # PostgreSQL image is AMD64 only
+    network_mode: host
     environment:
       - POSTGRES_USER=prime
       - POSTGRES_PASSWORD=changeIT!
@@ -85,12 +85,12 @@ services:
       - POSTGRES_MAX_CONNECTIONS=100
       - POSTGRES_SHARED_BUFFERS=256MB
       - POSTGRES_EFFECTIVE_CACHE_SIZE=1GB
-    ports:
-      - "5432:5432"
+    # Host networking - no port mapping needed
+    # ports:
+      # - "5432:5432"
     volumes:
       - rs-postgresql-data:/var/lib/postgresql/data
-    networks:
-      - rs-network
+    network_mode: host
     restart: unless-stopped
     # Security hardening
     security_opt:
@@ -119,13 +119,13 @@ services:
       - VAULT_DEV_ROOT_TOKEN_ID=test-token
       - VAULT_DEV_LISTEN_ADDRESS=0.0.0.0:8200
       - VAULT_API_ADDR=http://localhost:8200
-    ports:
-      - "8200:8200"
+    # Host networking - no port mapping needed
+    # ports:
+      # - "8200:8200"
     volumes:
       - rs-vault-data:/vault/data
       - rs-vault-logs:/vault/logs
-    networks:
-      - rs-network
+    network_mode: host
     restart: unless-stopped
     # Security hardening
     security_opt:
@@ -143,14 +143,14 @@ services:
     image: mcr.microsoft.com/azure-storage/azurite:3.34.0
     platform: linux/amd64
     command: azurite --blobHost 0.0.0.0 --queueHost 0.0.0.0 --tableHost 0.0.0.0 --loose --skipApiVersionCheck
-    ports:
-      - "10000:10000"  # Blob service
+    # Host networking - no port mapping needed
+    # ports:
+      # - "10000:10000"  # Blob service
       - "10001:10001"  # Queue service  
       - "10002:10002"  # Table service
     volumes:
       - rs-azurite-data:/data
-    networks:
-      - rs-network
+    network_mode: host
     restart: unless-stopped
     # Security hardening
     security_opt:
@@ -172,12 +172,12 @@ services:
     platform: linux/amd64
     environment:
       - SFTP_USERS=primetest:primepass:1001:1001:upload
-    ports:
-      - "2222:22"
+    # Host networking - no port mapping needed
+    # ports:
+      # - "2222:22"
     volumes:
       - rs-sftp-data:/home/primetest/upload
-    networks:
-      - rs-network  
+    network_mode: host  
     restart: unless-stopped
     # Security hardening
     security_opt:
@@ -203,11 +203,11 @@ services:
     command: azurite --skipApiVersionCheck --blobHost 0.0.0.0 --queueHost 0.0.0.0
     volumes:
       - ./build/azurite-stage:/data
-    ports:
-      - "11000:10000"
+    # Host networking - no port mapping needed
+    # ports:
+      # - "11000:10000"
       - "11001:10001"
-    networks:
-      - rs-network
+    network_mode: host
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -216,13 +216,13 @@ services:
   rs-soap-webservice:
     container_name: rs-soap-webservice
     image: castlemock/castlemock
-    ports:
-      - "8087:8080"
+    # Host networking - no port mapping needed
+    # ports:
+      # - "8087:8080"
     volumes:
       - ../.environment/soap_service:/root/.castlemock
       - ../.environment/soap_service:/castlemock/castlemock
-    networks:
-      - rs-network
+    network_mode: host
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -233,12 +233,12 @@ services:
     image: mockoon/cli
     command:
       - --data=/root/data.json
-    ports:
-      - "3001:3001"
+    # Host networking - no port mapping needed
+    # ports:
+      # - "3001:3001"
     volumes:
       - ../.environment/rest_service:/root
-    networks:
-      - rs-network
+    network_mode: host
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
