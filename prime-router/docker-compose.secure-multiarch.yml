@@ -53,7 +53,6 @@ services:
       - rs-vault
       - rs-azurite
       - rs-sftp
-    network_mode: host
     restart: unless-stopped
     # Security: Run as non-root user (already configured in hardened image)
     user: "nonroot:nonroot"
@@ -90,7 +89,6 @@ services:
       # - "5432:5432"
     volumes:
       - rs-postgresql-data:/var/lib/postgresql/data
-    network_mode: host
     restart: unless-stopped
     # Security hardening
     security_opt:
@@ -144,10 +142,6 @@ services:
     platform: linux/amd64
     command: azurite --blobHost 0.0.0.0 --queueHost 0.0.0.0 --tableHost 0.0.0.0 --loose --skipApiVersionCheck
     # Host networking - no port mapping needed
-    # ports:
-      # - "10000:10000"  # Blob service
-      - "10001:10001"  # Queue service  
-      - "10002:10002"  # Table service
     volumes:
       - rs-azurite-data:/data
     network_mode: host
@@ -204,9 +198,6 @@ services:
     volumes:
       - ./build/azurite-stage:/data
     # Host networking - no port mapping needed
-    # ports:
-      # - "11000:10000"
-      - "11001:10001"
     network_mode: host
     restart: unless-stopped
     security_opt:
