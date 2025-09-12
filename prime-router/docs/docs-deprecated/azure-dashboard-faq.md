@@ -30,7 +30,7 @@ We do not have the best ways set up for viewing exceptions, but will in the futu
 			
 ### Where do we see database performance?
 * Log in to dashboard
-* Go to [pdstaging\pdhprod]-pgsql
+* Go to [dpsa-prim-azpgsql-01|dppa-prim-azpgsql-01]
 * See current performance
 * Can go to 'Query Performance Insight' to see which queries are taking up resources
 			

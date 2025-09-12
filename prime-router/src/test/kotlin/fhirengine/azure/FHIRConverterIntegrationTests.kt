@@ -43,6 +43,7 @@ import gov.cdc.prime.router.azure.observability.event.ReportStreamEventName
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventProperties
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventService
 import gov.cdc.prime.router.azure.observability.event.ReportStreamItemEvent
+import gov.cdc.prime.router.azure.observability.event.SubmissionEventData
 import gov.cdc.prime.router.cli.tests.CompareData
 import gov.cdc.prime.router.common.TestcontainersUtils
 import gov.cdc.prime.router.common.UniversalPipelineTestUtils.fetchChildReports
@@ -479,7 +480,6 @@ class FHIRConverterIntegrationTests {
                 ReportEventData(
                     routedReports[1].reportId,
                     receiveReport.id,
-                    listOf(receiveReport.id),
                     Topic.FULL_ELR,
                     routedReports[1].bodyUrl,
                     TaskAction.convert,
@@ -489,13 +489,18 @@ class FHIRConverterIntegrationTests {
                 ),
                 ReportEventData::timestamp
             )
-            assertThat(event.itemEventData).isEqualToIgnoringGivenProperties(
+            assertThat(event.submissionEventData).isEqualTo(
+                SubmissionEventData(
+                    listOf(receiveReport.id),
+                    listOf("phd.hl7-elr-no-transform")
+                )
+            )
+            assertThat(event.itemEventData).isEqualTo(
                 ItemEventData(
                     1,
                     2,
                     2,
-                    "371784",
-                    "phd.hl7-elr-no-transform"
+                    "371784"
                 )
             )
             assertThat(event.params).isEqualTo(
@@ -647,7 +652,6 @@ class FHIRConverterIntegrationTests {
                 ReportEventData(
                     routedReports[1].reportId,
                     receiveReport.id,
-                    listOf(receiveReport.id),
                     Topic.FULL_ELR,
                     routedReports[1].bodyUrl,
                     TaskAction.convert,
@@ -657,13 +661,18 @@ class FHIRConverterIntegrationTests {
                 ),
                 ReportEventData::timestamp
             )
-            assertThat(event.itemEventData).isEqualToIgnoringGivenProperties(
+            assertThat(event.submissionEventData).isEqualTo(
+                SubmissionEventData(
+                    listOf(receiveReport.id),
+                    listOf("phd.hl7-elr-no-transform")
+                )
+            )
+            assertThat(event.itemEventData).isEqualTo(
                 ItemEventData(
                     1,
                     2,
                     2,
-                    "371784",
-                    "phd.hl7-elr-no-transform"
+                    "371784"
                 )
             )
             assertThat(event.params).isEqualTo(
@@ -835,7 +844,6 @@ class FHIRConverterIntegrationTests {
                 ReportEventData(
                     routedReports[1].reportId,
                     receiveReport.id,
-                    listOf(receiveReport.id),
                     Topic.FULL_ELR,
                     routedReports[1].bodyUrl,
                     TaskAction.convert,
@@ -845,13 +853,18 @@ class FHIRConverterIntegrationTests {
                 ),
                 ReportEventData::timestamp
             )
-            assertThat(event.itemEventData).isEqualToIgnoringGivenProperties(
+            assertThat(event.submissionEventData).isEqualTo(
+                SubmissionEventData(
+                    listOf(receiveReport.id),
+                    listOf("phd.fhir-elr-no-transform")
+                )
+            )
+            assertThat(event.itemEventData).isEqualTo(
                 ItemEventData(
                     1,
                     3,
                     3,
-                    "1234d1d1-95fe-462c-8ac6-46728dbau8cd",
-                    "phd.fhir-elr-no-transform"
+                    "1234d1d1-95fe-462c-8ac6-46728dbau8cd"
                 )
             )
             assertThat(event.params).isEqualTo(
@@ -973,7 +986,6 @@ class FHIRConverterIntegrationTests {
                 ReportEventData(
                     notRouted.first().reportId,
                     receiveReport.id,
-                    listOf(receiveReport.id),
                     Topic.MARS_OTC_ELR,
                     "",
                     TaskAction.convert,
@@ -983,13 +995,18 @@ class FHIRConverterIntegrationTests {
                 ),
                 ReportEventData::timestamp
             )
-            assertThat(event.itemEventData).isEqualToIgnoringGivenProperties(
+            assertThat(event.submissionEventData).isEqualTo(
+                SubmissionEventData(
+                    listOf(receiveReport.id),
+                    listOf("phd.marsotc-hl7-sender")
+                )
+            )
+            assertThat(event.itemEventData).isEqualTo(
                 ItemEventData(
                     1,
                     2,
                     2,
-                    null,
-                    "phd.marsotc-hl7-sender"
+                    null
                 )
             )
             @Suppress("ktlint:standard:max-line-length")

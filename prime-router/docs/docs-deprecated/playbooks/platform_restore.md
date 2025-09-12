@@ -3,10 +3,12 @@
 In the event that Azure's East US region becomes unavailable, the entire platform can be restored by configuring
 Terraform to deploy to another Azure region.
 
+**Note on Databases**: The PostgreSQL database infrastructure is managed externally and has its own disaster recovery process. A regional failover of the application platform must be coordinated with the failover of the database and performed by the DBAs from the Cloud Services team, who now manage our Postgres instances.
+
 ### Actions to Mitigate 
 
-To configure Terraform to deploy to a new Azure region, update the local `location` in the environment's `variables.tf`
-file -- for example, in `operations/app/terraform/vars/production.tf`.  If you're restoring the platform to Azure's West
+To configure Terraform to deploy to a new Azure region, update the `location` variable inside the `init` block of the environment's `locals.tf`
+file -- for example, in `operations/app/terraform/vars/prod/locals.tf`.  If you're restoring the platform to Azure's West
 US region you'd change:
 
 ```

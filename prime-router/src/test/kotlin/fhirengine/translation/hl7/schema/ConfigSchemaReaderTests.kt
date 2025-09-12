@@ -10,9 +10,8 @@ import assertk.assertions.isTrue
 import assertk.assertions.messageContains
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.HL7ConverterSchema
-import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.converterSchemaFromFile
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.FhirTransformSchema
-import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.fhirTransformSchemaFromFile
+import gov.cdc.prime.router.fhirengine.translation.hl7.utils.helpers.SchemaReferenceResolverHelper
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkClass
@@ -94,7 +93,7 @@ class ConfigSchemaReaderTests {
                 "classpath:/fhir_sender_transforms/sample_schema.yml",
 
                 schemaClass = FhirTransformSchema::class.java,
-                mockk<BlobAccess.BlobContainerMetadata>(),
+                SchemaReferenceResolverHelper.getSchemaServiceProviders(mockk<BlobAccess.BlobContainerMetadata>())
             )
         )
 
@@ -103,7 +102,7 @@ class ConfigSchemaReaderTests {
             ConfigSchemaReader.fromFile(
                 "classpath:/fhir_sender_transforms/sample_schema.yml",
                 schemaClass = HL7ConverterSchema::class.java,
-                mockk<BlobAccess.BlobContainerMetadata>()
+                SchemaReferenceResolverHelper.getSchemaServiceProviders(mockk<BlobAccess.BlobContainerMetadata>())
             )
         }
 
@@ -112,7 +111,7 @@ class ConfigSchemaReaderTests {
             ConfigSchemaReader.fromFile(
                 "classpath:/fhirengine/translation/hl7/schema/schema-read-test-01/ORU_R01.yml",
                 schemaClass = HL7ConverterSchema::class.java,
-                mockk<BlobAccess.BlobContainerMetadata>()
+                SchemaReferenceResolverHelper.getSchemaServiceProviders(mockk<BlobAccess.BlobContainerMetadata>())
             )
         )
 
@@ -121,7 +120,7 @@ class ConfigSchemaReaderTests {
             ConfigSchemaReader.fromFile(
                 "classpath:/fhirengine/translation/hl7/schema/schema-read-test-01/ORU_R01.yml",
                 schemaClass = FhirTransformSchema::class.java,
-                mockk<BlobAccess.BlobContainerMetadata>()
+                SchemaReferenceResolverHelper.getSchemaServiceProviders(mockk<BlobAccess.BlobContainerMetadata>())
             )
         }
     }
@@ -132,7 +131,7 @@ class ConfigSchemaReaderTests {
             ConfigSchemaReader.fromFile(
                 "classpath:/fhirengine/translation/hl7/schema/schema-read-test-01/ORU_R01.yml",
                 schemaClass = HL7ConverterSchema::class.java,
-                blobConnectionInfo = mockk<BlobAccess.BlobContainerMetadata>()
+                SchemaReferenceResolverHelper.getSchemaServiceProviders(mockk<BlobAccess.BlobContainerMetadata>())
             ).isValid()
         ).isTrue()
 
@@ -140,22 +139,23 @@ class ConfigSchemaReaderTests {
             ConfigSchemaReader.fromFile(
                 "classpath:/fhirengine/translation/hl7/schema/schema-read-test-02/ORU_R01_incomplete.yml",
                 schemaClass = HL7ConverterSchema::class.java,
-                blobConnectionInfo = mockk<BlobAccess.BlobContainerMetadata>()
+                SchemaReferenceResolverHelper.getSchemaServiceProviders(mockk<BlobAccess.BlobContainerMetadata>())
             )
         }
 
         assertThat(
-            converterSchemaFromFile(
+            ConfigSchemaReader.fromFile(
                 "classpath:/fhirengine/translation/hl7/schema/schema-read-test-01/ORU_R01.yml",
-                blobConnectionInfo = mockk<BlobAccess.BlobContainerMetadata>()
+                schemaClass = HL7ConverterSchema::class.java,
+                SchemaReferenceResolverHelper.getSchemaServiceProviders(mockk<BlobAccess.BlobContainerMetadata>())
             ).isValid()
         ).isTrue()
 
         assertFailure {
-            converterSchemaFromFile(
+            ConfigSchemaReader.fromFile(
                 "classpath:/fhirengine/translation/hl7/schema/schema-read-test-02/ORU_R01_incomplete.yml",
-
-                blobConnectionInfo = mockk<BlobAccess.BlobContainerMetadata>()
+                schemaClass = HL7ConverterSchema::class.java,
+                SchemaReferenceResolverHelper.getSchemaServiceProviders(mockk<BlobAccess.BlobContainerMetadata>())
             )
         }
     }
@@ -169,7 +169,10 @@ class ConfigSchemaReaderTests {
             ConfigSchemaReader.fromFile(
                 "classpath:/fhirengine/translation/hl7/schema/schema-read-test-06/ORU_R01_circular.yml",
                 schemaClass = HL7ConverterSchema::class.java,
-                blobConnectionInfo = mockk<BlobAccess.BlobContainerMetadata>()
+                schemaServiceProviders =
+                    SchemaReferenceResolverHelper.getSchemaServiceProviders(
+                        mockk<BlobAccess.BlobContainerMetadata>()
+                    )
             )
         }.messageContains("Schema circular dependency")
 
@@ -177,7 +180,10 @@ class ConfigSchemaReaderTests {
             "classpath:/fhirengine/translation/hl7/schema/schema-read-test-06/ORU_R01_extends.yml",
 
             schemaClass = HL7ConverterSchema::class.java,
-            blobConnectionInfo = mockk<BlobAccess.BlobContainerMetadata>()
+            schemaServiceProviders =
+                SchemaReferenceResolverHelper.getSchemaServiceProviders(
+                    mockk<BlobAccess.BlobContainerMetadata>()
+                )
         )
         assertThat(schema.isValid()).isTrue()
         assertThat(schema.constants["baseConstant"]).isEqualTo("baseValue")
@@ -192,7 +198,10 @@ class ConfigSchemaReaderTests {
             ConfigSchemaReader.fromFile(
                 "classpath:/fhir_sender_transforms/sample_schema.yml",
                 schemaClass = FhirTransformSchema::class.java,
-                blobConnectionInfo = mockk<BlobAccess.BlobContainerMetadata>()
+                schemaServiceProviders =
+                    SchemaReferenceResolverHelper.getSchemaServiceProviders(
+                        mockk<BlobAccess.BlobContainerMetadata>()
+                    )
             ).isValid()
         ).isTrue()
 
@@ -201,39 +210,42 @@ class ConfigSchemaReaderTests {
                 "classpath:/fhir_sender_transforms/incomplete_schema.yml",
 
                 schemaClass = FhirTransformSchema::class.java,
-                blobConnectionInfo = mockk<BlobAccess.BlobContainerMetadata>()
+                schemaServiceProviders =
+                    SchemaReferenceResolverHelper.getSchemaServiceProviders(
+                        mockk<BlobAccess.BlobContainerMetadata>()
+                    )
             )
         }
 
         assertThat(
-            fhirTransformSchemaFromFile(
+            ConfigSchemaReader.fromFile(
                 "classpath:/fhir_sender_transforms/sample_schema.yml",
-
-                blobConnectionInfo = mockk<BlobAccess.BlobContainerMetadata>()
+                schemaClass = FhirTransformSchema::class.java,
+                SchemaReferenceResolverHelper.getSchemaServiceProviders(mockk<BlobAccess.BlobContainerMetadata>())
             ).isValid()
         ).isTrue()
 
         assertFailure {
-            fhirTransformSchemaFromFile(
+            ConfigSchemaReader.fromFile(
                 "classpath:/fhir_sender_transforms/invalid_value_set.yml",
-
-                blobConnectionInfo = mockk<BlobAccess.BlobContainerMetadata>()
+                schemaClass = FhirTransformSchema::class.java,
+                SchemaReferenceResolverHelper.getSchemaServiceProviders(mockk<BlobAccess.BlobContainerMetadata>())
             )
         }
 
         assertFailure {
-            fhirTransformSchemaFromFile(
+            ConfigSchemaReader.fromFile(
                 "classpath:/fhir_sender_transformsincomplete_schema.yml",
-
-                blobConnectionInfo = mockk<BlobAccess.BlobContainerMetadata>()
+                schemaClass = FhirTransformSchema::class.java,
+                SchemaReferenceResolverHelper.getSchemaServiceProviders(mockk<BlobAccess.BlobContainerMetadata>())
             )
         }
 
         assertFailure {
-            fhirTransformSchemaFromFile(
+            ConfigSchemaReader.fromFile(
                 "classpath:/fhir_sender_transforms/no_schema_nor_value.yml",
-
-                blobConnectionInfo = mockk<BlobAccess.BlobContainerMetadata>()
+                schemaClass = FhirTransformSchema::class.java,
+                SchemaReferenceResolverHelper.getSchemaServiceProviders(mockk<BlobAccess.BlobContainerMetadata>())
             )
         }
     }
@@ -244,7 +256,7 @@ class ConfigSchemaReaderTests {
             ConfigSchemaReader.fromFile(
                 "classpath:/fhir_sender_transforms/circular_schema.yml",
                 schemaClass = FhirTransformSchema::class.java,
-                blobConnectionInfo = mockk<BlobAccess.BlobContainerMetadata>()
+                SchemaReferenceResolverHelper.getSchemaServiceProviders(mockk<BlobAccess.BlobContainerMetadata>())
             )
         }.messageContains("Schema circular dependency")
 
@@ -252,7 +264,7 @@ class ConfigSchemaReaderTests {
             ConfigSchemaReader.fromFile(
                 "classpath:/fhir_sender_transforms/extends_schema.yml",
                 schemaClass = FhirTransformSchema::class.java,
-                blobConnectionInfo = mockk<BlobAccess.BlobContainerMetadata>()
+                SchemaReferenceResolverHelper.getSchemaServiceProviders(mockk<BlobAccess.BlobContainerMetadata>())
             ).isValid()
         ).isTrue()
     }
@@ -264,7 +276,7 @@ class ConfigSchemaReaderTests {
                 "classpath:/fhirengine/translation/hl7/schema/schema-read-test-07/ORU_R01.yml",
 
                 schemaClass = HL7ConverterSchema::class.java,
-                blobConnectionInfo = mockk<BlobAccess.BlobContainerMetadata>()
+                SchemaReferenceResolverHelper.getSchemaServiceProviders(mockk<BlobAccess.BlobContainerMetadata>())
             )
         )
     }
@@ -329,7 +341,10 @@ class ConfigSchemaReaderTests {
             ConfigSchemaReader.readSchemaTreeUri(
                 file.toURI(),
                 schemaClass = HL7ConverterSchema::class.java,
-                blobConnectionInfo = mockk<BlobAccess.BlobContainerMetadata>()
+                schemaServiceProviders =
+                    SchemaReferenceResolverHelper.getSchemaServiceProviders(
+                        mockk<BlobAccess.BlobContainerMetadata>()
+                    )
             )
         )
     }
@@ -354,7 +369,7 @@ class ConfigSchemaReaderTests {
                     """.trimIndent()
                 ),
                 schemaClass = HL7ConverterSchema::class.java,
-                blobConnectionInfo = blobConnectionInfo
+                schemaServiceProviders = SchemaReferenceResolverHelper.getSchemaServiceProviders(blobConnectionInfo)
             )
         )
         verify(exactly = 1) {
@@ -375,7 +390,7 @@ class ConfigSchemaReaderTests {
             ConfigSchemaReader.fromFile(
                 file.toURI().toString(),
                 schemaClass = HL7ConverterSchema::class.java,
-                blobConnectionInfo = mockk<BlobAccess.BlobContainerMetadata>()
+                SchemaReferenceResolverHelper.getSchemaServiceProviders(mockk<BlobAccess.BlobContainerMetadata>())
             )
         }.messageContains("Schema circular dependency")
     }
