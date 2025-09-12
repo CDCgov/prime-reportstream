@@ -3,9 +3,10 @@
 # Wrapper script to run Prime Router with rs- infrastructure
 # This allows us to use rs- prefixed services with standard Gradle tasks
 #
-# Usage: ./run-with-rs-infrastructure.sh [--status|--down|--help]
+# Usage: ./run-with-rs-infrastructure.sh [--status|--down|--spotless|--help]
 #   --status    Show status of rs- infrastructure services
 #   --down      Stop and remove all rs- infrastructure
+#   --spotless  DESTRUCTIVE: Remove all rs- containers, volumes, and file mounts
 #   --help      Show this help message
 
 set -e
@@ -20,6 +21,7 @@ case "${1:-}" in
         echo "Options:"
         echo "  --status    Show status of all rs- infrastructure services"
         echo "  --down      Stop and remove all rs- infrastructure"
+        echo "  --spotless  DESTRUCTIVE: Remove all rs- containers, volumes, and file mounts"
         echo "  --help      Show this help message"
         echo ""
         echo "Default behavior (no flags): Start complete rs- infrastructure"
@@ -57,6 +59,68 @@ case "${1:-}" in
         docker network ls --filter "name=rs-" -q | xargs docker network rm 2>/dev/null || echo "No rs- networks to remove"
         echo ""
         echo "RS- infrastructure stopped and cleaned up"
+        exit 0
+        ;;
+    --spotless)
+        echo "WARNING: SPOTLESS CLEANUP - THIS WILL DELETE ALL FILE SHARES!"
+        echo "========================================================="
+        echo ""
+        echo "This will PERMANENTLY DELETE:"
+        echo "  • All rs- containers and images"
+        echo "  • All rs- Docker volumes (including database data)"
+        echo "  • All rs- networks"
+        echo "  • All file mounts and shared data"
+        echo ""
+        read -p "Are you sure you want to continue? Type 'DELETE' to confirm: " confirmation
+        if [ "$confirmation" != "DELETE" ]; then
+            echo "Spotless cleanup cancelled"
+            exit 0
+        fi
+        echo ""
+        echo "Performing SPOTLESS cleanup..."
+        echo "=============================="
+        echo ""
+        
+        # Stop and remove Docker Compose services with volumes
+        echo "Stopping Docker Compose services and removing volumes..."
+        docker-compose -f docker-compose.secure-multiarch.yml down --remove-orphans --volumes --rmi all 2>/dev/null || true
+        echo ""
+        
+        # Stop and remove all rs- containers
+        echo "Stopping and removing all rs- containers..."
+        docker stop $(docker ps -q --filter "name=rs-") 2>/dev/null || echo "No rs- containers to stop"
+        docker rm $(docker ps -aq --filter "name=rs-") 2>/dev/null || echo "No rs- containers to remove"
+        echo ""
+        
+        # Remove all rs- volumes (including file mounts)
+        echo "Removing all rs- Docker volumes..."
+        docker volume ls --filter "name=rs-" -q | xargs docker volume rm 2>/dev/null || echo "No rs- volumes to remove"
+        echo ""
+        
+        # Remove all rs- networks
+        echo "Removing all rs- networks..."
+        docker network ls --filter "name=rs-" -q | xargs docker network rm 2>/dev/null || echo "No rs- networks to remove"
+        echo ""
+        
+        # Remove rs- images  
+        echo "Removing all rs- Docker images..."
+        docker images --filter "reference=rs-*" -q | xargs docker rmi -f 2>/dev/null || echo "No rs- images to remove"
+        echo ""
+        
+        # Clean up any remaining rs- related files
+        echo "Cleaning up rs- related files..."
+        rm -rf .vault/env/.env.local 2>/dev/null || true
+        rm -rf logs/rs-* 2>/dev/null || true
+        echo ""
+        
+        # Prune system to reclaim space
+        echo "Pruning Docker system to reclaim space..."
+        docker system prune -f --volumes 2>/dev/null || true
+        echo ""
+        
+        echo "SPOTLESS cleanup completed successfully!"
+        echo "All rs- infrastructure, volumes, and file shares have been removed."
+        echo "You can now start fresh with ./run-with-rs-infrastructure.sh"
         exit 0
         ;;
     --*)
