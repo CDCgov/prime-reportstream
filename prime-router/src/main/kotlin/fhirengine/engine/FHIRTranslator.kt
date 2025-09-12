@@ -39,6 +39,7 @@ import gov.cdc.prime.router.fhirengine.translation.hl7.FhirTransformer
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.HL7Utils.defaultHl7EncodingFiveChars
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.HL7Utils.defaultHl7EncodingFourChars
+import gov.cdc.prime.router.fhirengine.translation.hl7.utils.helpers.SchemaReferenceResolverHelper
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.report.ReportService
 import org.hl7.fhir.r4.model.Bundle
@@ -223,7 +224,7 @@ class FHIRTranslator(
             MimeFormat.FHIR -> {
                 if (receiver.schemaName.isNotEmpty()) {
                     val transformer = FhirTransformer(
-                        receiver.schemaName,
+                        SchemaReferenceResolverHelper.retrieveFhirSchemaReference(receiver.schemaName),
                     )
                     transformer.process(bundle)
                 }
@@ -254,9 +255,13 @@ class FHIRTranslator(
         }
 
         val converter = FhirToHl7Converter(
-            receiver.schemaName,
-            BlobAccess.BlobContainerMetadata.build("metadata", Environment.get().storageEnvVar),
-            context = FhirToHl7Context(CustomFhirPathFunctions(), config, CustomTranslationFunctions())
+            SchemaReferenceResolverHelper.retrieveHl7SchemaReference(
+                receiver.schemaName,
+                BlobAccess.BlobContainerMetadata.build("metadata", Environment.get().storageEnvVar)
+            ),
+            context = FhirToHl7Context(CustomFhirPathFunctions(), config, CustomTranslationFunctions()),
+            errors = mutableListOf(),
+            warnings = mutableListOf(),
         )
         val hl7Message = converter.process(bundle)
 

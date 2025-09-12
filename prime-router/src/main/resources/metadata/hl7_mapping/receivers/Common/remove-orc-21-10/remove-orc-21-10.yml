@@ -1,0 +1,10 @@
+# $schema: ./../../../../../../../../metadata/json_schema/fhir/fhir-to-hl7-mapping.json
+
+elements:
+
+  # Suppress the XON.10 value in Organization
+  - name: suppress-organization-orc-21-10
+    resource: 'Bundle.entry.resource.ofType(ServiceRequest).requester.resolve().organization.resolve().extension("https://reportstream.cdc.gov/fhir/StructureDefinition/xon-organization").extension("XON.10")'
+    condition: '%resource.value.exists()'
+    value: ['""']
+    hl7Spec: [ '/PATIENT_RESULT/ORDER_OBSERVATION/ORC-21-10' ]

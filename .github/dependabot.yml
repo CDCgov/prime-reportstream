@@ -11,24 +11,50 @@ updates:
     directory: "/operations"
     schedule:
       interval: "weekly"
+      day: "sunday"
+      time: "05:00"
+      timezone: "US/Eastern"
   - package-ecosystem: "docker"
     directory: "/prime-router"
     schedule:
       interval: "weekly"
+      day: "sunday"
+      time: "05:00"
+      timezone: "US/Eastern"
   - package-ecosystem: "docker"
     directory: "/.environment/docker/docker-compose"
     schedule:
       interval: "weekly"
+      day: "sunday"
+      time: "05:00"
+      timezone: "US/Eastern"
   - package-ecosystem: "docker"
     directory: "/frontend-react"
     schedule:
       interval: "weekly"
+      day: "sunday"
+      time: "05:00"
+      timezone: "US/Eastern"
+  - package-ecosystem: "docker"
+    directory: "/operations/utils/postgres"
+    schedule:
+      interval: "weekly"
+      day: "sunday"
+      time: "05:00"
+      timezone: "US/Eastern"
+  - package-ecosystem: "docker"
+    directory: "/operations/dnsmasq"
+    schedule:
+      interval: "weekly"
+      day: "sunday"
+      time: "05:00"
+      timezone: "US/Eastern"
 
   # slack-boltjs-app (chatops)
   - package-ecosystem: "gitsubmodule"
     directory: "/"
     schedule:
-      interval: "weekly"
+      interval: "monthly"
 
   # GitHub Actions workflows
   - package-ecosystem: "github-actions"
@@ -139,7 +165,7 @@ updates:
     directory: "/frontend-react"
     open-pull-requests-limit: 100
     schedule:
-      interval: "weekly"
+      interval: "monthly"
       day: "sunday"
       time: "00:17"
       timezone: "US/Eastern"
@@ -314,107 +340,99 @@ updates:
   - package-ecosystem: "terraform"
     directory: "/operations/app/terraform/modules/app_service_plan"
     schedule:
-      interval: "weekly"
+      interval: "monthly"
   - package-ecosystem: "terraform"
     directory: "/operations/app/terraform/modules/application_insights"
     schedule:
-      interval: "weekly"
+      interval: "monthly"
   - package-ecosystem: "terraform"
     directory: "/operations/app/terraform/modules/azure_dashboard"
     schedule:
-      interval: "weekly"
+      interval: "monthly"
   - package-ecosystem: "terraform"
     directory: "/operations/app/terraform/modules/chatops"
     schedule:
-      interval: "weekly"
+      interval: "monthly"
   - package-ecosystem: "terraform"
     directory: "/operations/app/terraform/modules/common/private_endpoint"
     schedule:
-      interval: "weekly"
+      interval: "monthly"
   - package-ecosystem: "terraform"
     directory: "/operations/app/terraform/modules/common/sftp"
     schedule:
-      interval: "weekly"
+      interval: "monthly"
   - package-ecosystem: "terraform"
     directory: "/operations/app/terraform/modules/common/vnet_dns_zones"
     schedule:
-      interval: "weekly"
+      interval: "monthly"
   - package-ecosystem: "terraform"
     directory: "/operations/app/terraform/modules/container_registry"
     schedule:
-      interval: "weekly"
+      interval: "monthly"
   - package-ecosystem: "terraform"
     directory: "/operations/app/terraform/modules/data_factory"
     schedule:
-      interval: "weekly"
-  - package-ecosystem: "terraform"
-    directory: "/operations/app/terraform/modules/database"
-    schedule:
-      interval: "weekly"
+      interval: "monthly"
   - package-ecosystem: "terraform"
     directory: "/operations/app/terraform/modules/front_door"
     schedule:
-      interval: "weekly"
+      interval: "monthly"
   - package-ecosystem: "terraform"
     directory: "/operations/app/terraform/modules/function_app"
     schedule:
-      interval: "weekly"
+      interval: "monthly"
   - package-ecosystem: "terraform"
     directory: "/operations/app/terraform/modules/init"
     schedule:
-      interval: "weekly"
+      interval: "monthly"
   - package-ecosystem: "terraform"
     directory: "/operations/app/terraform/modules/init/subnets"
     schedule:
-      interval: "weekly"
+      interval: "monthly"
   - package-ecosystem: "terraform"
     directory: "/operations/app/terraform/modules/key_vault"
     schedule:
-      interval: "weekly"
+      interval: "monthly"
   - package-ecosystem: "terraform"
     directory: "/operations/app/terraform/modules/log_analytics_workspace"
     schedule:
-      interval: "weekly"
+      interval: "monthly"
   - package-ecosystem: "terraform"
     directory: "/operations/app/terraform/modules/metabase"
     schedule:
-      interval: "weekly"
+      interval: "monthly"
   - package-ecosystem: "terraform"
     directory: "/operations/app/terraform/modules/nat_gateway"
     schedule:
-      interval: "weekly"
+      interval: "monthly"
   - package-ecosystem: "terraform"
     directory: "/operations/app/terraform/modules/network"
     schedule:
-      interval: "weekly"
+      interval: "monthly"
   - package-ecosystem: "terraform"
     directory: "/operations/app/terraform/modules/sftp"
     schedule:
-      interval: "weekly"
+      interval: "monthly"
   - package-ecosystem: "terraform"
     directory: "/operations/app/terraform/modules/sftp_container"
     schedule:
-      interval: "weekly"
+      interval: "monthly"
   - package-ecosystem: "terraform"
     directory: "/operations/app/terraform/modules/ssh"
     schedule:
-      interval: "weekly"
+      interval: "monthly"
   - package-ecosystem: "terraform"
     directory: "/operations/app/terraform/modules/storage"
     schedule:
-      interval: "weekly"
-  - package-ecosystem: "terraform"
-    directory: "/operations/app/terraform/vars/demo"
-    schedule:
-      interval: "weekly"
+      interval: "monthly"
   - package-ecosystem: "terraform"
     directory: "/operations/app/terraform/vars/prod"
     schedule:
-      interval: "weekly"
+      interval: "monthly"
   - package-ecosystem: "terraform"
     directory: "/operations/app/terraform/vars/staging"
     schedule:
-      interval: "weekly"
+      interval: "monthly"
   - package-ecosystem: "terraform"
     directory: "/operations/app/terraform/vars/test"
     schedule:
@@ -425,40 +443,40 @@ updates:
     directory: "/shared"
     open-pull-requests-limit: 100
     schedule:
-      interval: "weekly"
+      interval: "monthly"
       day: "sunday"
       time: "05:17"
       timezone: "US/Eastern"
     rebase-strategy: "disabled"
 
   # submissions
-  - package-ecosystem: "gradle"
-    directory: "/submissions"
-    open-pull-requests-limit: 100
-    schedule:
-      interval: "weekly"
-      day: "sunday"
-      time: "04:17"
-      timezone: "US/Eastern"
-    rebase-strategy: "disabled"
+  # - package-ecosystem: "gradle"
+  #   directory: "/submissions"
+  #   open-pull-requests-limit: 100
+  #   schedule:
+  #     interval: "weekly"
+  #     day: "sunday"
+  #     time: "04:17"
+  #     timezone: "US/Eastern"
+  #   rebase-strategy: "disabled"
 
   # auth
-  - package-ecosystem: "gradle"
-    directory: "/auth"
-    open-pull-requests-limit: 100
-    schedule:
-      interval: "weekly"
-      day: "sunday"
-      time: "04:17"
-      timezone: "US/Eastern"
-    rebase-strategy: "disabled"
+  # - package-ecosystem: "gradle"
+  #   directory: "/auth"
+  #   open-pull-requests-limit: 100
+  #   schedule:
+  #     interval: "weekly"
+  #     day: "sunday"
+  #     time: "04:17"
+  #     timezone: "US/Eastern"
+  #   rebase-strategy: "disabled"
 
   # Backend
   - package-ecosystem: "gradle"
     directory: "/prime-router"
     open-pull-requests-limit: 100
     schedule:
-      interval: "weekly"
+      interval: "monthly"
       day: "sunday"
       time: "03:17"
       timezone: "US/Eastern"

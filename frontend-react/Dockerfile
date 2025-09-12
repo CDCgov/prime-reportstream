@@ -33,7 +33,7 @@ RUN export NODE_VERSION=$(cat /tmp/.nvmrc | tr -d '[:space:]') && \
 # Install yarn and resolve vulnerability in cross-spawn, by upgrading it to a version with resolved CVE
 # Newly found CVEs can be resolved in similar manner - by upgrading to the closest fixed version
 RUN apk add --no-cache yarn && \
-    npm install -g cross-spawn@7.0.3
+    npm install -g cross-spawn@7.0.5
 # Extract Node.js version from the  image
 SHELL ["/bin/ash", "-o", "pipefail", "-c"]
 RUN node --version | awk -F'v' '{print $2}' 

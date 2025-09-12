@@ -27,6 +27,9 @@ data class SFTPTransportType
     val port: String,
     val filePath: String,
     val credentialName: String? = null,
+    val connectionTimeout: String? = null,
+    val readTimeout: String? = null,
+    val useNonDeprecatedKeyAlgorithmsOnly: Boolean = false,
 ) : TransportType("SFTP")
 
 data class EmailTransportType
