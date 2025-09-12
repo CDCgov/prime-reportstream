@@ -647,7 +647,7 @@ class ActionHistory(
             parentReportId(header.reportFile.reportId)
             params(
                 listOfNotNull(
-                    ReportStreamEventProperties.TRANSPORT_TYPE to transportType,
+                    ReportStreamEventProperties.TRANSPORT_TYPE to (receiver.transport?.type ?: transportType),
                     ReportStreamEventProperties.RECEIVER_NAME to receiver.fullName,
                     filename?.let { ReportStreamEventProperties.FILENAME to it }
                 ).toMap()

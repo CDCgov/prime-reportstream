@@ -4,14 +4,11 @@ import ca.uhn.hl7v2.HL7Exception
 import ca.uhn.hl7v2.model.Message
 import ca.uhn.hl7v2.util.Terser
 import fhirengine.translation.hl7.utils.FhirPathFunctions
-import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.fhirengine.engine.encodePreserveEncodingChars
 import gov.cdc.prime.router.fhirengine.translation.hl7.config.ContextConfig
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.ConfigSchemaElementProcessingException
-import gov.cdc.prime.router.fhirengine.translation.hl7.schema.ConfigSchemaReader
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.ConverterSchemaElement
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.HL7ConverterSchema
-import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.converterSchemaFromFile
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.ConstantSubstitutor
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
@@ -45,52 +42,6 @@ class FhirToHl7Converter(
     warnings, errors
 ),
 Logging {
-    /**
-     * Convert a FHIR bundle to an HL7 message using the [schema] in the [schemaFolder] location to perform the conversion.
-     * The converter will error out if [strict] is set to true and there is an error during the conversion.  If [strict]
-     * is set to false (the default) then any conversion errors are logged as a warning.  Note [strict] does not affect
-     * the schema validation process. Additional custom FHIR path functions used to convert messages can be passed
-     * inside the [context].
-     * @property terser the terser to use for building the HL7 message (use for dependency injection)
-     */
-    constructor(
-        schema: String,
-        strict: Boolean = false,
-        terser: Terser? = null,
-        context: FhirToHl7Context? = null,
-        blobConnectionInfo: BlobAccess.BlobContainerMetadata,
-        warnings: MutableList<String> = mutableListOf(),
-        errors: MutableList<String> = mutableListOf(),
-    ) : this(
-        schemaRef = converterSchemaFromFile(schema, blobConnectionInfo),
-        strict = strict,
-        terser = terser,
-        context = context,
-        warnings = warnings,
-        errors = errors
-    )
-
-    constructor(
-        schemaUri: String,
-        blobConnectionInfo: BlobAccess.BlobContainerMetadata,
-        strict: Boolean = false,
-        terser: Terser? = null,
-        context: FhirToHl7Context? = null,
-        warnings: MutableList<String> = mutableListOf(),
-        errors: MutableList<String> = mutableListOf(),
-    ) : this(
-        ConfigSchemaReader.fromFile(
-            schemaUri,
-            HL7ConverterSchema::class.java,
-            blobConnectionInfo = blobConnectionInfo
-        ),
-        strict = strict,
-        terser = terser,
-        context = context,
-        warnings = warnings,
-        errors = errors
-
-    )
 
     /**
      * Convert the given [bundle] to an HL7 message.
