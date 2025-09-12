@@ -66,13 +66,13 @@
 
 ### Full Gradle Test Suite (--full-gradle-tests)  
 
-**Purpose**: Comprehensive code quality validation  
+**Purpose**: Complete code quality validation  
 **Infrastructure**: PostgreSQL only (test-optimized)  
 **Testing**: 1338 unit tests + 430 integration tests + JaCoCo coverage
 
 **Use Cases**:
 
-- Pre-commit comprehensive validation
+- Pre-commit complete validation
 - Release qualification testing
 - Code coverage analysis
 - Quality assurance workflows
@@ -100,7 +100,7 @@
 # Security + E2E (runs security only - precedence rules apply)
 ./validate-secure-multiarch.sh --e2e-tests --sec --platform=linux/arm64
 
-# Comprehensive testing (E2E + full test suite)
+# Complete testing (E2E + full test suite)
 ./validate-secure-multiarch.sh --e2e-tests --full-gradle-tests
 
 # Verbose output for debugging
@@ -143,7 +143,7 @@ No `--platform=...` flag necessarty.
 # Quick validation before commits
 ./validate-secure-multiarch.sh
 
-# Comprehensive validation for major changes
+# Complete validation for major changes
 ./validate-secure-multiarch.sh --full-gradle-tests
 ```
 
@@ -225,7 +225,7 @@ Once this is validated and matured, I can hide some testing output to only show 
 
 ```bash
 # Check for conflicts
-./validate-secure-multiarch.sh  # Will detect and report conflicts
+./validate-secure-multiarch.sh  # Will detect, attempt to fix and report exotic conflicts
 
 # Resolve conflicts  
 docker-compose down              # Stop this project's containers
@@ -252,34 +252,12 @@ docker-compose down --remove-orphans
 
 ---
 
-## Security Analysis
-
-### CVE Metrics Achieved
-
-- **Infrastructure**: 100% CVE elimination (327 → 0 CVEs)
-- **Overall application**: 92.3% CVE reduction (327 → 25 CVEs)
-- **Hardened PostgreSQL**: Zero vulnerabilities (Wolfi-based)
-- **Multi-architecture**: Consistent security across ARM64/AMD64
-
-### Security Scanning Details
+## Security Scanning Details
 
 - **Severity levels**: MEDIUM, HIGH, CRITICAL (project standard)
 - **Scan coverage**: OS packages, .NET components, Java JARs
 - **Platform-specific**: ARM64 base components, AMD64 full stack
 - **Infrastructure images**: PostgreSQL, Vault, Azurite, SFTP
-
----
-
-## Performance Guidelines
-
-### Execution Time Expectations
-
-| Mode | Duration | Best Used For |
-|------|----------|---------------|
-| Basic | 45 seconds | Daily development, quick checks |
-| Security | 2-3 minutes | Security compliance, pre-deployment |
-| Full Tests | 7 minutes | Comprehensive validation, releases |
-| E2E | 5 minutes | Feature validation, integration testing |
 
 ### Resource Requirements
 
@@ -312,5 +290,4 @@ docker-compose down --remove-orphans
 - **Platform requirements**: AMD64 for runtime (auto-corrected on Apple Silicon)
 - **Function generation**: 75 API endpoints automatically configured
 - **Development parity**: Same functions and behavior as production Azure deployment
-
-**Result**: Production ready validation framework with mature API testing capabilities and clean execution across all modes.
+  

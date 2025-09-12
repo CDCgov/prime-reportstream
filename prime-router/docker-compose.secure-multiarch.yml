@@ -69,21 +69,16 @@ services:
   # Custom PostgreSQL 16.6 - Wolfi-based (0 CVEs)
   rs-postgresql:
     container_name: rs-postgresql
-    build:
-      context: ../operations/utils/postgres
-      dockerfile: Dockerfile.postgres
+    image: postgres:16.6
     platform: linux/amd64  # PostgreSQL image is AMD64 only
     network_mode: host
+    command: ["postgres", "-c", "listen_addresses=0.0.0.0", "-c", "port=5432"]
     environment:
       - POSTGRES_USER=prime
       - POSTGRES_PASSWORD=changeIT!
       - POSTGRES_DB=prime_data_hub
       - POSTGRES_HOST_AUTH_METHOD=md5
       - POSTGRES_INITDB_ARGS=--auth-host=md5
-      # Connection optimization
-      - POSTGRES_MAX_CONNECTIONS=100
-      - POSTGRES_SHARED_BUFFERS=256MB
-      - POSTGRES_EFFECTIVE_CACHE_SIZE=1GB
     # Host networking - no port mapping needed
     # ports:
       # - "5432:5432"

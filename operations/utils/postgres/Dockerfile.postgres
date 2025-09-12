@@ -54,15 +54,17 @@ RUN addgroup -S postgres && adduser -S postgres -G postgres && \
 USER postgres
 
 RUN initdb --locale=C -D ${PGDATA} && \
-    echo "listen_addresses='*'" >> ${PGDATA}/postgresql.conf && \
+    echo "listen_addresses='0.0.0.0'" >> ${PGDATA}/postgresql.conf && \
+    echo "port = 5432" >> ${PGDATA}/postgresql.conf && \
+    echo "host all all 127.0.0.1/32 md5" >> ${PGDATA}/pg_hba.conf && \
     echo "host all all 0.0.0.0/0 md5" >> ${PGDATA}/pg_hba.conf && \
-    pg_ctl -D ${PGDATA} -o "-c listen_addresses='*'" -w start && \
-    psql --username=postgres -c "CREATE USER rsuser WITH PASSWORD 'password';" && \
-    psql --username=postgres -c "ALTER USER rsuser WITH SUPERUSER;" && \
-    psql --username=postgres -c "CREATE DATABASE mydb OWNER rsuser;" && \
+    pg_ctl -D ${PGDATA} -o "-c listen_addresses='0.0.0.0' -c port=5432" -w start && \
+    psql --username=postgres -c "CREATE USER prime WITH PASSWORD 'changeIT!';" && \
+    psql --username=postgres -c "ALTER USER prime WITH SUPERUSER;" && \
+    psql --username=postgres -c "CREATE DATABASE prime_data_hub OWNER prime;" && \
     pg_ctl -D ${PGDATA} -m fast -w stop
 
 EXPOSE 5432
 
 ENTRYPOINT ["/usr/local/postgres/bin/postgres"]
-CMD ["-D", "/var/lib/postgresql/data"]
+CMD ["-D", "/var/lib/postgresql/data", "-c", "listen_addresses=0.0.0.0", "-c", "port=5432"]

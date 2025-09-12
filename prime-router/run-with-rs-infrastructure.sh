@@ -2,8 +2,69 @@
 
 # Wrapper script to run Prime Router with rs- infrastructure
 # This allows us to use rs- prefixed services with standard Gradle tasks
+#
+# Usage: ./run-with-rs-infrastructure.sh [--status|--down|--help]
+#   --status    Show status of rs- infrastructure services
+#   --down      Stop and remove all rs- infrastructure
+#   --help      Show this help message
 
 set -e
+
+# Parse command line arguments
+case "${1:-}" in
+    --help|-h)
+        echo "Usage: ./run-with-rs-infrastructure.sh [OPTIONS]"
+        echo ""
+        echo "Manages rs- prefixed hardened infrastructure for Prime Router development"
+        echo ""
+        echo "Options:"
+        echo "  --status    Show status of all rs- infrastructure services"
+        echo "  --down      Stop and remove all rs- infrastructure"
+        echo "  --help      Show this help message"
+        echo ""
+        echo "Default behavior (no flags): Start complete rs- infrastructure"
+        exit 0
+        ;;
+    --status)
+        echo "RS- Infrastructure Status"
+        echo "========================"
+        echo ""
+        echo "Docker Containers:"
+        docker ps --filter "name=rs-" --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}" 2>/dev/null || echo "No rs- containers running"
+        echo ""
+        echo "Docker Compose Services:"
+        docker-compose -f docker-compose.secure-multiarch.yml ps 2>/dev/null || echo "No compose services running"
+        echo ""
+        echo "Port Usage:"
+        echo "PostgreSQL (5432): $(lsof -ti :5432 2>/dev/null && echo "OCCUPIED" || echo "AVAILABLE")"
+        echo "Vault (8200): $(lsof -ti :8200 2>/dev/null && echo "OCCUPIED" || echo "AVAILABLE")"
+        echo "Azurite (10000): $(lsof -ti :10000 2>/dev/null && echo "OCCUPIED" || echo "AVAILABLE")"
+        echo "API (7071): $(lsof -ti :7071 2>/dev/null && echo "OCCUPIED" || echo "AVAILABLE")"
+        exit 0
+        ;;
+    --down)
+        echo "Stopping RS- Infrastructure"
+        echo "==========================="
+        echo ""
+        echo "Stopping Docker Compose services..."
+        docker-compose -f docker-compose.secure-multiarch.yml down --remove-orphans --volumes 2>/dev/null || true
+        echo ""
+        echo "Stopping manual rs- containers..."
+        docker stop $(docker ps -q --filter "name=rs-") 2>/dev/null || echo "No rs- containers to stop"
+        docker rm $(docker ps -aq --filter "name=rs-") 2>/dev/null || echo "No rs- containers to remove"
+        echo ""
+        echo "Cleaning up rs- networks..."
+        docker network ls --filter "name=rs-" -q | xargs docker network rm 2>/dev/null || echo "No rs- networks to remove"
+        echo ""
+        echo "RS- infrastructure stopped and cleaned up"
+        exit 0
+        ;;
+    --*)
+        echo "ERROR: Unknown option: $1"
+        echo "Use --help for usage information"
+        exit 1
+        ;;
+esac
 
 echo " Starting Prime Router with RS- Hardened Infrastructure"
 echo "=============================================="
@@ -14,14 +75,9 @@ echo " Starting rs- prefixed hardened infrastructure..."
 # Start vault first for credentials
 docker-compose -f docker-compose.secure-multiarch.yml up -d rs-vault
 
-# Start hardened PostgreSQL manually (image exists locally)
-echo " Starting hardened PostgreSQL..."
-docker run -d --name rs-postgresql \
-    --network host \
-    -e POSTGRES_USER=prime \
-    -e POSTGRES_PASSWORD="changeIT!" \
-    -e POSTGRES_DB=prime_data_hub \
-    rs-postgresql:latest
+# Start PostgreSQL using Docker Compose (standard approach)
+echo " Starting PostgreSQL via Docker Compose..."
+docker-compose -f docker-compose.secure-multiarch.yml up -d rs-postgresql
 
 # Start remaining services
 docker-compose -f docker-compose.secure-multiarch.yml up -d rs-azurite rs-azurite-stage rs-sftp rs-soap-webservice rs-rest-webservice
@@ -70,4 +126,4 @@ echo ""
 # Load environment variables for this session
 export $(cat .vault/env/.env.local | xargs)
 echo " Environment variables loaded for this session"
-echo " Ready for Prime Router development with complete local infrastructure!"
+echo " Ready for Prime Router development with full local infrastructure!"

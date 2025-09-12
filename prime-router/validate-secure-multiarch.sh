@@ -236,33 +236,68 @@ validate_flag_combinations() {
 
 validate_flag_combinations
 
-# Check for port conflicts before starting validation
+# Enhanced port conflict detection with automatic resolution
 check_port_conflicts() {
     print_info "Checking for port conflicts..."
     
     # Check critical Prime Router ports
     local ports=(5432 8200 10000 10001 10002 2222 8087 3001 5005 9090 7071)
     local conflicts_found=false
+    local conflicts_resolved=0
     
     for port in "${ports[@]}"; do
         if lsof -i :$port &>/dev/null; then
-            local process=$(lsof -i :$port | tail -1 | awk '{print $2, $1}' 2>/dev/null || echo "unknown")
-            print_warning "Port $port already in use by: $process"
-            conflicts_found=true
+            local pid=$(lsof -ti :$port 2>/dev/null | head -1)
+            local process_details=$(ps -p $pid -o command --no-headers 2>/dev/null || echo "unknown")
+            local command_name=$(echo "$process_details" | awk '{print $1}')
+            
+            print_warning "Port $port in use by PID $pid: $command_name"
+                
+            # Classify process for safe cleanup
+            if echo "$process_details" | grep -q "gradlew.*run\|Microsoft.Azure.WebJobs\|azure-functions\|func.*host\|java.*prime-router"; then
+                print_info "Auto-cleaning Prime Router process on port $port (PID: $pid)"
+                # Graceful termination
+                kill -TERM $pid 2>/dev/null || true
+                sleep 3  # Give more time for graceful shutdown
+                # Force kill if still running
+                if kill -0 $pid 2>/dev/null; then
+                    print_info "Force killing stubborn process $pid"
+                    kill -KILL $pid 2>/dev/null || true
+                    sleep 2  # Wait for force kill to complete
+                fi
+                ((conflicts_resolved++))
+                print_success "Cleaned up process $pid"
+            else
+                print_warning "Unknown process on port $port - manual cleanup required"
+                conflicts_found=true
+            fi
         fi
     done
     
+    if [ $conflicts_resolved -gt 0 ]; then
+        print_success "Auto-resolved $conflicts_resolved Prime Router port conflicts"
+        print_info "Waiting for ports to be released..."
+        sleep 3
+        
+        # Re-check for remaining conflicts
+        for port in "${ports[@]}"; do
+            if lsof -i :$port &>/dev/null; then
+                local process=$(lsof -i :$port | tail -1 | awk '{print $2, $1}' 2>/dev/null || echo "unknown")
+                print_warning "Port $port still in use by: $process"
+                conflicts_found=true
+            fi
+        done
+    fi
+    
     if [ "$conflicts_found" = true ]; then
-        print_warning "Port conflicts detected - this may cause validation failures"
-        # I can automate this if needed but this should be a rare occurence if any
-        print_info "Try:"
-        print_info "  1. ./validate-secure-multiarch.sh --clean-tests  # Basic cleanup"
-        print_info "  2. pkill -f 'gradlew.*run'  # Stop Gradle processes"  
-        print_info "  3. docker-compose down  # Stop this project's containers only"
-        print_info "Run validation again after cleanup"
+        print_warning "Some port conflicts remain after auto-cleanup"
+        print_info "Manual cleanup required:"
+        print_info "  1. ./validate-secure-multiarch.sh --clean-tests"
+        print_info "  2. pkill -f 'gradlew.*run'"  
+        print_info "  3. docker-compose down"
         exit 1
     else
-        print_success "No port conflicts detected"
+        print_success "All port conflicts resolved - proceeding with validation"
     fi
 }
 
@@ -323,11 +358,41 @@ cleanup() {
     pkill -f "func host start" 2>/dev/null || true
     pkill -f "Microsoft.Azure.WebJobs" 2>/dev/null || true
     
+    # Enhanced cleanup of Prime Router processes
+    print_info "Cleaning up all Prime Router processes and ports..."
+    
+    # Clean up by process patterns (more comprehensive)
+    pkill -f "gradlew.*run" 2>/dev/null || true
+    sleep 2  # Allow processes to terminate gracefully
+    pkill -f "Microsoft.Azure.WebJobs" 2>/dev/null || true
+    pkill -f "azure-functions" 2>/dev/null || true
+    pkill -f "func.*host" 2>/dev/null || true
+    pkill -f "java.*prime-router" 2>/dev/null || true
+    
     # Clean up JMX and debug port processes
-    print_info "Cleaning up JMX and debug port processes..."
     pkill -f "java.*jmx.*9090" 2>/dev/null || true
     pkill -f "java.*agentlib:jdwp.*5005" 2>/dev/null || true
-    pkill -f "java.*prime-router" 2>/dev/null || true
+    
+    sleep 3  # Give time for all processes to fully terminate
+    
+    # Final port verification and force cleanup if needed
+    local remaining_conflicts=0
+    local cleanup_ports=(5005 9090 7071)
+    for port in "${cleanup_ports[@]}"; do
+        if lsof -i :$port &>/dev/null; then
+            local pid=$(lsof -ti :$port 2>/dev/null | head -1)
+            if [ -n "$pid" ]; then
+                print_info "Force cleaning remaining process on port $port (PID: $pid)"
+                kill -KILL $pid 2>/dev/null || true
+                ((remaining_conflicts++))
+            fi
+        fi
+    done
+    
+    if [ $remaining_conflicts -gt 0 ]; then
+        print_info "Force cleaned $remaining_conflicts additional processes"
+        sleep 2  # Final wait for port release
+    fi
     
     # Stop containers gracefully using docker-compose (project-specific only)
     print_info "Stopping this project's containers..."
@@ -387,7 +452,7 @@ build_hardened_image() {
     print_info "Building hardened image for $PLATFORM using existing JAR..."
     docker build --pull --platform="$PLATFORM" \
                  -f Dockerfile.hardened \
-                 -t rs-rs-prime-router-hardened:latest \
+                 -t rs-prime-router-hardened:latest \
                  .
     
     print_success "Hardened image built successfully"
