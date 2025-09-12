@@ -17,6 +17,7 @@ import gov.cdc.prime.router.azure.observability.event.ReportStreamEventName
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventService
 import gov.cdc.prime.router.report.ReportService
 import gov.cdc.prime.router.transport.NullTransport
+import gov.cdc.prime.router.transport.RESTTransport
 import gov.cdc.prime.router.transport.RetryToken
 import gov.cdc.prime.router.transport.SftpTransport
 import gov.cdc.prime.router.unittest.UnitTestUtils
@@ -42,14 +43,38 @@ class SendFunctionTests {
     val logger = mockkClass(Logger::class)
     val workflowEngine = mockkClass(WorkflowEngine::class)
     val sftpTransport = mockkClass(SftpTransport::class)
+    val restTransport = mockkClass(RESTTransport::class)
     val nullTransport = mockkClass(NullTransport::class)
     val reportId = UUID.randomUUID()
+    val maxRetryCount = retryDurationInMin.size
     val task = Task(
         reportId,
         TaskAction.send,
         null,
         null,
         "ignore.CSV",
+        0,
+        "",
+        "",
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+    )
+    val restTask = Task(
+        reportId,
+        TaskAction.send,
+        null,
+        null,
+        "ignore.REST_TEST",
         0,
         "",
         "",
@@ -90,26 +115,61 @@ class SendFunctionTests {
         every { workflowEngine.settings }.returns(settings)
         every { workflowEngine.readBody(any()) }.returns("body".toByteArray())
         every { workflowEngine.sftpTransport }.returns(sftpTransport)
+        every { workflowEngine.restTransport }.returns(restTransport)
         every { workflowEngine.nullTransport }.returns(nullTransport)
         every { workflowEngine.azureEventService }.returns(InMemoryAzureEventService())
         every { workflowEngine.reportService }.returns(mockk<ReportService>(relaxed = true))
     }
 
+    fun mockAzureEvents() {
+        mockkConstructor(ActionHistory::class)
+        mockkConstructor(ReportStreamEventService::class)
+
+        every {
+            anyConstructed<ReportStreamEventService>().sendReportEvent(
+                any(),
+                any<ReportFile>(),
+                any(),
+                any(),
+                any(),
+                any()
+            )
+        } returns Unit
+        every { anyConstructed<ActionHistory>().setActionType(TaskAction.send_error) } returns Unit
+        every { workflowEngine.recordAction(any()) }.returns(Unit)
+        every { workflowEngine.db } returns mockk<DatabaseAccess>(relaxed = true)
+    }
+
     fun makeIgnoreDotCSVHeader(): WorkflowEngine.Header = WorkflowEngine.Header(
-        task, reportFile,
+        task,
+        reportFile,
         null,
         settings.findOrganization("ignore"),
         settings.findReceiver("ignore.CSV"),
-        metadata.findSchema("covid-19"), "hello".toByteArray(),
+        metadata.findSchema("covid-19"),
+        "hello".toByteArray(),
         true
     )
 
     fun makeIgnoreDotHL7NullHeader(): WorkflowEngine.Header = WorkflowEngine.Header(
-        task, reportFile,
+        task,
+        reportFile,
         null,
         settings.findOrganization("ignore"),
         settings.findReceiver("ignore.HL7_NULL"),
-        metadata.findSchema("covid-19"), "hello".toByteArray(),
+        metadata.findSchema("covid-19"),
+        "hello".toByteArray(),
+        true
+    )
+
+    fun makeIgnoreDotRESTHeader(): WorkflowEngine.Header = WorkflowEngine.Header(
+        restTask,
+        reportFile,
+        null,
+        settings.findOrganization("ignore"),
+        settings.findReceiver("ignore.REST_TEST"),
+        metadata.findSchema("covid-19"),
+        "hello".toByteArray(),
         true
     )
 
@@ -185,69 +245,53 @@ class SendFunctionTests {
         assertThat(nextEvent!!.retryToken).isNull()
     }
 
-    @Test
-    fun `Test creates Azure Events when report sent`() {
+    @Test // No Send Errors
+    fun `Test handleRetry queues no further action when no items are left to retry and no send error was logged`() {
+        // Setup
+        val stillRetriesLeft = maxRetryCount - 1
         var nextEvent: ReportEvent? = null
-        val reportList = listOf(reportFile)
         setupLogger()
         setupWorkflow()
+
         every { workflowEngine.handleReportEvent(any(), any()) }.answers {
             val block = secondArg() as
                     (header: WorkflowEngine.Header, retryToken: RetryToken?, txn: Configuration?) -> ReportEvent
             val header = makeIgnoreDotCSVHeader()
-            nextEvent = block(header, null, null)
+            nextEvent = block(header, RetryToken(stillRetriesLeft, RetryToken.allItems), null)
         }
+        // transport.send() returns no items left to retry
         every {
             sftpTransport.send(any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any())
         }.returns(null)
         every { workflowEngine.recordAction(any()) }.returns(Unit)
-        every { workflowEngine.azureEventService.trackEvent(any()) }.returns(Unit)
-        every { workflowEngine.reportService.getRootReports(any()) } returns reportList
         every { workflowEngine.db } returns mockk<DatabaseAccess>()
-        mockkObject(Report.Companion)
-        every { Report.formExternalFilename(any(), any(), any(), any(), any(), any(), any()) } returns ""
 
         // Invoke
         val event = ReportEvent(Event.EventAction.SEND, reportId, false)
         SendFunction(workflowEngine).run(event.toQueueMessage(), context)
 
         // Verify
-        assertThat(nextEvent).isNotNull()
         assertThat(nextEvent!!.eventAction).isEqualTo(Event.EventAction.NONE)
         assertThat(nextEvent!!.retryToken).isNull()
     }
 
-    @Test
-    fun `Test creates Azure Event when last mile failure happens`() {
+    @Test // Keep Retrying
+    fun `Test handleRetry logs send attempt failed when send fails but retry limit is not yet reached`() {
         // Setup
+        val stillRetriesLeft = maxRetryCount - 1
         var nextEvent: ReportEvent? = null
         setupLogger()
-        mockkConstructor(ActionHistory::class)
-        mockkConstructor(ReportStreamEventService::class)
-        every {
-            anyConstructed<ReportStreamEventService>().sendReportEvent(
-                any(),
-                any<ReportFile>(),
-                any(),
-                any(),
-                any(),
-                any()
-            )
-        } returns Unit
+        setupWorkflow()
+        mockAzureEvents()
 
-        every { anyConstructed<ActionHistory>().setActionType(TaskAction.send_error) } returns Unit
         every { workflowEngine.handleReportEvent(any(), any()) }.answers {
             val block = secondArg() as
                     (header: WorkflowEngine.Header, retryToken: RetryToken?, txn: Configuration?) -> ReportEvent
             val header = makeIgnoreDotCSVHeader()
-            nextEvent = block(header, RetryToken(1500, RetryToken.allItems), null)
+            nextEvent = block(header, RetryToken(stillRetriesLeft, RetryToken.allItems), null)
         }
-        setupWorkflow()
-        every {
-            sftpTransport.send(any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any())
-        }.returns(RetryToken.allItems)
-        every { workflowEngine.recordAction(any()) }.returns(Unit)
-        every { workflowEngine.db } returns mockk<DatabaseAccess>(relaxed = true)
+        every { sftpTransport.send(any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any()) }
+            .returns(RetryToken.allItems)
 
         // Invoke
         val event = ReportEvent(Event.EventAction.SEND, reportId, false)
@@ -256,112 +300,128 @@ class SendFunctionTests {
         // Verify
         verify(exactly = 1) {
             anyConstructed<ActionHistory>().trackItemSendState(
+                ReportStreamEventName.ITEM_SEND_ATTEMPT_FAIL, any(), any(), any(), any(), any(), any(), any(), any()
+            )
+            anyConstructed<ActionHistory>().setActionType(TaskAction.send_warning)
+        }
+        assertThat(nextEvent!!.eventAction).isEqualTo(Event.EventAction.SEND)
+        assertThat(nextEvent!!.retryToken?.retryCount).isEqualTo(stillRetriesLeft + 1)
+        assertThat(nextEvent!!.at!!.isAfter(OffsetDateTime.now())).isTrue()
+        nextEvent!!.retryToken?.toJSON()?.let {
+            assertThat(it.contains("\"retryCount\":${stillRetriesLeft + 1}")).isTrue()
+        }
+    }
+
+    @Test // Last Mile Failure B
+    fun `Test handleRetry logs send failure (last mile failure) when retry limit is met`() {
+        // Setup
+        val retryLimitMet = maxRetryCount
+        var nextEvent: ReportEvent? = null
+        setupLogger()
+        setupWorkflow()
+        mockAzureEvents()
+
+        every { workflowEngine.handleReportEvent(any(), any()) }.answers {
+            val block = secondArg() as
+                    (header: WorkflowEngine.Header, retryToken: RetryToken?, txn: Configuration?) -> ReportEvent
+            val header = makeIgnoreDotCSVHeader()
+            nextEvent = block(header, RetryToken(retryLimitMet, RetryToken.allItems), null)
+        }
+        every { sftpTransport.send(any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any()) }
+            .returns(RetryToken.allItems)
+
+        // Invoke
+        val event = ReportEvent(Event.EventAction.SEND, reportId, false)
+        SendFunction(workflowEngine).run(event.toQueueMessage(), context)
+
+        // Verify
+        verify(exactly = 1) {
+            anyConstructed<ActionHistory>().setActionType(TaskAction.send_error)
+            anyConstructed<ActionHistory>().trackItemSendState(
                 ReportStreamEventName.ITEM_LAST_MILE_FAILURE, any(), any(), any(), any(), any(), any(), any(), any()
             )
             anyConstructed<ReportStreamEventService>().sendReportEvent(
                 ReportStreamEventName.REPORT_LAST_MILE_FAILURE, any<ReportFile>(), any(), any(), any(), any()
             )
         }
-    }
-
-    @Test
-    fun `Test with sftp error`() {
-        // Setup
-        var nextEvent: ReportEvent? = null
-        setupLogger()
-        mockkConstructor(ActionHistory::class)
-        every { anyConstructed<ActionHistory>().setActionType(TaskAction.send_warning) } returns Unit
-        every { workflowEngine.handleReportEvent(any(), any()) }.answers {
-            val block = secondArg() as
-                    (header: WorkflowEngine.Header, retryToken: RetryToken?, txn: Configuration?) -> ReportEvent
-            val header = makeIgnoreDotCSVHeader()
-            nextEvent = block(header, null, null)
-        }
-        setupWorkflow()
-        every { sftpTransport.send(any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any()) }
-            .returns(RetryToken.allItems)
-        every { workflowEngine.recordAction(any()) }.returns(Unit)
-        every { workflowEngine.db } returns mockk<DatabaseAccess>()
-
-        // Invoke
-        val event = ReportEvent(Event.EventAction.SEND, reportId, false)
-        SendFunction(workflowEngine).run(event.toQueueMessage(), context)
-
-        // Verify
-        assertThat(nextEvent).isNotNull()
-        assertThat(nextEvent!!.eventAction).isEqualTo(Event.EventAction.SEND)
-        assertThat(nextEvent!!.retryToken).isNotNull()
-        assertThat(nextEvent!!.retryToken?.retryCount).isEqualTo(1)
-        verify(exactly = 1) { anyConstructed<ActionHistory>().setActionType(TaskAction.send_warning) }
-    }
-
-    @Test
-    fun `Test with third sftp error`() {
-        // Setup
-        var nextEvent: ReportEvent? = null
-        setupLogger()
-        mockkConstructor(ActionHistory::class)
-        every { anyConstructed<ActionHistory>().setActionType(TaskAction.send_warning) } returns Unit
-        every { workflowEngine.handleReportEvent(any(), any()) }.answers {
-            val block = secondArg() as
-                    (header: WorkflowEngine.Header, retryToken: RetryToken?, txn: Configuration?) -> ReportEvent
-
-            val header = makeIgnoreDotCSVHeader()
-            nextEvent = block(
-                header, RetryToken(2, RetryToken.allItems), null
-            )
-        }
-        setupWorkflow()
-        every { sftpTransport.send(any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any()) }
-            .returns(RetryToken.allItems)
-        every { workflowEngine.recordAction(any()) }.returns(Unit)
-        every { workflowEngine.db } returns mockk<DatabaseAccess>()
-
-        // Invoke
-        val event = ReportEvent(Event.EventAction.SEND, reportId, false)
-        SendFunction(workflowEngine).run(event.toQueueMessage(), context)
-
-        // Verify
-        assertThat(nextEvent).isNotNull()
-        assertThat(nextEvent!!.eventAction).isEqualTo(Event.EventAction.SEND)
-        assertThat(nextEvent!!.retryToken).isNotNull()
-        assertThat(nextEvent!!.retryToken?.retryCount).isEqualTo(3)
-        assertThat(nextEvent!!.at!!.isAfter(OffsetDateTime.now().plusMinutes(2))).isTrue()
-        nextEvent!!.retryToken?.toJSON()?.let { assertThat(it.contains("\"retryCount\":3")).isTrue() }
-        verify(exactly = 1) { anyConstructed<ActionHistory>().setActionType(TaskAction.send_warning) }
-    }
-
-    @Test
-    fun `Test with 100th sftp error`() {
-        // Setup
-        var nextEvent: ReportEvent? = null
-        setupLogger()
-        mockkConstructor(ActionHistory::class)
-        every { anyConstructed<ActionHistory>().setActionType(TaskAction.send_error) } returns Unit
-        val reportId = UUID.randomUUID()
-        every { workflowEngine.handleReportEvent(any(), any()) }.answers {
-            val block = secondArg() as
-                    (header: WorkflowEngine.Header, retryToken: RetryToken?, txn: Configuration?) -> ReportEvent
-            val header = makeIgnoreDotCSVHeader()
-            // Should be high enough retry count that the next action should have an error
-            nextEvent = block(
-                header, RetryToken(100, RetryToken.allItems), null
-            )
-        }
-        setupWorkflow()
-        every { sftpTransport.send(any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any()) }
-            .returns(RetryToken.allItems)
-        every { workflowEngine.recordAction(any()) }.returns(Unit)
-        every { workflowEngine.db } returns mockk<DatabaseAccess>(relaxed = true)
-
-        // Invoke
-        val event = ReportEvent(Event.EventAction.SEND, reportId, false)
-        SendFunction(workflowEngine).run(event.toQueueMessage(), context)
-
-        // Verify
-        assertThat(nextEvent).isNotNull()
         assertThat(nextEvent!!.eventAction).isEqualTo(Event.EventAction.SEND_ERROR)
         assertThat(nextEvent!!.retryToken).isNull()
-        verify { anyConstructed<ActionHistory>().setActionType(TaskAction.send_error) }
+    }
+
+    @Test // Last Mile Failure B
+    fun `Test handleRetry logs send failure (last mile failure) when retry limit is exceeded`() {
+        // Setup
+        val noRetriesLeft = maxRetryCount + 1
+        var nextEvent: ReportEvent? = null
+        setupLogger()
+        setupWorkflow()
+        mockAzureEvents()
+
+        every { workflowEngine.handleReportEvent(any(), any()) }.answers {
+            val block = secondArg() as
+                    (header: WorkflowEngine.Header, retryToken: RetryToken?, txn: Configuration?) -> ReportEvent
+            val header = makeIgnoreDotCSVHeader()
+            nextEvent = block(header, RetryToken(noRetriesLeft, RetryToken.allItems), null)
+        }
+        every { sftpTransport.send(any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any()) }
+            .returns(RetryToken.allItems)
+
+        // Invoke
+        val event = ReportEvent(Event.EventAction.SEND, reportId, false)
+        SendFunction(workflowEngine).run(event.toQueueMessage(), context)
+
+        // Verify
+        verify(exactly = 1) {
+            anyConstructed<ActionHistory>().setActionType(TaskAction.send_error)
+            anyConstructed<ActionHistory>().trackItemSendState(
+                ReportStreamEventName.ITEM_LAST_MILE_FAILURE, any(), any(), any(), any(), any(), any(), any(), any()
+            )
+            anyConstructed<ReportStreamEventService>().sendReportEvent(
+                ReportStreamEventName.REPORT_LAST_MILE_FAILURE, any<ReportFile>(), any(), any(), any(), any()
+            )
+        }
+        assertThat(nextEvent!!.eventAction).isEqualTo(Event.EventAction.SEND_ERROR)
+        assertThat(nextEvent!!.retryToken).isNull()
+    }
+
+    @Test // Last Mile Failure A
+    fun `Test handleRetry logs attempt failed and send failure (last mile failure) when transport logs a send_error`() {
+        // Setup
+        val stillRetriesLeft = maxRetryCount - 1
+        var nextEvent: ReportEvent? = null
+        setupLogger()
+        setupWorkflow()
+        mockAzureEvents()
+        every { anyConstructed<ActionHistory>().action.actionResult } returns Unit.toString()
+
+        every { workflowEngine.handleReportEvent(any(), any()) }.answers {
+            val block = secondArg() as
+                    (header: WorkflowEngine.Header, retryToken: RetryToken?, txn: Configuration?) -> ReportEvent
+            val header = makeIgnoreDotRESTHeader()
+            nextEvent = block(header, RetryToken(stillRetriesLeft, RetryToken.allItems), null)
+        }
+        // Error unique to transport type occurred and transport.send() is setting send_error
+        every { anyConstructed<ActionHistory>().action.actionName } returns TaskAction.send_error
+        every { restTransport.send(any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any()) }
+            .returns(null)
+
+        // Invoke
+        val event = ReportEvent(Event.EventAction.SEND, reportId, false)
+        SendFunction(workflowEngine).run(event.toQueueMessage(), context)
+
+        // Verify
+        verify(exactly = 1) {
+            anyConstructed<ActionHistory>().trackItemSendState(
+                ReportStreamEventName.ITEM_SEND_ATTEMPT_FAIL, any(), any(), any(), any(), any(), any(), any(), any()
+            )
+            anyConstructed<ActionHistory>().trackItemSendState(
+                ReportStreamEventName.ITEM_LAST_MILE_FAILURE, any(), any(), any(), any(), any(), any(), any(), any()
+            )
+            anyConstructed<ReportStreamEventService>().sendReportEvent(
+                ReportStreamEventName.REPORT_LAST_MILE_FAILURE, any<ReportFile>(), any(), any(), any(), any()
+            )
+        }
+        assertThat(nextEvent!!.eventAction).isEqualTo(Event.EventAction.SEND_ERROR)
+        assertThat(nextEvent!!.retryToken).isNull()
     }
 }

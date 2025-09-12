@@ -133,23 +133,20 @@ _Outputs:_:
 
 
 ## database
-_Description_: Database for the project.
+_Description_: Looks up the externally-managed PostgreSQL database resources for the project.
 
 _Inputs_: 
-- postgres_user
-- postgres_pass
-- db_sku_name
-- db_version
-- db_storage_mb
-- db_auto_grow
-- db_prevent_destroy
-- db_threat_detection
-- endpoint_subnet
-- db_replica
-- application_key_vault_id
+- database_resource_group_name
+- primary_server_name
+- replica_server_names
+- database_names
+- is_metabase_env
 
 _Outputs:_:
 - postgres_server_id
+- postgres_server_name
+- postgres_server_fqdn
+- postgres_replicas
 ## front-door
 _Description_: Optional Azure WAF
 
