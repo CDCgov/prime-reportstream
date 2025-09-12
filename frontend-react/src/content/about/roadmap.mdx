@@ -17,7 +17,7 @@ import site from "../../content/site.json"
 <Sidenav />
 </LayoutSidenav>
 
-<p className="usa-timestamp">Last updated: January 28, 2025</p>
+<p className="usa-timestamp">Last Updated July 18, 2025</p>
 
 ## Objectives for FY25
 Learn about our goals and how we are measuring success for this fiscal year (FY), which runs from October 2024 through September 2025.
@@ -26,16 +26,6 @@ Learn about our goals and how we are measuring success for this fiscal year (FY)
 
 ### Support public health entities with time-sensitive, reportable condition electronic laboratory reporting (ELR) data and broader response readiness.
 * 100% of the 64 <A href="https://www.cdc.gov/epidemiology-laboratory-capacity/php/about/" target="_blank">ELC-funded</A> state, tribal, local, or territorial public health agencies (STLTs) are connected to ReportStream.
-* Connect at least 5 new healthcare organizations to ReportStream for sending all of their reportable conditions. 
-* Route lab data for at least 15 reportable conditions. 
-* Complete connection updates for all healthcare organizations and STLTs currently receiving COVID data so they are able to send or receive data for more conditions.  
-* Build basic functionality to allow ReportStream to ingest CSV via an API for conditions beyond COVID. 
-
-### Facilitate simple, efficient reporting for additional core public health data sources and public health systems.
-* Connect ReportStream to one federal healthcare system outside of the CDC. 
-* Participate in CDC <A href="https://www.cdc.gov/one-health/index.html">One Health</A> activities and/or CDC <A href="https://emergency.cdc.gov/lrn/">Laboratory Response Network</A>. 
-* Connect ReportStream to three third-party standards/services. 
-* Meet the needs of senders and STLTs by routing data in accordance with the HL7 LRI/LOI spec. 
 
 ## Roadmap
 <hr className="rs-hr--base-lighter-alternate" />
@@ -48,7 +38,7 @@ Learn about our goals and how we are measuring success for this fiscal year (FY)
             tag: "recently-completed",
             body: (
                 <p>
-                    Republic of Marshall Islands, Utah, and Wyoming are able to receive flu and RSV data from ReportStream.
+                    All ELC-funded STLTs are connected to ReportStream Universal Pipeline with the ability to receive full ELR data. 
                 </p>
             ),
         },
@@ -56,38 +46,7 @@ Learn about our goals and how we are measuring success for this fiscal year (FY)
             tag: "recently-completed",
             body: (
                 <p>
-                    CVS Health onboarded to ReportStream to send COVID and flu.
-                </p>
-            ),
-        },
-        {
-            tag: "working-on-now",
-            body: (
-                <p>
-                    Onboard or update current connections for Indiana, Mississippi, New Hampshire, New Mexico, Puerto Rico, Tennessee, Vermont, and Wisconsin.
-                </p>
-            ),
-        },
-        {
-            tag: "working-on-now",
-            body: (
-                <p>
-                    Onboard C2Sense to ReportStream to send their ELR reportable conditions.
-                </p>
-            ),
-        },
-        {
-            tag: "next",
-            body: (
-                <p>Onboard or update connections for American Samoa, Connecticut, Kentucky, Federated States of Micronesia, Georgia, Michigan, Nebraska, North Carolina, Northern Mariana Islands, Palau, Virginia, West Virginia, and Washington D.C.</p>
-            ),
-        },
-        {
-            title:<p>Develop onboarding resources for healthcare organizations to utilize as they connect to ReportStream.</p>,
-            tag: "recently-completed",
-            body: (
-                <p>
-                    Design and develop the code mapping tool for healthcare organizations to map their local codes to standard coding systems, streamlining a manual step of the onboarding process.
+                    Onboarded or updated current connections for Indiana, Mississippi, New Hampshire, New Mexico, Puerto Rico, Tennessee, Vermont, Wyoming, Marshall Islands, and Wisconsin.
                 </p>
             ),
         },
@@ -95,53 +54,20 @@ Learn about our goals and how we are measuring success for this fiscal year (FY)
             tag: "recently-completed",
             body: (
                 <p>
-                    Update and publish documentation for <A href="https://github.com/CDCgov/prime-reportstream/blob/main/prime-router/docs/universal-pipeline/submission-history.md">ReportStream's History API</A> for healthcare organizations to reference as they interpret the status of their messages.
+                    Improved security posture by eliminating all critical and high Common Vulnerabilities and Exposures (CVE) findings. 
                 </p>
             ),
         },
         {
-            tag: "working-on-now",
+            tag: "next",
             body: (
-                <p>Implement a tracking system that allows healthcare organizations to see the status of their connections to STLTs during the testing process.</p>
-            ),
-        },
-        {
-            title:<p>Participate in the public health community by partnering with other CDC organizations and engaging with third-party health IT standards/services.</p>,
-            tag: "recently-completed",
-            body: (
-                <p>Evaluate opportunities for ReportStream to connect to TEFCA, lab data-enabled RCKMS, and standard vocabulary service(s).</p>
+                <p>CVS Health onboard or update current connections for Alabama and Louisiana.</p>
             ),
         },
         {
             tag: "next",
             body: (
-                <p>Continue to monitor emerging opportunities for ReportStream to connect to third-party services.</p>
-            ),
-        },
-        {
-            title:<p>Build basic functionality to allow ReportStream to ingest CSV via an API for conditions beyond COVID.</p>,
-            tag: "working-on-now",
-            body: (
-                <p>Identify the minimum data fields required for public health decision-making and map the fields to HL7 or FHIR.</p>
-            ),
-        },
-        {
-            tag: "next",
-            body: (
-                <p>Design the technical specifications to enable CSV submission via an API for conditions beyond COVID.</p>
-            ),
-        },
-        {
-            title:<p>Implement logic that detects duplicate reports sent through ReportStream so that they are removed before being routed to STLTs.</p>,
-            tag: "working-on-now",
-            body: (
-                <p>Implement and test the deduplication logic, beginning with hash logging and identifying hash criteria improvements.</p>
-            ),
-        },
-        {
-            tag: "next",
-            body: (
-                <p>Deploy deduplication improvements and monitor.</p>
+                <p>Improve website access security for ReportStream.</p>
             ),
         },
     ]}

@@ -1,9 +1,9 @@
 package gov.cdc.prime.router.fhirengine.translation.hl7.schema
 
-import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.fhirengine.translation.hl7.HL7ConversionException
 import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
+import gov.cdc.prime.router.fhirengine.translation.hl7.schema.providers.SchemaServiceProvider
 import org.apache.commons.io.FilenameUtils
 import org.apache.logging.log4j.kotlin.Logging
 import java.io.File
@@ -31,10 +31,10 @@ object ConfigSchemaReader : Logging {
         > fromFile(
         schemaName: String,
         schemaClass: Class<out Schema>,
-        blobConnectionInfo: BlobAccess.BlobContainerMetadata,
+        schemaServiceProviders: Map<String, SchemaServiceProvider>,
     ): Schema {
         // Load a schema including any parent schemas.  Note that child schemas are loaded first and the parents last.
-        val schemaList = fromUri(URI(schemaName), schemaClass, blobConnectionInfo)
+        val schemaList = fromUri(URI(schemaName), schemaClass, schemaServiceProviders)
 
         // Now merge the parent with all the child schemas
         val mergedSchema = mergeSchemas(schemaList)
@@ -60,11 +60,11 @@ object ConfigSchemaReader : Logging {
         > fromUri(
         schemaUri: URI,
         schemaClass: Class<out Schema>,
-        blobConnectionInfo: BlobAccess.BlobContainerMetadata,
+        schemaServiceProviders: Map<String, SchemaServiceProvider>,
     ): List<Schema> {
         val schemaList = mutableListOf(
             readSchemaTreeUri(
-                schemaUri, schemaClass = schemaClass, blobConnectionInfo = blobConnectionInfo
+                schemaUri, schemaClass = schemaClass, schemaServiceProviders = schemaServiceProviders
             )
         )
         while (!schemaList.last().extends.isNullOrBlank()) {
@@ -77,7 +77,9 @@ object ConfigSchemaReader : Logging {
             }
             schemaList.add(
                 readSchemaTreeUri(
-                    URI(schemaList.last().extends!!), schemaClass = schemaClass, blobConnectionInfo = blobConnectionInfo
+                    URI(schemaList.last().extends!!),
+                    schemaClass = schemaClass,
+                    schemaServiceProviders = schemaServiceProviders
                 )
             )
         }
@@ -131,40 +133,14 @@ object ConfigSchemaReader : Logging {
         schemaUri: URI,
         ancestry: List<String> = listOf(),
         schemaClass: Class<out Schema>,
-        blobConnectionInfo: BlobAccess.BlobContainerMetadata,
+        schemaServiceProviders: Map<String, SchemaServiceProvider>,
     ): Schema {
-        val rawSchema = when (schemaUri.scheme) {
-            "file" -> {
-                val file = File(schemaUri)
-                if (!file.canRead()) throw SchemaException("Cannot read ${file.absolutePath}")
-                file.inputStream().use { fis ->
-                    readOneYamlSchema(fis, schemaClass)
-                }
-            }
-            "classpath" -> {
-                (
-                    javaClass.classLoader.getResourceAsStream(schemaUri.path.substring(1))
-                    ?: throw SchemaException("Cannot read $schemaUri")
-                ).use { ips ->
-                    readOneYamlSchema(
-                        ips,
-                        schemaClass
-                    )
-                }
-            }
-            "azure" -> {
-                // Note: the schema URIs will not include the container name i.e.
-                // azure:/hl7_mapping/receivers/STLTs/CA/CA.yml
-                val blob = BlobAccess.downloadBlobAsByteArray(
-                    "${blobConnectionInfo.getBlobEndpoint()}${schemaUri.path}",
-                    blobConnectionInfo
-                )
-                blob.inputStream().use { bis ->
-                    readOneYamlSchema(bis, schemaClass)
-                }
-            }
-            else -> throw SchemaException("Unexpected scheme: ${schemaUri.scheme}")
+        val schemaServiceProvider = schemaServiceProviders.get(schemaUri.scheme)
+        if (schemaServiceProvider == null) {
+            throw SchemaException("No schema service provider found for: ${schemaUri.scheme}")
         }
+        val rawSchema =
+            readOneYamlSchema(schemaServiceProvider.getInputStream(schemaUri), schemaClass)
         rawSchema.name = schemaUri.path
 
         if (ancestry.contains(rawSchema.name)) {
@@ -175,7 +151,7 @@ object ConfigSchemaReader : Logging {
         // Process any schema references
         rawSchema.elements.filter { !it.schema.isNullOrBlank() }.forEach { element ->
             element.schemaRef =
-                readSchemaTreeUri(URI(element.schema!!), rawSchema.ancestry, schemaClass, blobConnectionInfo)
+                readSchemaTreeUri(URI(element.schema!!), rawSchema.ancestry, schemaClass, schemaServiceProviders)
         }
         return rawSchema
     }

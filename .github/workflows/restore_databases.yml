@@ -86,11 +86,31 @@ jobs:
       - name: Set backup and restore variables
         shell: bash
         run: |
-          echo "SOURCE_RESOURCE_GROUP=prime-data-hub-${{ env.ENV_NAME }}" >> $GITHUB_ENV
-          echo "SINK_RESOURCE_GROUP=prime-data-hub-${{ env.SINK_ENV_NAME }}" >> $GITHUB_ENV
-          echo "SOURCE_DB_SERVER=pdh${{ env.ENV_NAME }}-pgsql" >> $GITHUB_ENV
-          echo "SINK_DB_SERVER=pdh${{ env.SINK_ENV_NAME }}-pgsql" >> $GITHUB_ENV
           echo "SINK_BACKUP_STORAGE=pdh${{ env.SINK_ENV_NAME }}terraform" >> $GITHUB_ENV
+
+          set_db_vars() {
+            case $1 in
+              prod)
+                echo "$2_RESOURCE_GROUP=ddphss-prim-prd-moderate-rg" >> $GITHUB_ENV
+                echo "$2_DB_SERVER=dppa-prim-azpgsql-01" >> $GITHUB_ENV
+                ;;
+              staging)
+                echo "$2_RESOURCE_GROUP=ddphss-prim-stg-moderate-rg" >> $GITHUB_ENV
+                echo "$2_DB_SERVER=dpsa-prim-azpgsql-01" >> $GITHUB_ENV
+                ;;
+              test)
+                # Test uses the staging database
+                echo "$2_RESOURCE_GROUP=ddphss-prim-stg-moderate-rg" >> $GITHUB_ENV
+                echo "$2_DB_SERVER=dpsa-prim-azpgsql-01" >> $GITHUB_ENV
+                ;;
+              *)
+                echo "::error::Unknown environment: $1"
+                exit 1
+                ;;
+            esac
+          }
+          set_db_vars "${{ env.ENV_NAME }}" "SOURCE"
+          set_db_vars "${{ env.SINK_ENV_NAME }}" "SINK"
 
       # Login to Azure
       - uses: azure/login@v2

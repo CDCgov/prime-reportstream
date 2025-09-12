@@ -1,3 +1,6 @@
+# local `act` secrets, like GITHUB_TOKEN=ghp_....
+.secrets
+ 
 # Compiled class file
 *.class
 
@@ -14,6 +17,9 @@
 *.jar
 !gradle-wrapper.jar
 *.war
+
+# act testing
+.act-testing/
 
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
