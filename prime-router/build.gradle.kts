@@ -963,7 +963,7 @@ dependencies {
     implementation("org.apache.poi:poi-ooxml:5.4.1")
     implementation("org.apache.commons:commons-compress:1.27.1")
     implementation("commons-io:commons-io:2.19.0")
-    implementation("com.anyascii:anyascii:0.3.2")
+    implementation("com.anyascii:anyascii:0.3.3")
     // https://mvnrepository.com/artifact/io.swagger/swagger-annotations
     implementation("io.swagger:swagger-annotations:1.6.16")
     implementation("io.swagger.core.v3:swagger-jaxrs2:2.2.30")
