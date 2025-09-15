@@ -31,7 +31,7 @@ debug this project:
 * [OpenJDK](./install-openjdk.md) (currently targetting 17)
     * See the linked docs for important instructions on setting `JAVA_HOME`
 * [Azure Storage Explorer](https://docs.microsoft.com/en-us/azure/vs-azure-tools-storage-manage-with-storage-explorer)
-* An IDE. IntelliJ is recommended for Kotlin/debugging support.
+* An IDE. [IntelliJ](./intellij-tips.md) is recommended for Kotlin/debugging support.
 
 To reduce the build-debug cycle time you can install these tools to run the code directly. These tools are required if
 you are using an Apple Silicon computer, otherwise they are optional.

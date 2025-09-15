@@ -159,7 +159,7 @@ class SftpTransportIntegrationTests : TransportIntegrationTests() {
                 CredentialRequestReason.SFTP_UPLOAD
             )
         } returns UserPassCredential("foo", "pass")
-        every { SftpTransport.createDefaultSSHClient() } returns f.mockSSHClient
+        every { SftpTransport.createDefaultSSHClient(any()) } returns f.mockSSHClient
         every { f.mockSSHClient.addHostKeyVerifier(any<HostKeyVerifier>()) } just runs
         every { f.mockSSHClient.connect(f.transportType.host, f.transportType.port.toInt()) } just runs
         every { f.mockSSHClient.authPassword("foo", "pass") } just runs
@@ -203,7 +203,7 @@ class SftpTransportIntegrationTests : TransportIntegrationTests() {
                 CredentialRequestReason.SFTP_UPLOAD
             )
         } returns UserPemCredential("user", "key", "keyPass", "pass")
-        every { SftpTransport.createDefaultSSHClient() } returns f.mockSSHClient
+        every { SftpTransport.createDefaultSSHClient(any()) } returns f.mockSSHClient
         every { f.mockSSHClient.addHostKeyVerifier(any<HostKeyVerifier>()) } just runs
         every { f.mockSSHClient.connect(f.transportType.host, f.transportType.port.toInt()) } just runs
         every { f.mockSSHClient.auth("user", any<List<AuthMethod>>()) } just runs
@@ -247,7 +247,7 @@ class SftpTransportIntegrationTests : TransportIntegrationTests() {
                 CredentialRequestReason.SFTP_UPLOAD
             )
         } returns UserPpkCredential("user", "key", "keyPass", "pass")
-        every { SftpTransport.createDefaultSSHClient() } returns f.mockSSHClient
+        every { SftpTransport.createDefaultSSHClient(any()) } returns f.mockSSHClient
         every { f.mockSSHClient.addHostKeyVerifier(any<HostKeyVerifier>()) } just runs
         every { f.mockSSHClient.connect(f.transportType.host, f.transportType.port.toInt()) } just runs
         every { f.mockSSHClient.auth("user", any<List<AuthMethod>>()) } just runs
@@ -352,7 +352,7 @@ class SftpTransportIntegrationTests : TransportIntegrationTests() {
                 CredentialRequestReason.SFTP_UPLOAD
             )
         } returns UserPassCredential("foo", "pass")
-        every { SftpTransport.createDefaultSSHClient() } returns f.mockSSHClient
+        every { SftpTransport.createDefaultSSHClient(any()) } returns f.mockSSHClient
         every { f.mockSSHClient.addHostKeyVerifier(any<HostKeyVerifier>()) } just runs
         // throws authentication exception
         every {

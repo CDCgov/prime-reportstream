@@ -32,7 +32,7 @@ import gov.cdc.prime.router.fhirengine.engine.ReportPipelineMessage
 import gov.cdc.prime.router.fhirengine.engine.SubmissionSenderNotFound
 import gov.cdc.prime.router.history.db.ReportGraph
 import gov.cdc.prime.router.report.ReportService
-import org.apache.commons.lang3.StringUtils
+import org.apache.commons.lang3.Strings
 import org.apache.logging.log4j.kotlin.Logging
 import org.jooq.exception.DataAccessException
 import java.util.Base64
@@ -263,7 +263,7 @@ class FHIRFunctions(
      */
     private fun readMessage(engineType: String, message: String, dequeueCount: Int): ReportPipelineMessage {
         logger.debug(
-            "${StringUtils.removeEnd(engineType, "e")}ing message: $message for the $dequeueCount time"
+            "${Strings.CS.removeEnd(engineType, "e")}ing message: $message for the $dequeueCount time"
         )
 
         return when (val queueMessage = QueueMessage.deserialize(message)) {

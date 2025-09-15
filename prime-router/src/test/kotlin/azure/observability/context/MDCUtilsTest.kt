@@ -11,6 +11,7 @@ import gov.cdc.prime.router.azure.observability.event.ReportEventData
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventProperties
 import gov.cdc.prime.router.azure.observability.event.ReportStreamItemEvent
 import gov.cdc.prime.router.azure.observability.event.ReportStreamReportEvent
+import gov.cdc.prime.router.azure.observability.event.SubmissionEventData
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.slf4j.MDC
@@ -90,13 +91,16 @@ class MDCUtilsTest {
             ReportEventData(
                 UUID.randomUUID(),
                 UUID.randomUUID(),
-                emptyList(),
                 Topic.FULL_ELR,
                 "",
                 TaskAction.send,
                 OffsetDateTime.now(),
                 "",
                 ""
+            ),
+            SubmissionEventData(
+                emptyList(),
+                listOf("sender")
             ),
             mapOf(
                 ReportStreamEventProperties.FILENAME to "filename"
@@ -119,7 +123,6 @@ class MDCUtilsTest {
             ReportEventData(
                 UUID.randomUUID(),
                 UUID.randomUUID(),
-                emptyList(),
                 Topic.FULL_ELR,
                 "",
                 TaskAction.send,
@@ -127,12 +130,15 @@ class MDCUtilsTest {
                 "",
                 ""
             ),
+            SubmissionEventData(
+                emptyList(),
+                listOf("sender")
+            ),
             ItemEventData(
                 1,
                 1,
                 1,
-                "tracking",
-                "sender"
+                "tracking"
             ),
             mapOf(
                 ReportStreamEventProperties.FILENAME to "filename"
@@ -150,7 +156,7 @@ class MDCUtilsTest {
             assertThat(context["parentItemIndex"]).isEqualTo("1")
             assertThat(context["submittedItemIndex"]).isEqualTo("1")
             assertThat(context["trackingId"]).isEqualTo("tracking")
-            assertThat(context["sender"]).isEqualTo("sender")
+            assertThat(context["sender"]).isEqualTo("[\"sender\"]")
         }
     }
 }

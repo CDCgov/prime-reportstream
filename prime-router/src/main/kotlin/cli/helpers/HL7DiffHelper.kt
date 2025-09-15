@@ -9,7 +9,7 @@ import ca.uhn.hl7v2.model.Segment
 import ca.uhn.hl7v2.model.Structure
 import ca.uhn.hl7v2.model.Type
 import ca.uhn.hl7v2.model.Varies
-import org.apache.commons.lang3.StringUtils
+import org.apache.commons.lang3.Strings
 
 class HL7DiffHelper {
     fun filterNames(message: Message, names: Array<String>, map: MutableMap<String, Segment>) {
@@ -168,7 +168,7 @@ class HL7DiffHelper {
         tertiaryFieldNumber: Int?,
     ): List<Hl7Diff> {
         return when {
-            input is Primitive && output is Primitive && !StringUtils.equals(input.value, output.value) -> {
+            input is Primitive && output is Primitive && !Strings.CS.equals(input.value, output.value) -> {
                 return listOf(
                     Hl7Diff(
                         segmentIndex,

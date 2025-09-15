@@ -49,6 +49,7 @@ import gov.cdc.prime.router.fhirengine.translation.HL7toFhirTranslator
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirTransformer
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
+import gov.cdc.prime.router.fhirengine.translation.hl7.utils.helpers.SchemaReferenceResolverHelper
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.fhirengine.utils.HL7Reader.Companion.parseHL7Message
 import gov.cdc.prime.router.fhirengine.utils.getObservations
@@ -798,7 +799,7 @@ class FHIRConverter(
         withLoggingContext(mapOf("schemaName" to schemaName)) {
             logger.info("Apply a sender transform to the items in the report")
         }
-        FhirTransformer(schemaName)
+        FhirTransformer(SchemaReferenceResolverHelper.retrieveFhirSchemaReference(schemaName))
     } else {
         null
     }

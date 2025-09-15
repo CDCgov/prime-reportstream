@@ -74,7 +74,7 @@ val javaVersion = when (appJvmTarget.target) {
     "21" -> JavaVersion.VERSION_21
     else -> JavaVersion.VERSION_17
 }
-val ktorVersion = "2.3.12"
+val ktorVersion = "3.2.2"
 val kotlinVersion by System.getProperties()
 val jacksonVersion = "2.19.0"
 jacoco.toolVersion = "0.8.12"
@@ -215,12 +215,14 @@ tasks.test {
 
 tasks.javadoc.configure {
     actions.clear()
-    dependsOn(tasks.dokkaHtml)
+    dependsOn(tasks.dokkaGenerate)
 }
 
-tasks.dokkaHtml.configure {
+dokka {
     val docsDir = File(buildDir, "/docs/dokka")
-    outputDirectory.set(docsDir)
+    dokkaPublications.html {
+        outputDirectory.set(docsDir)
+    }
 }
 
 tasks.jacocoTestReport {
@@ -358,6 +360,13 @@ tasks.register<Copy>("copyApiSwaggerUI") {
 
 tasks.withType<Test>().configureEach {
     maxParallelForks = (Runtime.getRuntime().availableProcessors() / 2).takeIf { it > 0 } ?: 1
+    if ("AzureWebJobsStorage" !in System.getenv()) {
+        environment["AzureWebJobsStorage"] = "test-AzureWebJobsStorage"
+        println(
+            "'AzureWebJobsStorage' was not defined for testing and has been set to: " +
+                environment["AzureWebJobsStorage"]
+        )
+    }
 }
 
 tasks.processResources {
@@ -622,7 +631,7 @@ tasks.register("quickPackage") {
     tasks["compileTestKotlin"].enabled = false
     tasks["migrate"].enabled = false
     tasks["flywayMigrate"].enabled = false
-    tasks["dokkaHtml"].enabled = false
+    tasks["dokkaGenerate"].enabled = false
 }
 
 /**
@@ -688,7 +697,7 @@ tasks.register("quickRun") {
     tasks["compileTestKotlin"].enabled = false
     tasks["migrate"].enabled = false
     tasks["flywayMigrate"].enabled = false
-    tasks["dokkaHtml"].enabled = false
+    tasks["dokkaGenerate"].enabled = false
 }
 
 tasks.register("tiQuickRun") {
@@ -711,7 +720,7 @@ flyway {
 
 // Database code generation configuration
 jooq {
-    version.set("3.18.6")
+    version.set("3.18.25")
     configurations {
         create("main") {
             // name of the jOOQ configuration
@@ -860,7 +869,7 @@ configurations {
 }
 
 dependencies {
-    jooqGenerator("org.postgresql:postgresql:42.7.4")
+    jooqGenerator("org.postgresql:postgresql:42.7.7")
 
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-common:$kotlinVersion")
@@ -868,7 +877,7 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0")
     implementation("com.microsoft.azure.functions:azure-functions-java-library:3.1.0")
     implementation("com.azure:azure-core:1.55.3")
-    implementation("com.azure:azure-core-http-netty:1.15.11")
+    implementation("com.azure:azure-core-http-netty:1.16.1")
     implementation("com.azure:azure-storage-blob:12.27.0") {
         exclude(group = "com.azure", module = "azure-core")
     }
@@ -916,26 +925,26 @@ dependencies {
     implementation("org.thymeleaf:thymeleaf:3.1.3.RELEASE")
     implementation("com.sendgrid:sendgrid-java:4.10.3")
     implementation("com.okta.jwt:okta-jwt-verifier:0.5.7")
-    implementation("org.json:json:20250107")
+    implementation("org.json:json:20250517")
     // DO NOT INCREMENT SSHJ to a newer version without first thoroughly testing it locally.
     implementation("com.hierynomus:sshj:0.39.0")
     implementation("com.jcraft:jsch:0.1.55")
     implementation("org.apache.poi:poi:5.4.1")
     implementation("org.apache.commons:commons-csv:1.14.0")
-    implementation("org.apache.commons:commons-lang3:3.17.0")
+    implementation("org.apache.commons:commons-lang3:3.18.0")
     implementation("org.apache.commons:commons-text:1.13.1")
     implementation("commons-codec:commons-codec:1.18.0")
     implementation("commons-io:commons-io:2.19.0")
-    implementation("org.postgresql:postgresql:42.7.4")
+    implementation("org.postgresql:postgresql:42.7.7")
     implementation("com.zaxxer:HikariCP:6.3.0")
     implementation("org.flywaydb:flyway-core:11.8.1")
     implementation("org.flywaydb:flyway-database-postgresql:11.8.1")
     implementation("org.commonmark:commonmark:0.24.0")
     implementation("com.google.guava:guava:33.4.8-jre")
     implementation("com.helger.as2:as2-lib:5.1.5")
-    implementation("org.bouncycastle:bcprov-jdk15to18:1.80")
-    implementation("org.bouncycastle:bcprov-jdk18on:1.80")
-    implementation("org.bouncycastle:bcmail-jdk15to18:1.80")
+    implementation("org.bouncycastle:bcprov-jdk15to18:1.81")
+    implementation("org.bouncycastle:bcprov-jdk18on:1.81")
+    implementation("org.bouncycastle:bcmail-jdk15to18:1.81")
 
     implementation("commons-net:commons-net:3.11.1")
     implementation("com.cronutils:cron-utils:9.2.1")
@@ -954,9 +963,9 @@ dependencies {
     implementation("org.apache.poi:poi-ooxml:5.4.1")
     implementation("org.apache.commons:commons-compress:1.27.1")
     implementation("commons-io:commons-io:2.19.0")
-    implementation("com.anyascii:anyascii:0.3.2")
+    implementation("com.anyascii:anyascii:0.3.3")
     // https://mvnrepository.com/artifact/io.swagger/swagger-annotations
-    implementation("io.swagger:swagger-annotations:1.6.15")
+    implementation("io.swagger:swagger-annotations:1.6.16")
     implementation("io.swagger.core.v3:swagger-jaxrs2:2.2.30")
     // https://mvnrepository.com/artifact/javax.ws.rs/javax.ws.rs-api
     implementation("javax.ws.rs:javax.ws.rs-api:2.1.1")

@@ -46,12 +46,12 @@ class BatchDeciderFunction(private val workflowEngine: WorkflowEngine = Workflow
                     // any that should have batched in the last 60 seconds, get count of outstanding BATCH records
                     //  (how many actions with BATCH for receiver
                     .forEach { rec ->
-                        val (queueMessages, isEmpty) = determineQueueMessageCount(rec, txn)
+                        val (queueMessages, willSendEmptyBatch) = determineQueueMessageCount(rec, txn)
                         val interval = rec.timing!!.timeBetweenBatches
                         repeat(queueMessages) { idx ->
                             val delay = Duration.ofSeconds(interval).multipliedBy(idx.toLong())
                             // build 'batch' event
-                            val event = BatchEvent(Event.EventAction.BATCH, rec.fullName, isEmpty)
+                            val event = BatchEvent(Event.EventAction.BATCH, rec.fullName, willSendEmptyBatch)
                             val queueName = if (rec.topic.isUniversalPipeline) {
                                 BatchConstants.Queue.UNIVERSAL_BATCH_QUEUE
                             } else {
@@ -98,7 +98,7 @@ class BatchDeciderFunction(private val workflowEngine: WorkflowEngine = Workflow
             logger.debug(logMessage)
         }
 
-        var isEmpty = false
+        var willSendEmptyBatch = false
         // if there are no records to send but the receiver is set on 'send when empty' check if
         //  a message should be added anyway
         if (receiver.timing.whenEmpty.action == Receiver.EmptyOperation.SEND && queueMessages == 0) {
@@ -117,10 +117,10 @@ class BatchDeciderFunction(private val workflowEngine: WorkflowEngine = Workflow
             //  action within the last 24 hours
             if (!receiver.timing.whenEmpty.onlyOncePerDay || !sentInLastDay) {
                 queueMessages = 1
-                isEmpty = true
+                willSendEmptyBatch = true
             }
         }
 
-        return Pair(queueMessages, isEmpty)
+        return Pair(queueMessages, willSendEmptyBatch)
     }
 }

@@ -1088,6 +1088,9 @@
             }
           ]
         },
+        "useNonDeprecatedKeyAlgorithmsOnly": {
+          "type": "boolean"
+        },
         "filePath": {
           "type": "string"
         },

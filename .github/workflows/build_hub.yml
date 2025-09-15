@@ -51,12 +51,14 @@ jobs:
       - name: Add swapfile
         working-directory: /
         run: |
+          free; df -h
           sudo swapoff -a
           sudo fallocate -l 15G /mnt/swapfile
           sudo chmod 600 /mnt/swapfile
           sudo mkswap /mnt/swapfile
           sudo swapon /mnt/swapfile
           sudo swapon --show
+          free; df -h
 
       - name: "Check out changes"
         uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938
@@ -72,9 +74,11 @@ jobs:
       - name: Generate New Schema Docs
         working-directory: ./
         run: |
+          free; df -h
           # Clean the docs before regenerating
           rm -rf prime-router/docs/docs_deprecated/schema_documentation/*
           ./gradlew :prime-router:generatedocs
+          free; df -h
 
       - name: Validate YAML
         working-directory: ./
@@ -85,6 +89,7 @@ jobs:
           ./gradlew :prime-router:primeCLI --args='validate-yaml --type FhirToHL7Mapping --dir src/main/resources/metadata/hl7_mapping'
           ./gradlew :prime-router:primeCLI --args='validate-yaml --type HL7ToFhirMappingMessageTemplate --dir metadata/HL7/catchall/hl7/message'
           ./gradlew :prime-router:primeCLI --args='validate-yaml --type HL7ToFhirMappingResourceTemplate --dir metadata/HL7 --exclude-dir metadata/HL7/catchall/hl7/message metadata/HL7/catchall/hl7/codesystem --exclude-file metadata/HL7/catchall/fhir/resourcemapping.yml metadata/HL7/catchall/hl7/resource/Common.yml'
+          free; df -h
 
       - name: Check for Uncommited Schema Docs
         id: check_changes
@@ -106,6 +111,7 @@ jobs:
             # End with an error
             false
           fi
+          free; df -h
 
       - name: Add Schema doc diff as PR comment if there are changes
         if: ${{ steps.check_changes.outcome == 'failure' }}

@@ -100,7 +100,7 @@ jobs:
             puppeteer@22.8.2 \
             --no-save
 
-      - name: Run Pa11y Check # Pa11y is configured in frontend-react/.pa11yci
+      - name: Run Pa11y Check # Pa11y is configured in frontend-react/pa11y.json
         run: |
           SITEMAP_URL="${{ env.LOCAL_SITEMAP_URL }}"
           echo "Local Sitemap URL: $SITEMAP_URL"
@@ -195,12 +195,15 @@ jobs:
       - name: Add swapfile
         working-directory: /
         run: |
+          df -h
+          free
           sudo swapoff -a
           sudo fallocate -l 15G /mnt/swapfile
           sudo chmod 600 /mnt/swapfile
           sudo mkswap /mnt/swapfile
           sudo swapon /mnt/swapfile
           sudo swapon --show
+          df -h
       - name: Check out changes
         uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938
       - name: Use Node.js with yarn
@@ -212,7 +215,10 @@ jobs:
       - name: Yarn install
         run: yarn install
       - name: Install Playwright
-        run: npx playwright install --with-deps
+        run: |
+          free; df -h
+          npx playwright install --with-deps
+          free; df -h
       - name: Run E2E tests
         run: yarn run test:e2e --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}
       - name: Upload blob report to GitHub Actions Artifacts
@@ -232,6 +238,7 @@ jobs:
     needs: [e2e_tests]
     steps:
       - run: |
+          free;df -h
           result="${{ needs.e2e_tests.result }}"
           echo "E2E Tests result: $result"
           if [[ $result == "success" || $result == "skipped" ]]; then
@@ -276,7 +283,10 @@ jobs:
       # merge-reports command has no cli option to change default output dir (playwright-report),
       # so merge it into the e2e-data/report manually and do clean up before uploading
       - name: Merge folders
-        run: mv ./playwright-report/* ./e2e-data/report && rmdir ./playwright-report && rm ./e2e-data/report/*.zip && rm -rf ./e2e-data/report/resources
+        run: |
+          free;df -h
+          mv ./playwright-report/* ./e2e-data/report && rmdir ./playwright-report && rm ./e2e-data/report/*.zip && rm -rf ./e2e-data/report/resources
+          free; df -h
       - name: Upload final e2e-data
         uses: actions/upload-artifact@50769540e7f4bd5e21e526ee35c689e35e0d6874
         with:
@@ -388,6 +398,8 @@ jobs:
             View via:
             - Chromatic: ${{ steps.chromatic.outputs.url }}
             - Storybook: ${{ steps.chromatic.outputs.storybookUrl }}
+      - name: Show resources
+        run: free; df -h
 
   # codeql:
   #   name: CodeQL Analysis

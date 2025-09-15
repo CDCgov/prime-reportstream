@@ -42,6 +42,7 @@ import gov.cdc.prime.router.azure.observability.event.ReportStreamEventName
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventProperties
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventService
 import gov.cdc.prime.router.azure.observability.event.ReportStreamItemEvent
+import gov.cdc.prime.router.azure.observability.event.SubmissionEventData
 import gov.cdc.prime.router.common.TestcontainersUtils
 import gov.cdc.prime.router.common.UniversalPipelineTestUtils
 import gov.cdc.prime.router.common.validFHIRRecord1
@@ -399,7 +400,6 @@ class FHIRReceiverFilterIntegrationTests : Logging {
                 ReportEventData(
                     routedReport.reportId,
                     report.id,
-                    listOf(report.id),
                     Topic.FULL_ELR,
                     "",
                     TaskAction.receiver_filter,
@@ -409,33 +409,38 @@ class FHIRReceiverFilterIntegrationTests : Logging {
                 ),
                 ReportEventData::timestamp,
             )
+            assertThat(event.submissionEventData).isEqualTo(
+                SubmissionEventData(
+                    listOf(report.id),
+                    listOf("phd.Test Sender")
+                )
+            )
             assertThat(event.itemEventData).isEqualTo(
                 ItemEventData(
                     1,
                     1,
                     1,
-                    "1234d1d1-95fe-462c-8ac6-46728dba581c",
-                    "phd.Test Sender"
+                    "1234d1d1-95fe-462c-8ac6-46728dba581c"
                 )
             )
             assertThat(event.params).isEqualTo(
                 mapOf(
-                ReportStreamEventProperties.FAILING_FILTERS to listOf("%resource.code.coding.code='1234'"),
-                ReportStreamEventProperties.FILTER_TYPE to ReportStreamFilterType.CONDITION_FILTER.name,
-                ReportStreamEventProperties.BUNDLE_DIGEST to BundleDigestLabResult(
-                    observationSummaries = AzureEventUtils.getObservationSummaries(bundle),
-                    eventType = "ORU/ACK - Unsolicited transmission of an observation message",
-                    patientState = listOf("CA"),
-                    performerSummaries = emptyList(),
-                    orderingFacilitySummaries = listOf(
-                        OrderingFacilitySummary(
-                            orderingFacilityName = "Winchester House",
-                            orderingFacilityState = "CA"
+                    ReportStreamEventProperties.FAILING_FILTERS to listOf("%resource.code.coding.code='1234'"),
+                    ReportStreamEventProperties.FILTER_TYPE to ReportStreamFilterType.CONDITION_FILTER.name,
+                    ReportStreamEventProperties.BUNDLE_DIGEST to BundleDigestLabResult(
+                        observationSummaries = AzureEventUtils.getObservationSummaries(bundle),
+                        eventType = "ORU/ACK - Unsolicited transmission of an observation message",
+                        patientState = listOf("CA"),
+                        performerSummaries = emptyList(),
+                        orderingFacilitySummaries = listOf(
+                            OrderingFacilitySummary(
+                                orderingFacilityName = "Winchester House",
+                                orderingFacilityState = "CA"
+                            )
                         )
-                    )
-                ),
-                ReportStreamEventProperties.RECEIVER_NAME to receiver.fullName
-            )
+                    ),
+                    ReportStreamEventProperties.RECEIVER_NAME to receiver.fullName
+                )
             )
 
             // check action table
@@ -582,7 +587,6 @@ class FHIRReceiverFilterIntegrationTests : Logging {
                 ReportEventData(
                     routedReport.reportId,
                     report.id,
-                    listOf(report.id),
                     Topic.FULL_ELR,
                     "",
                     TaskAction.receiver_filter,
@@ -592,13 +596,18 @@ class FHIRReceiverFilterIntegrationTests : Logging {
                 ),
                 ReportEventData::timestamp,
             )
+            assertThat(event.submissionEventData).isEqualTo(
+                SubmissionEventData(
+                    listOf(report.id),
+                    listOf("phd.Test Sender")
+                )
+            )
             assertThat(event.itemEventData).isEqualTo(
                 ItemEventData(
                     1,
                     1,
                     1,
-                    "1234d1d1-95fe-462c-8ac6-46728dba581c",
-                    "phd.Test Sender"
+                    "1234d1d1-95fe-462c-8ac6-46728dba581c"
                 )
             )
             assertThat(event.params).isEqualTo(
@@ -778,7 +787,6 @@ class FHIRReceiverFilterIntegrationTests : Logging {
                 ReportEventData(
                     routedReport.reportId,
                     report.id,
-                    listOf(report.id),
                     Topic.FULL_ELR,
                     "",
                     TaskAction.receiver_filter,
@@ -788,33 +796,38 @@ class FHIRReceiverFilterIntegrationTests : Logging {
                 ),
                 ReportEventData::timestamp,
             )
+            assertThat(event.submissionEventData).isEqualTo(
+                SubmissionEventData(
+                    listOf(report.id),
+                    listOf("phd.Test Sender")
+                )
+            )
             assertThat(event.itemEventData).isEqualTo(
                 ItemEventData(
                     1,
                     1,
                     1,
-                    "1234d1d1-95fe-462c-8ac6-46728dba581c",
-                    "phd.Test Sender"
+                    "1234d1d1-95fe-462c-8ac6-46728dba581c"
                 )
             )
             assertThat(event.params).isEqualTo(
                 mapOf(
-                ReportStreamEventProperties.FAILING_FILTERS to listOf("foobar"),
-                ReportStreamEventProperties.FILTER_TYPE to ReportStreamFilterType.MAPPED_CONDITION_FILTER.name,
-                ReportStreamEventProperties.BUNDLE_DIGEST to BundleDigestLabResult(
-                    observationSummaries = AzureEventUtils.getObservationSummaries(bundle),
-                    eventType = "ORU/ACK - Unsolicited transmission of an observation message",
-                    patientState = listOf("CA"),
-                    performerSummaries = emptyList(),
-                    orderingFacilitySummaries = listOf(
-                        OrderingFacilitySummary(
-                            orderingFacilityName = "Winchester House",
-                            orderingFacilityState = "CA"
+                    ReportStreamEventProperties.FAILING_FILTERS to listOf("foobar"),
+                    ReportStreamEventProperties.FILTER_TYPE to ReportStreamFilterType.MAPPED_CONDITION_FILTER.name,
+                    ReportStreamEventProperties.BUNDLE_DIGEST to BundleDigestLabResult(
+                        observationSummaries = AzureEventUtils.getObservationSummaries(bundle),
+                        eventType = "ORU/ACK - Unsolicited transmission of an observation message",
+                        patientState = listOf("CA"),
+                        performerSummaries = emptyList(),
+                        orderingFacilitySummaries = listOf(
+                            OrderingFacilitySummary(
+                                orderingFacilityName = "Winchester House",
+                                orderingFacilityState = "CA"
+                            )
                         )
-                    )
-                ),
-                ReportStreamEventProperties.RECEIVER_NAME to receiver.fullName
-            )
+                    ),
+                    ReportStreamEventProperties.RECEIVER_NAME to receiver.fullName
+                )
             )
 
             // check action table
@@ -918,7 +931,6 @@ class FHIRReceiverFilterIntegrationTests : Logging {
                 ReportEventData(
                     routedReport.reportId,
                     report.id,
-                    listOf(report.id),
                     Topic.FULL_ELR,
                     "",
                     TaskAction.receiver_filter,
@@ -928,28 +940,33 @@ class FHIRReceiverFilterIntegrationTests : Logging {
                 ),
                 ReportEventData::timestamp,
             )
+            assertThat(event.submissionEventData).isEqualTo(
+                SubmissionEventData(
+                    listOf(report.id),
+                    listOf("phd.Test Sender")
+                )
+            )
             assertThat(event.itemEventData).isEqualTo(
                 ItemEventData(
                     1,
                     1,
                     1,
-                    "1234d1d1-95fe-462c-8ac6-46728dba581c",
-                    "phd.Test Sender"
+                    "1234d1d1-95fe-462c-8ac6-46728dba581c"
                 )
             )
             assertThat(event.params).isEqualTo(
                 mapOf(
-                ReportStreamEventProperties.FAILING_FILTERS to fullElrQualityFilterSample,
-                ReportStreamEventProperties.FILTER_TYPE to ReportStreamFilterType.QUALITY_FILTER.name,
-                ReportStreamEventProperties.BUNDLE_DIGEST to BundleDigestLabResult(
-                    observationSummaries = AzureEventUtils.getObservationSummaries(bundle),
-                    eventType = "ORU^R01^ORU_R01",
-                    patientState = emptyList(),
-                    performerSummaries = emptyList(),
-                    orderingFacilitySummaries = emptyList()
-                ),
-                ReportStreamEventProperties.RECEIVER_NAME to receiver.fullName
-            )
+                    ReportStreamEventProperties.FAILING_FILTERS to fullElrQualityFilterSample,
+                    ReportStreamEventProperties.FILTER_TYPE to ReportStreamFilterType.QUALITY_FILTER.name,
+                    ReportStreamEventProperties.BUNDLE_DIGEST to BundleDigestLabResult(
+                        observationSummaries = AzureEventUtils.getObservationSummaries(bundle),
+                        eventType = "ORU^R01^ORU_R01",
+                        patientState = emptyList(),
+                        performerSummaries = emptyList(),
+                        orderingFacilitySummaries = emptyList()
+                    ),
+                    ReportStreamEventProperties.RECEIVER_NAME to receiver.fullName
+                )
             )
         }
     }
@@ -1205,7 +1222,6 @@ class FHIRReceiverFilterIntegrationTests : Logging {
                 ReportEventData(
                     routedReport.reportId,
                     report.id,
-                    listOf(report.id),
                     Topic.FULL_ELR,
                     "",
                     TaskAction.receiver_filter,
@@ -1215,33 +1231,38 @@ class FHIRReceiverFilterIntegrationTests : Logging {
                 ),
                 ReportEventData::timestamp,
             )
+            assertThat(event.submissionEventData).isEqualTo(
+                SubmissionEventData(
+                    listOf(report.id),
+                    listOf("phd.Test Sender")
+                )
+            )
             assertThat(event.itemEventData).isEqualTo(
                 ItemEventData(
                     1,
                     1,
                     1,
-                    "MT_COCNB_ORU_NBPHELR.1.5348467",
-                    "phd.Test Sender"
+                    "MT_COCNB_ORU_NBPHELR.1.5348467"
                 )
             )
             assertThat(event.params).isEqualTo(
                 mapOf(
-                ReportStreamEventProperties.FAILING_FILTERS to processingModeFilterDebugging,
-                ReportStreamEventProperties.FILTER_TYPE to ReportStreamFilterType.PROCESSING_MODE_FILTER.name,
-                ReportStreamEventProperties.BUNDLE_DIGEST to BundleDigestLabResult(
-                    observationSummaries = AzureEventUtils.getObservationSummaries(bundle),
-                    eventType = "ORU/ACK - Unsolicited transmission of an observation message",
-                    patientState = listOf("CO"),
-                    performerSummaries = emptyList(),
-                    orderingFacilitySummaries = listOf(
-                        OrderingFacilitySummary(
-                            orderingFacilityName = "******************************",
-                            orderingFacilityState = "CO"
+                    ReportStreamEventProperties.FAILING_FILTERS to processingModeFilterDebugging,
+                    ReportStreamEventProperties.FILTER_TYPE to ReportStreamFilterType.PROCESSING_MODE_FILTER.name,
+                    ReportStreamEventProperties.BUNDLE_DIGEST to BundleDigestLabResult(
+                        observationSummaries = AzureEventUtils.getObservationSummaries(bundle),
+                        eventType = "ORU/ACK - Unsolicited transmission of an observation message",
+                        patientState = listOf("CO"),
+                        performerSummaries = emptyList(),
+                        orderingFacilitySummaries = listOf(
+                            OrderingFacilitySummary(
+                                orderingFacilityName = "******************************",
+                                orderingFacilityState = "CO"
+                            )
                         )
-                    )
-                ),
-                ReportStreamEventProperties.RECEIVER_NAME to receiver.fullName
-            )
+                    ),
+                    ReportStreamEventProperties.RECEIVER_NAME to receiver.fullName
+                )
             )
         }
     }

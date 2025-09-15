@@ -326,10 +326,6 @@ class SendFunction(
         }
 
         val fileSize = content?.size ?: 0
-        // The last mile failure event has a slightly different pattern because we do not generate a child
-        // report as an output for this event so the childReport is the input to the send step and the
-        // parent report is the input to the batch step
-        val parentReport = workflowEngine.db.fetchFirstParentReport(report.reportId)
 
         reportEventService.sendReportEvent(
             eventName = ReportStreamEventName.REPORT_LAST_MILE_FAILURE,
@@ -346,9 +342,10 @@ class SendFunction(
                     ReportStreamEventProperties.FILENAME to externalFileName
                 )
             )
-            if (parentReport != null) {
-                parentReportId(parentReport.reportId)
-            }
+            // The last mile failure event has a slightly different pattern because we do not generate a child
+            // report as an output for this event so the childReport is the input to the send step and the
+            // parent report is the input to the batch step
+            parentReportId(report.reportId)
         }
 
         actionHistory.trackItemSendState(

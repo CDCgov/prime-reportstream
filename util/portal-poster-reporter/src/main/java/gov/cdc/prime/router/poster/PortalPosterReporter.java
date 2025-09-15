@@ -34,18 +34,18 @@ public class PortalPosterReporter implements CommandLineRunner {
     @Value("${gov.cdc.prime.router.poster.url}")
     private String url;
 
-    @Value("${gov.cdc.prime.router.poster.client}")
-    private String client;
+    @Value("${gov.cdc.prime.router.poster.token}")
+    private String token;
 
-    @Value("${gov.cdc.prime.router.poster.x.functions.key}")
-    private String xFunctionsKey;
+    @Value("${gov.cdc.prime.router.poster.organization}")
+    private String organization;
 
     @Override
     public void run(String... args) throws Exception {
         log.info("Starting PortalPosterReporter...");
         log.info("Input file: {}", inputFile);
         BufferedWriter submissionHistoryWriter = getSubmissionHistoryFile();
-        submissionHistoryWriter.write("Report ID,Min of Created At: Minute,Min of Organization - Org → Organization Name,id,submission id,destinationCount,overallStatus");
+        submissionHistoryWriter.write("Report ID,Min of Created At: Minute,Min of Organization - Org → Organization Name,id,submission id,destinationCount,overallStatus, receiver, receiverId");
         submissionHistoryWriter.newLine();
         // Loop through input CSV file.
         // Send one file every waitTimeInSeconds seconds.
@@ -65,18 +65,22 @@ public class PortalPosterReporter implements CommandLineRunner {
                 log.debug("splitLine: {}", (Object) splitLine);
                 // Make the submission history call to ReportStream.
                 HttpHeaders requestHeaders = new HttpHeaders();
-                requestHeaders.set("client", client);
-                requestHeaders.set("x-functions-key", xFunctionsKey);
+                requestHeaders.set(HttpHeaders.AUTHORIZATION, "Bearer " + token);
+                requestHeaders.set("authentication-type", "okta");
+                requestHeaders.set("Organization", organization);
                 HttpEntity<String> entity = new HttpEntity<>(requestHeaders);
                 try {
-                    ResponseEntity<String> result = restTemplate.exchange(URI.create(String.format(url, splitLine[4])), HttpMethod.GET, entity, String.class);
+                    ResponseEntity<String> result = restTemplate.exchange(URI.create(String.format(url, splitLine[3])), HttpMethod.GET, entity, String.class);
                     log.info("result: {}", result);
                     ObjectMapper mapper = new ObjectMapper();
                     JsonNode jsonNode = mapper.readTree(result.getBody());
                     String destinationCount = jsonNode.get("destinationCount").asText();
                     String overallStatus = jsonNode.get("overallStatus").asText();
-                    log.info("input id=[{}], id=[{}], submissionId=[{}], destinationCount=[{}], overallStatus=[{}].", splitLine[0], splitLine[3], splitLine[4], destinationCount, overallStatus);
-                    submissionHistoryWriter.write(splitLine[0] + "," + splitLine[1] + "," + splitLine[2] + "," + splitLine[3] + "," + splitLine[4] +  "," + destinationCount + "," + overallStatus);
+                    JsonNode destinations = jsonNode.get("destinations");
+                    String receiver = destinations.get(0).get("organization").asText();
+                    String receiverId = destinations.get(0).get("organization_id").asText();
+                    log.info("input id=[{}], id=[{}], submissionId=[{}], destinationCount=[{}], overallStatus=[{}], receiver=[{}], receiver id=[{}].", splitLine[0], splitLine[3], splitLine[4], destinationCount, overallStatus, receiver, receiverId);
+                    submissionHistoryWriter.write(splitLine[0] + "," + splitLine[1] + "," + splitLine[2] + "," + splitLine[3] + "," + splitLine[4] +  "," + destinationCount + "," + overallStatus + "," + receiver + "," + receiverId);
                     submissionHistoryWriter.newLine();
                 } catch (Exception e) {
                     log.error("Error retrieving submission history for [{}]", splitLine[4], e);

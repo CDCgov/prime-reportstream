@@ -374,7 +374,6 @@ class ActionHistoryTests {
         } returns ReportEventData(
             UUID.randomUUID(),
             uuid,
-            emptyList(),
             Topic.TEST,
             "http://blobUrl",
             TaskAction.send,
@@ -500,7 +499,6 @@ class ActionHistoryTests {
         } returns ReportEventData(
             UUID.randomUUID(),
             uuid,
-            emptyList(),
             Topic.TEST,
             "http://blobUrl",
             TaskAction.send,
@@ -875,7 +873,6 @@ class ActionHistoryTests {
         } returns ReportEventData(
             UUID.randomUUID(),
             uuid,
-            emptyList(),
             Topic.TEST,
             "http://blobUrl",
             TaskAction.send,

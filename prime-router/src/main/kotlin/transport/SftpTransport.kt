@@ -106,6 +106,7 @@ class SftpTransport :
         const val SFTP_PORT = "SFTP_PORT"
         const val SFTP_CONNECTION_TIMEOUT = "SFTP_CONNECTION_TIMEOUT"
         const val SFTP_READ_TIMEOUT = "SFTP_READ_TIMEOUT"
+        const val USE_NON_DEPRECATED_KEY_ALGORITHMS_ONLY = "USE_NON_DEPRECATED_KEY_ALGORITHMS_ONLY"
 
         /**
          * Connect to a [receiver].  If the [credential] is not specified then it is fetched from the vault.
@@ -140,6 +141,8 @@ class SftpTransport :
             if (!sftpTransportInfo.readTimeout.isNullOrBlank()) {
                 properties[SFTP_READ_TIMEOUT] = sftpTransportInfo.readTimeout
             }
+            properties[USE_NON_DEPRECATED_KEY_ALGORITHMS_ONLY] =
+                sftpTransportInfo.useNonDeprecatedKeyAlgorithmsOnly.toString()
             return connect(properties, credential ?: lookupCredentials(receiver))
         }
 
@@ -171,7 +174,7 @@ class SftpTransport :
         ): SSHClient {
             val host = properties[SFTP_HOST]
             val port = properties[SFTP_PORT]?.toInt() ?: 22
-            val sshClient = createDefaultSSHClient()
+            val sshClient = createDefaultSSHClient(properties[USE_NON_DEPRECATED_KEY_ALGORITHMS_ONLY].toBoolean())
             if (!properties[SFTP_CONNECTION_TIMEOUT].isNullOrBlank()) {
                 sshClient.connectTimeout = properties[SFTP_CONNECTION_TIMEOUT]?.toInt()!!
             }
@@ -336,31 +339,47 @@ class SftpTransport :
             }
 
         // allow us to mock SSHClient because there is no dependency injection in this class
-        fun createDefaultSSHClient(): SSHClient {
+        fun createDefaultSSHClient(useNonDeprecatedKeyAlgorithmsOnly: Boolean): SSHClient {
             val sshConfig = DefaultConfig()
 
-            // Started from version 0.33.0, SSHJ doesn't try to determine RSA-SHA2-* support on fly.
-            // Instead, it looks only config.getKeyAlgorithms(), which may or may not contain ssh-rsa
-            // and rsa-sha2-* in any order.  The default config stops working with old servers like
-            // Apache SSHD that doesn't rsa-sha2-* signatures.  To make it works with old servers,
-            // we need to include the KeyAlgorithms.SSHRSA at the top of the list or have higher
-            // priority than other as below.
-            sshConfig.keyAlgorithms = listOf(
-                KeyAlgorithms.SSHRSA(),
-                KeyAlgorithms.EdDSA25519CertV01(),
-                KeyAlgorithms.EdDSA25519(),
-                KeyAlgorithms.ECDSASHANistp521CertV01(),
-                KeyAlgorithms.ECDSASHANistp521(),
-                KeyAlgorithms.ECDSASHANistp384CertV01(),
-                KeyAlgorithms.ECDSASHANistp384(),
-                KeyAlgorithms.ECDSASHANistp256CertV01(),
-                KeyAlgorithms.ECDSASHANistp256(),
-                KeyAlgorithms.RSASHA512(),
-                KeyAlgorithms.RSASHA256(),
-                KeyAlgorithms.SSHRSACertV01(),
-                KeyAlgorithms.SSHDSSCertV01(),
-                KeyAlgorithms.SSHDSA()
-            )
+            if (useNonDeprecatedKeyAlgorithmsOnly) {
+                sshConfig.keyAlgorithms = listOf(
+                    KeyAlgorithms.EdDSA25519CertV01(),
+                    KeyAlgorithms.EdDSA25519(),
+                    KeyAlgorithms.ECDSASHANistp521CertV01(),
+                    KeyAlgorithms.ECDSASHANistp521(),
+                    KeyAlgorithms.ECDSASHANistp384CertV01(),
+                    KeyAlgorithms.ECDSASHANistp384(),
+                    KeyAlgorithms.ECDSASHANistp256CertV01(),
+                    KeyAlgorithms.ECDSASHANistp256(),
+                    KeyAlgorithms.RSASHA512(),
+                    KeyAlgorithms.RSASHA256()
+                )
+            } else {
+                // Started from version 0.33.0, SSHJ doesn't try to determine RSA-SHA2-* support on fly.
+                // Instead, it looks only config.getKeyAlgorithms(), which may or may not contain ssh-rsa
+                // and rsa-sha2-* in any order.  The default config stops working with old servers like
+                // Apache SSHD that doesn't rsa-sha2-* signatures.  To make it works with old servers,
+                // we need to include the KeyAlgorithms.SSHRSA at the top of the list or have higher
+                // priority than other as below.
+                sshConfig.keyAlgorithms = listOf(
+                    KeyAlgorithms.SSHRSA(),
+                    KeyAlgorithms.EdDSA25519CertV01(),
+                    KeyAlgorithms.EdDSA25519(),
+                    KeyAlgorithms.ECDSASHANistp521CertV01(),
+                    KeyAlgorithms.ECDSASHANistp521(),
+                    KeyAlgorithms.ECDSASHANistp384CertV01(),
+                    KeyAlgorithms.ECDSASHANistp384(),
+                    KeyAlgorithms.ECDSASHANistp256CertV01(),
+                    KeyAlgorithms.ECDSASHANistp256(),
+                    KeyAlgorithms.RSASHA512(),
+                    KeyAlgorithms.RSASHA256(),
+                    KeyAlgorithms.SSHRSACertV01(),
+                    KeyAlgorithms.SSHDSSCertV01(),
+                    KeyAlgorithms.SSHDSA()
+                )
+            }
+
             return SSHClient(sshConfig)
         }
     }
