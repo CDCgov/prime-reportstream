@@ -10,6 +10,7 @@ import gov.cdc.prime.router.fhirengine.config.HL7TranslationConfig
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Context
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Converter
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirTransformer
+import gov.cdc.prime.router.fhirengine.translation.hl7.utils.helpers.SchemaReferenceResolverHelper
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.fhirengine.utils.HL7Reader
 import org.apache.logging.log4j.kotlin.Logging
@@ -410,14 +411,17 @@ class TranslationSchemaManager : Logging {
                 when (schemaType) {
                     SchemaType.FHIR -> {
                         FhirTransformer(
-                            rawValidationInput.schemaUri,
-                            blobContainerInfo
+                            SchemaReferenceResolverHelper.retrieveFhirSchemaReference(
+                                rawValidationInput.schemaUri, blobContainerInfo
+                            ),
                         ).validate(inputBundle, FhirTranscoder.decode(rawValidationInput.output))
                     }
                     SchemaType.HL7 -> {
                         FhirToHl7Converter(
-                            rawValidationInput.schemaUri,
-                            blobContainerInfo,
+                            SchemaReferenceResolverHelper.retrieveHl7SchemaReference(
+                                rawValidationInput.schemaUri,
+                                blobContainerInfo
+                            ),
                             context = FhirToHl7Context(
                                 CustomFhirPathFunctions(),
                                 config = HL7TranslationConfig(
@@ -432,8 +436,10 @@ class TranslationSchemaManager : Logging {
                                     null
                                 ),
                                 translationFunctions = CustomTranslationFunctions(),
-                            )
-                        ).validate(
+                            ),
+                            errors = mutableListOf(),
+                            warnings = mutableListOf(),
+                            ).validate(
                             inputBundle,
                             HL7Reader.parseHL7Message(
                                 Hl7InputStreamMessageStringIterator(rawValidationInput.output.byteInputStream())
