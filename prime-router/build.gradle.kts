@@ -925,7 +925,7 @@ dependencies {
     implementation("org.thymeleaf:thymeleaf:3.1.3.RELEASE")
     implementation("com.sendgrid:sendgrid-java:4.10.3")
     implementation("com.okta.jwt:okta-jwt-verifier:0.5.7")
-    implementation("org.json:json:20250107")
+    implementation("org.json:json:20250517")
     // DO NOT INCREMENT SSHJ to a newer version without first thoroughly testing it locally.
     implementation("com.hierynomus:sshj:0.39.0")
     implementation("com.jcraft:jsch:0.1.55")
@@ -942,9 +942,9 @@ dependencies {
     implementation("org.commonmark:commonmark:0.24.0")
     implementation("com.google.guava:guava:33.4.8-jre")
     implementation("com.helger.as2:as2-lib:5.1.5")
-    implementation("org.bouncycastle:bcprov-jdk15to18:1.80")
-    implementation("org.bouncycastle:bcprov-jdk18on:1.80")
-    implementation("org.bouncycastle:bcmail-jdk15to18:1.80")
+    implementation("org.bouncycastle:bcprov-jdk15to18:1.81")
+    implementation("org.bouncycastle:bcprov-jdk18on:1.81")
+    implementation("org.bouncycastle:bcmail-jdk15to18:1.81")
 
     implementation("commons-net:commons-net:3.11.1")
     implementation("com.cronutils:cron-utils:9.2.1")
@@ -963,9 +963,9 @@ dependencies {
     implementation("org.apache.poi:poi-ooxml:5.4.1")
     implementation("org.apache.commons:commons-compress:1.27.1")
     implementation("commons-io:commons-io:2.19.0")
-    implementation("com.anyascii:anyascii:0.3.2")
+    implementation("com.anyascii:anyascii:0.3.3")
     // https://mvnrepository.com/artifact/io.swagger/swagger-annotations
-    implementation("io.swagger:swagger-annotations:1.6.15")
+    implementation("io.swagger:swagger-annotations:1.6.16")
     implementation("io.swagger.core.v3:swagger-jaxrs2:2.2.30")
     // https://mvnrepository.com/artifact/javax.ws.rs/javax.ws.rs-api
     implementation("javax.ws.rs:javax.ws.rs-api:2.1.1")
