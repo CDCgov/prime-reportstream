@@ -41,13 +41,13 @@ Primarily in **FHIRReceiverFilter** with the application of the [FHIRPath](https
 
 ### Condition Code FHIRPath Example
 
-`(Bundle.entry.ofType(Observation).code.coding.extension('https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code').value.where(code in ('840539006')).exists())`
+`(Bundle.entry.resource.ofType(Observation).code.coding.extension('https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code').value.where(code in ('840539006')).exists())`
 
 ### LOINC Code FHIRPath Example
 
-`(Bundle.entry.ofType(Observation).code.coding.where.(system = 'http://loinc.org' and code = '94558-4').exists())`
+`(Bundle.entry.resource.ofType(Observation).code.coding.where(code='94558-4' and system='http://loinc.org').exists())`
 
-`(Bundle.entry.ofType(Observation).code.coding.where.(system = 'http://loinc.org' and (code = '95209-3' or code = '94558-4')).exists())`
+`(Bundle.entry.resource.ofType(Observation).code.coding.where((code='94558-4' or code='95209-3') and system='http://loinc.org').exists())`
 
 ### Simple Demonstration
 We can demonstrate this by simply using our existing tools with a file containing the **Observation** shown above:
@@ -67,32 +67,62 @@ Special commands:
 
 %resource = Bundle
 Last path = 
-FHIR path> (Bundle.entry.ofType(Observation).code.coding.extension('https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code').value.where(code in ('840539006')).exists())
-Primitive: BooleanType[false]
+Last path = (Bundle.entry.resource.ofType(Observation).code.coding.where(code='94558-4' and system='http://loinc.org').exists())
+FHIR path> (Bundle.entry.resource.ofType(Observation).code.coding.extension('https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code').value.where(code in ('840539006')))
+{  
+        "system": "UriType[SNOMEDCT]"
+        "code": "840539006"
+        "display": "Disease caused by severe acute respiratory syndrome coronavirus 2 (disorder)"
+}
+
 Number of results = 1 ----------------------------
 
 %resource = Bundle
-Last path = (Bundle.entry.ofType(Observation).code.coding.extension('https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code').value.where(code in ('840539006')).exists())
-FHIR path> (Bundle.entry.ofType(Observation).code.coding.where.(system = 'http://loinc.org' and code = '94558-4').exists())
-Primitive: BooleanType[false]
+Last path = (Bundle.entry.resource.ofType(Observation).code.coding.extension('https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code').value.where(code in ('840539006')))
+FHIR path> (Bundle.entry.resource.ofType(Observation).code.coding.extension('https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code').value.where(code in ('840539006')).exists())
+Primitive: BooleanType[true]
 Number of results = 1 ----------------------------
 
 %resource = Bundle
-Last path = (Bundle.entry.ofType(Observation).code.coding.where.(system = 'http://loinc.org' and code = '94558-4').exists())
-FHIR path> (Bundle.entry.ofType(Observation).code.coding.where.(system = 'http://loinc.org' and (code = '95209-3' or code = '94558-4')).exists())
-Primitive: BooleanType[false]
+Last path = (Bundle.entry.resource.ofType(Observation).code.coding.extension('https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code').value.where(code in ('840539006')).exists())
+FHIR path> (Bundle.entry.resource.ofType(Observation).code.coding.where(code='94558-4' and system='http://loinc.org'))
+{  
+        "extension": [ 
+                extension('https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code'),
+  ]
+        "system": "UriType[http://loinc.org]"
+        "code": "94558-4"
+}
+
 Number of results = 1 ----------------------------
 
 %resource = Bundle
-Last path = (Bundle.entry.ofType(Observation).code.coding.where.(system = 'http://loinc.org' and (code = '95209-3' or code = '94558-4')).exists())
-FHIR path> 
+Last path = (Bundle.entry.resource.ofType(Observation).code.coding.where(code='94558-4' and system='http://loinc.org'))
+FHIR path> (Bundle.entry.resource.ofType(Observation).code.coding.where(code='94558-4' and system='http://loinc.org').exists())
+Primitive: BooleanType[true]
+Number of results = 1 ----------------------------
 
+%resource = Bundle
+Last path = (Bundle.entry.resource.ofType(Observation).code.coding.where(code='94558-4' and system='http://loinc.org').exists())
+FHIR path> (Bundle.entry.resource.ofType(Observation).code.coding.where((code='94558-4' or code='95209-3') and system='http://loinc.org'))
+{  
+        "extension": [ 
+                extension('https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code'),
+  ]
+        "system": "UriType[http://loinc.org]"
+        "code": "94558-4"
+}
+
+Number of results = 1 ----------------------------
+
+%resource = Bundle
+Last path = (Bundle.entry.resource.ofType(Observation).code.coding.where((code='94558-4' or code='95209-3') and system='http://loinc.org'))
+FHIR path> (Bundle.entry.resource.ofType(Observation).code.coding.where((code='94558-4' or code='95209-3') and system='http://loinc.org').exists())
+Primitive: BooleanType[true]
+Number of results = 1 ----------------------------
+
+%resource = Bundle
+Last path = (Bundle.entry.resource.ofType(Observation).code.coding.where((code='94558-4' or code='95209-3') and system='http://loinc.org').exists())
 ```
 
-
-
-
-
-
-
-
+The FHIRPath expression you use may have to be altered depending on the exact structure of the **Bundle** under consideration.
