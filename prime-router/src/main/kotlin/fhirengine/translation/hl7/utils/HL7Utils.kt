@@ -4,6 +4,7 @@ import ca.uhn.hl7v2.DefaultHapiContext
 import ca.uhn.hl7v2.HL7Exception
 import ca.uhn.hl7v2.model.AbstractMessage
 import ca.uhn.hl7v2.model.Message
+import ca.uhn.hl7v2.model.Segment
 import ca.uhn.hl7v2.util.Terser
 import ca.uhn.hl7v2.validation.impl.ValidationContextFactory
 import fhirengine.utils.ReportStreamCanonicalModelClassFactory
@@ -47,19 +48,6 @@ object HL7Utils : Logging {
         }
 
     /**
-     * Gets the type string for the given [message].
-     * @return a list with the message code and trigger event, or an empty list if the type could not be determined
-     */
-    internal fun getMessageTypeString(message: Message): List<String> {
-        val typeParts = message.javaClass.simpleName.split("_")
-        return if (typeParts.size != 2) {
-            throw IllegalArgumentException("${message.javaClass.simpleName} is not a class to use for the conversion.")
-        } else {
-            typeParts
-        }
-    }
-
-    /**
      * Checks if a specific HL7 message [hl7Class] is supported.
      * @return true if the HL7 message is supported, false otherwise
      */
@@ -96,36 +84,6 @@ object HL7Utils : Logging {
     }
 
     /**
-     * Only call from COVID pipeline!
-     *
-     * This is not generic enough for the UP
-     */
-    fun formPathSpec(spec: String, rep: Int? = null): String {
-        val segment = spec.substring(0, 3)
-        val components = spec.substring(3)
-        val segmentSpec = formSegSpec(segment, rep)
-        return "$segmentSpec$components"
-    }
-
-    /**
-     * Only call from COVID pipeline!
-     *
-     * This is not generic enough for the UP
-     */
-    fun formSegSpec(segment: String, rep: Int? = null): String {
-        val repSpec = rep?.let { "($rep)" } ?: ""
-        return when (segment) {
-            "OBR" -> "/PATIENT_RESULT/ORDER_OBSERVATION/OBR"
-            "ORC" -> "/PATIENT_RESULT/ORDER_OBSERVATION/ORC"
-            "SPM" -> "/PATIENT_RESULT/ORDER_OBSERVATION/SPECIMEN/SPM"
-            "PID" -> "/PATIENT_RESULT/PATIENT/PID"
-            "OBX" -> "/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION$repSpec/OBX"
-            "NTE" -> "/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION/NTE$repSpec"
-            else -> segment
-        }
-    }
-
-    /**
      * removes the index from an HL7 field if one is present
      *
      * ex: "ORC-12(0)-1" -> "ORC-12-1"
@@ -139,5 +97,25 @@ object HL7Utils : Logging {
         } else {
             field
         }
+    }
+
+    /**
+     * Encodes a message while avoiding an error when MSH-2 is five characters long
+     *
+     * @return the encoded message as a string
+     */
+    fun Message.encodePreserveEncodingChars(): String {
+        // get encoding characters ...
+        val msh = this.get("MSH") as Segment
+        val encCharString = Terser.get(msh, 2, 0, 1, 1)
+        val hasFiveEncodingChars = encCharString == defaultHl7EncodingFiveChars
+        if (hasFiveEncodingChars) Terser.set(msh, 2, 0, 1, 1, defaultHl7EncodingFourChars)
+        var encodedMsg = encode()
+        if (hasFiveEncodingChars) {
+            encodedMsg = encodedMsg.replace(defaultHl7EncodingFourChars, defaultHl7EncodingFiveChars)
+            // Set MSH-2 back in the in-memory message to preserve original value
+            Terser.set(msh, 2, 0, 1, 1, defaultHl7EncodingFiveChars)
+        }
+        return encodedMsg
     }
 }
