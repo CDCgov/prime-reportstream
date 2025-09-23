@@ -1,4 +1,7 @@
 #!/bin/bash
+# Shellcheck disables: SC2249 (case patterns), SC2312 (command masking with ||), 
+# SC1091 (sourcing dynamic env file), SC2015 (A && B || C pattern for optional operations)
+# shellcheck disable=SC2249,SC2312,SC1091,SC2015
 
 # Wrapper script to run Prime Router with rs- infrastructure
 # This allows us to use rs- prefixed services with standard Gradle tasks
@@ -32,10 +35,14 @@ case "${1:-}" in
         echo "========================"
         echo ""
         echo "Docker Containers:"
+        echo "RS- Infrastructure:"
         docker ps --filter "name=rs-" --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}" 2>/dev/null || echo "No rs- containers running"
         echo ""
+        echo "Prime Router (Gradle-managed):"
+        docker ps --filter "name=prime-router-" --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}" 2>/dev/null || echo "No prime-router- containers running"
+        echo ""
         echo "Docker Compose Services:"
-        docker-compose -f docker-compose.secure-multiarch.yml ps 2>/dev/null || echo "No compose services running"
+        docker-compose -f docker-compose.matts-testing.yml ps 2>/dev/null || echo "No compose services running"
         echo ""
         echo "Port Usage:"
         echo "PostgreSQL (5432): $(lsof -ti :5432 2>/dev/null && echo "OCCUPIED" || echo "AVAILABLE")"
@@ -49,11 +56,20 @@ case "${1:-}" in
         echo "==========================="
         echo ""
         echo "Stopping Docker Compose services..."
-        docker-compose -f docker-compose.secure-multiarch.yml down --remove-orphans --volumes 2>/dev/null || true
+        docker-compose -f docker-compose.matts-testing.yml down --remove-orphans --volumes 2>/dev/null || true
         echo ""
-        echo "Stopping manual rs- containers..."
-        docker stop $(docker ps -q --filter "name=rs-") 2>/dev/null || echo "No rs- containers to stop"
-        docker rm $(docker ps -aq --filter "name=rs-") 2>/dev/null || echo "No rs- containers to remove"
+        echo "Stopping manual rs- and prime-router- containers..."
+        docker ps -q --filter "name=rs-" | xargs -r docker stop 2>/dev/null || echo "No rs- containers to stop"
+        docker ps -q --filter "name=prime-router-" | xargs -r docker stop 2>/dev/null || echo "No prime-router- containers to stop"
+        docker ps -aq --filter "name=rs-" | xargs -r docker rm 2>/dev/null || echo "No rs- containers to remove"
+        docker ps -aq --filter "name=prime-router-" | xargs -r docker rm 2>/dev/null || echo "No prime-router- containers to remove"
+        echo ""
+        
+        echo "Stopping Gradle and Azure Functions processes..."
+        pkill -f 'gradlew.*run' 2>/dev/null || echo "No gradlew processes to stop"
+        pkill -f 'java.*prime-router' 2>/dev/null || echo "No Prime Router Java processes to stop"
+        pkill -f 'func host' 2>/dev/null || echo "No Azure Functions host processes to stop"
+        pkill -f 'azure-functions' 2>/dev/null || echo "No Azure Functions processes to stop"
         echo ""
         echo "Cleaning up rs- networks..."
         docker network ls --filter "name=rs-" -q | xargs docker network rm 2>/dev/null || echo "No rs- networks to remove"
@@ -66,13 +82,13 @@ case "${1:-}" in
         echo "========================================================="
         echo ""
         echo "This will PERMANENTLY DELETE:"
-        echo "  • All rs- containers and images"
-        echo "  • All rs- Docker volumes (including database data)"
-        echo "  • All rs- networks"
+        echo "  • All rs- and prime-router- containers and images"
+        echo "  • All rs- and prime-router- Docker volumes (including database data)"
+        echo "  • All rs- and prime-router- networks"
         echo "  • All file mounts and shared data"
         echo ""
-        read -p "Are you sure you want to continue? Type 'DELETE' to confirm: " confirmation
-        if [ "$confirmation" != "DELETE" ]; then
+        read -r -p "Are you sure you want to continue? [y/N]: " confirmation
+        if [[ "${confirmation}" != "y" && "${confirmation}" != "Y" ]]; then
             echo "Spotless cleanup cancelled"
             exit 0
         fi
@@ -83,28 +99,40 @@ case "${1:-}" in
         
         # Stop and remove Docker Compose services with volumes
         echo "Stopping Docker Compose services and removing volumes..."
-        docker-compose -f docker-compose.secure-multiarch.yml down --remove-orphans --volumes --rmi all 2>/dev/null || true
+        docker-compose -f docker-compose.matts-testing.yml down --remove-orphans --volumes --rmi all 2>/dev/null || true
         echo ""
         
-        # Stop and remove all rs- containers
-        echo "Stopping and removing all rs- containers..."
-        docker stop $(docker ps -q --filter "name=rs-") 2>/dev/null || echo "No rs- containers to stop"
-        docker rm $(docker ps -aq --filter "name=rs-") 2>/dev/null || echo "No rs- containers to remove"
+        # Stop and remove all rs- and prime-router- containers
+        echo "Stopping and removing all rs- and prime-router- containers..."
+        docker ps -q --filter "name=rs-" | xargs -r docker stop 2>/dev/null || echo "No rs- containers to stop"
+        docker ps -q --filter "name=prime-router-" | xargs -r docker stop 2>/dev/null || echo "No prime-router- containers to stop"
+        docker ps -aq --filter "name=rs-" | xargs -r docker rm 2>/dev/null || echo "No rs- containers to remove"
+        docker ps -aq --filter "name=prime-router-" | xargs -r docker rm 2>/dev/null || echo "No prime-router- containers to remove"
         echo ""
         
-        # Remove all rs- volumes (including file mounts)
-        echo "Removing all rs- Docker volumes..."
+        echo "Stopping all Gradle and Azure Functions processes..."
+        pkill -f 'gradlew.*run' 2>/dev/null || echo "No gradlew processes to stop"
+        pkill -f 'java.*prime-router' 2>/dev/null || echo "No Prime Router Java processes to stop"
+        pkill -f 'func host' 2>/dev/null || echo "No Azure Functions host processes to stop"
+        pkill -f 'azure-functions' 2>/dev/null || echo "No Azure Functions processes to stop"
+        echo ""
+        
+        # Remove all rs- and prime-router- volumes (including file mounts)
+        echo "Removing all rs- and prime-router- Docker volumes..."
         docker volume ls --filter "name=rs-" -q | xargs docker volume rm 2>/dev/null || echo "No rs- volumes to remove"
+        docker volume ls --filter "name=prime-router" -q | xargs docker volume rm 2>/dev/null || echo "No prime-router- volumes to remove"
         echo ""
         
-        # Remove all rs- networks
-        echo "Removing all rs- networks..."
+        # Remove all rs- and prime-router- networks
+        echo "Removing all rs- and prime-router- networks..."
         docker network ls --filter "name=rs-" -q | xargs docker network rm 2>/dev/null || echo "No rs- networks to remove"
+        docker network ls --filter "name=prime-router" -q | xargs docker network rm 2>/dev/null || echo "No prime-router- networks to remove"
         echo ""
         
-        # Remove rs- images  
-        echo "Removing all rs- Docker images..."
+        # Remove rs- and prime-router- images  
+        echo "Removing all rs- and prime-router- Docker images..."
         docker images --filter "reference=rs-*" -q | xargs docker rmi -f 2>/dev/null || echo "No rs- images to remove"
+        docker images --filter "reference=prime-router-*" -q | xargs docker rmi -f 2>/dev/null || echo "No prime-router- images to remove"
         echo ""
         
         # Clean up any remaining rs- related files
@@ -137,14 +165,14 @@ echo "=============================================="
 echo " Starting rs- prefixed hardened infrastructure..."
 
 # Start vault first for credentials
-docker-compose -f docker-compose.secure-multiarch.yml up -d rs-vault
+docker-compose -f docker-compose.matts-testing.yml up -d rs-vault
 
 # Start PostgreSQL using Docker Compose (standard approach)
 echo " Starting PostgreSQL via Docker Compose..."
-docker-compose -f docker-compose.secure-multiarch.yml up -d rs-postgresql
+docker-compose -f docker-compose.matts-testing.yml up -d rs-postgresql
 
 # Start remaining services
-docker-compose -f docker-compose.secure-multiarch.yml up -d rs-azurite rs-azurite-stage rs-sftp rs-soap-webservice rs-rest-webservice
+docker-compose -f docker-compose.matts-testing.yml up -d rs-azurite rs-sftp rs-soap-webservice rs-rest-webservice
 
 # Wait for PostgreSQL to be ready
 echo " Waiting for PostgreSQL to be ready..."
@@ -152,7 +180,7 @@ for i in {1..30}; do
     if docker exec rs-postgresql pg_isready -U prime -d prime_data_hub &>/dev/null; then
         echo " PostgreSQL is ready"
         break
-    elif [ $i -eq 30 ]; then
+    elif [[ "${i}" -eq 30 ]]; then
         echo " PostgreSQL failed to start"
         exit 1
     fi
@@ -181,13 +209,15 @@ echo "   Azurite: 127.0.0.1:10000-10002"
 echo "   SFTP: 127.0.0.1:2222"
 echo "   SOAP: 127.0.0.1:8087"
 echo "   REST: 127.0.0.1:3001"
-echo "   Azurite Stage: 127.0.0.1:11000-11001"
 echo ""
 echo " To stop rs- infrastructure:"
-echo "   docker-compose -f docker-compose.secure-multiarch.yml down"
+echo "   docker-compose -f docker-compose.matts-testing.yml down"
 echo ""
 
-# Load environment variables for this session
-export $(cat .vault/env/.env.local | xargs)
-echo " Environment variables loaded for this session"
-echo " Ready for Prime Router development with full local infrastructure!"
+# Load environment variables for this session (if available)
+if [[ -f ".vault/env/.env.local" ]] && [[ -s ".vault/env/.env.local" ]]; then
+    set -a && source .vault/env/.env.local 2>/dev/null && set +a || true
+    echo " Environment variables loaded for this session"
+else
+    echo " No vault environment file found - variables will be set by individual scripts"
+fi

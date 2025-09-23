@@ -1,12 +1,12 @@
 pluginManagement {
     repositories {
-        maven { url = java.net.URI("https://repo.spring.io/snapshot") }
+        maven { url = uri("https://repo.spring.io/snapshot") }
         gradlePluginPortal()
     }
 }
 
 sourceControl {
-    gitRepository(java.net.URI("https://github.com/CDCgov/hl7v2-fhir-converter.git")) {
+    gitRepository(uri("https://github.com/CDCgov/hl7v2-fhir-converter.git")) {
         producesModule("io.github.linuxforhealth:hl7v2-fhir-converter")
     }
 }

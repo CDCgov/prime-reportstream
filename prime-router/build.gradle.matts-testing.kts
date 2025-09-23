@@ -641,9 +641,9 @@ tasks.register("quickPackage") {
 dockerCompose {
 //    projectName = "prime-router" // docker-composer has this setter broken as of 0.16.4
     setProjectName("rs-prime-router") // this is a workaround for the broken setter for projectName
-    useComposeFiles.addAll("docker-compose.secure-multiarch.yml")
+    useComposeFiles.addAll("docker-compose.matts-testing.yml")
     startedServices.addAll(
-        "rs-postgresql", "rs-vault", "rs-azurite", "rs-azurite-stage",
+        "rs-postgresql", "rs-vault", "rs-azurite",
         "rs-sftp", "rs-soap-webservice", "rs-rest-webservice"
     )
     stopContainers.set(false)

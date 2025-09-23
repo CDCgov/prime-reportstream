@@ -121,7 +121,7 @@ services:
 
   # Secrets management
   vault:
-    image: hashicorp/vault
+    image: hashicorp/vault:latest
     cap_add:
       # Allows protected memory
       - IPC_LOCK
