@@ -20,8 +20,6 @@ env:
   # These are for CI and not credentials of any system
   DB_USER: prime
   DB_PASSWORD: changeIT!
-  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  GITHUB_ACTOR: ${{ github.actor }}
 
 jobs:
   sonarcloud:
