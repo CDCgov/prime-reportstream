@@ -57,9 +57,9 @@ repositories {
         url = uri("https://maven.pkg.github.com/cdcgov/hl7v2-fhir-converter")
         credentials {
             username = project.findProperty("hl7v2.fhir.converter.username") as String?
-                ?: System.getenv("GITHUB_ACTOR")
+                ?: System.getenv("GITHUB_PACKAGES_ACTOR")
             password = project.findProperty("hl7v2.fhir.converter.token") as String?
-                ?: System.getenv("GITHUB_TOKEN")
+                ?: System.getenv("GITHUB_PACKAGES_TOKEN")
         }
     }
 }
