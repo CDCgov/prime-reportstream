@@ -1,6 +1,6 @@
 package gov.cdc.prime.router.fhirengine.translation.hl7.utils
 
-import gov.cdc.prime.reportstream.shared.StringUtilities.trimToNull
+import org.apache.commons.lang3.StringUtils
 import java.time.DateTimeException
 import java.time.Instant
 import java.time.LocalDate
@@ -131,7 +131,7 @@ object DateUtilities {
      */
     fun parseDate(dateValue: String): TemporalAccessor {
         // check to see if the value has something in it
-        if (dateValue.trimToNull() == null) {
+        if (StringUtils.trimToNull(dateValue) == null) {
             throw DateTimeException("Invalid value passed in for date value. Received $dateValue")
         }
         // parse out the date
