@@ -67,7 +67,12 @@ class EmailTransport : ITransport {
     fun getTemplateFromAttributes(htmlContent: String, attr: Map<String, Any>): String {
         val templateEngine = getTemplateEngine()
         val context = Context()
-        attr.forEach { (k, v) -> context.setVariable(k, v) }
+        // Security: Only set safe, pre-validated variables in context
+        attr.forEach { (k, v) ->
+            if (v is String || v is Number || v is java.util.Calendar) {
+                context.setVariable(k, v)
+            }
+        }
         return templateEngine.process(htmlContent, context)
     }
 
