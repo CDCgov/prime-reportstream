@@ -961,7 +961,7 @@ dependencies {
     implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
     implementation("org.apache.poi:poi:5.4.1")
     implementation("org.apache.poi:poi-ooxml:5.4.1")
-    implementation("org.apache.commons:commons-compress:1.27.1")
+    implementation("org.apache.commons:commons-compress:1.28.0")
     implementation("commons-io:commons-io:2.19.0")
     implementation("com.anyascii:anyascii:0.3.3")
     // https://mvnrepository.com/artifact/io.swagger/swagger-annotations
