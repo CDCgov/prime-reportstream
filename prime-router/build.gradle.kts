@@ -917,6 +917,7 @@ dependencies {
     implementation("ca.uhn.hapi.fhir:hapi-fhir-structures-r4:8.0.0")
     // https://mvnrepository.com/artifact/ca.uhn.hapi.fhir/hapi-fhir-caching-caffeine
     implementation("ca.uhn.hapi.fhir:hapi-fhir-caching-caffeine:8.0.0")
+    implementation("ca.uhn.hapi.fhir:hapi-fhir-validation:8.0.0")
     implementation("ca.uhn.hapi.fhir:hapi-fhir-client:8.0.0")
     implementation("ca.uhn.hapi:hapi-base:2.6.0")
     implementation("ca.uhn.hapi:hapi-structures-v251:2.6.0")
@@ -990,6 +991,9 @@ dependencies {
     // validations
     implementation("com.networknt:json-schema-validator:1.5.6")
     implementation("io.konform:konform-jvm:0.11.1")
+
+    // to parse json5
+    implementation("at.syntaxerror:json5:2.1.0")
 
     runtimeOnly("com.okta.jwt:okta-jwt-verifier-impl:0.5.7")
     runtimeOnly("com.squareup.okio:okio:3.11.0")
