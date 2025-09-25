@@ -42,7 +42,6 @@ import gov.cdc.prime.router.TestSource
 import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.common.DateUtilities
 import gov.cdc.prime.router.common.Hl7Utilities
-import gov.cdc.prime.router.fhirengine.translation.hl7.utils.HL7Utils
 import gov.cdc.prime.router.unittest.UnitTestUtils
 import gov.cdc.prime.router.unittest.UnitTestUtils.createConfig
 import io.mockk.every
@@ -471,7 +470,7 @@ SPM|1|||258500001^Nasopharyngeal swab^SCT||||71836000^Nasopharyngeal structure (
         every { mockTerser.set(any(), any()) } returns Unit
         every { mockTerser.get("/PATIENT_RESULT/PATIENT/PID-13(0)-2") } returns ""
 
-        val patientPathSpec = HL7Utils.formPathSpec("PID-13")
+        val patientPathSpec = serializer.formPathSpec("PID-13")
         val patientElement = Element("patient_phone_number", hl7Field = "PID-13", type = Element.Type.TELEPHONE)
         serializer.setTelephoneComponent(
             mockTerser,
@@ -498,7 +497,7 @@ SPM|1|||258500001^Nasopharyngeal swab^SCT||||71836000^Nasopharyngeal structure (
         val mockTerser = mockk<Terser>()
         every { mockTerser.set(any(), any()) } returns Unit
 
-        val facilityPathSpec = HL7Utils.formPathSpec("ORC-23")
+        val facilityPathSpec = serializer.formPathSpec("ORC-23")
         val facilityElement = Element(
             "ordering_facility_phone_number",
             hl7Field = "ORC-23",
@@ -561,13 +560,13 @@ SPM|1|||258500001^Nasopharyngeal swab^SCT||||71836000^Nasopharyngeal structure (
     }
 
     @Test
-    fun `testSetTelephoneComponentsValidatePhoneNumbers`() {
+    fun `test SetTelephoneComponent validates phone numbers`() {
         val settings = FileSettings("./settings")
         val serializer = Hl7Serializer(UnitTestUtils.simpleMetadata, settings)
         val mockTerser = mockk<Terser>()
         every { mockTerser.set(any(), any()) } returns Unit
 
-        val facilityPathSpec = HL7Utils.formPathSpec("ORC-23")
+        val facilityPathSpec = serializer.formPathSpec("ORC-23")
         val facilityElement = Element(
             "ordering_facility_phone_number",
             hl7Field = "ORC-23",

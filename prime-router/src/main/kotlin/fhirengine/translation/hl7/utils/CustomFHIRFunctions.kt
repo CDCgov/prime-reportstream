@@ -3,7 +3,6 @@ package gov.cdc.prime.router.fhirengine.translation.hl7.utils
 import ca.uhn.fhir.model.api.TemporalPrecisionEnum
 import fhirengine.translation.hl7.utils.FhirPathFunctions
 import fhirengine.translation.hl7.utils.helpers.convertDateToAge
-import gov.cdc.prime.router.common.DateUtilities
 import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
 import org.hl7.fhir.r4.fhirpath.FHIRPathUtilityClasses.FunctionDetails
 import org.hl7.fhir.r4.model.Base
