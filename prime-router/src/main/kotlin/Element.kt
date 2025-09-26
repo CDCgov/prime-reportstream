@@ -1030,10 +1030,11 @@ data class Element(
         const val zipFiveToken = "\$zipFive"
         const val zipFivePlusFourToken = "\$zipFivePlusFour"
         const val usZipFormat = """^(\d{5})[- ]?(\d{4})?$"""
+
         // A regex to check for the presence of only valid phone number characters. This will fail if
         // someone passes through character values, like a name, or some other text info. This checks for
         // proper format which is crucial when parsing data.
-        /**
+        /*
          * Breaking down the regex
          * The following regex is broken down in three main parts
          * Regex("""(country code) phone number (extension number)""")
@@ -1158,7 +1159,7 @@ data class Element(
         //  into if the 'maybeAPhoneNumber' regex is even still needed. It appears the 'default region' list is
         //  not needed, as in a real use case it never gets past 'US' since it is just assigning default region
         //  if there is not a country code. Leaving this here for now (9/22/2022) for future tech debt evaluation
-        /**
+        /*
          * Given [cleanedValue] this method checks to see if it is possibly a phone number in a safe
          * way without blowing up all the processing of rows in a report. If the phone number is probably
          * valid it returns null, as the `checkForErrors` method would expect, otherwise it returns an

@@ -917,7 +917,7 @@ class WorkflowEngine(
     // 1. detect format and get serializer
     // 2. readExternal and return result / errors / warnings
     // TODO: This could be moved to a utility/reports.kt or something like that, as it is not really part of workflow
-    /**
+    /*
      * Reads in a received covid-19 message of HL7 or CSV format, generates an in-memory report instance
      * @param sender Sender information, pulled from database based on sender name
      * @param content Content of incoming message
