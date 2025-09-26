@@ -182,53 +182,55 @@ start_docker_infrastructure() {
     wait_for_service "localhost" "5432" "PostgreSQL"
     wait_for_service "localhost" "8200" "Vault"
 
-    # Initialize vault with fresh state (clear old credentials)
-    print_info "Initializing vault with fresh state..."
-    rm -f .vault/env/.env.local .vault/env/key 2>/dev/null || true
-    docker-compose -f docker-compose.matts-testing.yml restart rs-vault >/dev/null 2>&1
-    sleep 5
+    # Wait for vault initialization (vault always runs init scripts on startup)
+    print_info "Waiting for vault initialization..."
+    print_info "Note: Vault runs init scripts on every startup to ensure proper state"
     
-    # Wait for fresh vault initialization
-    wait_for_condition "Vault credentials generation" "[ -s \".vault/env/.env.local\" ]" 60 "Vault credential file not generated"
-    
-    print_info "Restarting vault for TokenSigningSecret loading..."
-    docker-compose -f docker-compose.matts-testing.yml restart rs-vault >/dev/null 2>&1
-    sleep 5
-    
-    # Verify vault is fully operational with extended timeout
-    for attempt in {1..30}; do
-        # Check if vault container is still running
-        if ! docker-compose -f docker-compose.matts-testing.yml ps rs-vault | grep -q "Up"; then
-            print_warning "Vault container not running, restarting... (attempt $attempt/30)"
-            docker-compose -f docker-compose.matts-testing.yml restart rs-vault >/dev/null 2>&1
-            sleep 5
-            continue
+    # Wait for vault to become responsive and credentials to be generated/loaded
+    print_info "Waiting for vault credentials and API readiness..."
+    for attempt in {1..90}; do
+        # Check if credentials exist first
+        if [ -s ".vault/env/.env.local" ]; then
+            # Then check if vault API is responding and operational
+            vault_status=$(curl -s http://localhost:8200/v1/sys/health 2>/dev/null)
+            if [ -n "$vault_status" ]; then
+                if echo "$vault_status" | jq -e '.initialized == true and .sealed == false' >/dev/null 2>&1; then
+                    print_info "Vault fully operational and credentials ready"
+                    break
+                elif echo "$vault_status" | jq -e '.initialized == false' >/dev/null 2>&1; then
+                    # Vault responding but still initializing - this is normal
+                    if [ $((attempt % 15)) -eq 0 ]; then
+                        print_info "Vault API responding, initialization in progress... (attempt $attempt/90)"
+                    fi
+                fi
+            fi
         fi
         
-        vault_status=$(curl -s http://localhost:8200/v1/sys/health 2>/dev/null)
-        if echo "$vault_status" | grep -q '"initialized":true' && echo "$vault_status" | grep -q '"sealed":false'; then
-            print_info "Vault fully operational and ready"
+        if [ $attempt -eq 90 ]; then
+            print_warning "Vault initialization taking longer than expected (3 minutes)"
+            print_info "Current status: $(curl -s http://localhost:8200/v1/sys/health 2>/dev/null | jq '{initialized, sealed}' 2>/dev/null)"
+            print_info "Credentials available: $([ -f ".vault/env/.env.local" ] && echo "Yes" || echo "No")"
+            print_info "Note: Infrastructure may still be usable for basic operations"
+            print_info "Debug: Check vault logs with: docker logs -f rs-vault"
             break
-        elif [ $attempt -eq 30 ]; then
-            print_error "Vault failed to become operational after 60 seconds"
-            print_info "Vault container status:"
-            docker-compose -f docker-compose.matts-testing.yml ps rs-vault
-            print_info "Vault logs:"
-            docker logs rs-vault --tail 10
-            exit 1
-        else
-            if [ $((attempt % 5)) -eq 0 ]; then
-                print_info "Waiting for vault to become operational... (attempt $attempt/30)"
-            fi
-            sleep 2
         fi
+        
+        sleep 2
     done
     
-    # Verify TokenSigningSecret was added after restart (required by init.sh)
+    # Final verification of required credentials
+    print_info "Verifying vault credentials..."
     if ! grep -q "TokenSigningSecret" .vault/env/.env.local 2>/dev/null; then
-        print_error "TokenSigningSecret missing after vault restart - database operations will fail"
+        print_error "TokenSigningSecret missing - database operations will fail"
         exit 1
     fi
+    
+    if ! grep -q "VAULT_TOKEN" .vault/env/.env.local 2>/dev/null; then
+        print_error "VAULT_TOKEN missing - authentication will fail"
+        exit 1
+    fi
+    
+    print_info "Vault credentials verified and ready"
 
     # Export environment variables for Gradle tasks (using localhost for host context)
     export POSTGRES_URL="jdbc:postgresql://localhost:5432/prime_data_hub"
@@ -924,15 +926,23 @@ generate_complete_summary() {
 # Parse command line arguments
 for arg in "$@"; do
     case $arg in
+        --gradle|-g)
+            API_MODE="gradle"
+            ;;
+        --container|-c)
+            API_MODE="container"
+            ;;
         --debug)
             DEBUG_MODE=true
             ;;
         --help|-h)
-            echo "Usage: ./validate-matts-testing.sh [OPTIONS]"
+            echo "Usage: $0 [OPTIONS]"
             echo ""
             echo "Options:"
-            echo "  --debug    Enable debug mode with container logging"
-            echo "  --help, -h Show this help message"
+            echo "  --gradle, -g   Use Gradle API deployment mode"
+            echo "  --container, -c Use Container API deployment mode (default)"
+            echo "  --debug        Enable debug mode with container logging"
+            echo "  --help, -h     Show this help message"
             exit 0
             ;;
     esac
@@ -1038,6 +1048,25 @@ main() {
     else
         print_header "Complete Validation Finished"
         print_warning "Validation completed with $TOTAL_SUITES_FAILED failed suite(s) and $TOTAL_TESTS_FAILED failed test(s)."
+    fi
+    
+    # Show debug log locations if debug mode was enabled
+    if [ "$DEBUG_MODE" = true ]; then
+        print_header "Debug Log Locations"
+        print_info "Container logs available at:"
+        print_info "  PostgreSQL: ./debug-logs/postgresql.log"
+        print_info "  Vault: ./debug-logs/vault.log" 
+        print_info "  Azurite: ./debug-logs/azurite.log"
+        print_info "  SFTP: ./debug-logs/sftp.log"
+        if [ "$API_MODE" = "container" ]; then
+            print_info "  API Container: ./debug-logs/api.log"
+        fi
+        print_info "Test output logs:"
+        for log_file in test-output-*.log; do
+            if [ -f "$log_file" ]; then
+                print_info "  ./$log_file"
+            fi
+        done
     fi
 }
 

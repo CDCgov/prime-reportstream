@@ -43,7 +43,7 @@ services:
     image: hashicorp/vault:latest
     platform: linux/amd64
     ports:
-      - "127.0.0.1:8200:8200"
+      - "8200:8200"
     networks:
       - rs-network
     cap_add:
@@ -52,15 +52,17 @@ services:
       - .vault/config:/vault/config
       - .vault/env:/vault/env
       - rs-vault-data:/vault/file
-    command: "/vault/config/init.sh"
+    entrypoint: [ "/bin/sh", "-c" ]
+    command: "/vault/config/vault-init.sh"
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
+    # A simpler and more robust healthcheck:
     healthcheck:
-      test: ["CMD-SHELL", "vault status || exit 1"]
-      interval: 10s
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1:8200/v1/sys/health"]
+      interval: 15s
       timeout: 5s
-      retries: 3
+      retries: 5
 
   # Azure Storage Azurite - Latest
   rs-azurite:
@@ -91,7 +93,7 @@ services:
   rs-sftp:
     build:
       context: ../operations/utils/sftp
-      dockerfile: Dockerfile-wolfi
+      dockerfile: Dockerfile
     container_name: rs-sftp
     platform: linux/amd64
     ports:
