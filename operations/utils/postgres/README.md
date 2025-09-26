@@ -10,6 +10,15 @@ A pre-configured PostgreSQL instance with ICU and Readline support.
 A default database and user for quick testing.
 Networking enabled for local connections and other Docker containers.
 
+### Dependency for prime-router LDE
+
+If your local router development environment complains about postgres no being available, build it with:
+
+```shell
+docker build --pull -t rs-postgresql:latest  -f Dockerfile.postgres .
+```
+
+
 ### Usage
 
 Read through the Makefile, or run:

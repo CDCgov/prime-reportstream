@@ -1,0 +1,15 @@
+# Snyk configuration file for Prime Router security scanning
+# Ignores utility files and directories that are not part of production deployment
+
+version: v1.0.0
+
+# Language-specific settings
+language-settings:
+  java:
+    # Ignore everything in util directories (build tools, development utilities)
+    ignore:
+      '**/util/**':
+        - '*'
+
+# Patch-specific ignores for known false positives
+patches: {}
