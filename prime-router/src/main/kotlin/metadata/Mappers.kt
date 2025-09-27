@@ -1086,6 +1086,7 @@ class CountryMapper : Mapper {
          */
         private val canadianPostalCodeRegex = "[A-Z][0-9][A-Z]\\s?[0-9][A-Z][0-9]".toRegex(RegexOption.IGNORE_CASE)
         /** No magic strings. */
+
         /** No magic strings. */
         private const val USA = "USA"
 
