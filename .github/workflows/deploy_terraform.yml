@@ -131,7 +131,7 @@ jobs:
           sp-creds: ${{ env.AZURE_CREDENTIALS }}
           tf-auth: true
       - name: Use specific version of Terraform
-        uses: hashicorp/setup-terraform@v1
+        uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: 1.7.4  # Specify the version here
       - name: Terraform Init
