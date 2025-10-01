@@ -10,7 +10,7 @@ plugins {
 }
 
 ktlint {
-    version = "1.5.0"
+    version = "1.6.0"
 }
 
 group = "gov.cdc.prime.reportstream"
@@ -48,7 +48,7 @@ dependencies {
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonVersion")
     implementation("com.azure:azure-core:1.49.0")
-    implementation("com.azure:azure-core-http-netty:1.15.11")
+    implementation("com.azure:azure-core-http-netty:1.16.1")
     implementation("com.azure:azure-data-tables:12.2.0")
     implementation("com.azure:azure-storage-queue:12.21.0") {
         exclude(group = "com.azure", module = "azure-core")
