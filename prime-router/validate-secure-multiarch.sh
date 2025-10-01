@@ -28,10 +28,8 @@ CLEAN_TESTS_ONLY=false
 VERBOSE=false
 PLATFORM=""
 API_TEST=false
-E2E_LITE=false
 E2E_TESTS=false
 FULL_GRADLE_TESTS=false
-CONTAINER_API_TESTS=false
 LINT_CHECK=false
 for arg in "$@"; do
     case $arg in
@@ -45,9 +43,7 @@ for arg in "$@"; do
             echo "  --verbose              Show detailed test output"
             echo "  --sec                  Run Trivy security scans on all containers"
             echo "  --api-test             Test containerized API using prime_router_hardened service"
-            echo "  --e2e-lite             Basic API endpoint tests (5 tests, ~1 minute)"
-            echo "  --e2e-tests            Full end-to-end tests (testSmoke, testEnd2End, testEnd2EndUP)"
-            echo "  --container-api-tests  Run CLI tests against hardened container API"
+            echo "  --e2e-tests            Run end-to-end tests (HL7/FHIR submission, data pipeline)"
             echo "  --full-gradle-tests    Run complete Gradle test suite (1338+ tests)"
             echo "  --lint                 Run code style validation (ktlint) and exit"
             echo "  --platform=PLATFORM    Force specific platform (linux/amd64 or linux/arm64)"
@@ -67,12 +63,10 @@ for arg in "$@"; do
             echo "   CDC certificate chain validation"
             echo ""
             echo "Additional validation with flags:"
-            echo "  --e2e-lite:             Basic API endpoint verification (5 tests)"
             echo "  --e2e-tests:            Smoke tests (./gradlew testSmoke)"
             echo "                         End-to-end tests (./gradlew testEnd2End, testEnd2EndUP)"  
             echo "                         Prime CLI tests (./prime test --run end2end, end2end_up)"
             echo "                         HL7/FHIR report submissions and data pipeline validation"
-            echo "  --container-api-tests:  CLI smoke tests against hardened container runtime"
             echo "  --full-gradle-tests:    Complete unit test suite (./gradlew test -Pforcetest)"
             echo "                         Integration tests (./gradlew testIntegration)" 
             echo "                         All documented test suites from running-tests.md"
@@ -92,14 +86,8 @@ for arg in "$@"; do
         --api-test)
             API_TEST=true
             ;;
-        --e2e-lite)
-            E2E_LITE=true
-            ;;
         --e2e-tests)
             E2E_TESTS=true
-            ;;
-        --container-api-tests)
-            CONTAINER_API_TESTS=true
             ;;
         --full-gradle-tests)
             FULL_GRADLE_TESTS=true
@@ -227,24 +215,15 @@ validate_platform_compatibility
 # Validate flag combinations for consistency
 validate_flag_combinations() {
     # Check for contradictory flag combinations
-    if [ "$API_TEST" = true ] && ([ "$E2E_LITE" = true ] || [ "$E2E_TESTS" = true ]); then
-        print_warning "API testing flags conflict: --api-test with --e2e-lite or --e2e-tests"
-        print_info "--api-test uses containerized API (advanced), E2E flags use Gradle API (recommended)"
+    if [ "$API_TEST" = true ] && [ "$E2E_TESTS" = true ]; then
+        print_warning "Both --api-test and --e2e-tests specified"
+        print_info "--api-test uses containerized API (advanced), --e2e-tests uses Gradle API (recommended)"
         print_info "Using --api-test approach (containerized)"
-        E2E_LITE=false
         E2E_TESTS=false
-    fi
-    
-    if [ "$CONTAINER_API_TESTS" = true ] && ([ "$E2E_LITE" = true ] || [ "$E2E_TESTS" = true ] || [ "$API_TEST" = true ]); then
-        print_warning "Container API testing conflicts with other API test flags"
-        print_info "Using --container-api-tests (hardened container runtime)"
-        E2E_LITE=false
-        E2E_TESTS=false
-        API_TEST=false
     fi
     
     # Security-only mode takes precedence over other testing flags
-    if [ "$SECURITY_ONLY" = true ] && ([ "$E2E_LITE" = true ] || [ "$E2E_TESTS" = true ] || [ "$FULL_GRADLE_TESTS" = true ] || [ "$API_TEST" = true ] || [ "$CONTAINER_API_TESTS" = true ]); then
+    if [ "$SECURITY_ONLY" = true ] && ([ "$E2E_TESTS" = true ] || [ "$FULL_GRADLE_TESTS" = true ] || [ "$API_TEST" = true ]); then
         print_info "Security-only mode specified with other flags - running security scans only"
     fi
     
@@ -257,68 +236,33 @@ validate_flag_combinations() {
 
 validate_flag_combinations
 
-# Enhanced port conflict detection with automatic resolution
+# Check for port conflicts before starting validation
 check_port_conflicts() {
     print_info "Checking for port conflicts..."
     
     # Check critical Prime Router ports
     local ports=(5432 8200 10000 10001 10002 2222 8087 3001 5005 9090 7071)
     local conflicts_found=false
-    local conflicts_resolved=0
     
     for port in "${ports[@]}"; do
         if lsof -i :$port &>/dev/null; then
-            local pid=$(lsof -ti :$port 2>/dev/null | head -1)
-            local process_details=$(ps -p $pid -o command --no-headers 2>/dev/null || echo "unknown")
-            local command_name=$(echo "$process_details" | awk '{print $1}')
-            
-            print_warning "Port $port in use by PID $pid: $command_name"
-                
-            # Classify process for safe cleanup
-            if echo "$process_details" | grep -q "gradlew.*run\|Microsoft.Azure.WebJobs\|azure-functions\|func.*host\|java.*prime-router"; then
-                print_info "Auto-cleaning Prime Router process on port $port (PID: $pid)"
-                # Graceful termination
-                kill -TERM $pid 2>/dev/null || true
-                sleep 3  # Give more time for graceful shutdown
-                # Force kill if still running
-                if kill -0 $pid 2>/dev/null; then
-                    print_info "Force killing stubborn process $pid"
-                    kill -KILL $pid 2>/dev/null || true
-                    sleep 2  # Wait for force kill to complete
-                fi
-                ((conflicts_resolved++))
-                print_success "Cleaned up process $pid"
-            else
-                print_warning "Unknown process on port $port - manual cleanup required"
-                conflicts_found=true
-            fi
+            local process=$(lsof -i :$port | tail -1 | awk '{print $2, $1}' 2>/dev/null || echo "unknown")
+            print_warning "Port $port already in use by: $process"
+            conflicts_found=true
         fi
     done
     
-    if [ $conflicts_resolved -gt 0 ]; then
-        print_success "Auto-resolved $conflicts_resolved Prime Router port conflicts"
-        print_info "Waiting for ports to be released..."
-        sleep 3
-        
-        # Re-check for remaining conflicts
-        for port in "${ports[@]}"; do
-            if lsof -i :$port &>/dev/null; then
-                local process=$(lsof -i :$port | tail -1 | awk '{print $2, $1}' 2>/dev/null || echo "unknown")
-                print_warning "Port $port still in use by: $process"
-                conflicts_found=true
-            fi
-        done
-    fi
-    
     if [ "$conflicts_found" = true ]; then
-        print_warning "Some port conflicts remain after auto-cleanup"
-        print_info "Manual cleanup required:"
-        print_info "  1. ./validate-secure-multiarch.sh --clean-tests"
-        print_info "  2. pkill -f 'gradlew.*run'"  
-        print_info "  3. docker-compose down"
+        print_warning "Port conflicts detected - this may cause validation failures"
+        # I can automate this if needed but this should be a rare occurence if any
+        print_info "Try:"
+        print_info "  1. ./validate-secure-multiarch.sh --clean-tests  # Basic cleanup"
+        print_info "  2. pkill -f 'gradlew.*run'  # Stop Gradle processes"  
+        print_info "  3. docker-compose down  # Stop this project's containers only"
+        print_info "Run validation again after cleanup"
         exit 1
     else
-        print_success "All port conflicts resolved - proceeding with validation"
+        print_success "No port conflicts detected"
     fi
 }
 
@@ -379,41 +323,11 @@ cleanup() {
     pkill -f "func host start" 2>/dev/null || true
     pkill -f "Microsoft.Azure.WebJobs" 2>/dev/null || true
     
-    # Enhanced cleanup of Prime Router processes
-    print_info "Cleaning up all Prime Router processes and ports..."
-    
-    # Clean up by process patterns (more comprehensive)
-    pkill -f "gradlew.*run" 2>/dev/null || true
-    sleep 2  # Allow processes to terminate gracefully
-    pkill -f "Microsoft.Azure.WebJobs" 2>/dev/null || true
-    pkill -f "azure-functions" 2>/dev/null || true
-    pkill -f "func.*host" 2>/dev/null || true
-    pkill -f "java.*prime-router" 2>/dev/null || true
-    
     # Clean up JMX and debug port processes
+    print_info "Cleaning up JMX and debug port processes..."
     pkill -f "java.*jmx.*9090" 2>/dev/null || true
     pkill -f "java.*agentlib:jdwp.*5005" 2>/dev/null || true
-    
-    sleep 3  # Give time for all processes to fully terminate
-    
-    # Final port verification and force cleanup if needed
-    local remaining_conflicts=0
-    local cleanup_ports=(5005 9090 7071)
-    for port in "${cleanup_ports[@]}"; do
-        if lsof -i :$port &>/dev/null; then
-            local pid=$(lsof -ti :$port 2>/dev/null | head -1)
-            if [ -n "$pid" ]; then
-                print_info "Force cleaning remaining process on port $port (PID: $pid)"
-                kill -KILL $pid 2>/dev/null || true
-                ((remaining_conflicts++))
-            fi
-        fi
-    done
-    
-    if [ $remaining_conflicts -gt 0 ]; then
-        print_info "Force cleaned $remaining_conflicts additional processes"
-        sleep 2  # Final wait for port release
-    fi
+    pkill -f "java.*prime-router" 2>/dev/null || true
     
     # Stop containers gracefully using docker-compose (project-specific only)
     print_info "Stopping this project's containers..."
@@ -1197,75 +1111,6 @@ OBX|1|CWE|94531-1^SARS-CoV-2 RNA^LN||260373001^Detected^SCT|||A|||F"
     print_success "E2E testing completed"
 }
 
-# Comprehensive End-to-End Tests (testSmoke, testEnd2End, testEnd2EndUP)
-run_comprehensive_e2e_tests() {
-    print_header "Running Comprehensive End-to-End Tests"
-    
-    # Save current directory
-    pushd .. > /dev/null
-    
-    local comprehensive_passed=true
-    local start_time=$(date +%s)
-    
-    # Test 1: testSmoke - Smoke tests via CLI
-    print_info "Running smoke tests (./gradlew testSmoke)..."
-    if ./gradlew testSmoke; then
-        print_success "Smoke tests completed successfully"
-    else
-        print_error "Smoke tests failed"
-        comprehensive_passed=false
-    fi
-    
-    # Test 2: testEnd2End - Full end-to-end tests via CLI  
-    print_info "Running end-to-end tests (./gradlew testEnd2End)..."
-    if ./gradlew testEnd2End; then
-        print_success "End-to-end tests completed successfully"
-    else
-        print_error "End-to-end tests failed"
-        comprehensive_passed=false
-    fi
-    
-    # Test 3: testEnd2EndUP - End-to-end UP tests via CLI
-    print_info "Running end-to-end UP tests (./gradlew testEnd2EndUP)..."
-    if ./gradlew testEnd2EndUP; then
-        print_success "End-to-end UP tests completed successfully"  
-    else
-        print_error "End-to-end UP tests failed"
-        comprehensive_passed=false
-    fi
-    
-    # Return to original directory
-    popd > /dev/null
-    
-    local end_time=$(date +%s)
-    local duration=$((end_time - start_time))
-    
-    echo
-    print_header "Comprehensive E2E Test Results Summary"
-    if [ "$comprehensive_passed" = true ]; then
-        print_success " COMPREHENSIVE E2E TESTS: SUCCESSFUL"
-        print_success "    All documented test suites passed"
-        print_success "    Full CLI and API workflow validated" 
-        print_success "    Duration: ${duration} seconds"
-    else
-        print_error " COMPREHENSIVE E2E TESTS: FAILED"
-        print_error "   One or more test suites failed"
-        print_info "   Check logs above for specific failures"
-        print_info "   Duration: ${duration} seconds"
-    fi
-    
-    print_success "Comprehensive E2E testing completed"
-}
-
-# Container API Tests (placeholder for future implementation)
-run_container_api_tests() {
-    print_header "Running Container API Tests"
-    print_info "Container API testing implementation coming soon..."
-    print_info "This will run CLI tests against the hardened container runtime"
-    print_info "See container_api_testing.md for implementation plan"
-    print_success "Container API test placeholder completed"
-}
-
 # Run all documented test suites from running-tests.md
 run_documented_test_suites() {
     print_header "Running All Documented Test Suites"
@@ -1680,12 +1525,8 @@ main() {
         test_api_endpoints
         
         # Run E2E tests if requested
-        if [ "$E2E_LITE" = true ]; then
-            run_e2e_tests
-        fi
-        
         if [ "$E2E_TESTS" = true ]; then
-            run_comprehensive_e2e_tests
+            run_e2e_tests
             
             # Only run documented test suites if also doing full testing
             if [ "$FULL_GRADLE_TESTS" = true ]; then
@@ -1693,10 +1534,6 @@ main() {
             else
                 print_info "Skipping redundant documented test suites (use --e2e-tests --full-gradle-tests for complete testing)"
             fi
-        fi
-        
-        if [ "$CONTAINER_API_TESTS" = true ]; then
-            run_container_api_tests
         fi
         
         # Run full Gradle test suite if requested (with API running)
