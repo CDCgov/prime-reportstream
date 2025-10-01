@@ -94,11 +94,10 @@ jobs:
         run: python ../../../../.github/scripts/tf-deprecations/check_tf_deprecations.py ${{ needs.pre_job.outputs.env_name }}-plan.json
 
       - name: Comment Plan on PR
-        uses: blinqas/tf-plan-pr-comment@v1
+        uses: borchero/terraform-plan-comment@v2
         with:
-          plan_file: operations/app/terraform/vars/${{ needs.pre_job.outputs.env_name }}/${{ needs.pre_job.outputs.env_name }}-plan.txt
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          planfile: ${{ needs.pre_job.outputs.env_name }}-tf.plan
 
   approve_deploy:
     name: Approve Deploy - ${{ needs.pre_job.outputs.env_name }}
