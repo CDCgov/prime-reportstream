@@ -359,7 +359,7 @@ jobs:
         run: yarn install
       - name: Run Chromatic
         id: chromatic
-        uses: chromaui/action@f4e60a7072abcac4203f4ca50613f28e199a52ba
+        uses: chromaui/action@4ffe736a2a8262ea28067ff05a13b635ba31ec05
         with:
           workingDir: frontend-react
           token: ${{ secrets.GITHUB_TOKEN }}
