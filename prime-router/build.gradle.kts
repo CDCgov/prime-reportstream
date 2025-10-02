@@ -17,7 +17,9 @@ Properties to control the execution and output using the Gradle -P arguments:
   E.g. ./gradlew clean package -Ppg.user=myuser -Dpg.password=mypassword -Pforcetest
  */
 
+import com.github.jengelman.gradle.plugins.shadow.transformers.Log4j2PluginsCacheFileTransformer
 import io.swagger.v3.plugins.gradle.tasks.ResolveTask
+import nu.studer.gradle.jooq.JooqGenerate
 import org.apache.commons.io.FileUtils
 import org.apache.commons.io.FilenameUtils
 import org.apache.tools.ant.filters.ReplaceTokens
@@ -49,6 +51,19 @@ plugins {
     id("io.swagger.core.v3.swagger-gradle-plugin") version "2.2.30"
 }
 
+repositories {
+    maven {
+        name = "GitHubPackages"
+        url = uri("https://maven.pkg.github.com/cdcgov/hl7v2-fhir-converter")
+        credentials {
+            username = project.findProperty("hl7v2.fhir.converter.username") as String?
+                ?: System.getenv("GITHUB_ACTOR")
+            password = project.findProperty("hl7v2.fhir.converter.token") as String?
+                ?: System.getenv("GITHUB_TOKEN")
+        }
+    }
+}
+
 // retrieve the current commit hash
 val commitId by lazy {
     val stdout = ByteArrayOutputStream()
@@ -75,7 +90,7 @@ val javaVersion = when (appJvmTarget.target) {
     else -> JavaVersion.VERSION_17
 }
 val ktorVersion = "3.2.2"
-val kotlinVersion by System.getProperties()
+val kotlinVersion: Any? by System.getProperties()
 val jacksonVersion = "2.19.0"
 jacoco.toolVersion = "0.8.12"
 
@@ -146,7 +161,7 @@ fun addVaultValuesToEnv(env: MutableMap<String, Any>) {
     }
     val prop = Properties()
     FileInputStream(vaultFile).use { prop.load(it) }
-    prop.forEach { key, value -> env[key.toString()] = value.toString().replace("\"", "") }
+    prop.forEach { (key, value) -> env[key.toString()] = value.toString().replace("\"", "") }
     if (!env.contains("CREDENTIAL_STORAGE_METHOD") || env["CREDENTIAL_STORAGE_METHOD"] != "HASHICORP_VAULT") {
         throw GradleException("Your vault configuration is incorrect.  Check your ${vaultFile.absolutePath} file.")
     }
@@ -269,11 +284,14 @@ testlogger {
 }
 
 // Add the testIntegration tests
-sourceSets.create("testIntegration") {
-    java.srcDir("src/testIntegration/kotlin")
-    compileClasspath += sourceSets["main"].output
-    runtimeClasspath += sourceSets["main"].output
-}
+sourceSets.create(
+    "testIntegration",
+    Action {
+        java.srcDir("src/testIntegration/kotlin")
+        compileClasspath += sourceSets["main"].output
+        runtimeClasspath += sourceSets["main"].output
+    }
+)
 
 val compileTestIntegrationKotlin: KotlinCompile by tasks
 compileTestIntegrationKotlin.compilerOptions.jvmTarget.set(appJvmTarget)
@@ -400,7 +418,7 @@ tasks.shadowJar {
     // for all the gory details see:
     // https://app.zenhub.com/workspaces/platform-6182b02547c1130010f459db/issues/gh/cdcgov/prime-reportstream/13269
     exclude("org/apache/log4j/**")
-    transform(com.github.jengelman.gradle.plugins.shadow.transformers.Log4j2PluginsCacheFileTransformer())
+    transform(Log4j2PluginsCacheFileTransformer())
 }
 
 // Just a nicer name to create the fat jar
@@ -722,65 +740,68 @@ flyway {
 jooq {
     version.set("3.18.25")
     configurations {
-        create("main") {
-            // name of the jOOQ configuration
-            jooqConfiguration.apply {
-                logging = org.jooq.meta.jaxb.Logging.INFO
-                jdbc.apply {
-                    driver = "org.postgresql.Driver"
-                    url = dbUrl
-                    user = dbUser
-                    password = dbPassword
-                }
-                generator.apply {
-                    name = "org.jooq.codegen.DefaultGenerator"
-                    database.apply {
-                        name = "org.jooq.meta.postgres.PostgresDatabase"
-                        inputSchema = "public"
-                        includes = ".*"
-                        forcedTypes.addAll(
-                            arrayOf(
-                                ForcedType()
-                                    // Specify the Java type of your custom type. This corresponds to the Binding's <U> type.
-                                    .withUserType("gov.cdc.prime.router.ActionLogDetail")
-                                    // Associate that custom type with your binding.
-                                    .withBinding("gov.cdc.prime.router.ActionLogDetailBinding")
-                                    // A Java regex matching fully-qualified columns, attributes, parameters. Use the pipe to separate several expressions.
-                                    // If provided, both "includeExpressions" and "includeTypes" must match.
-                                    .withIncludeExpression("action_log.detail")
-                                    .withIncludeTypes("JSONB"),
-                                ForcedType()
-                                    // Specify the Java type of your custom type. This corresponds to the Binding's <U> type.
-                                    .withUserType("gov.cdc.prime.router.Topic")
-                                    // Associate that custom type with your binding.
-                                    .withBinding("gov.cdc.prime.router.TopicBinding")
-                                    // A Java regex matching fully-qualified columns, attributes, parameters. Use the pipe to separate several expressions.
-                                    // If provided, both "includeExpressions" and "includeTypes" must match.
-                                    .withIncludeExpression("report_file.schema_topic")
-                                    .withIncludeTypes("VARCHAR")
+        create(
+            "main",
+            Action {
+                // name of the jOOQ configuration
+                jooqConfiguration.apply {
+                    logging = org.jooq.meta.jaxb.Logging.INFO
+                    jdbc.apply {
+                        driver = "org.postgresql.Driver"
+                        url = dbUrl
+                        user = dbUser
+                        password = dbPassword
+                    }
+                    generator.apply {
+                        name = "org.jooq.codegen.DefaultGenerator"
+                        database.apply {
+                            name = "org.jooq.meta.postgres.PostgresDatabase"
+                            inputSchema = "public"
+                            includes = ".*"
+                            forcedTypes.addAll(
+                                arrayOf(
+                                    ForcedType()
+                                        // Specify the Java type of your custom type. This corresponds to the Binding's <U> type.
+                                        .withUserType("gov.cdc.prime.router.ActionLogDetail")
+                                        // Associate that custom type with your binding.
+                                        .withBinding("gov.cdc.prime.router.ActionLogDetailBinding")
+                                        // A Java regex matching fully-qualified columns, attributes, parameters. Use the pipe to separate several expressions.
+                                        // If provided, both "includeExpressions" and "includeTypes" must match.
+                                        .withIncludeExpression("action_log.detail")
+                                        .withIncludeTypes("JSONB"),
+                                    ForcedType()
+                                        // Specify the Java type of your custom type. This corresponds to the Binding's <U> type.
+                                        .withUserType("gov.cdc.prime.router.Topic")
+                                        // Associate that custom type with your binding.
+                                        .withBinding("gov.cdc.prime.router.TopicBinding")
+                                        // A Java regex matching fully-qualified columns, attributes, parameters. Use the pipe to separate several expressions.
+                                        // If provided, both "includeExpressions" and "includeTypes" must match.
+                                        .withIncludeExpression("report_file.schema_topic")
+                                        .withIncludeTypes("VARCHAR")
+                                )
                             )
-                        )
-                    }
-                    generate.apply {
-                        isImmutablePojos = false
-                        isFluentSetters = true
-                        isPojos = true
-                        isPojosEqualsAndHashCode = true
-                        isPojosToString = true
-                        isJavaTimeTypes = true
-                    }
-                    target.apply {
-                        packageName = jooqPackageName
-                        directory = jooqSourceDir
+                        }
+                        generate.apply {
+                            isImmutablePojos = false
+                            isFluentSetters = true
+                            isPojos = true
+                            isPojosEqualsAndHashCode = true
+                            isPojosToString = true
+                            isJavaTimeTypes = true
+                        }
+                        target.apply {
+                            packageName = jooqPackageName
+                            directory = jooqSourceDir
+                        }
                     }
                 }
             }
-        }
+        )
     }
 }
 
 // Set jOOQ task to participate in Gradle's incremental build feature
-tasks.named<nu.studer.gradle.jooq.JooqGenerate>("generateJooq") {
+tasks.named<JooqGenerate>("generateJooq") {
     dependsOn("migrate")
     allInputsDeclared.set(true)
     inputs.files(project.fileTree("src/main/resources/db/migration")).withPropertyName("migrations")
@@ -909,11 +930,7 @@ dependencies {
         exclude(group = "org.yaml", module = "snakeyaml")
     }
     implementation("org.yaml:snakeyaml:2.4")
-    implementation("io.github.linuxforhealth:hl7v2-fhir-converter") {
-        version {
-            branch = "master"
-        }
-    }
+    implementation("io.github.linuxforhealth:hl7v2-fhir-converter:1.0.1")
     implementation("ca.uhn.hapi.fhir:hapi-fhir-structures-r4:8.0.0")
     // https://mvnrepository.com/artifact/ca.uhn.hapi.fhir/hapi-fhir-caching-caffeine
     implementation("ca.uhn.hapi.fhir:hapi-fhir-caching-caffeine:8.0.0")

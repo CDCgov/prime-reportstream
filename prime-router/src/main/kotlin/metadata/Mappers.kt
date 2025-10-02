@@ -21,7 +21,7 @@ import java.time.format.DateTimeParseException
 import javax.xml.bind.DatatypeConverter
 import kotlin.reflect.full.memberProperties
 
-/**
+/*
  * A *Mapper* is defined as a property of a schema element. It is used to create
  * a value for the element when no value is present. For example, the middle_initial element has
  * this mapper:
@@ -1086,6 +1086,7 @@ class CountryMapper : Mapper {
          */
         private val canadianPostalCodeRegex = "[A-Z][0-9][A-Z]\\s?[0-9][A-Z][0-9]".toRegex(RegexOption.IGNORE_CASE)
         /** No magic strings. */
+
         /** No magic strings. */
         private const val USA = "USA"
 
