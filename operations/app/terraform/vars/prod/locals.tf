@@ -36,13 +36,10 @@ locals {
     delete_pii_storage_after_days = 60
   }
   database = {
-    db_sku_name         = "MO_Gen5_32"
-    db_version          = "11"
-    db_storage_mb       = 5120
-    db_auto_grow        = true
-    db_prevent_destroy  = true
-    db_threat_detection = true
-    db_replica          = true
+    database_resource_group_name = "ddphss-prim-prd-moderate-rg"
+    primary_server_name          = "dppa-prim-azpgsql-01"
+    replica_server_names         = ["dppa-prim-azpgsql-01-1", "dppa-prim-azpgsql-01-2"]
+    database_names               = ["prime_data_hub", "metabase"]
   }
   log_analytics_workspace = {
     law_retention_period = "730"

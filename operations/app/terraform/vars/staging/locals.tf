@@ -36,13 +36,10 @@ locals {
     delete_pii_storage_after_days = 60
   }
   database = {
-    db_sku_name         = "GP_Gen5_16"
-    db_version          = "11"
-    db_storage_mb       = 566272
-    db_auto_grow        = true
-    db_prevent_destroy  = false
-    db_threat_detection = true
-    db_replica          = true
+    database_resource_group_name = "ddphss-prim-stg-moderate-rg"
+    primary_server_name          = "dpsa-prim-azpgsql-01"
+    replica_server_names         = []
+    database_names               = ["prime_data_hub", "metabase"]
   }
   app = {
     app_tier                 = "PremiumV2"
