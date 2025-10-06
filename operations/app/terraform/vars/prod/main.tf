@@ -77,11 +77,11 @@ module "database" {
   resource_group  = local.init.resource_group_name
   is_metabase_env = local.init.is_metabase_env
 
-  # Parameters for looking up the external database resources
-  database_resource_group_name = local.database.database_resource_group_name
-  primary_server_name          = local.database.primary_server_name
-  replica_server_names         = local.database.replica_server_names
-  database_names               = local.database.database_names
+  # Hardcoded values for external database resources
+  postgres_server_id   = local.database.postgres_server_id
+  postgres_server_name = local.database.postgres_server_name
+  postgres_server_fqdn = local.database.postgres_server_fqdn
+  postgres_replica_ids = local.database.postgres_replica_ids
 }
 
 module "storage" {

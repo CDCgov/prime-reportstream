@@ -36,10 +36,10 @@ locals {
     delete_pii_storage_after_days = 60
   }
   database = {
-    database_resource_group_name = "ddphss-prim-stg-moderate-rg"
-    primary_server_name          = "dpsa-prim-azpgsql-01"
-    replica_server_names         = []
-    database_names               = ["prime_data_hub", "metabase"]
+    postgres_server_id   = "/subscriptions/7d1e3999-6577-4cd5-b296-f518e5c8e677/resourceGroups/ddphss-prim-stg-moderate-rg/providers/Microsoft.DBforPostgreSQL/servers/dpsa-prim-azpgsql-01"
+    postgres_server_name = "dpsa-prim-azpgsql-01"
+    postgres_server_fqdn = "dpsa-prim-azpgsql-01.postgres.database.azure.com"
+    postgres_replica_ids = {}
   }
   app = {
     app_tier                 = "PremiumV2"
