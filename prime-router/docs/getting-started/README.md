@@ -59,6 +59,16 @@ This script runs on Apple processors, but it skips a few steps. We will need to 
 
 1. [Clone the prime-reportstream repository](https://docs.github.com/en/github/creating-cloning-and-archiving-repositories/cloning-a-repository-from-github/cloning-a-repository)
    to your workstation using git.
+    * In order to be able to import the dependent jar from the GitHub Packages registry for the **hl7v2-fhir-converter** project one must have created a **personal access token (classic)** within GitHub for their user.  Follow the instructions outlined [here](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-personal-access-token-classic) and be certain to select at least **read** and **write** access for **packages**.  Make sure you save the token value to a safe place as you will need it for your `gradle.properties` file.
+    * Add the following properties to your `~/.gradle/gradle.properties` file:
+    
+    ```
+    % cat ~/.gradle/gradle.properties
+# Token settings for GitHub Packages access.
+hl7v2.fhir.converter.username=<YOUR-USERNAME-IN-GITHUB>
+hl7v2.fhir.converter.token=<THE-TOKEN-YOU-CREATED-AND-SAVED>
+    ```
+    
 
 1. Initialize your environment and run an initial build by running the following command using a Linux shell.
    Note you can run `cleanslate.sh` script to reset your environment as well (run `./cleanslate.sh --help` for more
