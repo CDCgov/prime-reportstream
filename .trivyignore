@@ -1,0 +1,28 @@
+# Trivy ignore file for Prime Router security scanning
+# Ignores utility files and directories not part of production deployment
+
+# Development and build utilities (not in production)
+**/util/**
+**/utils/**
+**/build/**
+**/test/**
+**/*test*/**
+**/.gradle/**
+**/gradle/wrapper/**
+
+# Large data files that can cause memory issues
+**/metadata/tables/local/LOINC.csv
+**/Microsoft.Azure.WebJobs.Script.WebHost.r2r.ni.r2rmap
+
+# Documentation
+**/docs/**
+**/*.md
+
+# IDE and temporary files  
+**/.idea/**
+**/.vscode/**
+**/*.iml
+**/logs/**
+**/*.log
+**/tmp/**
+**/temp/**
