@@ -9,9 +9,9 @@ locals {
     "container_registry" = {
       resource_id = var.container_registry_id
     },
-    "postgres_server" = {
-      resource_id = var.postgres_server_id
-    },
+    # "postgres_server" = {
+    #   resource_id = var.postgres_server_id
+    # },
     # "front_door" = {
     #   resource_id = var.front_door_id
     # },
