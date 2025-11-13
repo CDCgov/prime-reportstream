@@ -8,30 +8,29 @@ variable "resource_group" {
   description = "The name of the resource group for the application, not the database."
 }
 
-variable "database_resource_group_name" {
+variable "postgres_server_id" {
   type        = string
-  description = "The name of the resource group where the external PostgreSQL servers are located."
+  description = "The full resource ID of the primary PostgreSQL server"
 }
 
-variable "primary_server_name" {
+variable "postgres_server_name" {
   type        = string
-  description = "The name of the primary PostgreSQL server to look up."
+  description = "The name of the primary PostgreSQL server"
 }
 
-variable "replica_server_names" {
-  type        = list(string)
-  description = "A list of names for the read replica PostgreSQL servers to look up."
-  default     = []
+variable "postgres_server_fqdn" {
+  type        = string
+  description = "The FQDN of the primary PostgreSQL server"
 }
 
-variable "database_names" {
-  type        = list(string)
-  description = "A list of database names to look up on the primary server."
-  default     = []
+variable "postgres_replica_ids" {
+  type        = map(string)
+  description = "Map of replica server names to their resource IDs"
+  default     = {}
 }
 
 variable "is_metabase_env" {
   type        = bool
-  description = "Flag to indicate if the Metabase database should be looked up. If true, 'metabase' must be in `var.database_names`."
+  description = "Flag to indicate if the Metabase environment is enabled"
   default     = false
 }

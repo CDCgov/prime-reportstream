@@ -82,12 +82,11 @@ jobs:
           # Check for deprecations in the plan, print them out if found
           .github/scripts/tf-deprecations/check_tf_deprecations.py tfplan.json
       - name: Comment Plan on PR
-        uses: blinqas/tf-plan-pr-comment@v1
+        uses: borchero/terraform-plan-comment@v2
         with:
-          output_file: ${{ github.workspace }}/${{ needs.pre_job.outputs.env_name }}-${{ github.sha }}-plan_output.txt
-          headline: "## TF Plan for ${{ needs.pre_job.outputs.env_name }}, SHA: ${{ github.sha }}"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          planfile: ${{ needs.pre_job.outputs.env_name }}-${{ github.sha }}.tfplan
+          title: "TF Plan for ${{ needs.pre_job.outputs.env_name }}, SHA: ${{ github.sha }}"
 
   approve_deploy:
     name: Approve Deploy - ${{ needs.pre_job.outputs.env_name }}
