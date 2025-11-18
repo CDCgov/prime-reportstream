@@ -24,6 +24,7 @@ import useSessionContext from "../../contexts/Session/useSessionContext";
 import { Icon } from "../../shared";
 import { MembershipSettings } from "../../utils/OrganizationUtils";
 import SenderModeBanner from "../SenderModeBanner";
+import SunsetNoticeBanner from "../SunsetNoticeBanner";
 import Spinner from "../Spinner";
 import { USLink, USLinkButton, USSmartLink } from "../USLink";
 
@@ -459,6 +460,7 @@ const ReportStreamHeader = ({
     return (
         <>
             <GovBanner aria-label="Official government website" />
+            <SunsetNoticeBanner />
             {!isNavHidden && <SenderModeBanner />}
             {!isNavHidden && (activeMembership ?? user.claims) && (
                 <Header
