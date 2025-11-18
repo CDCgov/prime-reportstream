@@ -1,5 +1,5 @@
 import { render, screen } from "@testing-library/react";
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 
 import SunsetNoticeBanner from "./SunsetNoticeBanner";
 
@@ -26,9 +26,9 @@ describe("SunsetNoticeBanner", () => {
     });
 
     it("should have proper ARIA attributes", () => {
-        const { container } = render(<SunsetNoticeBanner />);
-        const section = container.querySelector("section");
-        expect(section).toHaveAttribute("role", "region");
+        render(<SunsetNoticeBanner />);
+        const section = screen.getByRole("region", { name: "Site alert" });
+        expect(section).toBeInTheDocument();
         expect(section).toHaveAttribute("aria-label", "Site alert");
     });
 });

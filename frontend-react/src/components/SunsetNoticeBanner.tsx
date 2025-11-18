@@ -1,6 +1,6 @@
 const SunsetNoticeBanner = () => {
     return (
-        <section className="usa-site-alert usa-site-alert--emergency" role="region" aria-label="Site alert">
+        <section className="usa-site-alert usa-site-alert--emergency" aria-label="Site alert">
             <div className="usa-alert usa-alert--emergency">
                 <div className="usa-alert__body">
                     <h3 className="usa-alert__heading">
