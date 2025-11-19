@@ -25,6 +25,7 @@ import { Icon } from "../../shared";
 import { MembershipSettings } from "../../utils/OrganizationUtils";
 import SenderModeBanner from "../SenderModeBanner";
 import Spinner from "../Spinner";
+import SunsetNoticeBanner from "../SunsetNoticeBanner";
 import { USLink, USLinkButton, USSmartLink } from "../USLink";
 
 const primaryLinkClasses = (isActive: boolean) => {
@@ -459,6 +460,7 @@ const ReportStreamHeader = ({
     return (
         <>
             <GovBanner aria-label="Official government website" />
+            <SunsetNoticeBanner />
             {!isNavHidden && <SenderModeBanner />}
             {!isNavHidden && (activeMembership ?? user.claims) && (
                 <Header
