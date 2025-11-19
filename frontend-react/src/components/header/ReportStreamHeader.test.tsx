@@ -32,9 +32,7 @@ describe("SignInOrUser", () => {
             },
         } as RSSessionContext);
         renderApp(<ReportStreamHeader />);
-        await waitFor(() =>
-            expect(screen.getByText("Submission History")).toBeVisible(),
-        );
+        await waitFor(() => expect(screen.getByText("Submission History")).toBeVisible());
         expect(screen.queryByText("Admin tools")).not.toBeInTheDocument();
         testNav();
     });
@@ -52,12 +50,8 @@ describe("SignInOrUser", () => {
             },
         } as RSSessionContext);
         renderApp(<ReportStreamHeader />);
-        await waitFor(() =>
-            expect(screen.getByText("Daily Data")).toBeVisible(),
-        );
-        expect(
-            screen.queryByText("Submission History"),
-        ).not.toBeInTheDocument();
+        await waitFor(() => expect(screen.getByText("Daily Data")).toBeVisible());
+        expect(screen.queryByText("Submission History")).not.toBeInTheDocument();
         expect(screen.queryByText("Admin tools")).not.toBeInTheDocument();
         expect(screen.getByText("Log out")).toBeVisible();
         testNav();
@@ -76,9 +70,7 @@ describe("SignInOrUser", () => {
             },
         } as RSSessionContext);
         renderApp(<ReportStreamHeader />);
-        await waitFor(() =>
-            expect(screen.getByText("Daily Data")).toBeVisible(),
-        );
+        await waitFor(() => expect(screen.getByText("Daily Data")).toBeVisible());
         expect(screen.getByText("Submission History")).toBeVisible();
         expect(screen.getByText("Log out")).toBeVisible();
         expect(screen.queryByText("Admin tools")).not.toBeInTheDocument();
@@ -97,9 +89,7 @@ describe("SignInOrUser", () => {
             },
         } as RSSessionContext);
         renderApp(<ReportStreamHeader />);
-        await waitFor(() =>
-            expect(screen.getByText("Submission History")).toBeVisible(),
-        );
+        await waitFor(() => expect(screen.getByText("Submission History")).toBeVisible());
         expect(screen.getByText("Daily Data")).toBeVisible();
         expect(screen.getByText("Admin tools")).toBeVisible();
         expect(screen.getByText("Log out")).toBeVisible();
@@ -116,11 +106,21 @@ describe("SignInOrUser", () => {
         } as RSSessionContext);
         renderApp(<ReportStreamHeader />);
         await waitFor(() => expect(screen.getByText("Log out")).toBeVisible());
-        expect(
-            screen.queryByText("Submission History"),
-        ).not.toBeInTheDocument();
+        expect(screen.queryByText("Submission History")).not.toBeInTheDocument();
         expect(screen.queryByText("Daily Data")).not.toBeInTheDocument();
         expect(screen.queryByText("Admin tools")).not.toBeInTheDocument();
         testNav();
+    });
+
+    test("renders SunsetNoticeBanner on all pages", async () => {
+        mockUseSessionContext.mockReturnValue({
+            config: { IS_PREVIEW: false },
+            user: {},
+        } as RSSessionContext);
+
+        renderApp(<ReportStreamHeader />);
+
+        await waitFor(() => expect(screen.getByText("ReportStream Sunset Notice")).toBeVisible());
+        expect(screen.getByText(/December 31, 2025/)).toBeVisible();
     });
 });
