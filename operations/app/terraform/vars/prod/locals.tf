@@ -36,13 +36,13 @@ locals {
     delete_pii_storage_after_days = 60
   }
   database = {
-    db_sku_name         = "MO_Gen5_32"
-    db_version          = "11"
-    db_storage_mb       = 5120
-    db_auto_grow        = true
-    db_prevent_destroy  = true
-    db_threat_detection = true
-    db_replica          = true
+    postgres_server_id   = "/subscriptions/7d1e3999-6577-4cd5-b296-f518e5c8e677/resourceGroups/ddphss-prim-prd-moderate-rg/providers/Microsoft.DBforPostgreSQL/servers/dppa-prim-azpgsql-01"
+    postgres_server_name = "dppa-prim-azpgsql-01"
+    postgres_server_fqdn = "dppa-prim-azpgsql-01.postgres.database.azure.com"
+    postgres_replica_ids = {
+      "dppa-prim-azpgsql-01-1" = "/subscriptions/7d1e3999-6577-4cd5-b296-f518e5c8e677/resourceGroups/ddphss-prim-prd-moderate-rg/providers/Microsoft.DBforPostgreSQL/servers/dppa-prim-azpgsql-01-1"
+      "dppa-prim-azpgsql-01-2" = "/subscriptions/7d1e3999-6577-4cd5-b296-f518e5c8e677/resourceGroups/ddphss-prim-prd-moderate-rg/providers/Microsoft.DBforPostgreSQL/servers/dppa-prim-azpgsql-01-2"
+    }
   }
   log_analytics_workspace = {
     law_retention_period = "730"
