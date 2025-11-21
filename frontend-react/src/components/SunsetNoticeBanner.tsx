@@ -8,10 +8,17 @@ const SunsetNoticeBanner = () => {
                         As part of CDC&apos;s long-term strategy to streamline data exchange, we will be sunsetting
                         ReportStream on <strong>December 31, 2025</strong>. ReportStream&apos;s functionalities will be
                         transitioned to the Association of Public Health Laboratories&apos; (APHL) Informatics Messaging
-                        System (AIMS) platform. For organizations interested in also transitioning to AIMS, APHL will
-                        provide detailed information and dedicated assistance to facilitate a smooth migration for your
-                        integration. Please use the AIMS Platform Customer Portal and submit a ticket to arrange your
-                        organization&apos;s onboarding to the APHL AIMS platform. If you have specific questions related
+                        System (AIMS) platform. For organizations interested in also transitioning to the{" "}
+                         <a href="https://www.aphl.org/programs/informatics/pages/aims_platform.aspx" className="usa-link">
+                            Association of Public Health Laboratories&apos; (APHL) Informatics Messaging System (AIMS)
+                        </a>{" "} platform.
+                        For organizations interested in also transitioning to AIMS, APHL will provide detailed information and dedicated 
+                        assistance to facilitate a smooth migration for your integration. Please use the{" "}
+                        <a href="https://aphlinformatics.atlassian.net/servicedesk/customer/portal/23/" className="usa-link">
+                            AIMS Platform Customer Portal
+                        </a>{" "}
+                        and submit a ticket to arrange your organization&apos;s onboarding to the APHL AIMS platform. 
+                        If you have specific questions related
                         to the ReportStream sunset, please contact{" "}
                         <a href="mailto:OPHDST@cdc.gov?subject=ReportStream%20Sunset" className="usa-link">
                             OPHDST@cdc.gov
