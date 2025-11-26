@@ -14,9 +14,23 @@ describe("SunsetNoticeBanner", () => {
         expect(screen.getByText(/December 31, 2025/)).toBeInTheDocument();
     });
 
-    it("should mention AIMS Platform Customer Portal", () => {
+    it("should render APHL AIMS platform link", () => {
         render(<SunsetNoticeBanner />);
-        expect(screen.getByText(/AIMS Platform Customer Portal/i)).toBeInTheDocument();
+        const link = screen.getByRole("link", {
+            name: /Association of Public Health Laboratories' \(APHL\) Informatics Messaging System \(AIMS\)/i,
+        });
+        expect(link).toHaveAttribute("href", "https://www.aphl.org/programs/informatics/pages/aims_platform.aspx");
+    });
+
+    it("should render AIMS Platform Customer Portal link", () => {
+        render(<SunsetNoticeBanner />);
+        const link = screen.getByRole("link", {
+            name: /AIMS Platform Customer Portal/i,
+        });
+        expect(link).toHaveAttribute(
+            "href",
+            "https://aphlinformatics.atlassian.net/servicedesk/customer/portal/23/",
+        );
     });
 
     it("should render email link with subject", () => {
