@@ -3,6 +3,7 @@ name: 'Upload Static Site (React)'
 description: 'Push react website to Azure blob storage'
 inputs:
   env-name:
+    description: "Environment name"
     required: true
   version:
     description: "Version tag"
@@ -25,15 +26,15 @@ runs:
     - name: Set environment variables - trialfrontend01
       if: inputs.env-name == 'trialfrontend01'
       shell: bash
-      run: echo "IMAGE_REPO=pdhstagingpublictrial01" >> $GITHUB_ENV
+      run: echo "IMAGE_REPO=pdhstagingpublic" >> $GITHUB_ENV
 
     - name: Set environment variables - trialfrontend02
-      if: inputs.env-name == 'trialfrontend02'
+      if: inputs.env-name == 'pdhstagingpublic'
       shell: bash
       run: echo "IMAGE_REPO=pdhstagingpublictrial02" >> $GITHUB_ENV
 
     - name: Set environment variables - trialfrontend03
-      if: inputs.env-name == 'trialfrontend03'
+      if: inputs.env-name == 'pdhstagingpublic'
       shell: bash
       run: echo "IMAGE_REPO=pdhstagingpublictrial03" >> $GITHUB_ENV
 
@@ -58,5 +59,6 @@ runs:
       shell: bash
       working-directory: .
       run: |
-        az storage blob delete-batch --account-name ${{ env.IMAGE_REPO }} -s '$web'
+        az storage blob delete-batch --account-name ${{ env.IMAGE_REPO }} -s '$web' --auth-mode login
         az storage blob upload-batch --account-name ${{ env.IMAGE_REPO }} -s frontend-react/build -d '$web'
+        

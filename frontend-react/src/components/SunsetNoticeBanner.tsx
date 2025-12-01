@@ -3,7 +3,7 @@ const SunsetNoticeBanner = () => {
         <section className="usa-site-alert usa-site-alert--emergency" aria-label="Site alert">
             <div className="usa-alert usa-alert--emergency">
                 <div className="usa-alert__body">
-                    <h3 className="usa-alert__heading">ReportStream Sunset Notice (Updated)</h3>
+                    <h3 className="usa-alert__heading">ReportStream Sunset Notice</h3>
                     <p className="usa-alert__text">
                         As part of CDC&apos;s long-term strategy to streamline data exchange, we will be sunsetting
                         ReportStream on <strong>December 31, 2025</strong>. ReportStream&apos;s functionalities will be
