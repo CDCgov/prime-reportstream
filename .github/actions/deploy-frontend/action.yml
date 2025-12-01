@@ -29,14 +29,14 @@ runs:
       run: echo "IMAGE_REPO=pdhstagingpublic" >> $GITHUB_ENV
 
     - name: Set environment variables - trialfrontend02
-      if: inputs.env-name == 'pdhstagingpublic'
+      if: inputs.env-name == 'trialfrontend02'
       shell: bash
-      run: echo "IMAGE_REPO=pdhstagingpublictrial02" >> $GITHUB_ENV
+      run: echo "IMAGE_REPO=pdhstaging" >> $GITHUB_ENV
 
     - name: Set environment variables - trialfrontend03
       if: inputs.env-name == 'pdhstagingpublic'
       shell: bash
-      run: echo "IMAGE_REPO=pdhstagingpublictrial03" >> $GITHUB_ENV
+      run: echo "IMAGE_REPO=pdhstagingpublic" >> $GITHUB_ENV
 
     - name: Set environment variables - production
       if: inputs.env-name == 'prod'
@@ -60,5 +60,4 @@ runs:
       working-directory: .
       run: |
         az storage blob delete-batch --account-name ${{ env.IMAGE_REPO }} -s '$web' --auth-mode login
-        az storage blob upload-batch --account-name ${{ env.IMAGE_REPO }} -s frontend-react/build -d '$web'
-        
+        az storage blob upload-batch --account-name ${{ env.IMAGE_REPO }} -s frontend-react/build -d '$web' --auth-mode login
