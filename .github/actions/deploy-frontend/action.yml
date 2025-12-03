@@ -34,7 +34,7 @@ runs:
       run: echo "IMAGE_REPO=pdhstaging" >> $GITHUB_ENV
 
     - name: Set environment variables - trialfrontend03
-      if: inputs.env-name == 'pdhstagingpublic'
+      if: inputs.env-name == 'trialfrontend03'
       shell: bash
       run: echo "IMAGE_REPO=pdhstagingpublic" >> $GITHUB_ENV
 
