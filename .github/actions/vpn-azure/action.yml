@@ -83,6 +83,11 @@ runs:
         OBJECT_ID=$(az ad sp show --id $CLIENT_ID --query id -o tsv)
         echo "Object ID: $OBJECT_ID"
         echo "---------------------------------------------"
+
+        echo "Check network ruleset for Allow/Deny"
+        RULESET=$(az storage account show -n pdhstagingpublic --query networkRuleSet.defaultAction -o tsv)
+        echo "Ruleset: $RULESET"
+        echo "---------------------------------------------"
       shell: bash
 
     - name: Terraform Auth
