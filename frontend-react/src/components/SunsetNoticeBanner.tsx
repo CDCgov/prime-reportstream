@@ -6,7 +6,7 @@ const SunsetNoticeBanner = () => {
                     <h3 className="usa-alert__heading">ReportStream Sunset Notice</h3>
                     <p className="usa-alert__text">
                         As part of CDC&apos;s long-term strategy to streamline data exchange, we will be sunsetting
-                        ReportStream on <strong>December 31, 2025</strong>. ReportStream&apos;s functionalities will be
+                        ReportStream on <strong>December 31, 2025</strong>. ReportStream&apos;s functionality will be
                         transitioned to the{" "}
                         <a
                             href="https://www.aphl.org/programs/informatics/pages/aims_platform.aspx"
