@@ -950,7 +950,7 @@ dependencies {
     implementation("com.cronutils:cron-utils:9.2.1")
     implementation("io.jsonwebtoken:jjwt-api:0.11.5")
     implementation("de.m3y.kformat:kformat:0.14")
-    implementation("io.github.java-diff-utils:java-diff-utils:4.15")
+    implementation("io.github.java-diff-utils:java-diff-utils:4.16")
     implementation("io.ktor:ktor-client-core:$ktorVersion")
     implementation("io.ktor:ktor-client-cio:$ktorVersion")
     implementation("io.ktor:ktor-client-apache:$ktorVersion")
