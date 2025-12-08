@@ -368,7 +368,7 @@ jobs:
         run: yarn install --immutable
 
       - name: Download E2E reports
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v6
         with:
           path: ${{ env.WORKING_DIRECTORY }}/downloaded-e2e-artifacts
           pattern: frontend-e2e-data--shard-*
