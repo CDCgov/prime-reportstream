@@ -17,7 +17,7 @@ jobs:
       has_router_change: ${{ steps.build_vars.outputs.has_router_change }}
     steps:
       - name: "Check out changes"
-        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8
       - name: Build vars
         id: build_vars
         uses: ./.github/actions/build-vars
@@ -31,7 +31,7 @@ jobs:
         matrix:
             folder: [prime-router, shared]
     steps:
-      - uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8
       - uses: snyk/actions/setup@b98d498629f1c368650224d6d212bf7dfa89e4bf
       - name: Set up JDK 17 to generate backend coverage stats
         uses: actions/setup-java@b36c23c0d998641eff861008f374ee103c25ac73
