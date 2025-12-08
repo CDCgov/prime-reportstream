@@ -16,7 +16,7 @@ dependencies {
     implementation("com.nimbusds:nimbus-jose-jwt:10.6")
     testImplementation("org.jetbrains.kotlin:kotlin-test")
     testImplementation("com.willowtreeapps.assertk:assertk-jvm:0.28.1")
-    testImplementation("org.apache.commons:commons-compress:1.27.1")
+    testImplementation("org.apache.commons:commons-compress:1.28.0")
 }
 
 tasks.test {
