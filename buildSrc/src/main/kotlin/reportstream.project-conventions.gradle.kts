@@ -10,7 +10,7 @@ plugins {
 }
 
 ktlint {
-    version = "1.5.0"
+    version = "1.6.0"
 }
 
 group = "gov.cdc.prime.reportstream"
