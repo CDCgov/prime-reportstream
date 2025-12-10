@@ -51,8 +51,8 @@ import gov.cdc.prime.router.db.ReportStreamTestDatabaseContainer
 import gov.cdc.prime.router.db.ReportStreamTestDatabaseSetupExtension
 import gov.cdc.prime.router.fhirengine.engine.FHIRReceiverFilter
 import gov.cdc.prime.router.fhirengine.engine.FhirTranslateQueueMessage
+import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirBundleUtils.deleteResource
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
-import gov.cdc.prime.router.fhirengine.utils.deleteResource
 import gov.cdc.prime.router.fhirengine.utils.getObservations
 import gov.cdc.prime.router.history.db.ReportGraph
 import gov.cdc.prime.router.metadata.LookupTable

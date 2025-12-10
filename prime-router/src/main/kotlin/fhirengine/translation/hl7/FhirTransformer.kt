@@ -7,8 +7,8 @@ import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.Fhir
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.FhirTransformSchemaElementAction
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirBundleUtils
+import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirBundleUtils.deleteResource
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
-import gov.cdc.prime.router.fhirengine.utils.deleteResource
 import org.apache.logging.log4j.Level
 import org.hl7.fhir.exceptions.FHIRException
 import org.hl7.fhir.r4.model.Base
@@ -41,8 +41,6 @@ class FhirTransformer(
         transformWithSchema(schemaRef, bundle = input, focusResource = input)
         return input
     }
-
-    class BundleWithMessages(var bundle: Bundle, val warnings: MutableList<String>, val errors: MutableList<String>)
 
     override fun checkForEquality(converted: Bundle, expectedOutput: Bundle): Boolean =
         converted.equalsDeep(expectedOutput)

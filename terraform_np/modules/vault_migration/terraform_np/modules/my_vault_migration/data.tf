@@ -28,5 +28,6 @@ data "azurerm_key_vault" "pdhdemo2_clientconfig1wu" {
 }
 
 data "azurerm_key_vault" "pdhdemo2_keyvault1wu" {
-  name                = var.pdhd
-
+  name                = var.pdhdemo2_keyvault1wu_name
+  resource_group_name = var.pdhdemo2_keyvault1wu_rg
+}
