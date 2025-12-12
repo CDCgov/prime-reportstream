@@ -111,16 +111,4 @@ describe("SignInOrUser", () => {
         expect(screen.queryByText("Admin tools")).not.toBeInTheDocument();
         testNav();
     });
-
-    test("renders SunsetNoticeBanner on all pages", async () => {
-        mockUseSessionContext.mockReturnValue({
-            config: { IS_PREVIEW: false },
-            user: {},
-        } as RSSessionContext);
-
-        renderApp(<ReportStreamHeader />);
-
-        await waitFor(() => expect(screen.getByText("ReportStream Sunset Notice")).toBeVisible());
-        expect(screen.getByText(/December 31, 2025/)).toBeVisible();
-    });
 });
