@@ -1,0 +1,11 @@
+#okta-sign-in {
+    max-width: max-content;
+    width: auto;
+    margin: initial;
+    // okta widget displays as a `main` element, so reset some
+    // inherited style rules
+    display: block;
+    min-height: max-content;
+    padding-left: unset;
+    padding-right: unset;
+}
