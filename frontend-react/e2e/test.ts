@@ -37,9 +37,6 @@ const isCI = Boolean(process.env.CI);
 const frontendWarningsPath = join(e2eDataPath, "frontend-warnings.json");
 const isMockDisabled = Boolean(process.env.MOCK_DISABLED);
 
-// Skip all E2E tests - functionality has been removed for static sunset website
-export const E2E_TESTS_DISABLED = true;
-
 function createLogins<const T extends string[]>(loginTypes: T): Record<string, TestLogin> {
     const logins = Object.fromEntries(
         loginTypes.map((type) => {
@@ -84,10 +81,5 @@ export const test = base.extend<CustomFixtures>({
     frontendWarningsLogPath: frontendWarningsPath,
     isFrontendWarningsLog: isCI,
 });
-
-// Skip all E2E tests - functionality has been removed for static sunset website
-if (E2E_TESTS_DISABLED) {
-    test.skip(() => true, "E2E tests disabled - application functionality removed for static sunset website");
-}
 
 export type TestArgs<P extends keyof PlaywrightAllTestArgs> = Pick<PlaywrightAllTestArgs, P> & CustomFixtures;

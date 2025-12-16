@@ -2,7 +2,7 @@ import { Page } from "@playwright/test";
 import { TOTP } from "otpauth";
 
 import { fulfillGoogleAnalytics } from "./utils";
-import { E2E_TESTS_DISABLED, expect, test as setup, type TestLogin } from "../test";
+import { expect, test as setup, type TestLogin } from "../test";
 
 async function logIntoOkta(page: Page, login: TestLogin) {
     const totp = new TOTP({ secret: login.totpCode });
@@ -54,12 +54,6 @@ async function logIntoOkta(page: Page, login: TestLogin) {
  * go into a dedicated test file.
  */
 setup("create authenticated sessions", async ({ page, adminLogin, senderLogin, receiverLogin }) => {
-    // Skip if E2E tests are disabled
-    if (E2E_TESTS_DISABLED) {
-        setup.skip();
-        return;
-    }
-
     for (const login of [adminLogin, senderLogin, receiverLogin]) {
         await logIntoOkta(page, login);
 
