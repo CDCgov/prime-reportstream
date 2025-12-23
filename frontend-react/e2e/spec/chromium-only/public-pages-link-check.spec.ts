@@ -49,6 +49,23 @@ async function getLinksFromUrlPaths(urlPaths: string[], page: Page): Promise<str
     return [...linksSet];
 }
 
+// Helper function to append errors to the log file
+function logLinkErrors(errors: { url: string; message: string }[], logPath: string) {
+    if (!errors.length) return;
+    let existing: { url: string; message: string }[] = [];
+    if (fs.existsSync(logPath)) {
+        try {
+            const content = fs.readFileSync(logPath, "utf-8");
+            existing = JSON.parse(content) as { url: string; message: string }[];
+        } catch {
+            existing = [];
+        }
+    }
+
+    const combined = [...existing, ...errors];
+    fs.writeFileSync(logPath, JSON.stringify(combined, null, 2) + "\n");
+}
+
 test.describe("Evaluate links on public facing pages", { tag: "@warning" }, () => {
     let urlPaths: string[] = [];
     let links: string[] = [];
@@ -70,16 +87,16 @@ test.describe("Evaluate links on public facing pages", { tag: "@warning" }, () =
     });
 
     test("Check external links on public-facing URLs for a valid 200 response", async ({
-        frontendWarningsLogPath,
-        isFrontendWarningsLog,
         baseURL,
+        isFrontendWarningsLog,
+        frontendWarningsLogPath,
     }) => {
         const axiosInstance = axios.create({
             timeout: 10000,
         });
 
         const externalLinks = links.filter((link) => isAbsoluteURL(link) || isAssetURL(link));
-        const linkErrors: { url: string; message: string }[] = [];
+        const externalLinkErrors: { url: string; message: string }[] = [];
 
         async function validateExternalLink(url: string) {
             try {
@@ -88,29 +105,30 @@ test.describe("Evaluate links on public facing pages", { tag: "@warning" }, () =
                 return { url, status: response.status };
             } catch (error) {
                 const e = error as AxiosError;
-                linkErrors.push({ url, message: e.message });
+                externalLinkErrors.push({ url, message: e.message });
                 return { url, status: e.response ? e.response.status : 400 };
             }
         }
 
         const results = await Promise.all(externalLinks.map((externalLink) => validateExternalLink(externalLink)));
 
-        if (isFrontendWarningsLog && linkErrors.length > 0) {
-            fs.writeFileSync(frontendWarningsLogPath, `${JSON.stringify(linkErrors)}\n`);
-        }
-
         results.forEach((result) => {
             if (result.status !== 200) {
                 console.warn(`Warning: ${result.url} returned status ${result.status}`);
             }
         });
+
+        if (isFrontendWarningsLog && externalLinkErrors.length > 0) {
+            logLinkErrors(externalLinkErrors, frontendWarningsLogPath);
+        }
+
         console.warn(
-            `Total external link with errors: ${linkErrors.length} out of ${externalLinks.length} links checked.`,
+            `Total external link with errors: ${externalLinkErrors.length} out of ${externalLinks.length} links checked.`,
         );
 
         // Required expect statement + if somehow the warnings and number of links
         // are the same, that's a huge problem.
-        expect(linkErrors.length).toBeLessThan(externalLinks.length);
+        expect(externalLinkErrors.length).toBeLessThan(externalLinks.length);
     });
 
     test("Check internal links on public-facing URLs for a valid response", async ({
@@ -119,7 +137,7 @@ test.describe("Evaluate links on public facing pages", { tag: "@warning" }, () =
         frontendWarningsLogPath,
     }) => {
         const internalLinks = links.filter((link) => !isAbsoluteURL(link) && !isAssetURL(link));
-        const linkErrors: { url: string; message: string }[] = [];
+        const internalLinkErrors: { url: string; message: string }[] = [];
 
         async function validateInternalLink(url: string, browser: Browser) {
             // For internal relative URLs, use Playwright to navigate and check the page content
@@ -144,13 +162,13 @@ test.describe("Evaluate links on public facing pages", { tag: "@warning" }, () =
                 const isErrorWrapperVisible = await page.locator('[data-testid="error-page-wrapper"]').isVisible();
 
                 if (hasPageNotFoundText && isErrorWrapperVisible) {
-                    linkErrors.push({ url, message: `Internal link: Page not found ${absoluteUrl}` });
+                    internalLinkErrors.push({ url, message: `Internal link: Page not found ${absoluteUrl}` });
                     return { url, status: 404 };
                 }
 
                 return { url, status: 200 };
             } catch (_error) {
-                linkErrors.push({ url, message: "Internal link: Page error" });
+                internalLinkErrors.push({ url, message: "Internal link: Page error" });
                 return { url, status: 400 };
             } finally {
                 await page.close();
@@ -203,19 +221,20 @@ test.describe("Evaluate links on public facing pages", { tag: "@warning" }, () =
 
         await browser.close();
 
-        if (isFrontendWarningsLog && linkErrors.length > 0) {
-            fs.writeFileSync(frontendWarningsLogPath, `${JSON.stringify(linkErrors)}\n`);
-        }
-
         results.forEach((result) => {
             if (result.status !== 200) {
                 console.warn(`Warning status: ${result.url} returned status ${result.status}`);
             }
         });
 
+        if (isFrontendWarningsLog && internalLinkErrors.length > 0) {
+            logLinkErrors(internalLinkErrors, frontendWarningsLogPath);
+        }
+
+        console.warn(`Total warnings: ${internalLinkErrors.length} out of ${internalLinks.length} links checked.`);
+
         // Required expect statement + if somehow the warnings and number of links
         // are the same, that's a huge problem.
-        console.warn(`Total warnings: ${linkErrors.length} out of ${internalLinks.length} links checked.`);
-        expect(linkErrors.length).toBeLessThan(internalLinks.length);
+        expect(internalLinkErrors.length).toBeLessThan(internalLinks.length);
     });
 });
