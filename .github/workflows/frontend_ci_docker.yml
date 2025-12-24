@@ -131,7 +131,7 @@ jobs:
 
       - name: Delete Previous Chromatic Comment
         if: steps.find_chromatic_comment.outputs.comment-id != ''
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
@@ -408,7 +408,7 @@ jobs:
 
       - name: Delete Previous Warnings Comment
         if: ${{ steps.comment_find.outputs.comment-id != '' }}
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
