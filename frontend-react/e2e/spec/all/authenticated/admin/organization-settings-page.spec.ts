@@ -151,7 +151,7 @@ test.describe("Admin Organization Settings Page", () => {
                 await expect(link).toBeVisible();
                 await link.click();
                 await organizationPage.page.waitForURL(expectedUrl);
-                await expect(organizationPage.page.getByRole("heading")).toBeVisible();
+                await expect(organizationPage.page.getByRole("heading", { name: "Need help?" })).toBeVisible();
 
                 expect(organizationPage.page.url()).toContain(expectedUrl);
             });
