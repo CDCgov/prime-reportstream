@@ -3,7 +3,7 @@ import axios, { AxiosError } from "axios";
 import * as fs from "fs";
 import { pageNotFound } from "../../../src/content/error/ErrorMessages";
 import { isAbsoluteURL, isAssetURL } from "../../helpers/utils";
-import { test as baseTest, Browser, chromium, expect, Page } from "../../test";
+import { test as baseTest, chromium, expect, Page } from "../../test";
 
 const test = baseTest.extend({});
 
@@ -49,26 +49,9 @@ async function getLinksFromUrlPaths(urlPaths: string[], page: Page): Promise<str
     return [...linksSet];
 }
 
-// Helper function to append errors to the log file
-function logLinkErrors(errors: { url: string; message: string }[], logPath: string) {
-    if (!errors.length) return;
-    let existing: { url: string; message: string }[] = [];
-    if (fs.existsSync(logPath)) {
-        try {
-            const content = fs.readFileSync(logPath, "utf-8");
-            existing = JSON.parse(content) as { url: string; message: string }[];
-        } catch {
-            existing = [];
-        }
-    }
-
-    const combined = [...existing, ...errors];
-    fs.writeFileSync(logPath, JSON.stringify(combined, null, 2) + "\n");
-}
-
 test.describe("Evaluate links on public facing pages", { tag: "@warning" }, () => {
-    let urlPaths: string[] = [];
-    let links: string[] = [];
+    let urlPathsFromSitemap: string[] = [];
+    let linksFromUrlPaths: string[] = [];
 
     // Using our sitemap.xml, we'll create a pathnames array
     // We cannot use our POM, we must
@@ -77,164 +60,114 @@ test.describe("Evaluate links on public facing pages", { tag: "@warning" }, () =
         const page = await browser.newPage();
         const response = await page.goto("/sitemap.xml");
         const sitemapXml = await response!.text();
-        urlPaths = await getUrlPathsFromSitemap(sitemapXml, page);
-        links = await getLinksFromUrlPaths(urlPaths, page);
+        urlPathsFromSitemap = await getUrlPathsFromSitemap(sitemapXml, page);
+        linksFromUrlPaths = await getLinksFromUrlPaths(urlPathsFromSitemap, page);
         await page.close();
     });
 
     test("Check if paths were fetched", () => {
-        expect(urlPaths.length).toBeGreaterThan(0); // Ensure that paths were fetched correctly
+        expect(urlPathsFromSitemap.length).toBeGreaterThan(0); // Ensure that paths were fetched correctly
     });
 
-    test("Check external links on public-facing URLs for a valid 200 response", async ({
+    test("Check all public-facing links for a valid response", async ({
         baseURL,
         isFrontendWarningsLog,
         frontendWarningsLogPath,
     }) => {
-        const axiosInstance = axios.create({
-            timeout: 10000,
-        });
+        const axiosInstance = axios.create({ timeout: 10000 });
+        const externalLinks = linksFromUrlPaths.filter((link) => isAbsoluteURL(link) || isAssetURL(link));
+        const internalLinks = linksFromUrlPaths.filter((link) => !isAbsoluteURL(link) && !isAssetURL(link));
+        const allLinkErrors: { url: string; message: string }[] = [];
 
-        const externalLinks = links.filter((link) => isAbsoluteURL(link) || isAssetURL(link));
-        const externalLinkErrors: { url: string; message: string }[] = [];
-
-        async function validateExternalLink(url: string) {
-            try {
-                const normalizedURL = new URL(url, baseURL).toString();
-                const response = await axiosInstance.get(normalizedURL);
-                return { url, status: response.status };
-            } catch (error) {
-                const e = error as AxiosError;
-                externalLinkErrors.push({ url, message: e.message });
-                return { url, status: e.response ? e.response.status : 400 };
-            }
-        }
-
-        const results = await Promise.all(externalLinks.map((externalLink) => validateExternalLink(externalLink)));
-
-        results.forEach((result) => {
-            if (result.status !== 200) {
-                console.warn(`Warning: ${result.url} returned status ${result.status}`);
-            }
-        });
-
-        if (isFrontendWarningsLog && externalLinkErrors.length > 0) {
-            logLinkErrors(externalLinkErrors, frontendWarningsLogPath);
-        }
-
-        console.warn(
-            `Total external link with errors: ${externalLinkErrors.length} out of ${externalLinks.length} links checked.`,
+        // --- External link validation ---
+        await Promise.all(
+            externalLinks.map(async (url) => {
+                try {
+                    const normalizedURL = new URL(url, baseURL).toString();
+                    const response = await axiosInstance.get(normalizedURL);
+                    if (response.status !== 200) {
+                        allLinkErrors.push({ url, message: `External link: Status ${response.status}` });
+                    }
+                } catch (error) {
+                    const e = error as AxiosError;
+                    allLinkErrors.push({ url, message: e.message });
+                }
+            }),
         );
 
-        // Required expect statement + if somehow the warnings and number of links
-        // are the same, that's a huge problem.
-        expect(externalLinkErrors.length).toBeLessThan(externalLinks.length);
-    });
-
-    test("Check internal links on public-facing URLs for a valid response", async ({
-        baseURL,
-        isFrontendWarningsLog,
-        frontendWarningsLogPath,
-    }) => {
-        const internalLinks = links.filter((link) => !isAbsoluteURL(link) && !isAssetURL(link));
-        const internalLinkErrors: { url: string; message: string }[] = [];
-
-        async function validateInternalLink(url: string, browser: Browser) {
-            // For internal relative URLs, use Playwright to navigate and check the page content
-            const context = await browser.newContext();
-            const page = await context.newPage();
-
-            try {
-                const absoluteUrl = new URL(url, baseURL).toString();
-
-                // Go to home first to initialize the SPA
-                const homeUrl = new URL("/", baseURL).toString();
-                await page.goto(homeUrl, { waitUntil: "networkidle" });
-
-                // Use client-side navigation
-                await page.evaluate((path) => {
-                    window.history.pushState({}, "", path);
-                    window.dispatchEvent(new PopStateEvent("popstate"));
-                }, url);
-
-                const pageContent = await page.content();
-                const hasPageNotFoundText = pageContent.includes(pageNotFound);
-                const isErrorWrapperVisible = await page.locator('[data-testid="error-page-wrapper"]').isVisible();
-
-                if (hasPageNotFoundText && isErrorWrapperVisible) {
-                    internalLinkErrors.push({ url, message: `Internal link: Page not found ${absoluteUrl}` });
-                    return { url, status: 404 };
-                }
-
-                return { url, status: 200 };
-            } catch (_error) {
-                internalLinkErrors.push({ url, message: "Internal link: Page error" });
-                return { url, status: 400 };
-            } finally {
-                await page.close();
-                await context.close();
-            }
-        }
-
+        // --- Internal link validation ---
         const browser = await chromium.launch();
 
-        const results: { url: string; status: number }[] = [];
-
         await Promise.all(
-            internalLinks.map(async (internalLink: string) => {
+            internalLinks.map(async (url) => {
                 let isReportstream = false;
                 try {
-                    const parsedUrl = new URL(internalLink, baseURL);
+                    const parsedUrl = new URL(url, baseURL);
                     isReportstream = parsedUrl.host === "reportstream.cdc.gov";
                 } catch (error) {
-                    console.warn(`Invalid URL encountered: ${internalLink}`, error);
+                    console.warn(`Invalid URL encountered: ${url}`, error);
                 }
 
                 // Normalize each href to just its pathname (like /onboarding/code-mapping)
                 // then compare it directly to entries in urlPaths
                 let hrefPath = "";
                 try {
-                    const parsed = new URL(internalLink, baseURL);
+                    const parsed = new URL(url, baseURL);
                     hrefPath = parsed.pathname;
                 } catch (_) {
                     // fallback for relative URLs
-                    hrefPath = internalLink;
+                    hrefPath = url;
                 }
-
-                const isAllowed = urlPaths.includes(hrefPath);
+                console.warn(`Checking internal link: ${url} (normalized path: ${hrefPath})`);
+                const isAllowed = urlPathsFromSitemap.includes(hrefPath);
 
                 if (isReportstream && !isAllowed) {
                     // Skip this link
-                    console.warn(`Skipping ${internalLink} (reportstream link not in urlPaths)`);
+                    console.warn(`Skipping ${url} (reportstream link not in urlPaths)`);
                     return;
                 }
 
+                const context = await browser.newContext();
+                const page = await context.newPage();
                 try {
-                    const result = await validateInternalLink(internalLink, browser);
-                    results.push(result);
-                } catch (error) {
-                    console.error(`Issue validating link: ${internalLink}`, error);
-                    results.push({ url: internalLink, status: 500 });
+                    const absoluteUrl = new URL(url, baseURL).toString();
+                    const homeUrl = new URL("/", baseURL).toString();
+                    await page.goto(homeUrl, { waitUntil: "networkidle" });
+                    await page.evaluate((path) => {
+                        window.history.pushState({}, "", path);
+                        window.dispatchEvent(new PopStateEvent("popstate"));
+                    }, url);
+
+                    const pageContent = await page.content();
+                    const hasPageNotFoundText = pageContent.includes(pageNotFound);
+                    const isErrorWrapperVisible = await page.locator('[data-testid="error-page-wrapper"]').isVisible();
+
+                    if (hasPageNotFoundText && isErrorWrapperVisible) {
+                        allLinkErrors.push({ url, message: `Internal link: Page not found ${absoluteUrl}` });
+                    }
+                } catch (_error) {
+                    allLinkErrors.push({ url, message: "Internal link: Page error" });
+                } finally {
+                    await page.close();
+                    await context.close();
                 }
             }),
         );
-
         await browser.close();
 
-        results.forEach((result) => {
-            if (result.status !== 200) {
-                console.warn(`Warning status: ${result.url} returned status ${result.status}`);
-            }
-        });
-
-        if (isFrontendWarningsLog && internalLinkErrors.length > 0) {
-            logLinkErrors(internalLinkErrors, frontendWarningsLogPath);
+        // --- Logging and assertions ---
+        if (isFrontendWarningsLog && allLinkErrors.length > 0) {
+            fs.writeFileSync(frontendWarningsLogPath, JSON.stringify(allLinkErrors, null, 2) + "\n");
         }
 
-        console.warn(`Total warnings: ${internalLinkErrors.length} out of ${internalLinks.length} links checked.`);
+        allLinkErrors.forEach((err) => {
+            console.warn(`Warning: ${err.url} - ${err.message}`);
+        });
+
+        console.warn(`Total link warnings: ${allLinkErrors.length} out of ${linksFromUrlPaths.length} links checked.`);
 
         // Required expect statement + if somehow the warnings and number of links
         // are the same, that's a huge problem.
-        expect(internalLinkErrors.length).toBeLessThan(internalLinks.length);
+        expect(allLinkErrors.length).toBeLessThan(linksFromUrlPaths.length);
     });
 });
