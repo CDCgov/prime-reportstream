@@ -97,26 +97,6 @@ class ReportFunction(
             return HttpUtilities.bad(request, "Expected a '$CLIENT_PARAMETER' query parameter")
         }
 
-        // Allow only CVS.default sender to pass through and deactivate all other senders
-        if (senderName != "CVS.default") {
-            return HttpUtilities.gone(
-                request,
-                "As part of CDC's long-term strategy to streamline data exchange, " +
-                "ReportStream is sunsetted on December 31, 2025.  ReportStream functionality " +
-                "is transitioned to the Association of Public Health Laboratories (APHL) " +
-                "Informatics Messaging System (AIMS) platform.  " +
-                "For organizations interested in also transitioning to AIMS, " +
-                "APHL will provide detailed information " +
-                "and dedicated assistance to facilitate a smooth migration " +
-                "for your integration.  Please use the AIMS " +
-                "Platform Customer Portal and submit a ticket to arrange " +
-                "your organization's onboarding to the APHL " +
-                "AIMS platform.  If you have specific questions related " +
-                "to the ReportStream sunset, please contact " +
-                "OPHDST@cdc.gov with the subject line: \"ReportStream Sunset\"."
-            )
-        }
-
         // Sender should eventually be obtained directly from who is authenticated
         val sender = workflowEngine.settings.findSender(senderName)
             ?: return HttpUtilities.bad(request, "'$CLIENT_PARAMETER:$senderName': unknown sender")
@@ -553,6 +533,26 @@ class ReportFunction(
         request: HttpRequestMessage<String?>,
         sender: Sender,
     ): HttpResponseMessage {
+        // Allow only CVS.default sender to pass through and deactivate all other senders
+        if (sender.organizationName != "CVS") {
+            return HttpUtilities.gone(
+                request,
+                "As part of CDC's long-term strategy to streamline data exchange, " +
+                        "ReportStream is sunsetted on December 31, 2025.  ReportStream functionality " +
+                        "is transitioned to the Association of Public Health Laboratories (APHL) " +
+                        "Informatics Messaging System (AIMS) platform.  " +
+                        "For organizations interested in also transitioning to AIMS, " +
+                        "APHL will provide detailed information " +
+                        "and dedicated assistance to facilitate a smooth migration " +
+                        "for your integration.  Please use the AIMS " +
+                        "Platform Customer Portal and submit a ticket to arrange " +
+                        "your organization's onboarding to the APHL " +
+                        "AIMS platform.  If you have specific questions related " +
+                        "to the ReportStream sunset, please contact " +
+                        "OPHDST@cdc.gov with the subject line: \"ReportStream Sunset\"."
+            )
+        }
+
         // determine if we should be following the sync or async workflow
         val isAsync = processingType(request, sender) == ProcessingType.async
         // allow duplicates 'override' param
