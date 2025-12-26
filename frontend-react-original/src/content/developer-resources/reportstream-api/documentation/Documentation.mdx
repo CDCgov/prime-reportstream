@@ -1,0 +1,35 @@
+---
+title: Documentation
+meta:
+    title: ReportStream API documentation
+    description: Details on our sample responses to assist you in your set up and use of the ReportStream API.
+    openGraph:
+        image:
+            src: /assets/img/opengraph/reportstream-tagline.png
+            altText: "An illustration of two pieces of paper with circles next to them. Inside the circles, it says: FHIR, HL7, CSV."
+---
+
+import Sidenav from "../Sidenav.mdx";
+import site from "../../../site.json";
+
+<LayoutSidenav><Sidenav/></LayoutSidenav>
+
+<LayoutMain>
+    <p className="usa-intro text-base">Technical docs and resources to support your use of ReportStream’s API</p>
+
+    **In this section:**
+
+    <CardGroup>
+        <Card className="width-full">
+            <CardHeader typeof="div">
+                ## [Submission status and errors](submission-status-and-errors)
+            </CardHeader>
+            <CardBody>
+                ReportStream offers a History API that can be later queried to obtain the status of your submission and
+                any errors or warnings associated with it.
+
+                * <A href={site.external.github.historyApi.url}>Documentation on GitHub</A>
+            </CardBody>
+        </Card>
+    </CardGroup>
+</LayoutMain>
