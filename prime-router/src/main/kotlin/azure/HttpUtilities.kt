@@ -211,6 +211,19 @@ class HttpUtilities {
         }
 
         /**
+         * convenience method that combines logging, and generation of an HtttpResponse
+         * the requested resourece is permanently unavailable and will not be available again in the future.
+         */
+        fun gone(
+            request: HttpRequestMessage<String?>,
+            msg: String,
+            status: HttpStatus = HttpStatus.GONE,
+        ): HttpResponseMessage {
+            logger.error(msg)
+            return httpResponse(request, msg, status)
+        }
+
+        /**
          * Do a variety of checks on payload size.
          * Returns a Pair (http error code, human readable error message)
          */

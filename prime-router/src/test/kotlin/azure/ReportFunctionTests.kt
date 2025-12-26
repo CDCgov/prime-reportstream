@@ -1450,7 +1450,7 @@ class ReportFunctionTests {
 
         val sender = UniversalPipelineSender(
             name = "Test Sender",
-            organizationName = "org",
+            organizationName = "test",
             format = MimeFormat.HL7,
             hl7AcknowledgementEnabled = true,
             topic = Topic.FULL_ELR,
