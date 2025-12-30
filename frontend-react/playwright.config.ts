@@ -12,15 +12,14 @@ dotenvflow.config({
 
 const isCi = Boolean(process.env.CI);
 
-// Skip all E2E tests - functionality has been removed for static sunset website
-const E2E_TESTS_DISABLED = true;
+// Skip all E2E tests, test only static page - functionality has been removed for static sunset website
+const E2E_TESTS_STATIC = true;
 
 /**
  * See https://playwright.dev/docs/test-configuration.
  */
 export default defineConfig({
     testDir: "e2e",
-    testIgnore: E2E_TESTS_DISABLED ? ["**/*.spec.ts"] : [],
     fullyParallel: true,
     forbidOnly: isCi,
     retries: isCi ? 2 : 0,
@@ -38,8 +37,14 @@ export default defineConfig({
         screenshot: "only-on-failure",
     },
 
-    projects: E2E_TESTS_DISABLED
-        ? []
+    projects: E2E_TESTS_STATIC
+        ? [
+              {
+                  name: "chromium",
+                  use: { browserName: "chromium" },
+                  testMatch: ["spec/static-page/*.spec.ts"],
+              },
+          ]
         : [
               { name: "setup", testMatch: /\w+\.setup\.ts$/ },
               // We have a suite of tests that are ONLY checking links so to
