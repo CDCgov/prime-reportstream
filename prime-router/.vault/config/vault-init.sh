@@ -19,9 +19,9 @@ sleep 5
 
 # --- AUTOMATED INITIALIZATION AND UNSEALING ---
 
-if [ -s "/vault/file/core/keyring" ]; then
+if [ -s "/vault/file/core/_keyring" ]; then
     echo "Vault is already initialized. Unsealing..."
-    
+
     # Ensure .env.local exists for existing vault
     if [ ! -f "/vault/env/.env.local" ] && [ -f "/vault/file/keys.txt" ]; then
         echo "Creating missing .env.local from existing vault keys..."

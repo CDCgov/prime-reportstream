@@ -1,101 +1,363 @@
-# Prime Router Infrastructure Validation
+# Prime Router Dockerized Local Development Environment
+
+Fully containerized Router, with complete supporting infrastructure for local development and testing.  All modes should auto-detect and handle platform appropriately architecture.  Azure Functions are not available in ARM64 flavor, but AMD64 will work fine on Apple Silicon.
 
 ---
 
-## Quick Start
-
-### Essential Commands
-
-```bash
-# Basic validation (45 seconds)
-./validate-secure-multiarch.sh
-
-# Security validation (3 minutes) - auto-selects rs-infra
-./validate-secure-multiarch.sh --sec --platform=linux/amd64
-
-# Complete test suite (7 minutes)
-./validate-secure-multiarch.sh --full-gradle-tests
-
-# End-to-end API testing (5 minutes) - auto-selects gradle-infra
-./validate-secure-multiarch.sh --e2e-tests
-
-# Fast E2E with rs-infrastructure (~3 minutes)
-./validate-secure-multiarch.sh --e2e-tests --rs-infra
-
-# Infrastructure mode override examples
-./validate-secure-multiarch.sh --sec --gradle-infra   # Override auto-selection
-./validate-secure-multiarch.sh --e2e-tests --rs-infra  # Fast vault mode
-```
-
-### Prerequisites
+## Prerequisites
 
 - Docker Desktop running
 - Azure Functions Core Tools 4.2.2+ installed
-- Suffficient disk space (4GB+ for image builds)
-- Ensure your shell is in `prime-router` directory before execution
+- Suffficient disk space (5GB+ for image builds)
+- Ensure your shell is in the `prime-router/` directory before execution
+- [Chainguard free account with credentials for base images](https://console.chainguard.dev/) (SSO with Github)
 
 ---
 
-## Validation Modes
+### Supported Architectures
 
-### Basic Validation (No Flags)
+Supports and auto-selects appropriate amd64 and arm64 architectures, the following flags can be used to force architecture.
 
-**Purpose**: Daily development validation 
-**Infrastructure**: PostgreSQL + standard Docker Compose services 
-**Testing**: API responsiveness, lookup tables, HL7/FHIR submissions, organization settings
+```sh
+ --platform=linux/amd64  # Full image + Azure Functions scanning
+ --platform=linux/arm64  # Base components only (Apple Silicon)
+```
 
-**Use Cases**:
+## Iterative Development
 
-- Pre-commit validation
-- Quick API health check 
-- Daily development workflow
-- Basic infrastructure verification
+### Initial Setup with LDE Validation
+
+```sh
+  ./validate-secure-multiarch.sh
+```
+
+What happens:
+
+- Builds all images (PostgreSQL, Prime Router, SFTP)
+- Runs migrations and generates jOOQ classes
+- Starts infrastructure (PostgreSQL, Vault, Azurite, SFTP)
+- Loads lookup tables and organization settings
+- Loads SFTP credentials to Vault (DEFAULT-SFTP: foo/pass)
+- Builds the router and runs tests against it
+- Keeps the Docker infrastructure running at the end
+
+### Iteration (code/build/test cycles)
+
+```sh
+  ./validate-secure-multiarch.sh --fast
+```
+
+What happens:
+
+- Skips: Infrastructure setup (reuses running containers)
+- Skips: Database migrations (schema unchanged)
+- Regenerates: jOOQ classes (fast, usually cached)
+- Rebuilds: Fat JAR with your code changes
+- Rebuilds: Hardened Docker image
+- Runs: Quick unit tests by default
+- Keeps: Infrastructure running for next iteration
+
+### API Execution Modes
+
+The script supports two ways to run the Prime Router API:
+
+#### Gradle API (Default - Fast Development)
+
+```sh
+./validate-secure-multiarch.sh
+./validate-secure-multiarch.sh --fast
+```
+
+Uses:
+- Java process on host (not containerized)
+- Fast startup (~30 seconds)
+- Direct log output to gradle-output.log
+- Easy debugging with IDE
+
+Best for:
+- Code iteration during development
+- Quick testing of code changes
+- Debugging issues
+- Fast feedback loops
+
+#### Containerized API (Production-Like Validation)
+
+```sh
+./validate-secure-multiarch.sh --use-container
+./validate-secure-multiarch.sh --fast --use-container
+```
+
+Uses:
+- rs-prime-router-hardened Docker container
+- Slower startup (~60-90 seconds)
+- Tests actual hardened image
+- Production-like environment
+
+Best for:
+- Validating hardened Docker image
+- Pre-deployment testing
+- Container configuration validation
+- Production parity testing
+- Security validation of final artifact
+
+#### Choosing the Right Mode
+
+During development:
+- Use Gradle API (default) for fast iterations
+- Switch to container before commits for image validation
+
+Before committing:
+```sh
+# Test code with Gradle
+./validate-secure-multiarch.sh --fast --full-gradle-tests
+
+# Validate container image
+./validate-secure-multiarch.sh --use-container
+```
+
+Before deploying:
+```sh
+# Full container validation
+./validate-secure-multiarch.sh --use-container --e2e-tests --sec
+```
+
+### Testing options
+
+Full Gradle test suite:
+
+```sh
+  ./validate-secure-multiarch.sh --fast --full-gradle-tests
+```
+
+E2E tests:
+
+```sh
+  ./validate-secure-multiarch.sh --fast --e2e-tests
+```
+
+Just linting:
+
+```sh
+  ./validate-secure-multiarch.sh --fast --lint
+```
+
+With security scanning:
+
+```sh
+  ./validate-secure-multiarch.sh --fast --sec
+```
+
+Auto-fix code style violations:
+
+```sh
+  ./validate-secure-multiarch.sh --lint-fix
+```
+
+What happens:
+
+- Runs ktlintFormat to auto-fix violations
+- Verifies all checks pass after fixes
+- Reports any remaining issues that need manual intervention
+
+Reset database (clean + migrate):
+
+```sh
+  ./validate-secure-multiarch.sh --reset-db
+  ./validate-secure-multiarch.sh --fast --reset-db
+```
+
+What happens:
+
+- Drops all database objects (flywayClean)
+- Re-creates schema from migrations (flywayMigrate)
+- Ensures truly fresh database state
+- Useful when schema drift suspected
+
+Check Infrastructure Status
+
+```sh
+  ./validate-secure-multiarch.sh --infra
+```
+
+What happens:
+
+- Shows running containers and their status
+- Lists all configured services in docker-compose
+- Checks port availability (5432, 8200, 10000-10002, 2222, etc.)
+- Displays helpful commands for next steps
+- Exits without making changes
+
+Full Cleanup When Done
+
+```sh
+  ./validate-secure-multiarch.sh --clean
+```
+
+What happens:
+
+- Stops all Gradle/API processes
+- Stops all containers (PostgreSQL, Vault, Azurite, SFTP)
+- Complete teardown
+- Clean slate
+
+---
+
+### Typical Development Workflow
+
+1. Initial setup (once per session)
+
+```sh
+  ./validate-secure-multiarch.sh
+```
+
+2. Edit code in src/main/kotlin/
+
+3. Quick test
+
+```sh
+  ./validate-secure-multiarch.sh --fast
+```
+
+4. Edit more code
+
+5. Quick test again
+
+```sh
+  ./validate-secure-multiarch.sh --fast
+```
+
+6. Run full tests before committing
+
+```sh
+  ./validate-secure-multiarch.sh --fast --full-gradle-tests
+```
+
+7. Check infrastructure status (as needed)
+
+```sh
+# Check what's running
+./validate-secure-multiarch.sh --infra
+```
+
+8. Clean tests (as needed)
+
+```sh
+# Clean test artifacts (preserves build cache)
+./validate-secure-multiarch.sh --clean-tests
+```
+
+9. When done, clean up
+
+```sh
+ ./validate-secure-multiarch.sh --clean
+```
+
+#### What Gets Cleaned Out vs Kept
+
+Running the script without any flags, the script performs a minimal cleanup:
+
+- STOPPED: Gradle API process, Azure Functions, JMX, debug processes
+- KEPT RUNNING: PostgreSQL, Vault, Azurite, SFTP containers
+- KEPT: Build artifacts, jOOQ classes, Docker images
+
+
+After `--fast` iteration:
+
+- STOPPED: Gradle processes (if any were started)
+- KEPT RUNNING: All infrastructure
+- UPDATED: JAR file, Docker image with code changes
+
+After `--clean`:
+
+- STOPPED: Everything
+- REMOVED: All containers
+- KEPT: Build artifacts
+
+After `--infra`:
+
+- READ-ONLY: Shows status without changes
+- Displays: Running containers, configured services, port usage
+- Exits: No cleanup or modifications
 
 ### Security Validation (--sec)
 
-**Purpose**: Vulnerability assessment and compliance 
-**Infrastructure**: None (image-only scanning) 
-**Analysis**: JAR-by-JAR CVE analysis with MEDIUM,HIGH,CRITICAL severities
+Vulnerability assessment and compliance:
+Image scanning, JAR-by-JAR CVE analysis with MEDIUM,HIGH,CRITICAL severities
 
-**Platform Options**:
+### Full Gradle Test Suite (--full-gradle-tests)
 
-```bash
---sec --platform=linux/amd64  # Full image + Azure Functions scanning
---sec --platform=linux/arm64  # Base components only (Apple Silicon)
-```
-
-**Use Cases**:
-
-- Pre-deployment security validation
-- CI/CD security gates 
-- Compliance reporting
-- CVE tracking and reduction verification
-
-### Full Gradle Test Suite (--full-gradle-tests) 
-
-**Purpose**: Complete code quality validation 
-**Infrastructure**: PostgreSQL only (test-optimized) 
-**Testing**: 1338 unit tests + 430 integration tests + JaCoCo coverage
-
-**Use Cases**:
-
-- Pre-commit complete validation
-- Release qualification testing
-- Code coverage analysis
-- Quality assurance workflows
+Complete code quality validation with PostgreSQL only,unit tests + integration tests + JaCoCo coverage
 
 ### End-to-End Testing (--e2e-tests)
 
-**Purpose**: Data pipeline and API integration validation 
-**Infrastructure**: Full Docker Compose stack 
-**Testing**: API health, database ops, HL7/FHIR submissions, infrastructure integration
+Data pipeline and API integration validation using full Docker Compose stack, checks API health, database ops, HL7/FHIR submissions, infrastructure integration.
 
-**Use Cases**:
+### Code Quality Validation (--lint, --lint-fix)
 
-- Feature validation after changes
-- Integration testing
-- Data pipeline verification 
-- API functionality validation
+#### Run the linter
+
+```sh
+./validate-secure-multiarch.sh --lint
+```
+
+Validates code formatting with ktlintCheck, reports violations, exits with error if issues found.
+
+#### Auto-fix code style
+
+```sh
+./validate-secure-multiarch.sh --lint-fix
+```
+
+Automatically fixes formatting violations with ktlintFormat, then verifies all checks pass. Reports any remaining issues that need manual intervention.
+
+### Database Management (--reset-db)
+
+Resetting the DB dataset
+
+```sh
+# quick DB reset + reload data without stopping the Postgres container
+./validate-secure-multiarch.sh --fast --reset-db
+```
+
+
+```sh
+# full DB container reset, flyway migration
+./validate-secure-multiarch.sh --reset-db
+```
+
+
+Drops all database objects and re-creates schema from migrations. Useful when:
+
+- Schema drift suspected
+- Need to test migrations from clean state
+- Stale objects causing test failures
+
+Note: Default behavior removes Docker volumes for fresh database. Use --reset-db when keeping existing volumes but wanting fresh schema.
+
+### SFTP Credentials
+
+The script automatically loads SFTP credentials to Vault during initial setup:
+
+- Credential name: DEFAULT-SFTP
+- Username: foo
+- Password: pass
+- Upload directory: /home/foo/upload
+
+Required for some SFTP delivery tests.
+
+Verify credential loaded:
+
+```sh
+docker exec rs-vault vault kv get secret/DEFAULT-SFTP
+```
+
+Test SFTP access:
+```sh
+sftp -P 2222 foo@localhost
+# Password: pass
+cd upload
+put test.txt
+```
 
 ---
 
@@ -103,9 +365,13 @@
 
 ### Infrastructure Selection Flags
 
-**New in 2025**: Infrastructure-based testing division with intelligent switching
+Infrastructure-based testing division with automatic environment switching.
 
-```bash
+Rs-Infrastructure (`--rs-infra`) uses: rs-postgresql, rs-vault, rs-azurite, rs-sftp.
+
+Gradle-Infrastructure (`--gradle-infra`) uses rs-postgresql + rs-vault + standard services.
+
+```sh
 # Force rs-infrastructure (pure rs- ecosystem)
 ./validate-secure-multiarch.sh --e2e-tests --rs-infra
 
@@ -117,27 +383,13 @@
 ./validate-secure-multiarch.sh --e2e-tests # → gradle-infra
 ```
 
-#### Infrastructure Modes
-
-**Rs-Infrastructure (`--rs-infra`)**:
-
-- **Components**: rs-postgresql, rs-vault (dev mode), rs-azurite, rs-sftp
-- **Benefits**: Fast vault, predictable timing
-- **Use Cases**: Security scanning, container testing, performance validation
-
-**Gradle-Infrastructure (`--gradle-infra`)**:
-
-- **Components**: rs-postgresql + prime-router-vault + standard services
-- **Benefits**: CLI compatibility, existing test integration
-- **Use Cases**: Standard development, E2E testing, Gradle workflows
-
 ### Flag Combinations
 
-```bash
-# Security scanning with rs-infrastructure (recommended)
+```sh
+# Security scanning incl. rs-infrastructure
 ./validate-secure-multiarch.sh --sec --rs-infra
 
-# E2E testing with fast vault
+# E2E testing with containerized infra
 ./validate-secure-multiarch.sh --e2e-tests --rs-infra
 
 # Standard development workflow
@@ -147,181 +399,13 @@
 ./validate-secure-multiarch.sh --e2e-tests --verbose
 ```
 
-### Platform-Specific Usage
-
-**Apple Silicon**:
-
-```bash
-# Security scanning (native ARM64)
-./validate-secure-multiarch.sh --sec --platform=linux/arm64
-
-# API testing (auto-corrected to AMD64 for Azure Functions) 
-./validate-secure-multiarch.sh --e2e-tests
-
-# All modes should auto-detect and handle platform appropriately
-```
-
-**Intel/AMD Machines**:
-
-No `--platform=...` flag necessarty.
-
-```bash
-# All modes work natively without platform specification
-./validate-secure-multiarch.sh --full-gradle-tests
-./validate-secure-multiarch.sh --e2e-tests --sec
-```
-
----
-
-## Infrastructure Testing Scenarios
-
-### Security-Focused Testing
-
-```bash
-# Security scanning (auto-selects rs-infra)
-./validate-secure-multiarch.sh --sec
-
-# Container security validation
-./validate-secure-multiarch.sh --container-api-tests --rs-infra
-
-# Override for standard environment testing
-./validate-secure-multiarch.sh --sec --gradle-infra
-```
-
-### Performance Testing
-
-```bash
-# Fast E2E with reliable vault (~20 minutes)
-./validate-secure-multiarch.sh --e2e-tests --rs-infra
-
-# Standard E2E with full features
-./validate-secure-multiarch.sh --e2e-tests --gradle-infra
-
-# Lightweight testing
-./validate-secure-multiarch.sh --e2e-lite --rs-infra
-```
-
-### Development Workflows
-
-```bash
-# Fast development cycle
-./validate-secure-multiarch.sh --e2e-lite --rs-infra
-
-# Standard development
-./validate-secure-multiarch.sh --e2e-lite --gradle-infra
-
-# Gradle compatibility testing
-./validate-secure-multiarch.sh --full-gradle-tests --gradle-infra
-```
-
----
-
-## Integration with Development Workflow
-
-**Josh, Bill** - please keep me honest here, it's how I feel, so please let me know if your day-to-day workflow is different than the below
-
-### Pre-Commit Validation
-
-```bash
-# Quick validation before commits
-./validate-secure-multiarch.sh
-
-# Complete validation for major changes
-./validate-secure-multiarch.sh --full-gradle-tests --gradle-infra
-
-# Security validation before commits
-./validate-secure-multiarch.sh --sec
-```
-
-### Feature Development
-
-```bash
-# After API changes (fast validation)
-./validate-secure-multiarch.sh --e2e-tests --rs-infra
-
-# After API changes (standard validation)
-./validate-secure-multiarch.sh --e2e-tests --gradle-infra
-
-# After dependency updates
-./validate-secure-multiarch.sh --sec --platform=linux/amd64
-
-# Infrastructure changes validation
-./validate-secure-multiarch.sh --container-api-tests --rs-infra
-```
-
-### Release Preparation 
-
-```bash
-# Complete validation suite (fast)
-./validate-secure-multiarch.sh --e2e-tests --full-gradle-tests --rs-infra
-
-# Complete validation suite (standard)
-./validate-secure-multiarch.sh --e2e-tests --full-gradle-tests --gradle-infra
-
-# Security compliance check
-./validate-secure-multiarch.sh --sec --platform=linux/amd64
-
-# Infrastructure validation
-./validate-secure-multiarch.sh --container-api-tests --rs-infra
-```
-
----
-
-## Output and Reporting
-
-Once this is validated and matured, I can hide some testing output to only show tests that error out.
-
-### Validation Reports
-
-- **validation-report.txt**: Validation summary
-- **build/reports/tests/test/index.html**: Unit test results (after --full-gradle-tests)
-- **build/reports/jacoco/test/html/index.html**: Code coverage analysis
-
-### Log Files (Auto-Generated)
-
-- **gradle-output.log**: Gradle execution details (API testing)
-- **full-security-scan.log**: Detailed Trivy output (after --sec)
-
-### Cleanup
-
-```bash
-# Clean test artifacts (preserves build cache)
-./validate-secure-multiarch.sh --clean-tests
-```
-
----
-
-## Understanding Validation Results
-
-### Success Indicators
-
-- **Clean execution**: No warnings or errors in output
-- **Validation summary**: "Multi-architecture infrastructure validation PASSED" 
-- **Test results**: Specific test counts and success rates displayed
-- **Security results**: CVE counts and vulnerability details shown
-
-### Infrastructure Components Validated
-
-- **PostgreSQL**: Wolfi-based build
-- **Prime Router API**: Azure Functions with 75 endpoint configurations
-- **Docker infrastructure**: Vault, Azurite, SFTP, SOAP/REST webservices
-- **Multi-platform images**: ARM64 and AMD64 containers
-
-### API Testing Scope
-
-- **Health verification**: Endpoint responsiveness and connectivity
-- **Data operations**: Lookup table loading and organization settings
-- **Message processing**: Real HL7 and FHIR message submissions 
-- **Response validation**: Report IDs, submission IDs, status verification
-- **Pipeline integration**: End-to-end data flow through infrastructure
-
 ---
 
 ## Troubleshooting
 
 ### Infrastructure Mode Issues
 
-```bash
+```sh
 # Switch between infrastructure modes
 ./validate-secure-multiarch.sh --e2e-tests --rs-infra   # Use rs-infrastructure
 ./validate-secure-multiarch.sh --e2e-tests --gradle-infra # Use gradle-infrastructure
@@ -333,7 +417,7 @@ docker-compose -f docker-compose.secure-multiarch.yml down
 
 ### Vault Issues
 
-```bash
+```sh
 # Rs-infrastructure: Fast, reliable dev mode vault
 ./validate-secure-multiarch.sh --e2e-tests --rs-infra
 
@@ -346,81 +430,63 @@ docker-compose -f docker-compose.secure-multiarch.yml down
 
 ### Port Conflicts
 
-```bash
+```sh
 # Check for conflicts (auto-detects and reports)
 ./validate-secure-multiarch.sh
 
 # Manual cleanup
-docker-compose down --remove-orphans # Stop this project's containers
-pkill -f "gradlew.*run"        # Stop Gradle processes
+docker-compose -f docker-compose.secure-multiarch.yml down --remove-orphans 
+# Stop this project's containers
+./validate-secure-multiarch.sh --clean
+# Stop Gradle processes
+pkill -f "gradlew.*run"        
 
 # Clean up rs-infrastructure
 docker-compose -f docker-compose.secure-multiarch.yml down
 ```
 
-### Performance Issues
-
-```bash
-# For faster testing, use rs-infrastructure
-./validate-secure-multiarch.sh --e2e-tests --rs-infra
-
-# Check Docker space
-docker system df
-
-# Clean if needed (CAREFUL - only if no other projects affected)
-docker system prune -f
-
-# Infrastructure-specific performance
-# Rs-infra: ~20 minutes for E2E (fast vault)
-# Gradle-infra: Longer due to vault complexity
-```
-
 ### Build Issues
 
-```bash
+```sh
 # Force clean rebuild
 ./validate-secure-multiarch.sh --clean-tests
 docker-compose down --remove-orphans
 ```
 
----
+### Code Style Issues
 
-## Security Scanning Details
+```sh
+# Check for violations
+./validate-secure-multiarch.sh --lint
 
-- **Severity levels**: MEDIUM, HIGH, CRITICAL (project standard)
-- **Scan coverage**: OS packages, .NET components, Java JARs
-- **Platform-specific**: ARM64 base components, AMD64 full stack
-- **Infrastructure images**: PostgreSQL, Vault, Azurite, SFTP
+# Auto-fix violations
+./validate-secure-multiarch.sh --lint-fix
 
-### Resource Requirements
+# Review changes before committing
+git diff
+```
 
-- **Memory**: 4-8GB available for Docker builds and test execution
-- **CPU**: Multi-core recommended for parallel Gradle compilation
-- **Storage**: 5GB+ free space for Docker images and test artifacts
-- **Network**: Required for base image pulls and Trivy database updates
+### Database Schema Issues
 
----
+```sh
+# Force fresh schema (drops + recreates)
+./validate-secure-multiarch.sh --reset-db
 
-## Integration Notes
+# Verify schema
+docker exec rs-postgresql psql -U prime -d prime_data_hub -c "\dt"
+```
 
-### Gradle Integration
+### SFTP Authentication Issues
 
-- **Custom configuration**: Uses matts-testing build files for rs- infrastructure
-- **Environment variables**: COMPOSE_PROJECT_NAME and COMPOSE_FILE set automatically
-- **Test isolation**: Unit tests run with test-only infrastructure (PostgreSQL only)
-- **API tests**: Full infrastructure with Azure Functions for E2E validation
+```sh
+# Verify credential in Vault
+docker exec rs-vault vault kv get secret/DEFAULT-SFTP
 
-### Docker Integration 
+# Reload credential if missing
+java -jar build/libs/prime-router-0.2-SNAPSHOT-all.jar \
+  create-credential --type=UserPass --persist=DEFAULT-SFTP \
+  --user foo --pass pass
 
-- **Project isolation**: rs- prefixed containers prevent conflicts with other projects
-- **Multi-platform builds**: Supports both Apple Silicon and Intel/AMD development
-- **Security hardening**: Non-root execution, read-only mounts, minimal attack surface
-- **Clean teardown**: Project-specific cleanup prevents disrupting other work
-
-### Azure Functions Integration
-
-- **Version compatibility**: Azure Functions Core Tools 4.2.2+
-- **Platform requirements**: AMD64 for runtime (auto-corrected on Apple Silicon)
-- **Function generation**: 75 API endpoints automatically configured
-- **Development parity**: Same functions and behavior as production Azure deployment
- 
+# Test SFTP login
+sftp -P 2222 foo@localhost
+```

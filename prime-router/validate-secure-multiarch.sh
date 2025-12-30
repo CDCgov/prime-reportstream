@@ -1,9 +1,9 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Prime Router Multi-Architecture Hardened Infrastructure Validation Script
 # Supports both Apple Silicon (ARM64) and AMD64 architectures
 #
-# 
+#
 # Usage: ./validate-secure-multiarch.sh [--verbose] [--sec] [--platform=PLATFORM]
 #        --verbose: Show detailed test output
 #        --sec: Run Trivy security scans on all containers, original CVE count: 327
@@ -21,16 +21,27 @@
 
 set -e  # Exit on any error
 
+# Use standard Gradle but skip composeUp (we manage infrastructure)
+GRADLE_CMD="./gradlew"
+
 # Parse command line arguments
 SECURITY_SCAN=false
 SECURITY_ONLY=false
 CLEAN_TESTS_ONLY=false
+CLEAN_ALL=false
+FAST_MODE=false
+INFRA_STATUS=false
+USE_CONTAINER=false
+RS_INFRA=false
 VERBOSE=false
 PLATFORM=""
 API_TEST=false
 E2E_TESTS=false
 FULL_GRADLE_TESTS=false
 LINT_CHECK=false
+LINT_FIX=false
+RESET_DB=false
+DEBUG_MODE=false
 for arg in "$@"; do
     case $arg in
         --help|-h)
@@ -41,13 +52,20 @@ for arg in "$@"; do
             echo ""
             echo "Options:"
             echo "  --verbose              Show detailed test output"
+            echo "  --debug                Full Gradle debug output (very verbose, for troubleshooting)"
             echo "  --sec                  Run Trivy security scans on all containers"
-            echo "  --api-test             Test containerized API using prime_router_hardened service"
+            echo "  --rs-infra             RS-infrastructure mode (scans all local rs- images)"
+            echo "  --use-container        Run API in container (tests rs-prime-router-hardened image)"
             echo "  --e2e-tests            Run end-to-end tests (HL7/FHIR submission, data pipeline)"
-            echo "  --full-gradle-tests    Run complete Gradle test suite (1338+ tests)"
+            echo "  --full-gradle-tests    Run complete Gradle test suite"
+            echo "  --fast                 Fast iteration mode (skip infra setup, rebuild code, run tests)"
             echo "  --lint                 Run code style validation (ktlint) and exit"
+            echo "  --lint-fix             Auto-fix code style violations and verify"
+            echo "  --reset-db             Force database clean + migrate (fresh schema)"
             echo "  --platform=PLATFORM    Force specific platform (linux/amd64 or linux/arm64)"
             echo "  --clean-tests          Clean only test results and exit (preserves build artifacts)"
+            echo "  --clean                Stop all infrastructure and clean up completely"
+            echo "  --infra                Show running infrastructure status and exit"
             echo "  --help, -h             Show this help message"
             echo ""
             echo "Platform Detection:"
@@ -56,24 +74,60 @@ for arg in "$@"; do
             echo ""
             echo "What this script validates:"
             echo "   Multi-architecture hardened Docker image build"
-            echo "   Zero-CVE infrastructure (PostgreSQL, Vault, Azurite, SFTP)"
             echo "   Java 17 + Azure Functions compatibility"
             echo "   Basic API functionality (/api/check, /api/lookuptables/list)"
-            echo "   Architecture-specific performance and security"
             echo "   CDC certificate chain validation"
             echo ""
-            echo "Additional validation with flags:"
+            echo "Testing flags:"
             echo "  --e2e-tests:            Smoke tests (./gradlew testSmoke)"
-            echo "                         End-to-end tests (./gradlew testEnd2End, testEnd2EndUP)"  
+            echo "                         End-to-end tests (./gradlew testEnd2End, testEnd2EndUP)"
             echo "                         Prime CLI tests (./prime test --run end2end, end2end_up)"
             echo "                         HL7/FHIR report submissions and data pipeline validation"
             echo "  --full-gradle-tests:    Complete unit test suite (./gradlew test -Pforcetest)"
-            echo "                         Integration tests (./gradlew testIntegration)" 
+            echo "                         Integration tests (./gradlew testIntegration)"
             echo "                         All documented test suites from running-tests.md"
             echo "  --sec:                 Trivy security scanning with MEDIUM,HIGH,CRITICAL"
+            echo ""
+            echo "Fast Iteration Workflow:"
+            echo "  1. Initial run:         ./validate-secure-multiarch.sh"
+            echo "                         (Infrastructure starts and remains running)"
+            echo "  2. Edit code/tests"
+            echo "  3. Quick retest:        ./validate-secure-multiarch.sh --fast"
+            echo "                         (Rebuilds code, runs tests, reuses infrastructure)"
+            echo "  4. Repeat steps 2-3 as needed"
+            echo "  5. Full cleanup:        ./validate-secure-multiarch.sh --clean"
+            echo ""
+            echo "Example Iterations:"
+            echo "  ./validate-secure-multiarch.sh --fast --full-gradle-tests"
+            echo "  ./validate-secure-multiarch.sh --fast --e2e-tests"
+            echo "  ./validate-secure-multiarch.sh --fast --lint"
+            echo ""
+            echo "API Execution Modes:"
+            echo "  Default (Gradle API - Fast):"
+            echo "    - Java process on host"
+            echo "    - Fast startup (~30 seconds)"
+            echo "    - Best for code iteration and debugging"
+            echo "    - Usage: ./validate-secure-multiarch.sh"
+            echo "    - Usage: ./validate-secure-multiarch.sh --fast"
+            echo ""
+            echo "  Containerized API (--use-container - Production-Like):"
+            echo "    - API runs in rs-prime-router-hardened container"
+            echo "    - Slower startup (~60-90 seconds)"
+            echo "    - Tests actual hardened Docker image"
+            echo "    - Best for image validation and production parity"
+            echo "    - Usage: ./validate-secure-multiarch.sh --use-container"
+            echo "    - Usage: ./validate-secure-multiarch.sh --fast --use-container"
+            echo ""
+            echo "  When to use each:"
+            echo "    Gradle:     Code iteration, debugging, fast feedback"
+            echo "    Container:  Image validation, pre-deploy testing, production parity"
             exit 0
             ;;
         --verbose)
+            VERBOSE=true
+            ;;
+        --debug)
+            DEBUG_MODE=true
             VERBOSE=true
             ;;
         --sec)
@@ -83,7 +137,20 @@ for arg in "$@"; do
         --clean-tests)
             CLEAN_TESTS_ONLY=true
             ;;
+        --clean)
+            CLEAN_ALL=true
+            ;;
+        --infra)
+            INFRA_STATUS=true
+            ;;
+        --use-container)
+            USE_CONTAINER=true
+            ;;
+        --rs-infra)
+            RS_INFRA=true
+            ;;
         --api-test)
+            USE_CONTAINER=true
             API_TEST=true
             ;;
         --e2e-tests)
@@ -92,8 +159,21 @@ for arg in "$@"; do
         --full-gradle-tests)
             FULL_GRADLE_TESTS=true
             ;;
+        --fast)
+            FAST_MODE=true
+            ;;
+        --infra)
+            INFRA_STATUS=true
+            ;;
         --lint)
             LINT_CHECK=true
+            ;;
+        --lint-fix)
+            LINT_FIX=true
+            LINT_CHECK=true
+            ;;
+        --reset-db)
+            RESET_DB=true
             ;;
         --platform=*)
             PLATFORM="${arg#*=}"
@@ -108,17 +188,271 @@ print_warning() { echo -e "\\033[1;33mWARN: $1\\033[0m"; }
 print_error() { echo -e "\\033[1;31mERROR: $1\\033[0m"; }
 print_info() { echo -e "\\033[1;34mINFO: $1\\033[0m"; }
 
+# Helper: Show unified service status table
+show_service_status_table() {
+    print_info "Service Status:"
+    echo ""
+
+    # Get configured services from docker-compose
+    local configured_services=($(docker-compose -f docker-compose.secure-multiarch.yml config --services 2>/dev/null))
+
+    # Get running container details
+    declare -A running_containers
+    while IFS='|' read -r name status image ports; do
+        if [ -n "$name" ]; then
+            running_containers["$name"]="$status|$image|$ports"
+        fi
+    done < <(docker ps --filter "name=rs-" --format "{{.Names}}|{{.Status}}|{{.Image}}|{{.Ports}}")
+
+    # Display table
+    printf "  %-25s %-10s %-30s %-30s\n" "Service" "Status" "Container" "Image"
+    printf "  %-25s %-10s %-30s %-30s\n" "-------" "------" "---------" "-----"
+
+    for service in "${configured_services[@]}"; do
+        # Service name is already rs-prefixed (e.g., rs-postgresql)
+        container_name="$service"
+
+        if [[ -n "${running_containers[$container_name]}" ]]; then
+            IFS='|' read -r status image ports <<< "${running_containers[$container_name]}"
+            # Truncate long image names
+            if [ ${#image} -gt 28 ]; then
+                image_display="${image:0:28}.."
+            else
+                image_display="$image"
+            fi
+            printf "  %-25s %-10s %-30s %-30s\n" "$service" "RUNNING" "$container_name" "$image_display"
+        else
+            # For stopped services, check if image exists locally
+            case "$service" in
+                rs-postgresql)
+                    image="rs-postgresql:latest"
+                    ;;
+                rs-sftp)
+                    image="rs-sftp:latest"
+                    ;;
+                rs-prime-router-hardened)
+                    image="rs-prime-router-hardened:latest"
+                    ;;
+                rs-vault)
+                    image="hashicorp/vault:latest"
+                    ;;
+                rs-azurite)
+                    image="mcr.microsoft.com/azure-st.."
+                    ;;
+                rs-soap-webservice)
+                    image="castlemock/castlemock"
+                    ;;
+                rs-rest-webservice)
+                    image="mockoon/cli:latest"
+                    ;;
+                *)
+                    image="(unknown)"
+                    ;;
+            esac
+            printf "  %-25s %-10s %-30s %-30s\n" "$service" "STOPPED" "-" "$image"
+        fi
+    done
+
+    # Add API execution mode indicator
+    echo ""
+    print_info "API Execution Mode:"
+
+    # Check if API is running on port 7071
+    if lsof -i :7071 2>/dev/null | grep -q "LISTEN"; then
+        # Check if it's containerized or Gradle
+        if docker ps --filter "name=rs-prime-router-app-hardened" --filter "status=running" | grep -q rs-prime-router-app-hardened; then
+            echo "  CONTAINERIZED (rs-prime-router-app-hardened container)"
+        else
+            # It's Gradle/Java process
+            api_pid=$(lsof -i :7071 2>/dev/null | grep LISTEN | awk '{print $2}' | head -1)
+            api_process=$(lsof -i :7071 2>/dev/null | grep LISTEN | awk '{print $1}' | head -1)
+            echo "  GRADLE (host-based, $api_process PID $api_pid)"
+        fi
+    else
+        echo "  NOT RUNNING"
+    fi
+}
+
+# Helper: Show port attribution table
+show_port_status_table() {
+    print_info "Port Status:"
+    echo ""
+
+    printf "  %-7s %-20s %-45s\n" "Port" "Service" "Owner"
+    printf "  %-7s %-20s %-45s\n" "----" "-------" "-----"
+
+    declare -A port_map=(
+        ["5432"]="PostgreSQL"
+        ["8200"]="Vault"
+        ["10000"]="Azurite-Blob"
+        ["10001"]="Azurite-Queue"
+        ["10002"]="Azurite-Table"
+        ["2222"]="SFTP"
+        ["8087"]="SOAP"
+        ["3001"]="REST"
+        ["7071"]="API"
+        ["5005"]="Debug"
+        ["9090"]="JMX"
+    )
+
+    # Sort ports numerically
+    for port in $(echo "${!port_map[@]}" | tr ' ' '\n' | sort -n); do
+        service="${port_map[$port]}"
+
+        if lsof -i :$port &>/dev/null; then
+            # Port in use - identify owner (prefer LISTEN over ESTABLISHED)
+            owner_info=$(lsof -i :$port 2>/dev/null | grep LISTEN | tail -1)
+            if [ -z "$owner_info" ]; then
+                owner_info=$(lsof -i :$port 2>/dev/null | tail -1)
+            fi
+            process=$(echo "$owner_info" | awk '{print $1}')
+            pid=$(echo "$owner_info" | awk '{print $2}')
+
+            # Check if it's a docker container
+            if [ "$process" = "com.docke" ] || [ "$process" = "docker-pr" ]; then
+                # Find which container owns this port
+                container=$(docker ps --format "{{.Names}}" 2>/dev/null | while read -r name; do
+                    if docker port "$name" 2>/dev/null | grep -q ":$port"; then
+                        echo "$name"
+                        break
+                    fi
+                done)
+
+                if [ -n "$container" ]; then
+                    # Check if it's an rs- container or orphan
+                    if [[ "$container" == rs-* ]]; then
+                        printf "  %-7s %-20s %-45s\n" "$port" "$service" "$container (container)"
+                    else
+                        printf "  %-7s %-20s %-45s\n" "$port" "$service" "$container (ORPHAN)"
+                    fi
+                else
+                    printf "  %-7s %-20s %-45s\n" "$port" "$service" "Docker (unknown container)"
+                fi
+            else
+                printf "  %-7s %-20s %-45s\n" "$port" "$service" "$process (PID $pid)"
+            fi
+        else
+            printf "  %-7s %-20s %-45s\n" "$port" "$service" "Available"
+        fi
+    done
+}
+
+# Helper: Show volume status
+show_volume_status() {
+    print_info "Volume Status:"
+    echo ""
+
+    # Check if any rs- volumes exist
+    if docker volume ls --filter "name=rs-" --format "{{.Name}}" 2>/dev/null | grep -q "rs-"; then
+        # Try to show with size if supported
+        if docker volume ls --filter "name=rs-" --format "table {{.Name}}\t{{.Size}}" 2>/dev/null | grep -q "SIZE"; then
+            docker volume ls --filter "name=rs-" --format "table {{.Name}}\t{{.Size}}" | sed 's/^/  /'
+        else
+            docker volume ls --filter "name=rs-" --format "table {{.Name}}\t{{.Driver}}" | sed 's/^/  /'
+            echo ""
+            print_info "Volume sizes not available on this Docker version"
+        fi
+    else
+        print_info "No rs- volumes found"
+    fi
+}
+
+# Helper: Detect and report orphan containers
+detect_and_report_orphans() {
+    # Find all prime-router-* containers (from standard docker-compose infrastructure)
+    local orphans=($(docker ps -a --filter "name=prime-router-" --format "{{.Names}}" 2>/dev/null))
+
+    if [ ${#orphans[@]} -gt 0 ]; then
+        print_warning "Orphan containers detected (${#orphans[@]} containers from previous runs)"
+        echo ""
+        print_info "Containers: ${orphans[*]}"
+        echo ""
+        print_info "These containers use 'prime-router-' prefix (not 'rs-' from secure-multiarch)"
+        print_info "Recommended cleanup:"
+        echo "  docker-compose -f docker-compose.secure-multiarch.yml down --remove-orphans"
+        echo "  ./validate-secure-multiarch.sh --clean"
+    fi
+}
+
+# Helper: Show context-aware commands
+show_context_commands() {
+    print_info "Next Steps:"
+    echo ""
+
+    # Count running rs- containers
+    local running_count=$(docker ps --filter "name=rs-" --format "{{.Names}}" | wc -l | tr -d ' ')
+    local total_services=$(docker-compose -f docker-compose.secure-multiarch.yml config --services 2>/dev/null | wc -l | tr -d ' ')
+
+    if [ "$running_count" -eq 0 ]; then
+        print_info "No infrastructure running. To start:"
+        echo "  ./validate-secure-multiarch.sh"
+        echo ""
+        print_info "Check status:"
+        echo "  ./validate-secure-multiarch.sh --infra"
+
+    elif [ "$running_count" -lt 4 ]; then
+        print_info "Partial infrastructure running ($running_count/$total_services services)"
+        echo ""
+        print_info "Start all services:"
+        echo "  ./validate-secure-multiarch.sh"
+        echo ""
+        print_info "Or stop and clean up:"
+        echo "  ./validate-secure-multiarch.sh --clean"
+
+    else
+        print_info "Infrastructure is running ($running_count/$total_services services)"
+        echo ""
+        print_info "Available commands:"
+        echo "  Start API:       cd .. && $GRADLE_CMD :prime-router:quickRun"
+        echo "  Run validation:  ./validate-secure-multiarch.sh --fast"
+        echo "  Run tests:       ./validate-secure-multiarch.sh --fast --full-gradle-tests"
+        echo "  Stop infra:      ./validate-secure-multiarch.sh --clean"
+
+        # Check if API is running
+        if lsof -i :7071 &>/dev/null; then
+            echo ""
+            print_success "API is running on port 7071"
+            print_info "Test endpoints:"
+            echo "  curl http://127.0.0.1:7071/api/lookuptables/list"
+            echo "  curl http://127.0.0.1:7071/api"
+        fi
+    fi
+}
+
+# Show infrastructure status
+show_infrastructure_status() {
+    print_header "Infrastructure Status"
+
+    show_service_status_table
+
+    echo ""
+
+    show_port_status_table
+
+    echo ""
+
+    show_volume_status
+
+    echo ""
+
+    detect_and_report_orphans
+
+    echo ""
+
+    show_context_commands
+}
+
 # Test results management functions
 clean_test_results_only() {
     print_header "Cleaning Test Results Only"
-    
+
     # Remove test output directories but preserve build artifacts
     rm -rf build/reports/tests/ 2>/dev/null || true
     rm -rf build/test-results/ 2>/dev/null || true
     rm -rf build/reports/jacoco/ 2>/dev/null || true
     rm -rf logs/ 2>/dev/null || true
     rm -f test-results.xml 2>/dev/null || true
-    
+
     print_success "Test results cleaned (build artifacts preserved)"
     exit 0
 }
@@ -137,22 +471,170 @@ preserve_test_results() {
 # Test results management functions
 run_linting_check() {
     print_header "Code Style Validation (ktlint)"
-    
-    print_info "Running ktlint check on all source files..."
-    cd ..
-    
-    if ./gradlew :prime-router:ktlintCheck; then
-        print_success "All code style checks passed"
-        cd prime-router
-        exit 0
+
+    if [ "$LINT_FIX" = true ]; then
+        print_info "Auto-fixing code style violations..."
+        cd ..
+
+        if $GRADLE_CMD :prime-router:ktlintFormat; then
+            print_success "Code style auto-fixed"
+        else
+            print_error "Auto-fix failed"
+            cd prime-router
+            exit 1
+        fi
+
+        # Verify fixes worked
+        print_info "Verifying code style after auto-fix..."
+        if $GRADLE_CMD :prime-router:ktlintCheck; then
+            print_success "All code style checks passed after auto-fix"
+            cd prime-router
+            exit 0
+        else
+            print_warning "Some violations remain after auto-fix (manual intervention needed)"
+            print_info "Report location: build/reports/ktlint/"
+            cd prime-router
+            exit 1
+        fi
     else
-        print_error "Code style violations found"
-        print_info "Fix with: ./gradlew :prime-router:ktlintFormat"
-        print_info "Report location: build/reports/ktlint/"
-        cd prime-router
-        exit 1
+        # Original check-only behavior
+        print_info "Running ktlint check on all source files..."
+        cd ..
+
+        if $GRADLE_CMD :prime-router:ktlintCheck; then
+            print_success "All code style checks passed"
+            cd prime-router
+            exit 0
+        else
+            print_error "Code style violations found"
+            print_info "Fix with: $GRADLE_CMD :prime-router:ktlintFormat"
+            print_info "Or use: ./validate-secure-multiarch.sh --lint-fix"
+            print_info "Report location: build/reports/ktlint/"
+            cd prime-router
+            exit 1
+        fi
     fi
 }
+
+# Minimal cleanup - stops Gradle/API but keeps infrastructure running
+cleanup_minimal() {
+    print_header "Cleanup (keeping infrastructure running)"
+
+    # Kill Gradle API process if running
+    if [[ -n "${GRADLE_PID:-}" ]]; then
+        print_info "Stopping Prime Router API (Gradle process)..."
+        # Try graceful termination first
+        kill -TERM $GRADLE_PID 2>/dev/null || true
+        sleep 3
+
+        # Check if still running
+        if kill -0 $GRADLE_PID 2>/dev/null; then
+            print_info "Force killing Gradle process..."
+            kill -9 $GRADLE_PID 2>/dev/null || true
+            sleep 2
+        fi
+    fi
+
+    # Stop containerized API if running
+    if docker ps --filter "name=rs-prime-router-app-hardened" --filter "status=running" | grep -q rs-prime-router-app-hardened; then
+        print_info "Stopping containerized API (rs-prime-router-app-hardened)..."
+        docker stop rs-prime-router-app-hardened 2>/dev/null || true
+        docker rm rs-prime-router-app-hardened 2>/dev/null || true
+    fi
+
+    # Kill tail monitoring process if running
+    if [[ -n "${TAIL_PID:-}" ]]; then
+        kill $TAIL_PID 2>/dev/null || true
+    fi
+
+    # Clean up any remaining Azure Functions or Gradle processes
+    print_info "Cleaning up Gradle/Azure Functions processes..."
+    pkill -f "gradlew.*run" 2>/dev/null || true
+    pkill -f "azure-functions" 2>/dev/null || true
+    pkill -f "func host start" 2>/dev/null || true
+    pkill -f "Microsoft.Azure.WebJobs" 2>/dev/null || true
+
+    # Clean up JMX and debug port processes
+    print_info "Cleaning up JMX and debug port processes..."
+    pkill -f "java.*jmx.*9090" 2>/dev/null || true
+    pkill -f "java.*agentlib:jdwp.*5005" 2>/dev/null || true
+    pkill -f "java.*prime-router" 2>/dev/null || true
+
+    print_success "Cleanup completed - infrastructure still running"
+    print_info "Infrastructure services (PostgreSQL, Vault, Azurite, SFTP) remain active"
+    print_info "To stop infrastructure, run: ./validate-secure-multiarch.sh --clean"
+}
+
+# Full cleanup - stops everything including infrastructure
+cleanup_full() {
+    print_header "Full Cleanup (stopping all infrastructure)"
+
+    # Kill Gradle process and Azure Functions completely
+    if [[ -n "${GRADLE_PID:-}" ]]; then
+        print_info "Stopping Prime Router API (Gradle process)..."
+        # Try graceful termination first
+        kill -TERM $GRADLE_PID 2>/dev/null || true
+        sleep 3
+
+        # Check if still running
+        if kill -0 $GRADLE_PID 2>/dev/null; then
+            print_info "Force killing Gradle process..."
+            kill -9 $GRADLE_PID 2>/dev/null || true
+            sleep 2
+        fi
+    fi
+
+    # Kill tail monitoring process if running
+    if [[ -n "${TAIL_PID:-}" ]]; then
+        kill $TAIL_PID 2>/dev/null || true
+    fi
+
+    # Clean up any remaining Azure Functions or Gradle processes
+    print_info "Cleaning up any remaining Gradle/Azure Functions processes..."
+    pkill -f "gradlew.*run" 2>/dev/null || true
+    pkill -f "azure-functions" 2>/dev/null || true
+    pkill -f "func host start" 2>/dev/null || true
+    pkill -f "Microsoft.Azure.WebJobs" 2>/dev/null || true
+
+    # Clean up JMX and debug port processes
+    print_info "Cleaning up JMX and debug port processes..."
+    pkill -f "java.*jmx.*9090" 2>/dev/null || true
+    pkill -f "java.*agentlib:jdwp.*5005" 2>/dev/null || true
+    pkill -f "java.*prime-router" 2>/dev/null || true
+
+    # Stop containers gracefully using docker-compose (project-specific only)
+    print_info "Stopping this project's containers..."
+    docker-compose -f docker-compose.secure-multiarch.yml down --remove-orphans 2>/dev/null || true
+    docker-compose -f docker-compose.build.yml down 2>/dev/null || true
+
+    # Stop any manual rs- containers created by this project
+    docker stop rs-postgresql 2>/dev/null || true
+    docker rm rs-postgresql 2>/dev/null || true
+
+    # Stop only this project's containers by name filter (safer than stopping all)
+    docker stop $(docker ps -q --filter "name=prime-router-" --filter "name=rs-") 2>/dev/null || true
+    docker rm $(docker ps -aq --filter "name=prime-router-" --filter "name=rs-") 2>/dev/null || true
+
+    # Remove stale Vault env files and volume to prevent state mismatch on next run
+    print_info "Cleaning stale Vault credentials and data..."
+    rm -f .vault/env/.env.local .vault/env/key 2>/dev/null || true
+    docker volume rm rs-vault-data rs-vault-logs 2>/dev/null || true
+
+    print_success "Full cleanup completed - all infrastructure stopped"
+}
+
+# Handle infra-status flag (show infrastructure and exit)
+if [ "$INFRA_STATUS" = true ]; then
+    show_infrastructure_status
+    exit 0
+fi
+
+# Handle clean-all flag (full infrastructure cleanup)
+if [ "$CLEAN_ALL" = true ]; then
+    print_header "Full Infrastructure Cleanup"
+    cleanup_full
+    exit 0
+fi
 
 # Handle clean-tests-only flag
 if [ "$CLEAN_TESTS_ONLY" = true ]; then
@@ -165,7 +647,7 @@ if [ "$LINT_CHECK" = true ]; then
 fi
 
 print_header "Prime Router Multi-Architecture Hardened Infrastructure Validation"
-echo "Security-focused validation (orig CVEs: 327)"
+echo "Security-focused validation"
 
 # Platform detection and selection
 detect_platform() {
@@ -237,13 +719,14 @@ validate_flag_combinations() {
 validate_flag_combinations
 
 # Check for port conflicts before starting validation
+# Only runs for fresh infrastructure starts (not --sec, --fast, --infra, --clean modes)
 check_port_conflicts() {
     print_info "Checking for port conflicts..."
-    
+
     # Check critical Prime Router ports
     local ports=(5432 8200 10000 10001 10002 2222 8087 3001 5005 9090 7071)
     local conflicts_found=false
-    
+
     for port in "${ports[@]}"; do
         if lsof -i :$port &>/dev/null; then
             local process=$(lsof -i :$port | tail -1 | awk '{print $2, $1}' 2>/dev/null || echo "unknown")
@@ -251,14 +734,14 @@ check_port_conflicts() {
             conflicts_found=true
         fi
     done
-    
+
     if [ "$conflicts_found" = true ]; then
         print_warning "Port conflicts detected - this may cause validation failures"
         # I can automate this if needed but this should be a rare occurence if any
         print_info "Try:"
         print_info "  1. ./validate-secure-multiarch.sh --clean-tests  # Basic cleanup"
-        print_info "  2. pkill -f 'gradlew.*run'  # Stop Gradle processes"  
-        print_info "  3. docker-compose down  # Stop this project's containers only"
+        print_info "  2. pkill -f 'gradlew.*run'  # Stop Gradle processes"
+        print_info "  3. docker-compose -f docker-compose.secure-multiarch.yml down --remove-orphans"
         print_info "Run validation again after cleanup"
         exit 1
     else
@@ -266,7 +749,12 @@ check_port_conflicts() {
     fi
 }
 
-check_port_conflicts
+# Skip port conflict check for modes that don't start infrastructure
+if [ "$SECURITY_ONLY" = true ] || [ "$FAST_MODE" = true ] || [ "$INFRA_STATUS" = true ] || [ "$CLEAN_ALL" = true ] || [ "$CLEAN_TESTS_ONLY" = true ]; then
+    print_info "Skipping port conflict check (reusing or not starting infrastructure)"
+else
+    check_port_conflicts
+fi
 
 # Docker environment validation
 validate_docker() {
@@ -292,77 +780,91 @@ validate_docker() {
     print_success "Docker environment validated"
 }
 
-# Clean up function for containers, networks, and processes
-cleanup() {
-    print_header "Cleanup"
-    
-    # Kill Gradle process and Azure Functions completely
-    if [[ -n "${GRADLE_PID:-}" ]]; then
-        print_info "Stopping Prime Router API (Gradle process)..."
-        # Try graceful termination first
-        kill -TERM $GRADLE_PID 2>/dev/null || true
-        sleep 3
-        
-        # Check if still running
-        if kill -0 $GRADLE_PID 2>/dev/null; then
-            print_info "Force killing Gradle process..."
-            kill -9 $GRADLE_PID 2>/dev/null || true
-            sleep 2
+# Run database migrations and generate jOOQ classes
+prepare_database_and_jooq() {
+    print_header "Preparing Database Schema and jOOQ Classes"
+
+    # Check if jOOQ classes already exist (skip if already generated in this run)
+    if [ -d "build/generated-src/jooq/main" ] && [ -n "$(find build/generated-src/jooq/main -name '*.java' 2>/dev/null)" ]; then
+        local jooq_file_count=$(find build/generated-src/jooq/main -name '*.java' 2>/dev/null | wc -l | tr -d ' ')
+        if [ "$jooq_file_count" -gt 50 ]; then
+            print_success "jOOQ classes already generated ($jooq_file_count files) - skipping"
+            return 0
+        else
+            print_info "jOOQ classes incomplete ($jooq_file_count files) - regenerating..."
         fi
     fi
-    
-    # Kill tail monitoring process if running
-    if [[ -n "${TAIL_PID:-}" ]]; then
-        kill $TAIL_PID 2>/dev/null || true
-    fi
-    
-    # Clean up any remaining Azure Functions or Gradle processes
-    print_info "Cleaning up any remaining Gradle/Azure Functions processes..."
-    pkill -f "gradlew.*run" 2>/dev/null || true
-    pkill -f "azure-functions" 2>/dev/null || true
-    pkill -f "func host start" 2>/dev/null || true
-    pkill -f "Microsoft.Azure.WebJobs" 2>/dev/null || true
-    
-    # Clean up JMX and debug port processes
-    print_info "Cleaning up JMX and debug port processes..."
-    pkill -f "java.*jmx.*9090" 2>/dev/null || true
-    pkill -f "java.*agentlib:jdwp.*5005" 2>/dev/null || true
-    pkill -f "java.*prime-router" 2>/dev/null || true
-    
-    # Stop containers gracefully using docker-compose (project-specific only)
-    print_info "Stopping this project's containers..."
-    docker-compose down --remove-orphans 2>/dev/null || true
-    docker-compose -f docker-compose.secure-multiarch.yml down --remove-orphans 2>/dev/null || true
-    docker-compose -f docker-compose.build.yml down 2>/dev/null || true
-    docker-compose -f docker-compose.secure-multiarch.yml down --remove-orphans 2>/dev/null || true
-    
-    # Stop any manual rs- containers created by this project
-    docker stop rs-postgresql 2>/dev/null || true
-    docker rm rs-postgresql 2>/dev/null || true
-    
-    # Stop only this project's containers by name filter (safer than stopping all)
-    docker stop $(docker ps -q --filter "name=prime-router-" --filter "name=rs-") 2>/dev/null || true
-    docker rm $(docker ps -aq --filter "name=prime-router-" --filter "name=rs-") 2>/dev/null || true
-    
-    print_success "Cleanup completed"
-}
 
-# Set up cleanup trap
-trap cleanup EXIT
+    # Ensure PostgreSQL is running
+    if ! docker exec rs-postgresql pg_isready -U prime -d prime_data_hub &>/dev/null; then
+        if [ "$FAST_MODE" = true ]; then
+            print_error "Fast mode requires PostgreSQL to be running"
+            print_info "Start infrastructure first with: ./validate-secure-multiarch.sh"
+            exit 1
+        else
+            print_error "PostgreSQL is not running - cannot run migrations"
+            exit 1
+        fi
+    fi
+
+    # In fast mode, skip migrations unless forced
+    if [ "$FAST_MODE" = true ] && [ "$RESET_DB" != true ]; then
+        print_info "Fast mode: Skipping database migrations (using existing schema)"
+    elif [ "$RESET_DB" = true ]; then
+        print_info "Resetting database (clean + migrate)..."
+        cd ..
+        if $GRADLE_CMD :prime-router:resetDB; then
+            print_success "Database reset completed (clean + migrate)"
+        else
+            print_error "Database reset failed"
+            cd prime-router
+            exit 1
+        fi
+        cd prime-router
+    else
+        print_info "Running Flyway database migrations..."
+        cd ..
+        if $GRADLE_CMD :prime-router:flywayMigrate; then
+            print_success "Database migrations completed successfully"
+        else
+            print_error "Database migrations failed"
+            cd prime-router
+            exit 1
+        fi
+        cd prime-router
+    fi
+
+    print_info "Generating jOOQ classes from database schema..."
+    # Force clean and regenerate jOOQ classes (remove UP-TO-DATE cache)
+    print_info "Cleaning stale jOOQ generated files..."
+    rm -rf build/generated-src/jooq 2>/dev/null || true
+
+    cd ..
+    if $GRADLE_CMD :prime-router:generateJooq --rerun-tasks; then
+        print_success "jOOQ classes generated successfully"
+    else
+        print_error "jOOQ generation failed"
+        cd prime-router
+        exit 1
+    fi
+    cd prime-router
+
+    print_success "Database schema and jOOQ classes ready for compilation"
+}
 
 # Build Prime Router fat JAR with database connectivity
 build_fat_jar() {
     print_header "Building Prime Router Fat JAR"
     print_info "Building with database connectivity for migrations and jOOQ generation..."
-    
+
     cd ..
-    if ./gradlew :fatJar; then
+    if $GRADLE_CMD :prime-router:fatJar; then
         print_success "Fat JAR built successfully with database connectivity"
     else
         print_warning "Fat JAR build had issues - some features may not work"
         # Try building without database dependencies as fallback
         print_info "Attempting fallback build without database dependencies..."
-        if ./gradlew :jar; then
+        if $GRADLE_CMD :prime-router:jar; then
             print_warning "Basic JAR built - some database-dependent features may not be available"
         else
             print_error "JAR build failed completely"
@@ -370,6 +872,84 @@ build_fat_jar() {
         fi
     fi
     cd prime-router
+}
+
+# Build PostgreSQL image if not present
+build_postgresql_image() {
+    print_header "Checking PostgreSQL Image"
+
+    # Check if PostgreSQL image exists locally
+    if docker image inspect rs-postgresql:latest &>/dev/null; then
+        print_success "PostgreSQL image already exists locally"
+        return 0
+    fi
+
+    print_info "PostgreSQL image not found - building from source..."
+    print_info "Building custom PostgreSQL 16.6 (Wolfi-based)..."
+
+    # Build PostgreSQL image from operations/utils/postgres
+    pushd ../operations/utils/postgres > /dev/null || {
+        print_error "Failed to navigate to PostgreSQL build directory"
+        exit 1
+    }
+
+    if docker build --pull -f Dockerfile.postgres -t rs-postgresql:latest . ; then
+        print_success "PostgreSQL image built successfully"
+    else
+        print_error "PostgreSQL image build failed"
+        popd > /dev/null
+        exit 1
+    fi
+
+    popd > /dev/null
+
+    # Verify the image was created
+    if docker image inspect rs-postgresql:latest &>/dev/null; then
+        IMAGE_SIZE=$(docker images rs-postgresql:latest --format "{{.Size}}")
+        print_success "PostgreSQL image ready (size: $IMAGE_SIZE)"
+    else
+        print_error "PostgreSQL image build verification failed"
+        exit 1
+    fi
+}
+
+# Build SFTP image if not present
+build_sftp_image() {
+    print_header "Checking SFTP Image"
+
+    # Check if SFTP image exists locally
+    if docker image inspect rs-sftp:latest &>/dev/null; then
+        print_success "SFTP image already exists locally"
+        return 0
+    fi
+
+    print_info "SFTP image not found - building from source..."
+    print_info "Building hardened SFTP server (Wolfi-based, 0 CVEs)..."
+
+    # Build SFTP image from operations/utils/sftp
+    pushd ../operations/utils/sftp > /dev/null || {
+        print_error "Failed to navigate to SFTP build directory"
+        exit 1
+    }
+
+    if docker build --pull -f Dockerfile -t rs-sftp:latest . ; then
+        print_success "SFTP image built successfully"
+    else
+        print_error "SFTP image build failed"
+        popd > /dev/null
+        exit 1
+    fi
+
+    popd > /dev/null
+
+    # Verify the image was created
+    if docker image inspect rs-sftp:latest &>/dev/null; then
+        IMAGE_SIZE=$(docker images rs-sftp:latest --format "{{.Size}}")
+        print_success "SFTP image ready (size: $IMAGE_SIZE)"
+    else
+        print_error "SFTP image build verification failed"
+        exit 1
+    fi
 }
 
 # Build hardened multi-architecture image (requires existing JAR)
@@ -399,11 +979,77 @@ build_hardened_image() {
     # Test basic functionality
     print_info "Testing Java runtime in hardened image..."
     if docker run --rm --platform="$PLATFORM" rs-prime-router-hardened:latest java -version 2>&1 | grep -q "openjdk version"; then
-        print_success "Java 17 runtime verified in hardened image"
+        print_success "Java runtime verified in hardened image"
     else
         print_error "Java runtime test failed in hardened image"
         exit 1
     fi
+}
+
+# Prepare full infrastructure for API startup (common to both Gradle and Container modes)
+prepare_infrastructure() {
+    print_header "Preparing Full Infrastructure"
+
+    # Build all custom images
+    build_postgresql_image
+    build_sftp_image
+
+    # Start PostgreSQL for jOOQ generation
+    print_info "Starting PostgreSQL for database preparation..."
+    docker-compose -f docker-compose.secure-multiarch.yml up -d rs-postgresql
+
+    # Wait for PostgreSQL
+    print_info "Waiting for PostgreSQL to be ready..."
+    for i in {1..30}; do
+        if docker exec rs-postgresql pg_isready -U prime -d prime_data_hub &>/dev/null; then
+            print_success "PostgreSQL ready for database preparation"
+            break
+        elif [ $i -eq 30 ]; then
+            print_error "PostgreSQL failed to start within 60 seconds"
+            exit 1
+        fi
+        sleep 2
+    done
+
+    # Prepare database and jOOQ
+    prepare_database_and_jooq
+
+    # Build JAR
+    build_fat_jar
+
+    # Build hardened image
+    build_hardened_image
+
+    # Start supporting infrastructure (Vault, Azurite, SFTP, webservices)
+    print_info "Starting supporting infrastructure (Vault, Azurite, SFTP, webservices)..."
+    docker-compose -f docker-compose.secure-multiarch.yml up -d rs-vault rs-azurite rs-sftp rs-soap-webservice rs-rest-webservice
+
+    # Wait for Vault
+    print_info "Waiting for Vault to be ready..."
+    for i in {1..15}; do
+        if curl -sf http://127.0.0.1:8200/v1/sys/health 2>/dev/null | grep -q '"initialized":true'; then
+            print_success "Vault is healthy and initialized"
+            break
+        elif [ $i -eq 15 ]; then
+            print_warning "Vault health check timeout - continuing anyway"
+            break
+        fi
+        sleep 2
+    done
+
+    # Wait for Azurite
+    for i in {1..10}; do
+        if curl -sf http://127.0.0.1:10000/devstoreaccount1?comp=list &>/dev/null; then
+            print_success "Azurite is healthy"
+            break
+        elif [ $i -eq 10 ]; then
+            print_warning "Azurite health check timeout - continuing anyway"
+            break
+        fi
+        sleep 2
+    done
+
+    print_success "Infrastructure preparation complete"
 }
 
 # Security scanning function
@@ -450,64 +1096,120 @@ run_security_scans() {
     fi
     
     print_info "Scanning with severity levels: $SEVERITY_LEVELS"
-    print_info "Scanning hardened Prime Router image..."
-    
-    # Scan the hardened image
-    echo ""
-    echo "=== HARDENED PRIME ROUTER IMAGE SECURITY SCAN ==="
-    echo "Severity Levels: $SEVERITY_LEVELS"
-    echo ""
-    
-    if trivy image --severity "$SEVERITY_LEVELS" --format table \
-        --skip-files "azure-functions-host/Microsoft.Azure.WebJobs.Script.WebHost.r2r.ni.r2rmap" \
-        --skip-files "home/site/wwwroot/metadata/tables/local/LOINC.csv" \
-        --quiet \
-        rs-prime-router-hardened:latest 2>/dev/null; then
-        print_success "Security scan completed for hardened image"
+
+    # Auto-detect images based on mode
+    local detected_images=()
+
+    if [ "$RS_INFRA" = true ]; then
+        # RS-INFRA mode: Scan ALL infrastructure images (docker-compose + local rs- images)
+        print_info "RS-INFRA mode: Scanning ALL infrastructure images..."
+
+        # Get all rs- images locally
+        while IFS= read -r image; do
+            if [ -n "$image" ] && [ "$image" != "<none>" ]; then
+                detected_images+=("$image")
+            fi
+        done < <(docker images --format "{{.Repository}}:{{.Tag}}" | grep "^rs-" | sort -u)
+
+        # Get ALL images from docker-compose (vault, azurite, castlemock, mockoon, etc.)
+        if [ -f "docker-compose.secure-multiarch.yml" ]; then
+            while IFS= read -r image; do
+                if [ -n "$image" ] && [ "$image" != "<none>" ]; then
+                    if ! printf '%s\n' "${detected_images[@]}" | grep -q "^${image}$"; then
+                        detected_images+=("$image")
+                    fi
+                fi
+            done < <(docker-compose -f docker-compose.secure-multiarch.yml config 2>/dev/null | grep "image:" | awk '{print $2}' | sort -u)
+        fi
+
+        # Also get images from ALL rs- containers (running + stopped)
+        while IFS= read -r image; do
+            if [ -n "$image" ] && [ "$image" != "<none>" ]; then
+                if ! printf '%s\n' "${detected_images[@]}" | grep -q "^${image}$"; then
+                    detected_images+=("$image")
+                fi
+            fi
+        done < <(docker ps -a --filter "name=rs-" --format "{{.Image}}" | sort -u)
+
     else
-        print_warning "Security scan encountered issues for hardened image"
+        # Default mode: running containers + docker-compose config
+        print_info "Auto-detecting infrastructure images..."
+
+        # Method 1: Get images from running rs- containers
+        while IFS= read -r image; do
+            if [ -n "$image" ] && [ "$image" != "<none>" ]; then
+                detected_images+=("$image")
+            fi
+        done < <(docker ps --filter "name=rs-" --format "{{.Image}}" 2>/dev/null | sort -u)
+
+        # Method 2: Get images from docker-compose config
+        if [ -f "docker-compose.secure-multiarch.yml" ]; then
+            while IFS= read -r image; do
+                if [ -n "$image" ] && [ "$image" != "<none>" ]; then
+                    if ! printf '%s\n' "${detected_images[@]}" | grep -q "^${image}$"; then
+                        detected_images+=("$image")
+                    fi
+                fi
+            done < <(docker-compose -f docker-compose.secure-multiarch.yml config 2>/dev/null | grep "image:" | awk '{print $2}' | sort -u)
+        fi
+
+        # Method 3: Add rs-prime-router-hardened if not detected
+        if docker image inspect rs-prime-router-hardened:latest &>/dev/null; then
+            if ! printf '%s\n' "${detected_images[@]}" | grep -q "^rs-prime-router-hardened:latest$"; then
+                detected_images+=("rs-prime-router-hardened:latest")
+            fi
+        fi
     fi
-    
-    # Scan infrastructure images
-    echo ""
-    echo "=== INFRASTRUCTURE SECURITY SCANS ==="
-    echo "Severity Levels: $SEVERITY_LEVELS"
-    
-    IMAGES=(
-        "rs-postgresql:latest:Custom PostgreSQL (Wolfi-based)"
-        "rs-vault:latest:HashiCorp Vault"
-        "rs-azurite:latest:Azure Storage Emulator"  
-        "rs-sftp:latest:SFTP Server"
-    )
-    
-    for image_info in "${IMAGES[@]}"; do
-        IFS=':' read -r image description <<< "$image_info"
+
+    print_success "Detected ${#detected_images[@]} images for security scanning"
+
+    # Scan each detected image
+    local scanned_count=0
+    local skipped_count=0
+
+    for image in "${detected_images[@]}"; do
         echo ""
-        echo "--- $description ---"
+        echo "=== Scanning: $image ==="
+        echo "Severity Levels: $SEVERITY_LEVELS"
+        echo ""
+
         if docker image inspect "$image" &>/dev/null; then
-            # Test if image can be scanned without fatal errors
-            scan_output=$(trivy image --severity "$SEVERITY_LEVELS" --format table --quiet "$image" 2>&1)
+            # Test if image can be scanned without fatal errors (remove --quiet to see FATAL)
+            scan_output=$(trivy image --severity "$SEVERITY_LEVELS" --format table "$image" 2>&1)
             scan_exit_code=$?
-            
-            if [ $scan_exit_code -eq 0 ] && ! echo "$scan_output" | grep -q "FATAL\|fatal error"; then
+
+            # Check for FATAL errors first
+            if echo "$scan_output" | grep -q "FATAL"; then
+                print_info "Image scan failed with FATAL error - skipping $image"
+                skipped_count=$((skipped_count + 1))
+            elif [ $scan_exit_code -eq 0 ]; then
                 echo "$scan_output"
-                print_success " Scanned $description"
+                print_success "Scanned $image"
+                scanned_count=$((scanned_count + 1))
             elif echo "$scan_output" | grep -q "layer.*not found\|manifest.*not found\|corrupted"; then
-                print_info "Image $description has layer corruption - re-pulling and retrying..."
-                if docker pull "$image" >/dev/null 2>&1 && trivy image --severity "$SEVERITY_LEVELS" --format table --quiet "$image" 2>/dev/null; then
-                    print_success " Scanned $description (after re-pull)"
+                print_info "Image has layer corruption - re-pulling and retrying..."
+                retry_output=$(docker pull "$image" 2>&1 && trivy image --severity "$SEVERITY_LEVELS" --format table --quiet "$image" 2>&1)
+                if [ $? -eq 0 ] && ! echo "$retry_output" | grep -q "FATAL"; then
+                    echo "$retry_output"
+                    print_success "Scanned $image (after re-pull)"
+                    scanned_count=$((scanned_count + 1))
                 else
-                    print_info "Image $description scan persistently failing - skipping (known Docker/Trivy compatibility issue)"
+                    print_info "Image scan persistently failing - skipping"
+                    skipped_count=$((skipped_count + 1))
                 fi
             else
-                print_info "Image $description scan failed - skipping"
+                print_info "Image scan failed - skipping"
+                skipped_count=$((skipped_count + 1))
             fi
         else
             print_info "Image $image not found locally - skipping"
+            skipped_count=$((skipped_count + 1))
         fi
     done
-    
-    print_success "Security scanning completed with severity levels: $SEVERITY_LEVELS"
+
+    echo ""
+    print_success "Security scanning completed: $scanned_count scanned, $skipped_count skipped"
+    print_info "Severity levels: $SEVERITY_LEVELS"
 }
 
 # Start secure infrastructure with proper dependency sequencing
@@ -586,7 +1288,7 @@ start_infrastructure() {
     
     # Step 6: Start remaining services (can be parallel now)
     print_info "Starting remaining infrastructure services..."
-    docker-compose -f docker-compose.secure-multiarch.yml up -d rs-azurite rs-azurite-stage rs-sftp rs-soap-webservice rs-rest-webservice
+    docker-compose -f docker-compose.secure-multiarch.yml up -d rs-azurite rs-sftp rs-soap-webservice rs-rest-webservice
     
     # Step 7: Verify all services are healthy with proper health checks
     print_info "Verifying all infrastructure services..."
@@ -650,19 +1352,7 @@ start_infrastructure() {
         fi
         sleep 1
     done
-    
-    # Azurite Stage health check
-    for i in {1..10}; do
-        if nc -z localhost 11000 &>/dev/null; then
-            print_success "Azurite Stage is healthy and accepting connections"
-            break
-        elif [ $i -eq 10 ]; then
-            print_warning "Azurite Stage health check timeout - continuing anyway"
-            break
-        fi
-        sleep 1
-    done
-    
+
     print_success "Infrastructure startup completed with dependency sequencing"
     print_info "Ready for Gradle migrations and API startup"
 }
@@ -670,11 +1360,11 @@ start_infrastructure() {
 # Start minimal infrastructure for test execution only
 start_infrastructure_for_tests() {
     print_header "Starting Infrastructure for Testing"
-    
+
     # Start PostgreSQL only - unit tests need database connection
     print_info "Starting PostgreSQL for test database access..."
     docker-compose -f docker-compose.secure-multiarch.yml up -d rs-postgresql
-    
+
     # Wait for PostgreSQL to be ready
     print_info "Waiting for PostgreSQL to be ready for testing..."
     for i in {1..30}; do
@@ -687,59 +1377,77 @@ start_infrastructure_for_tests() {
         fi
         sleep 2
     done
-    
+
+    # Generate jOOQ classes for tests that need them
+    prepare_database_and_jooq
+
     print_success "Test infrastructure ready (PostgreSQL only - no API overhead)"
 }
 
 # Start Prime Router API using standard Gradle approach
 start_api_and_load_data() {
-    print_header "Starting Prime Router API and Loading Data"
-    
-    # Start PostgreSQL separately before Gradle (since Gradle plugin won't start it)
-    print_info "Starting PostgreSQL separately for Gradle compatibility..."
-    docker-compose -f docker-compose.secure-multiarch.yml up -d rs-postgresql
-    
-    # Wait for PostgreSQL to be ready
-    print_info "Waiting for PostgreSQL to be ready..."
-    for i in {1..30}; do
-        if docker exec rs-postgresql pg_isready -U prime -d prime_data_hub &>/dev/null; then
-            print_success "PostgreSQL is ready for Gradle"
-            break
-        elif [ $i -eq 30 ]; then
-            print_error "PostgreSQL failed to start within 60 seconds"
-            exit 1
-        fi
-        sleep 2
-    done
-    
+    print_header "Starting Prime Router API (Gradle Mode)"
+
+    # Check if PostgreSQL is already running (from prepare_infrastructure)
+    if ! docker ps --filter "name=rs-postgresql" --filter "status=running" | grep -q rs-postgresql; then
+        # Start PostgreSQL if not already running
+        print_info "Starting PostgreSQL..."
+        docker-compose -f docker-compose.secure-multiarch.yml up -d rs-postgresql
+
+        # Wait for PostgreSQL to be ready
+        for i in {1..30}; do
+            if docker exec rs-postgresql pg_isready -U prime -d prime_data_hub &>/dev/null; then
+                print_success "PostgreSQL is ready for Gradle"
+                break
+            elif [ $i -eq 30 ]; then
+                print_error "PostgreSQL failed to start within 60 seconds"
+                exit 1
+            fi
+            sleep 2
+        done
+
+        # Run database migrations and generate jOOQ classes
+        prepare_database_and_jooq
+    else
+        print_success "PostgreSQL already running (reusing from infrastructure setup)"
+    fi
+
     # Note: Using standard Gradle approach with pre-started PostgreSQL
     print_info "Starting standard Prime Router API workflow with Gradle..."
-    
+
     # Step 2: Start Prime Router API with Gradle (includes migrations with hardened PostgreSQL)
     print_info "Starting Prime Router API with Azure Functions (includes database migrations)..."
     cd ..
     
-    # Use custom rs-prime-router configuration with standard services
-    # Use environment variables for rs- prefix with standard gradle
-    print_info "Setting up rs-prime-router environment for standard Gradle..."
-    export COMPOSE_PROJECT_NAME=rs-prime-router
-    export COMPOSE_FILE=docker-compose.secure-multiarch.yml
+    # Set environment for Gradle
+    print_info "Setting up environment for Gradle..."
     export POSTGRES_URL="jdbc:postgresql://127.0.0.1:5432/prime_data_hub"
     export POSTGRES_USER="prime"
     export POSTGRES_PASSWORD="changeIT!"
-    
-    print_info "Running: ./gradlew :prime-router:quickRun (skips unit tests, starts API)"
-    
-    # Start Gradle in background without complex piping to avoid process management issues
-    ./gradlew :prime-router:quickRun > gradle-output.log 2>&1 &
-    GRADLE_PID=$!
+
+    # Skip Gradle's composeUp - we already started infrastructure
+    print_info "Running: $GRADLE_CMD :prime-router:quickRun -x composeUp (skip docker-compose, use script infrastructure)"
+
+    # Start Gradle with appropriate verbosity level
+    if [ "$DEBUG_MODE" = true ]; then
+        print_info "DEBUG MODE: Full Gradle debug output enabled"
+        print_info "Output streaming to console and gradle-output.log..."
+        $GRADLE_CMD :prime-router:quickRun -x composeUp --debug 2>&1 | tee gradle-output.log &
+        GRADLE_PID=$!
+        print_warning "Debug mode is VERY verbose - output will scroll rapidly"
+    else
+        # Start Gradle in background
+        $GRADLE_CMD :prime-router:quickRun -x composeUp > gradle-output.log 2>&1 &
+        GRADLE_PID=$!
+    fi
     cd prime-router
-    
-    # Monitor Gradle output in background for key messages (optional)
-    if [ "$VERBOSE" = true ]; then
+
+    # Monitor Gradle output in background for key messages (verbose mode, not debug)
+    if [ "$VERBOSE" = true ] && [ "$DEBUG_MODE" != true ]; then
         print_info "Monitoring Gradle output (verbose mode)..."
-        tail -f ../gradle-output.log | grep -E "(Task :|Functions\.|Started|Listening)" &
+        tail -f ../gradle-output.log | grep --line-buffered -E "(Task :|Functions\.|Started|Listening|ERROR|FAILED|Exception)" &
         TAIL_PID=$!
+        print_info "Filtered Gradle output streaming. Full log: ../gradle-output.log"
     fi
     
     # Step 3: Wait for API to be responsive (more robust checking)
@@ -750,9 +1458,48 @@ start_api_and_load_data() {
         # Check if Gradle process is still running
         if ! kill -0 $GRADLE_PID 2>/dev/null; then
             print_error "Gradle process stopped unexpectedly"
+            print_header "Gradle Error Diagnostics"
+            echo ""
+
+            # Quick error pattern detection
+            if grep -q "Port.*7071.*already in use\|Address already in use.*7071" ../gradle-output.log 2>/dev/null; then
+                print_warning "PORT 7071 CONFLICT - Another API is running"
+                print_info "Fix: pkill -f 'func host start' or lsof -i :7071"
+                echo ""
+
+            elif grep -q "e: file://.*\.kt.*Unresolved reference" ../gradle-output.log 2>/dev/null; then
+                print_warning "COMPILATION ERROR - Missing jOOQ classes or code errors"
+                print_info "First 10 compilation errors:"
+                grep "e: file://" ../gradle-output.log | head -10
+                echo ""
+
+            elif grep -q "Connection refused.*5432\|PSQLException" ../gradle-output.log 2>/dev/null; then
+                print_warning "DATABASE CONNECTION ERROR"
+                print_info "Fix: docker exec rs-postgresql pg_isready -U prime"
+                echo ""
+
+            elif grep -q "OutOfMemoryError\|Java heap space" ../gradle-output.log 2>/dev/null; then
+                print_warning "OUT OF MEMORY ERROR"
+                print_info "Fix: export GRADLE_OPTS='-Xmx4g'"
+                echo ""
+            fi
+
+            # Always show last 50 lines with errors highlighted
+            print_info "Last 50 lines of Gradle output (errors highlighted):"
+            echo ""
+            tail -50 ../gradle-output.log 2>/dev/null | grep --color=always -E "ERROR|FAILED|Exception|error:|BUILD FAILED|$" || \
+            tail -50 ../gradle-output.log 2>/dev/null
+
+            echo ""
+            print_info "Full Gradle log: $(cd .. && pwd)/gradle-output.log"
+            print_info "Analyze errors: grep -i 'error\|failed\|exception' ../gradle-output.log"
+
             exit 1
         fi
         
+        if lsof -i :7071; then
+            print_info "Port 7071 open on the host"
+        fi
         # Test basic API responsiveness with shorter timeout
         if curl --max-time 3 -sf http://127.0.0.1:7071/api/lookuptables/list &>/dev/null; then
             print_success "Prime Router API is responsive"
@@ -841,7 +1588,10 @@ start_api_and_load_data() {
     done
     
     print_success "Organization settings loaded using original script approach"
-        
+
+    # Load SFTP credentials for integration testing
+    load_sftp_credentials
+
     # Step 5: Final verification - API fully functional with data
     print_info "Performing final API functionality verification..."
     
@@ -857,6 +1607,46 @@ start_api_and_load_data() {
     fi
     
     print_success "API startup and data loading completed with full functionality verification"
+}
+
+# Load SFTP credentials to Vault for integration testing
+load_sftp_credentials() {
+    print_header "Loading SFTP Credentials to Vault"
+
+    # Verify Vault is accessible
+    if ! curl -sf http://127.0.0.1:8200/v1/sys/health &>/dev/null; then
+        print_warning "Vault not accessible - skipping SFTP credential loading"
+        return 0
+    fi
+
+    # Verify JAR exists
+    if [ ! -f "build/libs/prime-router-0.2-SNAPSHOT-all.jar" ]; then
+        print_warning "JAR not found - skipping SFTP credential loading"
+        return 0
+    fi
+
+    print_info "Creating DEFAULT-SFTP credential in Vault (user: foo, pass: pass)..."
+
+    # Load credential using Prime CLI (same as reloadCredentials Gradle task)
+    if java -jar build/libs/prime-router-0.2-SNAPSHOT-all.jar \
+        create-credential \
+        --type=UserPass \
+        --persist=DEFAULT-SFTP \
+        --user foo \
+        --pass pass >/dev/null 2>&1; then
+        print_success "SFTP credentials loaded to Vault (DEFAULT-SFTP)"
+    else
+        print_warning "SFTP credential loading failed - some SFTP integration tests may fail"
+        print_info "Verify Vault is initialized and accessible at http://127.0.0.1:8200"
+    fi
+
+    # Fix SFTP upload directory ownership (proper least privilege)
+    print_info "Setting SFTP upload directory ownership..."
+    if docker exec rs-sftp chown -R 1001:1001 /home/foo/upload 2>/dev/null; then
+        print_success "SFTP upload directory ownership configured (foo:foo)"
+    else
+        print_info "SFTP ownership update failed (container may not be running)"
+    fi
 }
 
 # Test API endpoints using validated patterns
@@ -1119,7 +1909,7 @@ run_documented_test_suites() {
     
     # Test 1: Smoke Tests (from running-tests.md)
     print_info "Running smoke tests (./gradlew testSmoke)..."
-    if ./gradlew :prime-router:testSmoke 2>/dev/null; then
+    if $GRADLE_CMD :prime-router:testSmoke 2>/dev/null; then
         print_success "Smoke tests completed successfully"
     else
         print_warning "Smoke tests had issues (may need running API)"
@@ -1127,7 +1917,7 @@ run_documented_test_suites() {
     
     # Test 2: End-to-End Tests (from running-tests.md) 
     print_info "Running end-to-end tests (./gradlew testEnd2End)..."
-    if ./gradlew :prime-router:testEnd2End 2>/dev/null; then
+    if $GRADLE_CMD :prime-router:testEnd2End 2>/dev/null; then
         print_success "End-to-end tests completed successfully"
     else
         print_warning "End-to-end tests had issues (may need running API)"
@@ -1135,7 +1925,7 @@ run_documented_test_suites() {
     
     # Test 3: End-to-End UP Tests (from running-tests.md)
     print_info "Running end-to-end UP tests (./gradlew testEnd2EndUP)..."
-    if ./gradlew :prime-router:testEnd2EndUP 2>/dev/null; then
+    if $GRADLE_CMD :prime-router:testEnd2EndUP 2>/dev/null; then
         print_success "End-to-end UP tests completed successfully"
     else
         print_warning "End-to-end UP tests had issues (may need running API)"
@@ -1143,7 +1933,7 @@ run_documented_test_suites() {
     
     # Test 4: Prime CLI End-to-End Tests
     print_info "Running Prime CLI end-to-end tests (./prime test --run end2end)..."
-    if ./gradlew :prime-router:primeCLI --args="test --run end2end" 2>/dev/null; then
+    if $GRADLE_CMD :prime-router:primeCLI --args="test --run end2end" 2>/dev/null; then
         print_success "Prime CLI E2E tests completed successfully"
     else
         print_warning "Prime CLI E2E tests had issues"
@@ -1267,11 +2057,11 @@ run_full_gradle_tests() {
     cd ..
     
     # Test 1: Unit Tests (from running-tests.md)
-    print_info "Running complete unit test suite (./gradlew :prime-router:test -Pforcetest)..."
+    print_info "Running complete unit test suite ($GRADLE_CMD :prime-router:test -Pforcetest)..."
     
     # Capture test output for failure analysis
     print_info "Executing Gradle test command with forced test execution..."
-    test_output=$(./gradlew :prime-router:test -Pforcetest 2>&1)
+    test_output=$($GRADLE_CMD :prime-router:test -Pforcetest 2>&1)
     test_exit_code=$?
     
     # Show partial output to verify tests are running
@@ -1289,7 +2079,7 @@ run_full_gradle_tests() {
     
     # Test 2: Integration Tests (from running-tests.md)
     print_info "Running integration test suite (./gradlew testIntegration)..."
-    if ./gradlew :prime-router:testIntegration 2>/dev/null; then
+    if $GRADLE_CMD :prime-router:testIntegration 2>/dev/null; then
         print_success "Integration test suite completed successfully"
     else
         print_warning "Integration tests had issues or are not available"
@@ -1299,10 +2089,16 @@ run_full_gradle_tests() {
     print_success "Full Gradle testing completed"
 }
 
-# Start and test containerized API using docker-compose.secure-multiarch.yml
-test_containerized_api() {
-    print_header "Testing Containerized Prime Router API"
-    
+# Start containerized API and load data
+start_containerized_api() {
+    print_header "Starting Containerized Prime Router API"
+
+    # Verify infrastructure is running
+    if ! docker ps --filter "name=rs-postgresql" --filter "status=running" | grep -q rs-postgresql; then
+        print_error "PostgreSQL must be running for containerized API"
+        exit 1
+    fi
+
     # Create Azure Functions structure (needed for containerized API)
     print_info "Setting up Azure Functions structure for containerized API..."
     mkdir -p build/azure-functions/prime-data-hub-router
@@ -1331,17 +2127,18 @@ EOF
     fi
     
     # Clean up any existing API container
-    docker-compose -f docker-compose.secure-multiarch.yml down prime_router_hardened 2>/dev/null || true
+    docker stop rs-prime-router-app-hardened 2>/dev/null || true
+    docker rm rs-prime-router-app-hardened 2>/dev/null || true
     sleep 2
-    
+
     print_info "Starting containerized Prime Router API..."
-    # Start the API service using the multi-arch compose file
-    docker-compose -f docker-compose.secure-multiarch.yml up -d prime_router_hardened
+    # Start the API service using the multi-arch compose file (service name)
+    docker-compose -f docker-compose.secure-multiarch.yml up -d rs-prime-router-hardened
     
     # Wait for containerized API to be ready
     print_info "Waiting for containerized Prime Router API to be ready..."
     for i in {1..40}; do
-        if curl -sf http://127.0.0.1:7071/api &>/dev/null; then
+        if curl -sf http://127.0.0.1:7071/api/lookuptables/list &>/dev/null; then
             print_success "Containerized Prime Router API is ready"
             break
         elif [ $i -eq 40 ]; then
@@ -1349,46 +2146,72 @@ EOF
             
             # Show container logs for debugging
             print_info "Checking container logs..."
-            docker-compose -f docker-compose.secure-multiarch.yml logs --tail 20 prime_router_hardened || true
-            
+            docker logs rs-prime-router-app-hardened --tail 20 || true
+
             exit 1
         else
             if [ $((i % 10)) -eq 0 ]; then
                 print_info "Still waiting for API... (attempt $i/40)"
                 # Check container status
-                if ! docker-compose -f docker-compose.secure-multiarch.yml ps prime_router_hardened | grep -q "Up"; then
+                if ! docker ps --filter "name=rs-prime-router-app-hardened" | grep -q "Up"; then
                     print_warning "Container may have stopped, checking logs..."
-                    docker-compose -f docker-compose.secure-multiarch.yml logs --tail 10 prime_router_hardened || true
+                    docker logs rs-prime-router-app-hardened --tail 10 || true
                 fi
             fi
             sleep 5
         fi
     done
-    
-    # Test containerized API endpoints
-    print_info "Testing containerized /api endpoint..."
-    if curl -sf http://127.0.0.1:7071/api | grep -q "Prime"; then
-        print_success "Containerized /api endpoint responded correctly"
-    else
-        print_error "Containerized /api endpoint test failed"
-        exit 1
-    fi
-    
+
+    # Verify key endpoints are accessible (warnings only, don't fail)
     print_info "Testing containerized /api/reports endpoint..."
     if curl -sf http://127.0.0.1:7071/api/reports &>/dev/null; then
         print_success "Containerized /api/reports endpoint is accessible"
     else
-        print_warning "Containerized /api/reports endpoint may not be fully ready"
+        print_info "Note: /api/reports endpoint may not be fully ready yet"
     fi
-    
+
     print_info "Testing containerized /api/waters endpoint..."
     if curl -sf http://127.0.0.1:7071/api/waters &>/dev/null; then
         print_success "Containerized /api/waters endpoint is accessible"
     else
-        print_warning "Containerized /api/waters endpoint may not be fully ready"
+        print_info "Note: /api/waters endpoint may not be fully ready yet"
     fi
-    
-    print_success "Containerized API testing completed"
+
+    # Load data using CLI (API is containerized, use JAR for data loading)
+    print_info "Loading lookup tables..."
+    java -jar build/libs/prime-router-0.2-SNAPSHOT-all.jar lookuptables loadall -d metadata/tables/local >/dev/null 2>&1 &
+    LOOKUP_PID=$!
+
+    for k in {1..18}; do
+        if ! kill -0 $LOOKUP_PID 2>/dev/null; then
+            print_success "Lookup tables loaded"
+            break
+        elif [ $k -eq 18 ]; then
+            print_warning "Lookup table loading timeout"
+            kill $LOOKUP_PID 2>/dev/null || true
+        fi
+        sleep 5
+    done
+
+    print_info "Loading organization settings..."
+    java -jar build/libs/prime-router-0.2-SNAPSHOT-all.jar multiple-settings set -s -i settings/organizations.yml >/dev/null 2>&1 &
+    SETTINGS_PID=$!
+
+    for j in {1..12}; do
+        if ! kill -0 $SETTINGS_PID 2>/dev/null; then
+            print_success "Organization settings loaded"
+            break
+        elif [ $j -eq 12 ]; then
+            print_warning "Settings loading timeout"
+            kill $SETTINGS_PID 2>/dev/null || true
+        fi
+        sleep 5
+    done
+
+    # Load SFTP credentials
+    load_sftp_credentials
+
+    print_success "Containerized API started and data loaded"
 }
 
 # Generate validation report
@@ -1433,12 +2256,6 @@ generate_report() {
     fi
     echo "" >> validation-report.txt
     
-    # echo "NEXT STEPS:" >> validation-report.txt
-    # echo "  1. Deploy to lower environment for full testing" >> validation-report.txt
-    # echo "  2. Run integration tests with full data pipeline" >> validation-report.txt
-    # echo "  3. Performance benchmarking against original image" >> validation-report.txt
-    # echo "  4. Security compliance validation" >> validation-report.txt
-    # echo "" >> validation-report.txt
     
     print_success "Validation report generated: validation-report.txt"
     
@@ -1449,8 +2266,11 @@ generate_report() {
     print_info "Platform: $PLATFORM"
     print_info "All core functionality validated successfully"
     echo ""
-    
+
     preserve_test_results
+
+    echo ""
+    show_infrastructure_status
 }
 
 # Main execution flow
@@ -1475,7 +2295,7 @@ main() {
         if [ ! -f "build/libs/prime-router-0.2-SNAPSHOT-all.jar" ]; then
             print_info "Building JAR for security scanning (skipping database dependencies)..."
             cd ..
-            ./gradlew :jar -x flywayMigrate -x migrate || {
+            $GRADLE_CMD :jar -x flywayMigrate -x migrate || {
                 print_warning "JAR build failed - using Docker build without local JAR"
             }
             cd prime-router
@@ -1485,43 +2305,127 @@ main() {
         return 0
     fi
     
-    if [ "$FULL_GRADLE_TESTS" = true ] && [ "$E2E_TESTS" != true ]; then
+    if [ "$FAST_MODE" = true ]; then
+        # Fast iteration mode - reuse running infrastructure
+        print_info "Fast mode: Reusing running infrastructure for quick iteration"
+
+        # Verify PostgreSQL is running
+        if ! docker exec rs-postgresql pg_isready -U prime -d prime_data_hub &>/dev/null; then
+            print_error "Fast mode requires PostgreSQL to be running"
+            print_info "Start infrastructure first with: ./validate-secure-multiarch.sh"
+            exit 1
+        fi
+        print_success "PostgreSQL detected and running"
+
+        # Check if other infrastructure services are running
+        if docker ps --filter "name=rs-vault" --filter "status=running" | grep -q rs-vault; then
+            print_success "Vault detected and running"
+        else
+            print_info "Vault not running - some features may be limited"
+        fi
+
+        # Generate jOOQ classes if needed (fast - usually cached)
+        prepare_database_and_jooq
+
+        # Rebuild JAR with code changes
+        build_fat_jar
+
+        # Rebuild hardened image with new JAR
+        build_hardened_image
+
+        # Start API based on mode (if needed for tests)
+        if [ "$E2E_TESTS" = true ] || [ "$FULL_GRADLE_TESTS" = true ]; then
+            if [ "$USE_CONTAINER" = true ]; then
+                print_info "Fast mode: Starting containerized API"
+                # Stop old container
+                docker stop rs-prime-router-app-hardened 2>/dev/null || true
+                docker rm rs-prime-router-app-hardened 2>/dev/null || true
+                # Start new container with rebuilt image
+                start_containerized_api
+            else
+                print_info "Fast mode: Starting Gradle API"
+                start_api_and_load_data
+            fi
+        fi
+
+        # Run tests based on flags
+        if [ "$FULL_GRADLE_TESTS" = true ]; then
+            run_full_gradle_tests
+        elif [ "$E2E_TESTS" = true ]; then
+            test_api_endpoints
+            run_e2e_tests
+        else
+            # Default: quick unit tests (no API needed)
+            print_info "Running quick unit tests (default in fast mode)..."
+            cd ..
+            if $GRADLE_CMD :prime-router:test; then
+                print_success "Unit tests passed"
+            else
+                print_warning "Some unit tests failed"
+            fi
+            cd prime-router
+        fi
+
+        if [ "$SECURITY_SCAN" = true ]; then
+            run_security_scans
+        fi
+
+        print_success "Fast iteration completed"
+        print_info "Infrastructure remains running for next iteration"
+
+    elif [ "$FULL_GRADLE_TESTS" = true ] && [ "$E2E_TESTS" != true ]; then
         # Test-only flow - PostgreSQL only (unit tests don't need full API)
         print_info "Using test-only infrastructure (PostgreSQL only for unit tests)"
-        
+
         # Clean up any existing containers
         print_info "Cleaning up existing containers for test execution..."
         docker-compose -f docker-compose.secure-multiarch.yml down --remove-orphans 2>/dev/null || true
         docker stop $(docker ps -q --filter "name=prime-router-" --filter "name=rs-") 2>/dev/null || true
         docker rm $(docker ps -aq --filter "name=prime-router-" --filter "name=rs-") 2>/dev/null || true
-        
+
+        build_postgresql_image  # Build PostgreSQL image if not present
+        build_sftp_image  # Build SFTP image if not present
         build_hardened_image  # Build image for security scanning
-        
+
         # Start minimal infrastructure for tests
         start_infrastructure_for_tests
         run_full_gradle_tests
-        
-    elif [ "$API_TEST" = true ]; then
-        # Use containerized API approach with rs- infrastructure
-        start_infrastructure
-        build_fat_jar
-        build_hardened_image
-        test_containerized_api
-    else
-        # Use standard Gradle approach with full API (for basic validation and E2E tests)
-        print_info "Using standard infrastructure for Gradle compatibility"
-        
-        # Clean up ALL containers that might conflict with services
-        print_info "Cleaning up all existing containers for clean Gradle execution..."
+
+    elif [ "$API_TEST" = true ] || [ "$USE_CONTAINER" = true ]; then
+        # Containerized API mode (old --api-test or new --use-container)
+        print_info "Using full infrastructure with containerized API"
+
+        # Clean up existing containers
         docker-compose -f docker-compose.secure-multiarch.yml down --remove-orphans 2>/dev/null || true
-        docker stop rs-postgresql 2>/dev/null && docker rm rs-postgresql 2>/dev/null || true
-        
-        # Also clean up any standard prime-router containers from previous runs (project-specific)
         docker stop $(docker ps -q --filter "name=prime-router-" --filter "name=rs-") 2>/dev/null || true
         docker rm $(docker ps -aq --filter "name=prime-router-" --filter "name=rs-") 2>/dev/null || true
-        
-        build_hardened_image  # Build image without rs- infrastructure dependencies
+
+        # Prepare full infrastructure (common setup)
+        prepare_infrastructure
+
+        # Start containerized API
+        start_containerized_api
+
+        # Test API endpoints
+        test_api_endpoints
+
+    else
+        # Default: Gradle API mode with FULL infrastructure stack
+        print_info "Using full infrastructure stack with Gradle API (fast, host-based)"
+
+        # Clean up ALL containers that might conflict with services
+        print_info "Cleaning up all existing containers for clean execution..."
+        docker-compose -f docker-compose.secure-multiarch.yml down --remove-orphans 2>/dev/null || true
+        docker stop $(docker ps -q --filter "name=prime-router-" --filter "name=rs-") 2>/dev/null || true
+        docker rm $(docker ps -aq --filter "name=prime-router-" --filter "name=rs-") 2>/dev/null || true
+
+        # Prepare full infrastructure (common setup)
+        prepare_infrastructure
+
+        # Start Gradle API and load data
         start_api_and_load_data
+
+        # Test API endpoints
         test_api_endpoints
         
         # Run E2E tests if requested

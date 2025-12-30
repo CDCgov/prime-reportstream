@@ -155,19 +155,15 @@ bindmount /data/docs /home/peter/docs --read-only
 
 **NOTE:** Using `mount` requires that your container runs with the `CAP_SYS_ADMIN` capability turned on. [See this answer for more information](https://github.com/atmoz/sftp/issues/60#issuecomment-332909232).
 
-## Credits
+## Thanks
 
 The SFTP image in this repository is based on the excellent work by:
 
 - <A href="https://www.chainguard.dev/">**Chainguard**</a> - providing hardened CVE-free base Wolfi image we use as the base image.
 - <a href="https://github.com/atmoz/sftp">**atmoz/sftp**</a> - on whose great work this image is modeled.
 
-Wtithout their OSS contributuions, this work would not exist - thank you for your !
+Without their OSS contributions, this work would not exist - thank you for your work!
 
 ## What version of OpenSSH do I get?
 
 The latest one available to Chainguard's Wolfi image.
-
-## Daily builds
-
-Images are automatically built daily to get the newest version of OpenSSH provided by Wolfi's package manager.

@@ -31,7 +31,8 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Properties
 
-apply(from = rootProject.file("buildSrc/shared.gradle.kts"))
+// Single-project build - don't apply parent shared config
+// apply(from = rootProject.file("buildSrc/shared.gradle.kts"))
 
 plugins {
     val kotlinVersion by System.getProperties()
@@ -42,7 +43,7 @@ plugins {
     id("com.microsoft.azure.azurefunctions") version "1.16.1"
     id("com.adarshr.test-logger") version "4.0.0"
     id("jacoco")
-    id("org.jetbrains.dokka") version "2.0.0"
+    id("org.jetbrains.dokka") version "2.1.0"
     id("com.avast.gradle.docker-compose") version "0.17.12"
     id("org.jetbrains.kotlin.plugin.serialization") version "$kotlinVersion"
     id("com.nocwriter.runsql") version ("1.0.3")
@@ -68,15 +69,10 @@ val primeMainClass = "gov.cdc.prime.router.cli.MainKt"
 val defaultDuplicateStrategy = DuplicatesStrategy.WARN
 azurefunctions.appName = azureAppName
 val appJvmTarget = JvmTarget.JVM_17
-val javaVersion = when (appJvmTarget.target) {
-    "17" -> JavaVersion.VERSION_17
-    "19" -> JavaVersion.VERSION_19
-    "21" -> JavaVersion.VERSION_21
-    else -> JavaVersion.VERSION_17
-}
-val ktorVersion = "3.2.2"
+val javaVersion = JavaVersion.VERSION_17
+val ktorVersion = "3.3.3"
 val kotlinVersion by System.getProperties()
-val jacksonVersion = "2.19.0"
+val jacksonVersion = "2.20.1"
 jacoco.toolVersion = "0.8.12"
 
 // Local database information, first one wins:
@@ -359,7 +355,7 @@ tasks.register<Copy>("copyApiSwaggerUI") {
     dependsOn("generateOpenApi")
 }
 
-tasks.withType<Test>().configureEach {
+tasks.withType<Test> {
     maxParallelForks = (Runtime.getRuntime().availableProcessors() / 2).takeIf { it > 0 } ?: 1
     if ("AzureWebJobsStorage" !in System.getenv()) {
         environment["AzureWebJobsStorage"] = "test-AzureWebJobsStorage"

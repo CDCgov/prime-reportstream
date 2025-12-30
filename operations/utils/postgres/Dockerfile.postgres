@@ -1,5 +1,5 @@
 # Builder
-FROM cgr.dev/chainguard/wolfi-base:latest@sha256:deba562a90aa3278104455cf1c34ffa6c6edc6bea20d6b6d731a350e99ddd32a AS builder
+FROM cgr.dev/chainguard/wolfi-base:latest AS builder
 
 ENV PG_VERSION=16.6
 ENV PG_SRC_DIR=/usr/local/src/postgresql
@@ -31,7 +31,7 @@ RUN wget -q https://ftp.postgresql.org/pub/source/v${PG_VERSION}/postgresql-${PG
     make install
 
 # Runtime
-FROM cgr.dev/chainguard/wolfi-base:latest@sha256:deba562a90aa3278104455cf1c34ffa6c6edc6bea20d6b6d731a350e99ddd32a
+FROM cgr.dev/chainguard/wolfi-base:latest
 
 RUN apk add --no-cache \
     bash \
