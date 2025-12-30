@@ -534,9 +534,10 @@ class ReportFunction(
         sender: Sender,
     ): HttpResponseMessage {
         // Allow only CVS.default sender to pass through and deactivate all other senders.
-        // We also allow sender organizations of igore, test, historytest, and wather
-        // to pass since they are using for smoketest for RS.
-        if (!listOf("CVS", "ignore", "test", "historytest", "waters").contains(sender.organizationName)) {
+        // We also allow sender organizations of igore and test to pass since they are using for smoketest for RS.
+        if (!listOf("test", "ignore", "waters").contains(sender.organizationName) &&
+            sender.customerStatus == CustomerStatus.INACTIVE
+        ) {
             return HttpUtilities.gone(
                 request,
                 "As part of CDC's long-term strategy to streamline data exchange, " +
