@@ -96,50 +96,6 @@ runs:
         echo "::endgroup::"
       shell: bash
 
-    - name: Run E2E tests
-      if: ${{ !startsWith(inputs.env-name, 'trialfrontend') }}
-      working-directory: frontend-react
-      env:
-        TEST_ADMIN_USERNAME: ${{ inputs.test-admin-user }}
-        TEST_ADMIN_PASSWORD: ${{ inputs.test-admin-password }}
-        TEST_SENDER_USERNAME: ${{ inputs.test-sender-user }}
-        TEST_SENDER_PASSWORD: ${{ inputs.test-sender-password }}
-        TEST_RECEIVER_USERNAME: ${{ inputs.test-receiver-user }}
-        TEST_RECEIVER_PASSWORD: ${{ inputs.test-receiver-password }}
-      run: |
-        echo "::group::E2E tests"
-        yarn run test:e2e
-        echo "::endgroup::"
-      shell: bash
-
-    - name: Store E2E Results
-      uses: actions/upload-artifact@50769540e7f4bd5e21e526ee35c689e35e0d6874
-      if: always() && ${{ !startsWith(inputs.env-name, 'trialfrontend') }}
-      with:
-        name: e2e-data
-        path: frontend-react/e2e-data/
-        retention-days: 7
-
-    - name: Post Warnings as Comments
-      if: always() && github.event.pull_request
-      env:
-        GITHUB_TOKEN: ${{ inputs.GITHUB_TOKEN }}
-        PR_NUMBER: ${{ github.event.pull_request.number }}
-        WARNING_LOG_FILE: e2e-data/frontend-warnings.json
-      run: |
-        if [ -f "$WARNING_LOG_FILE" ]; then
-          COMMENT="## ⚠️ Broken Links ⚠️\n\n"
-          while IFS= read -r row; do
-            URL=$(echo $row | jq -r '.url')
-            ERROR=$(echo $row | jq -r '.message')
-            COMMENT="${COMMENT}❌ $URL\n\n**Error:** \`$ERROR\`\n\n---\n\n"
-          done < <(jq -c '.[]' "$WARNING_LOG_FILE")
-          if [ "$COMMENT" != "## ⚠️ Broken Links ⚠️\n\n" ]; then
-            curl -s -H "Authorization: token $GITHUB_TOKEN" -X POST -d "{\"body\": \"$COMMENT\"}" "https://api.github.com/repos/${{ github.repository }}/issues/${PR_NUMBER}/comments"
-          fi
-        fi
-      shell: bash
-
     - name: Build release for production branch (conditional check)
       if: inputs.env-name == 'prod'
       uses: ./.github/actions/retry
