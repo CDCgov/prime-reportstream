@@ -12,11 +12,15 @@ dotenvflow.config({
 
 const isCi = Boolean(process.env.CI);
 
+// Skip all E2E tests - functionality has been removed for static sunset website
+const E2E_TESTS_DISABLED = true;
+
 /**
  * See https://playwright.dev/docs/test-configuration.
  */
 export default defineConfig({
     testDir: "e2e",
+    testIgnore: E2E_TESTS_DISABLED ? ["**/*.spec.ts"] : [],
     fullyParallel: true,
     forbidOnly: isCi,
     retries: isCi ? 2 : 0,
@@ -34,34 +38,36 @@ export default defineConfig({
         screenshot: "only-on-failure",
     },
 
-    projects: [
-        { name: "setup", testMatch: /\w+\.setup\.ts$/ },
-        // We have a suite of tests that are ONLY checking links so to
-        // save bandwidth, we only need to utilize a single browser
-        {
-            name: "chromium",
-            use: { browserName: "chromium" },
-            dependencies: ["setup"],
-            testMatch: [
-                "spec/all/*.spec.ts",
-                "spec/all/**/*.spec.ts",
-                "spec/chromium-only/*.spec.ts",
-                "spec/chromium-only/**/*.spec.ts",
-            ],
-        },
-        {
-            name: "firefox",
-            use: { browserName: "firefox" },
-            dependencies: ["setup"],
-            testMatch: ["spec/all/*.spec.ts", "spec/all/**/*.spec.ts"],
-        },
-        {
-            name: "webkit",
-            use: { browserName: "webkit" },
-            dependencies: ["setup"],
-            testMatch: ["spec/all/*.spec.ts", "spec/all/**/*.spec.ts"],
-        },
-    ],
+    projects: E2E_TESTS_DISABLED
+        ? []
+        : [
+              { name: "setup", testMatch: /\w+\.setup\.ts$/ },
+              // We have a suite of tests that are ONLY checking links so to
+              // save bandwidth, we only need to utilize a single browser
+              {
+                  name: "chromium",
+                  use: { browserName: "chromium" },
+                  dependencies: ["setup"],
+                  testMatch: [
+                      "spec/all/*.spec.ts",
+                      "spec/all/**/*.spec.ts",
+                      "spec/chromium-only/*.spec.ts",
+                      "spec/chromium-only/**/*.spec.ts",
+                  ],
+              },
+              {
+                  name: "firefox",
+                  use: { browserName: "firefox" },
+                  dependencies: ["setup"],
+                  testMatch: ["spec/all/*.spec.ts", "spec/all/**/*.spec.ts"],
+              },
+              {
+                  name: "webkit",
+                  use: { browserName: "webkit" },
+                  dependencies: ["setup"],
+                  testMatch: ["spec/all/*.spec.ts", "spec/all/**/*.spec.ts"],
+              },
+          ],
     webServer: {
         command: `yarn cross-env yarn run preview:build:${isCi ? "ci" : "test"}`,
         url: "http://localhost:4173",
