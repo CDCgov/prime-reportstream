@@ -42,7 +42,7 @@ jobs:
           sudo swapon --show
 
       - name: "Check out everything"
-        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8
         with:
           fetch-depth: 0
 
