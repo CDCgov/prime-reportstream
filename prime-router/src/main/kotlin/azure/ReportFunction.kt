@@ -540,19 +540,8 @@ class ReportFunction(
         ) {
             return HttpUtilities.gone(
                 request,
-                "As part of CDC's long-term strategy to streamline data exchange, " +
-                        "ReportStream is sunsetted on December 31, 2025.  ReportStream functionality " +
-                        "is transitioned to the Association of Public Health Laboratories (APHL) " +
-                        "Informatics Messaging System (AIMS) platform.  " +
-                        "For organizations interested in also transitioning to AIMS, " +
-                        "APHL will provide detailed information " +
-                        "and dedicated assistance to facilitate a smooth migration " +
-                        "for your integration.  Please use the AIMS " +
-                        "Platform Customer Portal and submit a ticket to arrange " +
-                        "your organization's onboarding to the APHL " +
-                        "AIMS platform.  If you have specific questions related " +
-                        "to the ReportStream sunset, please contact " +
-                        "OPHDST@cdc.gov with the subject line: \"ReportStream Sunset\"."
+                "ReportStream sunsetted on December 31, 2025. For more detail, please refer to the " +
+                        "https://reportstream.cdc.gov."
             )
         }
 
