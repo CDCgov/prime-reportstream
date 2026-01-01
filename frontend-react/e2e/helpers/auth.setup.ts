@@ -16,10 +16,7 @@ async function logIntoOkta(page: Page, login: TestLogin) {
     await page.goto("/login", {
         waitUntil: "domcontentloaded",
     });
-    await page
-        .getByLabel("Username")
-        .or(page.getByLabel("Username or email"))
-        .fill(login.username);
+    await page.getByLabel("Username").or(page.getByLabel("Username or email")).fill(login.username);
 
     const btnNext = page.getByRole("button", { name: "Next" });
     if (btnNext) {
@@ -31,9 +28,7 @@ async function logIntoOkta(page: Page, login: TestLogin) {
     // manually focus the field at this point
     await pwd.focus();
     await pwd.fill(login.password);
-    const btnSubmit = page
-        .getByRole("button", { name: "Sign in" })
-        .or(page.getByRole("button", { name: "Verify" }));
+    const btnSubmit = page.getByRole("button", { name: "Sign in" }).or(page.getByRole("button", { name: "Verify" }));
     await btnSubmit.click();
 
     await expect(btnSubmit).not.toBeAttached();
@@ -58,18 +53,13 @@ async function logIntoOkta(page: Page, login: TestLogin) {
  * Create sessions for all authentication scenarios. Real tests on login behavior should
  * go into a dedicated test file.
  */
-setup(
-    "create authenticated sessions",
-    async ({ page, adminLogin, senderLogin, receiverLogin }) => {
-        for (const login of [adminLogin, senderLogin, receiverLogin]) {
-            await logIntoOkta(page, login);
+setup("create authenticated sessions", async ({ page, adminLogin, senderLogin, receiverLogin }) => {
+    for (const login of [adminLogin, senderLogin, receiverLogin]) {
+        await logIntoOkta(page, login);
 
-            await page.context().storageState({ path: login.path });
-            await page.getByTestId("logout").click();
+        await page.context().storageState({ path: login.path });
+        await page.getByTestId("logout").click();
 
-            await expect(
-                page.getByRole("link", { name: "Login" }),
-            ).toBeAttached();
-        }
-    },
-);
+        await expect(page.getByRole("link", { name: "Login" })).toBeAttached();
+    }
+});

@@ -1,0 +1,88 @@
+@use "../../global-modules.scss" as *;
+
+$column-gutter: 2rem;
+
+.TableFilters {
+    :global {
+        .filter-container {
+            padding: 2rem;
+            background-color: color(blue-5);
+            margin-bottom: 64px;
+        }
+
+        .button-container {
+            display: flex;
+            align-items: flex-end;
+            justify-content: flex-end;
+            height: 100%;
+        }
+
+        .apply-button {
+            background: none;
+            border: none;
+        }
+
+        .date-picker-container {
+            display: flex;
+
+            & .usa-form-group {
+                margin-top: 0;
+            }
+        }
+
+        .usa-time-picker {
+            margin-right: 48px;
+        }
+
+        .usa-label {
+            font-weight: bold;
+        }
+
+        #receiver-hint,
+        .usa-hint__default {
+            font-size: 10px;
+            margin: 0.25rem 0 0 0;
+        }
+
+        .usa-table--borderless thead th {
+            text-wrap: nowrap;
+        }
+
+        .usa-time-picker,
+        .usa-date-picker__external-input {
+            width: 268px;
+        }
+
+        .filter-column {
+            &__one {
+                padding-right: $column-gutter;
+
+                & .usa-label {
+                    margin-top: 0;
+                }
+            }
+
+            &__two {
+                border-left: 1px solid color(gray-20);
+                border-right: 1px solid color(gray-20);
+                padding: 0 calc($column-gutter - 14px) 0 $column-gutter;
+            }
+
+            &__three {
+                padding: 0 calc($column-gutter - 14px) 0 $column-gutter;
+            }
+        }
+
+        .file-search-container {
+            // Overrides for search field
+            & .usa-button {
+                height: 40px;
+            }
+
+            & #search-field {
+                height: 40px;
+                width: 600px;
+            }
+        }
+    }
+}
