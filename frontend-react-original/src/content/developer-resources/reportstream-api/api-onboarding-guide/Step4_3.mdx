@@ -1,0 +1,27 @@
+import { CodeSnippet } from "../../../../shared";
+
+
+POST to the token URL, as in the example below, noting the following:
+1. Use Content-Type: application/x-www-form-urlencoded.
+2. In the `scope` parameter, replace the dummy string `‘healthy-labs’` with your client-id, as assigned to you by ReportStream staff.
+3. The `grant_type` and `client_assertion_type` parameters are always fixed values. The `grant_type` should be `client_credentials` and `client_assertion_type` should be `urn:ietf:params:oauth:client-assertion-type:jwt-bearer`, as in the example curl below.
+4. In the client_assertion parameter, replace the \<token-signing-secret\> below with your JWT from above.
+5. All the parameters are sent in the body/payload of the post (when using curl, via the `-d` option), not in the URL.
+Here is an example ‘curl’ POST:
+
+<CodeSnippet>
+    curl -X POST -H "Content-Type: application/x-www-form-urlencoded" -d "scope=<span className="text-highlight">healthy-labs</span>.*.report&grant_type=client_credentials&client_assertion_type=urn:ietf:params:oauth:client-assertion-type:jwt-bearer&client_assertion=&lt;token-signing-secret&gt;"
+        "https://staging.prime.cdc.gov/api/token"
+</CodeSnippet>
+
+You should get something like this back, which will be valid for five minutes:
+
+<CodeSnippet>
+    &#123;
+    &nbsp;&nbsp;"access_token": &lt;long-access-token&gt;
+    &nbsp;&nbsp;"token_type": "bearer",
+    &nbsp;&nbsp;"expires_in": 300,
+    &nbsp;&nbsp;"expires_at_seconds": 1625260982,
+    &nbsp;&nbsp;"scope": "<span className="text-highlight">healthy-labs</span>.*.report"
+    &#125;
+</CodeSnippet>

@@ -1,0 +1,44 @@
+---
+title: News
+subtitle: Learn the latest ways ReportStream is helping to improve public health
+meta:
+    title: ReportStream news
+    description: Read the latest ways ReportStream is helping to improve public health.
+    openGraph:
+        image:
+            src: /assets/img/opengraph/reportstream-tagline.png
+            altText: "ReportStream. CDC's free, single connection to streamline your data transfer and improve public health. The words are surrounded by illustration of lines and boxes connected by colorful dots."
+---
+import Sidenav from "./sidenav.mdx"
+
+import site from "../../content/site.json"
+
+<LayoutSidenav>
+<Sidenav />
+</LayoutSidenav>
+
+## Successful flu pilot prepares ReportStream to accept more reportable conditions
+
+<hr className="rs-hr--alternate" />
+
+<p className="usa-timestamp">October 06, 2023</p>
+
+The ReportStream team is excited to share that we’ve recently completed a successful pilot of reporting flu data in partnership with <A href="https://www.simplereport.gov/">SimpleReport</A> and the California Department of Public Health (CDPH).
+
+While ReportStream currently accepts COVID-19 and mpox data, we have been working to expand our ELR functionality to all types of reportable public health data and conditions. Our recent pilot of receiving and sending flu data was a critical step in building that capability.
+
+The goal of the pilot was to develop our ability to receive more than one condition and route messages based on those conditions. Building ReportStream’s FHIR capability was a major milestone in achieving this goal.
+
+Another key to our success was collaboration. While each partner played a specific role, we worked closely together to improve existing systems.
+
+SimpleReport focused on testing single entry and bulk upload of multiplex and flu tests. This involved converting SimpleReport CSV data to FHIR and sending that data to ReportStream.
+
+To prepare for adding the new condition, ReportStream, with CDPH’s assistance, worked to update the data model. Next, ReportStream accepted and validated the FHIR data from SimpleReport and converted the data to HL7. After ReportStream reformatted the data for CDPH requirements, they routed the final HL7 messages to CDPH. CDPH tested and validated the data they received through their <A href="https://www.cdph.ca.gov/Programs/CID/DCDC/Pages/CalREDIE.aspx">CalREDIE</A> system.
+
+To ensure the effectiveness of these new capabilities, the team conducted thorough end-to-end tests throughout the pilot. Regular feedback from CDPH helped SimpleReport and ReportStream improve the quality of the message being delivered to CDPH. As issues were identified, SimpleReport and ReportStream fixed any bugs and formatting issues, and implemented necessary improvements to the backend architecture.
+
+While the pilot focused on flu data, the goal was to create solutions that laid a foundation for accepting a diverse range of reportable conditions. To accomplish that, the ReportStream team built technical capabilities to support FHIR and create user-specific data models.
+
+As we celebrate the success of the flu pilot, we'll be conducting further tests on other conditions with multiple partners. We are excited for the future of scaling these results so ReportStream can send a broad range of reportable public health data.
+
+If you are interested in sending or receiving flu data, <A href={site.forms.connectWithRS.url}>connect with us</A> and we’ll discuss when and how your organization can start.
