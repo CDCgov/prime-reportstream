@@ -37,7 +37,7 @@ plugins {
     val kotlinVersion by System.getProperties()
     id("reportstream.project-conventions")
     id("org.flywaydb.flyway") version "11.8.1"
-    id("nu.studer.jooq") version "9.0"
+    id("nu.studer.jooq") version "10.2"
     id("com.github.johnrengelman.shadow") version "8.1.1"
     id("com.microsoft.azure.azurefunctions") version "1.16.1"
     id("com.adarshr.test-logger") version "4.0.0"
