@@ -540,7 +540,7 @@ class ReportFunction(
         ) {
             return HttpUtilities.gone(
                 request,
-                "ReportStream sunsetted on December 31, 2025. For more detail, please refer to the " +
+                "ReportStream sunsetted on December 31, 2025. For more detail, please refer to " +
                         "https://reportstream.cdc.gov."
             )
         }
