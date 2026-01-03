@@ -924,7 +924,7 @@ dependencies {
     implementation("com.googlecode.libphonenumber:libphonenumber:9.0.4")
     implementation("org.thymeleaf:thymeleaf:3.1.3.RELEASE")
     implementation("com.sendgrid:sendgrid-java:4.10.3")
-    implementation("com.okta.jwt:okta-jwt-verifier:0.5.7")
+    implementation("com.okta.jwt:okta-jwt-verifier:0.5.12")
     implementation("org.json:json:20250517")
     // DO NOT INCREMENT SSHJ to a newer version without first thoroughly testing it locally.
     implementation("com.hierynomus:sshj:0.40.0")
@@ -991,7 +991,7 @@ dependencies {
     implementation("com.networknt:json-schema-validator:1.5.6")
     implementation("io.konform:konform-jvm:0.11.1")
 
-    runtimeOnly("com.okta.jwt:okta-jwt-verifier-impl:0.5.7")
+    runtimeOnly("com.okta.jwt:okta-jwt-verifier-impl:0.5.12")
     runtimeOnly("com.squareup.okio:okio:3.11.0")
     runtimeOnly("io.jsonwebtoken:jjwt-impl:0.11.5")
     runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.11.5")
