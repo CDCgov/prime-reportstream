@@ -1,3 +1,16 @@
+# ⚠️ WARNING: SUNSET PAGE
+
+**This folder contains the sunset/static page version of the application.**
+
+The original React application has been backed up to `/frontend-react-original`.
+
+**To restore the original application:**
+
+1. Remove this `frontend-react` folder
+2. Rename `frontend-react-original` to `frontend-react`
+
+---
+
 # Getting started with ReportStream's React application
 
 ## Run the React application
