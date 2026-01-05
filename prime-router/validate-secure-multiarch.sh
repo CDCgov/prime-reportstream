@@ -196,14 +196,6 @@ show_service_status_table() {
     # Get configured services from docker-compose
     local configured_services=($(docker-compose -f docker-compose.secure-multiarch.yml config --services 2>/dev/null))
 
-    # Get running container details
-    declare -A running_containers
-    while IFS='|' read -r name status image ports; do
-        if [ -n "$name" ]; then
-            running_containers["$name"]="$status|$image|$ports"
-        fi
-    done < <(docker ps --filter "name=rs-" --format "{{.Names}}|{{.Status}}|{{.Image}}|{{.Ports}}")
-
     # Display table
     printf "  %-25s %-10s %-30s %-30s\n" "Service" "Status" "Container" "Image"
     printf "  %-25s %-10s %-30s %-30s\n" "-------" "------" "---------" "-----"
@@ -212,8 +204,10 @@ show_service_status_table() {
         # Service name is already rs-prefixed (e.g., rs-postgresql)
         container_name="$service"
 
-        if [[ -n "${running_containers[$container_name]}" ]]; then
-            IFS='|' read -r status image ports <<< "${running_containers[$container_name]}"
+        # Direct query - no associative array needed (bash 3.2 compatible)
+        if docker ps --filter "name=$container_name" --format "{{.Names}}" | grep -q "^$container_name$"; then
+            # Container is running - get info directly
+            image=$(docker ps --filter "name=$container_name" --format "{{.Image}}")
             # Truncate long image names
             if [ ${#image} -gt 28 ]; then
                 image_display="${image:0:28}.."
@@ -281,23 +275,11 @@ show_port_status_table() {
     printf "  %-7s %-20s %-45s\n" "Port" "Service" "Owner"
     printf "  %-7s %-20s %-45s\n" "----" "-------" "-----"
 
-    declare -A port_map=(
-        ["5432"]="PostgreSQL"
-        ["8200"]="Vault"
-        ["10000"]="Azurite-Blob"
-        ["10001"]="Azurite-Queue"
-        ["10002"]="Azurite-Table"
-        ["2222"]="SFTP"
-        ["8087"]="SOAP"
-        ["3001"]="REST"
-        ["7071"]="API"
-        ["5005"]="Debug"
-        ["9090"]="JMX"
-    )
+    # Port list (bash 3.2 compatible - no associative arrays)
+    local port_list="2222:SFTP 3001:REST 5005:Debug 5432:PostgreSQL 7071:API 8087:SOAP 8200:Vault 9090:JMX 10000:Azurite-Blob 10001:Azurite-Queue 10002:Azurite-Table"
 
-    # Sort ports numerically
-    for port in $(echo "${!port_map[@]}" | tr ' ' '\n' | sort -n); do
-        service="${port_map[$port]}"
+    for port_pair in $port_list; do
+        IFS=':' read -r port service <<< "$port_pair"
 
         if lsof -i :$port &>/dev/null; then
             # Port in use - identify owner (prefer LISTEN over ESTABLISHED)
