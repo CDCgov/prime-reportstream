@@ -1,0 +1,14 @@
+// override (change some of the defaults loaded above)
+@forward "styles/uswds_custom_theme";
+@forward "styles/uswds_settings"; // _uswds_settings.scss
+@forward "uswds";
+
+@use "uswds";
+@use "@trussworks/react-uswds/lib/index.css";
+@use "styles/uswds_overrides"; // _uswds_overrides.scss
+@use "styles/typography"; // _typography.scss
+@use "styles/reportstream"; // _reportstream.scss
+@use "styles/components";
+
+// Print styles (e.g. may be used by PDF generation)
+@use "styles/print";

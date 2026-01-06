@@ -42,7 +42,7 @@ plugins {
     id("com.microsoft.azure.azurefunctions") version "1.16.1"
     id("com.adarshr.test-logger") version "4.0.0"
     id("jacoco")
-    id("org.jetbrains.dokka") version "2.0.0"
+    id("org.jetbrains.dokka") version "2.1.0"
     id("com.avast.gradle.docker-compose") version "0.17.12"
     id("org.jetbrains.kotlin.plugin.serialization") version "$kotlinVersion"
     id("com.nocwriter.runsql") version ("1.0.3")
@@ -74,9 +74,9 @@ val javaVersion = when (appJvmTarget.target) {
     "21" -> JavaVersion.VERSION_21
     else -> JavaVersion.VERSION_17
 }
-val ktorVersion = "3.2.2"
+val ktorVersion = "3.3.3"
 val kotlinVersion by System.getProperties()
-val jacksonVersion = "2.19.0"
+val jacksonVersion = "2.20.1"
 jacoco.toolVersion = "0.8.12"
 
 // Local database information, first one wins:
@@ -854,7 +854,7 @@ buildscript {
     dependencies {
         // Now force the gradle build script to get the proper library for com.nimbusds:oauth2-oidc-sdk:9.15.  This
         // will need to be removed once this issue is resolved in Maven.
-        classpath("net.minidev:json-smart:2.5.2")
+        classpath("net.minidev:json-smart:2.6.0")
         // as per flyway v10 docs the postgres flyway module must be on the project buildpath
         classpath("org.flywaydb:flyway-database-postgresql:11.8.1")
     }
@@ -869,22 +869,22 @@ configurations {
 }
 
 dependencies {
-    jooqGenerator("org.postgresql:postgresql:42.7.7")
+    jooqGenerator("org.postgresql:postgresql:42.7.8")
 
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-common:$kotlinVersion")
     implementation("org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0")
-    implementation("com.microsoft.azure.functions:azure-functions-java-library:3.1.0")
-    implementation("com.azure:azure-core:1.55.3")
-    implementation("com.azure:azure-core-http-netty:1.16.1")
+    implementation("com.microsoft.azure.functions:azure-functions-java-library:3.2.2")
+    implementation("com.azure:azure-core:1.57.0")
+    implementation("com.azure:azure-core-http-netty:1.16.2")
     implementation("com.azure:azure-storage-blob:12.27.0") {
         exclude(group = "com.azure", module = "azure-core")
     }
     implementation("com.azure:azure-storage-queue:12.22.0") {
         exclude(group = "com.azure", module = "azure-core")
     }
-    implementation("com.azure:azure-security-keyvault-secrets:4.9.4") {
+    implementation("com.azure:azure-security-keyvault-secrets:4.10.4") {
         exclude(group = "com.azure", module = "azure-core")
         exclude(group = "com.azure", module = "azure-core-http-netty")
     }
@@ -893,14 +893,14 @@ dependencies {
         exclude(group = "com.azure", module = "azure-core-http-netty")
     }
     implementation("com.nimbusds:nimbus-jose-jwt:10.1")
-    implementation("org.apache.logging.log4j:log4j-api:2.24.3")
-    implementation("org.apache.logging.log4j:log4j-core:2.24.3")
-    implementation("org.apache.logging.log4j:log4j-slf4j2-impl:2.24.3")
-    implementation("org.apache.logging.log4j:log4j-layout-template-json:2.24.3")
+    implementation("org.apache.logging.log4j:log4j-api:2.25.2")
+    implementation("org.apache.logging.log4j:log4j-core:2.25.2")
+    implementation("org.apache.logging.log4j:log4j-slf4j2-impl:2.25.2")
+    implementation("org.apache.logging.log4j:log4j-layout-template-json:2.25.2")
     implementation("org.apache.logging.log4j:log4j-api-kotlin:1.5.0")
-    implementation("io.github.oshai:kotlin-logging-jvm:7.0.7")
+    implementation("io.github.oshai:kotlin-logging-jvm:7.0.13")
     implementation("com.github.doyaaaaaken:kotlin-csv-jvm:1.10.0")
-    implementation("tech.tablesaw:tablesaw-core:0.44.1")
+    implementation("tech.tablesaw:tablesaw-core:0.44.4")
     implementation("com.github.ajalt.clikt:clikt-jvm:5.0.3")
 
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:$jacksonVersion")
@@ -908,7 +908,7 @@ dependencies {
     implementation("com.github.javafaker:javafaker:1.0.2") {
         exclude(group = "org.yaml", module = "snakeyaml")
     }
-    implementation("org.yaml:snakeyaml:2.4")
+    implementation("org.yaml:snakeyaml:2.5")
     implementation("io.github.linuxforhealth:hl7v2-fhir-converter") {
         version {
             branch = "master"
@@ -927,30 +927,30 @@ dependencies {
     implementation("com.okta.jwt:okta-jwt-verifier:0.5.7")
     implementation("org.json:json:20250517")
     // DO NOT INCREMENT SSHJ to a newer version without first thoroughly testing it locally.
-    implementation("com.hierynomus:sshj:0.39.0")
+    implementation("com.hierynomus:sshj:0.40.0")
     implementation("com.jcraft:jsch:0.1.55")
-    implementation("org.apache.poi:poi:5.4.1")
-    implementation("org.apache.commons:commons-csv:1.14.0")
-    implementation("org.apache.commons:commons-lang3:3.18.0")
+    implementation("org.apache.poi:poi:5.5.1")
+    implementation("org.apache.commons:commons-csv:1.14.1")
+    implementation("org.apache.commons:commons-lang3:3.20.0")
     implementation("org.apache.commons:commons-text:1.13.1")
     implementation("commons-codec:commons-codec:1.18.0")
-    implementation("commons-io:commons-io:2.19.0")
-    implementation("org.postgresql:postgresql:42.7.7")
-    implementation("com.zaxxer:HikariCP:6.3.0")
+    implementation("commons-io:commons-io:2.21.0")
+    implementation("org.postgresql:postgresql:42.7.8")
+    implementation("com.zaxxer:HikariCP:7.0.2")
     implementation("org.flywaydb:flyway-core:11.8.1")
     implementation("org.flywaydb:flyway-database-postgresql:11.8.1")
-    implementation("org.commonmark:commonmark:0.24.0")
-    implementation("com.google.guava:guava:33.4.8-jre")
-    implementation("com.helger.as2:as2-lib:5.1.5")
-    implementation("org.bouncycastle:bcprov-jdk15to18:1.81")
-    implementation("org.bouncycastle:bcprov-jdk18on:1.81")
-    implementation("org.bouncycastle:bcmail-jdk15to18:1.81")
+    implementation("org.commonmark:commonmark:0.27.0")
+    implementation("com.google.guava:guava:33.5.0-jre")
+    implementation("com.helger.as2:as2-lib:5.1.7")
+    implementation("org.bouncycastle:bcprov-jdk15to18:1.83")
+    implementation("org.bouncycastle:bcprov-jdk18on:1.83")
+    implementation("org.bouncycastle:bcmail-jdk15to18:1.83")
 
     implementation("commons-net:commons-net:3.11.1")
     implementation("com.cronutils:cron-utils:9.2.1")
     implementation("io.jsonwebtoken:jjwt-api:0.11.5")
-    implementation("de.m3y.kformat:kformat:0.12")
-    implementation("io.github.java-diff-utils:java-diff-utils:4.15")
+    implementation("de.m3y.kformat:kformat:0.14")
+    implementation("io.github.java-diff-utils:java-diff-utils:4.16")
     implementation("io.ktor:ktor-client-core:$ktorVersion")
     implementation("io.ktor:ktor-client-cio:$ktorVersion")
     implementation("io.ktor:ktor-client-apache:$ktorVersion")
@@ -959,10 +959,10 @@ dependencies {
     implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
     implementation("io.ktor:ktor-serialization-kotlinx:$ktorVersion")
     implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
-    implementation("org.apache.poi:poi:5.4.1")
-    implementation("org.apache.poi:poi-ooxml:5.4.1")
-    implementation("org.apache.commons:commons-compress:1.27.1")
-    implementation("commons-io:commons-io:2.19.0")
+    implementation("org.apache.poi:poi:5.5.1")
+    implementation("org.apache.poi:poi-ooxml:5.5.1")
+    implementation("org.apache.commons:commons-compress:1.28.0")
+    implementation("commons-io:commons-io:2.21.0")
     implementation("com.anyascii:anyascii:0.3.3")
     // https://mvnrepository.com/artifact/io.swagger/swagger-annotations
     implementation("io.swagger:swagger-annotations:1.6.16")
@@ -977,7 +977,7 @@ dependencies {
     // TODO: move this to a test dependency when CompareFhirData lives under src/test
     implementation("com.flipkart.zjsonpatch:zjsonpatch:0.4.16")
 
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.1")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
 
     implementation("gov.nist:hl7-v2-validation:1.6.5") {
         // These conflict with the javax.xml.transform package available in the base JDK and need to be excluded
@@ -997,7 +997,7 @@ dependencies {
     runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.11.5")
 
     testImplementation(kotlin("test-junit5"))
-    testImplementation("io.mockk:mockk:1.14.2")
+    testImplementation("io.mockk:mockk:1.14.7")
     testImplementation("io.ktor:ktor-client-mock:$ktorVersion")
 
     implementation(project(":shared"))
