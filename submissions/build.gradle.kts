@@ -1,10 +1,10 @@
 apply(from = rootProject.file("buildSrc/shared.gradle.kts"))
 
 plugins {
-    id("org.springframework.boot") version "3.4.5"
+    id("org.springframework.boot") version "3.5.0"
     id("io.spring.dependency-management") version "1.1.7"
     id("reportstream.project-conventions")
-    kotlin("plugin.spring") version "2.1.20"
+    kotlin("plugin.spring") version "2.1.21"
 }
 
 group = "gov.cdc.prime"
@@ -15,17 +15,17 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
-    implementation("org.springframework.security:spring-security-oauth2-jose:6.4.5")
+    implementation("org.springframework.security:spring-security-oauth2-jose:6.5.0")
 
     implementation("com.azure.spring:spring-cloud-azure-starter-storage")
-    implementation("com.microsoft.azure:applicationinsights-runtime-attach:3.7.2")
-    implementation("com.microsoft.azure:applicationinsights-web:3.7.2")
+    implementation("com.microsoft.azure:applicationinsights-runtime-attach:3.7.3")
+    implementation("com.microsoft.azure:applicationinsights-web:3.7.3")
     implementation("com.microsoft.azure:applicationinsights-logging-logback:2.6.4")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.boot:spring-boot-testcontainers")
-    testImplementation("org.xmlunit:xmlunit-core:2.10.0")
+    testImplementation("org.xmlunit:xmlunit-core:2.10.2")
     testImplementation("org.mockito.kotlin:mockito-kotlin:5.4.0")
     testImplementation("org.apache.commons:commons-compress:1.27.1")
     testImplementation("org.springframework.security:spring-security-test")

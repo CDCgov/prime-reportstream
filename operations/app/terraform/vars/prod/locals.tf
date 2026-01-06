@@ -36,10 +36,13 @@ locals {
     delete_pii_storage_after_days = 60
   }
   database = {
-    database_resource_group_name = "ddphss-prim-prd-moderate-rg"
-    primary_server_name          = "dppa-prim-azpgsql-01"
-    replica_server_names         = ["dppa-prim-azpgsql-01-1", "dppa-prim-azpgsql-01-2"]
-    database_names               = ["prime_data_hub", "metabase"]
+    postgres_server_id   = "/subscriptions/7d1e3999-6577-4cd5-b296-f518e5c8e677/resourceGroups/ddphss-prim-prd-moderate-rg/providers/Microsoft.DBforPostgreSQL/servers/dppa-prim-azpgsql-01"
+    postgres_server_name = "dppa-prim-azpgsql-01"
+    postgres_server_fqdn = "dppa-prim-azpgsql-01.postgres.database.azure.com"
+    postgres_replica_ids = {
+      "dppa-prim-azpgsql-01-1" = "/subscriptions/7d1e3999-6577-4cd5-b296-f518e5c8e677/resourceGroups/ddphss-prim-prd-moderate-rg/providers/Microsoft.DBforPostgreSQL/servers/dppa-prim-azpgsql-01-1"
+      "dppa-prim-azpgsql-01-2" = "/subscriptions/7d1e3999-6577-4cd5-b296-f518e5c8e677/resourceGroups/ddphss-prim-prd-moderate-rg/providers/Microsoft.DBforPostgreSQL/servers/dppa-prim-azpgsql-01-2"
+    }
   }
   log_analytics_workspace = {
     law_retention_period = "730"
