@@ -11,7 +11,7 @@ The PRIME ReportStream project is the part of the Pandemic Ready Interoperable M
 state and local public health departments. The project is a joint effort between the CDC and USDS. Currently, we are
 focusing on the problem of delivering COVID-19 test data to public health departments. Later, we will work on other
 tools to analyze and explore this data and different types of health data. See the PRIME ReportStream
-website (https://reportstream.cdc.gov) for further details.
+website (<https://reportstream.cdc.gov>) for further details.
 
 PRIME ReportStream a sibling project to [PRIME SimpleReport](https://simplereport.gov) which is better way to report
 COVID-19 rapid tests.
@@ -31,13 +31,13 @@ receiving data to action, as well as increase the quality and effectiveness of a
 **Target users**
 
 * Senders of data
-    * Healthcare institutions that generate data (e.g. reports) that needs to be reported to public health departments
-    * Senders may include traditional (hospital, labs) and non-traditional (POC apps) organizations
+  * Healthcare institutions that generate data (e.g. reports) that needs to be reported to public health departments
+  * Senders may include traditional (hospital, labs) and non-traditional (POC apps) organizations
 * PHDs
-    * Epidemiologists who rely on health data to take regular actions
-    * Senior stakeholders who make executive decisions using aggregate health data
-    * IT teams who have to support epidemiologists and external stakeholders integrating with the PHD
-    * PHDs may include state, county, city, and tribal organizations
+  * Epidemiologists who rely on health data to take regular actions
+  * Senior stakeholders who make executive decisions using aggregate health data
+  * IT teams who have to support epidemiologists and external stakeholders integrating with the PHD
+  * PHDs may include state, county, city, and tribal organizations
 
 ## Public Domain Standard Notice
 
