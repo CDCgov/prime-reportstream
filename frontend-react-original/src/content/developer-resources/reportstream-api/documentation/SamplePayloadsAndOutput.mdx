@@ -1,0 +1,52 @@
+---
+# Page currently archived
+meta:
+    title: ReportStream API sample payloads and output
+    description: Sample payloads and output for HL7 and CSV submissions to ReportStram's API
+    openGraph:
+        image:
+            src: /assets/img/opengraph/reportstream-tagline.png
+            altText: "An abstract illustration of screens and a document."
+---
+
+import Sidenav from "../Sidenav.mdx";
+
+import site from "../../../site.json";
+
+<LayoutSidenav><Sidenav /></LayoutSidenav>
+
+<LayoutMain>
+# Sample payloads and output
+<p className="text-base">Last updated: 9/9/24</p>
+
+***
+
+## Sample HL7 2.5.1 payload and output
+
+Input
+
+<a href={site.assets.exampleHl7.path} download className="usa-button">Download a sample file <Icon name='FileDownload' /></a>
+
+Response
+
+```
+{
+  "id": "f08ccba0-c5ff-4ef5-924c-f72747603f02",
+  "timestamp": "2021-08-05T11:33:01.060209Z",
+  "topic": "covid-19",
+  "reportItemCount": 1,
+  "destinations": [ {
+    "organization": "California Department of Public Health",
+    "organization_id": "ca-dph",
+    "service": "elr",
+    "sending_at": "2021-08-05T07:34-04:00",
+    "itemCount": 1
+  } ],
+  "destinationCount": 1,
+  "warningCount": 0,
+  "errorCount": 0,
+  "errors": [ ],
+  "warnings": [ ]
+}
+```
+</LayoutMain>
