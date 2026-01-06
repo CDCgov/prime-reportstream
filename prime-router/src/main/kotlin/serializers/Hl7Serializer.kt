@@ -1884,8 +1884,7 @@ class Hl7Serializer(
     }
 
     private fun formatHD(hdFields: Element.HDFields, separator: String = DEFAULT_COMPONENT_SEPARATOR): String =
-        if (hdFields.universalId != null && hdFields.universalIdSystem != null
-    ) {
+        if (hdFields.universalId != null && hdFields.universalIdSystem != null) {
             "${hdFields.name}$separator${hdFields.universalId}$separator${hdFields.universalIdSystem}"
         } else {
             hdFields.name

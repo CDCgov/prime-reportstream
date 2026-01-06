@@ -1,0 +1,16 @@
+@use "../../global-modules.scss" as *;
+
+.rs-tile {
+    /*
+     * Upper line at top of tile. Needs to be on inside of block
+     * instead of as border-top because border-top will create
+     * one unbroken line with two tiles in a grid row.
+     */
+    &::before {
+        content: "";
+        display: block;
+        width: 100%;
+        @include u-border-top("05", "primary");
+        @include u-margin-bottom("205");
+    }
+}
