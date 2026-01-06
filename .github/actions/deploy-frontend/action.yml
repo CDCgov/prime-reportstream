@@ -59,5 +59,8 @@ runs:
       shell: bash
       working-directory: .
       run: |
+        date '+%A, %B %d, %Y at %H:%M:%S.%N %Z'
         az storage blob delete-batch --account-name ${{ env.IMAGE_REPO }} -s '$web' --auth-mode login
+        date '+%A, %B %d, %Y at %H:%M:%S.%N %Z'
         az storage blob upload-batch --account-name ${{ env.IMAGE_REPO }} -s frontend-react/build -d '$web' --auth-mode login
+        date '+%A, %B %d, %Y at %H:%M:%S.%N %Z'
