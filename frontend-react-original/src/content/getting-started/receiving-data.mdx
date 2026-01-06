@@ -1,0 +1,234 @@
+---
+title: Get started receiving data
+subtitle: How to connect your public health entity with ReportStream
+meta:
+    title: Get started receiving data with ReportStream
+    description: Learn how ReportStream works with public health entities throughout onboarding and beyond to ensure you’re getting the data you need in the format you need.
+    openGraph:
+        image:
+            src: /assets/img/opengraph/reportstream-tagline.png
+            altText: "An illustration of two pieces of paper with circles next to them. Inside the circles, it says: FHIR, HL7, CSV."
+backToTop: true
+---
+
+import Sidenav from "./sidenav.mdx"
+import site from "../site.json";
+
+<LayoutSidenav>
+    <Sidenav/>
+</LayoutSidenav>
+
+## Onboarding at a glance
+
+Through each step of the process, our team will make sure your connection meets your needs and gets you the public health data you require.
+
+Connecting to ReportStream is similar to setting up an Electronic Lab Reporting (ELR) feed with a lab or hospital. 
+
+<Accordion multiselectable={true} items={[
+    {
+        id: "onboarding-1",
+        headingLevel:"h3",
+        title:"1. Gather your team",
+        content:(<>
+            <p>Before you get started, make sure you have the right team members from your organization to set up your connection. While one person can fill multiple roles, you’ll need someone who can:</p>
+            <ul>
+                <li>Set up a new connection with your system. This may be a networking point of contact and would be familiar with acceptable transport methods for your organization.</li>
+                <li>Manage receiving data into your surveillance system or other applications you use.</li>
+                <li>Evaluate ELR messages. This person may hold the title of informaticist or ELR analyst and is often the one who approves moving into production.</li>
+                <li>Be a main contact for issues or questions.</li>
+                <li>Make decisions on behalf of your organization and remove blockers. Often this person is a director or manager.</li>
+            </ul>
+        </>)
+    },
+    {
+        id: "onboarding-2",
+        headingLevel:"h3",
+        title: "2. Fill out our onboarding form",
+        content: (<p>This form helps us understand more about your specific situation, such as data requirements and preferences or any required documents from your agency. Learn more about <a href="#anchor-what-you-need">what you need</a> to complete the form.</p>),
+    },
+    {
+        id: "onboarding-3",
+        headingLevel:"h3",
+        title: "3. Attend kickoff call",
+        content:(<p>During this call, you’ll discuss how ReportStream works, the technical set up ahead, and your needs for data reporting. As we learn more about your organization, we'll provide an estimated timeline and meeting cadence for your onboarding.</p>)
+    },
+    {
+        id: "onboarding-4",
+        headingLevel:"h3",
+        title: "4. Facility outreach begins",
+        content:(<p>ReportStream and SimpleReport support onboarding healthcare organizations for the data you need. Learn more about the <A href="/managing-your-connection/refer-healthcare-organizations">facility outreach process</A>.</p>)
+    },
+    {
+        id: "onboarding-5",
+        headingLevel:"h3",
+        title: "5. Connect and test",
+        content: (<>
+            <p>Through weekly technical syncs, we work through five phases of set up to ensure everything is working correctly.</p>
+            <ol>
+                <li>Connecting ReportStream to your system and making sure that a message can be sent</li>
+                <li>Sending test messages to make sure the filters and formats are correct</li>
+                <li>(Optional) Testing real data from ReportStream production to your validation system</li>
+                <li>Beginning full production of sending real data into your system</li>
+                <li>Monitoring in close detail for the first few weeks to ensure everything is working correctly</li>
+            </ol>
+        </>)
+    },
+    {
+        id: "onboarding-6",
+        headingLevel:"h3",
+        title: "Optional: Create a user account",
+        content: (<>
+            <p>For an ELR connection, an optional ReportStream user account provides access to helpful tools and features like the Daily Data dashboard.</p>
+            <p>If you are working with an onboarding engineer, they can set up your account. You can also submit a <a href={site.forms.contactUs.url}>service request</a>.</p>
+        </>)
+    }
+]} />
+
+<h2 id="anchor-what-you-need">What you need</h2>
+
+In addition to gathering your team and setting aside time for the weekly calls, you’ll need to provide us with more information about your requirements and preferences. Our <A href={site.forms.intakeElr.url}>onboarding form</A> collects the specific details about your needs.
+
+Review what you need to gather to start onboarding.
+
+
+<Accordion multiselectable={true} items={[
+    {
+        id: "what-you-need-1",
+        headingLevel:"h3",
+        title:"Primary contact information",
+        content:(<p>You need the name, email, and phone number of the main point of contact for your organization. This person is often a program leader or administrator.</p>)
+    },
+    {
+        id: "what-you-need-2",
+        headingLevel:"h3",
+        title: "ELR contact information",
+        content: (<p>You need the name, email, and phone number of the person who helps set up the ELR connection. It is often an IT person or a third party agency.</p>),
+    },
+    {
+        id: "what-you-need-3",
+        headingLevel:"h3",
+        title: "Data requirements and preferences",
+        content: (<>
+            <p>ReportStream follows industry standards for data formatting and reporting. While we can support custom format or sending mechanisms, note that your onboarding time will usually depend on the amount of customization required.</p>
+            <p>You will need to provide details for the following data requirements and preferences:</p>
+            <ul>
+                <li><b>File format preference:</b> Would you prefer HL7 v2.5.1, or FHIR?</li>
+                <li><b>Timing:</b> Do you want realtime, hourly or daily reports?</li>
+                <li><b>"Ask on Order Entry":</b> Do you want Ask on Entry question data? They will be sent as <A href="https://hl7-definition.caristix.com/v2/HL7v2.5/Segments/OBX">OBX segments</A>.</li>
+                <li><b>Testing facility registration:</b> Do you require testing facilities sending data through third parties like ReportStream to onboard with you before data is sent to you?</li>
+                <li><b>Changes to HL7 2.5.1 ELR implementation guide:</b> Do you require changes to the HL7 2.5.1 ELR implementation guide, such as any unique ID tables, ID codes or additional required fields?</li>
+                <li><b>HL7 data fields, if using HL7:</b>
+                    <ul>
+                        <li>Receiving application name (MSH-5-1)</li>
+                        <li>Receiving application OID (MSH-5-2)</li>
+                        <li>Receiving facility name (MSH-6-1)</li>
+                        <li>Receiving facility OID (MSH-6-2)</li>
+                    </ul>
+                </li>
+                <li><b>Date and time:</b> What format and time zone do you require date/time fields to be in? How should we process missing time zones?</li>
+                <li><b>Test data:</b> Do you need synthetic and/or real patient data before going live?</li>
+                <li><b>Local public health agency reporting:</b> Explain any local public health department reporting requirements that are different from the state.</li>
+                <li><b>Your implementation guide:</b> You can provide a link if your guide is publicly available or upload the document directly through the form.</li>
+                <li><b>Positive and negative results:</b> For each condition you will receive from ReportStream, do you require both positive and negative test results?</li>
+            </ul>
+        </>)
+    },
+    {
+        id: "what-you-need-4",
+        headingLevel:"h3",
+        title: "Authentication type and details",
+        content: (<>
+            <ul>
+                <li>Which method of authentication will you use? (Public/private key pair, OAuth 2.0, username/password, or API key.)</li>
+                <li>How do we get credentials?</li>
+                <li>Do the credentials need to be rotated or do they expire?</li>
+            </ul>
+        </>)
+    },
+    {
+        id: "what-you-need-5",
+        headingLevel:"h3",
+        title: "Transport type and details",
+        content: (<>
+            <p>We will need to know if you are using SFTP, REST, or SOAP, and some additional details depending on your transport type. We will need production and testing environment information for your transport type. If you need a different transport type than listed here, talk with our team about how we can help. </p>
+            <ul>
+                <li>For SFTP:
+                    <ul>
+                        <li>Do you need to whitelist our IP addresses before we connect?</li>
+                        <li>What file path do we need to write files to on the SFTP server?</li>
+                        <li>What is your SFTP server?</li>
+                    </ul>
+                </li>
+                <li>For REST:
+                    <ul>
+                        <li>Do you need to whitelist our IP address before we connect?</li>
+                        <li>What is the URL endpoint for authentication?</li>
+                        <li>What is the URL endpoint for POSTing messages?</li>
+                        <li>Are there any required headers?</li>
+                    </ul>
+                </li>
+                <li>For SOAP:
+                    <ul>
+                        <li>SOAP version</li>
+                        <li>SOAP action name</li>
+                        <li>SOAP namespaces</li>
+                        <li>Is a WSDL available?</li>
+                    </ul>
+                </li>
+            </ul>
+        </>)
+    },
+    {
+        id: "what-you-need-6",
+        headingLevel:"h3",
+        title: "Your system needs",
+        content: (<p>You’ll need to let our team know if you use an intermediary or third party system to receive data.</p>)
+    },
+    {
+        id: "what-you-need-7",
+        headingLevel:"h3",
+        title: "Document uploads",
+        content: (<>
+            <ul>
+                <li><b>Implementation guide:</b> If your implementation guide is not publicly available, please upload it in the document upload section of the form.</li>
+                <li><b>Required documentation for your organization:</b> Provide any necessary registration, data use agreements, legal agreements or other documents that you need ReportStream to complete.</li>
+                <li><b>Sample files:</b> Attach sample files of your required data formatting, rules or regulations.</li>
+            </ul>
+        </>)
+    }
+]} />
+
+### Ready to get started?
+
+Once you have all the information you need, submit the onboarding form. We'll get back to you within a week.
+
+<A href={site.forms.intakeElr.url} className="usa-button">Submit form</A>
+
+## Recommended resources
+
+<CardGroup>
+    <Card gridLayout={{ tablet: { col: 4 } }}>
+        <CardHeader>
+            ### <A href={site.assets.onePager.path} target="_blank">ReportStream overview PDF <Icon name='FileDownload'/></A>
+        </CardHeader>
+        <CardBody>
+            Download a quick summary of ReportStream that you can print and share.
+        </CardBody>
+    </Card>
+    <Card gridLayout={{ tablet: { col: 4 } }}>
+        <CardHeader>
+            ### [Security](/about/security)
+        </CardHeader>
+        <CardBody>
+            Explore details on the standards, systems, and settings that keep data secure.
+        </CardBody>
+    </Card>
+    <Card gridLayout={{ tablet: { col: 4 } }}>
+        <CardHeader>
+            ### [Refer healthcare organizations](/managing-your-connection/refer-healthcare-organizations)
+        </CardHeader>
+        <CardBody>
+            Help organizations report through CDC data exchange tools.
+        </CardBody>
+    </Card>
+</CardGroup>
