@@ -1,10 +1,10 @@
 apply(from = rootProject.file("buildSrc/shared.gradle.kts"))
 
 plugins {
-    id("org.springframework.boot") version "3.4.5"
+    id("org.springframework.boot") version "3.5.0"
     id("io.spring.dependency-management") version "1.1.7"
     id("reportstream.project-conventions")
-    kotlin("plugin.spring") version "2.1.20"
+    kotlin("plugin.spring") version "2.1.21"
 }
 
 group = "gov.cdc.prime"
@@ -24,11 +24,11 @@ dependencies {
     implementation("org.springframework.cloud:spring-cloud-starter-gateway")
     implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
 
-    runtimeOnly("com.nimbusds:oauth2-oidc-sdk:11.23.1")
+    runtimeOnly("com.nimbusds:oauth2-oidc-sdk:11.25")
 
     // okta
-    implementation("com.okta.sdk:okta-sdk-api:22.0.1")
-    runtimeOnly("com.okta.sdk:okta-sdk-impl:22.0.1")
+    implementation("com.okta.sdk:okta-sdk-api:23.0.1")
+    runtimeOnly("com.okta.sdk:okta-sdk-impl:23.0.1")
 
     // Swagger
     implementation("org.springdoc:springdoc-openapi-starter-webflux-ui:2.8.8")
@@ -49,7 +49,7 @@ configurations.all {
 dependencyManagement {
     imports {
         mavenBom("com.azure.spring:spring-cloud-azure-dependencies:5.22.0")
-        mavenBom("org.springframework.cloud:spring-cloud-dependencies:2024.0.1")
+        mavenBom("org.springframework.cloud:spring-cloud-dependencies:2025.0.0")
     }
 }
 
