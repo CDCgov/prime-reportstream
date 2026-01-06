@@ -11,9 +11,6 @@ on:
       - main
       - production
       - test
-      - demo1
-      - demo2
-      - demo3
 
 defaults:
   run:
@@ -85,48 +82,11 @@ jobs:
           test-receiver-user: ${{ secrets.TEST_RECEIVER_USERNAME }}
           test-receiver-password: ${{ secrets.TEST_RECEIVER_PASSWORD }}
 
-  deploy_infrastructure:
-    name: "Deploy Infrastructure: ${{ needs.pre_job.outputs.env_name }}"
-    needs:
-      - pre_job
-    if: |
-      needs.pre_job.outputs.env_name == 'demo1' ||
-      needs.pre_job.outputs.env_name == 'demo2' ||
-      needs.pre_job.outputs.env_name == 'demo3'
-    environment: ${{ needs.pre_job.outputs.env_name }}
-    concurrency: demo
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check out changes
-        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938
-
-      - name: Use specific version of Terraform
-        uses: hashicorp/setup-terraform@b9cd54a3c349d3f38e8881555d616ced269862dd
-        with:
-          terraform_version: 1.7.4
-          terraform_wrapper: false
-
-      - name: Connect to VPN and login to Azure
-        uses: ./.github/actions/vpn-azure
-        with:
-          env-name: ${{ needs.pre_job.outputs.env_name }}
-          sp-creds: ${{ env.AZURE_CREDENTIALS }}
-          tf-auth: true
-
-      - name: Provision demo environment
-        uses: ./.github/actions/demo-env
-        with:
-          env-name: ${{ needs.pre_job.outputs.env_name }}
-          github-token: ${{ secrets.DEMO_ENV }}
-          backup-age-limit: 7200
-          backup-from: staging
-
   approve_router_release:
     name: "Approve Router Release: ${{ needs.pre_job.outputs.env_name }}"
     needs:
       - pre_job
       - build_router_release
-      - deploy_infrastructure
     if: |
       always() &&
       !cancelled() &&

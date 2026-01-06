@@ -1,0 +1,44 @@
+---
+title: Developer resources
+subtitle: Technical documentation for establishing a connection and learning more about how ReportStream works.
+meta:
+    title: ReportStream developer resources
+    description: Technical documentation for establishing a connection and learning more about how ReportStream works
+    openGraph:
+        image:
+            src: /assets/img/opengraph/reportstream-tagline.png
+            altText: "An abstract illustration of screens and a document."
+---
+
+import site from "../../content/site.json";
+
+<HeroWrapper>
+<section className="usa-section grid-container">
+<CardGroup>
+        <Card gridLayout={{tablet: {col: 4}}}>
+            <CardHeader>
+                <h2 className="font-sans-lg"><A href={ site.developerResources.apiOnboardingGuide.url }>API onboarding guide</A></h2>
+            </CardHeader>
+            <CardBody>
+                Learn about our API and how to set up your connection for reporting data to public health entities.
+            </CardBody>
+        </Card>
+        <Card gridLayout={{tablet: {col: 4}}}>
+            <CardHeader>
+                <h2 className="font-sans-lg">[GitHub](https://github.com/CDCgov/prime-reportstream)</h2>
+            </CardHeader>
+            <CardBody>
+                As an open source project, all of our [source code](https://github.com/CDCgov/prime-reportstream/tree/master) and associated [technical documentation](https://github.com/CDCgov/prime-reportstream/blob/master/prime-router/docs/README.md) is available on GitHub.
+            </CardBody>
+        </Card>
+        <Card gridLayout={{tablet: {col: 4}}}>
+            <CardHeader>
+                <h2 className="font-sans-lg">[Release notes](/about/release-notes)</h2>
+            </CardHeader>
+            <CardBody>
+                View monthly updates on new features, enhancements, and fixes.
+            </CardBody>
+        </Card>
+</CardGroup>
+</section>
+</HeroWrapper>
