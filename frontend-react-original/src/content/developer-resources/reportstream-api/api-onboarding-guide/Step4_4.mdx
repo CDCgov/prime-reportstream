@@ -1,0 +1,14 @@
+import { CodeSnippet } from "../../../../shared";
+
+
+Use the access token returned above as the bearer token for the submission:
+
+HL7 example
+
+<CodeSnippet>
+&#123;
+    curl -H "authorization:bearer&lt;long-bearer-token&gt;" -H "client:<span className="text-highlight">healthy-labs</span>"  -H "content-type:application/hl7-v2" --data-binary "@./<span className="text-highlight">healthy-labs</span>-nonPII-data.hl7" "https://staging.prime.cdc.gov/api/waters"
+&#125;
+</CodeSnippet>
+
+Again, always remember to replace the healthy-labs client-id with the client-id supplied to you by ReportStream staff.

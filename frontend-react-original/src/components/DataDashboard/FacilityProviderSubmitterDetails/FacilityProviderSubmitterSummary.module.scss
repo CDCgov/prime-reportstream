@@ -1,0 +1,7 @@
+@use "../../../global-modules.scss" as *;
+
+.FacilityProviderSubmitterSummary {
+  hr {
+    border: 1px solid color("base-lighter");
+  }
+}
