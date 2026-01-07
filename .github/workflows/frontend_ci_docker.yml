@@ -123,7 +123,7 @@ jobs:
 
       - name: Find Previous Chromatic Comment
         id: find_chromatic_comment
-        uses: peter-evans/find-comment@v3
+        uses: peter-evans/find-comment@v4
         with:
           issue-number: ${{ github.event.pull_request.number }}
           comment-author: "github-actions[bot]"
@@ -142,7 +142,7 @@ jobs:
             })
 
       - name: Create New Chromatic Comment
-        uses: peter-evans/create-or-update-comment@v4
+        uses: peter-evans/create-or-update-comment@v5
         with:
           issue-number: ${{ github.event.pull_request.number }}
           body: |
@@ -400,7 +400,7 @@ jobs:
 
       - name: Find Previous Warnings Comment
         id: comment_find
-        uses: peter-evans/find-comment@v3
+        uses: peter-evans/find-comment@v4
         with:
           issue-number: ${{ github.event.pull_request.number }}
           comment-author: "github-actions[bot]"
@@ -446,7 +446,7 @@ jobs:
 
       - name: Create New Comment
         if: ${{ env.COMMENT != '' && env.COMMENT != '\n' }}
-        uses: peter-evans/create-or-update-comment@v4
+        uses: peter-evans/create-or-update-comment@v5
         with:
           issue-number: ${{ github.event.pull_request.number }}
           body: ${{ env.COMMENT }}
