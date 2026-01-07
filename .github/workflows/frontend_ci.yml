@@ -295,7 +295,7 @@ jobs:
           retention-days: 7
       - name: Find Previous Warnings Comment
         id: comment_find
-        uses: peter-evans/find-comment@3eae4d37986fb5a8592848f6a574fdf654e61f9e
+        uses: peter-evans/find-comment@b30e6a3c0ed37e7c023ccd3f1db5c6c0b0c23aad
         with:
           issue-number: ${{ github.event.pull_request.number }}
           comment-author: "github-actions[bot]"
@@ -359,7 +359,7 @@ jobs:
         run: yarn install
       - name: Run Chromatic
         id: chromatic
-        uses: chromaui/action@f4e60a7072abcac4203f4ca50613f28e199a52ba
+        uses: chromaui/action@4c20b95e9d3209ecfdf9cd6aace6bbde71ba1694
         with:
           workingDir: frontend-react
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -370,7 +370,7 @@ jobs:
           exitOnceUploaded: true
       - name: Find Previous Comment
         id: comment_find
-        uses: peter-evans/find-comment@3eae4d37986fb5a8592848f6a574fdf654e61f9e
+        uses: peter-evans/find-comment@b30e6a3c0ed37e7c023ccd3f1db5c6c0b0c23aad
         with:
           issue-number: ${{ github.event.pull_request.number }}
           comment-author: "github-actions[bot]"
