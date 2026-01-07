@@ -302,7 +302,7 @@ jobs:
           body-regex: '⚠️ Broken Links ⚠️'
       - name: Delete Previous Warnings Comment
         if: ${{ steps.comment_find.outputs.comment-id != '' }}
-        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
@@ -377,7 +377,7 @@ jobs:
           body-regex: '\.*deployed to Chromatic.*\gi'
       - name: Delete Previous Comment
         if: ${{ steps.comment_find.outputs.comment-id }}
-        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
