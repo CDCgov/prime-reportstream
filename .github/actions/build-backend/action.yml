@@ -46,7 +46,7 @@ runs:
         distribution: "temurin"
         cache: "gradle"
 
-    - uses: gradle/actions/setup-gradle@d156388eb19639ec20ade50009f3d199ce1e2808
+    - uses: gradle/actions/setup-gradle@4d9f0ba0025fe599b4ebab900eb7f3a1d93ef4c2
 
     - name: Lint
       if: inputs.run-integration-tests == 'true'
@@ -107,7 +107,7 @@ runs:
         shell: bash
 
     - name: Publish Unit Test Results
-      uses: EnricoMi/publish-unit-test-result-action/linux@82082dac68ad6a19d980f8ce817e108b9f496c2a
+      uses: EnricoMi/publish-unit-test-result-action/linux@34d7c956a59aed1bfebf31df77b8de55db9bbaaf
       if: >
         always() &&
         github.event.sender.login != 'dependabot[bot]' &&
@@ -210,7 +210,7 @@ runs:
       shell: bash
 
     - name: Publish Integration Test Results
-      uses: EnricoMi/publish-unit-test-result-action/linux@82082dac68ad6a19d980f8ce817e108b9f496c2a
+      uses: EnricoMi/publish-unit-test-result-action/linux@34d7c956a59aed1bfebf31df77b8de55db9bbaaf
       if: >
         always() &&
         github.event.sender.login != 'dependabot[bot]' &&
@@ -253,7 +253,7 @@ runs:
 
     - name: Upload Artifact
       if: inputs.upload-build == 'true'
-      uses: actions/upload-artifact@50769540e7f4bd5e21e526ee35c689e35e0d6874
+      uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4
       with:
         name: prime-router-build-${{ inputs.version }}
         path: prime-router/prime-router-build.tar.gz
