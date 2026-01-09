@@ -107,7 +107,7 @@ runs:
         shell: bash
 
     - name: Publish Unit Test Results
-      uses: EnricoMi/publish-unit-test-result-action/linux@34d7c956a59aed1bfebf31df77b8de55db9bbaaf
+      uses: EnricoMi/publish-unit-test-result-action/linux@27d65e188ec43221b20d26de30f4892fad91df2f
       if: >
         always() &&
         github.event.sender.login != 'dependabot[bot]' &&
@@ -210,7 +210,7 @@ runs:
       shell: bash
 
     - name: Publish Integration Test Results
-      uses: EnricoMi/publish-unit-test-result-action/linux@34d7c956a59aed1bfebf31df77b8de55db9bbaaf
+      uses: EnricoMi/publish-unit-test-result-action/linux@27d65e188ec43221b20d26de30f4892fad91df2f
       if: >
         always() &&
         github.event.sender.login != 'dependabot[bot]' &&
