@@ -306,7 +306,7 @@ jobs:
 
       - name: Upload E2E test data
         if: ${{ !cancelled() }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: frontend-e2e-data--shard-${{ matrix.shardIndex }}
           path: ${{ env.WORKING_DIRECTORY }}/e2e-data 
@@ -392,7 +392,7 @@ jobs:
           rm -rf e2e-data/report/resources || true
 
       - name: Upload final E2E data
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: frontend-e2e-data--attempt-${{ github.run_attempt }}
           path: ${{ env.WORKING_DIRECTORY }}/e2e-data
