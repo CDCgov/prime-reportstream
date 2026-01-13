@@ -102,7 +102,7 @@
     - name: default
       organizationName: ignore
       topic: covid-19
-      customerStatus: inactive
+      customerStatus: active
       schemaName: primedatainput/pdi-covid-19
       format: CSV
     - name: ignore-full-elr      # Use this to test full-elr
@@ -166,19 +166,19 @@
     - name: ignore-strac      # Use this to test sending strac data
       organizationName: ignore
       topic: covid-19
-      customerStatus: inactive
+      customerStatus: active
       schemaName: strac/strac-covid-19
       format: CSV
     - name: ignore-simple-report      # Use this to test sending simple_report data
       organizationName: ignore
       topic: covid-19
-      customerStatus: inactive
+      customerStatus: active
       schemaName: primedatainput/pdi-covid-19
       format: CSV
     - name: ignore-lifepoint      # Use this to test sending lifepoint data
       organizationName: ignore
       topic: covid-19
-      customerStatus: inactive
+      customerStatus: active
       schemaName: hl7/lifepoint-covid-19
       format: HL7
     - name: no-duplicates      # Use this to test sending simple_report with a dup check
@@ -191,7 +191,7 @@
     - name: ignore-waters      # Use this to test sending waters data
       organizationName: ignore
       topic: covid-19
-      customerStatus: inactive
+      customerStatus: active
       schemaName: waters/waters-covid-19
       format: CSV
     - name: ignore-empty      # Use this to test sending data from the 'empty' schema
@@ -203,7 +203,7 @@
     - name: ignore-hl7      # Use this to test sending data from the HL7 schema
       organizationName: ignore
       topic: covid-19
-      customerStatus: inactive
+      customerStatus: active
       schemaName: hl7/test-covid-19
       format: HL7
     - name: ignore-monkeypox
