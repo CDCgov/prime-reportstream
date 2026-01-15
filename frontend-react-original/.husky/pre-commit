@@ -1,3 +1,0 @@
-./scripts/approuter-check.sh
-
-yarn lint-staged

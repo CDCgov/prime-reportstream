@@ -1,9 +1,0 @@
-@use "../../global-modules.scss" as *;
-
-.sidenav {
-    top: 0;
-
-    @media (min-width: $tablet) {
-        position: sticky;
-    }
-}

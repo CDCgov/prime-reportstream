@@ -21,12 +21,7 @@ describe("SideNavItem", () => {
         expect(parentLink).toHaveTextContent("Test");
     });
 
-    /**
-     * The "with items" test suite is skipped as part of the sunset page update.
-     * These tests are being temporarily disabled as the navigation structure
-     * has been refactored to accommodate the new static sunset page.
-     */
-    describe.skip("with items", () => {
+    describe("with items", () => {
         test("renders", () => {
             renderApp(
                 <SideNavItem

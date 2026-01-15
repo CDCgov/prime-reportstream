@@ -1,8 +1,0 @@
-{
-  "successAlertHeading": "Test passed",
-  "successAlertBody": "No issues with filters or transforms.",
-  "warningAlertHeading": "Test passed with warnings",
-  "warningAlertBody": "Message passed, but there is at least one warning to view.",
-  "errorAlertHeading": "Test failed",
-  "errorAlertBody": "Message did not pass test. Check filters triggered or transform errors."
-}
