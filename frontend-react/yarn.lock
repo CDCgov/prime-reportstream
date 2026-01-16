@@ -4327,22 +4327,22 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tanstack/query-devtools@npm:5.76.0":
-  version: 5.76.0
-  resolution: "@tanstack/query-devtools@npm:5.76.0"
-  checksum: 20010e20f64ac6c1591db7a3597d9a7288fdc86f20d33d2172bf6d5b319f86ced0c021d3c8acb3f791c95cf709bc1492aa0eb5edcdacac3be69584dda0f6cc9a
+"@tanstack/query-devtools@npm:5.84.0":
+  version: 5.84.0
+  resolution: "@tanstack/query-devtools@npm:5.84.0"
+  checksum: 0121c54d3e2d4c410f2006dd8e3f34f5e3454e526cdc8ef28f5572dd69a675c5ab0530916038d0ec7708135cff5c65791edb3312d485180a3a32a0e949e692b3
   languageName: node
   linkType: hard
 
-"@tanstack/react-query-devtools@npm:^5.75.7":
-  version: 5.76.0
-  resolution: "@tanstack/react-query-devtools@npm:5.76.0"
+"@tanstack/react-query-devtools@npm:^5.84.0":
+  version: 5.85.5
+  resolution: "@tanstack/react-query-devtools@npm:5.85.5"
   dependencies:
-    "@tanstack/query-devtools": 5.76.0
+    "@tanstack/query-devtools": 5.84.0
   peerDependencies:
-    "@tanstack/react-query": ^5.76.0
+    "@tanstack/react-query": ^5.85.5
     react: ^18 || ^19
-  checksum: 61b0db1ff2417dbafe0369c0c121857a8eed51655cfdeb1d93ebd9d63a601c3026bdbc3ff28ff0c37ea2fa506f95f9ff73f8356b6dc6f6b17ffb55fc318844a6
+  checksum: 0cb1ba150f4b33714c530059ef54729a7771f45850162c428a6cad15999baa9c9e7b43e66aed548936df5db12a0e50a9d16eb05bd38e59b9f2fe87b0866d8767
   languageName: node
   linkType: hard
 
@@ -8862,7 +8862,7 @@ __metadata:
 
 "fsevents@patch:fsevents@*#~builtin<compat/fsevents>, fsevents@patch:fsevents@~2.3.2#~builtin<compat/fsevents>, fsevents@patch:fsevents@~2.3.3#~builtin<compat/fsevents>":
   version: 2.3.3
-  resolution: "fsevents@patch:fsevents@npm%3A2.3.3#~builtin<compat/fsevents>::version=2.3.3&hash=df0bf1"
+  resolution: "fsevents@patch:fsevents@npm%3A2.3.3#~builtin<compat/fsevents>::version=2.3.3&hash=18f3a7"
   dependencies:
     node-gyp: latest
   conditions: os=darwin
@@ -8871,7 +8871,7 @@ __metadata:
 
 "fsevents@patch:fsevents@2.3.2#~builtin<compat/fsevents>":
   version: 2.3.2
-  resolution: "fsevents@patch:fsevents@npm%3A2.3.2#~builtin<compat/fsevents>::version=2.3.2&hash=df0bf1"
+  resolution: "fsevents@patch:fsevents@npm%3A2.3.2#~builtin<compat/fsevents>::version=2.3.2&hash=18f3a7"
   dependencies:
     node-gyp: latest
   conditions: os=darwin
@@ -12931,7 +12931,7 @@ __metadata:
     "@storybook/testing-library": ^0.2.2
     "@storybook/theming": ^8.6.12
     "@tanstack/react-query": ^5.75.7
-    "@tanstack/react-query-devtools": ^5.75.7
+    "@tanstack/react-query-devtools": ^5.84.0
     "@testing-library/dom": ^10.4.0
     "@testing-library/jest-dom": ^6.6.3
     "@testing-library/react": ^16.3.0
@@ -13561,7 +13561,7 @@ __metadata:
 
 "resolve@patch:resolve@^1.10.0#~builtin<compat/resolve>, resolve@patch:resolve@^1.22.1#~builtin<compat/resolve>, resolve@patch:resolve@^1.22.4#~builtin<compat/resolve>, resolve@patch:resolve@^1.22.8#~builtin<compat/resolve>":
   version: 1.22.8
-  resolution: "resolve@patch:resolve@npm%3A1.22.8#~builtin<compat/resolve>::version=1.22.8&hash=c3c19d"
+  resolution: "resolve@patch:resolve@npm%3A1.22.8#~builtin<compat/resolve>::version=1.22.8&hash=07638b"
   dependencies:
     is-core-module: ^2.13.0
     path-parse: ^1.0.7
@@ -13574,7 +13574,7 @@ __metadata:
 
 "resolve@patch:resolve@^1.14.2#~builtin<compat/resolve>":
   version: 1.22.10
-  resolution: "resolve@patch:resolve@npm%3A1.22.10#~builtin<compat/resolve>::version=1.22.10&hash=c3c19d"
+  resolution: "resolve@patch:resolve@npm%3A1.22.10#~builtin<compat/resolve>::version=1.22.10&hash=07638b"
   dependencies:
     is-core-module: ^2.16.0
     path-parse: ^1.0.7
@@ -13587,7 +13587,7 @@ __metadata:
 
 "resolve@patch:resolve@^2.0.0-next.5#~builtin<compat/resolve>":
   version: 2.0.0-next.5
-  resolution: "resolve@patch:resolve@npm%3A2.0.0-next.5#~builtin<compat/resolve>::version=2.0.0-next.5&hash=c3c19d"
+  resolution: "resolve@patch:resolve@npm%3A2.0.0-next.5#~builtin<compat/resolve>::version=2.0.0-next.5&hash=07638b"
   dependencies:
     is-core-module: ^2.13.0
     path-parse: ^1.0.7
@@ -15236,7 +15236,7 @@ __metadata:
 
 "typescript@patch:typescript@^5.7.3#~builtin<compat/typescript>":
   version: 5.7.3
-  resolution: "typescript@patch:typescript@npm%3A5.7.3#~builtin<compat/typescript>::version=5.7.3&hash=14eedb"
+  resolution: "typescript@patch:typescript@npm%3A5.7.3#~builtin<compat/typescript>::version=5.7.3&hash=701156"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver
