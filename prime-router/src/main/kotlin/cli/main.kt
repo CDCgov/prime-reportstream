@@ -310,6 +310,7 @@ fun main(args: Array<String>) = RouterCli()
         SyncTranslationSchemaCommand(),
         ValidateYAMLCommand(),
         PIIRemovalCommands(),
-        MappingCommands()
+        MappingCommands(),
+        ValidateFHIRCommand()
     ).context { terminal = Terminal(ansiLevel = AnsiLevel.TRUECOLOR) }
     .main(args)
