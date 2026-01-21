@@ -28,7 +28,6 @@ import io.ktor.client.call.body
 import io.ktor.client.engine.apache.Apache
 import io.ktor.client.plugins.ResponseException
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
-import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.plugins.expectSuccess
 import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logging
@@ -63,6 +62,7 @@ import java.security.KeyStore
 import java.time.OffsetDateTime
 import java.util.Base64
 import java.util.UUID
+import java.util.concurrent.ConcurrentHashMap
 import java.util.logging.Logger
 import javax.crypto.SecretKey
 import javax.crypto.spec.IvParameterSpec
@@ -75,6 +75,7 @@ import javax.net.ssl.SSLContext
  * and POST HL7 to the reportUrl
  */
 class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
+
     /**
      * Send the content on the specific transport. Return retry information, if needed. Null, if not.
      *
@@ -106,6 +107,8 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
 
         val (credential, jksCredential) = getCredential(restTransportInfo, receiver)
 
+        val client: HttpClient = HttpClientFactory.getClient(jksCredential)
+
         return try {
             // run our call to the endpoint in a blocking fashion
             runBlocking {
@@ -121,16 +124,20 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
                             logger
                         )
 
+                        // only add a Bearer header for OAuth/JWT flows, not raw API-key flows
+                        if (restTransportInfo.authType != "apiKey") {
+                            accessToken?.let {
+                                httpHeaders["Authorization"] = "${getAuthorizationHeader(restTransportInfo)} $it"
+                            }
+                        }
+
                         // If encryption is needed.
                         if (restTransportInfo.encryptionKeyUrl.isNotEmpty()) {
                             reportContent = encryptTheReport(
                                 reportContent,
                                 restTransportInfo.encryptionKeyUrl,
                                 httpHeaders,
-                                httpClient ?: createDefaultHttpClient(
-                                    jksCredential, accessToken,
-                                    restTransportInfo
-                                )
+                                httpClient ?: client
                             )
                         }
 
@@ -141,10 +148,7 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
                             restTransportInfo.reportUrl,
                             httpHeaders,
                             logger,
-                            httpClient ?: createDefaultHttpClient(
-                                jksCredential, accessToken,
-                                restTransportInfo
-                            ),
+                            httpClient ?: client,
                             header.reportFile.createdAt
                         )
                         val responseBody = response.bodyAsText()
@@ -358,7 +362,7 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
         credential: RestCredential,
         logger: Logger,
     ): String {
-        val tokenClient = httpClient ?: createDefaultHttpClient(jksCredential, null, null)
+        val tokenClient = HttpClientFactory.getClient(jksCredential)
         // get the credential and use it to request an OAuth token
         // Usually credential is a UserApiKey, with an apiKey field (NY)
         // if not, try as UserPass with pass field (OK)
@@ -411,20 +415,18 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
         logger: Logger,
         httpClient: HttpClient,
     ): TokenInfo {
-        httpClient.use { client ->
-            val tokenInfo: TokenInfo = client.submitForm(
-                restTransportInfo.authTokenUrl,
-                formParameters = Parameters.build {
-                    append("grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer") // as specified by WA
-                    append("assertion", credential.assertion)
-                }
+        val tokenInfo: TokenInfo = httpClient.submitForm(
+            restTransportInfo.authTokenUrl,
+            formParameters = Parameters.build {
+                append("grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer") // as specified by WA
+                append("assertion", credential.assertion)
+            }
 
-            ) {
-                expectSuccess = true // throw an exception if not successful
-            }.body()
-            logger.info("Got Token with UserAssertion")
-            return tokenInfo
-        }
+        ) {
+            expectSuccess = true // throw an exception if not successful
+        }.body()
+        logger.info("Got Token with UserAssertion")
+        return tokenInfo
     }
 
     /**
@@ -442,33 +444,31 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
         logger: Logger,
         httpClient: HttpClient,
     ): TokenInfo {
-        httpClient.use { client ->
-            val tokenInfo: TokenInfo = client.submitForm(
-                restTransportInfo.authTokenUrl,
-                formParameters = Parameters.build {
-                    if (restTransportInfo.parameters.isEmpty()) {
-                        // This block is for backward compatible since old
-                        // REST Transport doesn't have parameters.
-                        append("grant_type", "client_credentials")
-                        append("client_id", credential.user)
-                        append("client_secret", credential.apiKey)
-                    } else {
-                        restTransportInfo.parameters.forEach { param ->
-                            when (param.value) {
-                                "client_id" -> append(param.key, credential.user)
-                                "client_secret" -> append(param.key, credential.apiKey)
-                                else -> append(param.key, param.value)
-                            }
+        val tokenInfo: TokenInfo = httpClient.submitForm(
+            restTransportInfo.authTokenUrl,
+            formParameters = Parameters.build {
+                if (restTransportInfo.parameters.isEmpty()) {
+                    // This block is for backward compatible since old
+                    // REST Transport doesn't have parameters.
+                    append("grant_type", "client_credentials")
+                    append("client_id", credential.user)
+                    append("client_secret", credential.apiKey)
+                } else {
+                    restTransportInfo.parameters.forEach { param ->
+                        when (param.value) {
+                            "client_id" -> append(param.key, credential.user)
+                            "client_secret" -> append(param.key, credential.apiKey)
+                            else -> append(param.key, param.value)
                         }
                     }
                 }
-            ) {
-                expectSuccess = true // throw an exception if not successful
-                accept(ContentType.Application.Json)
-            }.body()
-            logger.info("Got Token with UserApiKey")
-            return tokenInfo
-        }
+            }
+        ) {
+            expectSuccess = true // throw an exception if not successful
+            accept(ContentType.Application.Json)
+        }.body()
+        logger.info("Got Token with UserApiKey")
+        return tokenInfo
     }
 
     /**
@@ -486,62 +486,60 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
         logger: Logger,
         httpClient: HttpClient,
     ): TokenInfo {
-        httpClient.use { client ->
-            val restUrl = restTransportInfo.authTokenUrl
-            val idTokenInfoString: String = client.post(restUrl) {
-                expectSuccess = true // throw an exception if not successful
-                buildHeaders(
-                    if (restTransportInfo.authHeaders["Authorization-Type"] == "Basic Auth") {
-                        // Authorization-Type: "Basic Auth" requires the following:
-                        // Header:
-                        //  Authorization : "Basic + base64(username+password)"
-                        // Body:
-                        //  None
-                        restTransportInfo.authHeaders.map { (key, value) ->
-                            if (key == "Authorization-Type" && value == "Basic Auth") {
-                                val credentialString = credential.user + ":" + credential.pass
-                                Pair(
-                                    "Authorization",
-                                    "Basic " + Base64.getEncoder().encodeToString(credentialString.encodeToByteArray())
-                                )
-                            } else {
-                                Pair(key, value)
-                            }
-                        }.toMap()
-                    } else {
-                        restTransportInfo.authHeaders
-                    }
-                )
+        val restUrl = restTransportInfo.authTokenUrl
+        val idTokenInfoString: String = httpClient.post(restUrl) {
+            expectSuccess = true // throw an exception if not successful
+            buildHeaders(
+                if (restTransportInfo.authHeaders[AUTH_TYPE_HEADER] == BASIC) {
+                    // Authorization-Type: "Basic Auth" requires the following:
+                    // Header:
+                    //  Authorization : "Basic + base64(username+password)"
+                    // Body:
+                    //  None
+                    restTransportInfo.authHeaders.map { (key, value) ->
+                        if (key == AUTH_TYPE_HEADER && value == BASIC) {
+                            val credentialString = credential.user + ":" + credential.pass
+                            Pair(
+                                "Authorization",
+                                "Basic " + Base64.getEncoder().encodeToString(credentialString.encodeToByteArray())
+                            )
+                        } else {
+                            Pair(key, value)
+                        }
+                    }.toMap()
+                } else {
+                    restTransportInfo.authHeaders
+                }
+            )
 
-                // Authorization-Type: username/password requires the following:
+            // Authorization-Type: username/password requires the following:
+            // Header:
+            //  Content-Type: application/json
+            //  Authorization: username/password
+            // Body:
+            // { "username": "<username>", "password": "<password>"
+            if (restTransportInfo.authHeaders[AUTH_TYPE_HEADER] == USERPASS) {
+                setBody(mapOf("username" to credential.user, "password" to credential.pass))
+            } else if (restTransportInfo.authHeaders[AUTH_TYPE_HEADER] == EMAILPASS) {
+                // Authorization-Type: email/password requires the following:
                 // Header:
                 //  Content-Type: application/json
                 //  Authorization: username/password
                 // Body:
-                // { "username": "<username>", "password": "<password>"
-                if (restTransportInfo.authHeaders["Authorization-Type"] == "username/password") {
-                    setBody(mapOf("username" to credential.user, "password" to credential.pass))
-                } else if (restTransportInfo.authHeaders["Authorization-Type"] == "email/password") {
-                    // Authorization-Type: email/password requires the following:
-                    // Header:
-                    //  Content-Type: application/json
-                    //  Authorization: username/password
-                    // Body:
-                    // { "email": "<email@domain.com>", "password": "<password>"
-                    setBody(mapOf("email" to credential.user, "password" to credential.pass))
-                }
-            }.body()
-
-            logger.info("Got Token with UserPass")
-
-            val idTokenInfoAccessToken: String = try {
-                Json.decodeFromString<IdToken>(idTokenInfoString).idToken
-            } catch (e: Exception) {
-                idTokenInfoString
+                // { "email": "<email@domain.com>", "password": "<password>"
+                setBody(mapOf("email" to credential.user, "password" to credential.pass))
             }
+        }.body()
 
-            return TokenInfo(accessToken = idTokenInfoAccessToken, expiresIn = 3600)
+        logger.info("Got Token with UserPass")
+
+        val idTokenInfoAccessToken: String = try {
+            Json.decodeFromString<IdToken>(idTokenInfoString).idToken
+        } catch (e: Exception) {
+            idTokenInfoString
         }
+
+        return TokenInfo(accessToken = idTokenInfoAccessToken, expiresIn = 3600)
     }
 
     /**
@@ -557,15 +555,11 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
         encryptionKeyUrl: String,
         headers: Map<String, String>,
         httpClient: HttpClient,
-    ): String {
-        httpClient.use { client ->
-            return client.get(encryptionKeyUrl) {
-                buildHeaders(
-                    headers.map { (key, value) -> Pair(key, value) }.toMap()
-                )
-            }.body<String>()
-        }
-    }
+    ): String = httpClient.get(encryptionKeyUrl) {
+            buildHeaders(
+                headers.map { (key, value) -> Pair(key, value) }.toMap()
+            )
+        }.body<String>()
 
     /**
      * Encrypt the report to the REST service. This is a suspend function, meaning it can get called as an
@@ -619,23 +613,59 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
     ): HttpResponse {
         logger.info(fileName)
         val boundary = "WebAppBoundary"
-        httpClient.use { client ->
-
             val response: HttpResponse = if (headers["method"] == "PUT") {
-                client.put(restUrl) {
+                httpClient.put(restUrl) {
                     build(logger, headers, message, fileName, boundary, reportCreateDate)
                 }
             } else {
-                client.post(restUrl) {
+                httpClient.post(restUrl) {
                     build(logger, headers, message, fileName, boundary, reportCreateDate)
                 }
             }
 
             return response
+    }
+
+    object HttpClientFactory {
+        private const val TIMEOUT = 120_000
+        private val cache = ConcurrentHashMap<String, HttpClient>()
+
+        fun getClient(jksCredential: UserJksCredential?): HttpClient {
+            val key = jksCredential?.jks ?: "DEFAULT"
+            return cache.computeIfAbsent(key) {
+                HttpClient(Apache) {
+                    install(Logging) {
+                        logger = io.ktor.client.plugins.logging.Logger.Companion.SIMPLE
+                        level = LogLevel.INFO
+                    }
+                    install(ContentNegotiation) {
+                        json(
+                            Json {
+                                prettyPrint = true
+                                isLenient = true
+                                ignoreUnknownKeys = true
+                            }
+                        )
+                    }
+                    engine {
+                        jksCredential?.let { sslContext = getSslContext(it) }
+                        followRedirects = true
+                        socketTimeout = TIMEOUT
+                        connectTimeout = TIMEOUT
+                        connectionRequestTimeout = TIMEOUT
+                    }
+                }
+            }
         }
     }
 
     companion object {
+
+        private const val AUTH_TYPE_HEADER = "Authorization-Type"
+        private const val BASIC = "Basic Auth"
+        private const val USERPASS = "username/password"
+        private const val EMAILPASS = "email/password"
+
         /** A default value for the timeouts to connect and send messages */
         private const val TIMEOUT = 120_000
 
@@ -643,48 +673,6 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
         fun getAuthorizationHeader(
             restTransportInfo: RESTTransportType?,
         ): String = restTransportInfo?.headers?.get("BearerToken") ?: "Bearer"
-
-        /** Our default Http Client, with an optional SSL context, and optional auth token */
-        fun createDefaultHttpClient(
-            jks: UserJksCredential?,
-            accessToken: String?,
-            restTransportInfo: RESTTransportType?,
-        ): HttpClient = HttpClient(Apache) {
-                // installs logging into the call to post to the server
-                install(Logging) {
-                    logger = io.ktor.client.plugins.logging.Logger.Companion.SIMPLE
-                    level = LogLevel.INFO // LogLevel.INFO for prod, LogLevel.ALL to view full request
-                }
-
-                // not using Bearer Auth handler due to refresh token behavior
-                accessToken?.let {
-                    // Default to set Bearer prefix
-                    defaultRequest {
-                        header("Authorization", getAuthorizationHeader(restTransportInfo) + " $it")
-                    }
-                }
-                // install contentNegotiation to handle json response
-                install(ContentNegotiation) {
-                    json(
-                        Json {
-                            prettyPrint = true
-                            isLenient = true
-                            ignoreUnknownKeys = true
-                        }
-                    )
-                }
-                // configures the Apache client with our specified timeouts
-                // if we have a JKS, create an SSL context with it
-                engine {
-                    jks?.let { sslContext = getSslContext(jks) }
-                    followRedirects = true
-                    socketTimeout = TIMEOUT
-                    connectTimeout = TIMEOUT
-                    connectionRequestTimeout = TIMEOUT
-                    customizeClient {
-                    }
-                }
-            }
 
         /***
          * Create an SSL context with the provided cert
