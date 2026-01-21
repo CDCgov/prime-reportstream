@@ -1,0 +1,238 @@
+# Multi-Architecture Secure Environment for Prime Router
+# Uses hardened Wolfi-based images with security improvements
+# Supports both Apple Silicon (ARM64) and AMD64 architectures
+services:
+  # Hardened Multi-Architecture Prime Router with Azure Functions
+  rs-prime-router-hardened:
+    container_name: rs-prime-router-app-hardened
+    image: rs-prime-router-hardened:latest
+    working_dir: /home/site/wwwroot
+    ports:
+      - "127.0.0.1:7071:80" # Map container port 80 to host port 7071
+    networks:
+      - rs-network
+    environment:
+      # Azure Functions Configuration
+      - AzureWebJobsScriptRoot=/home/site/wwwroot
+      - AzureFunctionsJobHost__Logging__Console__IsEnabled=true
+      - ASPNETCORE_URLS=http://+:80
+      - FUNCTIONS_WORKER_RUNTIME=java
+      - JAVA_HOME=/usr/lib/jvm/java-17-openjdk
+
+      # Azure Storage Configuration (Required by Azure Functions)
+      - AzureWebJobsStorage=DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://rs-azurite:10000/devstoreaccount1;QueueEndpoint=http://rs-azurite:10001/devstoreaccount1;TableEndpoint=http://rs-azurite:10002/devstoreaccount1
+      - AZURE_STORAGE_CONNECTION_STRING=DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://rs-azurite:10000/devstoreaccount1;QueueEndpoint=http://rs-azurite:10001/devstoreaccount1;TableEndpoint=http://rs-azurite:10002/devstoreaccount1
+      - AzureWebJobsSftpStorage=DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://rs-azurite:10000/devstoreaccount1
+
+      # Timer Schedules
+      - REMOTE_CONNECTION_CHECK_SCHEDULE=0 */15 * * * *
+
+      # Database Configuration - Use service name for inter-container communication
+      - POSTGRES_USER=prime
+      - POSTGRES_PASSWORD=changeIT!
+      - POSTGRES_URL=jdbc:postgresql://rs-postgresql:5432/prime_data_hub
+      
+      # Vault Configuration - Use service name
+      - VAULT_API_ADDR=http://rs-vault:8200
+      - VAULT_TOKEN=test-token
+      
+      # SFTP Configuration - Use service name
+      - SFTP_HOST=rs-sftp
+      - SFTP_PORT=22
+    volumes:
+      - type: bind
+        source: ./build/azure-functions/prime-data-hub-router
+        target: /home/site/wwwroot
+        read_only: false
+      - type: bind
+        source: ./metadata
+        target: /home/site/wwwroot/metadata
+        read_only: true
+      - type: bind  
+        source: ./settings
+        target: /home/site/wwwroot/settings
+        read_only: true
+    depends_on:
+      - rs-postgresql
+      - rs-vault
+      - rs-azurite
+      - rs-sftp
+    restart: unless-stopped
+    user: "nonroot:nonroot"
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: '1.0'
+        reservations:
+          memory: 512M
+          cpus: '0.25'
+
+  # Custom PostgreSQL 16.6 - Wolfi-based
+  rs-postgresql:
+    container_name: rs-postgresql
+    image: rs-postgresql:latest
+    pull_policy: never
+    ports:
+      - "127.0.0.1:5432:5432"
+    networks:
+      - rs-network
+    command: ["-D", "/var/lib/postgresql/data", "-c", "listen_addresses=*", "-c", "port=5432"]
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=changeIT!
+      - POSTGRES_DB=prime_data_hub
+      - POSTGRES_HOST_AUTH_METHOD=md5
+      - POSTGRES_INITDB_ARGS=--auth-host=md5
+    volumes:
+      - rs-postgresql-data:/var/lib/postgresql/data
+      - ./operations/postgres-init:/docker-entrypoint-initdb.d:ro
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /tmp
+      - /run
+      - /run/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U prime -d prime_data_hub || pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  # HashiCorp Vault - Latest
+  rs-vault:
+    container_name: rs-vault  
+    image: hashicorp/vault:latest
+    platform: linux/amd64
+    ports:
+      - "127.0.0.1:8200:8200"
+    networks:
+      - rs-network
+    cap_add:
+      - IPC_LOCK
+    volumes:
+      - .vault/config:/vault/config
+      - .vault/env:/vault/env
+      - rs-vault-data:/vault/file
+    command: "/vault/config/init.sh"
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: ["CMD-SHELL", "vault status || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  # Azure Storage Azurite - Latest
+  rs-azurite:
+    container_name: rs-azurite
+    image: mcr.microsoft.com/azure-storage/azurite:3.34.0
+    platform: linux/amd64
+    ports:
+      - "127.0.0.1:10000:10000"
+      - "127.0.0.1:10001:10001"
+      - "127.0.0.1:10002:10002"
+    networks:
+      - rs-network
+    command: azurite --blobHost 0.0.0.0 --queueHost 0.0.0.0 --tableHost 0.0.0.0 --loose --skipApiVersionCheck
+    volumes:
+      - rs-azurite-data:/data
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    tmpfs:
+      - /tmp
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:10000/ || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # SFTP Server - Wolfi-based (CVE-free)
+  rs-sftp:
+    container_name: rs-sftp
+    image: rs-sftp:latest
+    pull_policy: never
+    environment:
+      - SFTP_USERS=foo:pass:1001:1001:upload
+    ports:
+      - "127.0.0.1:2222:22"
+    volumes:
+      - rs-sftp-data:/home/foo/upload
+    networks:
+      - rs-network
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    tmpfs:
+      - /tmp
+      - /run
+      - /var/log
+    healthcheck:
+      test: ["CMD-SHELL", "netstat -tuln | grep :22 || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # SOAP Webservice - Testing endpoint for SOAP integration
+  rs-soap-webservice:
+    container_name: rs-soap-webservice
+    image: castlemock/castlemock
+    ports:
+      - "127.0.0.1:8087:8080"
+    networks:
+      - rs-network
+    volumes:
+      - ../.environment/soap_service:/root/.castlemock
+      - ../.environment/soap_service:/castlemock/castlemock
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+
+  # REST Webservice - Testing endpoint for OAuth and report posting
+  rs-rest-webservice:
+    container_name: rs-rest-webservice
+    image: mockoon/cli
+    command:
+      - --data=/root/data.json
+    ports:
+      - "127.0.0.1:3001:3001"
+    networks:
+      - rs-network
+    volumes:
+      - ../.environment/rest_service:/root
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+
+# Isolated network for secure communication
+networks:
+  rs-network:
+    driver: bridge
+    name: rs-prime-router-network
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.30.0.0/16
+
+# Persistent volumes for data retention
+volumes:
+  rs-postgresql-data:
+    driver: local
+    name: rs-postgresql-data
+  rs-vault-data:
+    driver: local
+    name: rs-vault-data
+  rs-vault-logs:
+    driver: local
+    name: rs-vault-logs
+  rs-azurite-data:
+    driver: local  
+    name: rs-azurite-data
+  rs-sftp-data:
+    driver: local
+    name: rs-sftp-data
