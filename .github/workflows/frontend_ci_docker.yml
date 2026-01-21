@@ -44,7 +44,7 @@ jobs:
         uses: actions/checkout@v6
 
       - name: Set up Node.js
-        uses: actions/setup-node@395ad3262231945c25e8478fd5baf05154b1d79f # Using v3.5.1
+        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # Using v3.5.1
         with:
           node-version-file: '${{ env.WORKING_DIRECTORY }}/.nvmrc'
           # Yarn caching will be handled by a separate actions/cache step
@@ -91,7 +91,7 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha }} # Checkout PR HEAD commit
 
       - name: Set up Node.js
-        uses: actions/setup-node@395ad3262231945c25e8478fd5baf05154b1d79f
+        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238
         with:
           node-version-file: '${{ env.WORKING_DIRECTORY }}/.nvmrc'
           # Yarn caching will be handled by a separate actions/cache step
@@ -256,7 +256,7 @@ jobs:
         uses: actions/checkout@v6
 
       - name: Set up Node.js
-        uses: actions/setup-node@395ad3262231945c25e8478fd5baf05154b1d79f
+        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238
         with:
           node-version-file: '${{ env.WORKING_DIRECTORY }}/.nvmrc'
           # Yarn caching will be handled by a separate actions/cache step
@@ -348,7 +348,7 @@ jobs:
         uses: actions/checkout@v6
 
       - name: Set up Node.js
-        uses: actions/setup-node@395ad3262231945c25e8478fd5baf05154b1d79f
+        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238
         with:
           node-version-file: '${{ env.WORKING_DIRECTORY }}/.nvmrc'
           # Yarn caching will be handled by a separate actions/cache step
