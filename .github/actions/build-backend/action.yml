@@ -262,5 +262,5 @@ runs:
     - name: Build Docker Image
       if: inputs.run-qc == 'true'
       working-directory: prime-router
-      run: docker build . --file Dockerfile --tag cdcgov/reportstream:latest
+      run: docker build . --file Dockerfile --tag cdcgov/reportstream:latest --no-cache
       shell: bash
