@@ -407,7 +407,7 @@ After ReportStream is up and running on localhost, the user needs to download `T
        timeZone: null
        dateTimeFormat: "OFFSET"
 ```
-## To test the Receiver’s Setting:
+## Testing the Receiver’s Settings, please follow the steps below
 1. Download the [TestRcvFilterMessages.tz](./TestRcvFilters/TestRcvMessages.tz) file from the repository and creat a junk directory.
 ```Text
    $ mkdir <HOME>/prime-reportstream/prime-router/junk
@@ -449,7 +449,7 @@ After ReportStream is up and running on localhost, the user needs to download `T
       
       The user needs to examine whether the output file is correct.
 ```
-   #### The following command will pass:
+   #### The following command will PASS:
 ```text
    $ ./prime fhirdata --input-file "./junk/TestRcvMessages/Test-Condition-FLU-A-positive.fhir"  --sender-schema  classpath:/metadata/fhir_transforms/senders/SimpleReport/simple-report-sender-transform.yml --output-file "./junk/TestRcvMessages/Output/Test-Condition-FLU-A-positive.hl7" --receiver-name=full-elr --org=ms-doh
 
@@ -467,7 +467,7 @@ After ReportStream is up and running on localhost, the user needs to download `T
          %resource.where(interpretation.coding.code = 'A').code.coding.extension('https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code').value.where(code in ('55735004'|'840539006'|'6142004'|'541131000124102')).exists()
 ```
 ```text   
-   ### The following command will pass:
+   ### The following command will PASS:
    ./prime fhirdata --input-file "./junk/TestRcvMessages/Test-Condition-FLU-B-positive.fhir"  --sender-schema  classpath:/metadata/fhir_transforms/senders/SimpleReport/simple-report-sender-transform.yml --output-file "./junk/TestRcvMessages/Output/Test-Condition-FLU-B-positive.hl7" --receiver-name=full-elr --org=ms-doh
    
    Output Message:
@@ -483,7 +483,7 @@ After ReportStream is up and running on localhost, the user needs to download `T
          CONDITION_FILTER - Filter failed :
          %resource.where(interpretation.coding.code = 'A').code.coding.extension('https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code').value.where(code in ('55735004'|'840539006'|'6142004'|'541131000124102')).exists()
 ```   
-   #### The following command will pass:
+   #### The following command will PASS:
 ```text   
    $ ./prime fhirdata --input-file "./junk/TestRcvMessages/Test-Condition-RSV-positive.fhir"  --sender-schema  classpath:/metadata/fhir_transforms/senders/SimpleReport/simple-report-sender-transform.yml --output-file "./junk/TestRcvMessages/Output/Test-Condition-RSV-positive.hl7" --receiver-name=full-elr --org=ms-doh
    
@@ -491,4 +491,13 @@ After ReportStream is up and running on localhost, the user needs to download `T
          Wrote output to <HOME>/prime-reportstream/prime-router/./junk/TestRcvMessages/Output/Test-Condition-RSV-positive.hl7
       
       The user needs to examine whether the output file is correct.
+```
+#### The following command will FAIL due to the wrong organization:
+```text   
+   $ ./prime fhirdata --input-file "./junk/TestRcvMessages/Test-Condition-RSV-positive.fhir"  --sender-schema  classpath:/metadata/fhir_transforms/senders/SimpleReport/simple-report-sender-transform.yml --output-file "./junk/TestRcvMessages/Output/Test-Condition-RSV-positive.hl7" --receiver-name=full-elr --org=WRONG-ORG
+   
+      Output Message:
+         File extension fhir is not supported.
+      
+      Note, the org=WRONG-ORG was given to test facility failure. 
 ```
