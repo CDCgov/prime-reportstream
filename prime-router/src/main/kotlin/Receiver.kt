@@ -1,9 +1,9 @@
 package gov.cdc.prime.router
 
 import com.fasterxml.jackson.annotation.JsonIgnore
+import gov.cdc.prime.fhirconverter.translation.hl7.FhirToHl7Converter
+import gov.cdc.prime.fhirconverter.translation.hl7.SchemaException
 import gov.cdc.prime.router.common.DateUtilities
-import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Converter
-import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.helpers.SchemaReferenceResolverHelper
 import java.time.LocalTime
 import java.time.OffsetDateTime

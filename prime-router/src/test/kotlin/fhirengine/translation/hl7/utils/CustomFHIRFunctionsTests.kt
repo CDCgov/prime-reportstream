@@ -12,7 +12,8 @@ import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
 import ca.uhn.fhir.model.api.TemporalPrecisionEnum
-import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
+import gov.cdc.prime.fhirconverter.translation.hl7.SchemaException
+import gov.cdc.prime.fhirconverter.translation.hl7.utils.CustomFHIRFunctions
 import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.BaseDateTimeType
 import org.hl7.fhir.r4.model.DateTimeType

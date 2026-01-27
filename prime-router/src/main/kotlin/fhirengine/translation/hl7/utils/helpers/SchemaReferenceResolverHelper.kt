@@ -1,14 +1,14 @@
 package gov.cdc.prime.router.fhirengine.translation.hl7.utils.helpers
 
+import gov.cdc.prime.fhirconverter.translation.hl7.schema.ConfigSchemaReader
+import gov.cdc.prime.fhirconverter.translation.hl7.schema.converter.HL7ConverterSchema
+import gov.cdc.prime.fhirconverter.translation.hl7.schema.fhirTransform.FhirTransformSchema
+import gov.cdc.prime.fhirconverter.translation.hl7.schema.providers.ClasspathSchemaServiceProvider
+import gov.cdc.prime.fhirconverter.translation.hl7.schema.providers.FileSchemaServiceProvider
+import gov.cdc.prime.fhirconverter.translation.hl7.schema.providers.SchemaServiceProvider
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.fhirengine.azure.AzureSchemaServiceProvider
-import gov.cdc.prime.router.fhirengine.translation.hl7.schema.ConfigSchemaReader
-import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.HL7ConverterSchema
-import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.FhirTransformSchema
-import gov.cdc.prime.router.fhirengine.translation.hl7.schema.providers.ClasspathSchemaServiceProvider
-import gov.cdc.prime.router.fhirengine.translation.hl7.schema.providers.FileSchemaServiceProvider
-import gov.cdc.prime.router.fhirengine.translation.hl7.schema.providers.SchemaServiceProvider
 
 object SchemaReferenceResolverHelper {
 

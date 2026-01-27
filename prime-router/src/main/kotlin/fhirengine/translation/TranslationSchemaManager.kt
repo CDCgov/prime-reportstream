@@ -4,11 +4,11 @@ import ca.uhn.hl7v2.util.Hl7InputStreamMessageStringIterator
 import com.azure.storage.blob.models.BlobItem
 import fhirengine.engine.CustomFhirPathFunctions
 import fhirengine.engine.CustomTranslationFunctions
+import gov.cdc.prime.fhirconverter.translation.hl7.FhirToHl7Context
+import gov.cdc.prime.fhirconverter.translation.hl7.FhirToHl7Converter
 import gov.cdc.prime.router.Hl7Configuration
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.fhirengine.config.HL7TranslationConfig
-import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Context
-import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Converter
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirTransformer
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.helpers.SchemaReferenceResolverHelper
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
