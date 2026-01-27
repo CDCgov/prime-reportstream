@@ -26,7 +26,7 @@ import gov.cdc.prime.router.fhirengine.engine.encodePreserveEncodingChars
 import gov.cdc.prime.router.fhirengine.translation.HL7toFhirTranslator
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Context
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirTransformer
-import gov.cdc.prime.router.fhirengine.translation.hl7.utils.helpers.SchemaReferenceResolverHelper
+import gov.cdc.prime.router.fhirengine.translation.hl7.utils.helpers.RouterSchemaReferenceResolverHelper
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.fhirengine.utils.HL7Reader
 import gov.cdc.prime.router.fhirengine.utils.filterObservations
@@ -493,7 +493,7 @@ class TranslationTests {
             }
 
             val hl7 = FhirToHl7Converter(
-                SchemaReferenceResolverHelper.retrieveHl7SchemaReference(
+                RouterSchemaReferenceResolverHelper.retrieveHl7SchemaReference(
                     schema,
                     mockk<BlobAccess.BlobContainerMetadata>()
                 ),
@@ -518,7 +518,7 @@ class TranslationTests {
             if (!schema.isNullOrEmpty()) {
                 schema.split(",").forEach { currentEnrichmentSchema ->
                     fhirBundle = FhirTransformer(
-                        SchemaReferenceResolverHelper.retrieveFhirSchemaReference(
+                        RouterSchemaReferenceResolverHelper.retrieveFhirSchemaReference(
                             currentEnrichmentSchema,
                         mockk<BlobAccess.BlobContainerMetadata>()
                         )

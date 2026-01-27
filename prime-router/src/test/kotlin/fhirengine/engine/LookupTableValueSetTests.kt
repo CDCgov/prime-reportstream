@@ -10,7 +10,7 @@ import gov.cdc.prime.fhirconverter.translation.hl7.schema.fhirTransform.FhirTran
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirTransformer
-import gov.cdc.prime.router.fhirengine.translation.hl7.utils.helpers.SchemaReferenceResolverHelper
+import gov.cdc.prime.router.fhirengine.translation.hl7.utils.helpers.RouterSchemaReferenceResolverHelper
 import gov.cdc.prime.router.metadata.LookupTable
 import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.mockk.every
@@ -51,7 +51,10 @@ class LookupTableValueSetTests {
             ConfigSchemaReader.fromFile(
                 "classpath:/fhir_sender_transforms/lookup_value_set.yml",
                 schemaClass = FhirTransformSchema::class.java,
-                SchemaReferenceResolverHelper.getSchemaServiceProviders(mockk<BlobAccess.BlobContainerMetadata>())
+                RouterSchemaReferenceResolverHelper.getSchemaServiceProviders(
+                    mockk<BlobAccess.BlobContainerMetadata>()
+                ),
+                LookupTableValueSet::class.java
             ).isValid()
         ).isTrue()
 
@@ -59,7 +62,10 @@ class LookupTableValueSetTests {
             ConfigSchemaReader.fromFile(
                 "classpath:/fhir_sender_transforms/invalid_lookup_value_set.yml",
                 schemaClass = FhirTransformSchema::class.java,
-                SchemaReferenceResolverHelper.getSchemaServiceProviders(mockk<BlobAccess.BlobContainerMetadata>())
+                RouterSchemaReferenceResolverHelper.getSchemaServiceProviders(
+                    mockk<BlobAccess.BlobContainerMetadata>()
+                ),
+                LookupTableValueSet::class.java
             )
         }
         unmockkAll()

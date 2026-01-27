@@ -10,7 +10,7 @@ import gov.cdc.prime.router.Hl7Configuration
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.fhirengine.config.HL7TranslationConfig
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirTransformer
-import gov.cdc.prime.router.fhirengine.translation.hl7.utils.helpers.SchemaReferenceResolverHelper
+import gov.cdc.prime.router.fhirengine.translation.hl7.utils.helpers.RouterSchemaReferenceResolverHelper
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.fhirengine.utils.HL7Reader
 import org.apache.logging.log4j.kotlin.Logging
@@ -411,14 +411,14 @@ class TranslationSchemaManager : Logging {
                 when (schemaType) {
                     SchemaType.FHIR -> {
                         FhirTransformer(
-                            SchemaReferenceResolverHelper.retrieveFhirSchemaReference(
+                            RouterSchemaReferenceResolverHelper.retrieveFhirSchemaReference(
                                 rawValidationInput.schemaUri, blobContainerInfo
                             ),
                         ).validate(inputBundle, FhirTranscoder.decode(rawValidationInput.output))
                     }
                     SchemaType.HL7 -> {
                         FhirToHl7Converter(
-                            SchemaReferenceResolverHelper.retrieveHl7SchemaReference(
+                            RouterSchemaReferenceResolverHelper.retrieveHl7SchemaReference(
                                 rawValidationInput.schemaUri,
                                 blobContainerInfo
                             ),

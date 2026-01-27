@@ -9,8 +9,9 @@ import gov.cdc.prime.fhirconverter.translation.hl7.schema.providers.SchemaServic
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.fhirengine.azure.AzureSchemaServiceProvider
+import gov.cdc.prime.router.fhirengine.engine.LookupTableValueSet
 
-object SchemaReferenceResolverHelper {
+object RouterSchemaReferenceResolverHelper {
 
     fun retrieveHl7SchemaReference(schema: String): HL7ConverterSchema =
         retrieveHl7SchemaReference(schema, getBlobConnectionInfo())
@@ -19,7 +20,8 @@ object SchemaReferenceResolverHelper {
         ConfigSchemaReader.fromFile(
             schema,
             HL7ConverterSchema::class.java,
-            getSchemaServiceProviders(blobInfo)
+            getSchemaServiceProviders(blobInfo),
+            LookupTableValueSet::class.java
         )
 
     fun retrieveFhirSchemaReference(schema: String): FhirTransformSchema =
@@ -29,7 +31,8 @@ object SchemaReferenceResolverHelper {
         ConfigSchemaReader.fromFile(
             schema,
             schemaClass = FhirTransformSchema::class.java,
-            getSchemaServiceProviders(blobInfo)
+            getSchemaServiceProviders(blobInfo),
+            LookupTableValueSet::class.java
         )
 
     fun getBlobConnectionInfo(): BlobAccess.BlobContainerMetadata =

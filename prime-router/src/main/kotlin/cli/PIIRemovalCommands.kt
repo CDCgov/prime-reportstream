@@ -11,7 +11,7 @@ import fhirengine.engine.CustomFhirPathFunctions
 import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirTransformer
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
-import gov.cdc.prime.router.fhirengine.translation.hl7.utils.helpers.SchemaReferenceResolverHelper
+import gov.cdc.prime.router.fhirengine.translation.hl7.utils.helpers.RouterSchemaReferenceResolverHelper
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import org.hl7.fhir.r4.model.Bundle
 import org.hl7.fhir.r4.model.ContactPoint
@@ -117,7 +117,7 @@ class PIIRemovalCommands :
             }
 
         val bundleAfterTransform = FhirTransformer(
-            SchemaReferenceResolverHelper.retrieveFhirSchemaReference(
+            RouterSchemaReferenceResolverHelper.retrieveFhirSchemaReference(
                 "classpath:/metadata/fhir_transforms/common/remove-pii-enrichment.yml"
             )
         ).process(bundle)

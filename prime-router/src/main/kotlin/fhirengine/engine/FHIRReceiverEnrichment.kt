@@ -29,7 +29,7 @@ import gov.cdc.prime.router.azure.observability.event.IReportStreamEventService
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventName
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventProperties
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirTransformer
-import gov.cdc.prime.router.fhirengine.translation.hl7.utils.helpers.SchemaReferenceResolverHelper
+import gov.cdc.prime.router.fhirengine.translation.hl7.utils.helpers.RouterSchemaReferenceResolverHelper
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.logging.LogMeasuredTime
 import gov.cdc.prime.router.report.ReportService
@@ -107,7 +107,7 @@ class FHIRReceiverEnrichment(
                     "to reportId '${queueMessage.reportId}'"
                 )
                 val transformer = FhirTransformer(
-                    SchemaReferenceResolverHelper.retrieveFhirSchemaReference(enrichmentSchemaName),
+                    RouterSchemaReferenceResolverHelper.retrieveFhirSchemaReference(enrichmentSchemaName),
                 )
                 transformer.process(bundle)
             }
