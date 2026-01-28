@@ -408,7 +408,7 @@ After ReportStream is up and running on localhost, the user needs to download `T
        dateTimeFormat: "OFFSET"
 ```
 ## Testing the Receiver’s Settings, please follow the steps below
-1. Download the [TestRcvFilterMessages.tz](./TestRcvFilters/TestRcvMessages.tz) file from the repository and creat a junk directory.
+1. Download the [TestRcvFilterMessages.tz](./TestRcvFilters/TestRcvFilterMessages.tz) file from the repository and creat a junk directory.
 ```Text
    mkdir <HOME>/prime-reportstream/prime-router/junk
 ```
