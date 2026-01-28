@@ -407,7 +407,8 @@ After ReportStream is up and running on localhost, the user needs to download `T
        timeZone: null
        dateTimeFormat: "OFFSET"
 ```
-## Testing the Receiver’s Settings, please follow the steps below
+## Testing the Receiver’s Settings, please follow the steps below.
+Note that in the following steps, we use ms-doh as the sample recriver organization. The user needs to change it to their own organization.
 1. Download the [TestRcvFilterMessages.tz](./TestRcvFilters/TestRcvFilterMessages.tz) file from the repository and creat a junk directory.
 ```Text
    mkdir <HOME>/prime-reportstream/prime-router/junk
@@ -434,7 +435,7 @@ After ReportStream is up and running on localhost, the user needs to download `T
 ### Now, test the receiver’s settings using the ./primeCLI (./prime fhirdata) commands below:
 #### The following command will FAIL the conditionFilter
 ```Text
-   ./prime fhirdata --input-file "./junk/TestRcvMessages/Test-Condition-covid-neg.fhir"  --sender-schema  classpath:/metadata/fhir_transforms/senders/SimpleReport/simple-report-sender-transform.yml --output-file "./junk/TestRcvMessages/Output/Test-Condition-covid-neg.hl7" --receiver-name=full-elr --org=ms-doh
+   ./prime fhirdata --input-file "./junk/TestRcvFilterMessages/Test-Condition-covid-neg.fhir"  --sender-schema  classpath:/metadata/fhir_transforms/senders/SimpleReport/simple-report-sender-transform.yml --output-file "./junk/TestRcvFilterMessages/Output/Test-Condition-covid-neg.hl7" --receiver-name=full-elr --org=ms-doh
 ```
 ```Text
       Output Message:
@@ -443,27 +444,27 @@ After ReportStream is up and running on localhost, the user needs to download `T
 ```  
    #### The following command will pass:
 ```text
-   ./prime fhirdata --input-file "./junk/TestRcvMessages/Test-Condition-covid-positive.fhir"  --sender-schema  classpath:/metadata/fhir_transforms/senders/SimpleReport/simple-report-sender-transform.yml --output-file "./junk/TestRcvMessages/Output/Test-Condition-covid-positive.hl7" --receiver-name=full-elr --org=ms-doh
+   ./prime fhirdata --input-file "./junk/TestRcvFilterMessages/Test-Condition-covid-positive.fhir"  --sender-schema  classpath:/metadata/fhir_transforms/senders/SimpleReport/simple-report-sender-transform.yml --output-file "./junk/TestRcvFilterMessages/Output/Test-Condition-covid-positive.hl7" --receiver-name=full-elr --org=ms-doh
 ```
 ```Text   
       Output Message:
-         Wrote output to <HOME>/prime-reportstream/prime-router/./junk/TestRcvMessages/Output/Test-Condition-covid-positive.hl7
+         Wrote output to <HOME>/prime-reportstream/prime-router/./junk/TestRcvFilterMessages/Output/Test-Condition-covid-positive.hl7
       
       The user needs to examine whether the output file is correct.
 ```
    #### The following command will PASS:
 ```text
-   ./prime fhirdata --input-file "./junk/TestRcvMessages/Test-Condition-FLU-A-positive.fhir"  --sender-schema  classpath:/metadata/fhir_transforms/senders/SimpleReport/simple-report-sender-transform.yml --output-file "./junk/TestRcvMessages/Output/Test-Condition-FLU-A-positive.hl7" --receiver-name=full-elr --org=ms-doh
+   ./prime fhirdata --input-file "./junk/TestRcvFilterMessages/Test-Condition-FLU-A-positive.fhir"  --sender-schema  classpath:/metadata/fhir_transforms/senders/SimpleReport/simple-report-sender-transform.yml --output-file "./junk/TestRcvFilterMessages/Output/Test-Condition-FLU-A-positive.hl7" --receiver-name=full-elr --org=ms-doh
 ```
 ```Text
       Output Message:
-         Wrote output to <HOME>/prime-reportstream/prime-router/./junk/TestRcvMessages/Output/Test-Condition-FLU-A-positive.hl7
+         Wrote output to <HOME>/prime-reportstream/prime-router/./junk/TestRcvFilterMessages/Output/Test-Condition-FLU-A-positive.hl7
          
       The user needs to examine whether the output file is correct.
 ```
    #### The following command will FAIL the conditionFilter:
 ```text
-   ./prime fhirdata --input-file "./junk/TestRcvMessages/Test-Condition-FLU-B-negative.fhir"  --sender-schema  classpath:/metadata/fhir_transforms/senders/SimpleReport/simple-report-sender-transform.yml --output-file "./junk/TestRcvMessages/Output/Test-Condition-FLU-B-negative.hl7" --receiver-name=full-elr --org=ms-doh
+   ./prime fhirdata --input-file "./junk/TestRcvFilterMessages/Test-Condition-FLU-B-negative.fhir"  --sender-schema  classpath:/metadata/fhir_transforms/senders/SimpleReport/simple-report-sender-transform.yml --output-file "./junk/TestRcvFilterMessages/Output/Test-Condition-FLU-B-negative.hl7" --receiver-name=full-elr --org=ms-doh
 ```
 ```Text
       Output Message:
@@ -472,17 +473,17 @@ After ReportStream is up and running on localhost, the user needs to download `T
 ``` 
    ### The following command will PASS:
 ```Text
-   ./prime fhirdata --input-file "./junk/TestRcvMessages/Test-Condition-FLU-B-positive.fhir"  --sender-schema  classpath:/metadata/fhir_transforms/senders/SimpleReport/simple-report-sender-transform.yml --output-file "./junk/TestRcvMessages/Output/Test-Condition-FLU-B-positive.hl7" --receiver-name=full-elr --org=ms-doh
+   ./prime fhirdata --input-file "./junk/TestRcvFilterMessages/Test-Condition-FLU-B-positive.fhir"  --sender-schema  classpath:/metadata/fhir_transforms/senders/SimpleReport/simple-report-sender-transform.yml --output-file "./junk/TestRcvFilterMessages/Output/Test-Condition-FLU-B-positive.hl7" --receiver-name=full-elr --org=ms-doh
 ```
 ```Text   
    Output Message:
-      Wrote output to <HOME>/prime-reportstream/prime-router/./junk/TestRcvMessages/Output/Test-Condition-FLU-B-positive.hl7
+      Wrote output to <HOME>/prime-reportstream/prime-router/./junk/TestRcvFilterMessages/Output/Test-Condition-FLU-B-positive.hl7
       
    The user needs to examine whether the output file is correct.
 ```
    #### The following command will FAIL the conditionFilter:
 ```Text   
-   ./prime fhirdata --input-file "./junk/TestRcvMessages/Test-Condition-HIV.fhir"  --sender-schema  classpath:/metadata/fhir_transforms/senders/SimpleReport/simple-report-sender-transform.yml --output-file "./junk/TestRcvMessages/Output/Test-Condition-HIV.hl7" --receiver-name=full-elr --org=ms-doh
+   ./prime fhirdata --input-file "./junk/TestRcvFilterMessages/Test-Condition-HIV.fhir"  --sender-schema  classpath:/metadata/fhir_transforms/senders/SimpleReport/simple-report-sender-transform.yml --output-file "./junk/TestRcvFilterMessages/Output/Test-Condition-HIV.hl7" --receiver-name=full-elr --org=ms-doh
 ```
 ```Text    
       Output Message:
@@ -491,17 +492,17 @@ After ReportStream is up and running on localhost, the user needs to download `T
 ```   
    #### The following command will PASS:
 ```text   
-   ./prime fhirdata --input-file "./junk/TestRcvMessages/Test-Condition-RSV-positive.fhir"  --sender-schema  classpath:/metadata/fhir_transforms/senders/SimpleReport/simple-report-sender-transform.yml --output-file "./junk/TestRcvMessages/Output/Test-Condition-RSV-positive.hl7" --receiver-name=full-elr --org=ms-doh
+   ./prime fhirdata --input-file "./junk/TestRcvFilterMessages/Test-Condition-RSV-positive.fhir"  --sender-schema  classpath:/metadata/fhir_transforms/senders/SimpleReport/simple-report-sender-transform.yml --output-file "./junk/TestRcvFilterMessages/Output/Test-Condition-RSV-positive.hl7" --receiver-name=full-elr --org=ms-doh
 ```
 ```Text    
       Output Message:
-         Wrote output to <HOME>/prime-reportstream/prime-router/./junk/TestRcvMessages/Output/Test-Condition-RSV-positive.hl7
+         Wrote output to <HOME>/prime-reportstream/prime-router/./junk/TestRcvFilterMessages/Output/Test-Condition-RSV-positive.hl7
       
       The user needs to examine whether the output file is correct.
 ```
 #### The following command will FAIL due to the wrong organization:
 ```text   
-   ./prime fhirdata --input-file "./junk/TestRcvMessages/Test-Condition-RSV-positive.fhir"  --sender-schema  classpath:/metadata/fhir_transforms/senders/SimpleReport/simple-report-sender-transform.yml --output-file "./junk/TestRcvMessages/Output/Test-Condition-RSV-positive.hl7" --receiver-name=full-elr --org=WRONG-ORG
+   ./prime fhirdata --input-file "./junk/TestRcvFilterMessages/Test-Condition-RSV-positive.fhir"  --sender-schema  classpath:/metadata/fhir_transforms/senders/SimpleReport/simple-report-sender-transform.yml --output-file "./junk/TestRcvFilterMessages/Output/Test-Condition-RSV-positive.hl7" --receiver-name=full-elr --org=WRONG-ORG
 ```
 ```Text    
       Output Message:
