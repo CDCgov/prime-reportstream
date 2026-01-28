@@ -30,8 +30,8 @@ class CustomTranslationFunctions(
     ): String {
         check(appContext != null)
         check(appContext.config is HL7TranslationConfig)
-        val receiver = appContext.config.receiver
-        val config = appContext.config.hl7Configuration
+        val receiver = (appContext.config as HL7TranslationConfig).receiver
+        val config = (appContext.config as HL7TranslationConfig).hl7Configuration
         var dateTimeFormat = receiver?.dateTimeFormat
 
         if (config.convertTimestampToDateTime?.isNotEmpty() == true) {
@@ -100,7 +100,7 @@ class CustomTranslationFunctions(
         terser: Terser,
         appContext: CustomContext?,
     ): String = if (appContext?.config is HL7TranslationConfig) {
-            val config = appContext.config
+            val config = appContext.config as HL7TranslationConfig
             val truncationConfig = config.truncationConfig
 
             val hl7Field = hl7FieldPath.substringAfterLast("/")

@@ -147,7 +147,7 @@ class FhirTransformer(
             FhirTransformSchemaElementAction.APPEND -> {
                 val existing =
                     if (element.appendToProperty != null) {
-                        FhirPathUtils.evaluate(elementContext, bundle, bundle, element.appendToProperty).size
+                        FhirPathUtils.evaluate(elementContext, bundle, bundle, element.appendToProperty!!).size
                     } else {
                         0
                     }
