@@ -8,6 +8,7 @@ import assertk.assertions.isInstanceOf
 import assertk.assertions.isNull
 import assertk.assertions.isZero
 import assertk.assertions.matchesPredicate
+import gov.cdc.prime.fhirconverter.translation.hl7.utils.FhirBundleUtils.deleteResource
 import gov.cdc.prime.reportstream.shared.BlobUtils
 import gov.cdc.prime.reportstream.shared.QueueMessage
 import gov.cdc.prime.router.ActionLog
@@ -51,7 +52,6 @@ import gov.cdc.prime.router.db.ReportStreamTestDatabaseContainer
 import gov.cdc.prime.router.db.ReportStreamTestDatabaseSetupExtension
 import gov.cdc.prime.router.fhirengine.engine.FHIRReceiverFilter
 import gov.cdc.prime.router.fhirengine.engine.FhirTranslateQueueMessage
-import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirBundleUtils.deleteResource
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.fhirengine.utils.getObservations
 import gov.cdc.prime.router.history.db.ReportGraph

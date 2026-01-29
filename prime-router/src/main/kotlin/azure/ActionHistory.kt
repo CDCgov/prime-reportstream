@@ -7,6 +7,7 @@ import com.microsoft.azure.functions.HttpResponseMessage
 import com.microsoft.azure.functions.HttpStatusType
 import com.networknt.org.apache.commons.validator.routines.InetAddressValidator
 import fhirengine.engine.CustomFhirPathFunctions
+import gov.cdc.prime.fhirconverter.translation.hl7.utils.CustomContext
 import gov.cdc.prime.reportstream.shared.BlobUtils
 import gov.cdc.prime.reportstream.shared.QueueMessage
 import gov.cdc.prime.router.ActionLog
@@ -34,7 +35,6 @@ import gov.cdc.prime.router.azure.observability.event.ReportStreamEventName
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventProperties
 import gov.cdc.prime.router.common.AzureHttpUtils.getSenderIP
 import gov.cdc.prime.router.common.JacksonMapperUtilities
-import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.report.ReportService
 import io.ktor.http.HttpStatusCode

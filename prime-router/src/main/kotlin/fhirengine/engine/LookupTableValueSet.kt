@@ -1,9 +1,9 @@
 package gov.cdc.prime.router.fhirengine.engine
 
 import com.fasterxml.jackson.annotation.JsonProperty
+import gov.cdc.prime.fhirconverter.translation.hl7.SchemaException
+import gov.cdc.prime.fhirconverter.translation.hl7.ValueSetCollection
 import gov.cdc.prime.router.Metadata
-import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
-import gov.cdc.prime.router.fhirengine.translation.hl7.ValueSetCollection
 import java.util.SortedMap
 
 /**

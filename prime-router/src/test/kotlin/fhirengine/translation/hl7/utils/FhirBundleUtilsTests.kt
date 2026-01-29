@@ -4,6 +4,7 @@ import assertk.assertFailure
 import assertk.assertThat
 import assertk.assertions.isInstanceOf
 import assertk.assertions.isTrue
+import gov.cdc.prime.fhirconverter.translation.hl7.utils.FhirBundleUtils
 import io.mockk.spyk
 import io.mockk.verify
 import org.apache.logging.log4j.kotlin.logger

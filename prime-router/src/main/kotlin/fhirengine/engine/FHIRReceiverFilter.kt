@@ -2,6 +2,7 @@ package gov.cdc.prime.router.fhirengine.engine
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import fhirengine.engine.CustomFhirPathFunctions
+import gov.cdc.prime.fhirconverter.translation.hl7.utils.CustomContext
 import gov.cdc.prime.reportstream.shared.BlobUtils
 import gov.cdc.prime.reportstream.shared.QueueMessage
 import gov.cdc.prime.router.ActionLogDetail
@@ -35,7 +36,6 @@ import gov.cdc.prime.router.azure.observability.event.IReportStreamEventService
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventName
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventProperties
 import gov.cdc.prime.router.codes
-import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.fhirengine.utils.filterMappedObservations

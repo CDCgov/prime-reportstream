@@ -1,15 +1,15 @@
 package fhirengine.engine
 
 import ca.uhn.hl7v2.util.Terser
+import gov.cdc.prime.fhirconverter.translation.hl7.schema.converter.ConverterSchemaElement
+import gov.cdc.prime.fhirconverter.translation.hl7.utils.ConstantSubstitutor
+import gov.cdc.prime.fhirconverter.translation.hl7.utils.CustomContext
+import gov.cdc.prime.fhirconverter.translation.hl7.utils.HL7Utils
+import gov.cdc.prime.fhirconverter.translation.hl7.utils.Hl7TranslationFunctions
 import gov.cdc.prime.router.common.DateUtilities
 import gov.cdc.prime.router.fhirengine.config.HL7TranslationConfig
 import gov.cdc.prime.router.fhirengine.translation.hl7.UniversalPipelineHL7Truncator
-import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.ConverterSchemaElement
-import gov.cdc.prime.router.fhirengine.translation.hl7.utils.ConstantSubstitutor
-import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.HL7Constants
-import gov.cdc.prime.router.fhirengine.translation.hl7.utils.HL7Utils
-import gov.cdc.prime.router.fhirengine.translation.hl7.utils.Hl7TranslationFunctions
 import org.hl7.fhir.r4.model.BaseDateTimeType
 import java.time.ZoneId
 
@@ -30,8 +30,8 @@ class CustomTranslationFunctions(
     ): String {
         check(appContext != null)
         check(appContext.config is HL7TranslationConfig)
-        val receiver = appContext.config.receiver
-        val config = appContext.config.hl7Configuration
+        val receiver = (appContext.config as HL7TranslationConfig).receiver
+        val config = (appContext.config as HL7TranslationConfig).hl7Configuration
         var dateTimeFormat = receiver?.dateTimeFormat
 
         if (config.convertTimestampToDateTime?.isNotEmpty() == true) {
@@ -100,7 +100,7 @@ class CustomTranslationFunctions(
         terser: Terser,
         appContext: CustomContext?,
     ): String = if (appContext?.config is HL7TranslationConfig) {
-            val config = appContext.config
+            val config = appContext.config as HL7TranslationConfig
             val truncationConfig = config.truncationConfig
 
             val hl7Field = hl7FieldPath.substringAfterLast("/")

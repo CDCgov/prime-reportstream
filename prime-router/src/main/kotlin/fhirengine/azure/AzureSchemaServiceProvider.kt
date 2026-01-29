@@ -1,8 +1,8 @@
 package gov.cdc.prime.router.fhirengine.azure
 
+import gov.cdc.prime.fhirconverter.translation.hl7.SchemaException
+import gov.cdc.prime.fhirconverter.translation.hl7.schema.providers.SchemaServiceProvider
 import gov.cdc.prime.router.azure.BlobAccess
-import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
-import gov.cdc.prime.router.fhirengine.translation.hl7.schema.providers.SchemaServiceProvider
 import java.io.InputStream
 import java.net.URI
 
