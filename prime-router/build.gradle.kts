@@ -909,13 +909,16 @@ dependencies {
         exclude(group = "org.yaml", module = "snakeyaml")
     }
     implementation("org.yaml:snakeyaml:2.4")
-    implementation("io.github.linuxforhealth:hl7v2-fhir-converter:1.0.1-SNAPSHOT")
+    implementation("io.github.linuxforhealth:hl7v2-fhir-converter") {
+        version {
+            branch = "master"
+        }
+    }
     implementation("gov.cdc.prime:prime-fhir-converter") {
         version {
             branch = "om/josh/18431-move-updated-code"
         }
     }
-//    implementation("gov.cdc.prime:fhirconverter:0.1-SNAPSHOT")
     implementation("ca.uhn.hapi.fhir:hapi-fhir-structures-r4:8.0.0")
     // https://mvnrepository.com/artifact/ca.uhn.hapi.fhir/hapi-fhir-caching-caffeine
     implementation("ca.uhn.hapi.fhir:hapi-fhir-caching-caffeine:8.0.0")
