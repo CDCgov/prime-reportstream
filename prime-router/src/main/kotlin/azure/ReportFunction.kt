@@ -533,11 +533,8 @@ class ReportFunction(
         request: HttpRequestMessage<String?>,
         sender: Sender,
     ): HttpResponseMessage {
-        // Allow only CVS.default sender to pass through and deactivate all other senders.
-        // We also allow sender organizations of igore and test to pass since they are using for smoketest for RS.
-        if (!listOf("test", "ignore", "waters").contains(sender.organizationName) &&
-            sender.customerStatus == CustomerStatus.INACTIVE
-        ) {
+        // Allow only active sender (i.e sender with customerStatus="active") to pass through.
+        if (sender.customerStatus == CustomerStatus.INACTIVE) {
             return HttpUtilities.gone(
                 request,
                 "ReportStream sunsetted on December 31, 2025. For more detail, please refer to " +
