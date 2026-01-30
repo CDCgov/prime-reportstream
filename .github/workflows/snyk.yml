@@ -39,7 +39,7 @@ jobs:
           java-version: "21"
           distribution: "temurin"
           cache: "gradle"
-      - uses: gradle/actions/setup-gradle@d156388eb19639ec20ade50009f3d199ce1e2808
+      - uses: gradle/actions/setup-gradle@f29f5a9d7b09a7c6b29859002d29d24e1674c884
       - name: Snyk Monitor
         working-directory: ${{ matrix.folder }}
         run: snyk monitor --org=prime-reportstream --target-reference="main"
