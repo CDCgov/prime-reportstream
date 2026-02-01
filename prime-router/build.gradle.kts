@@ -946,7 +946,7 @@ dependencies {
     implementation("org.bouncycastle:bcprov-jdk18on:1.83")
     implementation("org.bouncycastle:bcmail-jdk15to18:1.83")
 
-    implementation("commons-net:commons-net:3.11.1")
+    implementation("commons-net:commons-net:3.12.0")
     implementation("com.cronutils:cron-utils:9.2.1")
     implementation("io.jsonwebtoken:jjwt-api:0.11.5")
     implementation("de.m3y.kformat:kformat:0.14")
