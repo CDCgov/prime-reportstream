@@ -76,7 +76,7 @@ val javaVersion = when (appJvmTarget.target) {
 }
 val ktorVersion = "3.3.3"
 val kotlinVersion by System.getProperties()
-val jacksonVersion = "2.20.1"
+val jacksonVersion = "2.21.0"
 jacoco.toolVersion = "0.8.12"
 
 // Local database information, first one wins:
