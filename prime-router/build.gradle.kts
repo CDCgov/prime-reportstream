@@ -914,10 +914,10 @@ dependencies {
             branch = "master"
         }
     }
-    implementation("ca.uhn.hapi.fhir:hapi-fhir-structures-r4:8.0.0")
+    implementation("ca.uhn.hapi.fhir:hapi-fhir-structures-r4:8.6.1")
     // https://mvnrepository.com/artifact/ca.uhn.hapi.fhir/hapi-fhir-caching-caffeine
-    implementation("ca.uhn.hapi.fhir:hapi-fhir-caching-caffeine:8.0.0")
-    implementation("ca.uhn.hapi.fhir:hapi-fhir-client:8.0.0")
+    implementation("ca.uhn.hapi.fhir:hapi-fhir-caching-caffeine:8.6.1")
+    implementation("ca.uhn.hapi.fhir:hapi-fhir-client:8.6.1")
     implementation("ca.uhn.hapi:hapi-base:2.6.0")
     implementation("ca.uhn.hapi:hapi-structures-v251:2.6.0")
     implementation("ca.uhn.hapi:hapi-structures-v27:2.6.0")
