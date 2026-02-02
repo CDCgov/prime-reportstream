@@ -24,9 +24,7 @@ import org.apache.tools.ant.filters.ReplaceTokens
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.jooq.meta.jaxb.ForcedType
-import java.io.ByteArrayOutputStream
 import java.io.FileInputStream
-import java.nio.charset.StandardCharsets
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Properties
@@ -36,9 +34,9 @@ apply(from = rootProject.file("buildSrc/shared.gradle.kts"))
 plugins {
     val kotlinVersion by System.getProperties()
     id("reportstream.project-conventions")
-    id("org.flywaydb.flyway") version "11.8.1"
+    id("org.flywaydb.flyway") version "12.0.0"
     id("nu.studer.jooq") version "9.0"
-    id("com.github.johnrengelman.shadow") version "8.1.1"
+    id("com.gradleup.shadow") version "9.3.1"
     id("com.microsoft.azure.azurefunctions") version "1.16.1"
     id("com.adarshr.test-logger") version "4.0.0"
     id("jacoco")
@@ -51,12 +49,11 @@ plugins {
 
 // retrieve the current commit hash
 val commitId by lazy {
-    val stdout = ByteArrayOutputStream()
-    exec {
-        commandLine("git", "rev-parse", "--short", "HEAD")
-        standardOutput = stdout
-    }
-    stdout.toString(StandardCharsets.UTF_8).trim()
+    val process = ProcessBuilder("git", "rev-parse", "--short", "HEAD")
+        .redirectOutput(ProcessBuilder.Redirect.PIPE)
+        .redirectError(ProcessBuilder.Redirect.PIPE)
+        .start()
+    process.inputStream.bufferedReader().use { it.readText() }.trim()
 }
 
 group = "gov.cdc.prime.reportstream"
@@ -527,14 +524,22 @@ tasks.register("reloadCredentials") {
  */
 tasks.azureFunctionsPackage {
     dependsOn("test")
+    doFirst {
+        // Ensure the output directory exists
+        file("$buildDir/$azureFunctionsDir/$azureAppName").mkdirs()
+    }
     finalizedBy("copyAzureResources")
     finalizedBy("copyAzureScripts")
+    finalizedBy("generateVersionFile")
 }
 
 // TODO: remove after implementation of health check endpoint
 tasks.register("generateVersionFile") {
+    mustRunAfter("azureFunctionsPackage")
     doLast {
-        file("$buildDir/$azureFunctionsDir/$azureAppName/version.json").writeText("{\"commitId\": \"$commitId\"}")
+        val versionDir = file("$buildDir/$azureFunctionsDir/$azureAppName")
+        versionDir.mkdirs()
+        file("$versionDir/version.json").writeText("{\"commitId\": \"$commitId\"}")
     }
 }
 
@@ -660,7 +665,7 @@ tasks.azureFunctionsRun {
     azurefunctions.localDebug = "transport=dt_socket,server=y,suspend=n,address=5005"
 }
 
-task<Exec>("uploadSwaggerUI") {
+tasks.register<Exec>("uploadSwaggerUI") {
     dependsOn("copyApiSwaggerUI")
     group = rootProject.description ?: ""
     description = "Upload swagger ui and API docs to azure storage blob container"
@@ -669,15 +674,19 @@ task<Exec>("uploadSwaggerUI") {
 
 tasks.register("killFunc") {
     val processName = "func"
-    if (org.gradle.internal.os.OperatingSystem.current().isWindows) {
-        exec {
-            workingDir = project.rootDir
-            commandLine = listOf("cmd", "/c", "taskkill /F /IM $processName.exe || exit 0")
-        }
-    } else {
-        exec {
-            workingDir = project.rootDir
-            commandLine = listOf("sh", "-c", "pkill -9 $processName || true")
+    doLast {
+        if (org.gradle.internal.os.OperatingSystem.current().isWindows) {
+            ProcessBuilder("cmd", "/c", "taskkill /F /IM $processName.exe || exit 0")
+                .directory(project.rootDir)
+                .inheritIO()
+                .start()
+                .waitFor()
+        } else {
+            ProcessBuilder("sh", "-c", "pkill -9 $processName || true")
+                .directory(project.rootDir)
+                .inheritIO()
+                .start()
+                .waitFor()
         }
     }
 }
@@ -812,7 +821,7 @@ tasks.register("resetDB") {
     dependsOn("flywayMigrate")
 }
 
-task<RunSQL>("clearDB") {
+tasks.register<RunSQL>("clearDB") {
     group = rootProject.description ?: ""
     description = "Truncate/empty all tables in the database that hold report and related data, and leave settings"
     config {
@@ -856,7 +865,7 @@ buildscript {
         // will need to be removed once this issue is resolved in Maven.
         classpath("net.minidev:json-smart:2.6.0")
         // as per flyway v10 docs the postgres flyway module must be on the project buildpath
-        classpath("org.flywaydb:flyway-database-postgresql:11.8.1")
+        classpath("org.flywaydb:flyway-database-postgresql:12.0.0")
     }
 }
 
@@ -937,8 +946,8 @@ dependencies {
     implementation("commons-io:commons-io:2.21.0")
     implementation("org.postgresql:postgresql:42.7.8")
     implementation("com.zaxxer:HikariCP:7.0.2")
-    implementation("org.flywaydb:flyway-core:11.8.1")
-    implementation("org.flywaydb:flyway-database-postgresql:11.8.1")
+    implementation("org.flywaydb:flyway-core:12.0.0")
+    implementation("org.flywaydb:flyway-database-postgresql:12.0.0")
     implementation("org.commonmark:commonmark:0.27.0")
     implementation("com.google.guava:guava:33.5.0-jre")
     implementation("com.helger.as2:as2-lib:5.1.7")
