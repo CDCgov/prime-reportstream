@@ -238,7 +238,10 @@ class ReportFunctionTests {
         val metadata = UnitTestUtils.simpleMetadata
         val settings = FileSettings().loadOrganizations(oneOrganization)
         // does not matter what type of Sender it is for this test
-        val sender = CovidSender("default", "simple_report", MimeFormat.CSV, schemaName = "one")
+        val sender = CovidSender(
+            "default", "simple_report", MimeFormat.CSV,
+            customerStatus = CustomerStatus.ACTIVE, schemaName = "one"
+        )
         val req = MockHttpRequestMessage("test")
         val engine = makeEngine(metadata, settings)
         val actionHistory = spyk(ActionHistory(TaskAction.receive))
@@ -252,8 +255,10 @@ class ReportFunctionTests {
     }
 
     /** Do all the setup required to be able to run any process request tests**/
-    private fun setupForProcessRequestTests(actionHistory: ActionHistory):
-        Triple<ReportFunction, MockHttpRequestMessage, Sender> {
+    private fun setupForProcessRequestTests(
+        actionHistory: ActionHistory,
+                                            customerStatus: CustomerStatus = CustomerStatus.ACTIVE,
+    ): Triple<ReportFunction, MockHttpRequestMessage, Sender> {
         val metadata = UnitTestUtils.simpleMetadata
         val settings = FileSettings().loadOrganizations(oneOrganization)
 
@@ -263,6 +268,7 @@ class ReportFunctionTests {
             "Test Sender",
             "test",
             MimeFormat.CSV,
+            customerStatus,
             schemaName =
             "one",
             allowDuplicates = false
@@ -550,7 +556,10 @@ class ReportFunctionTests {
         // Setup
         val metadata = UnitTestUtils.simpleMetadata
         val settings = FileSettings().loadOrganizations(oneOrganization)
-        val sender = CovidSender("Test Sender", "test", MimeFormat.CSV, schemaName = "one")
+        val sender = CovidSender(
+            "Test Sender", "test", MimeFormat.CSV,
+            customerStatus = CustomerStatus.ACTIVE, schemaName = "one"
+        )
 
         val engine = makeEngine(metadata, settings)
         val actionHistory = spyk(ActionHistory(TaskAction.receive))
@@ -580,7 +589,10 @@ class ReportFunctionTests {
         // Setup
         val metadata = UnitTestUtils.simpleMetadata
         val settings = FileSettings().loadOrganizations(oneOrganization)
-        val sender = CovidSender("Test Sender", "test", MimeFormat.CSV, schemaName = "one")
+        val sender = CovidSender(
+            "Test Sender", "test", MimeFormat.CSV,
+            customerStatus = CustomerStatus.ACTIVE, schemaName = "one"
+        )
 
         val engine = makeEngine(metadata, settings)
         val actionHistory = spyk(ActionHistory(TaskAction.receive))
@@ -646,6 +658,7 @@ class ReportFunctionTests {
             "Test Sender",
             "test",
             MimeFormat.CSV,
+            customerStatus = CustomerStatus.ACTIVE,
             schemaName =
             "one",
             allowDuplicates = false
@@ -700,6 +713,7 @@ class ReportFunctionTests {
             "Test Sender",
             "test",
             MimeFormat.HL7,
+            customerStatus = CustomerStatus.ACTIVE,
             schemaName =
             "one",
             allowDuplicates = false
@@ -770,6 +784,7 @@ class ReportFunctionTests {
             "Test Sender",
             "test",
             MimeFormat.HL7,
+            customerStatus = CustomerStatus.ACTIVE,
             schemaName =
             "one",
             allowDuplicates = false
@@ -852,6 +867,21 @@ class ReportFunctionTests {
 
         // Report Validated and no warnings returned
         assert(resp.status.equals(HttpStatus.OK))
+        verify(exactly = 0) { actionHistory.trackLogs(any<ActionLog>()) }
+    }
+
+    @Test
+    fun `test processRequest should return HttpStatus GONE`() {
+        // setup steps
+        val actionHistory = spyk(ActionHistory(TaskAction.receive))
+        var (reportFunc, req, sender) = setupForProcessRequestTests(actionHistory, CustomerStatus.INACTIVE)
+        req.queryParameters["option"] = "ValidatePayload"
+
+        // Call the processRequest
+        var resp = reportFunc.processRequest(req, sender)
+
+        // Report Validated and no warnings returned
+        assert(resp.status.equals(HttpStatus.GONE))
         verify(exactly = 0) { actionHistory.trackLogs(any<ActionLog>()) }
     }
 
@@ -1450,8 +1480,9 @@ class ReportFunctionTests {
 
         val sender = UniversalPipelineSender(
             name = "Test Sender",
-            organizationName = "org",
+            organizationName = "test",
             format = MimeFormat.HL7,
+            customerStatus = CustomerStatus.ACTIVE,
             hl7AcknowledgementEnabled = true,
             topic = Topic.FULL_ELR,
         )

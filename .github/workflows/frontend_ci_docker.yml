@@ -41,10 +41,10 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Set up Node.js
-        uses: actions/setup-node@0a44ba7841725637a19e28fa30b79a866c81b0a6 # Using v3.5.1
+        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # Using v3.5.1
         with:
           node-version-file: '${{ env.WORKING_DIRECTORY }}/.nvmrc'
           # Yarn caching will be handled by a separate actions/cache step
@@ -85,13 +85,13 @@ jobs:
       pull-requests: write # For PR comments
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0 # Required by Chromatic
           ref: ${{ github.event.pull_request.head.sha }} # Checkout PR HEAD commit
 
       - name: Set up Node.js
-        uses: actions/setup-node@0a44ba7841725637a19e28fa30b79a866c81b0a6
+        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238
         with:
           node-version-file: '${{ env.WORKING_DIRECTORY }}/.nvmrc'
           # Yarn caching will be handled by a separate actions/cache step
@@ -112,7 +112,7 @@ jobs:
 
       - name: Run Chromatic
         id: chromatic
-        uses: chromaui/action@f4e60a7072abcac4203f4ca50613f28e199a52ba # Specific SHA from frontend_ci.yml
+        uses: chromaui/action@07791f8243f4cb2698bf4d00426baf4b2d1cb7e0 # Specific SHA from frontend_ci.yml
         with:
           workingDir: ${{ env.WORKING_DIRECTORY }}
           projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
@@ -123,7 +123,7 @@ jobs:
 
       - name: Find Previous Chromatic Comment
         id: find_chromatic_comment
-        uses: peter-evans/find-comment@v3
+        uses: peter-evans/find-comment@v4
         with:
           issue-number: ${{ github.event.pull_request.number }}
           comment-author: "github-actions[bot]"
@@ -131,7 +131,7 @@ jobs:
 
       - name: Delete Previous Chromatic Comment
         if: steps.find_chromatic_comment.outputs.comment-id != ''
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
@@ -142,7 +142,7 @@ jobs:
             })
 
       - name: Create New Chromatic Comment
-        uses: peter-evans/create-or-update-comment@v4
+        uses: peter-evans/create-or-update-comment@v5
         with:
           issue-number: ${{ github.event.pull_request.number }}
           body: |
@@ -168,7 +168,7 @@ jobs:
       packages: write # Required to push to GHCR
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Get short SHA
         id: get_sha
@@ -253,10 +253,10 @@ jobs:
           sudo swapon --show
 
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Set up Node.js
-        uses: actions/setup-node@0a44ba7841725637a19e28fa30b79a866c81b0a6
+        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238
         with:
           node-version-file: '${{ env.WORKING_DIRECTORY }}/.nvmrc'
           # Yarn caching will be handled by a separate actions/cache step
@@ -345,10 +345,10 @@ jobs:
       WARNING_LOG_FILE: e2e-data/frontend-warnings.json
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Set up Node.js
-        uses: actions/setup-node@0a44ba7841725637a19e28fa30b79a866c81b0a6
+        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238
         with:
           node-version-file: '${{ env.WORKING_DIRECTORY }}/.nvmrc'
           # Yarn caching will be handled by a separate actions/cache step
@@ -400,7 +400,7 @@ jobs:
 
       - name: Find Previous Warnings Comment
         id: comment_find
-        uses: peter-evans/find-comment@v3
+        uses: peter-evans/find-comment@v4
         with:
           issue-number: ${{ github.event.pull_request.number }}
           comment-author: "github-actions[bot]"
@@ -408,7 +408,7 @@ jobs:
 
       - name: Delete Previous Warnings Comment
         if: ${{ steps.comment_find.outputs.comment-id != '' }}
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
@@ -446,7 +446,7 @@ jobs:
 
       - name: Create New Comment
         if: ${{ env.COMMENT != '' && env.COMMENT != '\n' }}
-        uses: peter-evans/create-or-update-comment@v4
+        uses: peter-evans/create-or-update-comment@v5
         with:
           issue-number: ${{ github.event.pull_request.number }}
           body: ${{ env.COMMENT }}
@@ -465,7 +465,7 @@ jobs:
 #      PUPPETEER_LAUNCH_ARGS: "--no-sandbox --disable-setuid-sandbox"
 #    steps:
 #      - name: Checkout code
-#        uses: actions/checkout@v4
+#        uses: actions/checkout@v6
 #
 #      - name: Set up Node.js
 #        uses: actions/setup-node@v4
@@ -563,7 +563,7 @@ jobs:
 
   #   steps:
   #     - name: Checkout code
-  #       uses: actions/checkout@v4
+  #       uses: actions/checkout@v6
 
   #     - name: Set up Docker Buildx
   #       uses: docker/setup-buildx-action@v3
