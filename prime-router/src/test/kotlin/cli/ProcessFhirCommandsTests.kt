@@ -15,6 +15,7 @@ import gov.cdc.prime.router.ReportStreamFilterType
 import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.cli.NoopReportStreamEventService
 import gov.cdc.prime.router.cli.ProcessFhirCommands
+import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.fhirengine.engine.FHIRReceiverFilter
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.unittest.UnitTestUtils
@@ -98,6 +99,25 @@ import kotlin.test.Test
          ProcessFhirCommands().evaluateReceiverFilters(receiver, messageOrBundle, fhirReceiverFilter)
 
          assertThat(messageOrBundle.filterErrors).isEmpty()
+     }
+
+     @Test
+     fun `processFhirCommand -- receiver not found error`() {
+         val cliError = assertThrows<CliktError> {
+             ProcessFhirCommands().processFhirDataRequest(
+                 testFile,
+                 Environment.get("staging"),
+                 "",
+                 "",
+                 "",
+                 false,
+                 ""
+
+             )
+         }
+         assertThat(cliError.message).isEqualTo(
+             "Receiver not found."
+         )
      }
 
      @Test

@@ -507,7 +507,7 @@ class ProcessFhirCommands :
         }
     }
 
-    private fun getReceiver(
+    fun getReceiver(
         environment: Environment,
         receiverName: String?,
         orgName: String?,
