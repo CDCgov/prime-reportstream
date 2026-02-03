@@ -878,10 +878,10 @@ dependencies {
     implementation("com.microsoft.azure.functions:azure-functions-java-library:3.2.2")
     implementation("com.azure:azure-core:1.57.0")
     implementation("com.azure:azure-core-http-netty:1.16.2")
-    implementation("com.azure:azure-storage-blob:12.27.0") {
+    implementation("com.azure:azure-storage-blob:12.33.1") {
         exclude(group = "com.azure", module = "azure-core")
     }
-    implementation("com.azure:azure-storage-queue:12.22.0") {
+    implementation("com.azure:azure-storage-queue:12.28.1") {
         exclude(group = "com.azure", module = "azure-core")
     }
     implementation("com.azure:azure-security-keyvault-secrets:4.10.4") {
