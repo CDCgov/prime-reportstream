@@ -876,8 +876,8 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0")
     implementation("com.microsoft.azure.functions:azure-functions-java-library:3.2.2")
-    implementation("com.azure:azure-core:1.57.0")
-    implementation("com.azure:azure-core-http-netty:1.16.2")
+    implementation("com.azure:azure-core:1.57.1")
+    implementation("com.azure:azure-core-http-netty:1.16.3")
     implementation("com.azure:azure-storage-blob:12.27.0") {
         exclude(group = "com.azure", module = "azure-core")
     }
