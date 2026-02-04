@@ -136,7 +136,7 @@ val qualityFilterDefault: ReportStreamFilter = listOf(
             "Bundle.entry.resource.ofType(Observation).effective.exists())"
     )
 ```
-To modify the organization’s quality filter, the user needs to edit the organizations.yml file or an individual organization’s settings in the jurisdiction located at prime-router/settings/STLTs/<state>. For example, if the user wants to modify the AL jurisdiction setting, the user can edit the ./settings/STLTs/AL/al-phd.yml file and add the fhirpath expression to the qualityFilter section.
+To modify the organization’s quality filter, the user needs to edit the organizations.yml file or an individual organization’s settings in the jurisdiction located at prime-router/settings/STLTs/\<state>. For example, if the user wants to modify the AL jurisdiction setting, the user can edit the ./settings/STLTs/AL/al-phd.yml file and add the fhirpath expression to the qualityFilter section.
 
 ![](./images/rcvfilter-pic-1.PNG)
 
@@ -164,9 +164,6 @@ Generic filtering that does not concern data quality or condition (e.g., test re
    </td>
   </tr>
 </table>
-
-    routingFilter:
-    - "allowAll()"
 
 The following is from one of the organizations in organizations.yml that contains ReportStream’s settings.  For example, the setting below allows only messages with a result status of F – Final result, C – Record coming over is a correction and replaces a final result, or P – Preliminary result (for more detail see: https://hl7-definition.caristix.com/v2/HL7v2.5.1/Tables/0085):
 
@@ -214,10 +211,6 @@ The following is from one of the organizations in organizations.yml that contain
 
 
 ### Condition Filter
-
-Filter data based on the test identifiers using FHIR expressions. A receiver expecting flu results should only accept
-tests for flu. If the message contains multiple observations, some that pass the condition filter and others that do
-not, the condition filter will pass if any bundle observations are of interest to the receiver.
 
 Filter messages based on Observation resources using FHIR expressions. When the receiver expects flu results, only flu results should be routed to them. If a message contains multiple observations, some of which pass the condition filter and others that do not, the condition filter will pass if any observations in the bundle are of interest to the receiver. For more detailed information on the condition-to-code mapping, please see the [Proposal for Code to Condition Mapping](https://github.com/CDCgov/prime-reportstream/blob/main/prime-router/docs/design/proposals/0023-condition-to-code-mapping/0023-condition-to-code-mapping.md)
 
@@ -442,7 +435,7 @@ Note that in the following steps, we use ms-doh as the sample recriver organizat
          CONDITION_FILTER - Filter failed :
            %resource.where(interpretation.coding.code = 'A').code.coding.extension('https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code').value.where(code in ('55735004'|'840539006'|'6142004'|'541131000124102')).exists()
 ```  
-   #### The following command will pass:
+#### The following command will pass:
 ```text
    ./prime fhirdata --input-file "./junk/TestRcvFilterMessages/Test-Condition-covid-positive.fhir"  --sender-schema  classpath:/metadata/fhir_transforms/senders/SimpleReport/simple-report-sender-transform.yml --output-file "./junk/TestRcvFilterMessages/Output/Test-Condition-covid-positive.hl7" --receiver-name=full-elr --org=ms-doh
 ```
@@ -452,7 +445,7 @@ Note that in the following steps, we use ms-doh as the sample recriver organizat
       
       The user needs to examine whether the output file is correct.
 ```
-   #### The following command will PASS:
+#### The following command will PASS:
 ```text
    ./prime fhirdata --input-file "./junk/TestRcvFilterMessages/Test-Condition-FLU-A-positive.fhir"  --sender-schema  classpath:/metadata/fhir_transforms/senders/SimpleReport/simple-report-sender-transform.yml --output-file "./junk/TestRcvFilterMessages/Output/Test-Condition-FLU-A-positive.hl7" --receiver-name=full-elr --org=ms-doh
 ```
@@ -462,7 +455,7 @@ Note that in the following steps, we use ms-doh as the sample recriver organizat
          
       The user needs to examine whether the output file is correct.
 ```
-   #### The following command will FAIL the conditionFilter:
+#### The following command will FAIL the conditionFilter:
 ```text
    ./prime fhirdata --input-file "./junk/TestRcvFilterMessages/Test-Condition-FLU-B-negative.fhir"  --sender-schema  classpath:/metadata/fhir_transforms/senders/SimpleReport/simple-report-sender-transform.yml --output-file "./junk/TestRcvFilterMessages/Output/Test-Condition-FLU-B-negative.hl7" --receiver-name=full-elr --org=ms-doh
 ```
@@ -471,7 +464,7 @@ Note that in the following steps, we use ms-doh as the sample recriver organizat
          CONDITION_FILTER - Filter failed :
          %resource.where(interpretation.coding.code = 'A').code.coding.extension('https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code').value.where(code in ('55735004'|'840539006'|'6142004'|'541131000124102')).exists()
 ``` 
-   ### The following command will PASS:
+#### The following command will PASS:
 ```Text
    ./prime fhirdata --input-file "./junk/TestRcvFilterMessages/Test-Condition-FLU-B-positive.fhir"  --sender-schema  classpath:/metadata/fhir_transforms/senders/SimpleReport/simple-report-sender-transform.yml --output-file "./junk/TestRcvFilterMessages/Output/Test-Condition-FLU-B-positive.hl7" --receiver-name=full-elr --org=ms-doh
 ```
@@ -481,7 +474,7 @@ Note that in the following steps, we use ms-doh as the sample recriver organizat
       
    The user needs to examine whether the output file is correct.
 ```
-   #### The following command will FAIL the conditionFilter:
+#### The following command will FAIL the conditionFilter:
 ```Text   
    ./prime fhirdata --input-file "./junk/TestRcvFilterMessages/Test-Condition-HIV.fhir"  --sender-schema  classpath:/metadata/fhir_transforms/senders/SimpleReport/simple-report-sender-transform.yml --output-file "./junk/TestRcvFilterMessages/Output/Test-Condition-HIV.hl7" --receiver-name=full-elr --org=ms-doh
 ```
@@ -490,7 +483,7 @@ Note that in the following steps, we use ms-doh as the sample recriver organizat
          CONDITION_FILTER - Filter failed :
          %resource.where(interpretation.coding.code = 'A').code.coding.extension('https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code').value.where(code in ('55735004'|'840539006'|'6142004'|'541131000124102')).exists()
 ```   
-   #### The following command will PASS:
+#### The following command will PASS:
 ```text   
    ./prime fhirdata --input-file "./junk/TestRcvFilterMessages/Test-Condition-RSV-positive.fhir"  --sender-schema  classpath:/metadata/fhir_transforms/senders/SimpleReport/simple-report-sender-transform.yml --output-file "./junk/TestRcvFilterMessages/Output/Test-Condition-RSV-positive.hl7" --receiver-name=full-elr --org=ms-doh
 ```
