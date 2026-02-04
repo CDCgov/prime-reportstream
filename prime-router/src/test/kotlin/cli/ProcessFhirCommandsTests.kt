@@ -107,7 +107,7 @@ import kotlin.test.Test
              ProcessFhirCommands().processFhirDataRequest(
                  testFile,
                  Environment.get("staging"),
-                 "",
+                 "testRecviver",
                  "",
                  "",
                  false,
@@ -116,7 +116,7 @@ import kotlin.test.Test
              )
          }
          assertThat(cliError.message).isEqualTo(
-             "Receiver not found."
+             "Receiver: testRecviver not found."
          )
      }
 

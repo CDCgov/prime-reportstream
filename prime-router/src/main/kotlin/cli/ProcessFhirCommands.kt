@@ -213,7 +213,7 @@ class ProcessFhirCommands :
         // Check on the extension of the file for supported operations
         val inputFileType = inputFile.extension.uppercase()
         val receiver = getReceiver(environment, receiverName, orgName, isCli, accessToken)
-            ?: throw CliktError("Receiver not found.")
+            ?: throw CliktError("Receiver: $receiverName not found.")
 
         val messageOrBundle = MessageOrBundle()
         when {
