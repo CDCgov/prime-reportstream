@@ -3,8 +3,8 @@
 # To build it, you must specify at least the following --build-arg values
 # with some suggested default shown here
 #
-# --build-arg GRADLE_VERSION=8.10.2        - The version of Gradle you want to build with
-# --build-arg AFCT_VERSION=4.0.5198     - The version of the Azure Functions Core Tools
+# --build-arg GRADLE_VERSION=9.3.0        - The version of Gradle you want to build with
+# --build-arg AFCT_VERSION=4.0.7317     - The version of the Azure Functions Core Tools
 # --build-arg JAVA_VERSION=17           - The version of the JDK (and thus JRE) you want to build against/with
 #
 
@@ -14,7 +14,7 @@
 # a tad bit easier when you are rebuilding the builder image
 #
 FROM cgr.dev/chainguard/wolfi-base:latest@sha256:b72df108f3388c82b0638bcfbad1511d85c60593e67fb8f8a968255f7e0588df AS downloader
-ARG GRADLE_VERSION=8.10.2
+ARG GRADLE_VERSION=9.3.0
 ARG AFCT_VERSION=4.0.7317 # Updated to latest stable v4
 
 RUN apk update && apk add wget --no-cache
