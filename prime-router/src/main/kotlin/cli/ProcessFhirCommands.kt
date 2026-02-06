@@ -213,6 +213,7 @@ class ProcessFhirCommands :
         // Check on the extension of the file for supported operations
         val inputFileType = inputFile.extension.uppercase()
         val receiver = getReceiver(environment, receiverName, orgName, isCli, accessToken)
+            ?: throw CliktError("Receiver: $receiverName not found.")
 
         val messageOrBundle = MessageOrBundle()
         when {
@@ -220,7 +221,7 @@ class ProcessFhirCommands :
             inputFileType == "HL7" &&
                 (
                     (isCli && outputFormat == MimeFormat.FHIR.toString()) ||
-                        (receiver != null && receiver.format == MimeFormat.FHIR)
+                        (receiver.format == MimeFormat.FHIR)
                     ) -> {
                 val fhirMessage = convertHl7ToFhir(contents, inputSchema).first
                 messageOrBundle.bundle = fhirMessage
@@ -234,15 +235,14 @@ class ProcessFhirCommands :
                 (
                     (isCli && outputFormat == MimeFormat.HL7.toString()) ||
                         (
-                            receiver != null &&
-                            (receiver.format == MimeFormat.HL7 || receiver.format == MimeFormat.HL7_BATCH)
+                                receiver.format == MimeFormat.HL7 || receiver.format == MimeFormat.HL7_BATCH
                         )
                     ) -> {
                 messageOrBundle.bundle = FhirTranscoder.decode(contents)
                 handleSendAndReceiverFhirEnrichments(messageOrBundle, receiver, senderSchema, isCli)
 
                 convertFhirToHl7(
-                    (receiver?.translation ?: defaultHL7Configuration) as Hl7Configuration,
+                    (receiver.translation ?: defaultHL7Configuration) as Hl7Configuration,
                     receiver,
                     isCli,
                     messageOrBundle
@@ -255,7 +255,7 @@ class ProcessFhirCommands :
             (inputFileType == "FHIR" || inputFileType == "JSON") &&
                 (
                     (isCli && outputFormat == MimeFormat.FHIR.toString()) ||
-                        (receiver != null && receiver.format == MimeFormat.FHIR)
+                        (receiver.format == MimeFormat.FHIR)
                     ) -> {
                 messageOrBundle.bundle = FhirTranscoder.decode(contents)
                 handleSendAndReceiverFhirEnrichments(messageOrBundle, receiver, senderSchema, isCli)
@@ -268,8 +268,7 @@ class ProcessFhirCommands :
                 (
                     (isCli && outputFormat == MimeFormat.HL7.toString()) ||
                         (
-                            receiver != null &&
-                                (receiver.format == MimeFormat.HL7 || receiver.format == MimeFormat.HL7_BATCH)
+                                receiver.format == MimeFormat.HL7 || receiver.format == MimeFormat.HL7_BATCH
                             )
                     ) -> {
                 val (bundle2, inputMessage) = convertHl7ToFhir(contents, inputSchema)
@@ -278,7 +277,7 @@ class ProcessFhirCommands :
                 handleSendAndReceiverFhirEnrichments(messageOrBundle, receiver, senderSchema, isCli)
 
                 convertFhirToHl7(
-                    (receiver?.translation ?: defaultHL7Configuration) as Hl7Configuration,
+                    (receiver.translation ?: defaultHL7Configuration) as Hl7Configuration,
                     receiver,
                     isCli,
                     messageOrBundle
