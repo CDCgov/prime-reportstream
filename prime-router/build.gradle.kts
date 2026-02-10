@@ -901,7 +901,7 @@ dependencies {
     implementation("io.github.oshai:kotlin-logging-jvm:7.0.13")
     implementation("com.github.doyaaaaaken:kotlin-csv-jvm:1.10.0")
     implementation("tech.tablesaw:tablesaw-core:0.44.4")
-    implementation("com.github.ajalt.clikt:clikt-jvm:5.0.3")
+    implementation("com.github.ajalt.clikt:clikt-jvm:5.1.0")
 
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:$jacksonVersion")
     implementation("com.fasterxml.jackson.core:jackson-databind:$jacksonVersion")
