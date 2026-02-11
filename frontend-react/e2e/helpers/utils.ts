@@ -161,7 +161,8 @@ export function isAbsoluteURL(url: string): boolean {
 
 export function isAssetURL(url: string): boolean {
     // Regular expression to match common asset file extensions at the end of a URL
-    const assetExtensions = /\.(pdf|png|jpg|jpeg|gif|bmp|svg|webp|mp4|mp3|wav|ogg|avi|mov|mkv|zip|rar|tar|gz|iso)$/i;
+    const assetExtensions =
+        /\.(pdf|png|jpg|jpeg|gif|bmp|svg|webp|mp4|mp3|wav|ogg|avi|mov|mkv|zip|rar|tar|gz|iso|xlsm)$/i;
 
     return assetExtensions.test(url);
 }
