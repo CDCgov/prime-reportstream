@@ -1,4 +1,4 @@
-ARG JAVA_VERSION=17
+ARG JAVA_VERSION=21
 # This Docker file was generated from a `mvn archetype:generate -Ddocker` command. It creates 
 # a container that is deployable to the Azure cloud
 #
