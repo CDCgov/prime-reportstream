@@ -15,7 +15,7 @@ import org.apache.logging.log4j.kotlin.Logging
 import java.io.File
 import java.io.IOException
 import java.net.HttpURLConnection
-import java.net.URL
+import java.net.URI
 import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
 
@@ -399,7 +399,7 @@ class HttpUtilities {
             bytes: ByteArray?,
             headers: List<Pair<String, String>>? = null,
         ): Pair<Int, String> {
-            val urlObj = URL(urlStr)
+            val urlObj = URI(urlStr).toURL()
             with(urlObj.openConnection() as HttpURLConnection) {
                 requestMethod = method
                 doOutput = true

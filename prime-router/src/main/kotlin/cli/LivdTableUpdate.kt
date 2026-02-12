@@ -26,7 +26,7 @@ import tech.tablesaw.io.csv.CsvReadOptions
 import tech.tablesaw.selection.Selection
 import java.io.File
 import java.io.FileOutputStream
-import java.net.URL
+import java.net.URI
 
 /**
  * LivdTableUpdate is the command line interface for the livd-table-update command. It parses the command line
@@ -364,12 +364,12 @@ class LivdTableUpdate :
     }
 
     companion object {
-        private val loincMappingBaseUrl = URL("https://www.cdc.gov")
+        private val loincMappingBaseUrl = URI("https://www.cdc.gov")
 
         /**
          * cdcLOINCTestCodeMappingPageUrl is the CDC URL that contains the LIVD-SARS-CoV-2-yyyyMMdd.xlsx file.
          */
-        private val loincMappingPageUrl = URL("$loincMappingBaseUrl/csels/dls/sars-cov-2-livd-codes.html")
+        private val loincMappingPageUrl = URI("$loincMappingBaseUrl/csels/dls/sars-cov-2-livd-codes.html")
 
         /**
          * livdSARSCov2File is the prefix of the LIVD-SARS-CoV-2-yyyyMMdd.xlsx file to download.
