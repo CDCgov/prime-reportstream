@@ -23,7 +23,7 @@ import org.apache.logging.log4j.kotlin.Logging
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.File
-import java.net.URL
+import java.net.URI
 import java.net.URLDecoder
 import java.nio.charset.Charset
 import java.time.Duration
@@ -46,7 +46,7 @@ class BlobAccess : Logging {
              * @return the blob filename
              */
             fun getBlobFilename(blobUrl: String): String = if (blobUrl.isNotBlank()) {
-                    FilenameUtils.getName(URL(URLDecoder.decode(blobUrl, Charset.defaultCharset())).path)
+                    FilenameUtils.getName(URI(URLDecoder.decode(blobUrl, Charset.defaultCharset())).toURL().path)
                 } else {
                     ""
                 }
@@ -56,7 +56,7 @@ class BlobAccess : Logging {
              * @return the blob's file extension
              */
             fun getBlobFileExtension(blobUrl: String): String = if (blobUrl.isNotBlank()) {
-                    FilenameUtils.getExtension(URL(URLDecoder.decode(blobUrl, Charset.defaultCharset())).path)
+                    FilenameUtils.getExtension(URI(URLDecoder.decode(blobUrl, Charset.defaultCharset())).toURL().path)
                 } else {
                     ""
                 }
@@ -325,7 +325,7 @@ class BlobAccess : Logging {
             check(digest == localDigest) {
                 "Downloaded file does not match expected file\n$digest | $localDigest"
             }
-            return String(blobContent)
+            return java.lang.String(blobContent).toString()
         }
 
         /**

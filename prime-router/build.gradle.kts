@@ -67,7 +67,7 @@ val azureFunctionsDir = "azure-functions"
 val primeMainClass = "gov.cdc.prime.router.cli.MainKt"
 val defaultDuplicateStrategy = DuplicatesStrategy.WARN
 azurefunctions.appName = azureAppName
-val appJvmTarget = JvmTarget.JVM_17
+val appJvmTarget = JvmTarget.JVM_21
 val javaVersion = when (appJvmTarget.target) {
     "17" -> JavaVersion.VERSION_17
     "19" -> JavaVersion.VERSION_19
