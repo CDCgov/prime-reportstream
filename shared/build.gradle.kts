@@ -12,11 +12,11 @@ repositories {
 }
 
 dependencies {
-    implementation("org.apache.commons:commons-lang3:3.18.0")
-    implementation("com.nimbusds:nimbus-jose-jwt:10.1")
+    implementation("org.apache.commons:commons-lang3:3.20.0")
+    implementation("com.nimbusds:nimbus-jose-jwt:10.7")
     testImplementation("org.jetbrains.kotlin:kotlin-test")
     testImplementation("com.willowtreeapps.assertk:assertk-jvm:0.28.1")
-    testImplementation("org.apache.commons:commons-compress:1.27.1")
+    testImplementation("org.apache.commons:commons-compress:1.28.0")
 }
 
 tasks.test {
