@@ -53,6 +53,9 @@ runs:
       run: ./gradlew :prime-router:ktlintCheck
       shell: bash
 
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
     - name: Spin up build containers
       working-directory: prime-router
       shell: bash
