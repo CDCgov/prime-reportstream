@@ -129,6 +129,7 @@ specific to your receiver.
 ### 3. Test and commit, and deploy to Test and maybe Prod
 
 * Review [How to test receiver transforms,settings and filters](receiver-testing.md) and [How to Filter by Individual LOINC Codes](../how-to-filter-by-individual-LOINC-codes.md).
+* Configure the Receiver Filters [Universal Pipeline Receiver Filter Step](../../universal-pipeline/receiver-filter.md)
 * Test locally using sample messages.
 * Once you've got the kinks out of the organizations.yml, carefully update settings in the staging environment. 
 * `./prime multiple-settings set --help`
