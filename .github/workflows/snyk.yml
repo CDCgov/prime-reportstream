@@ -31,7 +31,7 @@ jobs:
         matrix:
             folder: [prime-router, shared]
     steps:
-      - uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8
       - uses: snyk/actions/setup@9adf32b1121593767fc3c057af55b55db032dc04
       - name: Set up JDK 21 to generate backend coverage stats
         uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654

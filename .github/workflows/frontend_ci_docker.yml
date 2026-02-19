@@ -41,7 +41,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v6.0.1
 
       - name: Set up Node.js
         uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # Using v3.5.1
@@ -85,7 +85,7 @@ jobs:
       pull-requests: write # For PR comments
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v6.0.1
         with:
           fetch-depth: 0 # Required by Chromatic
           ref: ${{ github.event.pull_request.head.sha }} # Checkout PR HEAD commit
@@ -168,7 +168,7 @@ jobs:
       packages: write # Required to push to GHCR
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v6.0.1
 
       - name: Get short SHA
         id: get_sha
@@ -253,7 +253,7 @@ jobs:
           sudo swapon --show
 
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v6.0.1
 
       - name: Set up Node.js
         uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238
@@ -345,7 +345,7 @@ jobs:
       WARNING_LOG_FILE: e2e-data/frontend-warnings.json
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v6.0.1
 
       - name: Set up Node.js
         uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238
@@ -465,7 +465,7 @@ jobs:
 #      PUPPETEER_LAUNCH_ARGS: "--no-sandbox --disable-setuid-sandbox"
 #    steps:
 #      - name: Checkout code
-#        uses: actions/checkout@v6
+#        uses: actions/checkout@v6.0.1
 #
 #      - name: Set up Node.js
 #        uses: actions/setup-node@v4
@@ -563,7 +563,7 @@ jobs:
 
   #   steps:
   #     - name: Checkout code
-  #       uses: actions/checkout@v6
+  #       uses: actions/checkout@v6.0.1
 
   #     - name: Set up Docker Buildx
   #       uses: docker/setup-buildx-action@v3
