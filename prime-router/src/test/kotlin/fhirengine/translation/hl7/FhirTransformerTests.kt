@@ -21,7 +21,6 @@ import gov.cdc.prime.fhirconverter.translation.hl7.schema.fhirTransform.FhirTran
 import gov.cdc.prime.fhirconverter.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.azure.BlobAccess
-import gov.cdc.prime.router.fhirengine.engine.LookupTableValueSet
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.helpers.RouterSchemaReferenceResolverHelper
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
@@ -892,8 +891,7 @@ class FhirTransformerTests {
         val childSchema = ConfigSchemaReader.fromFile(
             "classpath:/fhir_sender_transforms/test_extension_schema.yml",
             schemaClass = FhirTransformSchema::class.java,
-            RouterSchemaReferenceResolverHelper.getSchemaServiceProviders(mockk<BlobAccess.BlobContainerMetadata>()),
-            LookupTableValueSet::class.java
+            RouterSchemaReferenceResolverHelper.getSchemaServiceProviders(mockk<BlobAccess.BlobContainerMetadata>())
         )
 
         val transformer = FhirTransformer(childSchema)
@@ -1371,8 +1369,7 @@ class FhirTransformerTests {
         val schema = ConfigSchemaReader.fromFile(
             "classpath:/fhir_sender_transforms/convert-all-obs-to-note.yml",
             schemaClass = FhirTransformSchema::class.java,
-            RouterSchemaReferenceResolverHelper.getSchemaServiceProviders(mockk<BlobAccess.BlobContainerMetadata>()),
-            LookupTableValueSet::class.java
+            RouterSchemaReferenceResolverHelper.getSchemaServiceProviders(mockk<BlobAccess.BlobContainerMetadata>())
         )
 
         val transformer = FhirTransformer(schema)

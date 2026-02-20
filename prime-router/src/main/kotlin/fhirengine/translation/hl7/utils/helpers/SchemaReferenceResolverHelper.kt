@@ -20,20 +20,22 @@ object RouterSchemaReferenceResolverHelper {
         ConfigSchemaReader.fromFile(
             schema,
             HL7ConverterSchema::class.java,
-            getSchemaServiceProviders(blobInfo),
-            LookupTableValueSet::class.java
+            getSchemaServiceProviders(blobInfo)
         )
 
     fun retrieveFhirSchemaReference(schema: String): FhirTransformSchema =
         retrieveFhirSchemaReference(schema, getBlobConnectionInfo())
 
-    fun retrieveFhirSchemaReference(schema: String, blobInfo: BlobAccess.BlobContainerMetadata): FhirTransformSchema =
-        ConfigSchemaReader.fromFile(
+    fun retrieveFhirSchemaReference(schema: String, blobInfo: BlobAccess.BlobContainerMetadata): FhirTransformSchema {
+        val myKlass = LookupTableValueSet::class.java
+        ConfigSchemaReader.subtypeClass = myKlass
+
+        return ConfigSchemaReader.fromFile(
             schema,
             schemaClass = FhirTransformSchema::class.java,
-            getSchemaServiceProviders(blobInfo),
-            LookupTableValueSet::class.java
+            getSchemaServiceProviders(blobInfo)
         )
+    }
 
     fun getBlobConnectionInfo(): BlobAccess.BlobContainerMetadata =
         BlobAccess.BlobContainerMetadata.build(
