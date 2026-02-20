@@ -252,8 +252,14 @@ class FhirPathCustomResolver(private val customFhirFunctions: FhirPathFunctions?
     ): MutableList<Base> {
         check(focus != null)
         return when {
-            CustomFHIRFunctions.resolveFunction(functionName, customFhirFunctions) != null -> {
-                CustomFHIRFunctions.executeFunction(focus, functionName, parameters, customFhirFunctions)
+                CustomFHIRFunctions.resolveFunction(
+                    functionName,
+                    (appContext as CustomContext).customFhirFunctions
+                ) != null -> {
+                CustomFHIRFunctions.executeFunction(
+                    focus, functionName, parameters,
+                    appContext.customFhirFunctions
+                )
             }
 
             else -> throw IllegalStateException("Tried to execute invalid FHIR Path function $functionName")
