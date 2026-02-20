@@ -4,12 +4,12 @@ import ca.uhn.hl7v2.model.Composite
 import ca.uhn.hl7v2.model.Segment
 import ca.uhn.hl7v2.model.Type
 import ca.uhn.hl7v2.util.Terser
+import gov.cdc.prime.fhirconverter.translation.hl7.utils.HL7Utils
 import gov.cdc.prime.reportstream.shared.StringUtilities.trimAndTruncate
 import gov.cdc.prime.router.fhirengine.translation.hl7.config.TruncationConfig
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.HL7Constants
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.HL7Constants.HD_FIELDS_LOCAL
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.HL7Constants.HD_TRUNCATION_LIMIT
-import gov.cdc.prime.router.fhirengine.translation.hl7.utils.HL7Utils
 import kotlin.math.min
 
 /**

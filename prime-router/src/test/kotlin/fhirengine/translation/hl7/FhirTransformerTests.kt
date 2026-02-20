@@ -12,16 +12,17 @@ import assertk.assertions.isNotNull
 import assertk.assertions.isNotSameInstanceAs
 import assertk.assertions.isNull
 import assertk.assertions.isTrue
+import gov.cdc.prime.fhirconverter.translation.hl7.InlineValueSet
+import gov.cdc.prime.fhirconverter.translation.hl7.schema.ConfigSchemaElementProcessingException
+import gov.cdc.prime.fhirconverter.translation.hl7.schema.ConfigSchemaReader
+import gov.cdc.prime.fhirconverter.translation.hl7.schema.fhirTransform.FhirTransformSchema
+import gov.cdc.prime.fhirconverter.translation.hl7.schema.fhirTransform.FhirTransformSchemaElement
+import gov.cdc.prime.fhirconverter.translation.hl7.schema.fhirTransform.FhirTransformSchemaElementAction
+import gov.cdc.prime.fhirconverter.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.azure.BlobAccess
-import gov.cdc.prime.router.fhirengine.translation.hl7.schema.ConfigSchemaElementProcessingException
-import gov.cdc.prime.router.fhirengine.translation.hl7.schema.ConfigSchemaReader
-import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.FhirTransformSchema
-import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.FhirTransformSchemaElement
-import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.FhirTransformSchemaElementAction
-import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
-import gov.cdc.prime.router.fhirengine.translation.hl7.utils.helpers.SchemaReferenceResolverHelper
+import gov.cdc.prime.router.fhirengine.translation.hl7.utils.helpers.RouterSchemaReferenceResolverHelper
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import io.mockk.clearMocks
 import io.mockk.every
@@ -890,7 +891,7 @@ class FhirTransformerTests {
         val childSchema = ConfigSchemaReader.fromFile(
             "classpath:/fhir_sender_transforms/test_extension_schema.yml",
             schemaClass = FhirTransformSchema::class.java,
-            SchemaReferenceResolverHelper.getSchemaServiceProviders(mockk<BlobAccess.BlobContainerMetadata>())
+            RouterSchemaReferenceResolverHelper.getSchemaServiceProviders(mockk<BlobAccess.BlobContainerMetadata>())
         )
 
         val transformer = FhirTransformer(childSchema)
@@ -1368,7 +1369,7 @@ class FhirTransformerTests {
         val schema = ConfigSchemaReader.fromFile(
             "classpath:/fhir_sender_transforms/convert-all-obs-to-note.yml",
             schemaClass = FhirTransformSchema::class.java,
-            SchemaReferenceResolverHelper.getSchemaServiceProviders(mockk<BlobAccess.BlobContainerMetadata>())
+            RouterSchemaReferenceResolverHelper.getSchemaServiceProviders(mockk<BlobAccess.BlobContainerMetadata>())
         )
 
         val transformer = FhirTransformer(schema)

@@ -3,7 +3,7 @@ package gov.cdc.prime.router.fhirengine.engine
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import ca.uhn.hl7v2.util.Terser
-import gov.cdc.prime.router.fhirengine.translation.hl7.utils.Hl7TranslationFunctions
+import gov.cdc.prime.fhirconverter.translation.hl7.utils.Hl7TranslationFunctions
 import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.mockk.mockk
 import kotlin.test.Test

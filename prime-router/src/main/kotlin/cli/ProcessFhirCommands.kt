@@ -19,6 +19,10 @@ import com.github.ajalt.clikt.parameters.types.choice
 import com.github.ajalt.clikt.parameters.types.file
 import fhirengine.engine.CustomFhirPathFunctions
 import fhirengine.engine.CustomTranslationFunctions
+import gov.cdc.prime.fhirconverter.translation.hl7.FhirToHl7Context
+import gov.cdc.prime.fhirconverter.translation.hl7.FhirToHl7Converter
+import gov.cdc.prime.fhirconverter.translation.hl7.SchemaException
+import gov.cdc.prime.fhirconverter.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.Hl7Configuration
 import gov.cdc.prime.router.Metadata
@@ -52,13 +56,9 @@ import gov.cdc.prime.router.fhirengine.engine.FHIRReceiverFilter.FhirExpressionE
 import gov.cdc.prime.router.fhirengine.engine.FHIRReceiverFilter.ReceiverFilterEvaluationResult
 import gov.cdc.prime.router.fhirengine.engine.encodePreserveEncodingChars
 import gov.cdc.prime.router.fhirengine.translation.HL7toFhirTranslator
-import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Context
-import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Converter
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirTransformer
-import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
-import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
-import gov.cdc.prime.router.fhirengine.translation.hl7.utils.helpers.SchemaReferenceResolverHelper
+import gov.cdc.prime.router.fhirengine.translation.hl7.utils.helpers.RouterSchemaReferenceResolverHelper
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.fhirengine.utils.HL7Reader
 import gov.cdc.prime.router.fhirengine.utils.getObservations
@@ -333,7 +333,7 @@ class ProcessFhirCommands :
         if (!schemaNames.isNullOrEmpty()) {
             schemaNames.split(",").forEach { currentEnrichmentSchemaName ->
                 val transformer = FhirTransformer(
-                    SchemaReferenceResolverHelper.retrieveFhirSchemaReference(currentEnrichmentSchemaName),
+                    RouterSchemaReferenceResolverHelper.retrieveFhirSchemaReference(currentEnrichmentSchemaName),
                     errors = messageOrBundle.enrichmentSchemaErrors,
                     warnings = messageOrBundle.enrichmentSchemaWarnings
                 )
@@ -574,7 +574,7 @@ class ProcessFhirCommands :
 
         if (receiverTransformSchemaName != null) {
             val message = FhirToHl7Converter(
-                SchemaReferenceResolverHelper.retrieveHl7SchemaReference(
+                RouterSchemaReferenceResolverHelper.retrieveHl7SchemaReference(
                     receiverTransformSchemaName,
                     BlobAccess.BlobContainerMetadata.build("metadata", Environment.get().storageEnvVar)
                 ),
@@ -643,7 +643,7 @@ class ProcessFhirCommands :
      */
     private fun handleSenderTransforms(messageOrBundle: MessageOrBundle, senderSchema: String) {
         val transformer = FhirTransformer(
-            SchemaReferenceResolverHelper.retrieveFhirSchemaReference(senderSchema),
+            RouterSchemaReferenceResolverHelper.retrieveFhirSchemaReference(senderSchema),
             errors = messageOrBundle.senderTransformErrors,
             warnings = messageOrBundle.senderTransformWarnings
         )

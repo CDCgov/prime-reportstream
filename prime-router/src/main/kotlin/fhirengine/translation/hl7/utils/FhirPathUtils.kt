@@ -3,10 +3,14 @@ package gov.cdc.prime.router.fhirengine.translation.hl7.utils
 import ca.uhn.fhir.context.FhirContext
 import ca.uhn.fhir.model.api.TemporalPrecisionEnum
 import ca.uhn.hl7v2.model.v251.datatype.DT
+import gov.cdc.prime.fhirconverter.translation.hl7.HL7ConversionException
+import gov.cdc.prime.fhirconverter.translation.hl7.SchemaException
+import gov.cdc.prime.fhirconverter.translation.hl7.schema.converter.ConverterSchemaElement
+import gov.cdc.prime.fhirconverter.translation.hl7.utils.ConstantSubstitutor
+import gov.cdc.prime.fhirconverter.translation.hl7.utils.CustomContext
+import gov.cdc.prime.fhirconverter.translation.hl7.utils.FhirPathCustomResolver
+import gov.cdc.prime.fhirconverter.translation.hl7.utils.Hl7TranslationFunctions
 import gov.cdc.prime.router.fhirengine.config.HL7TranslationConfig
-import gov.cdc.prime.router.fhirengine.translation.hl7.HL7ConversionException
-import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
-import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.ConverterSchemaElement
 import org.apache.logging.log4j.kotlin.Logging
 import org.hl7.fhir.r4.fhirpath.ExpressionNode
 import org.hl7.fhir.r4.fhirpath.FHIRLexer
@@ -211,7 +215,7 @@ object FhirPathUtils : Logging {
                 // If there is a custom translation function, we will call to the function.
                 // Otherwise, we use our old HL7TranslationFunctions to handle the dataTime formatting.
                 if (appContext?.config is HL7TranslationConfig && appContext.translationFunctions != null) {
-                    appContext.translationFunctions.convertDateTimeToHL7(
+                    appContext.translationFunctions!!.convertDateTimeToHL7(
                         evaluated[0] as BaseDateTimeType,
                         appContext,
                         element,
