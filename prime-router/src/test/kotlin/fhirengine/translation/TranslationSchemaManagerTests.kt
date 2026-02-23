@@ -12,9 +12,9 @@ import assertk.assertions.isTrue
 import com.azure.core.util.BinaryData
 import com.azure.storage.blob.models.BlobItem
 import com.azure.storage.blob.models.BlobStorageException
+import gov.cdc.prime.fhirconverter.translation.hl7.FhirToHl7Converter
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.common.TestcontainersUtils
-import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Converter
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkConstructor

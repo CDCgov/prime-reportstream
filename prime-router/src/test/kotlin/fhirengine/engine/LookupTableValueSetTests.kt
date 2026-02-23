@@ -4,13 +4,12 @@ import assertk.assertFailure
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import assertk.assertions.isTrue
+import gov.cdc.prime.fhirconverter.translation.hl7.schema.fhirTransform.FhirTransformSchema
+import gov.cdc.prime.fhirconverter.translation.hl7.schema.fhirTransform.FhirTransformSchemaElement
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirTransformer
-import gov.cdc.prime.router.fhirengine.translation.hl7.schema.ConfigSchemaReader
-import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.FhirTransformSchema
-import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.FhirTransformSchemaElement
-import gov.cdc.prime.router.fhirengine.translation.hl7.utils.helpers.SchemaReferenceResolverHelper
+import gov.cdc.prime.router.fhirengine.translation.hl7.utils.helpers.RouterSchemaReferenceResolverHelper
 import gov.cdc.prime.router.metadata.LookupTable
 import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.mockk.every
@@ -29,8 +28,36 @@ import tech.tablesaw.api.StringColumn
 import tech.tablesaw.api.Table
 
 class LookupTableValueSetTests {
+
     @Test
-    fun `test read extended FHIR Transform from file`() {
+    fun `test fails to read invalid lookup value set schema`() {
+        mockkClass(BlobAccess::class)
+        mockkObject(BlobAccess.Companion)
+        every { BlobAccess.Companion.getBlobConnection(any()) } returns "testconnection"
+
+        val testTable = Table.create(
+            "lookuptable",
+            StringColumn.create("key", "abc123", "def456"),
+            StringColumn.create("value", "ghi789", "")
+        )
+        val testLookupTable = LookupTable(name = "lookuptable", table = testTable)
+
+        mockkConstructor(Metadata::class)
+        every { anyConstructed<Metadata>().findLookupTable("lookuptable") } returns testLookupTable
+        mockkObject(Metadata)
+        every { Metadata.getInstance() } returns UnitTestUtils.simpleMetadata
+
+        assertFailure {
+            RouterSchemaReferenceResolverHelper.retrieveFhirSchemaReference(
+                "classpath:/fhir_sender_transforms/invalid_lookup_value_set.yml",
+                mockk<BlobAccess.BlobContainerMetadata>()
+            )
+        }
+        unmockkAll()
+    }
+
+    @Test
+    fun `test read a FHIR Transform Schema with lookup value set from file`() {
         mockkClass(BlobAccess::class)
         mockkObject(BlobAccess.Companion)
         every { BlobAccess.Companion.getBlobConnection(any()) } returns "testconnection"
@@ -48,25 +75,17 @@ class LookupTableValueSetTests {
         every { Metadata.getInstance() } returns UnitTestUtils.simpleMetadata
 
         assertThat(
-            ConfigSchemaReader.fromFile(
+            RouterSchemaReferenceResolverHelper.retrieveFhirSchemaReference(
                 "classpath:/fhir_sender_transforms/lookup_value_set.yml",
-                schemaClass = FhirTransformSchema::class.java,
-                SchemaReferenceResolverHelper.getSchemaServiceProviders(mockk<BlobAccess.BlobContainerMetadata>())
+                mockk<BlobAccess.BlobContainerMetadata>()
             ).isValid()
         ).isTrue()
 
-        assertFailure {
-            ConfigSchemaReader.fromFile(
-                "classpath:/fhir_sender_transforms/invalid_lookup_value_set.yml",
-                schemaClass = FhirTransformSchema::class.java,
-                SchemaReferenceResolverHelper.getSchemaServiceProviders(mockk<BlobAccess.BlobContainerMetadata>())
-            )
-        }
         unmockkAll()
     }
 
     @Test
-    fun `test transform with lookup value set`() {
+    fun `test transform a FHIR Transform Schema with lookup value set`() {
         val testTable = Table.create(
             "table",
             StringColumn.create("key", "abc123", "def456"),

@@ -1,6 +1,6 @@
 package gov.cdc.prime.router.azure.observability.bundleDigest
 
-import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
+import gov.cdc.prime.fhirconverter.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import org.hl7.fhir.r4.model.Bundle
 

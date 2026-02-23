@@ -914,6 +914,11 @@ dependencies {
             branch = "master"
         }
     }
+    implementation("gov.cdc.prime:prime-fhir-converter") {
+        version {
+            branch = "om/josh/18431-move-updated-code"
+        }
+    }
     implementation("ca.uhn.hapi.fhir:hapi-fhir-structures-r4:8.0.0")
     // https://mvnrepository.com/artifact/ca.uhn.hapi.fhir/hapi-fhir-caching-caffeine
     implementation("ca.uhn.hapi.fhir:hapi-fhir-caching-caffeine:8.0.0")

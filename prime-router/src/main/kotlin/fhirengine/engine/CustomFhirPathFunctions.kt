@@ -1,13 +1,13 @@
 package fhirengine.engine
 
 import com.github.javafaker.Faker
-import fhirengine.translation.hl7.utils.FhirPathFunctions
+import gov.cdc.prime.fhirconverter.translation.hl7.SchemaException
+import gov.cdc.prime.fhirconverter.translation.hl7.utils.FhirPathFunctions
 import gov.cdc.prime.router.FakeReport
 import gov.cdc.prime.router.FakeReport.Companion.randomChoice
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.common.DateUtilities
 import gov.cdc.prime.router.common.NPIUtilities
-import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
 import gov.cdc.prime.router.metadata.GeoData
 import gov.cdc.prime.router.metadata.LivdLookup
 import org.hl7.fhir.r4.fhirpath.FHIRPathUtilityClasses.FunctionDetails

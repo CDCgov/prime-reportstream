@@ -4,12 +4,12 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.networknt.schema.JsonSchema
 import com.networknt.schema.JsonSchemaFactory
 import com.networknt.schema.SpecVersion
+import gov.cdc.prime.fhirconverter.translation.hl7.schema.converter.HL7ConverterSchema
+import gov.cdc.prime.fhirconverter.translation.hl7.schema.fhirTransform.FhirTransformSchema
 import gov.cdc.prime.router.DeepOrganization
 import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.config.validation.models.HL7ToFHIRMappingMessageTemplate
 import gov.cdc.prime.router.config.validation.models.HL7ToFHIRMappingResourceTemplate
-import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.HL7ConverterSchema
-import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.FhirTransformSchema
 import io.github.linuxforhealth.api.Condition
 import io.github.linuxforhealth.hl7.expression.ExpressionAttributes
 import java.io.File

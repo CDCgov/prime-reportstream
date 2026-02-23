@@ -1,10 +1,10 @@
 package gov.cdc.prime.router
 
 import com.fasterxml.jackson.annotation.JsonIgnore
+import gov.cdc.prime.fhirconverter.translation.hl7.FhirToHl7Converter
+import gov.cdc.prime.fhirconverter.translation.hl7.SchemaException
 import gov.cdc.prime.router.common.DateUtilities
-import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Converter
-import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
-import gov.cdc.prime.router.fhirengine.translation.hl7.utils.helpers.SchemaReferenceResolverHelper
+import gov.cdc.prime.router.fhirengine.translation.hl7.utils.helpers.RouterSchemaReferenceResolverHelper
 import java.time.LocalTime
 import java.time.OffsetDateTime
 import java.time.ZoneId
@@ -262,7 +262,7 @@ open class Receiver(
             if (this.topic.isUniversalPipeline) {
                 try {
                     FhirToHl7Converter(
-                        SchemaReferenceResolverHelper.retrieveHl7SchemaReference(translation.schemaName),
+                        RouterSchemaReferenceResolverHelper.retrieveHl7SchemaReference(translation.schemaName),
                         strict = false,
                         terser = null,
                         errors = mutableListOf(),
