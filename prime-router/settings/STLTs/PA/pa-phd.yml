@@ -13,7 +13,7 @@
       topic: "full-elr"
       customerStatus: "active"
       translation:
-        schemaName: "azure:/metadata/hl7_mapping/receivers/STLTs/PA/PA-receiver-transform.yml"
+        schemaName: "azure:/hl7_mapping/receivers/STLTs/PA/PA-receiver-transform.yml"
         useTestProcessingMode: false
         useBatchHeaders: true
         receivingApplicationName: "PA-ELR"
@@ -44,11 +44,12 @@
         replaceDiiWithOid: null
         applyOTCDefault: false
         useOrderingFacilityName: "STANDARD"
+        valueSetOverrides: {}
         nameFormat: "standard"
         receivingOrganization: null
         convertPositiveDateTimeOffsetToNegative: false
         stripInvalidCharsRegex: null
-        convertDateTimesToReceiverLocalTime: false
+        convertDateTimesToReceiverLocalTime: true
         useHighPrecisionHeaderDateTimeFormat: false
         type: "HL7"
         truncationConfig:
@@ -56,28 +57,34 @@
           truncateHl7Fields: []
           customLengthHl7Fields: {}
       jurisdictionalFilter:
-        - "(Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state = 'PA') or (Bundle.entry.resource.ofType(Patient).address.state = 'PA')"
+        - "(Bundle.entry.resource.ofType(ServiceRequest)[0].requester.resolve().organization.resolve().address.state\
+      \ = 'PA') or (Bundle.entry.resource.ofType(Patient).address.state = 'PA')"
       qualityFilter:
-        - "Bundle.identifier.value.exists()"
+        - "((Bundle.entry.resource.ofType(Specimen).collection.collectedPeriod.exists()\
+      \ or Bundle.entry.resource.ofType(Specimen).collection.collected.exists()) or\
+      \ (Bundle.entry.resource.ofType(ServiceRequest).occurrence.exists() or Bundle.entry.resource.ofType(Observation).effective.exists()))"
+        - "Bundle.entry.resource.ofType(Patient).birthDate.exists()"
         - "Bundle.entry.resource.ofType(Patient).name.family.exists()"
         - "Bundle.entry.resource.ofType(Patient).name.given.count() > 0"
-        - "Bundle.entry.resource.ofType(Patient).birthDate.exists()"
-        - "Bundle.entry.resource.ofType(Specimen).where(type.empty()).count() = 0"
-        - "Bundle.entry.resource.ofType(Patient).where(address.line[0].empty() and address.postalCode.empty() and telecom.where(system = 'phone').value.empty() and telecom.where(system = 'email').value.empty()).count() = 0"
-        - "((Bundle.entry.resource.ofType(Specimen).collection.collectedPeriod.exists() or Bundle.entry.resource.ofType(Specimen).collection.collected.exists())
-           or (Bundle.entry.resource.ofType(ServiceRequest).occurrence.exists() or Bundle.entry.resource.ofType(Observation).effective.exists()))"
-      routingFilter: [ ]
+        - "Bundle.entry.resource.ofType(Patient).where(address.line[0].empty() and address.postalCode.empty()\
+      \ and telecom.where(system = 'phone').value.empty() and telecom.where(system\
+      \ = 'email').value.empty()).count() = 0"
+        - "Bundle.entry.resource.ofType(Specimen)[1].where(type.empty()).count() = 0"
+        - "Bundle.identifier.value.exists()"
+      routingFilter:
+        - "Bundle.entry.resource.ofType(MessageHeader).extension('https://reportstream.cdc.gov/fhir/StructureDefinition/sender-id').where(value\
+      \ in ('SimpleReport')).exists()"
       processingModeFilter: []
       reverseTheQualityFilter: false
       conditionFilter:
-        # Accept COVID only
-        - "(%resource.code.coding.extension('https://reportstream.cdc.gov/fhir/StructureDefinition/condition-code').value.where(code  in ('840539006')).exists())"
+        - "(%resource.interpretation.coding.code = 'A' and %resource.code.coding.where(system='http://loinc.org').where(code\
+      \ in '82176-9'|'95424-8'|'100973-7'|'94760-6'|'94756-4'|'94758-0'|'94564-2'|'94761-4'|'76078-5'|'76080-1'|'100974-5'|'92131-2'|'94502-2'|'92142-9'|'85477-8'|'96123-5'|'96986-5'|'94757-2'|'94845-5'|'85478-6'|'97098-8'|'85479-4'|'98069-8'|'94759-8'|'80382-5'|'94563-4'|'96957-6'|'94547-7'|'94507-1'|'95406-5'|'82169-4'|'94640-0'|'95542-7'|'96603-6'|'95608-6'|'96119-3'|'92141-1'|'82166-0'|'95970-0'|'95425-5'|'95609-4'|'80383-3'|'99597-7'|'96091-4'|'94762-2'|'97097-0'|'94565-9'|'94533-7'|'94559-2'|'94500-6'|'94534-5'|'95209-3'|'94558-4'|'95409-9').exists())"
       mappedConditionFilter: []
       deidentify: false
       deidentifiedValue: ""
       timing:
         operation: "MERGE"
-        numberPerDay: 24
+        numberPerDay: 1440
         initialTime: "00:35"
         timeZone: "EASTERN"
         maxReportCount: 100
@@ -86,12 +93,18 @@
           onlyOncePerDay: false
       description: "PADOH Primary Feed"
       transport:
-        type: SFTP
-        host: sftp
-        port: 22
-        filePath: ./upload
-        credentialName: DEFAULT-SFTP
+        host: "sftp"
+        port: "22"
+        filePath: "./upload"
+        credentialName: "DEFAULT-SFTP"
+        type: "SFTP"
       externalName: "ELR"
-      enrichmentSchemaNames: []
-      timeZone: null
+      enrichmentSchemaNames:
+        - "azure:/fhir_transforms/common/county-code/county-code.yml"
+        - "azure:/fhir_transforms/common/use-county-lookup.yml"
+        - "azure:/fhir_transforms/common/datetime-to-local/datetime-to-local-eastern.yml"
+        - "azure:/fhir_transforms/common/observation-end-datetime.yml"
+        - "azure:/fhir_transforms/receivers/reference-range-enrichment.yml"
+      routingFilters: []
+      timeZone: "EASTERN"
       dateTimeFormat: "OFFSET"
