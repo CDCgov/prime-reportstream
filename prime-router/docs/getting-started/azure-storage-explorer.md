@@ -126,8 +126,7 @@ Storage Accounts
 - **metadata**: Contains FHIR and HL7 translation schemas
   - `fhir_mapping/` - FHIR transformation schemas
   - `hl7_mapping/` - HL7 transformation schemas
-  - `valid-{timestamp}.txt` - Validation status markers
-  
+
 - **reports**: Stores generated reports and output files
 
 - **receive**: Stores incoming data submissions
@@ -211,7 +210,6 @@ metadata/
 │   │           ├── CA.yml
 │   │           ├── input.fhir
 │   │           └── output.hl7
-│   └── valid-2025-02-12T10:30:00Z.txt
 └── fhir_mapping/
     └── [similar structure]
 ```
@@ -242,7 +240,6 @@ metadata/
 4. Save the file - Azure Storage Explorer will prompt to upload
 5. Update the corresponding `output.hl7` or `output.fhir` file to match your changes
 6. Validate the changes using the CLI (see command above)
-7. Look for the updated `valid-{timestamp}.txt` file to confirm successful validation
 
 ### Syncing Schemas Between Environments
 
