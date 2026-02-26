@@ -72,6 +72,9 @@ jobs:
         if: steps.changed-files-yaml.outputs.backend_any_changed == 'true' || steps.branch-name.outputs.is_default == 'true'
         uses: gradle/actions/setup-gradle@f29f5a9d7b09a7c6b29859002d29d24e1674c884
 
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
       - name: Spin up build containers
         if: steps.changed-files-yaml.outputs.backend_any_changed == 'true' || steps.branch-name.outputs.is_default == 'true'
         working-directory: prime-router
