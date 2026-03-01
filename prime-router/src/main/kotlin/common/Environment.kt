@@ -2,7 +2,7 @@ package gov.cdc.prime.router.common
 
 import gov.cdc.prime.router.cli.OktaCommand
 import java.lang.IllegalArgumentException
-import java.net.URL
+import java.net.URI
 import java.time.ZoneOffset
 
 /**
@@ -10,13 +10,13 @@ import java.time.ZoneOffset
  */
 enum class Environment(
     val envName: String,
-    val url: URL,
+    val url: URI,
     val oktaApp: OktaCommand.OktaApp? = null,
     val storageEnvVar: String = "AzureWebJobsStorage",
 ) {
     LOCAL(
         "local",
-        URL(
+        URI(
             "http://" +
                 (
                     System.getenv("PRIME_RS_API_ENDPOINT_HOST")
@@ -24,10 +24,10 @@ enum class Environment(
                     ) + ":7071"
         ),
     ),
-    TEST("test", URL("https://test.prime.cdc.gov"), oktaApp = OktaCommand.OktaApp.DH_TEST),
-    STAGING("staging", URL("https://staging.prime.cdc.gov"), oktaApp = OktaCommand.OktaApp.DH_STAGE),
-    DEMO1("demo1", URL("https://demo1.prime.cdc.gov"), oktaApp = OktaCommand.OktaApp.DH_STAGE),
-    PROD("prod", URL("https://prime.cdc.gov"), oktaApp = OktaCommand.OktaApp.DH_PROD),
+    TEST("test", URI("https://test.prime.cdc.gov"), oktaApp = OktaCommand.OktaApp.DH_TEST),
+    STAGING("staging", URI("https://staging.prime.cdc.gov"), oktaApp = OktaCommand.OktaApp.DH_STAGE),
+    DEMO1("demo1", URI("https://demo1.prime.cdc.gov"), oktaApp = OktaCommand.OktaApp.DH_STAGE),
+    PROD("prod", URI("https://prime.cdc.gov"), oktaApp = OktaCommand.OktaApp.DH_PROD),
     ;
 
     /**
@@ -35,12 +35,12 @@ enum class Environment(
      * and a / will be added as needed.
      * @return a URL
      */
-    fun formUrl(path: String): URL {
+    fun formUrl(path: String): URI {
         var urlString = url.toString()
         if (!urlString.endsWith("/") && !path.startsWith("/")) {
             urlString += "/"
         }
-        return URL(urlString + path)
+        return URI(urlString + path)
     }
 
     /**
@@ -82,10 +82,10 @@ enum class Environment(
         /**
          * Get the baseUrl for a URL that contains only the host and port.
          */
-        internal fun getBaseUrl(inputUrl: URL): String = if (inputUrl.port > 0 &&
+        internal fun getBaseUrl(inputUrl: URI): String = if (inputUrl.port > 0 &&
                 (
-                    (inputUrl.protocol == "http" && inputUrl.port != 80) ||
-                        (inputUrl.protocol == "https" && inputUrl.port != 443)
+                    (inputUrl.toURL().protocol == "http" && inputUrl.port != 80) ||
+                        (inputUrl.toURL().protocol == "https" && inputUrl.port != 443)
                     )
             ) {
                 "${inputUrl.host}:${inputUrl.port}"
