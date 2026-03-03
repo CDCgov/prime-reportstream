@@ -164,9 +164,9 @@ class ConstantResolverTests {
         mockkObject(Metadata)
         every { Metadata.getInstance() } returns UnitTestUtils.simpleMetadata
 
-        val context = CustomContext(Bundle(), Bundle())
+        val context = CustomContext(Bundle(), Bundle(), customFhirFunctions = CustomFhirPathFunctions())
         assertThat(
-            FhirPathCustomResolver(CustomFhirPathFunctions()).executeFunction(
+            FhirPathCustomResolver().executeFunction(
                 null,
                 context,
                 mutableListOf(Observation()),
@@ -178,9 +178,9 @@ class ConstantResolverTests {
 
     @Test
     fun `test execute additional FHIR functions unknown function`() {
-        val context = CustomContext(Bundle(), Bundle())
+        val context = CustomContext(Bundle(), Bundle(), customFhirFunctions = CustomFhirPathFunctions())
         assertFailure {
-            FhirPathCustomResolver(CustomFhirPathFunctions()).executeFunction(
+            FhirPathCustomResolver().executeFunction(
                 null,
                 context,
                 mutableListOf(Observation()),

@@ -5,7 +5,7 @@
 #
 # --build-arg GRADLE_VERSION=8.10.2        - The version of Gradle you want to build with
 # --build-arg AFCT_VERSION=4.0.5198     - The version of the Azure Functions Core Tools
-# --build-arg JAVA_VERSION=17           - The version of the JDK (and thus JRE) you want to build against/with
+# --build-arg JAVA_VERSION=21           - The version of the JDK (and thus JRE) you want to build against/with
 #
 
 #
@@ -41,7 +41,7 @@ RUN wget -o /tmp/azure.functions.download.log https://github.com/Azure/azure-fun
 # STAGE 2: Build the actual container that does the build
 #
 FROM cgr.dev/chainguard/wolfi-base:latest@sha256:b72df108f3388c82b0638bcfbad1511d85c60593e67fb8f8a968255f7e0588df AS builder
-ARG JAVA_VERSION=17
+ARG JAVA_VERSION=21
 
 # Install pre-requisites and security updates
 RUN apk update && apk upgrade && apk add --no-cache perl openjdk-${JAVA_VERSION}
