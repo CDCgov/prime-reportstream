@@ -133,15 +133,11 @@ test.describe(
 
                             // Apply button is enabled
                             await submissionHistoryPage.filterButton.click();
-                            const responsePromise = await submissionHistoryPage.page.waitForResponse(
+                            await submissionHistoryPage.page.waitForResponse(
                                 (res) => res.status() === 200 && res.url().includes(URL_SUBMISSION_HISTORY),
                             );
 
-                            if (responsePromise) {
-                                await expect(noData(submissionHistoryPage.page)).toBeAttached();
-                            } else {
-                                console.error("Request not received within the timeout period");
-                            }
+                            await expect(noData(submissionHistoryPage.page)).toBeAttached();
                         });
 
                         test("on 'clear' resets the dates", async ({ submissionHistoryPage }) => {
