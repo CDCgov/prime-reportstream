@@ -120,6 +120,7 @@ test.describe(
 
                     test.describe("on 'Filter to incorrect date'", () => {
                         test("with 'From' date, 'To' date", async ({ submissionHistoryPage, isMockDisabled }) => {
+                            // eslint-disable-next-line playwright/no-skipped-test -- runtime environment guard, not a broken test
                             test.skip(
                                 !isMockDisabled,
                                 "Mocks are ENABLED, skipping 'on 'Filter to incorrect date' test",

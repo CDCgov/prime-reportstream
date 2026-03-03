@@ -175,40 +175,41 @@ test.describe(
                             await expect(receiverDropdown(dailyDataPage.page)).toHaveValue(TEST_ORG_UP_RECEIVER_UP);
                         });
 
-                        test.skip("with 'From' date, 'To' date, 'Start time', 'End time'", async ({
-                            dailyDataPage,
-                        }) => {
-                            // TODO: The date filtering query is currently broken
-                            const fromDate = await setDate(dailyDataPage.page, "#start-date", 180);
-                            const toDate = await setDate(dailyDataPage.page, "#end-date", 0);
-                            await setTime(dailyDataPage.page, "#start-time", defaultStartTime);
-                            await setTime(dailyDataPage.page, "#end-time", defaultEndTime);
+                        test.fixme(
+                            "with 'From' date, 'To' date, 'Start time', 'End time'",
+                            async ({ dailyDataPage }) => {
+                                // TODO: The date filtering query is currently broken
+                                const fromDate = await setDate(dailyDataPage.page, "#start-date", 180);
+                                const toDate = await setDate(dailyDataPage.page, "#end-date", 0);
+                                await setTime(dailyDataPage.page, "#start-time", defaultStartTime);
+                                await setTime(dailyDataPage.page, "#end-time", defaultEndTime);
 
-                            // Apply button is enabled
-                            await applyButton(dailyDataPage.page).click();
-                            await dailyDataPage.page.locator(".usa-table tbody").waitFor({ state: "visible" });
+                                // Apply button is enabled
+                                await applyButton(dailyDataPage.page).click();
+                                await dailyDataPage.page.locator(".usa-table tbody").waitFor({ state: "visible" });
 
-                            // Check that table data contains the dates/times that were selected
-                            const areDatesInRange = await tableColumnDateTimeInRange(
-                                dailyDataPage.page,
-                                1,
-                                fromDate,
-                                toDate,
-                                defaultStartTime,
-                                defaultEndTime,
-                            );
-                            expect(areDatesInRange).toBe(true);
+                                // Check that table data contains the dates/times that were selected
+                                const areDatesInRange = await tableColumnDateTimeInRange(
+                                    dailyDataPage.page,
+                                    1,
+                                    fromDate,
+                                    toDate,
+                                    defaultStartTime,
+                                    defaultEndTime,
+                                );
+                                expect(areDatesInRange).toBe(true);
 
-                            // Check filter status lists receiver value
-                            const filterStatusText = filterStatus([
-                                TEST_ORG_UP_RECEIVER_UP,
-                                `${format(fromDate, "MM/dd/yyyy")}–${format(toDate, "MM/dd/yyyy")}`,
-                                `${defaultStartTime}–${defaultEndTime}`,
-                            ]);
-                            await expect(dailyDataPage.page.getByTestId("filter-status")).toContainText(
-                                filterStatusText,
-                            );
-                        });
+                                // Check filter status lists receiver value
+                                const filterStatusText = filterStatus([
+                                    TEST_ORG_UP_RECEIVER_UP,
+                                    `${format(fromDate, "MM/dd/yyyy")}–${format(toDate, "MM/dd/yyyy")}`,
+                                    `${defaultStartTime}–${defaultEndTime}`,
+                                ]);
+                                await expect(dailyDataPage.page.getByTestId("filter-status")).toContainText(
+                                    filterStatusText,
+                                );
+                            },
+                        );
 
                         test("clears 'Report ID'", async ({ dailyDataPage }) => {
                             // Search by Report ID
@@ -296,6 +297,7 @@ test.describe(
                     test("returns match for Filename", async ({ dailyDataPage, isMockDisabled }) => {
                         // Filename search is currently broken and being tracked
                         // in ticket #15644 so we must skip UNLESS IT IS MOCKED
+                        // eslint-disable-next-line playwright/no-skipped-test -- runtime environment guard, not a broken test
                         test.skip(isMockDisabled, "Mocks are DISABLED, skipping 'returns match for Filename");
                         const fileName = await tableDataCellValue(dailyDataPage.page, 0, 4);
                         await searchInput(dailyDataPage.page).fill(removeDateTime(fileName));
@@ -378,6 +380,7 @@ test.describe(
                     });
 
                     test("downloads the file", async ({ dailyDataPage, isMockDisabled }) => {
+                        // eslint-disable-next-line playwright/no-skipped-test -- runtime environment guard, not a broken test
                         test.skip(!isMockDisabled, "Mocks are ENABLED, skipping 'downloads the file' test");
                         // Sort by File available until, but they're in ASCENDING order
                         await dailyDataPage.page.getByRole("button", { name: "File available until" }).click();
@@ -405,6 +408,7 @@ test.describe(
                 test.describe(`${TEST_ORG_IGNORE} org - ${receiver} receiver`, () => {
                     test.describe("on 'Report ID' click", () => {
                         test.beforeEach(async ({ dailyDataPage, isFrontendWarningsLog }) => {
+                            // eslint-disable-next-line playwright/no-skipped-test -- runtime environment guard, not a broken test
                             test.skip(
                                 !isFrontendWarningsLog,
                                 "isFrontendWarningsLog must be TRUE, skipping 'on 'Report ID' click' test",
@@ -416,6 +420,7 @@ test.describe(
                         });
 
                         test("opens the Daily Data details page", async ({ dailyDataPage, isFrontendWarningsLog }) => {
+                            // eslint-disable-next-line playwright/no-skipped-test -- runtime environment guard, not a broken test
                             test.skip(
                                 !isFrontendWarningsLog,
                                 "isFrontendWarningsLog must be TRUE, skipping 'opens the Daily Data details page' test",
