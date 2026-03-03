@@ -1,7 +1,11 @@
 import FeatureFlagProvider, { FeatureFlagActionType, featureFlagReducer } from "./FeatureFlagProvider";
 import useFeatureFlags from "./useFeatureFlags";
-import { mockGetSavedFeatureFlags, mockStoreFeatureFlags } from "../../utils/__mocks__/SessionStorageTools";
 import { renderApp } from "../../utils/CustomRenderUtils";
+import { getSavedFeatureFlags, storeFeatureFlags } from "../../utils/SessionStorageTools";
+
+vi.mock("../../utils/SessionStorageTools");
+const mockStoreFeatureFlags = vi.mocked(storeFeatureFlags);
+const mockGetSavedFeatureFlags = vi.mocked(getSavedFeatureFlags);
 
 vi.unmock("./useFeatureFlags");
 
