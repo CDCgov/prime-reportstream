@@ -30,7 +30,7 @@ debug this project:
 * [Docker or Docker Desktop](https://docs.docker.com/get-docker/)
 * [OpenJDK](./install-openjdk.md) (currently targetting 21)
     * See the linked docs for important instructions on setting `JAVA_HOME`
-* [Azure Storage Explorer](https://docs.microsoft.com/en-us/azure/vs-azure-tools-storage-manage-with-storage-explorer)
+* [Azure Storage Explorer](./azure-storage-explorer.md) - for managing local blob storage and schemas
 * An IDE. [IntelliJ](./intellij-tips.md) is recommended for Kotlin/debugging support.
 
 To reduce the build-debug cycle time you can install these tools to run the code directly. These tools are required if
@@ -239,6 +239,7 @@ app__.
 - [Running ReportStream tests](./running-tests.md)
 - [About the azure environment](./azure.md)
 - [Working with Docker](./docker.md)
+- [Using Azure Storage Explorer](./azure-storage-explorer.md) - manage local blob storage and schemas
 - [Common database commands](./postgres-database.md)
 - [PrimeCLI](../prime-cli/README.md)
 - [FHIR Functions](./fhir-functions.md)

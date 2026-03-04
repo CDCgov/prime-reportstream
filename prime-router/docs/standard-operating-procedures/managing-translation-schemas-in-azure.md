@@ -3,6 +3,10 @@
 This document describes the standard operating procedure for how to make changes to sender and receiver transforms that
 are stored in an azure container.
 
+> **Getting Started with Azure Storage Explorer?** If you're new to using Azure Storage Explorer with ReportStream, 
+> start with the [Using Azure Storage Explorer guide](../getting-started/azure-storage-explorer.md) which provides 
+> detailed setup instructions and common operations.
+
 [Design Note](../design/features/0005-managing-translation-schemas.md)
 
 ### Setup
@@ -10,7 +14,7 @@ are stored in an azure container.
 - Verify that your local azurite containers are running. This should happen automatically when you spin ReportStream up,
   and you can verify this by running `docker compose ps` and checking for both azurite containers
 - Make sure ReportStream is running locally
-- Download [azure storage browser](https://azure.microsoft.com/en-us/products/storage/storage-explorer)
+- Download and configure [Azure Storage Explorer](../getting-started/azure-storage-explorer.md)
 - Connect to the VPN
 
 ### Setting up Azure Storage Browser
