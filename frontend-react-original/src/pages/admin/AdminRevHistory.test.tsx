@@ -74,24 +74,17 @@ describe("AdminRevHistory", () => {
         expect(screen.getAllByText(/local@test.com/).length).toBe(2);
 
         // click an item in each list and make sure the diff loads. (click parent row)
+        // revision-row[0..2] = left accordion, revision-row[3..5] = right accordion
         {
-            const clickTarget1 = screen.getAllByText(/local@test.com/)[0];
-            const parentRow1 = clickTarget1.parentElement;
-            expect(parentRow1).toBeInTheDocument();
-            // key linter happy
-            if (parentRow1 !== null) {
-                await userEvent.click(parentRow1);
-            }
+            const row1 = screen.getAllByTestId("revision-row")[0];
+            expect(row1).toBeInTheDocument();
+            await userEvent.click(row1);
         }
 
         {
-            const clickTarget2 = screen.getAllByText(/local1@test.com/)[1];
-            const parentRow2 = clickTarget2.parentElement;
-            expect(parentRow2).toBeInTheDocument();
-            // key linter happy
-            if (parentRow2 !== null) {
-                await userEvent.click(parentRow2);
-            }
+            const row2 = screen.getAllByTestId("revision-row")[4];
+            expect(row2).toBeInTheDocument();
+            await userEvent.click(row2);
         }
 
         // make sure the meta data at the bottom is updated.
