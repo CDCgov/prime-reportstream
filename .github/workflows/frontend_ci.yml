@@ -29,7 +29,7 @@ jobs:
       is_permitted: ${{ github.event_name == 'pull_request' && steps.build_vars.outputs.has_frontend_change == 'true' && steps.build_vars.outputs.is_deployment_pr == 'false' }}
     steps:
       - name: "Check out changes"
-        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8
       - name: Build vars
         id: build_vars
         uses: ./.github/actions/build-vars
@@ -43,9 +43,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out changes
-        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8
       - name: Use Node.js with yarn
-        uses: actions/setup-node@0a44ba7841725637a19e28fa30b79a866c81b0a6
+        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238
         with:
           node-version-file: frontend-react/.nvmrc
           cache: yarn
@@ -62,9 +62,9 @@ jobs:
     
     steps:
       - name: Check out changes
-        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8
       - name: Use Node.js with yarn
-        uses: actions/setup-node@0a44ba7841725637a19e28fa30b79a866c81b0a6
+        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238
         with:
           node-version-file: frontend-react/.nvmrc
           cache: yarn
@@ -168,9 +168,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out changes
-        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8
       - name: Use Node.js with yarn
-        uses: actions/setup-node@0a44ba7841725637a19e28fa30b79a866c81b0a6
+        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238
         with:
           node-version-file: "frontend-react/.nvmrc"
           cache: yarn
@@ -205,9 +205,9 @@ jobs:
           sudo swapon --show
           df -h
       - name: Check out changes
-        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8
       - name: Use Node.js with yarn
-        uses: actions/setup-node@0a44ba7841725637a19e28fa30b79a866c81b0a6
+        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238
         with:
           node-version-file: "frontend-react/.nvmrc"
           cache: yarn
@@ -263,9 +263,9 @@ jobs:
       WARNING_LOG_FILE: e2e-data/frontend-warnings.json
     steps:
       - name: Check out changes
-        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8
       - name: Use Node.js with yarn
-        uses: actions/setup-node@0a44ba7841725637a19e28fa30b79a866c81b0a6
+        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238
         with:
           node-version-file: "frontend-react/.nvmrc"
           cache: yarn
@@ -295,14 +295,14 @@ jobs:
           retention-days: 7
       - name: Find Previous Warnings Comment
         id: comment_find
-        uses: peter-evans/find-comment@3eae4d37986fb5a8592848f6a574fdf654e61f9e
+        uses: peter-evans/find-comment@b30e6a3c0ed37e7c023ccd3f1db5c6c0b0c23aad
         with:
           issue-number: ${{ github.event.pull_request.number }}
           comment-author: "github-actions[bot]"
           body-regex: '⚠️ Broken Links ⚠️'
       - name: Delete Previous Warnings Comment
         if: ${{ steps.comment_find.outputs.comment-id != '' }}
-        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
@@ -329,7 +329,7 @@ jobs:
         shell: bash
       - name: Create New Comment
         if: ${{ env.COMMENT != '' }}
-        uses: peter-evans/create-or-update-comment@71345be0265236311c031f5c7866368bd1eff043
+        uses: peter-evans/create-or-update-comment@e8674b075228eee787fea43ef493e45ece1004c9
         with:
           issue-number: ${{ github.event.pull_request.number }}
           body: ${{ env.COMMENT }}
@@ -342,7 +342,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout - On Pull Request
-        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8
         with:
           fetch-depth: 0
           # By default the pull_request event will run on a ephermeral merge commit which simulates a merge between the pull request
@@ -350,7 +350,7 @@ jobs:
           # Hopefully by checking out the HEAD commit of a PR instead of the merge commit we can avoid some of those issues.
           ref: ${{ github.event.pull_request.head.sha }}
       - name: Use Node.js with yarn
-        uses: actions/setup-node@0a44ba7841725637a19e28fa30b79a866c81b0a6
+        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238
         with:
           node-version-file: "frontend-react/.nvmrc"
           cache: yarn
@@ -359,7 +359,7 @@ jobs:
         run: yarn install
       - name: Run Chromatic
         id: chromatic
-        uses: chromaui/action@f4e60a7072abcac4203f4ca50613f28e199a52ba
+        uses: chromaui/action@07791f8243f4cb2698bf4d00426baf4b2d1cb7e0
         with:
           workingDir: frontend-react
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -370,14 +370,14 @@ jobs:
           exitOnceUploaded: true
       - name: Find Previous Comment
         id: comment_find
-        uses: peter-evans/find-comment@3eae4d37986fb5a8592848f6a574fdf654e61f9e
+        uses: peter-evans/find-comment@b30e6a3c0ed37e7c023ccd3f1db5c6c0b0c23aad
         with:
           issue-number: ${{ github.event.pull_request.number }}
           comment-author: "github-actions[bot]"
           body-regex: '\.*deployed to Chromatic.*\gi'
       - name: Delete Previous Comment
         if: ${{ steps.comment_find.outputs.comment-id }}
-        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
@@ -387,7 +387,7 @@ jobs:
               repo: context.repo.repo,
             })
       - name: Create New Comment
-        uses: peter-evans/create-or-update-comment@71345be0265236311c031f5c7866368bd1eff043
+        uses: peter-evans/create-or-update-comment@e8674b075228eee787fea43ef493e45ece1004c9
         with:
           issue-number: ${{ github.event.pull_request.number }}
           body: |
@@ -412,7 +412,7 @@ jobs:
   #     security-events: write
   #   steps:
   #     - name: Check out changes
-  #       uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938
+  #       uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8
   #     - name: Initialize CodeQL
   #       uses: github/codeql-action/init@65c74964a9ed8c44ed9f19d4bbc5757a6a8e9ab9
   #       with:
@@ -430,11 +430,11 @@ jobs:
   #   runs-on: ubuntu-latest
   #   steps:
   #     - name: Check out changes
-  #       uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938
+  #       uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8
   #       with:
   #         fetch-depth: 0
   #     - name: Use Node.js with yarn
-  #       uses: actions/setup-node@0a44ba7841725637a19e28fa30b79a866c81b0a6
+  #       uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238
   #       with:
   #         node-version-file: "frontend-react/.nvmrc"
   #         cache: yarn
@@ -463,9 +463,9 @@ jobs:
   #   runs-on: ubuntu-latest
   #   steps:
   #     - name: Check out changes
-  #       uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938
+  #       uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8
   #     - name: Use Node.js with yarn
-  #       uses: actions/setup-node@0a44ba7841725637a19e28fa30b79a866c81b0a6
+  #       uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238
   #       with:
   #         node-version-file: "frontend-react/.nvmrc"
   #         cache: yarn
