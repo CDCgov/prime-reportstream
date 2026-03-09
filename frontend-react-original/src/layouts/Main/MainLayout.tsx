@@ -39,6 +39,9 @@ export const MainLayoutBase = ({ children }: MainLayoutBaseProps) => {
                 isFullWidth && "rs-style--alternate",
             )}
         >
+            <a className="usa-skipnav" href="#main-content">
+                Skip to main content
+            </a>
             <ScrollRestoration />
             <ReportStreamHeader blueVariant={isFullWidth} />
             <main className="padding-top-5" id="main-content">
