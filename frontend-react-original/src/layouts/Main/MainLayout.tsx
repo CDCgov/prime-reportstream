@@ -44,7 +44,7 @@ export const MainLayoutBase = ({ children }: MainLayoutBaseProps) => {
             </a>
             <ScrollRestoration />
             <ReportStreamHeader blueVariant={isFullWidth} />
-            <main className="padding-top-5" id="main-content">
+            <main className="padding-top-5" id="main-content" tabIndex={-1}>
                 <InnerWrapper className={innerWrapperClassnames}>
                     <RSErrorBoundary>
                         {children}
