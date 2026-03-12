@@ -473,7 +473,7 @@ class Server2ServerAuthTests : CoolTest() {
             name = senderName,
             organizationName = orgName,
             format = MimeFormat.CSV,
-            customerStatus = CustomerStatus.INACTIVE,
+            customerStatus = CustomerStatus.ACTIVE,
             schemaName = "primedatainput/pdi-covid-19"
         )
 
