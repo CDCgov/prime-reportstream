@@ -43,9 +43,7 @@ describe("Toast", () => {
             const {
                 result: { current: ctx },
             } = renderHook(() => useToast(), {
-                wrapper: ({ children }) => (
-                    <ToastProvider>{children}</ToastProvider>
-                ),
+                wrapper: ({ children }) => <ToastProvider>{children}</ToastProvider>,
             });
             expect(ctx).toBeDefined();
             expect(ctx.toast).toBeDefined();
@@ -54,6 +52,8 @@ describe("Toast", () => {
 
     // TODO
     describe.skip("toast function", () => {
-        test("renders toast", () => void 0);
+        test("renders toast", () => {
+            expect.hasAssertions();
+        });
     });
 });
