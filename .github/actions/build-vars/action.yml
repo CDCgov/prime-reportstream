@@ -131,7 +131,7 @@ runs:
         ${{ steps.build_staging.outputs.version }}\
         ${{ steps.build_prod.outputs.version }}" >> $GITHUB_OUTPUT
 
-    - uses: dorny/paths-filter@v3
+    - uses: dorny/paths-filter@v4
       if: github.event_name != 'schedule'
       id: filter
       with:
