@@ -988,7 +988,7 @@ dependencies {
     implementation("xalan:xalan:2.7.3")
 
     // validations
-    implementation("com.networknt:json-schema-validator:1.5.6")
+    implementation("com.networknt:json-schema-validator:3.0.0")
     implementation("io.konform:konform-jvm:0.11.1")
 
     runtimeOnly("com.okta.jwt:okta-jwt-verifier-impl:0.5.7")
