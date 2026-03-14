@@ -48,7 +48,7 @@ runs:
   using: 'composite'
   steps:
 
-    - uses: nick-fields/retry@7152eba30c6575329ac0576536151aca5a72780e
+    - uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08
       if: inputs.timeout_minutes
       with:
         timeout_minutes: ${{ inputs.timeout_minutes }}
@@ -64,7 +64,7 @@ runs:
         new_command_on_retry: ${{ inputs.new_command_on_retry }}
         retry_on_exit_code: ${{ inputs.retry_on_exit_code }}
 
-    - uses: nick-fields/retry@7152eba30c6575329ac0576536151aca5a72780e
+    - uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08
       if: inputs.timeout_seconds
       with:
         timeout_seconds: ${{ inputs.timeout_seconds }}
