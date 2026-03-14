@@ -4,7 +4,7 @@ import assertk.assertThat
 import assertk.assertions.isEqualTo
 import org.junit.jupiter.api.Test
 import java.lang.IllegalArgumentException
-import java.net.URL
+import java.net.URI
 import kotlin.test.assertFailsWith
 
 class EnvironmentTests {
@@ -31,9 +31,9 @@ class EnvironmentTests {
 
     @Test
     fun `get base url test`() {
-        assertThat(Environment.getBaseUrl(URL("http://localhost"))).isEqualTo("localhost")
-        assertThat(Environment.getBaseUrl(URL("http://localhost:7071"))).isEqualTo("localhost:7071")
-        assertThat(Environment.getBaseUrl(URL("https://localhost"))).isEqualTo("localhost")
-        assertThat(Environment.getBaseUrl(URL("https://localhost:8443"))).isEqualTo("localhost:8443")
+        assertThat(Environment.getBaseUrl(URI("http://localhost"))).isEqualTo("localhost")
+        assertThat(Environment.getBaseUrl(URI("http://localhost:7071"))).isEqualTo("localhost:7071")
+        assertThat(Environment.getBaseUrl(URI("https://localhost"))).isEqualTo("localhost")
+        assertThat(Environment.getBaseUrl(URI("https://localhost:8443"))).isEqualTo("localhost:8443")
     }
 }
