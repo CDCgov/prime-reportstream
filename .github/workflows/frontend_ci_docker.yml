@@ -197,7 +197,7 @@ jobs:
 
       - name: Build Docker image
         id: build_and_push # Give this step an id to reference its outputs if needed later
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: ${{ env.WORKING_DIRECTORY }}
           file: ${{ env.WORKING_DIRECTORY }}/Dockerfile
@@ -582,7 +582,7 @@ jobs:
   #         # Username and password are not needed when using azure/login@v2 with sufficient permissions
 
   #     - name: Build and push Docker image
-  #       uses: docker/build-push-action@v6
+  #       uses: docker/build-push-action@v7
   #       with:
   #         context: ${{ env.WORKING_DIRECTORY }}
   #         file: ${{ env.WORKING_DIRECTORY }}/Dockerfile
