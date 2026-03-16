@@ -10,7 +10,7 @@ import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import java.io.IOException
-import java.net.URL
+import java.net.URI
 import kotlin.collections.component1
 import kotlin.collections.component2
 import kotlin.collections.set
@@ -66,7 +66,7 @@ class CommandUtilities {
          * @return true is the API is available, false otherwise
          */
         private fun isEndpointAvailable(
-            url: URL,
+            url: URI,
             accessToken: String,
             httpClient: HttpClient? = null,
         ): Boolean = runBlocking {
