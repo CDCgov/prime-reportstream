@@ -131,7 +131,7 @@ runs:
         ${{ steps.build_staging.outputs.version }}\
         ${{ steps.build_prod.outputs.version }}" >> $GITHUB_OUTPUT
 
-    - uses: dorny/paths-filter@v3
+    - uses: dorny/paths-filter@v4
       if: github.event_name != 'schedule'
       id: filter
       with:
@@ -206,7 +206,7 @@ runs:
           echo "has_frontend_change=${{ steps.filter.outputs.frontend_react }}" >> $GITHUB_OUTPUT
         fi
 
-    - uses: azure/login@v2
+    - uses: azure/login@v3
       if: inputs.sp-creds != 'false'
       with:
         creds: ${{ inputs.sp-creds }}

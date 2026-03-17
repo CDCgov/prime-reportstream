@@ -43,7 +43,7 @@ jobs:
         with:
           submodules: true
 
-      - uses: azure/login@v2
+      - uses: azure/login@v3
         with:
           creds: ${{ env.AZURE_CREDENTIALS }}
 
