@@ -193,11 +193,11 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v4
 
       - name: Build Docker image
         id: build_and_push # Give this step an id to reference its outputs if needed later
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: ${{ env.WORKING_DIRECTORY }}
           file: ${{ env.WORKING_DIRECTORY }}/Dockerfile
@@ -306,7 +306,7 @@ jobs:
 
       - name: Upload E2E test data
         if: ${{ !cancelled() }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: frontend-e2e-data--shard-${{ matrix.shardIndex }}
           path: ${{ env.WORKING_DIRECTORY }}/e2e-data 
@@ -368,7 +368,7 @@ jobs:
         run: yarn install --immutable
 
       - name: Download E2E reports
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           path: ${{ env.WORKING_DIRECTORY }}/downloaded-e2e-artifacts
           pattern: frontend-e2e-data--shard-*
@@ -392,7 +392,7 @@ jobs:
           rm -rf e2e-data/report/resources || true
 
       - name: Upload final E2E data
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: frontend-e2e-data--attempt-${{ github.run_attempt }}
           path: ${{ env.WORKING_DIRECTORY }}/e2e-data
@@ -566,7 +566,7 @@ jobs:
   #       uses: actions/checkout@v6
 
   #     - name: Set up Docker Buildx
-  #       uses: docker/setup-buildx-action@v3
+  #       uses: docker/setup-buildx-action@v4
 
   #     - name: Log in to Azure
   #       uses: azure/login@v2
@@ -582,7 +582,7 @@ jobs:
   #         # Username and password are not needed when using azure/login@v2 with sufficient permissions
 
   #     - name: Build and push Docker image
-  #       uses: docker/build-push-action@v6
+  #       uses: docker/build-push-action@v7
   #       with:
   #         context: ${{ env.WORKING_DIRECTORY }}
   #         file: ${{ env.WORKING_DIRECTORY }}/Dockerfile
