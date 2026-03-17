@@ -21,7 +21,7 @@ jobs:
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8
 
       # Login to Azure
-      - uses: azure/login@v2
+      - uses: azure/login@v3
         with:
           creds: ${{ env.AZURE_CREDENTIALS }}
 
