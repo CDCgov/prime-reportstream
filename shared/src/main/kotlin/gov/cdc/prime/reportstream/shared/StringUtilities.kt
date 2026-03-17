@@ -28,9 +28,7 @@ object StringUtilities {
      * usage:
      * request.queryParameters['foo']?.toIntOrDefault(30)
      */
-    fun String?.toIntOrDefault(default: Int = 0): Int {
-        return this?.toIntOrNull() ?: default
-    }
+    fun String?.toIntOrDefault(default: Int = 0): Int = this?.toIntOrNull() ?: default
 
     /**
      * Trim and truncate the string to the [maxLength] preserving as much of the non-whitespace as possible

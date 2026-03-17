@@ -114,6 +114,7 @@ inline fun <T> withLoggingContext(event: AzureCustomEvent, body: () -> T): T {
 /**
  * vararg convenience function for `withLoggingContext(contextMap, body)`
  */
-inline fun <T> withLoggingContext(vararg pairs: Pair<MDCUtils.MDCProperty, Any>, body: () -> T): T {
-    return withLoggingContext(pairs.toMap(), body)
-}
+inline fun <T> withLoggingContext(
+    vararg pairs: Pair<MDCUtils.MDCProperty, Any>,
+    body: () -> T,
+): T = withLoggingContext(pairs.toMap(), body)

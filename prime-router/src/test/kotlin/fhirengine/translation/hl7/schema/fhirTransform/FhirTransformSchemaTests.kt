@@ -142,13 +142,11 @@ class FhirTransformSchemaTests {
 
     @Test
     fun `test merge of element`() {
-        fun newParent(): FhirTransformSchemaElement {
-            return FhirTransformSchemaElement(
+        fun newParent(): FhirTransformSchemaElement = FhirTransformSchemaElement(
                 "name", condition = "condition1",
                 schema = "schema1", schemaRef = FhirTransformSchema(), resource = "resource1", resourceIndex = "index1",
                 value = listOf("value1"), constants = sortedMapOf("k1" to "v1"), bundleProperty = "%resource.status"
             )
-        }
 
         val originalElement = newParent()
         val elementA = FhirTransformSchemaElement("name")

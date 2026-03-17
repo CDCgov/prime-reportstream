@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import com.fasterxml.jackson.annotation.JsonTypeName
 import gov.cdc.prime.reportstream.shared.QueueMessage
+import gov.cdc.prime.reportstream.shared.QueueMessage.Companion.mapper
 import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.Topic
@@ -18,6 +19,7 @@ import java.util.UUID
 @JsonSubTypes(
     JsonSubTypes.Type(FhirConvertQueueMessage::class, name = "convert"),
     JsonSubTypes.Type(FhirDestinationFilterQueueMessage::class, name = "destination-filter"),
+    JsonSubTypes.Type(FhirReceiverEnrichmentQueueMessage::class, name = "receiver-enrichment"),
     JsonSubTypes.Type(FhirReceiverFilterQueueMessage::class, name = "receiver-filter"),
     JsonSubTypes.Type(FhirTranslateQueueMessage::class, name = "translate"),
     JsonSubTypes.Type(BatchEventQueueMessage::class, name = "batch"),
@@ -33,8 +35,8 @@ abstract class PrimeRouterQueueMessage : QueueMessage {
 }
 
 abstract class ReportPipelineMessage :
-    QueueMessage.ReportInformation,
-    PrimeRouterQueueMessage()
+    PrimeRouterQueueMessage(),
+    QueueMessage.ReportInformation
 
 @JsonTypeName("receive")
 data class FhirConvertSubmissionQueueMessage(
@@ -43,8 +45,10 @@ data class FhirConvertSubmissionQueueMessage(
     override val digest: String,
     override val blobSubFolderName: String,
     override val headers: Map<String, String> = emptyMap(),
-) : ReportPipelineMessage(), QueueMessage.ReceiveInformation {
+) : ReportPipelineMessage(),
+    QueueMessage.ReceiveInformation {
     override val messageQueueName = QueueMessage.Companion.elrSubmissionConvertQueueName
+    override fun toString(): String = mapper.writeValueAsString(this)
 }
 
 @JsonTypeName("convert")
@@ -57,6 +61,7 @@ data class FhirConvertQueueMessage(
     var schemaName: String = "",
 ) : ReportPipelineMessage() {
     override val messageQueueName = QueueMessage.Companion.elrConvertQueueName
+    override fun toString(): String = mapper.writeValueAsString(this)
 }
 
 @JsonTypeName("destination-filter")
@@ -68,6 +73,20 @@ data class FhirDestinationFilterQueueMessage(
     val topic: Topic,
 ) : ReportPipelineMessage() {
     override val messageQueueName = QueueMessage.Companion.elrDestinationFilterQueueName
+    override fun toString(): String = mapper.writeValueAsString(this)
+}
+
+@JsonTypeName("receiver-enrichment")
+data class FhirReceiverEnrichmentQueueMessage(
+    override val reportId: ReportId,
+    override val blobURL: String,
+    override val digest: String,
+    override val blobSubFolderName: String,
+    val topic: Topic,
+    val receiverFullName: String,
+) : ReportPipelineMessage() {
+    override val messageQueueName = QueueMessage.Companion.elrReceiverEnrichmentQueueName
+    override fun toString(): String = mapper.writeValueAsString(this)
 }
 
 @JsonTypeName("receiver-filter")
@@ -80,6 +99,7 @@ data class FhirReceiverFilterQueueMessage(
     val receiverFullName: String,
 ) : ReportPipelineMessage() {
     override val messageQueueName = QueueMessage.Companion.elrReceiverFilterQueueName
+    override fun toString(): String = mapper.writeValueAsString(this)
 }
 
 @JsonTypeName("translate")
@@ -92,6 +112,7 @@ data class FhirTranslateQueueMessage(
     val receiverFullName: String,
 ) : ReportPipelineMessage() {
     override val messageQueueName = QueueMessage.Companion.elrTranslationQueueName
+    override fun toString(): String = mapper.writeValueAsString(this)
 }
 
 abstract class WithEventAction : PrimeRouterQueueMessage() {
@@ -135,6 +156,7 @@ fun registerPrimeRouterQueueMessageSubtypes() {
     QueueMessage.ObjectMapperProvider.registerSubtypes(
         FhirConvertQueueMessage::class.java,
         FhirDestinationFilterQueueMessage::class.java,
+        FhirReceiverEnrichmentQueueMessage::class.java,
         FhirReceiverFilterQueueMessage::class.java,
         FhirTranslateQueueMessage::class.java,
         BatchEventQueueMessage::class.java,

@@ -9,7 +9,7 @@ import ca.uhn.hl7v2.model.Segment
 import ca.uhn.hl7v2.model.Structure
 import ca.uhn.hl7v2.model.Type
 import ca.uhn.hl7v2.model.Varies
-import org.apache.commons.lang3.StringUtils
+import org.apache.commons.lang3.Strings
 
 class HL7DiffHelper {
     fun filterNames(message: Message, names: Array<String>, map: MutableMap<String, Segment>) {
@@ -168,7 +168,7 @@ class HL7DiffHelper {
         tertiaryFieldNumber: Int?,
     ): List<Hl7Diff> {
         return when {
-            input is Primitive && output is Primitive && !StringUtils.equals(input.value, output.value) -> {
+            input is Primitive && output is Primitive && !Strings.CS.equals(input.value, output.value) -> {
                 return listOf(
                     Hl7Diff(
                         segmentIndex,
@@ -201,7 +201,7 @@ class HL7DiffHelper {
                     return listOf(
                         Hl7Diff(
                             segmentIndex,
-                            "Difference in number of components. Input: $inputComponents, Output: $outputComponents ",
+                            "$inputComponents@$outputComponents",
                             "",
                             fieldNumber,
                             secondaryFieldNum,
@@ -213,8 +213,7 @@ class HL7DiffHelper {
                     return listOf(
                         Hl7Diff(
                             segmentIndex,
-                            """Difference in number of extra components. 
-                                |Input: $inputExtraComponents Output: $outputExtraComponents
+                            """$inputExtraComponents@$outputExtraComponents
                             """.trimMargin(),
                             "",
                             fieldNumber,
@@ -251,7 +250,7 @@ class HL7DiffHelper {
                 return listOf(
                     Hl7Diff(
                         segmentIndex,
-                        "Difference in type of field, ${input.javaClass}, ${output.javaClass}.",
+                        "${input.javaClass}@${output.javaClass}",
                         "",
                         fieldNumber,
                         secondaryFieldNum,
@@ -315,7 +314,7 @@ class HL7DiffHelper {
             val outputText = if (output.isEmpty()) {
                 ""
             } else {
-                ", $output."
+                "@$output"
             }
 
             val tertiaryFieldNumberText = if (tertiaryFieldNumber == null) {
@@ -332,9 +331,9 @@ class HL7DiffHelper {
 
             val fieldNumberText = fieldNum?.toString() ?: ""
 
-            return "Difference between messages at $segmentIndex." +
+            return "$segmentIndex." +
                 "$fieldNumberText$secondaryFieldNumberText$tertiaryFieldNumberText" +
-                " Differences: $input$outputText"
+                "@$input$outputText"
         }
     }
 
@@ -345,10 +344,8 @@ class HL7DiffHelper {
     private fun effectivelyBlank(
         outputHL7v2Segment: Array<ca.uhn.hl7v2.model.Type>,
         inputHL7v2Segment: Array<ca.uhn.hl7v2.model.Type>,
-    ): Boolean {
-        return ((outputHL7v2Segment.size == 1 && outputHL7v2Segment[0].isEmpty) || outputHL7v2Segment.isEmpty()) &&
+    ): Boolean = ((outputHL7v2Segment.size == 1 && outputHL7v2Segment[0].isEmpty) || outputHL7v2Segment.isEmpty()) &&
                 ((inputHL7v2Segment.size == 1 && inputHL7v2Segment[0].isEmpty) || inputHL7v2Segment.isEmpty())
-    }
 
     /**
      * helper - heuristically check input and output are compatible types

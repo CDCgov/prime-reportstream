@@ -107,7 +107,7 @@ runs:
       shell: bash
 
     - name: Upload Swagger UI (APIDocs staging only)
-      if: inputs.env-name == 'staging' || inputs.env-name == 'demo1'
+      if: inputs.env-name == 'staging'
       shell: bash
       working-directory: prime-router
       run: |

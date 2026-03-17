@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check Out Changes
-        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8
         with:
           fetch-depth: 0
 
@@ -67,8 +67,8 @@ jobs:
           message: |
             ${{ steps.stale_out.outputs.MESSAGE_RESPONSE }}
           icon-emoji: ':hourglass_flowing_sand:'
-          channel: prime-reportstream-engineering
-          webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
+          channel: cdc-reportstream-bot-notifications
+          webhook-url: ${{ secrets.SLACK_WEBHOOK_URL_NAVA_BOT_NOTIFICATIONS_CHANNEL }}
           color: warning
           slackify-markdown: true
 
@@ -80,7 +80,7 @@ jobs:
           message: |
             ${{ steps.stale_out.outputs.MESSAGE_ISSUES_RESPONSE }}
           icon-emoji: ':hourglass_flowing_sand:'
-          channel: prime-reportstream-engineering
-          webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
+          channel: cdc-reportstream-bot-notifications
+          webhook-url: ${{ secrets.SLACK_WEBHOOK_URL_NAVA_BOT_NOTIFICATIONS_CHANNEL }}
           color: warning
           slackify-markdown: true

@@ -21,6 +21,7 @@ import io.swagger.v3.plugins.gradle.tasks.ResolveTask
 import org.apache.commons.io.FileUtils
 import org.apache.commons.io.FilenameUtils
 import org.apache.tools.ant.filters.ReplaceTokens
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.jooq.meta.jaxb.ForcedType
 import java.io.ByteArrayOutputStream
@@ -35,17 +36,17 @@ apply(from = rootProject.file("buildSrc/shared.gradle.kts"))
 plugins {
     val kotlinVersion by System.getProperties()
     id("reportstream.project-conventions")
-    id("org.flywaydb.flyway") version "10.21.0"
+    id("org.flywaydb.flyway") version "11.8.1"
     id("nu.studer.jooq") version "9.0"
     id("com.github.johnrengelman.shadow") version "8.1.1"
     id("com.microsoft.azure.azurefunctions") version "1.16.1"
     id("com.adarshr.test-logger") version "4.0.0"
     id("jacoco")
-    id("org.jetbrains.dokka") version "1.8.20"
-    id("com.avast.gradle.docker-compose") version "0.17.10"
+    id("org.jetbrains.dokka") version "2.1.0"
+    id("com.avast.gradle.docker-compose") version "0.17.12"
     id("org.jetbrains.kotlin.plugin.serialization") version "$kotlinVersion"
     id("com.nocwriter.runsql") version ("1.0.3")
-    id("io.swagger.core.v3.swagger-gradle-plugin") version "2.2.23"
+    id("io.swagger.core.v3.swagger-gradle-plugin") version "2.2.30"
 }
 
 // retrieve the current commit hash
@@ -66,16 +67,16 @@ val azureFunctionsDir = "azure-functions"
 val primeMainClass = "gov.cdc.prime.router.cli.MainKt"
 val defaultDuplicateStrategy = DuplicatesStrategy.WARN
 azurefunctions.appName = azureAppName
-val appJvmTarget = "17"
-val javaVersion = when (appJvmTarget) {
+val appJvmTarget = JvmTarget.JVM_17
+val javaVersion = when (appJvmTarget.target) {
     "17" -> JavaVersion.VERSION_17
     "19" -> JavaVersion.VERSION_19
     "21" -> JavaVersion.VERSION_21
     else -> JavaVersion.VERSION_17
 }
-val ktorVersion = "2.3.12"
+val ktorVersion = "3.3.3"
 val kotlinVersion by System.getProperties()
-val jacksonVersion = "2.18.1"
+val jacksonVersion = "2.20.1"
 jacoco.toolVersion = "0.8.12"
 
 // Local database information, first one wins:
@@ -214,12 +215,14 @@ tasks.test {
 
 tasks.javadoc.configure {
     actions.clear()
-    dependsOn(tasks.dokkaHtml)
+    dependsOn(tasks.dokkaGenerate)
 }
 
-tasks.dokkaHtml.configure {
+dokka {
     val docsDir = File(buildDir, "/docs/dokka")
-    outputDirectory.set(docsDir)
+    dokkaPublications.html {
+        outputDirectory.set(docsDir)
+    }
 }
 
 tasks.jacocoTestReport {
@@ -273,7 +276,7 @@ sourceSets.create("testIntegration") {
 }
 
 val compileTestIntegrationKotlin: KotlinCompile by tasks
-compileTestIntegrationKotlin.kotlinOptions.jvmTarget = appJvmTarget
+compileTestIntegrationKotlin.compilerOptions.jvmTarget.set(appJvmTarget)
 
 val testIntegrationImplementation: Configuration by configurations.getting {
     extendsFrom(configurations["testImplementation"])
@@ -334,6 +337,11 @@ tasks.register<ResolveTask>("generateOpenApi") {
     buildClasspath = classpath
     resourcePackages = setOf("gov.cdc.prime.router.azure")
     outputDir = apiDocsSpecDir
+    sortOutput = false
+    alwaysResolveAppPath = false
+    skipResolveAppPath = false
+    readAllResources = true
+    encoding = "UTF-8"
     dependsOn("compileKotlin")
 }
 
@@ -352,6 +360,13 @@ tasks.register<Copy>("copyApiSwaggerUI") {
 
 tasks.withType<Test>().configureEach {
     maxParallelForks = (Runtime.getRuntime().availableProcessors() / 2).takeIf { it > 0 } ?: 1
+    if ("AzureWebJobsStorage" !in System.getenv()) {
+        environment["AzureWebJobsStorage"] = "test-AzureWebJobsStorage"
+        println(
+            "'AzureWebJobsStorage' was not defined for testing and has been set to: " +
+                environment["AzureWebJobsStorage"]
+        )
+    }
 }
 
 tasks.processResources {
@@ -616,7 +631,7 @@ tasks.register("quickPackage") {
     tasks["compileTestKotlin"].enabled = false
     tasks["migrate"].enabled = false
     tasks["flywayMigrate"].enabled = false
-    tasks["dokkaHtml"].enabled = false
+    tasks["dokkaGenerate"].enabled = false
 }
 
 /**
@@ -653,18 +668,18 @@ task<Exec>("uploadSwaggerUI") {
 }
 
 tasks.register("killFunc") {
-        val processName = "func"
-        if (org.gradle.internal.os.OperatingSystem.current().isWindows) {
-            exec {
-                workingDir = project.rootDir
-                commandLine = listOf("cmd", "/c", "taskkill /F /IM $processName.exe || exit 0")
-            }
-        } else {
-            exec {
-                workingDir = project.rootDir
-                commandLine = listOf("sh", "-c", "pkill -9 $processName || true")
-            }
+    val processName = "func"
+    if (org.gradle.internal.os.OperatingSystem.current().isWindows) {
+        exec {
+            workingDir = project.rootDir
+            commandLine = listOf("cmd", "/c", "taskkill /F /IM $processName.exe || exit 0")
         }
+    } else {
+        exec {
+            workingDir = project.rootDir
+            commandLine = listOf("sh", "-c", "pkill -9 $processName || true")
+        }
+    }
 }
 
 tasks.register("run") {
@@ -682,7 +697,7 @@ tasks.register("quickRun") {
     tasks["compileTestKotlin"].enabled = false
     tasks["migrate"].enabled = false
     tasks["flywayMigrate"].enabled = false
-    tasks["dokkaHtml"].enabled = false
+    tasks["dokkaGenerate"].enabled = false
 }
 
 tasks.register("tiQuickRun") {
@@ -705,9 +720,10 @@ flyway {
 
 // Database code generation configuration
 jooq {
-    version.set("3.18.6")
+    version.set("3.18.25")
     configurations {
-        create("main") { // name of the jOOQ configuration
+        create("main") {
+            // name of the jOOQ configuration
             jooqConfiguration.apply {
                 logging = org.jooq.meta.jaxb.Logging.INFO
                 jdbc.apply {
@@ -838,9 +854,9 @@ buildscript {
     dependencies {
         // Now force the gradle build script to get the proper library for com.nimbusds:oauth2-oidc-sdk:9.15.  This
         // will need to be removed once this issue is resolved in Maven.
-        classpath("net.minidev:json-smart:2.5.1")
+        classpath("net.minidev:json-smart:2.6.0")
         // as per flyway v10 docs the postgres flyway module must be on the project buildpath
-        classpath("org.flywaydb:flyway-database-postgresql:10.21.0")
+        classpath("org.flywaydb:flyway-database-postgresql:11.8.1")
     }
 }
 
@@ -853,91 +869,88 @@ configurations {
 }
 
 dependencies {
-    jooqGenerator("org.postgresql:postgresql:42.7.4")
+    jooqGenerator("org.postgresql:postgresql:42.7.8")
 
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-common:$kotlinVersion")
     implementation("org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0")
-    implementation("com.microsoft.azure.functions:azure-functions-java-library:3.1.0")
-    implementation("com.azure:azure-core:1.52.0")
-    implementation("com.azure:azure-core-http-netty:1.15.4")
+    implementation("com.microsoft.azure.functions:azure-functions-java-library:3.2.2")
+    implementation("com.azure:azure-core:1.57.0")
+    implementation("com.azure:azure-core-http-netty:1.16.2")
     implementation("com.azure:azure-storage-blob:12.27.0") {
         exclude(group = "com.azure", module = "azure-core")
     }
     implementation("com.azure:azure-storage-queue:12.22.0") {
         exclude(group = "com.azure", module = "azure-core")
     }
-    implementation("com.azure:azure-security-keyvault-secrets:4.9.0") {
+    implementation("com.azure:azure-security-keyvault-secrets:4.10.4") {
         exclude(group = "com.azure", module = "azure-core")
         exclude(group = "com.azure", module = "azure-core-http-netty")
     }
-    implementation("com.azure:azure-identity:1.14.2") {
+    implementation("com.azure:azure-identity:1.15.4") {
         exclude(group = "com.azure", module = "azure-core")
         exclude(group = "com.azure", module = "azure-core-http-netty")
     }
-    implementation("com.nimbusds:nimbus-jose-jwt:9.47")
-    implementation("org.apache.logging.log4j:log4j-api:2.24.0")
-    implementation("org.apache.logging.log4j:log4j-core:2.24.0")
-    implementation("org.apache.logging.log4j:log4j-slf4j2-impl:2.24.0")
-    implementation("org.apache.logging.log4j:log4j-layout-template-json:2.24.0")
+    implementation("com.nimbusds:nimbus-jose-jwt:10.1")
+    implementation("org.apache.logging.log4j:log4j-api:2.25.2")
+    implementation("org.apache.logging.log4j:log4j-core:2.25.2")
+    implementation("org.apache.logging.log4j:log4j-slf4j2-impl:2.25.2")
+    implementation("org.apache.logging.log4j:log4j-layout-template-json:2.25.2")
     implementation("org.apache.logging.log4j:log4j-api-kotlin:1.5.0")
-    implementation("io.github.oshai:kotlin-logging-jvm:7.0.0")
+    implementation("io.github.oshai:kotlin-logging-jvm:7.0.13")
     implementation("com.github.doyaaaaaken:kotlin-csv-jvm:1.10.0")
-    implementation("tech.tablesaw:tablesaw-core:0.43.1")
-    implementation("com.github.ajalt.clikt:clikt-jvm:4.4.0")
+    implementation("tech.tablesaw:tablesaw-core:0.44.4")
+    implementation("com.github.ajalt.clikt:clikt-jvm:5.0.3")
 
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:$jacksonVersion")
     implementation("com.fasterxml.jackson.core:jackson-databind:$jacksonVersion")
     implementation("com.github.javafaker:javafaker:1.0.2") {
         exclude(group = "org.yaml", module = "snakeyaml")
     }
-    implementation("org.yaml:snakeyaml:2.3")
+    implementation("org.yaml:snakeyaml:2.5")
     implementation("io.github.linuxforhealth:hl7v2-fhir-converter") {
         version {
             branch = "master"
         }
     }
-    implementation("ca.uhn.hapi.fhir:hapi-fhir-structures-r4:7.4.5")
+    implementation("ca.uhn.hapi.fhir:hapi-fhir-structures-r4:8.0.0")
     // https://mvnrepository.com/artifact/ca.uhn.hapi.fhir/hapi-fhir-caching-caffeine
-    implementation("ca.uhn.hapi.fhir:hapi-fhir-caching-caffeine:7.4.5")
-    implementation("ca.uhn.hapi.fhir:hapi-fhir-client:7.4.5")
-    // pin
-    implementation("ca.uhn.hapi.fhir:org.hl7.fhir.utilities:6.4.0")
-    implementation("ca.uhn.hapi.fhir:org.hl7.fhir.r4:6.4.0")
-    implementation("ca.uhn.hapi:hapi-base:2.5.1")
-    implementation("ca.uhn.hapi:hapi-structures-v251:2.5.1")
-    implementation("ca.uhn.hapi:hapi-structures-v27:2.5.1")
-    implementation("com.googlecode.libphonenumber:libphonenumber:8.13.50")
-    implementation("org.thymeleaf:thymeleaf:3.1.2.RELEASE")
+    implementation("ca.uhn.hapi.fhir:hapi-fhir-caching-caffeine:8.0.0")
+    implementation("ca.uhn.hapi.fhir:hapi-fhir-client:8.0.0")
+    implementation("ca.uhn.hapi:hapi-base:2.6.0")
+    implementation("ca.uhn.hapi:hapi-structures-v251:2.6.0")
+    implementation("ca.uhn.hapi:hapi-structures-v27:2.6.0")
+    implementation("com.googlecode.libphonenumber:libphonenumber:9.0.4")
+    implementation("org.thymeleaf:thymeleaf:3.1.3.RELEASE")
     implementation("com.sendgrid:sendgrid-java:4.10.3")
     implementation("com.okta.jwt:okta-jwt-verifier:0.5.7")
-    implementation("org.json:json:20240303")
+    implementation("org.json:json:20250517")
     // DO NOT INCREMENT SSHJ to a newer version without first thoroughly testing it locally.
-    implementation("com.hierynomus:sshj:0.38.0")
+    implementation("com.hierynomus:sshj:0.40.0")
     implementation("com.jcraft:jsch:0.1.55")
-    implementation("org.apache.poi:poi:5.3.0")
-    implementation("org.apache.commons:commons-csv:1.12.0")
-    implementation("org.apache.commons:commons-lang3:3.15.0")
-    implementation("org.apache.commons:commons-text:1.12.0")
-    implementation("commons-codec:commons-codec:1.17.1")
-    implementation("commons-io:commons-io:2.17.0")
-    implementation("org.postgresql:postgresql:42.7.4")
-    implementation("com.zaxxer:HikariCP:6.2.0")
-    implementation("org.flywaydb:flyway-core:10.21.0")
-    implementation("org.flywaydb:flyway-database-postgresql:10.21.0")
-    implementation("org.commonmark:commonmark:0.24.0")
-    implementation("com.google.guava:guava:33.3.1-jre")
-    implementation("com.helger.as2:as2-lib:5.1.2")
-    implementation("org.bouncycastle:bcprov-jdk15to18:1.79")
-    implementation("org.bouncycastle:bcprov-jdk18on:1.79")
-    implementation("org.bouncycastle:bcmail-jdk15to18:1.79")
+    implementation("org.apache.poi:poi:5.5.1")
+    implementation("org.apache.commons:commons-csv:1.14.1")
+    implementation("org.apache.commons:commons-lang3:3.20.0")
+    implementation("org.apache.commons:commons-text:1.13.1")
+    implementation("commons-codec:commons-codec:1.18.0")
+    implementation("commons-io:commons-io:2.21.0")
+    implementation("org.postgresql:postgresql:42.7.8")
+    implementation("com.zaxxer:HikariCP:7.0.2")
+    implementation("org.flywaydb:flyway-core:11.8.1")
+    implementation("org.flywaydb:flyway-database-postgresql:11.8.1")
+    implementation("org.commonmark:commonmark:0.27.0")
+    implementation("com.google.guava:guava:33.5.0-jre")
+    implementation("com.helger.as2:as2-lib:5.1.7")
+    implementation("org.bouncycastle:bcprov-jdk15to18:1.83")
+    implementation("org.bouncycastle:bcprov-jdk18on:1.83")
+    implementation("org.bouncycastle:bcmail-jdk15to18:1.83")
 
     implementation("commons-net:commons-net:3.11.1")
     implementation("com.cronutils:cron-utils:9.2.1")
     implementation("io.jsonwebtoken:jjwt-api:0.11.5")
-    implementation("de.m3y.kformat:kformat:0.11")
-    implementation("io.github.java-diff-utils:java-diff-utils:4.11")
+    implementation("de.m3y.kformat:kformat:0.14")
+    implementation("io.github.java-diff-utils:java-diff-utils:4.16")
     implementation("io.ktor:ktor-client-core:$ktorVersion")
     implementation("io.ktor:ktor-client-cio:$ktorVersion")
     implementation("io.ktor:ktor-client-apache:$ktorVersion")
@@ -946,18 +959,14 @@ dependencies {
     implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
     implementation("io.ktor:ktor-serialization-kotlinx:$ktorVersion")
     implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
-    implementation("it.skrape:skrapeit-html-parser:1.3.0-alpha.2")
-    implementation("it.skrape:skrapeit-http-fetcher:1.3.0-alpha.2")
-    implementation("org.apache.poi:poi:5.3.0")
-    implementation("org.apache.poi:poi-ooxml:5.3.0")
-    implementation("org.apache.commons:commons-compress:1.27.1")
-    implementation("commons-io:commons-io:2.17.0")
-    implementation("com.anyascii:anyascii:0.3.2")
-    // force jsoup since skrapeit-html-parser@1.2.1+ has not updated
-    implementation("org.jsoup:jsoup:1.18.1")
+    implementation("org.apache.poi:poi:5.5.1")
+    implementation("org.apache.poi:poi-ooxml:5.5.1")
+    implementation("org.apache.commons:commons-compress:1.28.0")
+    implementation("commons-io:commons-io:2.21.0")
+    implementation("com.anyascii:anyascii:0.3.3")
     // https://mvnrepository.com/artifact/io.swagger/swagger-annotations
-    implementation("io.swagger:swagger-annotations:1.6.14")
-    implementation("io.swagger.core.v3:swagger-jaxrs2:2.2.23")
+    implementation("io.swagger:swagger-annotations:1.6.16")
+    implementation("io.swagger.core.v3:swagger-jaxrs2:2.2.30")
     // https://mvnrepository.com/artifact/javax.ws.rs/javax.ws.rs-api
     implementation("javax.ws.rs:javax.ws.rs-api:2.1.1")
     // https://mvnrepository.com/artifact/javax.servlet/javax.servlet-api
@@ -968,7 +977,7 @@ dependencies {
     // TODO: move this to a test dependency when CompareFhirData lives under src/test
     implementation("com.flipkart.zjsonpatch:zjsonpatch:0.4.16")
 
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
 
     implementation("gov.nist:hl7-v2-validation:1.6.5") {
         // These conflict with the javax.xml.transform package available in the base JDK and need to be excluded
@@ -979,16 +988,16 @@ dependencies {
     implementation("xalan:xalan:2.7.3")
 
     // validations
-    implementation("com.networknt:json-schema-validator:1.5.2")
-    implementation("io.konform:konform-jvm:0.4.0")
+    implementation("com.networknt:json-schema-validator:1.5.6")
+    implementation("io.konform:konform-jvm:0.11.1")
 
     runtimeOnly("com.okta.jwt:okta-jwt-verifier-impl:0.5.7")
-    runtimeOnly("com.squareup.okio:okio:3.9.1")
+    runtimeOnly("com.squareup.okio:okio:3.11.0")
     runtimeOnly("io.jsonwebtoken:jjwt-impl:0.11.5")
     runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.11.5")
 
     testImplementation(kotlin("test-junit5"))
-    testImplementation("io.mockk:mockk:1.13.13")
+    testImplementation("io.mockk:mockk:1.14.7")
     testImplementation("io.ktor:ktor-client-mock:$ktorVersion")
 
     implementation(project(":shared"))

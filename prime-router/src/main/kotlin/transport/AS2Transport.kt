@@ -18,6 +18,7 @@ import gov.cdc.prime.router.TransportType
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
+import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
 import gov.cdc.prime.router.azure.observability.event.IReportStreamEventService
 import gov.cdc.prime.router.credentials.CredentialHelper
 import gov.cdc.prime.router.credentials.CredentialRequestReason
@@ -38,7 +39,9 @@ import java.util.concurrent.TimeUnit
  * See [Wikapedia AS2](https://en.wikipedia.org/wiki/AS2) for details on AS2.
  * See [PHAX as2-lib](https://github.com/phax/as2-lib) for the details on the library we use.
  */
-class AS2Transport(val metadata: Metadata? = null) : ITransport, Logging {
+class AS2Transport(val metadata: Metadata? = null) :
+    ITransport,
+    Logging {
     /**
      * The send a report or return [RetryItems]
      */
@@ -52,6 +55,8 @@ class AS2Transport(val metadata: Metadata? = null) : ITransport, Logging {
         actionHistory: ActionHistory,
         reportEventService: IReportStreamEventService,
         reportService: ReportService,
+        lineages: List<ItemLineage>?,
+        queueMessage: String,
     ): RetryItems? {
         // DevNote: This code is similar to the SFTP code in structure
         //
@@ -81,7 +86,9 @@ class AS2Transport(val metadata: Metadata? = null) : ITransport, Logging {
                 header,
                 reportEventService,
                 reportService,
-                this::class.java.simpleName
+                this::class.java.simpleName,
+                lineages,
+                queueMessage
             )
             actionHistory.trackItemLineages(Report.createItemLineagesFromDb(header, sentReportId))
             null
@@ -167,8 +174,7 @@ class AS2Transport(val metadata: Metadata? = null) : ITransport, Logging {
     /**
      * Look at the [ex] exception and determine if the error is possibly transient and it is worth retrying.
      */
-    private fun isErrorTransient(ex: Throwable): Boolean {
-        return when {
+    private fun isErrorTransient(ex: Throwable): Boolean = when {
             // Connection to service is down, possibly a service down or under load situation
             ex is WrappedAS2Exception && ex.cause is ConnectException -> true
             ex is WrappedAS2Exception && ex.cause is ConnectTimeoutException -> true
@@ -177,5 +183,4 @@ class AS2Transport(val metadata: Metadata? = null) : ITransport, Logging {
             // Assume everything else is not transient
             else -> false
         }
-    }
 }

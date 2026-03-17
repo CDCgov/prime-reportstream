@@ -447,6 +447,12 @@
           "items": {
             "type": "string"
           }
+        },
+        "routingFilters": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/FHIRExpressionFilter"
+          }
         }
       },
       "required": [
@@ -557,6 +563,7 @@
         "HAWAII",
         "EAST_INDIANA",
         "INDIANA_STARKE",
+        "MAJURO",
         "MICHIGAN",
         "CHAMORRO",
         "UTC",
@@ -710,6 +717,11 @@
               "type": "boolean"
             }
           }
+        },
+        "timeBetweenBatches": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Delay interval between consecutive batches, in seconds. Must be non-negative."
         }
       },
       "required": [
@@ -1054,6 +1066,31 @@
             }
           ]
         },
+        "connectionTimeout": {
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": 0
+            },
+            {
+              "type": "string"
+            }
+          ]
+        },
+        "readTimeout": {
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": 0
+            },
+            {
+              "type": "string"
+            }
+          ]
+        },
+        "useNonDeprecatedKeyAlgorithmsOnly": {
+          "type": "boolean"
+        },
         "filePath": {
           "type": "string"
         },
@@ -1161,6 +1198,42 @@
         "type"
       ],
       "title": "Transport"
+    },
+    "FHIRExpressionFilter": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "filterExpressions": {
+          "anyOf": [
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "filterDescription": {
+          "type": "string"
+        },
+        "filterName": {
+          "type": "string",
+          "enum": [
+            "quality",
+            "processingMode",
+            "routing"
+          ]
+        }
+      },
+      "required": [
+        "filterName",
+        "filterDescription",
+        "filterExpressions"
+      ],
+      "title": "FHIRExpressionFilter"
     }
   }
 }

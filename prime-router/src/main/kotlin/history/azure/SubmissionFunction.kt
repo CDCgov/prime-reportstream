@@ -44,11 +44,11 @@ class SubmissionFunction(
      * @param organization Name of organization and optionally a sender in the format {orgName}.{sender}
      * @return Name for the organization
      */
-    override fun validateOrgSvcName(organization: String): String? {
-        return workflowEngine.settings.findSender(organization).also {
+    override fun validateOrgSvcName(
+        organization: String,
+    ): String? = workflowEngine.settings.findSender(organization).also {
             if (organization.contains(Sender.fullNameSeparator)) sendingOrgSvc = it?.name
         }?.organizationName
-    }
 
     /**
      * Verify that the action being checked has the correct data/parameters
@@ -57,9 +57,9 @@ class SubmissionFunction(
      * @param action DB Action that we are reviewing
      * @return true if action is valid, else false
      */
-    override fun actionIsValid(action: Action): Boolean {
-        return action.sendingOrg != null && action.actionName == TaskAction.receive
-    }
+    override fun actionIsValid(
+        action: Action,
+    ): Boolean = action.sendingOrg != null && action.actionName == TaskAction.receive
 
     /**
      * Get a list of submission history
@@ -122,9 +122,7 @@ class SubmissionFunction(
             route = "waters/org/{organization}/submissions"
         ) request: HttpRequestMessage<String?>,
         @BindingName("organization") organization: String,
-    ): HttpResponseMessage {
-        return this.getListByOrg(request, organization)
-    }
+    ): HttpResponseMessage = this.getListByOrg(request, organization)
 
     /**
      * API endpoint to return history of a single report.
@@ -139,9 +137,7 @@ class SubmissionFunction(
             route = "waters/report/{id}/history"
         ) request: HttpRequestMessage<String?>,
         @BindingName("id") id: String,
-    ): HttpResponseMessage {
-        return this.getDetailedView(request, id)
-    }
+    ): HttpResponseMessage = this.getDetailedView(request, id)
 
     /**
      * Endpoint for intermediary senders to verify status of messages. It passes
@@ -160,9 +156,7 @@ class SubmissionFunction(
         ) request: HttpRequestMessage<String?>,
         @BindingName("reportId") reportId: UUID,
         context: ExecutionContext,
-    ): HttpResponseMessage {
-        return this.retrieveETORIntermediaryMetadata(request, reportId, context, null)
-    }
+    ): HttpResponseMessage = this.retrieveETORIntermediaryMetadata(request, reportId, context, null)
 
     /**
      * Function for finding the associated report ID that the intermediary knows about given the report ID that the sender is

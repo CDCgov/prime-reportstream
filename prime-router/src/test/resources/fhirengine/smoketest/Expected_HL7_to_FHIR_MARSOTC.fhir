@@ -571,7 +571,13 @@
                   "valueCoding": {
                     "system": "SNOMEDCT",
                     "code": "840539006",
-                    "display": "Disease caused by severe acute respiratory syndrome coronavirus 2 (disorder)"
+                    "display": "Disease caused by severe acute respiratory syndrome coronavirus 2 (disorder)",
+                    "extension": [
+                        {
+                            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/test-performed-member-oid",
+                            "valueString": "2.16.840.1.113762.1.4.1146.1158"
+                        }
+                    ]
                   }
                 }
               ],

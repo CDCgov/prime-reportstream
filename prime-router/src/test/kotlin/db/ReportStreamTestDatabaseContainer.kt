@@ -10,7 +10,8 @@ import org.testcontainers.containers.PostgreSQLContainer
  * Test container for the report stream database
  *
  */
-class ReportStreamTestDatabaseContainer : PostgreSQLContainer<ReportStreamTestDatabaseContainer>(
+class ReportStreamTestDatabaseContainer :
+    PostgreSQLContainer<ReportStreamTestDatabaseContainer>(
     TestcontainersUtils.createPostgresContainer()
 ) {
 

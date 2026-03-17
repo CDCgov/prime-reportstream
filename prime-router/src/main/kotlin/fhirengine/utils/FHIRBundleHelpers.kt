@@ -7,12 +7,12 @@ import gov.cdc.prime.router.ReportStreamConditionFilter
 import gov.cdc.prime.router.ReportStreamFilter
 import gov.cdc.prime.router.azure.ConditionStamper.Companion.BUNDLE_CODE_IDENTIFIER
 import gov.cdc.prime.router.azure.ConditionStamper.Companion.BUNDLE_VALUE_IDENTIFIER
-import gov.cdc.prime.router.azure.ConditionStamper.Companion.conditionCodeExtensionURL
+import gov.cdc.prime.router.azure.ConditionStamper.Companion.CONDITION_CODE_EXTENSION_URL
 import gov.cdc.prime.router.codes
 import gov.cdc.prime.router.fhirengine.engine.RSMessageType
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
+import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirBundleUtils.deleteResource
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
-import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers.Companion.getChildProperties
 import io.github.linuxforhealth.hl7.data.Hl7RelatedGeneralUtils
 import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.Bundle
@@ -20,15 +20,11 @@ import org.hl7.fhir.r4.model.CodeType
 import org.hl7.fhir.r4.model.CodeableConcept
 import org.hl7.fhir.r4.model.Coding
 import org.hl7.fhir.r4.model.DateTimeType
-import org.hl7.fhir.r4.model.DiagnosticReport
 import org.hl7.fhir.r4.model.Extension
 import org.hl7.fhir.r4.model.Observation
 import org.hl7.fhir.r4.model.Patient
-import org.hl7.fhir.r4.model.Property
 import org.hl7.fhir.r4.model.Provenance
 import org.hl7.fhir.r4.model.Reference
-import java.util.stream.Collectors
-import java.util.stream.Stream
 
 /**
  * A collection of helper functions that modify an existing FHIR bundle.
@@ -61,12 +57,10 @@ fun Observation.getCodeSourcesMap(): Map<String, List<Coding>> {
 /**
  * Gets mapped condition extensions present on an [Observation]
  */
-fun Observation.getMappedConditionExtensions(): List<Extension> {
-    return this.getCodeSourcesMap()
+fun Observation.getMappedConditionExtensions(): List<Extension> = this.getCodeSourcesMap()
         .flatMap { it.value }
         .flatMap { it.extension }
-        .filter { it.url == conditionCodeExtensionURL }
-}
+        .filter { it.url == CONDITION_CODE_EXTENSION_URL }
 
 /**
  * Gets mapped conditions present on an [Observation]
@@ -77,9 +71,7 @@ fun Observation.getMappedConditions(): List<Coding> =
 /**
  * Gets mapped condition codes present on an [Observation]
  */
-fun Observation.getMappedConditionCodes(): List<String> {
-    return this.getMappedConditions().map { it.code }
-}
+fun Observation.getMappedConditionCodes(): List<String> = this.getMappedConditions().map { it.code }
 
 fun Bundle.getObservations() = this.entry.map { it.resource }.filterIsInstance<Observation>()
 
@@ -141,135 +133,22 @@ fun Bundle.isElr(): Boolean {
  *
  * @return RSMessageType of this Bundle.
  */
-fun Bundle.getRSMessageType(): RSMessageType {
-    return when {
+fun Bundle.getRSMessageType(): RSMessageType = when {
         isElr() -> RSMessageType.LAB_RESULT
         else -> RSMessageType.UNKNOWN
     }
-}
-
-/**
- * Gets all properties for a [Base] resource recursively and filters only its references
- *
- * @return a list of reference identifiers for a [Base] resource
- *
- */
-fun Base.getResourceReferences(): List<String> {
-    return FHIRBundleHelpers.filterReferenceProperties(this.getResourceProperties())
-}
-
-/**
- * Gets all properties for a [Base] resource recursively
- *
- * @return a list of all [Property] for a [Base] resource
- */
-fun Base.getResourceProperties(): List<Property> {
-    return this.children().stream().flatMap { getChildProperties(it) }.collect(Collectors.toList())
-}
 
 /**
  * Gets all diagnostic report that have no observations from a [bundle]
  *
  * @return a list of [Base] diagnostic reports that have no observations
  */
-fun Bundle.getDiagnosticReportNoObservations(): List<Base> {
-    return FhirPathUtils.evaluate(
+fun Bundle.getDiagnosticReportNoObservations(): List<Base> = FhirPathUtils.evaluate(
         null,
         this,
         this,
         "Bundle.entry.resource.ofType(DiagnosticReport).where(result.empty())"
     )
-}
-
-/**
- * Deletes a [resource] from a bundle, removes all references to the [resource] and any orphaned children.
- * If the [resource] being deleted is an [Observation] and that results in diagnostic reports having no
- * observations, the [DiagnosticReport] will be deleted
- */
-fun Bundle.deleteResource(resource: Base, removeOrphanedDiagnosticReport: Boolean = true) {
-    val referencesToClean = mutableSetOf<String>()
-
-    // build up all resources and their references in a map as a starting point
-    fun generateAllReferencesMap() = this.entry.associate {
-        it.fullUrl to it.getResourceReferences()
-    }
-
-    // recursive function to delete resource and orphaned children
-    fun deleteResourceInternal(
-        resourceInternal: Base,
-        referencesMap: Map<String, List<String>> = generateAllReferencesMap(),
-    ) {
-        if (this.entry.find { it.fullUrl == resourceInternal.idBase } == null) {
-            throw IllegalStateException("Cannot delete resource. FHIR bundle does not contain this resource")
-        }
-
-        // First remove the resource from the bundle
-        this.entry.removeIf { it.fullUrl == resourceInternal.idBase }
-
-        // add resource to set of references to clean up after recursion
-        referencesToClean.add(resourceInternal.idBase)
-
-        // Get the resource children references
-        val resourceChildren = resourceInternal.getResourceReferences()
-
-        // get all resources except the resource being removed and stick it in a map keyed off the fullUrl
-        val allResources = this.entry.associateBy { it.fullUrl }
-
-        // get all references for every remaining resource
-        val remainingReferences = referencesMap - resourceInternal.idBase
-        val flatRemainingReferences = remainingReferences.flatMap { it.value }.toSet()
-
-        // remove orphaned children
-        resourceChildren.forEach { child ->
-            if (!flatRemainingReferences.contains(child)) {
-                allResources[child]?.let { entryToDelete ->
-                    deleteResourceInternal(entryToDelete.resource, remainingReferences)
-                }
-            }
-        }
-    }
-
-    // Go through every resource and check if the resource has a reference to the resource being deleted
-    fun cleanUpReferences() {
-        this.entry
-            .map { it.resource }
-            .forEach { res ->
-                res.children().forEach { child ->
-                    child
-                        .values
-                        .filterIsInstance<Reference>()
-                        .filter { referencesToClean.contains(it.reference) }
-                        .forEach { it.reference = null }
-                }
-            }
-
-        referencesToClean.clear()
-    }
-
-    // find diagnostic reports without any observations contained in the result field and delete
-    fun cleanUpEmptyDiagnosticReports() {
-        val diagnosticReportsToDelete = this.entry
-            .map { it.resource }
-            .filterIsInstance<DiagnosticReport>()
-            .filter { it.result.none { it.reference != null } }
-
-        diagnosticReportsToDelete.forEach { deleteResourceInternal(it) }
-    }
-
-    // delete provided resource and all references to it
-    deleteResourceInternal(resource)
-    cleanUpReferences()
-
-    // The original use case of this function was just to remove Observations from a bundle
-    // but has since expanded so this behavior is opt-in
-    // TODO: Remove as part of https://github.com/CDCgov/prime-reportstream/issues/14568
-    if (removeOrphanedDiagnosticReport) {
-        // clean up empty Diagnostic Reports and references to them
-        cleanUpEmptyDiagnosticReports()
-    }
-
-    cleanUpReferences()
-}
 
 /**
  *  Removes PHI data from a [Bundle]
@@ -308,17 +187,16 @@ internal fun Bundle.deleteChildlessResource(resource: Base) {
 
 /**
  * Gets the observation extensions for those observations that pass the condition filter for a [receiver]
- * The [fhirBundle] and [shortHandLookupTable] will be used to evaluate whether the observation passes the filter
+ * The [fhirBundle] will be used to evaluate whether the observation passes the filter
  *
  * @return is a list of extensions to add to the bundle
  */
 internal fun getObservationExtensions(
     fhirBundle: Bundle,
     receiver: Receiver,
-    shortHandLookupTable: MutableMap<String, String>,
 ): List<Extension> {
     val (observationsToKeep, allObservations) =
-        getFilteredObservations(fhirBundle, receiver.conditionFilter, shortHandLookupTable)
+        getFilteredObservations(fhirBundle, receiver.conditionFilter)
 
     val observationExtensionsToKeep = mutableListOf<Extension>()
     if (observationsToKeep.size < allObservations.size) {
@@ -331,17 +209,16 @@ internal fun getObservationExtensions(
 
 /**
  * Filter out observations that pass the condition filter for a [receiver]
- * The [bundle] and [shortHandLookupTable] will be used to evaluate whether
+ * The [bundle] will be used to evaluate whether
  * the observation passes the filter
  *
  * @return copy of the bundle with filtered observations removed
  */
 fun Bundle.filterObservations(
     conditionFilter: ReportStreamFilter,
-    shortHandLookupTable: MutableMap<String, String>,
-): Bundle {
+    ): Bundle {
     val (observationsToKeep, allObservations) =
-        getFilteredObservations(this, conditionFilter, shortHandLookupTable)
+        getFilteredObservations(this, conditionFilter)
     val filteredBundle = this.copy()
     val listToKeep = observationsToKeep.map { it.idBase }
     allObservations.forEach {
@@ -354,8 +231,7 @@ fun Bundle.filterObservations(
 
 /**
  * Filter out observations that pass the condition filter for a [receiver]
- * The [bundle] and [shortHandLookupTable] will be used to evaluate whether
- * the observation passes the filter
+ * The [bundle] will be used to evaluate whether the observation passes the filter
  *
  * @return a pair containing a list of the filtered ids and copy of the bundle with filtered observations removed
  */
@@ -381,11 +257,10 @@ fun Bundle.filterMappedObservations(
 private fun getFilteredObservations(
     fhirBundle: Bundle,
     conditionFilter: ReportStreamFilter,
-    shortHandLookupTable: MutableMap<String, String>,
 ): Pair<List<Base>, List<Base>> {
     val allObservationsExpression = "Bundle.entry.resource.ofType(DiagnosticReport).result.resolve()"
     val allObservations = FhirPathUtils.evaluate(
-        CustomContext(fhirBundle, fhirBundle, shortHandLookupTable, CustomFhirPathFunctions()),
+        CustomContext(fhirBundle, fhirBundle, mutableMapOf(), CustomFhirPathFunctions()),
         fhirBundle,
         fhirBundle,
         allObservationsExpression
@@ -395,7 +270,7 @@ private fun getFilteredObservations(
     allObservations.forEach { observation ->
         val passes = conditionFilter.any { conditionFilter ->
             FhirPathUtils.evaluateCondition(
-                CustomContext(fhirBundle, observation, shortHandLookupTable, CustomFhirPathFunctions()),
+                CustomContext(fhirBundle, observation, mutableMapOf(), CustomFhirPathFunctions()),
                 observation,
                 fhirBundle,
                 fhirBundle,
@@ -420,7 +295,6 @@ fun Bundle.enhanceBundleMetadata(hl7Message: Message) {
 
     // The HL7 message ID
     this.identifier.value = when (val mshSegment = hl7Message["MSH"]) {
-        is fhirengine.translation.hl7.structures.nistelr251.segment.MSH -> mshSegment.messageControlID.value
         is ca.uhn.hl7v2.model.v27.segment.MSH -> mshSegment.messageControlID.value
         is ca.uhn.hl7v2.model.v251.segment.MSH -> mshSegment.messageControlID.value
         else -> ""
@@ -483,31 +357,6 @@ class FHIRBundleHelpers {
                 }
             }
             return result
-        }
-
-        /**
-         * Filters the [properties] by only properties that have a value and are of type [Reference]
-         *
-         * @return a list containing only the references in [properties]
-         */
-        fun filterReferenceProperties(properties: List<Property>): List<String> {
-            return properties
-                .filter { it.hasValues() }
-                .flatMap { it.values }
-                .filterIsInstance<Reference>()
-                .map { it.reference }
-        }
-
-        /**
-         * Gets all child properties for a resource [property] recursively
-         *
-         * @return a flatmap stream of all child properties on a [property]
-         */
-        fun getChildProperties(property: Property): Stream<Property> {
-            return Stream.concat(
-                Stream.of(property),
-                property.values.flatMap { it.children() }.stream().flatMap { getChildProperties(it) }
-            )
         }
     }
 }

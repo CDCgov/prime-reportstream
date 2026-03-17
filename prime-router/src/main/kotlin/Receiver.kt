@@ -1,10 +1,10 @@
 package gov.cdc.prime.router
 
 import com.fasterxml.jackson.annotation.JsonIgnore
-import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.common.DateUtilities
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Converter
 import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
+import gov.cdc.prime.router.fhirengine.translation.hl7.utils.helpers.SchemaReferenceResolverHelper
 import java.time.LocalTime
 import java.time.OffsetDateTime
 import java.time.ZoneId
@@ -36,6 +36,7 @@ import java.time.ZoneId
  * @param dateTimeFormat the format to use for date and datetime values, either Offset or Local
  * @param enrichmentSchemaNames the paths to schema(s) used to enrich the bundle before translating it to its final
  *  format
+ * @param routingFilters defines the filters that remove data based on FHIR expression
  */
 open class Receiver(
     val name: String,
@@ -57,6 +58,7 @@ open class Receiver(
     val transport: TransportType? = null,
     val externalName: String? = null,
     val enrichmentSchemaNames: List<String> = emptyList(),
+    val routingFilters: ReportStreamReceiverRoutingFilter = emptyList(),
     /**
      * The timezone for the receiver. This is different from the timezone in Timing, which controls the calculation of
      * when and how often to send reports to the receiver. They are distinct ideas. The timeZone for the receiver is
@@ -99,6 +101,7 @@ open class Receiver(
         mappedConditionFilter: ReportStreamConditionFilter = emptyList(),
         reverseTheQualityFilter: Boolean = false,
         enrichmentSchemaNames: List<String> = emptyList(),
+        routingFilters: ReportStreamReceiverRoutingFilter = emptyList(),
     ) : this(
         name,
         organizationName,
@@ -115,7 +118,8 @@ open class Receiver(
         timeZone = timeZone,
         dateTimeFormat = dateTimeFormat,
         reverseTheQualityFilter = reverseTheQualityFilter,
-        enrichmentSchemaNames = enrichmentSchemaNames
+        enrichmentSchemaNames = enrichmentSchemaNames,
+        routingFilters = routingFilters
     )
 
     /** A copy constructor for the receiver */
@@ -139,6 +143,7 @@ open class Receiver(
         copy.transport,
         copy.externalName,
         copy.enrichmentSchemaNames,
+        copy.routingFilters,
         copy.timeZone,
         copy.dateTimeFormat
     )
@@ -168,8 +173,9 @@ open class Receiver(
      *
      * @param operation MERGE will combine all reports in the batch into a single batch
      * @param numberPerDay Number of batches per day must be 1 to 3600
-     * @param initialTime The time of the day to first send. Must be format of hh:mm.
+     * @param initialTime The time of the day to first send. Must be of format of hh:mm.
      * @param timeZone the time zone of the initial sending
+     * @param timeBetweenBatches the delay interval in seconds to apply between consecutive batches, if specified
      */
     data class Timing(
         val operation: BatchOperation = BatchOperation.NONE,
@@ -178,6 +184,7 @@ open class Receiver(
         val timeZone: USTimeZone = USTimeZone.EASTERN,
         val maxReportCount: Int = 100,
         val whenEmpty: WhenEmpty = WhenEmpty(),
+        val timeBetweenBatches: Long = 0L,
     ) {
         /**
          * Calculate the next event time.
@@ -219,9 +226,7 @@ open class Receiver(
         }
 
         @JsonIgnore
-        fun isValid(): Boolean {
-            return numberPerDay in 1..(24 * 60)
-        }
+        fun isValid(): Boolean = numberPerDay in 1..(24 * 60)
     }
 
     enum class BatchOperation {
@@ -232,10 +237,7 @@ open class Receiver(
     /**
      * Options when a receiver's batch is scheduled to run but there are no records for the receiver
      */
-    data class WhenEmpty(
-        val action: EmptyOperation = EmptyOperation.NONE,
-        val onlyOncePerDay: Boolean = false,
-    )
+    data class WhenEmpty(val action: EmptyOperation = EmptyOperation.NONE, val onlyOncePerDay: Boolean = false)
 
     /**
      * When it is batch time and there are no records should the receiver get a file or not
@@ -249,6 +251,7 @@ open class Receiver(
      * Validate the object and return null or an error message
      */
     fun consistencyErrorMessage(metadata: Metadata): String? {
+        // TODO: The logic in this method is slated to be removed as part of #17020
         if (conditionFilter.isNotEmpty() || mappedConditionFilter.isNotEmpty()) {
             if (!topic.isUniversalPipeline) {
                 return "Condition filter(s) not allowed for receivers with topic '${topic.jsonVal}'"
@@ -258,8 +261,13 @@ open class Receiver(
         if (translation is CustomConfiguration) {
             if (this.topic.isUniversalPipeline) {
                 try {
-                    // This is already scheduled for deletion in https://github.com/CDCgov/prime-reportstream/pull/13313
-                    FhirToHl7Converter(translation.schemaName, BlobAccess.defaultBlobMetadata)
+                    FhirToHl7Converter(
+                        SchemaReferenceResolverHelper.retrieveHl7SchemaReference(translation.schemaName),
+                        strict = false,
+                        terser = null,
+                        errors = mutableListOf(),
+                        warnings = mutableListOf(),
+                    )
                 } catch (e: SchemaException) {
                     return e.message
                 }
@@ -274,14 +282,15 @@ open class Receiver(
     }
 
     companion object {
-        const val fullNameSeparator = "."
+        const val FULL_NAME_SEPARATOR = "."
 
         /** Global function to create receiver fullNames using
          * the [organizationName] and the [receiverName].
          */
-        fun createFullName(organizationName: String, receiverName: String): String {
-            return "$organizationName$fullNameSeparator$receiverName"
-        }
+        fun createFullName(
+            organizationName: String,
+            receiverName: String,
+        ): String = "$organizationName$FULL_NAME_SEPARATOR$receiverName"
 
         fun parseFullName(fullName: String): Pair<String, String> {
             val splits = fullName.split(Sender.fullNameSeparator)

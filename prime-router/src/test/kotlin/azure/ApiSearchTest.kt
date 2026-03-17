@@ -29,9 +29,7 @@ class ApiSearchTest {
             val TEST = TestTable()
         }
 
-        override fun getRecordType(): Class<out TestRecord> {
-            return TestRecord::class.java
-        }
+        override fun getRecordType(): Class<out TestRecord> = TestRecord::class.java
     }
 
     class TestRecord : CustomRecord<TestRecord>(TestTable.TEST)
@@ -60,21 +58,14 @@ class ApiSearchTest {
         override val sortDirection: SortDirection = SortDirection.DESC,
         page: Int = 1,
         limit: Int = 25,
-    ) :
-        ApiSearch<TestPojo, TestRecord, TestApiFilter<*>>(TestPojo::class.java, page, limit) {
-        override fun getCondition(filter: TestApiFilter<*>): Condition {
-            return when (filter) {
+    ) : ApiSearch<TestPojo, TestRecord, TestApiFilter<*>>(TestPojo::class.java, page, limit) {
+        override fun getCondition(filter: TestApiFilter<*>): Condition = when (filter) {
                 is TestApiFilter.FooFilter -> filter.tableField.eq(filter.value)
             }
-        }
 
-        override fun getSortColumn(): Field<*> {
-            return sortParameter ?: TestTable.TEST.CREATED_AT
-        }
+        override fun getSortColumn(): Field<*> = sortParameter ?: TestTable.TEST.CREATED_AT
 
-        override fun getPrimarySortColumn(): Field<*> {
-            return TestTable.TEST.FOO
-        }
+        override fun getPrimarySortColumn(): Field<*> = TestTable.TEST.FOO
 
         companion object : ApiSearchParser<TestPojo, TestApiSearch, TestRecord, TestApiFilter<*>>() {
             override fun parseRawApiSearch(rawApiSearch: RawApiSearch): TestApiSearch {

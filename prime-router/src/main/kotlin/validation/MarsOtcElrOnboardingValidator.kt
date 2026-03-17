@@ -6,9 +6,7 @@ class MarsOtcElrOnboardingValidator : AbstractItemValidator() {
 
     override val hl7ConformanceProfileLocation: String = "metadata/hl7_validation/v251/radxmars/onboarding"
 
-    override fun validateFHIR(bundle: Bundle): IItemValidationResult {
-        return NoopItemValidationResult()
-    }
+    override fun validateFHIR(bundle: Bundle): IItemValidationResult = NoopItemValidationResult()
 
     override val validatorProfileName: String = "RADx MARS Onboarding"
 }

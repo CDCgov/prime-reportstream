@@ -13,21 +13,22 @@ import java.util.UUID
  *
  * @param childReportId the report id of the outputted report
  * @param parentReportId the optional report if of the inputted report
- * @param submittedReportIds all the submitted reports that the outputted report ids has items from.
  * @param topic the [Topic] that the report is part of
  * @param blobUrl the blob url for the outputted report
  * @param pipelineStepName the step that produced the outputted report
  * @param timestamp when the event occurred
+ * @param commitId the current git commit hash
+ * @param queueMessage the azure queue message
  */
 data class ReportEventData(
     val childReportId: UUID,
     val parentReportId: UUID?,
-    val submittedReportIds: List<UUID>,
     val topic: Topic?,
     val blobUrl: String,
     val pipelineStepName: TaskAction,
     val timestamp: OffsetDateTime,
     val commitId: String,
+    val queueMessage: String,
 )
 
 /**
@@ -37,15 +38,22 @@ data class ReportEventData(
  * @param parentItemIndex the index the item in the input report
  * @param submittedItemIndex the index of the item in the submitted report
  * @param trackingId a unique identifier for the item as it goes through the pipeline
- * @param sender the sender of the item
  */
 data class ItemEventData(
     val childItemIndex: Int,
     val parentItemIndex: Int?,
     val submittedItemIndex: Int?,
     val trackingId: String?,
-    val sender: String,
 )
+
+/**
+ * Data class is used in ReportStream item and report events. Consolidates database calls
+ * that both need.
+ *
+ * @param submittedReportIds all the submitted reports that the outputted report ids has items from.
+ * @param sender the sender of the item
+ */
+data class SubmissionEventData(val submittedReportIds: List<UUID>, val sender: List<String>)
 
 /**
  * This enum contains properties values that can be used in creating params for ReportStream events
@@ -54,6 +62,7 @@ data class ItemEventData(
 enum class ReportStreamEventProperties {
     PROCESSING_ERROR,
     ITEM_FORMAT,
+    ITEM_COUNT,
     VALIDATION_PROFILE,
     FAILING_FILTERS,
     FILTER_TYPE,
@@ -70,12 +79,12 @@ enum class ReportStreamEventProperties {
     ENRICHMENTS,
     ORIGINAL_FORMAT,
     TARGET_FORMAT,
+    RETRY_COUNT,
+    NEXT_RETRY_TIME,
     ;
 
     @JsonKey
-    fun externalKey(): String {
-        return CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.LOWER_CAMEL, name)
-    }
+    fun externalKey(): String = CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.LOWER_CAMEL, name)
 }
 
 /**
@@ -96,6 +105,9 @@ enum class ReportStreamEventName {
     ITEM_SENT,
     PIPELINE_EXCEPTION,
     ITEM_TRANSFORMED,
+    ITEM_LAST_MILE_FAILURE,
+    ITEM_SEND_ATTEMPT_FAIL,
+    ITEM_INVALID_CONDITION_MAPPING,
 }
 
 /**
@@ -107,6 +119,8 @@ enum class ReportStreamEventName {
 data class ReportStreamReportEvent(
     @JsonUnwrapped
     val reportEventData: ReportEventData,
+    @JsonUnwrapped
+    val submissionEventData: SubmissionEventData,
     @JsonUnwrapped
     val params: Map<ReportStreamEventProperties, Any>,
 ) : AzureCustomEvent
@@ -121,6 +135,8 @@ data class ReportStreamReportEvent(
 data class ReportStreamItemEvent(
     @JsonUnwrapped
     val reportEventData: ReportEventData,
+    @JsonUnwrapped
+    val submissionEventData: SubmissionEventData,
     @JsonUnwrapped
     val itemEventData: ItemEventData,
     @JsonUnwrapped

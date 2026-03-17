@@ -184,9 +184,7 @@ class SubmissionsFacade(
         claims: AuthenticatedClaims,
         action: Action,
         request: HttpRequestMessage<String?>,
-    ): Boolean {
-        return claims.authorizedForSendOrReceive(action.sendingOrg, null, request)
-    }
+    ): Boolean = claims.authorizedForSendOrReceive(action.sendingOrg, null, request)
 
     companion object {
         val instance: SubmissionsFacade by lazy(LazyThreadSafetyMode.SYNCHRONIZED) {

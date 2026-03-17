@@ -8,7 +8,10 @@ import ca.uhn.fhir.rest.server.exceptions.ResourceNotFoundException
 import com.fasterxml.jackson.databind.exc.MismatchedInputException
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.github.ajalt.clikt.core.CliktCommand
+import com.github.ajalt.clikt.core.Context
 import com.github.ajalt.clikt.core.PrintMessage
+import com.github.ajalt.clikt.core.main
+import com.github.ajalt.clikt.core.terminal
 import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
@@ -91,8 +94,8 @@ class LookupTableEndpointUtilities(
                 // chain up the cause for details
                 throw IOException(
                     "Invalid response body found," +
-                            " response status: ${response.status.value}, " +
-                            "body $respStr.",
+                        " response status: ${response.status.value}, " +
+                        "body $respStr.",
                     e
                 )
             }
@@ -134,8 +137,8 @@ class LookupTableEndpointUtilities(
         val activeVersion = (tableList.firstOrNull { it.tableName == tableName })?.tableVersion ?: 0
         if (activeVersion == 0) {
             throw PrintMessage(
-            "Could not find lookup table: $tableName", printError = true
-        )
+                "Could not find lookup table: $tableName", printError = true
+            )
         }
         return activeVersion
     }
@@ -163,8 +166,8 @@ class LookupTableEndpointUtilities(
             // chain up the root cause, here e.g. might have where the json parsing choked
             throw IOException(
                 "Invalid response body found, " +
-                        "response status: ${response.status.value}" +
-                        ", body: $respStr",
+                    "response status: ${response.status.value}" +
+                    ", body: $respStr",
                 e
             )
         }
@@ -194,7 +197,7 @@ class LookupTableEndpointUtilities(
      * @throws IOException if there is a server or API error
      */
     fun createTable(tableName: String, tableData: List<Map<String, String>>, forceTableToCreate: Boolean):
-            LookupTableVersion {
+        LookupTableVersion {
         val url = environment
             .formUrl(
                 "$endpointRoot/$tableName?table&forceTableToCreate=$forceTableToCreate"
@@ -241,16 +244,18 @@ class LookupTableEndpointUtilities(
             checkResponseForCommonErrors(response, respStr)
             try {
                 val info = mapper.readValue<LookupTableVersion>(respStr)
-                if (info.tableName.isNullOrBlank() || info.tableVersion < 1 || info.createdBy.isNullOrBlank() ||
+                if (info.tableName.isNullOrBlank() ||
+                    info.tableVersion < 1 ||
+                    info.createdBy.isNullOrBlank() ||
                     info.createdAt.toString().isBlank()
                 ) {
                     throw IOException(
                         "Invalid version information in the response, " +
-                                "response status: ${response.status.value}, body: $respStr, " +
-                                "LookupTableVersion object: tableName: ${info.tableName}, " +
-                                "tableVersion: ${info.tableVersion}, " +
-                                "createdBy: ${info.createdBy}, " +
-                                "createdAt: ${info.createdAt}."
+                            "response status: ${response.status.value}, body: $respStr, " +
+                            "LookupTableVersion object: tableName: ${info.tableName}, " +
+                            "tableVersion: ${info.tableVersion}, " +
+                            "createdBy: ${info.createdBy}, " +
+                            "createdAt: ${info.createdAt}."
                     )
                 } else {
                     return info
@@ -259,7 +264,7 @@ class LookupTableEndpointUtilities(
                 // chain up the root cause
                 throw IOException(
                     "Invalid JSON response, response status: ${response.status.value}" +
-                            ", body: $respStr.",
+                        ", body: $respStr.",
                     e
                 )
             }
@@ -316,19 +321,18 @@ class LookupTableEndpointUtilities(
          * Sets the JSON for a table [row].
          * @return the JSON representation of the data
          */
-        internal fun setTableRowToJson(row: Map<String, String>): JSONB {
-            return JSONB.jsonb(mapper.writeValueAsString(row))
-        }
+        internal fun setTableRowToJson(row: Map<String, String>): JSONB = JSONB.jsonb(mapper.writeValueAsString(row))
     }
 }
 
 /**
  * Commands to manipulate lookup tables.
  */
-class LookupTableCommands : CliktCommand(
-    name = "lookuptables",
-    help = "Manage lookup tables"
-) {
+class LookupTableCommands :
+    CliktCommand(
+        name = "lookuptables",
+    ) {
+    override fun help(context: Context): String = "Manage lookup tables"
 
     override fun run() {
         // No operation.  The help will be printed out as default.
@@ -464,11 +468,10 @@ class LookupTableCommands : CliktCommand(
  * Generic lookup table command.
  * parameter [httpClient] - inject a custom http client
  */
-abstract class GenericLookupTableCommand(
-    name: String,
-    help: String,
-    val httpClient: HttpClient? = null,
-) : CliktCommand(name = name, help = help) {
+abstract class GenericLookupTableCommand(name: String, val help: String, val httpClient: HttpClient? = null) :
+    CliktCommand(name = name) {
+    override fun help(context: Context): String = help
+
     /**
      * The environment to connect to.
      */
@@ -498,11 +501,12 @@ abstract class GenericLookupTableCommand(
 /**
  * Print out a lookup table.
  */
-class LookupTableGetCommand(httpClient: HttpClient? = null) : GenericLookupTableCommand(
-    name = "get",
-    help = "Fetch the contents of a lookup table",
-    httpClient = httpClient
-) {
+class LookupTableGetCommand(httpClient: HttpClient? = null) :
+    GenericLookupTableCommand(
+        name = "get",
+        help = "Fetch the contents of a lookup table",
+        httpClient = httpClient
+    ) {
     /**
      * Optional output file to save the table to.
      */
@@ -545,7 +549,7 @@ class LookupTableGetCommand(httpClient: HttpClient? = null) : GenericLookupTable
                 saveTableAsCSV(outputFile!!.outputStream(), tableList)
                 echo(
                     "Saved ${tableList.size} rows of table $tableName version $version " +
-                            "to ${outputFile!!.absolutePath} "
+                        "to ${outputFile!!.absolutePath} "
                 )
             }
         } else {
@@ -557,11 +561,12 @@ class LookupTableGetCommand(httpClient: HttpClient? = null) : GenericLookupTable
 /**
  * Compare a sender compendium with an observation mapping lookup table.
  */
-class LookupTableCompareMappingCommand(httpClient: HttpClient? = null) : GenericLookupTableCommand(
-    name = "compare-mapping",
-    help = "Compares a sender compendium against an observation mapping lookup table, outputting an annotated CSV",
-    httpClient = httpClient
-) {
+class LookupTableCompareMappingCommand(httpClient: HttpClient? = null) :
+    GenericLookupTableCommand(
+        name = "compare-mapping",
+        help = "Compares a sender compendium against an observation mapping lookup table, outputting an annotated CSV",
+        httpClient = httpClient
+    ) {
     /**
      * The input file to get the table data from.
      */
@@ -600,16 +605,15 @@ class LookupTableCompareMappingCommand(httpClient: HttpClient? = null) : Generic
         fun compareMappings(
             compendium: List<Map<String, String>>,
             tableTestCodeMap: Map<String?, Map<String, String>>,
-        ): List<Map<String, String>> {
-            return compendium.map { // process every code in the compendium
-                if (tableTestCodeMap[it.getValue(SENDER_COMPENDIUM_CODE_KEY)]?.get(
-                        ObservationMappingConstants.TEST_CODESYSTEM_KEY
-                    ) == it.getValue(SENDER_COMPENDIUM_CODESYSTEM_KEY)
-                ) { // check for a matching code and code system i.e. mapped
-                    it + (SENDER_COMPENDIUM_MAPPED_KEY to SENDER_COMPENDIUM_MAPPED_TRUE)
-                } else {
-                    it + (SENDER_COMPENDIUM_MAPPED_KEY to SENDER_COMPENDIUM_MAPPED_FALSE)
-                }
+        ): List<Map<String, String>> = compendium.map {
+            // process every code in the compendium
+            if (tableTestCodeMap[it.getValue(SENDER_COMPENDIUM_CODE_KEY)]?.get(
+                    ObservationMappingConstants.TEST_CODESYSTEM_KEY
+                ) == it.getValue(SENDER_COMPENDIUM_CODESYSTEM_KEY)
+            ) { // check for a matching code and code system i.e. mapped
+                it + (SENDER_COMPENDIUM_MAPPED_KEY to SENDER_COMPENDIUM_MAPPED_TRUE)
+            } else {
+                it + (SENDER_COMPENDIUM_MAPPED_KEY to SENDER_COMPENDIUM_MAPPED_FALSE)
             }
         }
     }
@@ -670,10 +674,11 @@ class LookupTableCompareMappingCommand(httpClient: HttpClient? = null) : Generic
 /**
  * Update an observation mapping table using the NLM Value Set Authority.
  */
-class LookupTableUpdateMappingCommand : GenericLookupTableCommand(
-    name = "update-mapping",
-    help = "Update an observation mapping table using the NLM Value Set Authority."
-) {
+class LookupTableUpdateMappingCommand :
+    GenericLookupTableCommand(
+        name = "update-mapping",
+        help = "Update an observation mapping table using the NLM Value Set Authority."
+    ) {
     /**
      * Optional output file to save the updated table to.
      */
@@ -759,9 +764,11 @@ class LookupTableUpdateMappingCommand : GenericLookupTableCommand(
          * @return updated test data grouped by OID, suitable for use with syncMappings()
          */
         fun fetchLatestTestData(oids: List<String>, client: IGenericClient): Map<String, ValueSet> =
-            runBlocking { // wait
+            runBlocking {
+                // wait
                 // for each oid, fetch the ValueSet and create a test map
-                oids.associateWith { oid -> // create a map of oids to their associated tests in the valueset
+                oids.associateWith { oid ->
+                    // create a map of oids to their associated tests in the valueset
                     async {
                         try {
                             fetchValueSetForOID(oid, client)
@@ -805,7 +812,8 @@ class LookupTableUpdateMappingCommand : GenericLookupTableCommand(
                 if (it[ObservationMappingConstants.CONDITION_VALUE_SOURCE_KEY] != OBX_MAPPING_RCTC_VALUE_SOURCE) {
                     OBX_MAPPING_NON_RCTC_KEY // not an RCTC mapping - cannot be updated
                 } else {
-                    it[ObservationMappingConstants.TEST_OID_KEY].let { oid -> // group by OID
+                    it[ObservationMappingConstants.TEST_OID_KEY].let { oid ->
+                        // group by OID
                         if (oid.isNullOrBlank()) OBX_MAPPING_NO_OID_KEY else oid // group mappings with blank/null OIDs
                     }
                 }
@@ -819,15 +827,14 @@ class LookupTableUpdateMappingCommand : GenericLookupTableCommand(
         fun syncMappings(
             tableOIDMap: Map<String, List<Map<String, String>>>,
             updateOIDMap: Map<String, ValueSet>,
-        ): List<Map<String, String>> {
-            return updateOIDMap.map { update -> // process every oid test group update
-                val conditionData = tableOIDMap[update.key]!![0].filterKeys {
-                    it in ObservationMappingConstants.CONDITION_KEYS // fetch existing condition data for this oid
-                }
-                update.value.toMappings(conditionData)
+        ): List<Map<String, String>> = updateOIDMap.map { update ->
+            // process every oid test group update
+            val conditionData = tableOIDMap[update.key]!![0].filterKeys {
+                it in ObservationMappingConstants.CONDITION_KEYS // fetch existing condition data for this oid
+            }
+            update.value.toMappings(conditionData)
             // flatten + add carryover
-            }.flatten() + tableOIDMap.filterKeys { it !in updateOIDMap.keys }.values.flatten()
-        }
+        }.flatten() + tableOIDMap.filterKeys { it !in updateOIDMap.keys }.values.flatten()
 
         /**
          * Load an [inputFile] or an existing lookup table by [tableName] and [tableVersion] using [tableUtil] and
@@ -902,11 +909,13 @@ class LookupTableUpdateMappingCommand : GenericLookupTableCommand(
 
         // Save local csv of updated table
         if ((
-                !silent && YesNoPrompt(
-                    "Save an updated local observation-mapping.csv with ${outputData.size} rows?",
-                    currentContext.terminal
-                ).ask() == true
-                ) || silent
+                !silent &&
+                    YesNoPrompt(
+                        "Save an updated local observation-mapping.csv with ${outputData.size} rows?",
+                        currentContext.terminal
+                    ).ask() == true
+                ) ||
+            silent
         ) {
             val outputCSV = File(OBX_MAPPING_CSV_PATH)
             saveTableAsCSV(outputCSV.outputStream(), outputData)
@@ -915,11 +924,13 @@ class LookupTableUpdateMappingCommand : GenericLookupTableCommand(
 
         // Save updated table to the database
         if ((
-                !silent && YesNoPrompt(
-                    "Continue to create a new version of $tableName with ${outputData.size} rows?",
-                    currentContext.terminal
-                ).ask() == true
-        ) || silent
+                !silent &&
+                    YesNoPrompt(
+                        "Continue to create a new version of $tableName with ${outputData.size} rows?",
+                        currentContext.terminal
+                    ).ask() == true
+                ) ||
+            silent
         ) {
             val newTableInfo = try {
                 tableUtil.createTable(tableName, outputData, true)
@@ -958,11 +969,12 @@ class LookupTableUpdateMappingCommand : GenericLookupTableCommand(
 /**
  * Create a new lookup table.
  */
-class LookupTableCreateCommand(httpClient: HttpClient? = null) : GenericLookupTableCommand(
-    name = "create",
-    help = "Create a new version of a lookup table",
-    httpClient = httpClient
-) {
+class LookupTableCreateCommand(httpClient: HttpClient? = null) :
+    GenericLookupTableCommand(
+        name = "create",
+        help = "Create a new version of a lookup table",
+        httpClient = httpClient
+    ) {
     /**
      * The input file to get the table data from.
      */
@@ -1058,7 +1070,7 @@ class LookupTableCreateCommand(httpClient: HttpClient? = null) : GenericLookupTa
             } else {
                 echo(
                     "Error: The table you are trying to create is identical to the active version " +
-                            "$activeVersion."
+                        "$activeVersion."
                 )
                 return
             }
@@ -1066,11 +1078,13 @@ class LookupTableCreateCommand(httpClient: HttpClient? = null) : GenericLookupTa
 
         // Now we are ready.  Ask if we should proceed.
         if ((
-                !silent && YesNoPrompt(
-                    "Continue to create a new version of $tableName with ${inputData.size} rows?",
-                    currentContext.terminal
-                ).ask() == true
-                ) || silent
+                !silent &&
+                    YesNoPrompt(
+                        "Continue to create a new version of $tableName with ${inputData.size} rows?",
+                        currentContext.terminal
+                    ).ask() == true
+                ) ||
+            silent
         ) {
             val newTableInfo = try {
                 tableUtil.createTable(tableName, inputData, forceTableToCreate)
@@ -1086,7 +1100,7 @@ class LookupTableCreateCommand(httpClient: HttpClient? = null) : GenericLookupTa
 
             echo(
                 "\t${inputData.size} rows created for lookup table $tableName version " +
-                        "${newTableInfo.tableVersion}."
+                    "${newTableInfo.tableVersion}."
             )
             // Always have an active version, so if this is the first version then activate it.
             if (activate || newTableInfo.tableVersion == 1) {
@@ -1103,7 +1117,7 @@ class LookupTableCreateCommand(httpClient: HttpClient? = null) : GenericLookupTa
             } else {
                 echo(
                     "\tTable version ${newTableInfo.tableVersion} " +
-                            "left inactive, so don't forget to activate it."
+                        "left inactive, so don't forget to activate it."
                 )
             }
         } else {
@@ -1115,11 +1129,12 @@ class LookupTableCreateCommand(httpClient: HttpClient? = null) : GenericLookupTa
 /**
  * List the available lookup tables.
  */
-class LookupTableListCommand(httpClient: HttpClient? = null) : GenericLookupTableCommand(
-    name = "list",
-    help = "List the lookup tables",
-    httpClient = httpClient
-) {
+class LookupTableListCommand(httpClient: HttpClient? = null) :
+    GenericLookupTableCommand(
+        name = "list",
+        help = "List the lookup tables",
+        httpClient = httpClient
+    ) {
     /**
      * List all the tables including inactive ones if set.
      */
@@ -1157,11 +1172,12 @@ class LookupTableListCommand(httpClient: HttpClient? = null) : GenericLookupTabl
 /**
  * Show a diff between two lookup tables.
  */
-class LookupTableDiffCommand(httpClient: HttpClient? = null) : GenericLookupTableCommand(
-    name = "diff",
-    help = "Generate a difference between two versions of a lookup table",
-    httpClient = httpClient
-) {
+class LookupTableDiffCommand(httpClient: HttpClient? = null) :
+    GenericLookupTableCommand(
+        name = "diff",
+        help = "Generate a difference between two versions of a lookup table",
+        httpClient = httpClient
+    ) {
     /**
      * The table name.
      */
@@ -1241,11 +1257,12 @@ class LookupTableDiffCommand(httpClient: HttpClient? = null) : GenericLookupTabl
 /**
  * Activate a lookup table.
  */
-class LookupTableActivateCommand(httpClient: HttpClient? = null) : GenericLookupTableCommand(
-    name = "activate",
-    help = "Activate a specific version of a lookup table",
-    httpClient = httpClient
-) {
+class LookupTableActivateCommand(httpClient: HttpClient? = null) :
+    GenericLookupTableCommand(
+        name = "activate",
+        help = "Activate a specific version of a lookup table",
+        httpClient = httpClient
+    ) {
     /**
      * The table name.
      */
@@ -1280,7 +1297,7 @@ class LookupTableActivateCommand(httpClient: HttpClient? = null) : GenericLookup
             currentlyActiveTable != null && currentlyActiveTable.tableVersion == version ->
                 throw PrintMessage(
                     "Nothing to do. Lookup table $tableName's active version number is already " +
-                            "$version."
+                        "$version."
                 )
 
             currentlyActiveTable == null ->
@@ -1289,7 +1306,7 @@ class LookupTableActivateCommand(httpClient: HttpClient? = null) : GenericLookup
             else ->
                 echo(
                     "Current Lookup table $tableName's active version number is " +
-                            "${currentlyActiveTable.tableVersion}"
+                        "${currentlyActiveTable.tableVersion}"
                 )
         }
 
@@ -1309,11 +1326,12 @@ class LookupTableActivateCommand(httpClient: HttpClient? = null) : GenericLookup
 /**
  * Load lookup tables from a directory.
  */
-class LookupTableLoadAllCommand(httpClient: HttpClient? = null) : GenericLookupTableCommand(
-    name = "loadall",
-    help = "Load all the tables stored as CSV in the specified directory",
-    httpClient = httpClient
-) {
+class LookupTableLoadAllCommand(httpClient: HttpClient? = null) :
+    GenericLookupTableCommand(
+        name = "loadall",
+        help = "Load all the tables stored as CSV in the specified directory",
+        httpClient = httpClient
+    ) {
     /**
      * Default directory for tables.
      */

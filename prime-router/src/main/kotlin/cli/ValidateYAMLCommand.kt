@@ -2,6 +2,7 @@ package gov.cdc.prime.router.cli
 
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.CliktError
+import com.github.ajalt.clikt.core.Context
 import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.varargValues
@@ -15,9 +16,11 @@ import gov.cdc.prime.router.config.validation.ConfigurationValidationServiceImpl
 import org.apache.commons.io.FileUtils
 import java.io.File
 
-class ValidateYAMLCommand : CliktCommand(
-    name = "validate-yaml",
-    help = """
+class ValidateYAMLCommand :
+    CliktCommand(
+        name = "validate-yaml",
+    ) {
+    override fun help(context: Context): String = """
             A CLI command to validate YAML files' structure and values.
             
             Examples:
@@ -26,7 +29,6 @@ class ValidateYAMLCommand : CliktCommand(
             ./gradlew primeCLI --args='validate-yaml --type organizations --dir path/to/directory --exclude-file path/to/excludedFile'
             ./gradlew primeCLI --args='validate-yaml --type organizations --dir path/to/directory --exclude-dir path/to/excludedDir'
         """.trimIndent()
-) {
 
     private val typeChoices = ConfigurationType::class
         .sealedSubclasses

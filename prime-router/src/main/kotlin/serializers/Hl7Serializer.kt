@@ -53,7 +53,6 @@ import gov.cdc.prime.router.fhirengine.translation.hl7.utils.HL7Constants.HD_FIE
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.HL7Constants.HD_TRUNCATION_LIMIT
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.HL7Constants.MAX_FORMATTED_TEXT_LENGTH
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.HL7Constants.getHL7ComponentMaxLengthList
-import gov.cdc.prime.router.fhirengine.translation.hl7.utils.HL7Utils.formPathSpec
 import gov.cdc.prime.router.metadata.ElementAndValue
 import gov.cdc.prime.router.metadata.Mapper
 import org.apache.logging.log4j.kotlin.Logging
@@ -77,10 +76,7 @@ class Hl7Serializer(
     /**
      * HL7 mapping of all messages in a report submission.
      */
-    data class Hl7Mapping(
-        val mappedRows: Map<String, List<String>>,
-        val items: List<MessageResult>,
-    )
+    data class Hl7Mapping(val mappedRows: Map<String, List<String>>, val items: List<MessageResult>)
 
     /**
      * Result of one HL7 message.
@@ -108,6 +104,36 @@ class Hl7Serializer(
             buildDate = buildProperties.getProperty("buildDate", "20200101")
         }
         hapiContext.modelClassFactory = modelClassFactory
+    }
+
+    /**
+     * Only call from COVID pipeline!
+     *
+     * This is not generic enough for the UP
+     */
+    fun formPathSpec(spec: String, rep: Int? = null): String {
+        val segment = spec.substring(0, 3)
+        val components = spec.substring(3)
+        val segmentSpec = formSegSpec(segment, rep)
+        return "$segmentSpec$components"
+    }
+
+    /**
+     * Only call from COVID pipeline!
+     *
+     * This is not generic enough for the UP
+     */
+    private fun formSegSpec(segment: String, rep: Int? = null): String {
+        val repSpec = rep?.let { "($rep)" } ?: ""
+        return when (segment) {
+            "OBR" -> "/PATIENT_RESULT/ORDER_OBSERVATION/OBR"
+            "ORC" -> "/PATIENT_RESULT/ORDER_OBSERVATION/ORC"
+            "SPM" -> "/PATIENT_RESULT/ORDER_OBSERVATION/SPECIMEN/SPM"
+            "PID" -> "/PATIENT_RESULT/PATIENT/PID"
+            "OBX" -> "/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION$repSpec/OBX"
+            "NTE" -> "/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION/NTE$repSpec"
+            else -> segment
+        }
     }
 
     /**
@@ -168,7 +194,8 @@ class Hl7Serializer(
          */
         fun parseStringMessage(message: String) {
             val parsedMessage = convertMessageToMap(message, messageIndex, schema, sender)
-            if (parsedMessage.item.isNotEmpty() || parsedMessage.errors.isNotEmpty() ||
+            if (parsedMessage.item.isNotEmpty() ||
+                parsedMessage.errors.isNotEmpty() ||
                 parsedMessage.warnings.isNotEmpty()
             ) {
                 rowResults.add(parsedMessage)
@@ -1828,10 +1855,8 @@ class Hl7Serializer(
     /**
      * Creates the footers for the report
      */
-    private fun createFooters(report: Report): String {
-        return "BTS|${report.itemCount}$hl7SegmentDelimiter" +
+    private fun createFooters(report: Report): String = "BTS|${report.itemCount}$hl7SegmentDelimiter" +
             "FTS|1$hl7SegmentDelimiter"
-    }
 
     private fun buildComponent(spec: String, component: Int = 1): String {
         if (!isField(spec)) error("Not a component path spec")
@@ -1858,13 +1883,12 @@ class Hl7Serializer(
         error("Did match on component or subcomponent")
     }
 
-    private fun formatHD(hdFields: Element.HDFields, separator: String = DEFAULT_COMPONENT_SEPARATOR): String {
-        return if (hdFields.universalId != null && hdFields.universalIdSystem != null) {
+    private fun formatHD(hdFields: Element.HDFields, separator: String = DEFAULT_COMPONENT_SEPARATOR): String =
+        if (hdFields.universalId != null && hdFields.universalIdSystem != null) {
             "${hdFields.name}$separator${hdFields.universalId}$separator${hdFields.universalIdSystem}"
         } else {
             hdFields.name
         }
-    }
 
     /**
      * Coverts unicode string to ASCII string if any special characters are found.
@@ -1877,18 +1901,18 @@ class Hl7Serializer(
      */
     internal fun unicodeToAscii(
         message: String,
-    ): String {
-        return AnyAscii.transliterate(message)
-    }
+    ): String = AnyAscii.transliterate(message)
 
-    private fun formatEI(eiFields: Element.EIFields, separator: String = DEFAULT_COMPONENT_SEPARATOR): String {
-        return if (eiFields.namespace != null && eiFields.universalId != null && eiFields.universalIdSystem != null) {
+    private fun formatEI(eiFields: Element.EIFields, separator: String = DEFAULT_COMPONENT_SEPARATOR): String =
+        if (eiFields.namespace != null &&
+        eiFields.universalId != null &&
+        eiFields.universalIdSystem != null
+    ) {
             "${eiFields.name}$separator${eiFields.namespace}" +
                 "$separator${eiFields.universalId}$separator${eiFields.universalIdSystem}"
         } else {
             eiFields.name
         }
-    }
 
     /**
      * Get a phone number from an XTN (e.g. phone number) field of an HL7 message.
@@ -2105,26 +2129,22 @@ class Hl7Serializer(
      * @param value is the value to search for
      * @return a bool indicating is 1 or more rows were identified after filtering on params
      */
-    fun checkLIVDValueExists(column: String, value: String): Boolean {
-        return if (livdLookupTable.value.hasColumn(column)) {
+    fun checkLIVDValueExists(column: String, value: String): Boolean = if (livdLookupTable.value.hasColumn(column)) {
             val rowCount = livdLookupTable.value.FilterBuilder().equalsIgnoreCase(column, value).filter().rowCount
             rowCount > 0
         } else {
             false
         }
-    }
 
     /**
      * Gets the HAPI Terser spec from the provided [hl7Field] string.
      * @returns the HAPI Terser spec
      */
-    internal fun getTerserSpec(hl7Field: String): String {
-        return if (hl7Field.isNotBlank() && hl7Field.startsWith("MSH")) {
+    internal fun getTerserSpec(hl7Field: String): String = if (hl7Field.isNotBlank() && hl7Field.startsWith("MSH")) {
             "/$hl7Field"
         } else {
             "/.$hl7Field"
         }
-    }
 
     companion object {
         const val HL7_SPEC_VERSION: String = "2.5.1"
@@ -2339,8 +2359,7 @@ class HL7HapiErrorProcessor : Logging {
     fun getExceptionActionMessage(
         exception: HL7Exception,
         schema: Schema,
-    ): ItemActionLogDetail {
-        return when (exception) {
+    ): ItemActionLogDetail = when (exception) {
             is EncodingNotSupportedException ->
                 InvalidHL7Message(
                     "Invalid HL7 message format. Please " +
@@ -2363,7 +2382,6 @@ class HL7HapiErrorProcessor : Logging {
                     )
                 }
         }
-    }
 
     /**
      * Attempts to find a parsing [ErrorCode] matching the given [elementType]. Returns UNKNOWN error code if a matching
@@ -2384,9 +2402,7 @@ class HL7HapiErrorProcessor : Logging {
      * Converts a field as it appears in a HAPI exception message to a format ReportStream schemas expect
      * @param field the field to convert
      */
-    private fun getCleanedField(field: String): String {
-        return field.replaceFirst("(", "-")
+    private fun getCleanedField(field: String): String = field.replaceFirst("(", "-")
             .replace(")", "")
             .removeSuffix("-0")
-    }
 }

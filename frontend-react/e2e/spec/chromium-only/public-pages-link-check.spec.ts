@@ -132,7 +132,35 @@ test.describe("Evaluate links on public facing pages", { tag: "@warning" }, () =
         const browser = await chromium.launch();
 
         const results = [];
+
         for (const href of aggregateHref) {
+            let isReportstream = false;
+            try {
+                const parsedUrl = new URL(href);
+                isReportstream = parsedUrl.host === "reportstream.cdc.gov";
+            } catch (error) {
+                console.warn(`Invalid URL encountered: ${href}`, error);
+            }
+
+            // Normalize each href to just its pathname (like /onboarding/code-mapping)
+            // then compare it directly to entries in urlPaths
+            let hrefPath = "";
+            try {
+                const parsed = new URL(href, baseURL);
+                hrefPath = parsed.pathname;
+            } catch (_) {
+                // fallback for relative URLs
+                hrefPath = href;
+            }
+
+            const isAllowed = urlPaths.includes(hrefPath);
+
+            if (isReportstream && !isAllowed) {
+                // Skip this link
+                console.warn(`Skipping ${href} (reportstream link not in urlPaths)`);
+                continue;
+            }
+
             try {
                 const result = await validateLink(browser, href);
                 results.push(result);

@@ -10,11 +10,10 @@ jobs:
     runs-on: ubuntu-latest
     name: Run log management steps
     steps:
-      - uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8
       - name: Workflow Housekeeper - workflows NOT in default branch
 
-        uses: JosiahSiegel/workflow-housekeeper@731cc20bb613208b34efb6ac74aab4ba147abb50
-        ## DevSecOps - Aquia (Replace) - uses: ./.github/actions/workflow-housekeeper
+        uses: ./.github/actions/workflow-housekeeper
 
         env:
           GITHUB_TOKEN: ${{ secrets.LOG_MANAGEMENT_TOKEN }}
@@ -25,8 +24,7 @@ jobs:
           dry-run: false
       - name: Workflow Housekeeper - workflows in default branch
 
-        uses: JosiahSiegel/workflow-housekeeper@731cc20bb613208b34efb6ac74aab4ba147abb50
-        ## DevSecOps - Aquia (Replace) - uses: ./.github/actions/workflow-housekeeper
+        uses: ./.github/actions/workflow-housekeeper
 
         env:
           GITHUB_TOKEN: ${{ secrets.LOG_MANAGEMENT_TOKEN }}

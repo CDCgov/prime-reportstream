@@ -13,11 +13,9 @@ internal object HashicorpVaultCredentialService : CredentialService(), Logging {
 
     override fun fetchCredential(
         connectionId: String,
-    ): Credential? {
-        return fetchCredentialHelper(
+    ): Credential? = fetchCredentialHelper(
             connectionId = connectionId
         )
-    }
 
     /**
      * object specific impl - also adapted to unit tests
@@ -45,12 +43,10 @@ internal object HashicorpVaultCredentialService : CredentialService(), Logging {
     override fun saveCredential(
         connectionId: String,
         credential: Credential,
-    ) {
-        return saveCredentialHelper(
+    ) = saveCredentialHelper(
             connectionId = connectionId,
             credential = credential
         )
-    }
 
     /**
      * object specific impl - also adapted to unit tests

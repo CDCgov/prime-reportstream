@@ -120,13 +120,303 @@ options:
 Table versions can be found by looking in the "Lookup Table Version" table in staging or prod Metabase. The active version of a table will have the value "true" in the "Is Active" column of the table.  
 
 ### Uploading new table manually
+- Sign in or register to an ERSD account: [AIMS](https://ersd.aimsplatform.org/#/home)
+- Click on "Download Latest RCTC Spreadsheet & Change Log". This will create a zip file containing one Excel file for the
+whole list of codes and one for the codes that have changed in the current version.
+- Import the spreadsheet into Google sheets (can also use Excel if you have access). 
+  - File > Import > Select RCTC_Release.xlsx file that was previously downloaded.
+- We need to source data from the following sheets:
+  - Organism_Substance
+  - Lab Order Test Name
+  - Lab Obs Test Name
+  
+  Each sheet contains a `Grouping List` and an `Expansion List` table below it. Each row in the `Expansion List` table represents a test or
+some resource associated with an OID. Use this OID to map to a condition in the `Grouping List` table.
+The resulting row is then mapped to the appropriate columns in the lookup table (See reference table below for specific mappings.)
+
+  | Column in ReportStream Table  | Column in RCTC Grouping List      | Column in RCTC Expansion List  | Notes                                      |
+  |:------------------------------|:----------------------------------|:-------------------------------|:-------------------------------------------|
+  | Code                          |                                   | Code                           |                                            |
+  | Name                          | Name                              |                                |                                            |
+  | Status                        |                                   | Status                         |                                            |
+  | Version                       |                                   | Version                        |                                            |
+  | Created At                    |                                   |                                | Set to current date                        |
+  | Descriptor                    |                                   | Descriptor                     |                                            |
+  | Member OID                    | OID                               | Member OID                     | These columns are used to join both tables |
+  | Code System                   |                                   | Code System                    |                                            |
+  | Value Source                  |                                   |                                | Set to "RCTC" or "LOINC" for AOE questions |
+  | condition_code                | Condition Code                    |                                |                                            |
+  | condition_name                | Condition Name                    |                                |                                            |
+  | Condition Code System         | Condition Code System             |                                |                                            |
+  | Condition Code System Version | Condition Code System Version     |                                |                                            |
+
+
+- One way to automate this process is to import the following Apps Script macro and run it in Google Sheets. (can also be converted to VBA macro to run in Excel)
+  - Extensions > Import Macro (If "Import Macros" and "Manage Macros" options are disabled, record a Macro and the options will enable.)
+    <details>
+        <summary>Macro</summary>
+
+    ```Java
+    function formatToRSTable() {
+        var spreadsheet = SpreadsheetApp.getActive();
+        spreadsheet.getRange('A1:G1').activate();
+        // Create New Sheet
+        spreadsheet.insertSheet(6);
+        
+        // add Sheet Name cell, ready for user's input in cell B1 which is then used for all formulas
+        spreadsheet.getRange('A1').activate();
+        spreadsheet.getCurrentCell().setValue('Sheet Name');
+        
+        // Grouping List Table
+        // Grouping List Row Num label
+        spreadsheet.getRange('A2').activate();
+        spreadsheet.getCurrentCell().setRichTextValue(SpreadsheetApp.newRichTextValue()
+        .setText('Grouping List Row Num')
+        .setTextStyle(0, 20, SpreadsheetApp.newTextStyle()
+        .setFontFamily('Arial')
+        .build())
+        .build());
+        // Find the cell that contains "Grouping List" in first column of sheet - returns row num
+        spreadsheet.getRange('B2').activate();
+        spreadsheet.getCurrentCell().setFormula('=Match("Grouping List", indirect("\'"&$B$1&"\'!A:A"),0)');
+        
+        // Expansion List Table
+        // Expansion List Row Num label
+        spreadsheet.getRange('A3').activate();
+        spreadsheet.getCurrentCell().setRichTextValue(SpreadsheetApp.newRichTextValue()
+        .setText('Expansion List Row Num')
+        .setTextStyle(0, 21, SpreadsheetApp.newTextStyle()
+        .setFontFamily('Arial')
+        .build())
+        .build());
+        // Find the cell that contains "Expansion List" in first column of sheet - returns row num
+        spreadsheet.getRange('B3').activate();
+        spreadsheet.getCurrentCell().setFormula('=Match("Expansion List", indirect("\'"&$B$1&"\'!A:A"),0)');
+        
+        // OID column in grouping list which is used to map to OIDs in expansion list
+        // OID column in grouping list label
+        spreadsheet.getRange('A6').activate();
+        spreadsheet.getCurrentCell().setRichTextValue(SpreadsheetApp.newRichTextValue()
+        .setText('OID column in grouping list')
+        .setTextStyle(0, 26, SpreadsheetApp.newTextStyle()
+        .setFontFamily('Arial')
+        .build())
+        .build());
+        // Find the "OID" column in the Grouping List Table which starts in row num specified in B2 - returns column number
+        spreadsheet.getRange('B6').activate();
+        spreadsheet.getCurrentCell().setFormula('=Match("OID", INDIRECT("\'"&$B$1&"\'!"&B2 +1&":"&B2 + 1),0)');
+        // OID column name label
+        spreadsheet.getRange('A7').activate();
+        spreadsheet.getCurrentCell().setRichTextValue(SpreadsheetApp.newRichTextValue()
+        .setText('OID column name')
+        .setTextStyle(0, 14, SpreadsheetApp.newTextStyle()
+        .setFontFamily('Arial')
+        .build())
+        .build());
+        // Column name of "OID" column
+        spreadsheet.getRange('B7').activate();
+        spreadsheet.getCurrentCell().setFormula('=SUBSTITUTE(ADDRESS(1, B6, 4), "1", "")');
+        
+        // Rows 4 and 5 correspond to the column headers in row 8. These formulas search the sheet for the columns we need from each of the tables (Grouping and Expansion). 
+        // The columns we need are: "Code, Name, Status, Version, Descriptor, Member OID, Code System, Condition Code, Condition Name, Condition Code System, Condition Code System Version"
+        // We hard-code these values as the first parameter of the MATCH function and use them to get the column number (1,2,3...) and corresponding column name (A,B,C...) where they are found.
+        // For example, the formulas for A4 and A5 below would return 2 and B respectively. This means that the "Code" column is the second column (or column B) in the expansion list table headers (B3). 
+        // We need both the column number and column name to construct different formulas in other cells.
+        //
+        // Find the "Code" column in the Expansion List Table which starts in row num specified in B3 - returns column number
+        spreadsheet.getRange('A4').activate();
+        spreadsheet.getCurrentCell().setFormula('=Match("Code", INDIRECT("\'"&$B$1&"\'!"&B3 +1&":"&B3 + 1),0)');
+        // Column name of "Code" column
+        spreadsheet.getRange('A5').activate();
+        spreadsheet.getCurrentCell().setFormula('=SUBSTITUTE(ADDRESS(1, A4, 4), "1", "")');
+        // Find the "Name" column in the Grouping List Table which starts in row num specified in B2 - returns column number
+        spreadsheet.getRange('B4').activate();
+        spreadsheet.getCurrentCell().setFormula('=Match("Name", INDIRECT("\'"&$B$1&"\'!"&B2 +1&":"&B2 + 1),0)');
+        // Column name of "Name" column
+        spreadsheet.getRange('B5').activate();
+        spreadsheet.getCurrentCell().setFormula('=SUBSTITUTE(ADDRESS(1, B4, 4), "1", "")');
+        // Find the "Status" column in the Expansion List Table which starts in row num specified in B3 - returns column number
+        spreadsheet.getRange('C4').activate();
+        spreadsheet.getCurrentCell().setFormula('=Match("Status", INDIRECT("\'"&$B$1&"\'!"&B3 +1&":"&B3 + 1),0)');
+        // Column name of "Status" column
+        spreadsheet.getRange('C5').activate();
+        spreadsheet.getCurrentCell().setFormula('=SUBSTITUTE(ADDRESS(1, C4, 4), "1", "")');
+        // Find the "Version" column in the Expansion List Table which starts in row num specified in B3 - returns column number
+        spreadsheet.getRange('D4').activate();
+        spreadsheet.getCurrentCell().setFormula('=Match("Version", INDIRECT("\'"&$B$1&"\'!"&B3 +1&":"&B3 + 1),0)');
+        // Column name of "Version" column
+        spreadsheet.getRange('D5').activate();
+        spreadsheet.getCurrentCell().setFormula('=SUBSTITUTE(ADDRESS(1, D4, 4), "1", "")');
+        // Create Date label - no formulas needed for this column
+        spreadsheet.getRange('E4').activate();
+        spreadsheet.getCurrentCell().setRichTextValue(SpreadsheetApp.newRichTextValue()
+        .setText('Create Date')
+        .setTextStyle(0, 10, SpreadsheetApp.newTextStyle()
+        .setFontFamily('Arial')
+        .build())
+        .build());
+        // Find the "Descriptor" column in the Expansion List Table which starts in row num specified in B3 - returns column number
+        spreadsheet.getRange('F4').activate();
+        spreadsheet.getCurrentCell().setFormula('=Match("Descriptor", INDIRECT("\'"&$B$1&"\'!"&B3 +1&":"&B3 + 1),0)');
+        // Column name of "Descriptor" column
+        spreadsheet.getRange('F5').activate();
+        spreadsheet.getCurrentCell().setFormula('=SUBSTITUTE(ADDRESS(1, F4, 4), "1", "")');
+        // Find the "Member OID" column in the Expansion List Table which starts in row num specified in B3 - returns column number
+        spreadsheet.getRange('G4').activate();
+        spreadsheet.getCurrentCell().setFormula('=Match("Member OID", INDIRECT("\'"&$B$1&"\'!"&B3 +1&":"&B3 + 1),0)');
+        // Column name of "Member OID" column
+        spreadsheet.getRange('G5').activate();
+        spreadsheet.getCurrentCell().setFormula('=SUBSTITUTE(ADDRESS(1, G4, 4), "1", "")');
+        // Find the "Code System" column in the Expansion List Table which starts in row num specified in B3 - returns column number
+        spreadsheet.getRange('H4').activate();
+        spreadsheet.getCurrentCell().setFormula('=Match("Code System", INDIRECT("\'"&$B$1&"\'!"&B3 +1&":"&B3 + 1),0)');
+        // Column name of "Code System" column
+        spreadsheet.getRange('H5').activate();
+        spreadsheet.getCurrentCell().setFormula('=SUBSTITUTE(ADDRESS(1, H4, 4), "1", "")');
+        // RCTC label - no formulas needed for this column
+        spreadsheet.getRange('I4').activate();
+        spreadsheet.getCurrentCell().setRichTextValue(SpreadsheetApp.newRichTextValue()
+        .setText('RCTC')
+        .setTextStyle(0, 3, SpreadsheetApp.newTextStyle()
+        .setFontFamily('Arial')
+        .build())
+        .build());
+        // Find the "Condition Code" column in the Grouping List Table which starts in row num specified in B2 - returns column number
+        spreadsheet.getRange('J4').activate();
+        spreadsheet.getCurrentCell().setFormula('=Match("Condition Code", INDIRECT("\'"&$B$1&"\'!"&B2 +1&":"&B2 + 1),0)');
+        // Column name of "Condition Code" column
+        spreadsheet.getRange('J5').activate();
+        spreadsheet.getCurrentCell().setFormula('=SUBSTITUTE(ADDRESS(1, J4, 4), "1", "")');
+        // Find the "Condition Name" column in the Grouping List Table which starts in row num specified in B2 - returns column number
+        spreadsheet.getRange('K4').activate();
+        spreadsheet.getCurrentCell().setFormula('=Match("Condition Name", INDIRECT("\'"&$B$1&"\'!"&B2 +1&":"&B2 + 1),0)');
+        // Column name of "Condition Name" column
+        spreadsheet.getRange('K5').activate();
+        spreadsheet.getCurrentCell().setFormula('=SUBSTITUTE(ADDRESS(1, K4, 4), "1", "")');
+        // Find the "Condition Code System" column in the Grouping List Table which starts in row num specified in B2 - returns column number
+        spreadsheet.getRange('L4').activate();
+        spreadsheet.getCurrentCell().setFormula('=Match("Condition Code System", INDIRECT("\'"&$B$1&"\'!"&B2 +1&":"&B2 + 1),0)');
+        // Column name of "Condition Code System" column
+        spreadsheet.getRange('L5').activate();
+        spreadsheet.getCurrentCell().setFormula('=SUBSTITUTE(ADDRESS(1, L4, 4), "1", "")');
+        // Find the "Condition Code System Version" column in the Grouping List Table which starts in row num specified in B2 - returns column number
+        spreadsheet.getRange('M4').activate();
+        spreadsheet.getCurrentCell().setFormula('=Match("Condition Code System Version", INDIRECT("\'"&$B$1&"\'!"&B2 +1&":"&B2 + 1),0)');
+        // Column name of "Condition Code System Version" column
+        spreadsheet.getRange('M5').activate();
+        spreadsheet.getCurrentCell().setFormula('=SUBSTITUTE(ADDRESS(1, M4, 4), "1", "")');
+        
+        
+        // Row 8 : Set current ReportStream observation-mapping table headers
+        spreadsheet.getRange('A8').activate();
+        spreadsheet.getCurrentCell().setFormula('=split("Code,Name,Status,Version,Created At,Descriptor,Member OID,Code System,Value Source,condition_code,condition_name,Condition Code System,Condition Code System Version",",")');
+        
+        // The following formulas use the Expansion List
+        // Grab all values in the OID column in the expansion list
+        spreadsheet.getRange('A9').activate();
+        spreadsheet.getCurrentCell().setFormula('=INDIRECT("\'"&$B$1&"\'!"&ADDRESS($B$3+2,A4)&":"&A5)');
+        // Grab all values of "Status" column in Expansion List - column num specified in C4
+        spreadsheet.getRange('C9').activate();
+        spreadsheet.getCurrentCell().setFormula('=INDIRECT("\'"&$B$1&"\'!"&ADDRESS($B$3+2,C4)&":"&(SUBSTITUTE(ADDRESS(1, C4, 4), "1", "")))');
+        // Grab all values of "Version" column in Expansion List - column num specified in D4
+        spreadsheet.getRange('D9').activate();
+        spreadsheet.getCurrentCell().setFormula('=INDIRECT("\'"&$B$1&"\'!"&ADDRESS($B$3+2,D4)&":"&(SUBSTITUTE(ADDRESS(1, D4, 4), "1", "")))');
+        // Grab all values of "Descriptor" column in Expansion List - column num specified in F4
+        spreadsheet.getRange('F9').activate();
+        spreadsheet.getCurrentCell().setFormula('=INDIRECT("\'"&$B$1&"\'!"&ADDRESS($B$3+2,F4)&":"&(SUBSTITUTE(ADDRESS(1, F4, 4), "1", "")))');
+        // Grab all values of "Member OID" column in Expansion List - column num specified in G4 - used for MATCH parameter to map to Grouping List
+        spreadsheet.getRange('G9').activate();
+        spreadsheet.getCurrentCell().setFormula('=INDIRECT("\'"&$B$1&"\'!"&ADDRESS($B$3+2,G4)&":"&(SUBSTITUTE(ADDRESS(1, G4, 4), "1", "")))');
+        // Grab all values of "Code System" column in Expansion List - column num specified in H4
+        spreadsheet.getRange('H9').activate();
+        spreadsheet.getCurrentCell().setFormula('=INDIRECT("\'"&$B$1&"\'!"&ADDRESS($B$3+2,H4)&":"&(SUBSTITUTE(ADDRESS(1, H4, 4), "1", "")))');
+        // Hard-code RCTC value
+        spreadsheet.getRange('I9').activate();
+        spreadsheet.getCurrentCell().setRichTextValue(SpreadsheetApp.newRichTextValue()
+        .setText('RCTC')
+        .setTextStyle(0, 4, SpreadsheetApp.newTextStyle()
+        .setFontFamily('Arial')
+        .build())
+        .build());
+        
+        // The following formulas use the OID in the current row to match to an OID in the Grouping List
+        // Find row with the same OID in Grouping List table and grab "Name" value
+        spreadsheet.getRange('B9').activate();
+        spreadsheet.getCurrentCell().setFormula('=Index(INDIRECT("\'"&$B$1&"\'!"&ADDRESS($B$2+2,1)&":"&$B$3),MATCH($G9,INDIRECT("\'"&$B$1&"\'!"&ADDRESS($B$2+2,$B$6)&":"&$B$7&$B$3),0),B$4)');
+        // Find row with the same OID in Grouping List table and grab "Condition Code" value
+        spreadsheet.getRange('J9').activate();
+        spreadsheet.getCurrentCell().setFormula('=Index(INDIRECT("\'"&$B$1&"\'!"&ADDRESS($B$2+2,1)&":"&$B$3),MATCH($G9,INDIRECT("\'"&$B$1&"\'!"&ADDRESS($B$2+2,$B$6)&":"&$B$7&$B$3),0),J$4)');
+        // Find row with the same OID in Grouping List table and grab "Condition Name" value
+        spreadsheet.getRange('K9').activate();
+        spreadsheet.getCurrentCell().setFormula('=Index(INDIRECT("\'"&$B$1&"\'!"&ADDRESS($B$2+2,1)&":"&$B$3),MATCH($G9,INDIRECT("\'"&$B$1&"\'!"&ADDRESS($B$2+2,$B$6)&":"&$B$7&$B$3),0),K$4)');
+        // Find row with the same OID in Grouping List table and grab "Condition Code System" value
+        spreadsheet.getRange('L9').activate();
+        spreadsheet.getCurrentCell().setFormula('=Index(INDIRECT("\'"&$B$1&"\'!"&ADDRESS($B$2+2,1)&":"&$B$3),MATCH($G9,INDIRECT("\'"&$B$1&"\'!"&ADDRESS($B$2+2,$B$6)&":"&$B$7&$B$3),0),L$4)');
+        // Find row with the same OID in Grouping List table and grab "Condition Code System Version" value
+        spreadsheet.getRange('M9').activate();
+        spreadsheet.getCurrentCell().setFormula('=Index(INDIRECT("\'"&$B$1&"\'!"&ADDRESS($B$2+2,1)&":"&$B$3),MATCH($G9,INDIRECT("\'"&$B$1&"\'!"&ADDRESS($B$2+2,$B$6)&":"&$B$7&$B$3),0),M$4)');
+        spreadsheet.getRange('B2').activate();
+        
+        // Expand functions to all rows
+        spreadsheet.getRange('B9').activate();
+        spreadsheet.getActiveRange().autoFillToNeighbor(SpreadsheetApp.AutoFillSeries.DEFAULT_SERIES);
+        spreadsheet.getRange('I9').activate();
+        spreadsheet.getActiveRange().autoFillToNeighbor(SpreadsheetApp.AutoFillSeries.DEFAULT_SERIES);
+        spreadsheet.getRange('J9').activate();
+        spreadsheet.getActiveRange().autoFillToNeighbor(SpreadsheetApp.AutoFillSeries.DEFAULT_SERIES);
+        spreadsheet.getRange('K9').activate();
+        spreadsheet.getActiveRange().autoFillToNeighbor(SpreadsheetApp.AutoFillSeries.DEFAULT_SERIES);
+        spreadsheet.getRange('L9').activate();
+        spreadsheet.getActiveRange().autoFillToNeighbor(SpreadsheetApp.AutoFillSeries.DEFAULT_SERIES);
+        spreadsheet.getRange('M9').activate();
+        spreadsheet.getActiveRange().autoFillToNeighbor(SpreadsheetApp.AutoFillSeries.DEFAULT_SERIES);
+        
+        // formatting: (set background color for observation-mapping table headers and auto-resize columns)
+        spreadsheet.getRange('A8:M8').activate();
+        spreadsheet.getActiveRangeList().setBackground('#cccccc');
+        spreadsheet.getRange('A9').activate();
+        spreadsheet.getActiveSheet().autoResizeColumns(1, 1);
+        spreadsheet.getActiveSheet().autoResizeColumns(2, 1);
+        spreadsheet.getActiveSheet().autoResizeColumns(6, 1);
+        spreadsheet.getActiveSheet().autoResizeColumns(7, 1);
+        spreadsheet.getActiveSheet().autoResizeColumns(11, 1);
+        spreadsheet.getActiveSheet().autoResizeColumns(13, 1);
+        spreadsheet.getRange('8:8').activate();
+        spreadsheet.getActiveSheet().setFrozenRows(8);
+        // set B1 background to yellow to indicate as input field
+        spreadsheet.getRange('B1').activate();
+        spreadsheet.getActiveRangeList().setBackground('#fff2cc');
+        spreadsheet.getRange('F1').activate();
+        spreadsheet.getCurrentCell().setRichTextValue(SpreadsheetApp.newRichTextValue()
+        .setText('Note: Change the sheet name to grab values from another sheet. Rows 1-7 are used to facilitate formulas, delete if exporting to update the observation mapping table.')
+        .setTextStyle(0, 99, SpreadsheetApp.newTextStyle()
+        .setFontFamily('Arial')
+        .build())
+        .build());
+        spreadsheet.getRange('F2').activate();
+    }
+    ```
+    </details>
+
+- Export rows from all three sheets to CSV file and use it to replace `observation-mapping.csv`.
+- Add rows for AOE Questions:
+    - Either copy the values from the website and map them into the appropriate columns 
+      - [LOINC General](https://loinc.org/81959-9)
+      - [LOINC COVID](https://loinc.org/sars-cov-2-and-covid-19/#aoe)
+
+  -OR-  
+    - Sign up for an account, download the CSV, and map the data from it
+- Add rows for codes that have been added ad-hoc (not coming from any standardized source). 
+Look for these codes in the current version of `observation-mapping.csv` file. They are listed at the end
+and have `Condition Code System` = `ReportStream`.
+
 
 Uploading the table to remote environments can utilize the lookuptables CLI command (./prime lookuptables create). Creating a new table with the same name will automatically create a new version of that table with that name and activate it if the -a parameter is used.
 
 Example:
 
 ```
-./prime lookuptables create -i "file-path-location" -s -a -n observation-mapping -e "prod or staging"
+./prime lookuptables create -i "prime-router/metadata/tables/local/observation-mapping.csv" -s -a -n observation-mapping -e "prod or staging"
 ```
 options:
 ```
@@ -198,25 +488,14 @@ The `Value Source` column needs to be manually entered based on data source belo
 - RCTC
 
 ### Data sources
-- RCTC: [AIMS](https://ersd.aimsplatform.org/#/home) *Account required*
+- Reportable Conditions Trigger Codes (RCTC): [AIMS](https://ersd.aimsplatform.org/#/home) *Account required*
+  - Data from the following sheets:
+    - Organism_Substance
+    - Lab Order Test Name
+    - Lab Obs Test Name
 - AOE Questions *Account required for download (can copy/paste w/o)*
     - [LOINC General](https://loinc.org/81959-9)
     - [LOINC COVID](https://loinc.org/sars-cov-2-and-covid-19/#aoe)
-
-#### Reportable Conditions Trigger Codes (RCTC)
-We need to source data from the following spreadsheets:
-- Organism-Substance
-- Lab Order Test Name
-- Lab Obs Test Name
-
-Scroll down in the spreadsheet and you will find an `Expansion List` table. Each row in this table represents a test or
-some resource associated with an OID. Each resource/test needs to be mapped to a condition at the top of the
-spreadsheet using its code/OID. The resulting row is then mapped to the appropriate columns in the lookup table.
-
-#### AOE Questions
-Either copy the values from the website and map them into the appropriate columns  
--OR-  
-Sign up for an account, download the CSV, and map the data from it
 
 ## Sender Onboarding
 

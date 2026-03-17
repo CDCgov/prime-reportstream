@@ -4,7 +4,7 @@ locals {
   init = {
     environment           = local.environment
     location              = "eastus"
-    is_metabase_env       = true
+    is_metabase_env       = false
     resource_group_name   = "prime-data-hub-${local.environment}"
     resource_prefix       = "pdh${local.environment}"
     okta_redirect_url     = "https://prime-data-hub-XXXXXXX.azurefd.net/download"
@@ -25,7 +25,7 @@ locals {
     tf_secrets_vault      = "pdh${local.init.environment}-keyvault"
   }
   ad = {
-    terraform_object_id       = "4d81288c-27a3-4df8-b776-c9da8e688bc7"
+    terraform_object_id       = "a58ee002-62c7-4a91-a2dc-4a837663aa00"
     aad_object_keyvault_admin = "3c17896c-ff94-4298-a719-aaac248aa2c8"
     aad_group_postgres_admin  = "f94409a9-12b1-4820-a1b6-e3e0a4fa282d"
   }
@@ -36,15 +36,11 @@ locals {
     delete_pii_storage_after_days = 30
   }
   database = {
-    db_sku_name         = "GP_Gen5_8"
-    db_version          = "11"
-    db_storage_mb       = 5120
-    db_auto_grow        = true
-    db_prevent_destroy  = false
-    db_threat_detection = true
-    db_replica          = true
-    flex_sku_name       = "GP_Standard_D4ds_v4"
-    flex_instances      = ["primary"]
+    # The 'test' environment uses the 'staging' database instance.
+    database_resource_group_name = "ddphss-prim-stg-moderate-rg"
+    primary_server_name          = "dpsa-prim-azpgsql-01"
+    replica_server_names         = []
+    database_names               = ["prime_data_hub", "prime_data_hub_candidate"]
   }
   log_analytics_workspace = {
     law_retention_period = "30"

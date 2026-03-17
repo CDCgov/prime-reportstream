@@ -15,6 +15,7 @@ import gov.cdc.prime.router.TransportType
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
+import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
 import gov.cdc.prime.router.azure.observability.event.IReportStreamEventService
 import gov.cdc.prime.router.common.HttpClientUtils
 import gov.cdc.prime.router.credentials.CredentialHelper
@@ -43,7 +44,9 @@ import java.io.ByteArrayInputStream
  * See [Google API for Exposure Notification](https://https://developers.google.com/android/exposure-notifications/exposure-notifications-api) for details on GAEN.
  * See [Issue API](https://https://github.com/google/exposure-notifications-verification-server/blob/main/docs/api.md#apiissue) for the details on the issue API ReportStream calls.
  */
-class GAENTransport(val httpClient: HttpClient? = null) : ITransport, Logging {
+class GAENTransport(val httpClient: HttpClient? = null) :
+    ITransport,
+    Logging {
     /**
      * Information helpful for the sending, logging and recording history all bundled together
      * to avoid long parameter lists in functions
@@ -80,6 +83,8 @@ class GAENTransport(val httpClient: HttpClient? = null) : ITransport, Logging {
         actionHistory: ActionHistory,
         reportEventService: IReportStreamEventService,
         reportService: ReportService,
+        lineages: List<ItemLineage>?,
+        queueMessage: String,
     ): RetryItems? {
         val gaenTransportInfo = transportType as GAENTransportType
         val reportId = header.reportFile.reportId
@@ -108,7 +113,13 @@ class GAENTransport(val httpClient: HttpClient? = null) : ITransport, Logging {
 
             // Record the work in history and logs
             when (postResult) {
-                PostResult.SUCCESS -> recordFullSuccess(params, reportEventService, reportService)
+                PostResult.SUCCESS -> recordFullSuccess(
+                    params,
+                    reportEventService,
+                    reportService,
+                    lineages,
+                    queueMessage
+                )
                 PostResult.RETRY -> recordFailureWithRetry(params)
                 PostResult.FAIL -> recordFailure(params)
             }
@@ -129,6 +140,8 @@ class GAENTransport(val httpClient: HttpClient? = null) : ITransport, Logging {
         params: SendParams,
         reportEventService: IReportStreamEventService,
         reportService: ReportService,
+        lineages: List<ItemLineage>?,
+        queueMessage: String,
     ) {
         val msg = "${params.receiver.fullName}: Successful exposure notifications of ${params.comboId}"
         val history = params.actionHistory
@@ -144,7 +157,9 @@ class GAENTransport(val httpClient: HttpClient? = null) : ITransport, Logging {
             params.header,
             reportEventService,
             reportService,
-            this::class.java.simpleName
+            this::class.java.simpleName,
+            lineages,
+            queueMessage
         )
         history.trackItemLineages(Report.createItemLineagesFromDb(params.header, params.sentReportId))
     }
@@ -214,7 +229,8 @@ class GAENTransport(val httpClient: HttpClient? = null) : ITransport, Logging {
             // As a backup for missing symptomDate, use the testDate per conversation with WA-PHD
             symptomDate = table[0]["illness_onset_date"] ?: testDate
             phone = table[0]["patient_phone_number"] ?: ""
-            padding = RandomStringUtils.randomAlphanumeric(16)
+            // padding obfuscates the size of the request body to observers.
+            padding = RandomStringUtils.secure().nextAlphanumeric(16)
             uuid = formatUUID(uuidFormat, reportId, phone, testDate, uuidIV)
         }
     }

@@ -29,42 +29,42 @@ jobs:
       is_permitted: ${{ github.event_name == 'pull_request' && steps.build_vars.outputs.has_frontend_change == 'true' && steps.build_vars.outputs.is_deployment_pr == 'false' }}
     steps:
       - name: "Check out changes"
-        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8
       - name: Build vars
         id: build_vars
         uses: ./.github/actions/build-vars
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
   lint:
     name: Lint
     needs: pre-job
     if: needs.pre-job.outputs.is_permitted == 'true'
     runs-on: ubuntu-latest
-
     steps:
       - name: Check out changes
-        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8
       - name: Use Node.js with yarn
-        uses: actions/setup-node@0a44ba7841725637a19e28fa30b79a866c81b0a6
+        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238
         with:
           node-version-file: frontend-react/.nvmrc
           cache: yarn
           cache-dependency-path: frontend-react/yarn.lock
       - name: Yarn install
-        run: yarn install --immutable
-
+        run: yarn install
       - name: Run linting
         run: yarn run lint
 
   pa11y:
     name: Run Pa11y 508 Compliance Check
     needs: lint
-    runs-on: ubuntu-20.04 # pinned to this version due to: https://github.com/pa11y/pa11y-ci/issues/198
+    runs-on: ubuntu-latest #ubuntu-20.04 # pinned to this version due to: https://github.com/pa11y/pa11y-ci/issues/198
     
     steps:
       - name: Check out changes
-        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8
       - name: Use Node.js with yarn
-        uses: actions/setup-node@0a44ba7841725637a19e28fa30b79a866c81b0a6
+        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238
         with:
           node-version-file: frontend-react/.nvmrc
           cache: yarn
@@ -88,6 +88,9 @@ jobs:
 
       - name: Install Pa11y
         run: |
+          # https://chromium.googlesource.com/chromium/src/+/main/docs/security/apparmor-userns-restrictions.md
+          echo "Get around AA namespace restrictions"
+          echo 0 | sudo tee /proc/sys/kernel/apparmor_restrict_unprivileged_userns
           echo "Installing google-chrome-stable"
           sudo apt-get update && sudo apt-get install -y google-chrome-stable jq
           which google-chrome-stable || echo "google-chrome-stable not found"
@@ -97,7 +100,7 @@ jobs:
             puppeteer@22.8.2 \
             --no-save
 
-      - name: Run Pa11y Check # Pa11y is configured in frontend-react/.pa11yci
+      - name: Run Pa11y Check # Pa11y is configured in frontend-react/pa11y.json
         run: |
           SITEMAP_URL="${{ env.LOCAL_SITEMAP_URL }}"
           echo "Local Sitemap URL: $SITEMAP_URL"
@@ -154,26 +157,26 @@ jobs:
 
       - name: Stop Frontend Server
         run: |
-          echo "Stopping Frontend Server"
+          echo "Stopping Frontend Server"Add commentMore actions
           kill $(cat server.pid)
-        
+          rm server.pid
+      
+
   unit_tests:
     name: Unit tests
     needs: lint
     runs-on: ubuntu-latest
-
     steps:
       - name: Check out changes
-        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8
       - name: Use Node.js with yarn
-        uses: actions/setup-node@0a44ba7841725637a19e28fa30b79a866c81b0a6
+        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238
         with:
           node-version-file: "frontend-react/.nvmrc"
           cache: yarn
           cache-dependency-path: frontend-react/yarn.lock
       - name: Yarn install
-        run: yarn install --immutable
-
+        run: yarn install
       - name: Unit tests
         run: yarn run test:ci
 
@@ -182,42 +185,45 @@ jobs:
     needs: lint
     runs-on: ubuntu-latest
     # Keep shards under 10 minutes
-    timeout-minutes: 10
+    timeout-minutes: 25
     strategy:
       fail-fast: false
       matrix:
         shardIndex: [1, 2, 3, 4, 5, 6]
         shardTotal: [6]
-
     steps:
       - name: Add swapfile
         working-directory: /
         run: |
+          df -h
+          free
           sudo swapoff -a
           sudo fallocate -l 15G /mnt/swapfile
           sudo chmod 600 /mnt/swapfile
           sudo mkswap /mnt/swapfile
           sudo swapon /mnt/swapfile
           sudo swapon --show
-
+          df -h
       - name: Check out changes
-        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8
       - name: Use Node.js with yarn
-        uses: actions/setup-node@0a44ba7841725637a19e28fa30b79a866c81b0a6
+        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238
         with:
           node-version-file: "frontend-react/.nvmrc"
           cache: yarn
           cache-dependency-path: frontend-react/yarn.lock
       - name: Yarn install
-        run: yarn install --immutable
+        run: yarn install
       - name: Install Playwright
-        run: npx playwright install --with-deps
-
+        run: |
+          free; df -h
+          npx playwright install --with-deps
+          free; df -h
       - name: Run E2E tests
         run: yarn run test:e2e --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}
       - name: Upload blob report to GitHub Actions Artifacts
         if: ${{ !cancelled() }}
-        uses: actions/upload-artifact@50769540e7f4bd5e21e526ee35c689e35e0d6874
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f
         with:
           name: frontend-e2e-data--shard-${{ matrix.shardIndex }}
           path: frontend-react/e2e-data
@@ -226,19 +232,25 @@ jobs:
   # the e2e_tests job doesn't properly reflect being skipped when set as required on the repo.
   # this step will always run and provide a status
   e2e_tests_result:
-      if: ${{ always() }}
-      runs-on: ubuntu-latest
-      name: E2E Tests Result
-      needs: [e2e_tests]
-      steps:
-        - run: |
-            result="${{ needs.e2e_tests.result }}"
-            if [[ $result == "success" || $result == "skipped" ]]; then
-              exit 0
-            else
-              exit 1
-            fi
-          working-directory: /
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    name: E2E Tests Result
+    needs: [e2e_tests]
+    steps:
+      - run: |
+          free;df -h
+          result="${{ needs.e2e_tests.result }}"
+          echo "E2E Tests result: $result"
+          if [[ $result == "success" || $result == "skipped" ]]; then
+            exit 0
+          elif [[ $result == "cancelled" ]]; then
+            echo "The E2E tests were cancelled. Investigate the shard logs for the cause."
+            exit 1
+          else
+            echo "The E2E tests failed."
+            exit 1
+          fi
+        working-directory: /
 
   # Merge reports after e2e-tests, even if some shards have failed
   merge_e2e_data:
@@ -249,19 +261,19 @@ jobs:
     env:
       COMMENT:
       WARNING_LOG_FILE: e2e-data/frontend-warnings.json
-
     steps:
       - name: Check out changes
-        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8
       - name: Use Node.js with yarn
-        uses: actions/setup-node@0a44ba7841725637a19e28fa30b79a866c81b0a6
+        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238
         with:
           node-version-file: "frontend-react/.nvmrc"
           cache: yarn
           cache-dependency-path: frontend-react/yarn.lock
-
+      - name: Yarn install
+        run: yarn install
       - name: Download blob reports from GitHub Actions Artifacts
-        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
         with:
           path: frontend-react/e2e-data
           pattern: frontend-e2e-data--shard-*
@@ -271,25 +283,26 @@ jobs:
       # merge-reports command has no cli option to change default output dir (playwright-report),
       # so merge it into the e2e-data/report manually and do clean up before uploading
       - name: Merge folders
-        run: mv ./playwright-report/* ./e2e-data/report && rmdir ./playwright-report && rm ./e2e-data/report/*.zip && rm -rf ./e2e-data/report/resources
+        run: |
+          free;df -h
+          mv ./playwright-report/* ./e2e-data/report && rmdir ./playwright-report && rm ./e2e-data/report/*.zip && rm -rf ./e2e-data/report/resources
+          free; df -h
       - name: Upload final e2e-data
-        uses: actions/upload-artifact@50769540e7f4bd5e21e526ee35c689e35e0d6874
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f
         with:
           name: frontend-e2e-data--attempt-${{ github.run_attempt }}
           path: frontend-react/e2e-data
           retention-days: 7
-
       - name: Find Previous Warnings Comment
         id: comment_find
-        uses: peter-evans/find-comment@3eae4d37986fb5a8592848f6a574fdf654e61f9e
+        uses: peter-evans/find-comment@b30e6a3c0ed37e7c023ccd3f1db5c6c0b0c23aad
         with:
           issue-number: ${{ github.event.pull_request.number }}
           comment-author: "github-actions[bot]"
           body-regex: '⚠️ Broken Links ⚠️'
-
       - name: Delete Previous Warnings Comment
         if: ${{ steps.comment_find.outputs.comment-id != '' }}
-        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
@@ -298,7 +311,6 @@ jobs:
               repo: context.repo.repo,
               comment_id: ${{ steps.comment_find.outputs.comment-id }},
             })
-
       - name: Set Broken Links Comment
         if: github.event.sender.login != 'dependabot[bot]'
         id: set-comment
@@ -315,10 +327,9 @@ jobs:
           echo -e "$COMMENT" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
         shell: bash
-
       - name: Create New Comment
         if: ${{ env.COMMENT != '' }}
-        uses: peter-evans/create-or-update-comment@71345be0265236311c031f5c7866368bd1eff043
+        uses: peter-evans/create-or-update-comment@e8674b075228eee787fea43ef493e45ece1004c9
         with:
           issue-number: ${{ github.event.pull_request.number }}
           body: ${{ env.COMMENT }}
@@ -329,10 +340,9 @@ jobs:
     if: github.event.sender.login != 'dependabot[bot]'
     needs: lint
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout - On Pull Request
-        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8
         with:
           fetch-depth: 0
           # By default the pull_request event will run on a ephermeral merge commit which simulates a merge between the pull request
@@ -340,17 +350,16 @@ jobs:
           # Hopefully by checking out the HEAD commit of a PR instead of the merge commit we can avoid some of those issues.
           ref: ${{ github.event.pull_request.head.sha }}
       - name: Use Node.js with yarn
-        uses: actions/setup-node@0a44ba7841725637a19e28fa30b79a866c81b0a6
+        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238
         with:
           node-version-file: "frontend-react/.nvmrc"
           cache: yarn
           cache-dependency-path: frontend-react/yarn.lock
       - name: Yarn install
-        run: yarn install --immutable
-
+        run: yarn install
       - name: Run Chromatic
         id: chromatic
-        uses: chromaui/action@f4e60a7072abcac4203f4ca50613f28e199a52ba
+        uses: chromaui/action@07791f8243f4cb2698bf4d00426baf4b2d1cb7e0
         with:
           workingDir: frontend-react
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -359,17 +368,16 @@ jobs:
           onlyChanged: true
           exitZeroOnChanges: true
           exitOnceUploaded: true
-
       - name: Find Previous Comment
         id: comment_find
-        uses: peter-evans/find-comment@3eae4d37986fb5a8592848f6a574fdf654e61f9e
+        uses: peter-evans/find-comment@b30e6a3c0ed37e7c023ccd3f1db5c6c0b0c23aad
         with:
           issue-number: ${{ github.event.pull_request.number }}
           comment-author: "github-actions[bot]"
           body-regex: '\.*deployed to Chromatic.*\gi'
       - name: Delete Previous Comment
         if: ${{ steps.comment_find.outputs.comment-id }}
-        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
@@ -379,17 +387,19 @@ jobs:
               repo: context.repo.repo,
             })
       - name: Create New Comment
-        uses: peter-evans/create-or-update-comment@71345be0265236311c031f5c7866368bd1eff043
+        uses: peter-evans/create-or-update-comment@e8674b075228eee787fea43ef493e45ece1004c9
         with:
           issue-number: ${{ github.event.pull_request.number }}
           body: |
-            Branch deployed to Chromatic 🚀. 
+            Branch deployed to Chromatic 🚀.
             - ${{ steps.chromatic.outputs.changeCount && format('⚠️ Detected {0} tests with visual changes.', steps.chromatic.outputs.changeCount) }}
             - ${{ steps.chromatic.outputs.errorCount > 0 && format('❌ {0} tests failed!', steps.chromatic.outputs.errorCount) || '✅ All tests passed.' }}
 
-            View via: 
+            View via:
             - Chromatic: ${{ steps.chromatic.outputs.url }}
             - Storybook: ${{ steps.chromatic.outputs.storybookUrl }}
+      - name: Show resources
+        run: free; df -h
 
   # codeql:
   #   name: CodeQL Analysis
@@ -400,16 +410,14 @@ jobs:
   #     actions: read
   #     contents: read
   #     security-events: write
-
   #   steps:
   #     - name: Check out changes
-  #       uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938
+  #       uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8
   #     - name: Initialize CodeQL
   #       uses: github/codeql-action/init@65c74964a9ed8c44ed9f19d4bbc5757a6a8e9ab9
   #       with:
   #         languages: javascript
   #         source-root: frontend-react
-
   #     - name: Perform CodeQL Analysis
   #       uses: github/codeql-action/analyze@65c74964a9ed8c44ed9f19d4bbc5757a6a8e9ab9
   #       with:
@@ -420,21 +428,19 @@ jobs:
   #   needs: lint
   #   if: github.actor != 'dependabot[bot]'
   #   runs-on: ubuntu-latest
-
   #   steps:
   #     - name: Check out changes
-  #       uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938
+  #       uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8
   #       with:
   #         fetch-depth: 0
   #     - name: Use Node.js with yarn
-  #       uses: actions/setup-node@0a44ba7841725637a19e28fa30b79a866c81b0a6
+  #       uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238
   #       with:
   #         node-version-file: "frontend-react/.nvmrc"
   #         cache: yarn
   #         cache-dependency-path: frontend-react/yarn.lock
   #     - name: Yarn install
-  #       run: yarn install --immutable
-
+  #       run: yarn install
   #     - name: Collect coverage
   #       run: yarn run test:ci
   #     - name: Run SonarCloud Scan
@@ -457,16 +463,15 @@ jobs:
   #   runs-on: ubuntu-latest
   #   steps:
   #     - name: Check out changes
-  #       uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938
+  #       uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8
   #     - name: Use Node.js with yarn
-  #       uses: actions/setup-node@0a44ba7841725637a19e28fa30b79a866c81b0a6
+  #       uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238
   #       with:
   #         node-version-file: "frontend-react/.nvmrc"
   #         cache: yarn
   #         cache-dependency-path: frontend-react/yarn.lock
   #     - name: Yarn install
-  #       run: yarn install --immutable
-
+  #       run: yarn install
   #     - name: Check for dependency vulnerabilities
   #       uses: snyk/actions/node@b98d498629f1c368650224d6d212bf7dfa89e4bf
   #       continue-on-error: true # To make sure that SARIF upload gets called

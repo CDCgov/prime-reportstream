@@ -20,8 +20,6 @@ import org.hl7.fhir.r4.model.ValueSet
 import java.lang.IllegalArgumentException
 import java.lang.NumberFormatException
 
-private const val s = "appendToIndex"
-
 /**
  * Context used for resolving [constants] and custom FHIR functions. The class is for us to add our customer function
  * [customFhirFunctions], customer [config] object for us to pass any object to our custom translation function
@@ -55,16 +53,16 @@ data class CustomContext(
          * Add [constants] to a context.
          * @return a new context with the [constants] added or the existing context if no new constants are specified
          */
-        fun addConstants(constants: Map<String, String>, previousContext: CustomContext): CustomContext {
-            return addConstants(constants, previousContext, true)
-        }
+        fun addConstants(
+            constants: Map<String, String>,
+            previousContext: CustomContext,
+        ): CustomContext = addConstants(constants, previousContext, true)
 
         private fun addConstants(
             constants: Map<String, String>,
             previousContext: CustomContext,
             checkReservedNames: Boolean,
-        ): CustomContext {
-            return if (constants.isEmpty()) {
+        ): CustomContext = if (constants.isEmpty()) {
                 previousContext
             } else {
                 if (checkReservedNames && constants.keys.any { reservedConstantNames.contains(it) }) {
@@ -85,23 +83,25 @@ data class CustomContext(
                 constants.forEach { newContext.constants[it.key] = it.value }
                 newContext
             }
-        }
 
         /**
          * Add constant with [key] and [value] to a context.
          * @return a new context with the constant added or the existing context of no new constant is specified
          */
-        fun addConstant(key: String, value: String, previousContext: CustomContext): CustomContext {
-            return addConstants(mapOf(key to value), previousContext, true)
-        }
+        fun addConstant(
+            key: String,
+            value: String,
+            previousContext: CustomContext,
+        ): CustomContext = addConstants(mapOf(key to value), previousContext, true)
 
-        fun setAppendToIndex(index: Int, previousContext: CustomContext): CustomContext {
-            return addConstants(mapOf(appendToIndexKey to index.toString()), previousContext, false)
-        }
+        fun setAppendToIndex(index: Int, previousContext: CustomContext): CustomContext = addConstants(
+            mapOf(
+            appendToIndexKey to index.toString()
+            ),
+                previousContext, false
+        )
 
-        fun getAppendToIndex(context: CustomContext): Int? {
-            return context.constants[appendToIndexKey]?.toInt()
-        }
+        fun getAppendToIndex(context: CustomContext): Int? = context.constants[appendToIndexKey]?.toInt()
     }
 }
 
@@ -118,14 +118,17 @@ class ConstantSubstitutor {
      * Replace the constants in a given [inputText] using the [context].
      * @return the resolved string
      */
-    fun replace(inputText: String, context: CustomContext?): String {
-        return constantResolver.setVariableResolver(StringCustomResolver(context)).replace(inputText)
-    }
+    fun replace(
+        inputText: String,
+        context: CustomContext?,
+    ): String = constantResolver.setVariableResolver(StringCustomResolver(context)).replace(inputText)
 
     /**
      * Custom resolver for the [ConstantSubstitutor] that uses the [context] to resolve the constants.
      */
-    internal class StringCustomResolver(val context: CustomContext?) : StringLookup, Logging {
+    internal class StringCustomResolver(val context: CustomContext?) :
+        StringLookup,
+        Logging {
         override fun lookup(key: String?): String {
             require(!key.isNullOrBlank())
             when {
@@ -144,7 +147,8 @@ class ConstantSubstitutor {
  * Custom resolver for the FHIR path engine.
  */
 class FhirPathCustomResolver(private val customFhirFunctions: FhirPathFunctions? = null) :
-    FHIRPathEngine.IEvaluationContext, Logging {
+    FHIRPathEngine.IEvaluationContext,
+    Logging {
     override fun resolveConstant(
         engine: FHIRPathEngine?,
         appContext: Any?,
@@ -221,20 +225,15 @@ class FhirPathCustomResolver(private val customFhirFunctions: FhirPathFunctions?
         appContext: Any?,
         name: String?,
         explicitConstant: Boolean,
-    ): TypeDetails {
-        throw NotImplementedError("Not implemented")
-    }
+    ): TypeDetails = throw NotImplementedError("Not implemented")
 
-    override fun log(argument: String?, focus: MutableList<Base>?): Boolean {
+    override fun log(argument: String?, focus: MutableList<Base>?): Boolean =
         throw NotImplementedError("Not implemented")
-    }
 
     override fun resolveFunction(
         engine: FHIRPathEngine?,
         functionName: String?,
-    ): FHIRPathUtilityClasses.FunctionDetails? {
-        return CustomFHIRFunctions.resolveFunction(functionName, customFhirFunctions)
-    }
+    ): FHIRPathUtilityClasses.FunctionDetails? = CustomFHIRFunctions.resolveFunction(functionName, customFhirFunctions)
 
     override fun checkFunction(
         engine: FHIRPathEngine?,
@@ -242,9 +241,7 @@ class FhirPathCustomResolver(private val customFhirFunctions: FhirPathFunctions?
         functionName: String?,
         focus: TypeDetails?,
         parameters: MutableList<TypeDetails>?,
-    ): TypeDetails {
-        throw NotImplementedError("Not implemented")
-    }
+    ): TypeDetails = throw NotImplementedError("Not implemented")
 
     override fun executeFunction(
         engine: FHIRPathEngine?,
@@ -255,8 +252,14 @@ class FhirPathCustomResolver(private val customFhirFunctions: FhirPathFunctions?
     ): MutableList<Base> {
         check(focus != null)
         return when {
-            CustomFHIRFunctions.resolveFunction(functionName, customFhirFunctions) != null -> {
-                CustomFHIRFunctions.executeFunction(focus, functionName, parameters, customFhirFunctions)
+                CustomFHIRFunctions.resolveFunction(
+                    functionName,
+                    (appContext as CustomContext).customFhirFunctions
+                ) != null -> {
+                CustomFHIRFunctions.executeFunction(
+                    focus, functionName, parameters,
+                    appContext.customFhirFunctions
+                )
             }
 
             else -> throw IllegalStateException("Tried to execute invalid FHIR Path function $functionName")
@@ -273,11 +276,9 @@ class FhirPathCustomResolver(private val customFhirFunctions: FhirPathFunctions?
         }
     }
 
-    override fun conformsToProfile(engine: FHIRPathEngine?, appContext: Any?, item: Base?, url: String?): Boolean {
+    override fun conformsToProfile(engine: FHIRPathEngine?, appContext: Any?, item: Base?, url: String?): Boolean =
         throw NotImplementedError("Not implemented")
-    }
 
-    override fun resolveValueSet(engine: FHIRPathEngine?, appContext: Any?, url: String?): ValueSet {
+    override fun resolveValueSet(engine: FHIRPathEngine?, appContext: Any?, url: String?): ValueSet =
         throw NotImplementedError("Not implemented")
-    }
 }

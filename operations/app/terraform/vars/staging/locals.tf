@@ -25,7 +25,7 @@ locals {
     tf_secrets_vault      = "pdh${local.init.environment}-keyvault"
   }
   ad = {
-    terraform_object_id       = "4d81288c-27a3-4df8-b776-c9da8e688bc7"
+    terraform_object_id       = "a58ee002-62c7-4a91-a2dc-4a837663aa00"
     aad_object_keyvault_admin = "b35a2a63-aeb2-438c-913b-bebeb821adfe"
     aad_group_postgres_admin  = "c4031f1f-229c-4a8a-b3b9-23bae9dbf197"
   }
@@ -36,13 +36,10 @@ locals {
     delete_pii_storage_after_days = 60
   }
   database = {
-    db_sku_name         = "GP_Gen5_16"
-    db_version          = "11"
-    db_storage_mb       = 566272
-    db_auto_grow        = true
-    db_prevent_destroy  = false
-    db_threat_detection = true
-    db_replica          = true
+    postgres_server_id   = "/subscriptions/7d1e3999-6577-4cd5-b296-f518e5c8e677/resourceGroups/ddphss-prim-stg-moderate-rg/providers/Microsoft.DBforPostgreSQL/servers/dpsa-prim-azpgsql-01"
+    postgres_server_name = "dpsa-prim-azpgsql-01"
+    postgres_server_fqdn = "dpsa-prim-azpgsql-01.postgres.database.azure.com"
+    postgres_replica_ids = {}
   }
   app = {
     app_tier                 = "PremiumV2"

@@ -1,0 +1,163 @@
+name: Check Deprecation in Terraform
+
+on:
+  push:
+    branches:
+      - main
+      - production
+      - devsecops/**
+    paths:
+      - '**.tf'
+
+env:
+  AZURE_CREDENTIALS: '{"clientId":"${{ secrets.REPO_AZURE_CLIENT_ID }}","clientSecret":"${{ secrets.REPO_AZURE_CLIENT_SECRET }}","subscriptionId":"${{ secrets.REPO_AZURE_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.REPO_AZURE_TENANT_ID }}"}'
+
+jobs:
+  pre_job:
+    name: Set Build Environment
+    concurrency:
+      group: ${{ github.workflow }}-${{ needs.pre_job.outputs.env_name }}
+      cancel-in-progress: true
+    runs-on: ubuntu-latest
+    outputs:
+      env_name: ${{ steps.build_vars.outputs.env_name }}
+      tf_change: ${{ steps.build_vars.outputs.has_terraform_change }}
+    steps:
+      - name: Check out changes
+        uses: actions/checkout@v6
+      - name: Build vars
+        id: build_vars
+        uses: ./.github/actions/build-vars
+
+  confirm_changes:
+    name: Check Terraform Stats - ${{ needs.pre_job.outputs.env_name }}
+    if: ${{ needs.pre_job.outputs.tf_change == 'true' }}
+    concurrency:
+      group: ${{ github.workflow }}-${{ needs.pre_job.outputs.env_name }}
+      cancel-in-progress: true
+    needs:
+      - pre_job
+    environment: ${{ needs.pre_job.outputs.env_name }}
+    runs-on: ubuntu-latest
+    outputs:
+      change_count: ${{ steps.stats1.outputs.change-count }}
+    steps:
+      - name: Check Out Changes
+        uses: actions/checkout@v6
+      - name: Connect to VPN and login to Azure
+        uses: ./.github/actions/vpn-azure
+        with:
+          env-name: ${{ needs.pre_job.outputs.env_name }}
+          tls-key: ${{ secrets.TLS_KEY }}
+          ca-cert: ${{ secrets.CA_CRT }}
+          user-crt: ${{ secrets.USER_CRT }}
+          user-key: ${{ secrets.USER_KEY }}
+          sp-creds: ${{ env.AZURE_CREDENTIALS }}
+          tf-auth: true
+      - name: Collect Terraform stats # Assuming this action runs plan internally or just gets stats
+        uses: ./.github/actions/terraform-stats
+        id: stats1
+        with:
+          terraform-directory: operations/app/terraform/vars/${{ needs.pre_job.outputs.env_name }}
+          terraform-version: 1.7.4
+          add-args: "-refresh=false"
+      - name: Use specific version of Terraform
+        uses: hashicorp/setup-terraform@v4
+        with:
+          terraform_version: 1.7.4
+      - name: Terraform Format
+        working-directory: operations/app/terraform/vars/${{ needs.pre_job.outputs.env_name }}
+        run: terraform fmt -check -recursive
+      - name: Terraform Init
+        working-directory: operations/app/terraform/vars/${{ needs.pre_job.outputs.env_name }}
+        run: terraform init -input=false
+      - name: Terraform Validate
+        working-directory: operations/app/terraform/vars/${{ needs.pre_job.outputs.env_name }}
+        run: terraform validate
+      - name: Terraform Plan 
+        working-directory: operations/app/terraform/vars/${{ needs.pre_job.outputs.env_name }}
+        run: terraform plan -out=${{ needs.pre_job.outputs.env_name }}-tf.plan -input=false -no-color -lock-timeout=600s
+      - name: Convert Plan to JSON
+        working-directory: operations/app/terraform/vars/${{ needs.pre_job.outputs.env_name }}
+        run: |
+          terraform show -json ${{ needs.pre_job.outputs.env_name }}-tf.plan > ${{ needs.pre_job.outputs.env_name }}-plan.json
+          echo "Created plan.json for deprecation check"
+
+      - name: Convert Plan to Text
+        working-directory: operations/app/terraform/vars/${{ needs.pre_job.outputs.env_name }}
+        run: |
+          terraform show ${{ needs.pre_job.outputs.env_name }}-tf.plan -no-color > ${{ needs.pre_job.outputs.env_name }}-plan.txt
+          echo "Created plan.txt for PR comment"
+
+      - name: Run TF Deprecations Check
+        working-directory: operations/app/terraform/vars/${{ needs.pre_job.outputs.env_name }}
+        run: python ../../../../.github/scripts/tf-deprecations/check_tf_deprecations.py ${{ needs.pre_job.outputs.env_name }}-plan.json
+
+      - name: Comment Plan on PR
+        uses: borchero/terraform-plan-comment@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          planfile: ${{ needs.pre_job.outputs.env_name }}-tf.plan
+
+  approve_deploy:
+    name: Approve Deploy - ${{ needs.pre_job.outputs.env_name }}
+    concurrency:
+      group: ${{ github.workflow }}-${{ needs.pre_job.outputs.env_name }}
+      cancel-in-progress: true
+    needs:
+      - pre_job
+      - confirm_changes
+    if: needs.pre_job.outputs.tf_change == 'true' && needs.confirm_changes.outputs.change_count > '0'
+    runs-on: ubuntu-latest
+    environment: ${{ needs.pre_job.outputs.env_name }}_terraform
+    steps:
+      - name: Echo change count
+        run: echo "Approval required for ${{ needs.confirm_changes.outputs.change_count }} changes."
+
+  run_deploy:
+    name: Run Deploy - ${{ needs.pre_job.outputs.env_name }}
+    concurrency:
+      group: ${{ github.workflow }}-${{ needs.pre_job.outputs.env_name }}
+      cancel-in-progress: true
+    needs:
+      - pre_job
+      - confirm_changes 
+      - approve_deploy 
+    if: needs.pre_job.outputs.tf_change == 'true' && needs.confirm_changes.outputs.change_count > '0'
+    runs-on: ubuntu-latest
+    environment: ${{ needs.pre_job.outputs.env_name }}
+    defaults:
+      run:
+        working-directory: operations/app/terraform/vars/${{ needs.pre_job.outputs.env_name }}
+    steps:
+      - name: Check Out Changes
+        uses: actions/checkout@v6
+      - name: Connect to VPN and login to Azure
+        uses: ./.github/actions/vpn-azure
+        with:
+          env-name: ${{ needs.pre_job.outputs.env_name }}
+          tls-key: ${{ secrets.TLS_KEY }}
+          ca-cert: ${{ secrets.CA_CRT }}
+          user-crt: ${{ secrets.USER_CRT }}
+          user-key: ${{ secrets.USER_KEY }}
+          sp-creds: ${{ env.AZURE_CREDENTIALS }}
+          tf-auth: true
+      - name: Use specific version of Terraform
+        uses: hashicorp/setup-terraform@v4
+        with:
+          terraform_version: 1.7.4
+      - name: Terraform Init
+        run: terraform init -input=false
+      - name: Run Terraform Sanity Checks
+        run: |
+          terraform fmt -check -recursive
+          terraform validate
+          terraform workspace select -or-create ${{ needs.pre_job.outputs.env_name }}
+      - name: Run Terraform Plan # Generate the final binary plan for apply
+        run: |
+          terraform plan -out ${{ needs.pre_job.outputs.env_name }}-tf.plan -input=false -no-color -lock-timeout=600s
+
+      # - name: Run Terraform Apply
+      #   run: |
+      #     terraform apply -input=false -no-color -lock-timeout=600s -auto-approve ${{ needs.pre_job.outputs.env_name }}-tf.plan
+

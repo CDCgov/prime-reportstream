@@ -20,9 +20,8 @@ import org.jooq.JSONB
 /**
  * Functions to manage lookup tables.
  */
-class LookupTableFunctions(
-    private val lookupTableAccess: DatabaseLookupTableAccess = DatabaseLookupTableAccess(),
-) : Logging {
+class LookupTableFunctions(private val lookupTableAccess: DatabaseLookupTableAccess = DatabaseLookupTableAccess()) :
+    Logging {
     /**
      * Mapper to convert objects to JSON.
      */
@@ -300,14 +299,12 @@ class LookupTableFunctions(
     /**
      * @return true if these [claims] allow the user to do writes to lookup tables.  Otherwise return false
      */
-    private fun authorizedForLookupWrite(claims: AuthenticatedClaims): Boolean {
-        return if (!claims.isPrimeAdmin) {
+    private fun authorizedForLookupWrite(claims: AuthenticatedClaims): Boolean = if (!claims.isPrimeAdmin) {
             logger.warn("Request to write lookup tables is Unauthorized.  Must be a PrimeAdmin.")
             false
         } else {
             true
         }
-    }
 
     /**
      * Converts [rows] into a JSON string.

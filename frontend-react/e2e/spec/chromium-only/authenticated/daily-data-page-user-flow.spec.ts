@@ -88,6 +88,7 @@ test.describe(
                     });
 
                     test("table has correct headers", async ({ dailyDataPage }) => {
+                        await dailyDataPage.page.locator(".usa-table tbody").waitFor({ state: "visible" });
                         await expect(dailyDataPage.page.locator(".usa-table th").nth(0)).toHaveText(/Report ID/);
                         await expect(dailyDataPage.page.locator(".usa-table th").nth(1)).toHaveText(/Time received/);
                         await expect(dailyDataPage.page.locator(".usa-table th").nth(2)).toHaveText(

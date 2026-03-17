@@ -82,15 +82,13 @@ sealed interface HL7Truncator {
      * @param truncationLimit the starting limit
      * @return the new truncation limit or starting limit if no special characters are found
      */
-    fun getTruncationLimitWithEncoding(value: String, truncationLimit: Int?): Int? {
-        return truncationLimit?.let { limit ->
+    fun getTruncationLimitWithEncoding(value: String, truncationLimit: Int?): Int? = truncationLimit?.let { limit ->
             val regex = "[&^~|]".toRegex()
             val endIndex = min(value.length, limit)
             val matchCount = regex.findAll(value.substring(0, endIndex)).count()
 
             limit - (matchCount * 2)
         }
-    }
 
     /**
      * Attempts to lookup a subcomponents max length on our internal table
@@ -128,24 +126,18 @@ sealed interface HL7Truncator {
         segment: Segment,
         field: Type,
         parts: HL7FieldComponents,
-    ): Int? {
-        return if (parts.third != null) {
+    ): Int? = if (parts.third != null) {
             getMaxLengthForCompositeType(field, parts.third)
         } else if (parts.second != null) {
             getMaxLengthForCompositeType(field, parts.second)
         } else {
             segment.getLength(parts.first)
         }
-    }
 
     /**
      * Container for an HL7 field's components
      */
-    data class HL7FieldComponents(
-        val first: Int,
-        val second: Int?,
-        val third: Int?,
-    ) {
+    data class HL7FieldComponents(val first: Int, val second: Int?, val third: Int?) {
         companion object {
             /**
              * This will blow up if a malformed string is passed
@@ -180,7 +172,7 @@ class CovidPipelineHL7Truncator : HL7Truncator {
         // but only has support for the cases of current COVID-19 schema.
         // always a field in COVID pipeline
         val segmentName = hl7FieldOrPath.take(HL7Constants.SEGMENT_NAME_LENGTH)
-        val segmentSpec = HL7Utils.formSegSpec(segmentName)
+        val segmentSpec = formSegSpec(segmentName)
         val segment = terser.getSegment(segmentSpec)
         val parts = HL7Truncator.HL7FieldComponents.parse(hl7FieldOrPath)
         val field = segment.getField(parts.first, 0)
@@ -189,6 +181,24 @@ class CovidPipelineHL7Truncator : HL7Truncator {
             return getHl7MaxLength(segment, subComponent, parts)
         }
         return getHl7MaxLength(segment, field, parts)
+    }
+
+    /**
+     * Only call from COVID pipeline!
+     *
+     * This is not generic enough for the UP
+     */
+    private fun formSegSpec(segment: String, rep: Int? = null): String {
+        val repSpec = rep?.let { "($rep)" } ?: ""
+        return when (segment) {
+            "OBR" -> "/PATIENT_RESULT/ORDER_OBSERVATION/OBR"
+            "ORC" -> "/PATIENT_RESULT/ORDER_OBSERVATION/ORC"
+            "SPM" -> "/PATIENT_RESULT/ORDER_OBSERVATION/SPECIMEN/SPM"
+            "PID" -> "/PATIENT_RESULT/PATIENT/PID"
+            "OBX" -> "/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION$repSpec/OBX"
+            "NTE" -> "/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION/NTE$repSpec"
+            else -> segment
+        }
     }
 }
 

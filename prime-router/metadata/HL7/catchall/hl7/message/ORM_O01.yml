@@ -39,6 +39,13 @@ resources:
     additionalSegments:
       - .PV2
 
+  - resourceName: Coverage
+    segment: .IN1
+    group: PATIENT.INSURANCE
+    resourcePath: segments/IN1/Coverage
+    repeats: false
+    isReferenced: false
+
   - resourceName: OrderObservation
     segment: .ORDER_DETAIL.OBSERVATION.OBX
     group: ORDER

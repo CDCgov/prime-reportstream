@@ -36,11 +36,14 @@ import gov.cdc.prime.router.azure.observability.bundleDigest.BundleDigestLabResu
 import gov.cdc.prime.router.azure.observability.event.AzureEventUtils
 import gov.cdc.prime.router.azure.observability.event.InMemoryAzureEventService
 import gov.cdc.prime.router.azure.observability.event.ItemEventData
+import gov.cdc.prime.router.azure.observability.event.OrderingFacilitySummary
+import gov.cdc.prime.router.azure.observability.event.PerformerSummary
 import gov.cdc.prime.router.azure.observability.event.ReportEventData
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventName
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventProperties
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventService
 import gov.cdc.prime.router.azure.observability.event.ReportStreamItemEvent
+import gov.cdc.prime.router.azure.observability.event.SubmissionEventData
 import gov.cdc.prime.router.cli.tests.CompareData
 import gov.cdc.prime.router.common.TestcontainersUtils
 import gov.cdc.prime.router.common.UniversalPipelineTestUtils.fetchChildReports
@@ -162,19 +165,17 @@ class FHIRConverterIntegrationTests {
         report: Report,
         blobContents: String,
         sender: Sender,
-    ): String {
-        return """
+    ): String = """
         {
-            "type": "convert",
-            "reportId": "${report.id}",
-            "blobURL": "${report.bodyURL}",
-            "digest": "${BlobUtils.digestToString(BlobUtils.sha256Digest(blobContents.toByteArray()))}",
-            "blobSubFolderName": "${sender.fullName}",
-            "topic": "${sender.topic.jsonVal}",
-            "schemaName": "${sender.schemaName}"
+        "type":"convert",
+        "reportId":"${report.id}",
+        "blobURL":"${report.bodyURL}",
+        "digest":"${BlobUtils.digestToString(BlobUtils.sha256Digest(blobContents.toByteArray()))}",
+        "blobSubFolderName":"${sender.fullName}",
+        "topic":"${sender.topic.jsonVal}",
+        "schemaName":"${sender.schemaName}"
         }
-    """.trimIndent()
-    }
+        """.trimIndent().replace("\n", "")
 
     private fun generateFHIRConvertSubmissionQueueMessage(
         report: Report,
@@ -184,20 +185,25 @@ class FHIRConverterIntegrationTests {
         // TODO: something is wrong with the Jackson configuration as it should not require the type to parse this
         val headers = mapOf("client_id" to sender.fullName)
         val headersStringMap = headers.entries.joinToString(separator = ",\n") { (key, value) ->
-            """"$key": "$value""""
+            """"$key":"$value""""
         }
         val headersString = "[\"java.util.LinkedHashMap\",{$headersStringMap}]"
         return """
         {
-            "type": "receive-fhir",
-            "reportId": "${report.id}",
-            "blobURL": "${report.bodyURL}",
-            "digest": "${BlobUtils.digestToString(BlobUtils.sha256Digest(blobContents.toByteArray()))}",
-            "blobSubFolderName": "${sender.fullName}",
-            "headers":$headersString
+        "type":"receive",
+        "reportId":"${report.id}",
+        "blobURL":"${report.bodyURL}",
+        "digest":"${BlobUtils.digestToString(BlobUtils.sha256Digest(blobContents.toByteArray()))}",
+        "blobSubFolderName":"${sender.fullName}",
+        "headers":$headersString
         }
-    """.trimIndent()
+        """.trimIndent().replace("\n", "")
     }
+
+    private fun appendMessageQueueName(
+        queueMessage: String,
+        messageQueueName: String,
+    ): String = queueMessage.substringBeforeLast("}") + ",\"messageQueueName\":\"$messageQueueName\"}"
 
     @BeforeEach
     fun beforeEach() {
@@ -241,8 +247,7 @@ class FHIRConverterIntegrationTests {
         sender: Sender,
         receiveReportBlobUrl: String,
         itemCount: Int,
-    ): Report {
-        return ReportStreamTestDatabaseContainer.testDatabaseAccess.transactReturning { txn ->
+    ): Report = ReportStreamTestDatabaseContainer.testDatabaseAccess.transactReturning { txn ->
             val report = Report(
                 format,
                 emptyList(),
@@ -284,7 +289,6 @@ class FHIRConverterIntegrationTests {
 
             report
         }
-    }
 
     @Test
     fun `should add a message to the poison queue if the sender is not found and not do any work`() {
@@ -476,22 +480,27 @@ class FHIRConverterIntegrationTests {
                 ReportEventData(
                     routedReports[1].reportId,
                     receiveReport.id,
-                    listOf(receiveReport.id),
                     Topic.FULL_ELR,
                     routedReports[1].bodyUrl,
                     TaskAction.convert,
                     OffsetDateTime.now(),
-                    Version.commitId
+                    Version.commitId,
+                    appendMessageQueueName(queueMessage, QueueMessage.Companion.elrSubmissionConvertQueueName)
                 ),
                 ReportEventData::timestamp
             )
-            assertThat(event.itemEventData).isEqualToIgnoringGivenProperties(
+            assertThat(event.submissionEventData).isEqualTo(
+                SubmissionEventData(
+                    listOf(receiveReport.id),
+                    listOf("phd.hl7-elr-no-transform")
+                )
+            )
+            assertThat(event.itemEventData).isEqualTo(
                 ItemEventData(
                     1,
                     2,
                     2,
-                    "371784",
-                    "phd.hl7-elr-no-transform"
+                    "371784"
                 )
             )
             assertThat(event.params).isEqualTo(
@@ -505,8 +514,19 @@ class FHIRConverterIntegrationTests {
                                 )
                             ),
                         patientState = listOf("TX"),
-                        orderingFacilityState = listOf("FL"),
-                        performerState = emptyList(),
+                        orderingFacilitySummaries = listOf(
+                            OrderingFacilitySummary(
+                                orderingFacilityName = "Avante at Ormond Beach",
+                                orderingFacilityState = "FL"
+                            )
+                        ),
+                        performerSummaries = listOf(
+                            PerformerSummary(
+                                performerName = "Unknown",
+                                performerState = "Unknown",
+                                performerCLIA = "10D0876999"
+                            )
+                        ),
                         eventType = "ORU^R01^ORU_R01"
                     ),
                     ReportStreamEventProperties.ENRICHMENTS to ""
@@ -632,22 +652,27 @@ class FHIRConverterIntegrationTests {
                 ReportEventData(
                     routedReports[1].reportId,
                     receiveReport.id,
-                    listOf(receiveReport.id),
                     Topic.FULL_ELR,
                     routedReports[1].bodyUrl,
                     TaskAction.convert,
                     OffsetDateTime.now(),
-                    Version.commitId
+                    Version.commitId,
+                    appendMessageQueueName(queueMessage, QueueMessage.Companion.elrConvertQueueName)
                 ),
                 ReportEventData::timestamp
             )
-            assertThat(event.itemEventData).isEqualToIgnoringGivenProperties(
+            assertThat(event.submissionEventData).isEqualTo(
+                SubmissionEventData(
+                    listOf(receiveReport.id),
+                    listOf("phd.hl7-elr-no-transform")
+                )
+            )
+            assertThat(event.itemEventData).isEqualTo(
                 ItemEventData(
                     1,
                     2,
                     2,
-                    "371784",
-                    "phd.hl7-elr-no-transform"
+                    "371784"
                 )
             )
             assertThat(event.params).isEqualTo(
@@ -661,8 +686,19 @@ class FHIRConverterIntegrationTests {
                                 )
                             ),
                         patientState = listOf("TX"),
-                        orderingFacilityState = listOf("FL"),
-                        performerState = emptyList(),
+                        orderingFacilitySummaries = listOf(
+                            OrderingFacilitySummary(
+                                orderingFacilityName = "Avante at Ormond Beach",
+                                orderingFacilityState = "FL"
+                            )
+                        ),
+                        performerSummaries = listOf(
+                            PerformerSummary(
+                                performerName = "Unknown",
+                                performerState = "Unknown",
+                                performerCLIA = "10D0876999"
+                            )
+                        ),
                         eventType = "ORU^R01^ORU_R01"
                     ),
                     ReportStreamEventProperties.ENRICHMENTS to ""
@@ -778,10 +814,12 @@ class FHIRConverterIntegrationTests {
             assertThat(actionLogs).hasSize(4)
             @Suppress("ktlint:standard:max-line-length")
             val expectedDetailedActions = listOf(
-                2 to "Item 2 in the report was not parseable. Reason: exception while parsing FHIR: HAPI-1838: Invalid JSON content detected, missing required element: 'resourceType'",
+                2 to
+                    "Item 2 in the report was not parseable. Reason: exception while parsing FHIR: HAPI-1838: Invalid JSON content detected, missing required element: 'resourceType'",
                 3 to "Missing mapping for code(s): 41458-1",
                 3 to "Missing mapping for code(s): 260373001",
-                4 to "Item 4 in the report was not parseable. Reason: exception while parsing FHIR: HAPI-1861: Failed to parse JSON encoded FHIR content: Unexpected end-of-input: was expecting closing quote for a string value\n" +
+                4 to
+                    "Item 4 in the report was not parseable. Reason: exception while parsing FHIR: HAPI-1861: Failed to parse JSON encoded FHIR content: Unexpected end-of-input: was expecting closing quote for a string value\n" +
                     " at [line: 1, column: 23]"
             )
 
@@ -806,22 +844,27 @@ class FHIRConverterIntegrationTests {
                 ReportEventData(
                     routedReports[1].reportId,
                     receiveReport.id,
-                    listOf(receiveReport.id),
                     Topic.FULL_ELR,
                     routedReports[1].bodyUrl,
                     TaskAction.convert,
                     OffsetDateTime.now(),
-                    Version.commitId
+                    Version.commitId,
+                    appendMessageQueueName(queueMessage, QueueMessage.Companion.elrConvertQueueName)
                 ),
                 ReportEventData::timestamp
             )
-            assertThat(event.itemEventData).isEqualToIgnoringGivenProperties(
+            assertThat(event.submissionEventData).isEqualTo(
+                SubmissionEventData(
+                    listOf(receiveReport.id),
+                    listOf("phd.fhir-elr-no-transform")
+                )
+            )
+            assertThat(event.itemEventData).isEqualTo(
                 ItemEventData(
                     1,
                     3,
                     3,
-                    "1234d1d1-95fe-462c-8ac6-46728dbau8cd",
-                    "phd.fhir-elr-no-transform"
+                    "1234d1d1-95fe-462c-8ac6-46728dbau8cd"
                 )
             )
             assertThat(event.params).isEqualTo(
@@ -835,8 +878,8 @@ class FHIRConverterIntegrationTests {
                                 )
                             ),
                         patientState = emptyList(),
-                        orderingFacilityState = emptyList(),
-                        performerState = emptyList(),
+                        orderingFacilitySummaries = emptyList(),
+                        performerSummaries = emptyList(),
                         eventType = "ORU^R01^ORU_R01"
                     ),
                     ReportStreamEventProperties.ENRICHMENTS to ""
@@ -943,22 +986,27 @@ class FHIRConverterIntegrationTests {
                 ReportEventData(
                     notRouted.first().reportId,
                     receiveReport.id,
-                    listOf(receiveReport.id),
                     Topic.MARS_OTC_ELR,
                     "",
                     TaskAction.convert,
                     OffsetDateTime.now(),
-                    Version.commitId
+                    Version.commitId,
+                    appendMessageQueueName(queueMessage, QueueMessage.Companion.elrConvertQueueName)
                 ),
                 ReportEventData::timestamp
             )
-            assertThat(event.itemEventData).isEqualToIgnoringGivenProperties(
+            assertThat(event.submissionEventData).isEqualTo(
+                SubmissionEventData(
+                    listOf(receiveReport.id),
+                    listOf("phd.marsotc-hl7-sender")
+                )
+            )
+            assertThat(event.itemEventData).isEqualTo(
                 ItemEventData(
                     1,
                     2,
                     2,
-                    null,
-                    "phd.marsotc-hl7-sender"
+                    null
                 )
             )
             @Suppress("ktlint:standard:max-line-length")
@@ -968,7 +1016,8 @@ class FHIRConverterIntegrationTests {
                     ReportStreamEventProperties.VALIDATION_PROFILE to Topic.MARS_OTC_ELR.validator.validatorProfileName,
                     @Suppress("ktlint:standard:max-line-length")
                     ReportStreamEventProperties.PROCESSING_ERROR
-                        to "Item 2 in the report was not valid. Reason: HL7 was not valid at MSH[1]-21[1].3 for validator: RADx MARS"
+                        to
+                            "Item 2 in the report was not valid. Reason: HL7 was not valid at MSH[1]-21[1].3 for validator: RADx MARS"
                 )
             )
         }

@@ -26,6 +26,7 @@ import gov.cdc.prime.router.fhirengine.translation.HL7toFhirTranslator
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Context
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Converter
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirTransformer
+import gov.cdc.prime.router.fhirengine.translation.hl7.utils.helpers.SchemaReferenceResolverHelper
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.fhirengine.utils.HL7Reader
 import gov.cdc.prime.router.fhirengine.utils.filterObservations
@@ -255,8 +256,7 @@ class TranslationTests {
      * Get the report format from the extension of a [filename].
      * @return the report format
      */
-    private fun getFormat(filename: String): MimeFormat {
-        return when {
+    private fun getFormat(filename: String): MimeFormat = when {
             File(filename).extension.uppercase() == "INTERNAL" || filename.uppercase().endsWith("INTERNAL.CSV") -> {
                 MimeFormat.INTERNAL
             }
@@ -273,7 +273,6 @@ class TranslationTests {
                 MimeFormat.CSV
             }
         }
-    }
 
     /**
      * Perform test based on the given configuration.
@@ -453,10 +452,7 @@ class TranslationTests {
          * @return a FHIR bundle as a JSON input stream
          */
         private fun translateToFhir(hl7: String, profile: String? = null): InputStream {
-            val hl7message = HL7Reader.parseHL7Message(
-                hl7,
-                null
-            )
+            val hl7message = HL7Reader.parseHL7Message(hl7)
             val fhirBundle = if (profile == null) {
                 HL7toFhirTranslator().translate(hl7message)
             } else {
@@ -493,21 +489,22 @@ class TranslationTests {
             }
 
             if (!config.conditionFiler.isNullOrBlank()) {
-                fhirBundle = fhirBundle.filterObservations(
-                    listOf(config.conditionFiler),
-                    emptyMap<String, String>().toMutableMap()
-                )
+                fhirBundle = fhirBundle.filterObservations(listOf(config.conditionFiler))
             }
 
             val hl7 = FhirToHl7Converter(
-                schema,
-                false,
+                SchemaReferenceResolverHelper.retrieveHl7SchemaReference(
+                    schema,
+                    mockk<BlobAccess.BlobContainerMetadata>()
+                ),
+                strict = false,
                 context = FhirToHl7Context(
                     CustomFhirPathFunctions(),
                     config = translationConfig,
                     translationFunctions = CustomTranslationFunctions()
                 ),
-                blobConnectionInfo = mockk<BlobAccess.BlobContainerMetadata>()
+                errors = mutableListOf(),
+                warnings = mutableListOf(),
             ).process(fhirBundle)
             return hl7.encodePreserveEncodingChars().byteInputStream()
         }
@@ -521,8 +518,10 @@ class TranslationTests {
             if (!schema.isNullOrEmpty()) {
                 schema.split(",").forEach { currentEnrichmentSchema ->
                     fhirBundle = FhirTransformer(
-                        currentEnrichmentSchema,
-                        blobConnectionInfo = mockk<BlobAccess.BlobContainerMetadata>()
+                        SchemaReferenceResolverHelper.retrieveFhirSchemaReference(
+                            currentEnrichmentSchema,
+                        mockk<BlobAccess.BlobContainerMetadata>()
+                        )
                     ).process(fhirBundle)
                 }
             }

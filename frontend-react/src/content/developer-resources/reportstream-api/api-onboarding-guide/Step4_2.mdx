@@ -1,0 +1,36 @@
+import { CodeSnippet } from "../../../../shared";
+
+
+A JWT is a base64 encoded string that has three parts: `header`, `payload`, and `signature`.
+
+You can find an example python program to generate a valid JWT [on GitHub](https://github.com/CDCgov/prime-reportstream/tree/master/prime-router/examples/generate-jwt-python/).
+
+If you receive errors, reference [this list](https://github.com/CDCgov/prime-reportstream/tree/master/prime-router/examples/generate-jwt-python/jwt-errors.md) of error types for explanations and instructions.
+
+Here is an example, using the fake `client-id healthy labs`, of header and payload data that should appear in a ReportStream JWT, prior to signature:
+
+<CodeSnippet>
+    &#123;
+        &nbsp;&nbsp;"header": &#123;
+        &nbsp;&nbsp;&nbsp;&nbsp;"kid": "<span className="text-highlight">healthy-labs</span>.default",
+        &nbsp;&nbsp;&nbsp;&nbsp;"typ": "JWT",
+        &nbsp;&nbsp;&nbsp;&nbsp;"alg": "RS256"
+        &#125;,
+        &nbsp;&nbsp;"payload": &#123;
+        &nbsp;&nbsp;&nbsp;&nbsp;"iss": "<span className="text-highlight">healthy-labs</span>.default",
+        &nbsp;&nbsp;&nbsp;&nbsp;"sub": "<span className="text-highlight">healthy-labs</span>.default",
+        &nbsp;&nbsp;&nbsp;&nbsp;"aud": "staging.prime.cdc.gov",
+        &nbsp;&nbsp;&nbsp;&nbsp;"exp": 1660737164,
+        &nbsp;&nbsp;&nbsp;&nbsp;"jti": "4b713fcd-2514-4207-b310-620b95b749c5"
+        &nbsp;&nbsp;&#125;
+    &#125;
+</CodeSnippet>
+
+<Alert type="tip">
+    <span className="text-bold">Note:</span>
+    <ul>
+        <li>The exp (expiration time) should be a Unix time, five minutes after the time the token was generated.</li>
+        <li>The jti (JWT ID) should be a random unique string, new with every call.</li>
+        <li>Generate the signed JWT using your private key.</li>
+    </ul>
+</Alert>

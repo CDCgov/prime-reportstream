@@ -2,7 +2,7 @@
 
 url:
   type: STRING
-  valueOf: IN1.14
+  valueOf: $auiExtensionName
 
 extension:
   generateList: true

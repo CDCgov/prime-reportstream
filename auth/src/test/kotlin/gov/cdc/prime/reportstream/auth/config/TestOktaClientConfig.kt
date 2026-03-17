@@ -1,5 +1,6 @@
 package gov.cdc.prime.reportstream.auth.config
 
+import com.okta.sdk.resource.api.ApplicationApi
 import com.okta.sdk.resource.api.ApplicationGroupsApi
 import com.okta.sdk.resource.client.ApiClient
 import io.mockk.mockk
@@ -15,12 +16,11 @@ import org.springframework.context.annotation.Profile
 class TestOktaClientConfig {
 
     @Bean
-    fun apiClient(): ApiClient {
-        return mockk()
-    }
+    fun apiClient(): ApiClient = mockk()
 
     @Bean
-    fun applicationGroupsApi(): ApplicationGroupsApi {
-        return mockk()
-    }
+    fun applicationGroupsApi(): ApplicationGroupsApi = mockk()
+
+    @Bean
+    fun applicationApi(): ApplicationApi = mockk()
 }

@@ -31,15 +31,13 @@ class GAENTransportIntegrationTests : TransportIntegrationTests() {
         url: String,
         status: HttpStatusCode,
         body: String,
-    ): GAENTransport {
-        return GAENTransport(
+    ): GAENTransport = GAENTransport(
             ApiMockEngineForIntegrationTests(
                 url,
                 status,
                 body
             ).client()
         )
-    }
 
     private val metadata = Metadata.getInstance()
     private val settings = FileSettings(FileSettings.defaultSettingsDirectory)
@@ -75,6 +73,7 @@ class GAENTransportIntegrationTests : TransportIntegrationTests() {
         1,
         "",
         "",
+        null,
         null,
         null,
         null,
@@ -145,7 +144,9 @@ class GAENTransportIntegrationTests : TransportIntegrationTests() {
             context,
             actionHistory,
             mockk<IReportStreamEventService>(relaxed = true),
-            mockk<ReportService>(relaxed = true)
+            mockk<ReportService>(relaxed = true),
+            listOf(),
+            ""
         )
 
         assertThat(retryItems).isNull()
@@ -178,7 +179,9 @@ class GAENTransportIntegrationTests : TransportIntegrationTests() {
             context,
             actionHistory,
             mockk<IReportStreamEventService>(relaxed = true),
-            mockk<ReportService>(relaxed = true)
+            mockk<ReportService>(relaxed = true),
+            listOf(),
+            ""
         )
 
         assertThat(RetryToken.isAllItems(retryItems)).isTrue()
@@ -211,7 +214,9 @@ class GAENTransportIntegrationTests : TransportIntegrationTests() {
             context,
             actionHistory,
             mockk<IReportStreamEventService>(relaxed = true),
-            mockk<ReportService>(relaxed = true)
+            mockk<ReportService>(relaxed = true),
+            listOf(),
+            ""
         )
 
         assertThat(retryItems).isNull()
@@ -245,7 +250,9 @@ class GAENTransportIntegrationTests : TransportIntegrationTests() {
             context,
             actionHistory,
             mockk<IReportStreamEventService>(relaxed = true),
-            mockk<ReportService>(relaxed = true)
+            mockk<ReportService>(relaxed = true),
+            listOf(),
+            ""
         )
 
         assertThat(retryItems).isNull()

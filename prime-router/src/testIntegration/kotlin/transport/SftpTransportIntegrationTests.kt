@@ -32,6 +32,7 @@ import io.mockk.spyk
 import io.mockk.unmockkAll
 import net.schmizz.sshj.SSHClient
 import net.schmizz.sshj.connection.ConnectionException
+import net.schmizz.sshj.sftp.RemoteResourceFilter
 import net.schmizz.sshj.sftp.RemoteResourceInfo
 import net.schmizz.sshj.sftp.SFTPClient
 import net.schmizz.sshj.transport.verification.HostKeyVerifier
@@ -77,6 +78,7 @@ class SftpTransportIntegrationTests : TransportIntegrationTests() {
             4,
             "",
             "",
+            null,
             null,
             null,
             null,
@@ -157,7 +159,7 @@ class SftpTransportIntegrationTests : TransportIntegrationTests() {
                 CredentialRequestReason.SFTP_UPLOAD
             )
         } returns UserPassCredential("foo", "pass")
-        every { SftpTransport.createDefaultSSHClient() } returns f.mockSSHClient
+        every { SftpTransport.createDefaultSSHClient(any()) } returns f.mockSSHClient
         every { f.mockSSHClient.addHostKeyVerifier(any<HostKeyVerifier>()) } just runs
         every { f.mockSSHClient.connect(f.transportType.host, f.transportType.port.toInt()) } just runs
         every { f.mockSSHClient.authPassword("foo", "pass") } just runs
@@ -176,7 +178,9 @@ class SftpTransportIntegrationTests : TransportIntegrationTests() {
             context,
             f.actionHistory,
             mockk<IReportStreamEventService>(relaxed = true),
-            mockk<ReportService>(relaxed = true)
+            mockk<ReportService>(relaxed = true),
+            listOf(),
+            ""
         )
 
         // successful SFTP upload
@@ -199,7 +203,7 @@ class SftpTransportIntegrationTests : TransportIntegrationTests() {
                 CredentialRequestReason.SFTP_UPLOAD
             )
         } returns UserPemCredential("user", "key", "keyPass", "pass")
-        every { SftpTransport.createDefaultSSHClient() } returns f.mockSSHClient
+        every { SftpTransport.createDefaultSSHClient(any()) } returns f.mockSSHClient
         every { f.mockSSHClient.addHostKeyVerifier(any<HostKeyVerifier>()) } just runs
         every { f.mockSSHClient.connect(f.transportType.host, f.transportType.port.toInt()) } just runs
         every { f.mockSSHClient.auth("user", any<List<AuthMethod>>()) } just runs
@@ -218,7 +222,9 @@ class SftpTransportIntegrationTests : TransportIntegrationTests() {
             context,
             f.actionHistory,
             mockk<IReportStreamEventService>(relaxed = true),
-            mockk<ReportService>(relaxed = true)
+            mockk<ReportService>(relaxed = true),
+            listOf(),
+            ""
         )
 
         // successful SFTP upload
@@ -241,7 +247,7 @@ class SftpTransportIntegrationTests : TransportIntegrationTests() {
                 CredentialRequestReason.SFTP_UPLOAD
             )
         } returns UserPpkCredential("user", "key", "keyPass", "pass")
-        every { SftpTransport.createDefaultSSHClient() } returns f.mockSSHClient
+        every { SftpTransport.createDefaultSSHClient(any()) } returns f.mockSSHClient
         every { f.mockSSHClient.addHostKeyVerifier(any<HostKeyVerifier>()) } just runs
         every { f.mockSSHClient.connect(f.transportType.host, f.transportType.port.toInt()) } just runs
         every { f.mockSSHClient.auth("user", any<List<AuthMethod>>()) } just runs
@@ -260,7 +266,9 @@ class SftpTransportIntegrationTests : TransportIntegrationTests() {
             context,
             f.actionHistory,
             mockk<IReportStreamEventService>(relaxed = true),
-            mockk<ReportService>(relaxed = true)
+            mockk<ReportService>(relaxed = true),
+            listOf(),
+            ""
         )
 
         // successful SFTP upload
@@ -285,7 +293,9 @@ class SftpTransportIntegrationTests : TransportIntegrationTests() {
             context,
             f.actionHistory,
             mockk<IReportStreamEventService>(relaxed = true),
-            mockk<ReportService>(relaxed = true)
+            mockk<ReportService>(relaxed = true),
+            listOf(),
+            ""
         )
 
         // asserts that the initial null check works
@@ -317,7 +327,9 @@ class SftpTransportIntegrationTests : TransportIntegrationTests() {
             context,
             f.actionHistory,
             mockk<IReportStreamEventService>(relaxed = true),
-            mockk<ReportService>(relaxed = true)
+            mockk<ReportService>(relaxed = true),
+            listOf(),
+            ""
         )
 
         // asserts that missing credentials will fail SFTP
@@ -340,7 +352,7 @@ class SftpTransportIntegrationTests : TransportIntegrationTests() {
                 CredentialRequestReason.SFTP_UPLOAD
             )
         } returns UserPassCredential("foo", "pass")
-        every { SftpTransport.createDefaultSSHClient() } returns f.mockSSHClient
+        every { SftpTransport.createDefaultSSHClient(any()) } returns f.mockSSHClient
         every { f.mockSSHClient.addHostKeyVerifier(any<HostKeyVerifier>()) } just runs
         // throws authentication exception
         every {
@@ -357,7 +369,9 @@ class SftpTransportIntegrationTests : TransportIntegrationTests() {
             context,
             f.actionHistory,
             mockk<IReportStreamEventService>(relaxed = true),
-            mockk<ReportService>(relaxed = true)
+            mockk<ReportService>(relaxed = true),
+            listOf(),
+            ""
         )
 
         // asserts that authentication error will result in error
@@ -390,7 +404,9 @@ class SftpTransportIntegrationTests : TransportIntegrationTests() {
             context,
             f.actionHistory,
             mockk<IReportStreamEventService>(relaxed = true),
-            mockk<ReportService>(relaxed = true)
+            mockk<ReportService>(relaxed = true),
+            listOf(),
+            ""
         )
 
         // asserts that invalid credential types will result in error
@@ -456,10 +472,11 @@ class SftpTransportIntegrationTests : TransportIntegrationTests() {
     @Test
     fun `ls happy path`() {
         val f = Fixture()
+        val nullRemoteResourceFilter: RemoteResourceFilter? = null
 
         every { f.mockSSHClient.newSFTPClient() } returns f.mockSFTPClient
         // mock a successful ls on the remote SFTP server
-        every { f.mockSFTPClient.ls(f.lsPath, null) } returns f.remoteResourceInfos
+        every { f.mockSFTPClient.ls(f.lsPath, nullRemoteResourceFilter) } returns f.remoteResourceInfos
         every { f.mockSFTPClient.close() } just runs
         every { f.mockSSHClient.close() } just runs
         every { f.mockSSHClient.disconnect() } just runs
@@ -473,10 +490,11 @@ class SftpTransportIntegrationTests : TransportIntegrationTests() {
     @Test
     fun `ls connection error`() {
         val f = Fixture()
+        val nullRemoteResourceFilter: RemoteResourceFilter? = null
 
         every { f.mockSSHClient.newSFTPClient() } returns f.mockSFTPClient
         // throw a connection exception on ls
-        every { f.mockSFTPClient.ls(f.lsPath, null) } throws ConnectionException("oops")
+        every { f.mockSFTPClient.ls(f.lsPath, nullRemoteResourceFilter) } throws ConnectionException("oops")
         every { f.mockSFTPClient.close() } just runs
         every { f.mockSSHClient.close() } just runs
         every { f.mockSSHClient.disconnect() } just runs
@@ -490,10 +508,14 @@ class SftpTransportIntegrationTests : TransportIntegrationTests() {
     @Test
     fun `ls ignore timeout error`() {
         val f = Fixture()
+        val nullRemoteResourceFilter: RemoteResourceFilter? = null
 
         every { f.mockSSHClient.newSFTPClient() } returns f.mockSFTPClient
         // throw a ConnectionException on ls with TimeoutException as a cause
-        every { f.mockSFTPClient.ls(f.lsPath, null) } throws ConnectionException("oops", TimeoutException())
+        every { f.mockSFTPClient.ls(f.lsPath, nullRemoteResourceFilter) } throws ConnectionException(
+            "oops",
+            TimeoutException()
+        )
         every { f.mockSFTPClient.close() } just runs
         every { f.mockSSHClient.close() } just runs
         every { f.mockSSHClient.disconnect() } just runs

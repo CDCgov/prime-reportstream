@@ -38,6 +38,7 @@
         initialTime: "00:00"
         timeZone: "EASTERN"
         maxReportCount: 10000
+        timeBetweenBatches: 60
       description: ""
       transport:
         type: SFTP
@@ -84,6 +85,7 @@
 - name: ignore
   description: FOR TESTING ONLY
   jurisdiction: FEDERAL
+  featureFlags: ["ELIMS_DATA"]
   filters:
     - topic: covid-19
       jurisdictionalFilter: [ "matches(ordering_facility_state, IG)" ]
@@ -100,7 +102,7 @@
     - name: default
       organizationName: ignore
       topic: covid-19
-      customerStatus: inactive
+      customerStatus: active
       schemaName: primedatainput/pdi-covid-19
       format: CSV
     - name: ignore-full-elr      # Use this to test full-elr
@@ -164,19 +166,19 @@
     - name: ignore-strac      # Use this to test sending strac data
       organizationName: ignore
       topic: covid-19
-      customerStatus: inactive
+      customerStatus: active
       schemaName: strac/strac-covid-19
       format: CSV
     - name: ignore-simple-report      # Use this to test sending simple_report data
       organizationName: ignore
       topic: covid-19
-      customerStatus: inactive
+      customerStatus: active
       schemaName: primedatainput/pdi-covid-19
       format: CSV
     - name: ignore-lifepoint      # Use this to test sending lifepoint data
       organizationName: ignore
       topic: covid-19
-      customerStatus: inactive
+      customerStatus: active
       schemaName: hl7/lifepoint-covid-19
       format: HL7
     - name: no-duplicates      # Use this to test sending simple_report with a dup check
@@ -189,7 +191,7 @@
     - name: ignore-waters      # Use this to test sending waters data
       organizationName: ignore
       topic: covid-19
-      customerStatus: inactive
+      customerStatus: active
       schemaName: waters/waters-covid-19
       format: CSV
     - name: ignore-empty      # Use this to test sending data from the 'empty' schema
@@ -201,7 +203,7 @@
     - name: ignore-hl7      # Use this to test sending data from the HL7 schema
       organizationName: ignore
       topic: covid-19
-      customerStatus: inactive
+      customerStatus: active
       schemaName: hl7/test-covid-19
       format: HL7
     - name: ignore-monkeypox
@@ -1308,3 +1310,34 @@
         port: 22
         filePath: ./upload
         credentialName: DEFAULT-SFTP
+    - name: DEV_ENRICHMENT
+      externalName: Enrichment Development
+      organizationName: development
+      topic: full-elr
+      customerStatus: active
+      jurisdictionalFilter: [ "true" ]
+      qualityFilter:
+        - "true"
+      processingModeFilter: [ "true" ]
+      timing:
+        operation: MERGE
+        numberPerDay: 1440 # Every minute
+        initialTime: 00:00
+      translation:
+        schemaName: "classpath:/metadata/hl7_mapping/ORU_R01/ORU_R01-base.yml"
+        useTestProcessingMode: false
+        useBatchHeaders: false
+        type: "HL7"
+        receivingApplicationName: ""
+        receivingFacilityName: ""
+      transport:
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+        credentialName: DEFAULT-SFTP
+      enrichmentSchemaNames: ["classpath:/metadata/fhir_transforms/receivers/fhir-message-header-sample.yml"]
+      routingFilters:
+        - filterName: "routing"
+          filterDescription: "Doing fine things for great people."
+          filterExpressions: ["true"]

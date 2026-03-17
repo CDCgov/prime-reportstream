@@ -23,6 +23,7 @@ import gov.cdc.prime.router.common.BaseEngine
 import gov.cdc.prime.router.fhirengine.engine.FHIRConverter
 import gov.cdc.prime.router.fhirengine.engine.FHIRDestinationFilter
 import gov.cdc.prime.router.fhirengine.engine.FHIREngine
+import gov.cdc.prime.router.fhirengine.engine.FHIRReceiverEnrichment
 import gov.cdc.prime.router.fhirengine.engine.FHIRReceiverFilter
 import gov.cdc.prime.router.fhirengine.engine.FHIRTranslator
 import gov.cdc.prime.router.fhirengine.engine.FhirConvertSubmissionQueueMessage
@@ -31,7 +32,7 @@ import gov.cdc.prime.router.fhirengine.engine.ReportPipelineMessage
 import gov.cdc.prime.router.fhirengine.engine.SubmissionSenderNotFound
 import gov.cdc.prime.router.history.db.ReportGraph
 import gov.cdc.prime.router.report.ReportService
-import org.apache.commons.lang3.StringUtils
+import org.apache.commons.lang3.Strings
 import org.apache.logging.log4j.kotlin.Logging
 import org.jooq.exception.DataAccessException
 import java.util.Base64
@@ -155,6 +156,24 @@ class FHIRFunctions(
     }
 
     /**
+     * An Azure function for enriching ELR FHIR receiver data.
+     */
+    @FunctionName("elr-fhir-receiver-enrichment")
+    @StorageAccount("AzureWebJobsStorage")
+    fun receiverEnrichment(
+        @QueueTrigger(name = "message", queueName = QueueMessage.elrReceiverEnrichmentQueueName)
+        message: String,
+        @BindingName("DequeueCount") dequeueCount: Int = 1,
+    ) {
+        process(
+            message,
+            dequeueCount,
+            FHIRReceiverEnrichment(reportStreamEventService = reportStreamEventService),
+            ActionHistory(TaskAction.receiver_enrichment)
+        )
+    }
+
+    /**
      * Functionality separated from azure function call so a mocked fhirEngine can be passed in for testing.
      * Reads the [message] passed in and processes it using the appropriate [fhirEngine]. If there is an error
      * the [dequeueCount] is tracked as part of the log.
@@ -228,7 +247,8 @@ class FHIRFunctions(
                 ReportStreamEventName.PIPELINE_EXCEPTION,
                 report,
                 fhirEngine.taskAction,
-                ex.message ?: ""
+                ex.message ?: "",
+                messageContent.toString()
             ) {
                 params(mapOf(ReportStreamEventProperties.POISON_QUEUE_MESSAGE_ID to poisonQueueMessageId))
             }
@@ -243,7 +263,7 @@ class FHIRFunctions(
      */
     private fun readMessage(engineType: String, message: String, dequeueCount: Int): ReportPipelineMessage {
         logger.debug(
-            "${StringUtils.removeEnd(engineType, "e")}ing message: $message for the $dequeueCount time"
+            "${Strings.CS.removeEnd(engineType, "e")}ing message: $message for the $dequeueCount time"
         )
 
         return when (val queueMessage = QueueMessage.deserialize(message)) {

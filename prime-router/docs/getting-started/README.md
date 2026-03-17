@@ -2,14 +2,15 @@
 
 ## Overview
 
-> These pages are a work in progress, please see the [old pages](../docs-deprecated/getting-started/) if something is
+> These pages are a work in progress, please see the [old pages](../docs-deprecated/getting-started/getting-started.md)
+> if something is
 > missing
 
 ## Table of contents
 
 - [Table of contents](#table-of-contents)
 - [Locally installed software prerequisites](#locally-installed-software-prerequisites)
-- [Bulding the baseline](#bulding-the-baseline)
+- [Building the baseline](#building-the-baseline)
     * [First build](#first-build)
     * [Seed the Postgres db and vault](#seed-the-postgres-db-and-vault)
 - [Running ReportStream backend](#running-reportstream-backend)
@@ -27,10 +28,10 @@ debug this project:
 
 * [git](./install-git.md) including git-bash if you're on Windows
 * [Docker or Docker Desktop](https://docs.docker.com/get-docker/)
-* [OpenJDK](./install-openjdk.md) (currently targetting 17)
+* [OpenJDK](./install-openjdk.md) (currently targetting 21)
     * See the linked docs for important instructions on setting `JAVA_HOME`
-* [Azure Storage Explorer](https://docs.microsoft.com/en-us/azure/vs-azure-tools-storage-manage-with-storage-explorer)
-* An IDE. IntelliJ is recommended for Kotlin/debugging support.
+* [Azure Storage Explorer](./azure-storage-explorer.md) - for managing local blob storage and schemas
+* An IDE. [IntelliJ](./intellij-tips.md) is recommended for Kotlin/debugging support.
 
 To reduce the build-debug cycle time you can install these tools to run the code directly. These tools are required if
 you are using an Apple Silicon computer, otherwise they are optional.
@@ -49,7 +50,7 @@ you are using an Apple Silicon computer, otherwise they are optional.
 > the `prime_dev` service does not work on Apple Silicon. Likewise, the `builder` service in
 > our `docker-compose.build.yml` does not work.
 
-## Bulding the baseline
+## Building the baseline
 
 ### First build
 
@@ -214,6 +215,23 @@ app__.
 
 ## Troubleshooting
 
+1. If you are having issues at this step:
+   ```bash
+    ./gradlew primeCLI --args "create-credential --type=UserPass --persist=DEFAULT-SFTP --user foo --pass pass"
+   ```
+
+   and are getting the following error:
+
+   ```bash
+   Could not determine the dependencies of task ':prime-router:primeCLI'.
+   Could not resolve all dependencies for configuration ':prime-router:runtimeClasspath'.
+   ```
+   try the following:
+    1. Make sure that your sdk versions are the same in your Gradle settings and in your Project Settings -> SDKs.
+    2. Delete your `.gradle` and `.idea` folder in your home directory.
+    3. Close the project in IntelliJ. In the ellipses of your project, select the `Remove from Recent projects` and
+       reopen the project.
+
 ## Next Steps
 
 - [Contributing](./contributing.md)
@@ -221,8 +239,9 @@ app__.
 - [Running ReportStream tests](./running-tests.md)
 - [About the azure environment](./azure.md)
 - [Working with Docker](./docker.md)
+- [Using Azure Storage Explorer](./azure-storage-explorer.md) - manage local blob storage and schemas
 - [Common database commands](./postgres-database.md)
-- [PrimeCLI](./prime-cli.md)
+- [PrimeCLI](../prime-cli/README.md)
 - [FHIR Functions](./fhir-functions.md)
 - [Gradle](./gradle.md)
 - [Metabase](./metabase.md)

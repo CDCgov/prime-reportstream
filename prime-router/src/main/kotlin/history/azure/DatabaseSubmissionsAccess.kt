@@ -21,9 +21,9 @@ import java.util.UUID
 /**
  * Class to access lookup tables stored in the database.
  */
-class DatabaseSubmissionsAccess(
-    db: DatabaseAccess = BaseEngine.databaseAccessSingleton,
-) : HistoryDatabaseAccess(db), Logging {
+class DatabaseSubmissionsAccess(db: DatabaseAccess = BaseEngine.databaseAccessSingleton) :
+    HistoryDatabaseAccess(db),
+    Logging {
 
     /**
      * Creates a condition filter based on the given organization parameters.
@@ -128,8 +128,7 @@ class DatabaseSubmissionsAccess(
         )
     }
 
-    override fun <T> fetchRelatedActions(reportId: UUID, klass: Class<T>): List<T> {
-        return db.transactReturning { txn ->
+    override fun <T> fetchRelatedActions(reportId: UUID, klass: Class<T>): List<T> = db.transactReturning { txn ->
             // We need to use the report ID to find the correct start of the report lineage. This allows for
             // flexibility in the pipelines to not have a child report on the very first action on a submitted report.
             // Report lineages for a parent report that is the submitted report (what was received) always have the same
@@ -157,7 +156,6 @@ class DatabaseSubmissionsAccess(
                 emptyList()
             }
         }
-    }
 
     /**
      * Fetch the details of an action's relations (descendants).
@@ -166,8 +164,7 @@ class DatabaseSubmissionsAccess(
      * @param actionId the action id attached to the action to find relations for.
      * @return a list of descendants for the given action id.
      */
-    private fun reportDescendantExpression(actionId: Long): CommonTableExpression<*> {
-        return DSL.name("t").fields(
+    private fun reportDescendantExpression(actionId: Long): CommonTableExpression<*> = DSL.name("t").fields(
             "action_id",
             "child_report_id",
             "parent_report_id"
@@ -194,5 +191,4 @@ class DatabaseSubmissionsAccess(
                         )
                 )
         )
-    }
 }

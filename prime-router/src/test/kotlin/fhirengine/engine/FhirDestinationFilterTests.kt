@@ -32,11 +32,12 @@ import gov.cdc.prime.router.azure.observability.event.CodeSummary
 import gov.cdc.prime.router.azure.observability.event.InMemoryAzureEventService
 import gov.cdc.prime.router.azure.observability.event.ItemEventData
 import gov.cdc.prime.router.azure.observability.event.ObservationSummary
+import gov.cdc.prime.router.azure.observability.event.OrderingFacilitySummary
 import gov.cdc.prime.router.azure.observability.event.ReportEventData
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventProperties
 import gov.cdc.prime.router.azure.observability.event.ReportStreamItemEvent
+import gov.cdc.prime.router.azure.observability.event.SubmissionEventData
 import gov.cdc.prime.router.azure.observability.event.TestSummary
-import gov.cdc.prime.router.metadata.LookupTable
 import gov.cdc.prime.router.report.ReportService
 import gov.cdc.prime.router.unittest.UnitTestUtils
 import gov.cdc.prime.router.version.Version
@@ -52,7 +53,6 @@ import org.jooq.tools.jdbc.MockDataProvider
 import org.jooq.tools.jdbc.MockResult
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.TestInstance
-import java.io.ByteArrayInputStream
 import java.io.File
 import java.time.OffsetDateTime
 import java.util.UUID
@@ -212,9 +212,8 @@ class FhirDestinationFilterTests {
             test'apostrophe,Bundle.test.apostrophe
     """.trimIndent()
 
-    private val shorthandTable = LookupTable.read(inputStream = ByteArrayInputStream(csv.toByteArray()))
     val one = Schema(name = "None", topic = Topic.FULL_ELR, elements = emptyList())
-    val metadata = Metadata(schema = one).loadLookupTable("fhirpath_filter_shorthand", shorthandTable)
+    val metadata = Metadata(schema = one)
     val report = Report(one, listOf(listOf("1", "2")), TestSource, metadata = UnitTestUtils.simpleMetadata)
 
     private var actionLogger = ActionLogger()
@@ -244,6 +243,7 @@ class FhirDestinationFilterTests {
         every { reportServiceMock.getRootReports(any()) } returns listOf(rootReport)
         every { reportServiceMock.getRootItemIndex(any(), any()) } returns 1
         every { accessSpy.fetchReportFile(any()) } returns rootReport
+        every { reportServiceMock.getReportForItemAtTask(any(), any(), any()) } returns rootReport
 
         return FHIREngine.Builder()
             .metadata(metadata)
@@ -336,22 +336,27 @@ class FhirDestinationFilterTests {
                 ReportEventData(
                     actionHistory.reportsOut.values.first().reportId,
                     message.reportId,
-                    listOf(submittedId),
                     Topic.FULL_ELR,
                     "test",
                     TaskAction.destination_filter,
                     OffsetDateTime.now(),
-                    Version.commitId
+                    Version.commitId,
+                    message.toString()
                 ),
                 ReportEventData::timestamp,
+            )
+            assertThat(event.submissionEventData).isEqualTo(
+                SubmissionEventData(
+                    listOf(submittedId),
+                    listOf("sendingOrg.sendingOrgClient")
+                )
             )
             assertThat(event.itemEventData).isEqualTo(
                 ItemEventData(
                     1,
                     1,
                     1,
-                    "1234d1d1-95fe-462c-8ac6-46728dba581c",
-                    "sendingOrg.sendingOrgClient"
+                    "1234d1d1-95fe-462c-8ac6-46728dba581c"
                 )
             )
             assertThat(event.params)
@@ -368,11 +373,20 @@ class FhirDestinationFilterTests {
                                                 snomedSystem,
                                                 "840539006",
                                                 @Suppress("ktlint:standard:max-line-length")
-                                                "Disease caused by severe acute respiratory syndrome coronavirus 2 (disorder)"
+                                                "Disease caused by severe acute respiratory syndrome coronavirus 2 (disorder)",
+                                                "Unknown"
                                             )
                                         ),
                                         loincSystem,
                                         "94558-4",
+                                    )
+                                ),
+                                listOf(
+                                    CodeSummary(
+                                        system = "http://terminology.hl7.org/CodeSystem/v2-0078",
+                                        code = "N",
+                                        display = "Normal",
+                                        memberOid = "Unknown"
                                     )
                                 )
                             ),
@@ -410,8 +424,13 @@ class FhirDestinationFilterTests {
                             ),
                         ),
                         patientState = listOf("CA"),
-                        performerState = emptyList(),
-                        orderingFacilityState = listOf("CA"),
+                        performerSummaries = emptyList(),
+                        orderingFacilitySummaries = listOf(
+                            OrderingFacilitySummary(
+                                orderingFacilityName = "Winchester House",
+                                orderingFacilityState = "CA"
+                            )
+                        ),
                         eventType = "ORU/ACK - Unsolicited transmission of an observation message"
                     )
                 )
@@ -501,84 +520,103 @@ class FhirDestinationFilterTests {
                     ReportEventData(
                         actionHistory.reportsOut.values.first().reportId,
                         message.reportId,
-                        listOf(submittedId),
                         Topic.FULL_ELR,
                         "",
                         TaskAction.destination_filter,
                         OffsetDateTime.now(),
-                        Version.commitId
+                        Version.commitId,
+                        message.toString()
                     ),
                     ReportEventData::timestamp
                 )
-                    assertThat(event.itemEventData).isEqualTo(
-                        ItemEventData(
-                            1,
-                            1,
-                            1,
-                            "1234d1d1-95fe-462c-8ac6-46728dba581c",
-                            "sendingOrg.sendingOrgClient"
-                        )
+                assertThat(event.submissionEventData).isEqualTo(
+                    SubmissionEventData(
+                        listOf(submittedId),
+                        listOf("sendingOrg.sendingOrgClient")
                     )
-                    assertThat(event.params).isEqualTo(
-                        mapOf(
-                        ReportStreamEventProperties.BUNDLE_DIGEST to BundleDigestLabResult(
-                            observationSummaries = listOf(
-                                ObservationSummary(
-                                    listOf(
-                                        TestSummary(
-                                            listOf(
-                                                CodeSummary(
-                                                    snomedSystem,
-                                                    "840539006",
-                                                    @Suppress("ktlint:standard:max-line-length")
-                                                    "Disease caused by severe acute respiratory syndrome coronavirus 2 (disorder)"
-                                                )
-                                            ),
-                                            loincSystem,
-                                            "94558-4",
-                                        )
+                )
+                assertThat(event.itemEventData).isEqualTo(
+                    ItemEventData(
+                        1,
+                        1,
+                        1,
+                        "1234d1d1-95fe-462c-8ac6-46728dba581c"
+                    )
+                )
+                assertThat(event.params).isEqualTo(
+                    mapOf(
+                    ReportStreamEventProperties.BUNDLE_DIGEST to BundleDigestLabResult(
+                        observationSummaries = listOf(
+                            ObservationSummary(
+                                listOf(
+                                    TestSummary(
+                                        listOf(
+                                            CodeSummary(
+                                                snomedSystem,
+                                                "840539006",
+                                                @Suppress("ktlint:standard:max-line-length")
+                                                "Disease caused by severe acute respiratory syndrome coronavirus 2 (disorder)",
+                                                "Unknown"
+                                            )
+                                        ),
+                                        loincSystem,
+                                        "94558-4",
                                     )
                                 ),
-                                ObservationSummary(
-                                    listOf(
-                                        TestSummary(
-                                            testPerformedCode = "95418-0",
-                                            testPerformedSystem = loincSystem
-                                        )
+                                listOf(
+                                    CodeSummary(
+                                        system = "http://terminology.hl7.org/CodeSystem/v2-0078",
+                                        code = "N",
+                                        display = "Normal",
+                                        memberOid = "Unknown"
                                     )
-                                ),
-                                ObservationSummary(
-                                    listOf(
-                                        TestSummary(
-                                            testPerformedCode = "95417-2",
-                                            testPerformedSystem = loincSystem
-                                        )
-                                    )
-                                ),
-                                ObservationSummary(
-                                    listOf(
-                                        TestSummary(
-                                            testPerformedCode = "95421-4",
-                                            testPerformedSystem = loincSystem
-                                        )
-                                    )
-                                ),
-                                ObservationSummary(
-                                    listOf(
-                                        TestSummary(
-                                            testPerformedCode = "95419-8",
-                                            testPerformedSystem = loincSystem
-                                        )
-                                    )
-                                ),
+                                )
                             ),
-                            patientState = listOf("CA"),
-                            performerState = emptyList(),
-                            orderingFacilityState = listOf("CA"),
-                            eventType = "ORU/ACK - Unsolicited transmission of an observation message"
-                        )
+                            ObservationSummary(
+                                listOf(
+                                    TestSummary(
+                                        testPerformedCode = "95418-0",
+                                        testPerformedSystem = loincSystem
+                                    )
+                                )
+                            ),
+                            ObservationSummary(
+                                listOf(
+                                    TestSummary(
+                                        testPerformedCode = "95417-2",
+                                        testPerformedSystem = loincSystem
+                                    )
+                                )
+                            ),
+                            ObservationSummary(
+                                listOf(
+                                    TestSummary(
+                                        testPerformedCode = "95421-4",
+                                        testPerformedSystem = loincSystem
+                                    )
+                                )
+                            ),
+                            ObservationSummary(
+                                listOf(
+                                    TestSummary(
+                                        testPerformedCode = "95419-8",
+                                        testPerformedSystem = loincSystem
+                                    )
+                                )
+                            ),
+                        ),
+                        patientState = listOf("CA"),
+                        performerSummaries = emptyList(),
+                        orderingFacilitySummaries = listOf(
+                            OrderingFacilitySummary(
+                                orderingFacilityName = "Winchester House",
+                                orderingFacilityState = "CA"
+                            )
+                        ),
+                        eventType = "ORU/ACK - Unsolicited transmission of an observation message"
                     )
-                    )
+                )
+            )
         }
 
         // assert

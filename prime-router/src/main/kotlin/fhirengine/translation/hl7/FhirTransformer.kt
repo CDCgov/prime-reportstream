@@ -1,17 +1,14 @@
 package gov.cdc.prime.router.fhirengine.translation.hl7
 
 import fhirengine.engine.CustomFhirPathFunctions
-import gov.cdc.prime.router.azure.BlobAccess
-import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.ConfigSchemaElementProcessingException
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.FhirTransformSchema
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.FhirTransformSchemaElement
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.FhirTransformSchemaElementAction
-import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.fhirTransformSchemaFromFile
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirBundleUtils
+import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirBundleUtils.deleteResource
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
-import gov.cdc.prime.router.fhirengine.utils.deleteResource
 import org.apache.logging.log4j.Level
 import org.hl7.fhir.exceptions.FHIRException
 import org.hl7.fhir.r4.model.Base
@@ -37,23 +34,6 @@ class FhirTransformer(
     private val indexRegex = Regex("""(?<child>.*)\[%?(?<indexVar>[0-9A-Za-z]*)\]""")
 
     /**
-     * Transform a FHIR bundle based on the [schema] in the [schemaFolder] location.
-     */
-    constructor(
-        schema: String,
-        blobConnectionInfo: BlobAccess.BlobContainerMetadata = BlobAccess.BlobContainerMetadata.build(
-            "metadata",
-            Environment.get().storageEnvVar
-        ),
-        errors: MutableList<String> = mutableListOf(),
-        warnings: MutableList<String> = mutableListOf(),
-    ) : this(
-        schemaRef = fhirTransformSchemaFromFile(schema, blobConnectionInfo),
-        errors = errors,
-        warnings = warnings
-    )
-
-    /**
      * Transform the given [bundle]. The bundle passed in will be updated directly, and will also be returned.
      * @return the transformed bundle
      */
@@ -62,15 +42,8 @@ class FhirTransformer(
         return input
     }
 
-    class BundleWithMessages(
-        var bundle: Bundle,
-        val warnings: MutableList<String>,
-        val errors: MutableList<String>,
-    )
-
-    override fun checkForEquality(converted: Bundle, expectedOutput: Bundle): Boolean {
-        return converted.equalsDeep(expectedOutput)
-    }
+    override fun checkForEquality(converted: Bundle, expectedOutput: Bundle): Boolean =
+        converted.equalsDeep(expectedOutput)
 
     /**
      * Transform the [bundle] using the elements in the given [schema] using [context] starting at the
@@ -259,13 +232,9 @@ class FhirTransformer(
         val extensionUrl: String?,
         val index: Int?,
     ) {
-        fun isExtension(): Boolean {
-            return propertyString == "extension"
-        }
+        fun isExtension(): Boolean = propertyString == "extension"
 
-        fun isValue(): Boolean {
-            return propertyString == "value"
-        }
+        fun isValue(): Boolean = propertyString == "value"
     }
 
     /**

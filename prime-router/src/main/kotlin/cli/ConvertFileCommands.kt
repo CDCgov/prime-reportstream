@@ -1,6 +1,7 @@
 package gov.cdc.prime.router.cli
 
 import com.github.ajalt.clikt.core.CliktCommand
+import com.github.ajalt.clikt.core.Context
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.types.path
@@ -15,14 +16,14 @@ import kotlin.io.path.nameWithoutExtension
 /**
  * Converts a file into a different output format
  */
-class ConvertFileCommands(
-    private val metadataInstance: Metadata? = null,
-) : CliktCommand(
-    name = "convert-file",
-    help = """
+class ConvertFileCommands(private val metadataInstance: Metadata? = null) :
+    CliktCommand(
+        name = "convert-file",
+    ) {
+    override fun help(context: Context): String = """
         
     """
-) {
+
     /**
      *
      */

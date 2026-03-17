@@ -1,8 +1,8 @@
 {
   "resourceType": "Bundle",
-  "id": "1733797806213402000.63933238-a67a-4568-8544-178612c57351",
+  "id": "1735607412724046000.a8837499-4bff-4d3a-aa08-7833926181b1",
   "meta": {
-    "lastUpdated": "2024-12-09T18:30:06.217-08:00"
+    "lastUpdated": "2024-12-30T20:10:12.733-05:00"
   },
   "identifier": {
     "system": "https://reportstream.cdc.gov/prime-router",
@@ -11,10 +11,10 @@
   "type": "message",
   "entry": [
     {
-      "fullUrl": "MessageHeader/1733797806248346000.554ce0a6-e3fb-4b4e-b8e2-c111f8944cd5",
+      "fullUrl": "MessageHeader/1735607412795151000.8ec032fb-c853-4fb1-b666-9fda5ba38fdf",
       "resource": {
         "resourceType": "MessageHeader",
-        "id": "1733797806248346000.554ce0a6-e3fb-4b4e-b8e2-c111f8944cd5",
+        "id": "1735607412795151000.8ec032fb-c853-4fb1-b666-9fda5ba38fdf",
         "meta": {
           "tag": [
             {
@@ -31,10 +31,10 @@
       }
     },
     {
-      "fullUrl": "Provenance/1733797806498618000.239e218a-0960-4528-939e-5ee68bfbba1d",
+      "fullUrl": "Provenance/1735607413421221000.95ae083e-fbdd-4af0-ad8e-ebc3890a9acd",
       "resource": {
         "resourceType": "Provenance",
-        "id": "1733797806498618000.239e218a-0960-4528-939e-5ee68bfbba1d",
+        "id": "1735607413421221000.95ae083e-fbdd-4af0-ad8e-ebc3890a9acd",
         "activity": {
           "coding": [
             {
@@ -45,11 +45,11 @@
       }
     },
     {
-      "fullUrl": "Provenance/1733797806506657000.35b16b0c-d80a-4017-8cad-868a79863b64",
+      "fullUrl": "Provenance/1735607413431995000.d9f35b33-d555-41d3-ba78-8b7f91bf3ecb",
       "resource": {
         "resourceType": "Provenance",
-        "id": "1733797806506657000.35b16b0c-d80a-4017-8cad-868a79863b64",
-        "recorded": "2024-12-09T18:30:06Z",
+        "id": "1735607413431995000.d9f35b33-d555-41d3-ba78-8b7f91bf3ecb",
+        "recorded": "2024-12-30T20:10:13Z",
         "policy": [
           "http://hl7.org/fhir/uv/v2mappings/message-oru-r01-to-bundle"
         ],
@@ -71,17 +71,17 @@
               ]
             },
             "who": {
-              "reference": "Organization/1733797806506092000.a6f8b4f5-e971-4ee2-8891-8b67af7df93d"
+              "reference": "Organization/1735607413431264000.7ea1e7cd-187a-4e72-bfc0-b853778ed584"
             }
           }
         ]
       }
     },
     {
-      "fullUrl": "Organization/1733797806506092000.a6f8b4f5-e971-4ee2-8891-8b67af7df93d",
+      "fullUrl": "Organization/1735607413431264000.7ea1e7cd-187a-4e72-bfc0-b853778ed584",
       "resource": {
         "resourceType": "Organization",
-        "id": "1733797806506092000.a6f8b4f5-e971-4ee2-8891-8b67af7df93d",
+        "id": "1735607413431264000.7ea1e7cd-187a-4e72-bfc0-b853778ed584",
         "identifier": [
           {
             "value": "CDC PRIME - Atlanta"
@@ -101,23 +101,58 @@
       }
     },
     {
-      "fullUrl": "Patient/1733797806517233000.6ddc53a3-0587-4db5-8c73-5b6634eb1369",
+      "fullUrl": "Patient/1735607413450390000.5264710b-51b1-42e0-8a8a-3a0770437aac",
       "resource": {
         "resourceType": "Patient",
-        "id": "1733797806517233000.6ddc53a3-0587-4db5-8c73-5b6634eb1369"
+        "id": "1735607413450390000.5264710b-51b1-42e0-8a8a-3a0770437aac",
+        "identifier": [
+          {
+            "extension": [
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
+                "valueString": "PID.3"
+              }
+            ],
+            "value": "10334"
+          }
+        ],
+        "name": [
+          {
+            "extension": [
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn-human-name",
+                "extension": [
+                  {
+                    "url": "XPN.2",
+                    "valueString": "RENEE"
+                  },
+                  {
+                    "url": "XPN.3",
+                    "valueString": "D"
+                  }
+                ]
+              }
+            ],
+            "family": "SOUTAR",
+            "given": [
+              "RENEE",
+              "D"
+            ]
+          }
+        ]
       }
     },
     {
-      "fullUrl": "Provenance/1733797806517793000.28f02504-824d-4c22-a6a1-e234b3affd5f",
+      "fullUrl": "Provenance/1735607413451341000.a95ee7ee-5a51-49a7-aa6d-6853e932efc7",
       "resource": {
         "resourceType": "Provenance",
-        "id": "1733797806517793000.28f02504-824d-4c22-a6a1-e234b3affd5f",
+        "id": "1735607413451341000.a95ee7ee-5a51-49a7-aa6d-6853e932efc7",
         "target": [
           {
-            "reference": "Patient/1733797806517233000.6ddc53a3-0587-4db5-8c73-5b6634eb1369"
+            "reference": "Patient/1735607413450390000.5264710b-51b1-42e0-8a8a-3a0770437aac"
           }
         ],
-        "recorded": "2024-12-09T18:30:06Z",
+        "recorded": "2024-12-30T20:10:13Z",
         "activity": {
           "coding": [
             {
@@ -129,57 +164,40 @@
       }
     },
     {
-      "fullUrl": "Coverage/1733797806523309000.c5403041-1e4b-4f81-bc46-f16237041fec",
+      "fullUrl": "Coverage/1735607413479117000.21dfd8fa-49b5-4875-9e4a-27db2dea7e34",
       "resource": {
         "resourceType": "Coverage",
-        "id": "1733797806523309000.c5403041-1e4b-4f81-bc46-f16237041fec",
+        "id": "1735607413479117000.21dfd8fa-49b5-4875-9e4a-27db2dea7e34",
         "extension": [
           {
-            "url": "IN1.14",
-            "extension": [
-              {
-                "url": "AUI.1",
-                "valueString": "1701"
+            "url": "http://hl7.org/fhir/R5/StructureDefinition/extension-subscriberId",
+            "valueIdentifier": {
+              "extension": [
+                {
+                  "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cx-identifier",
+                  "extension": [
+                    {
+                      "url": "CX.5",
+                      "valueString": "PN"
+                    }
+                  ]
+                }
+              ],
+              "type": {
+                "coding": [
+                  {
+                    "code": "PN"
+                  }
+                ]
               },
-              {
-                "url": "AUI.2",
-                "valueString": "19700101"
-              },
-              {
-                "url": "AUI.3",
-                "valueString": "DR TEETH AND THE ELECTRIC MAYHEM"
-              }
-            ]
+              "value": "555221234"
+            }
           },
           {
-            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/composite-price",
+            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/in1-coverage",
             "extension": [
               {
-                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
-                "valueString": "IN1.37"
-              },
-              {
-                "url": "CP.1.1",
-                "valueDecimal": 11.11
-              },
-              {
-                "url": "CP.1.2",
-                "valueString": "USD"
-              },
-              {
-                "url": "CP.2",
-                "valueString": "P1"
-              },
-              {
-                "url": "CP.3",
-                "valueDecimal": 1.001
-              },
-              {
-                "url": "CP.4",
-                "valueDecimal": -1
-              },
-              {
-                "url": "CP.5",
+                "url": "IN1.2",
                 "valueCodeableConcept": {
                   "coding": [
                     {
@@ -187,53 +205,63 @@
                         {
                           "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
                           "valueString": "coding"
-                        },
-                        {
-                          "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
-                          "valueString": "HL79999"
                         }
                       ],
-                      "code": "R",
-                      "display": "Range Units"
+                      "code": "EPO"
                     }
                   ]
                 }
               },
               {
-                "url": "CP.6",
-                "valueString": "F"
-              }
-            ]
-          },
-          {
-            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/composite-price",
-            "extension": [
-              {
-                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
-                "valueString": "IN1.38"
+                "url": "IN1.3",
+                "valueIdentifier": {
+                  "value": "80"
+                }
               },
               {
-                "url": "CP.1.1",
-                "valueDecimal": 22.22
+                "url": "IN1.14",
+                "extension": [
+                  {
+                    "url": "AUI.1",
+                    "valueString": "1701"
+                  },
+                  {
+                    "url": "AUI.2",
+                    "valueString": "19700101"
+                  },
+                  {
+                    "url": "AUI.3",
+                    "valueString": "DR TEETH AND THE ELECTRIC MAYHEM"
+                  }
+                ]
               },
               {
-                "url": "CP.1.2",
-                "valueString": "RUB"
+                "url": "IN1.16",
+                "valueHumanName": {
+                  "extension": [
+                    {
+                      "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn-human-name",
+                      "extension": [
+                        {
+                          "url": "XPN.2",
+                          "valueString": "RENEE"
+                        },
+                        {
+                          "url": "XPN.3",
+                          "valueString": "D"
+                        }
+                      ]
+                    }
+                  ],
+                  "family": "SOUTAR",
+                  "given": [
+                    "RENEE",
+                    "D"
+                  ]
+                }
               },
               {
-                "url": "CP.2",
-                "valueString": "P2"
-              },
-              {
-                "url": "CP.3",
-                "valueDecimal": 2.002
-              },
-              {
-                "url": "CP.4",
-                "valueDecimal": -2
-              },
-              {
-                "url": "CP.5",
+                "url": "IN1.17",
                 "valueCodeableConcept": {
                   "coding": [
                     {
@@ -241,53 +269,60 @@
                         {
                           "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
                           "valueString": "coding"
-                        },
-                        {
-                          "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
-                          "valueString": "HL79999"
                         }
                       ],
-                      "code": "RR",
-                      "display": "Russian Rubble"
+                      "code": "3"
                     }
                   ]
                 }
               },
               {
-                "url": "CP.6",
-                "valueString": "F"
-              }
-            ]
-          },
-          {
-            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/composite-price",
-            "extension": [
-              {
-                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
-                "valueString": "IN1.40"
+                "url": "IN1.18",
+                "valueDateTime": "1970-07-22",
+                "_valueDateTime": {
+                  "extension": [
+                    {
+                      "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+                      "valueString": "19700722"
+                    }
+                  ]
+                }
               },
               {
-                "url": "CP.1.1",
-                "valueDecimal": 33.33
+                "url": "IN1.19",
+                "valueAddress": {
+                  "extension": [
+                    {
+                      "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/xad-address",
+                      "extension": [
+                        {
+                          "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/sad-address-line",
+                          "extension": [
+                            {
+                              "url": "SAD.1",
+                              "valueString": "13324 WHITE CEMETERY RD"
+                            }
+                          ]
+                        },
+                        {
+                          "url": "XAD.2",
+                          "valueString": "\"\""
+                        }
+                      ]
+                    }
+                  ],
+                  "line": [
+                    "13324 WHITE CEMETERY RD",
+                    "\"\""
+                  ],
+                  "city": "HANNIBAL",
+                  "state": "NY",
+                  "postalCode": "130740000",
+                  "country": "\"\""
+                }
               },
               {
-                "url": "CP.1.2",
-                "valueString": "MXN"
-              },
-              {
-                "url": "CP.2",
-                "valueString": "P3"
-              },
-              {
-                "url": "CP.3",
-                "valueDecimal": 3.003
-              },
-              {
-                "url": "CP.4",
-                "valueDecimal": -3
-              },
-              {
-                "url": "CP.5",
+                "url": "IN1.20",
                 "valueCodeableConcept": {
                   "coding": [
                     {
@@ -295,53 +330,15 @@
                         {
                           "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
                           "valueString": "coding"
-                        },
-                        {
-                          "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
-                          "valueString": "HL79999"
                         }
                       ],
-                      "code": "OR",
-                      "display": "Oven Range"
+                      "code": "Y"
                     }
                   ]
                 }
               },
               {
-                "url": "CP.6",
-                "valueString": "P"
-              }
-            ]
-          },
-          {
-            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/composite-price",
-            "extension": [
-              {
-                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
-                "valueString": "IN1.41"
-              },
-              {
-                "url": "CP.1.1",
-                "valueDecimal": 44.44
-              },
-              {
-                "url": "CP.1.2",
-                "valueString": "CAD"
-              },
-              {
-                "url": "CP.2",
-                "valueString": "P4"
-              },
-              {
-                "url": "CP.3",
-                "valueDecimal": 4.004
-              },
-              {
-                "url": "CP.4",
-                "valueDecimal": -4
-              },
-              {
-                "url": "CP.5",
+                "url": "IN1.21",
                 "valueCodeableConcept": {
                   "coding": [
                     {
@@ -349,25 +346,895 @@
                         {
                           "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
                           "valueString": "coding"
-                        },
-                        {
-                          "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
-                          "valueString": "HL79999"
                         }
                       ],
-                      "code": "HHR",
-                      "display": "Home Home Range"
+                      "code": "IN"
                     }
                   ]
                 }
               },
               {
-                "url": "CP.6",
-                "valueString": "P"
+                "url": "IN1.22",
+                "valueString": "1"
+              },
+              {
+                "url": "IN1.23",
+                "valueString": "Y"
+              },
+              {
+                "url": "IN1.24",
+                "valueString": "20241223"
+              },
+              {
+                "url": "IN1.4",
+                "valueReference": {
+                  "reference": "Organization/1735607413459489000.96020817-9cbc-46b8-a770-c80bcac5ab39"
+                }
+              },
+              {
+                "url": "IN1.25",
+                "valueString": "Y"
+              },
+              {
+                "url": "IN1.26",
+                "valueString": "20241224"
+              },
+              {
+                "url": "IN1.27",
+                "valueCodeableConcept": {
+                  "coding": [
+                    {
+                      "extension": [
+                        {
+                          "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                          "valueString": "coding"
+                        }
+                      ],
+                      "code": "N"
+                    }
+                  ]
+                }
+              },
+              {
+                "url": "IN1.28",
+                "valueString": "PACCERT"
+              },
+              {
+                "url": "IN1.29",
+                "valueDateTime": "2024-12-23",
+                "_valueDateTime": {
+                  "extension": [
+                    {
+                      "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+                      "valueString": "20241223"
+                    }
+                  ]
+                }
+              },
+              {
+                "url": "IN1.30",
+                "valueReference": {
+                  "reference": "Practitioner/1735607413465113000.809f836b-5b99-484e-91ef-b6dd965dfff8"
+                }
+              },
+              {
+                "url": "IN1.31",
+                "valueCodeableConcept": {
+                  "coding": [
+                    {
+                      "extension": [
+                        {
+                          "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                          "valueString": "coding"
+                        }
+                      ],
+                      "code": "S"
+                    }
+                  ]
+                }
+              },
+              {
+                "url": "IN1.32",
+                "valueCodeableConcept": {
+                  "coding": [
+                    {
+                      "extension": [
+                        {
+                          "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                          "valueString": "coding"
+                        }
+                      ],
+                      "code": "OK"
+                    }
+                  ]
+                }
+              },
+              {
+                "url": "IN1.33",
+                "valueString": "176"
+              },
+              {
+                "url": "IN1.34",
+                "valueString": "2"
+              },
+              {
+                "url": "IN1.5",
+                "valueAddress": {
+                  "extension": [
+                    {
+                      "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/xad-address",
+                      "extension": [
+                        {
+                          "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/sad-address-line",
+                          "extension": [
+                            {
+                              "url": "SAD.1",
+                              "valueString": "PO BOX 981114"
+                            }
+                          ]
+                        },
+                        {
+                          "url": "XAD.2",
+                          "valueString": "\"\""
+                        }
+                      ]
+                    }
+                  ],
+                  "line": [
+                    "PO BOX 981114",
+                    "\"\""
+                  ],
+                  "city": "EL PASO",
+                  "state": "TX",
+                  "postalCode": "79998",
+                  "country": "\"\""
+                }
+              },
+              {
+                "url": "IN1.35",
+                "valueCodeableConcept": {
+                  "coding": [
+                    {
+                      "extension": [
+                        {
+                          "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                          "valueString": "coding"
+                        }
+                      ],
+                      "code": "1234"
+                    }
+                  ]
+                }
+              },
+              {
+                "url": "IN1.36",
+                "valueString": "1002424"
+              },
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/composite-price",
+                "extension": [
+                  {
+                    "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
+                    "valueString": "IN1.37"
+                  },
+                  {
+                    "url": "CP.1.1",
+                    "valueDecimal": 11.11
+                  },
+                  {
+                    "url": "CP.1.2",
+                    "valueString": "USD"
+                  },
+                  {
+                    "url": "CP.2",
+                    "valueString": "P1"
+                  },
+                  {
+                    "url": "CP.3",
+                    "valueDecimal": 1.001
+                  },
+                  {
+                    "url": "CP.4",
+                    "valueDecimal": -1
+                  },
+                  {
+                    "url": "CP.5",
+                    "valueCodeableConcept": {
+                      "coding": [
+                        {
+                          "extension": [
+                            {
+                              "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                              "valueString": "coding"
+                            },
+                            {
+                              "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                              "valueString": "HL79999"
+                            }
+                          ],
+                          "code": "R",
+                          "display": "Range Units"
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "url": "CP.6",
+                    "valueString": "F"
+                  }
+                ]
+              },
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/composite-price",
+                "extension": [
+                  {
+                    "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
+                    "valueString": "IN1.38"
+                  },
+                  {
+                    "url": "CP.1.1",
+                    "valueDecimal": 22.22
+                  },
+                  {
+                    "url": "CP.1.2",
+                    "valueString": "RUB"
+                  },
+                  {
+                    "url": "CP.2",
+                    "valueString": "P2"
+                  },
+                  {
+                    "url": "CP.3",
+                    "valueDecimal": 2.002
+                  },
+                  {
+                    "url": "CP.4",
+                    "valueDecimal": -2
+                  },
+                  {
+                    "url": "CP.5",
+                    "valueCodeableConcept": {
+                      "coding": [
+                        {
+                          "extension": [
+                            {
+                              "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                              "valueString": "coding"
+                            },
+                            {
+                              "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                              "valueString": "HL79999"
+                            }
+                          ],
+                          "code": "RR",
+                          "display": "Russian Rubble"
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "url": "CP.6",
+                    "valueString": "F"
+                  }
+                ]
+              },
+              {
+                "url": "IN1.39",
+                "valueString": "10"
+              },
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/composite-price",
+                "extension": [
+                  {
+                    "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
+                    "valueString": "IN1.40"
+                  },
+                  {
+                    "url": "CP.1.1",
+                    "valueDecimal": 33.33
+                  },
+                  {
+                    "url": "CP.1.2",
+                    "valueString": "MXN"
+                  },
+                  {
+                    "url": "CP.2",
+                    "valueString": "P3"
+                  },
+                  {
+                    "url": "CP.3",
+                    "valueDecimal": 3.003
+                  },
+                  {
+                    "url": "CP.4",
+                    "valueDecimal": -3
+                  },
+                  {
+                    "url": "CP.5",
+                    "valueCodeableConcept": {
+                      "coding": [
+                        {
+                          "extension": [
+                            {
+                              "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                              "valueString": "coding"
+                            },
+                            {
+                              "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                              "valueString": "HL79999"
+                            }
+                          ],
+                          "code": "OR",
+                          "display": "Oven Range"
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "url": "CP.6",
+                    "valueString": "P"
+                  }
+                ]
+              },
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/composite-price",
+                "extension": [
+                  {
+                    "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Field",
+                    "valueString": "IN1.41"
+                  },
+                  {
+                    "url": "CP.1.1",
+                    "valueDecimal": 44.44
+                  },
+                  {
+                    "url": "CP.1.2",
+                    "valueString": "CAD"
+                  },
+                  {
+                    "url": "CP.2",
+                    "valueString": "P4"
+                  },
+                  {
+                    "url": "CP.3",
+                    "valueDecimal": 4.004
+                  },
+                  {
+                    "url": "CP.4",
+                    "valueDecimal": -4
+                  },
+                  {
+                    "url": "CP.5",
+                    "valueCodeableConcept": {
+                      "coding": [
+                        {
+                          "extension": [
+                            {
+                              "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                              "valueString": "coding"
+                            },
+                            {
+                              "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system",
+                              "valueString": "HL79999"
+                            }
+                          ],
+                          "code": "HHR",
+                          "display": "Home Home Range"
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "url": "CP.6",
+                    "valueString": "P"
+                  }
+                ]
+              },
+              {
+                "url": "IN1.42",
+                "valueCodeableConcept": {
+                  "coding": [
+                    {
+                      "extension": [
+                        {
+                          "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                          "valueString": "coding"
+                        }
+                      ],
+                      "code": "1"
+                    }
+                  ]
+                }
+              },
+              {
+                "url": "IN1.43",
+                "valueCodeableConcept": {
+                  "coding": [
+                    {
+                      "extension": [
+                        {
+                          "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                          "valueString": "coding"
+                        }
+                      ],
+                      "code": "F"
+                    }
+                  ]
+                }
+              },
+              {
+                "url": "IN1.44",
+                "valueAddress": {
+                  "extension": [
+                    {
+                      "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/xad-address",
+                      "extension": [
+                        {
+                          "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/sad-address-line",
+                          "extension": [
+                            {
+                              "url": "SAD.1",
+                              "valueString": "45 WORKING LANE"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ],
+                  "line": [
+                    "45 WORKING LANE"
+                  ],
+                  "city": "LIVERPOOL",
+                  "state": "NY",
+                  "postalCode": "13088"
+                }
+              },
+              {
+                "url": "IN1.6",
+                "valueHumanName": {
+                  "extension": [
+                    {
+                      "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn-human-name",
+                      "extension": [
+                        {
+                          "url": "XPN.2",
+                          "valueString": "John"
+                        }
+                      ]
+                    }
+                  ],
+                  "family": "Jones",
+                  "given": [
+                    "John"
+                  ],
+                  "prefix": [
+                    "Mr."
+                  ]
+                }
+              },
+              {
+                "url": "IN1.45",
+                "valueString": "Y"
+              },
+              {
+                "url": "IN1.46",
+                "valueCodeableConcept": {
+                  "coding": [
+                    {
+                      "extension": [
+                        {
+                          "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                          "valueString": "coding"
+                        }
+                      ],
+                      "code": "1002423"
+                    }
+                  ]
+                }
+              },
+              {
+                "url": "IN1.47",
+                "valueCodeableConcept": {
+                  "coding": [
+                    {
+                      "extension": [
+                        {
+                          "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                          "valueString": "coding"
+                        }
+                      ],
+                      "code": "B"
+                    }
+                  ]
+                }
+              },
+              {
+                "url": "IN1.48",
+                "valueCodeableConcept": {
+                  "coding": [
+                    {
+                      "extension": [
+                        {
+                          "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                          "valueString": "coding"
+                        }
+                      ],
+                      "code": "0"
+                    }
+                  ]
+                }
+              },
+              {
+                "url": "IN1.49",
+                "valueIdentifier": {
+                  "extension": [
+                    {
+                      "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cx-identifier",
+                      "extension": [
+                        {
+                          "url": "CX.5",
+                          "valueString": "PN"
+                        }
+                      ]
+                    }
+                  ],
+                  "type": {
+                    "coding": [
+                      {
+                        "code": "PN"
+                      }
+                    ]
+                  },
+                  "value": "555221234"
+                }
+              },
+              {
+                "url": "IN1.50",
+                "valueCodeableConcept": {
+                  "coding": [
+                    {
+                      "extension": [
+                        {
+                          "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                          "valueString": "coding"
+                        }
+                      ],
+                      "code": "S"
+                    }
+                  ]
+                }
+              },
+              {
+                "url": "IN1.51",
+                "valueString": "20241222"
+              },
+              {
+                "url": "IN1.52",
+                "valueString": "GRACE HOSPITAL"
+              },
+              {
+                "url": "IN1.53",
+                "valueCodeableConcept": {
+                  "coding": [
+                    {
+                      "extension": [
+                        {
+                          "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                          "valueString": "coding"
+                        }
+                      ],
+                      "code": "2"
+                    }
+                  ]
+                }
+              },
+              {
+                "url": "IN1.54",
+                "valueIdentifier": {
+                  "value": "10222"
+                }
+              },
+              {
+                "url": "IN1.7",
+                "valueContactPoint": {
+                  "extension": [
+                    {
+                      "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn-contact-point",
+                      "extension": [
+                        {
+                          "url": "XTN.1",
+                          "valueString": "(850)555-0809"
+                        }
+                      ]
+                    }
+                  ],
+                  "_system": {
+                    "extension": [
+                      {
+                        "url": "http://hl7.org/fhir/StructureDefinition/data-absent-reason",
+                        "valueCode": "unknown"
+                      }
+                    ]
+                  },
+                  "value": "(850)555-0809"
+                }
+              },
+              {
+                "url": "IN1.55",
+                "valueString": "A"
+              },
+              {
+                "url": "IN1.8",
+                "valueString": "1500004000001"
+              },
+              {
+                "url": "IN1.9",
+                "valueReference": {
+                  "reference": "Organization/1735607413476581000.b0510958-6049-4ba7-8d3c-66600b9f160d"
+                }
+              },
+              {
+                "url": "IN1.10",
+                "valueIdentifier": {
+                  "value": "19"
+                }
+              },
+              {
+                "url": "IN1.11",
+                "valueReference": {
+                  "reference": "Organization/1735607413477398000.ab813433-6923-4a1a-a068-99365e7d5c83"
+                }
               }
             ]
           }
+        ],
+        "type": {
+          "coding": [
+            {
+              "extension": [
+                {
+                  "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                  "valueString": "coding"
+                }
+              ],
+              "code": "2"
+            }
+          ]
+        },
+        "policyHolder": {
+          "reference": "Organization/1735607413480148000.d251a0e7-573e-467e-9c0a-b9209996fd61"
+        },
+        "subscriber": {
+          "reference": "RelatedPerson/1735607413478975000.2299dd41-9676-43c5-ae1c-4395cf26f48e"
+        },
+        "beneficiary": {
+          "reference": "Patient/1735607413450390000.5264710b-51b1-42e0-8a8a-3a0770437aac"
+        },
+        "relationship": {
+          "coding": [
+            {
+              "extension": [
+                {
+                  "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                  "valueString": "coding"
+                }
+              ],
+              "code": "3"
+            }
+          ]
+        },
+        "period": {
+          "start": "2024-07-01",
+          "_start": {
+            "extension": [
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date",
+                "valueString": "20240701"
+              }
+            ]
+          },
+          "end": "2025-06-30",
+          "_end": {
+            "extension": [
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date",
+                "valueString": "20250630"
+              }
+            ]
+          }
+        },
+        "payor": [
+          {
+            "reference": "Organization/1735607413478436000.217c037b-9a50-4043-b729-34e2ff362217"
+          }
         ]
+      }
+    },
+    {
+      "fullUrl": "Organization/1735607413459489000.96020817-9cbc-46b8-a770-c80bcac5ab39",
+      "resource": {
+        "resourceType": "Organization",
+        "id": "1735607413459489000.96020817-9cbc-46b8-a770-c80bcac5ab39",
+        "name": "AETNA US HEALTHCARE"
+      }
+    },
+    {
+      "fullUrl": "Practitioner/1735607413465113000.809f836b-5b99-484e-91ef-b6dd965dfff8",
+      "resource": {
+        "resourceType": "Practitioner",
+        "id": "1735607413465113000.809f836b-5b99-484e-91ef-b6dd965dfff8",
+        "extension": [
+          {
+            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority",
+            "extension": [
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id",
+                "valueString": "NPI"
+              },
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
+                "valueString": "2.16.840.1.114222.4.1.144"
+              },
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type",
+                "valueCode": "ISO"
+              }
+            ]
+          },
+          {
+            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/xcn-practitioner",
+            "extension": [
+              {
+                "url": "XCN.3",
+                "valueString": "Christopher"
+              },
+              {
+                "url": "XCN.4",
+                "valueString": "Beau"
+              },
+              {
+                "url": "XCN.7",
+                "valueString": "MD"
+              },
+              {
+                "url": "XCN.10",
+                "valueString": "L"
+              }
+            ]
+          }
+        ],
+        "identifier": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "extension": [
+                    {
+                      "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/codeable-concept-id",
+                      "valueBoolean": true
+                    }
+                  ],
+                  "code": "NPI"
+                }
+              ]
+            },
+            "system": "NPI",
+            "value": "1871759365"
+          }
+        ],
+        "name": [
+          {
+            "use": "official",
+            "family": "Willison",
+            "given": [
+              "Christopher",
+              "Beau"
+            ],
+            "suffix": [
+              "MD"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "Organization/1735607413476581000.b0510958-6049-4ba7-8d3c-66600b9f160d",
+      "resource": {
+        "resourceType": "Organization",
+        "id": "1735607413476581000.b0510958-6049-4ba7-8d3c-66600b9f160d",
+        "name": "AETNA SERVICES INC"
+      }
+    },
+    {
+      "fullUrl": "Organization/1735607413477398000.ab813433-6923-4a1a-a068-99365e7d5c83",
+      "resource": {
+        "resourceType": "Organization",
+        "id": "1735607413477398000.ab813433-6923-4a1a-a068-99365e7d5c83",
+        "name": "AETNA US HEALTHCARE"
+      }
+    },
+    {
+      "fullUrl": "Organization/1735607413478436000.217c037b-9a50-4043-b729-34e2ff362217",
+      "resource": {
+        "resourceType": "Organization",
+        "id": "1735607413478436000.217c037b-9a50-4043-b729-34e2ff362217",
+        "name": "AETNA US HEALTHCARE",
+        "address": [
+          {
+            "extension": [
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/xad-address",
+                "extension": [
+                  {
+                    "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/sad-address-line",
+                    "extension": [
+                      {
+                        "url": "SAD.1",
+                        "valueString": "PO BOX 981114"
+                      }
+                    ]
+                  },
+                  {
+                    "url": "XAD.2",
+                    "valueString": "\"\""
+                  }
+                ]
+              }
+            ],
+            "line": [
+              "PO BOX 981114",
+              "\"\""
+            ],
+            "city": "EL PASO",
+            "state": "TX",
+            "postalCode": "79998",
+            "country": "\"\""
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "RelatedPerson/1735607413478975000.2299dd41-9676-43c5-ae1c-4395cf26f48e",
+      "resource": {
+        "resourceType": "RelatedPerson",
+        "id": "1735607413478975000.2299dd41-9676-43c5-ae1c-4395cf26f48e",
+        "name": [
+          {
+            "extension": [
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn-human-name",
+                "extension": [
+                  {
+                    "url": "XPN.2",
+                    "valueString": "RENEE"
+                  },
+                  {
+                    "url": "XPN.3",
+                    "valueString": "D"
+                  }
+                ]
+              }
+            ],
+            "family": "SOUTAR",
+            "given": [
+              "RENEE",
+              "D"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "Organization/1735607413480148000.d251a0e7-573e-467e-9c0a-b9209996fd61",
+      "resource": {
+        "resourceType": "Organization",
+        "id": "1735607413480148000.d251a0e7-573e-467e-9c0a-b9209996fd61",
+        "identifier": [
+          {
+            "value": "19"
+          }
+        ],
+        "name": "AETNA US HEALTHCARE"
       }
     }
   ]

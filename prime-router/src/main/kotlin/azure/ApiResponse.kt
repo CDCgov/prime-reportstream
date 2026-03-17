@@ -88,8 +88,7 @@ data class ApiResponse<T>(val data: T, @JsonProperty("meta") val metaApiResponse
             type: String,
             search: ApiSearch<T, *, *>,
             results: ApiSearchResult<T>,
-        ): ApiResponse<List<T>> {
-            return ApiResponse(
+        ): ApiResponse<List<T>> = ApiResponse(
                 results.results,
                 MetaApiResponse(
                     totalCount = results.totalCount,
@@ -98,6 +97,5 @@ data class ApiResponse<T>(val data: T, @JsonProperty("meta") val metaApiResponse
                     type = type
                 )
             )
-        }
     }
 }

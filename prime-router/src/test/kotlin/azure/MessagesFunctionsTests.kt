@@ -42,8 +42,7 @@ class MessagesFunctionsTests {
         reportId: UUID? = null,
         messageId: String? = null,
         id: Long? = 0,
-    ): CovidResultMetadata {
-        return CovidResultMetadata(
+    ): CovidResultMetadata = CovidResultMetadata(
             id,
             reportId,
             1,
@@ -90,10 +89,8 @@ class MessagesFunctionsTests {
             null,
             null
         )
-    }
 
-    private fun buildReportFile(reportId: UUID): ReportFile {
-        return ReportFile(
+    private fun buildReportFile(reportId: UUID): ReportFile = ReportFile(
             reportId,
             1,
             TaskAction.send,
@@ -116,7 +113,6 @@ class MessagesFunctionsTests {
             "",
             null
         )
-    }
 
     private fun buildActionLogs(): List<DetailedActionLog> {
         val actionLogDetail = InvalidCodeMessage("", "Specimen_type_code (specimen_type)", null)
@@ -133,8 +129,7 @@ class MessagesFunctionsTests {
         )
     }
 
-    private fun buildReportDescendantsFromReportId(): List<ReportFile> {
-        return listOf(
+    private fun buildReportDescendantsFromReportId(): List<ReportFile> = listOf(
             ReportFile(
                 UUID.randomUUID(),
                 11,
@@ -159,10 +154,8 @@ class MessagesFunctionsTests {
                 null
             )
         )
-    }
 
-    private fun buildReportFileByIds(reportId: ReportId): List<ReportFile> {
-        return listOf(
+    private fun buildReportFileByIds(reportId: ReportId): List<ReportFile> = listOf(
             ReportFile(
                 reportId,
                 1,
@@ -187,7 +180,6 @@ class MessagesFunctionsTests {
                 null
             )
         )
-    }
 
     private fun buildActionLogsByReportIdAndFilterType(trackingId: String): List<MessageActionLog> {
         val actionLogDetail1 = InvalidCodeMessage("", "Specimen_type_code (specimen_type)", null)

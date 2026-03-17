@@ -8,6 +8,7 @@ import com.microsoft.azure.functions.HttpStatusType
 import com.networknt.org.apache.commons.validator.routines.InetAddressValidator
 import fhirengine.engine.CustomFhirPathFunctions
 import gov.cdc.prime.reportstream.shared.BlobUtils
+import gov.cdc.prime.reportstream.shared.QueueMessage
 import gov.cdc.prime.router.ActionLog
 import gov.cdc.prime.router.ActionLogLevel
 import gov.cdc.prime.router.ClientSource
@@ -18,7 +19,6 @@ import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.ActionHistory.ReceivedReportSenderParameters.Companion.removeExcludedParameters
-import gov.cdc.prime.router.azure.db.Tables.ACTION
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
 import gov.cdc.prime.router.azure.db.tables.pojos.CovidResultMetadata
@@ -39,10 +39,9 @@ import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.report.ReportService
 import io.ktor.http.HttpStatusCode
 import org.apache.logging.log4j.kotlin.Logging
-import org.jooq.impl.SQLDataType
-import java.net.URI
-import java.net.URISyntaxException
 import java.time.LocalDateTime
+import java.time.OffsetDateTime
+import java.time.format.DateTimeFormatter
 
 /**
  * This is a container class that holds information to be stored, about a single action,
@@ -114,6 +113,11 @@ class ActionHistory(
     val messages = mutableListOf<Event>()
 
     /**
+     * FHIR Queue Messages to be queued in an azure queue as part of the result of this action.
+     */
+    val fhirQueueMessages = mutableListOf<QueueMessage>()
+
+    /**
      *
      * Collection of all the parent-child report relationships created by this action.
      *
@@ -138,6 +142,11 @@ class ActionHistory(
     /** Adds a queue event to the messages property to be added to the queue later */
     private fun trackEvent(event: Event) {
         messages.add(event)
+    }
+
+    /** Adds a FHIR queue message to the fhirQueueMessages list to be added to the queue later */
+    fun trackFhirMessage(message: QueueMessage) {
+        fhirQueueMessages.add(message)
     }
 
     /**
@@ -293,26 +302,24 @@ class ActionHistory(
      */
     fun trackActionParams(actionParams: String) {
         if (actionParams.isEmpty()) return
-        val tmp = if (action.actionParams.isNullOrBlank()) actionParams else "${action.actionParams}, $actionParams"
-        // kluge to get the max size of the varchar
-        val max = ACTION.ACTION_PARAMS.dataType.length()
-        // truncate if needed
-        action.actionParams = tmp.chunked(size = max)[0]
+        action.actionParams =
+            if (action.actionParams.isNullOrBlank()) {
+                actionParams
+            } else {
+                "${action.actionParams}, $actionParams"
+            }
     }
 
     /**
      * Always appends
      */
     fun trackActionResult(actionResult: String) {
-        val tmp = if (action.actionResult.isNullOrBlank()) actionResult else "${action.actionResult}, $actionResult"
-        val max = ACTION.ACTION_RESULT.dataType.length()
-        // max is 0 for the CLOB type. we're using CLOB for the action_result now because we want
-        // bigly strings, not just small sad 2048 strings
-        action.actionResult = if (ACTION.ACTION_RESULT.dataType == SQLDataType.CLOB && max == 0) {
-            tmp
-        } else {
-            tmp.chunked(size = max)[0]
-        }
+        action.actionResult =
+            if (action.actionResult.isNullOrBlank()) {
+                actionResult
+            } else {
+                "${action.actionResult}, $actionResult"
+            }
     }
 
     /**
@@ -354,8 +361,8 @@ class ActionHistory(
         if (clientParam.isNotBlank()) {
             try {
                 val (sendingOrg, sendingOrgClient) = Sender.parseFullName(clientParam)
-                action.sendingOrg = sendingOrg.take(ACTION.SENDING_ORG.dataType.length())
-                action.sendingOrgClient = sendingOrgClient.take(ACTION.SENDING_ORG_CLIENT.dataType.length())
+                action.sendingOrg = sendingOrg
+                action.sendingOrgClient = sendingOrgClient
             } catch (e: Exception) {
                 logger.warn(
                     "Exception tracking sender: ${e.localizedMessage} ${e.stackTraceToString()}"
@@ -423,7 +430,7 @@ class ActionHistory(
         reportFile.nextAction = report.nextAction
         reportFile.sendingOrg = source.organization
         reportFile.sendingOrgClient = source.client
-        reportFile.schemaName = trimSchemaNameToMaxLength(report.schema.name)
+        reportFile.schemaName = report.schema.name
         reportFile.schemaTopic = report.schema.topic
         reportFile.bodyUrl = blobInfo.blobUrl
         reportFile.bodyFormat = blobInfo.format.toString()
@@ -475,7 +482,7 @@ class ActionHistory(
         reportFile.nextAction = TaskAction.send
         reportFile.receivingOrg = receiver.organizationName
         reportFile.receivingOrgSvc = receiver.name
-        reportFile.schemaName = trimSchemaNameToMaxLength(report.schema.name)
+        reportFile.schemaName = report.schema.name
         reportFile.schemaTopic = report.schema.topic
         reportFile.bodyUrl = blobInfo.blobUrl
         reportFile.bodyFormat = blobInfo.format.toString()
@@ -508,7 +515,7 @@ class ActionHistory(
         reportFile.reportId = report.id
         reportFile.receivingOrg = receiver.organizationName
         reportFile.receivingOrgSvc = receiver.name
-        reportFile.schemaName = trimSchemaNameToMaxLength(report.schema.name)
+        reportFile.schemaName = report.schema.name
         reportFile.schemaTopic = report.schema.topic
         reportFile.itemCount = report.itemCount
         reportFile.bodyFormat = report.bodyFormat.toString()
@@ -536,7 +543,7 @@ class ActionHistory(
         val reportFile = ReportFile()
 
         reportFile.reportId = report.id
-        reportFile.schemaName = trimSchemaNameToMaxLength(report.schema.name)
+        reportFile.schemaName = report.schema.name
         reportFile.schemaTopic = report.schema.topic
         reportFile.itemCountBeforeQualFilter = report.itemCountBeforeQualFilter
 
@@ -580,6 +587,10 @@ class ActionHistory(
         }
     }
 
+    /**
+     * Use this to record history info about a sent report.
+     * Creates Azure Events for sent Report and Items.
+     */
     fun trackSentReport(
         receiver: Receiver,
         sentReportId: ReportId,
@@ -590,6 +601,8 @@ class ActionHistory(
         reportEventService: IReportStreamEventService,
         reportService: ReportService,
         transportType: String,
+        lineages: List<ItemLineage>?,
+        queueMessage: String,
     ) {
         if (isReportAlreadyTracked(sentReportId)) {
             error(
@@ -614,7 +627,7 @@ class ActionHistory(
         reportFile.reportId = sentReportId
         reportFile.receivingOrg = receiver.organizationName
         reportFile.receivingOrgSvc = receiver.name
-        reportFile.schemaName = trimSchemaNameToMaxLength(receiver.schemaName)
+        reportFile.schemaName = receiver.schemaName
         reportFile.schemaTopic = receiver.topic
         reportFile.externalName = filename
         action.externalName = filename
@@ -626,21 +639,51 @@ class ActionHistory(
         reportFile.bodyUrl = blobInfo.blobUrl
 
         reportEventService.sendReportEvent(
-            childReport = reportFile,
             eventName = ReportStreamEventName.REPORT_SENT,
-            pipelineStepName = TaskAction.send
+            childReport = reportFile,
+            pipelineStepName = TaskAction.send,
+            queueMessage = queueMessage,
         ) {
             parentReportId(header.reportFile.reportId)
             params(
                 listOfNotNull(
-                    ReportStreamEventProperties.TRANSPORT_TYPE to transportType,
+                    ReportStreamEventProperties.TRANSPORT_TYPE to (receiver.transport?.type ?: transportType),
                     ReportStreamEventProperties.RECEIVER_NAME to receiver.fullName,
                     filename?.let { ReportStreamEventProperties.FILENAME to it }
                 ).toMap()
             )
         }
 
-        val lineages = Report.createItemLineagesFromDb(header, sentReportId)
+        trackItemSendState(
+            ReportStreamEventName.ITEM_SENT,
+            reportFile,
+            lineages,
+            receiver,
+            null,
+            null,
+            queueMessage,
+            reportEventService,
+            reportService
+        )
+
+        reportsOut[reportFile.reportId] = reportFile
+    }
+
+    /**
+     * Use this to create Azure Events for items in the send step.
+     * Pulls Item history from receiver filter step before Items were batched.
+     */
+    fun trackItemSendState(
+        eventName: ReportStreamEventName,
+        report: ReportFile,
+        lineages: List<ItemLineage>?,
+        receiver: Receiver,
+        nextRetryCount: Int?,
+        nextRetryTime: OffsetDateTime?,
+        queueMessage: String?,
+        reportEventService: IReportStreamEventService,
+        reportService: ReportService,
+    ) {
         lineages?.forEach { itemLineage ->
             val receiverFilterReportFile = reportService.getReportForItemAtTask(
                 itemLineage.parentReportId,
@@ -663,23 +706,26 @@ class ActionHistory(
                         )
                     )
                 )
-                reportEventService.sendItemEvent(ReportStreamEventName.ITEM_SENT, reportFile, TaskAction.send) {
+                reportEventService.sendItemEvent(eventName, report, TaskAction.send, queueMessage ?: "") {
                     trackingId(bundle)
-                    parentReportId(header.reportFile.reportId)
+                    parentReportId(itemLineage.parentReportId)
                     childItemIndex(itemLineage.childIndex)
                     params(
-                        mapOf(
-                            ReportStreamEventProperties.BUNDLE_DIGEST
-                                to bundleDigestExtractor.generateDigest(bundle),
+                        listOfNotNull(
+                            ReportStreamEventProperties.BUNDLE_DIGEST to bundleDigestExtractor.generateDigest(bundle),
                             ReportStreamEventProperties.RECEIVER_NAME to receiver.fullName,
-                        )
+                            nextRetryCount?.let { ReportStreamEventProperties.RETRY_COUNT to it },
+                            nextRetryTime?.let {
+                                ReportStreamEventProperties.NEXT_RETRY_TIME to
+                                    DateTimeFormatter.ISO_DATE_TIME.format(it)
+                            }
+                        ).toMap()
                     )
                 }
             } else {
                 logger.error("No translate report found for sent item.")
             }
         }
-        reportsOut[reportFile.reportId] = reportFile
     }
 
     /**
@@ -703,7 +749,7 @@ class ActionHistory(
         reportFile.reportId = externalReportId // child report
         reportFile.receivingOrg = parentReportFile.receivingOrg
         reportFile.receivingOrgSvc = parentReportFile.receivingOrgSvc
-        reportFile.schemaName = trimSchemaNameToMaxLength(parentReportFile.schemaName)
+        reportFile.schemaName = parentReportFile.schemaName
         reportFile.schemaTopic = parentReportFile.schemaTopic
         reportFile.externalName = parentReportFile.externalName
         action.externalName = parentReportFile.externalName
@@ -771,6 +817,16 @@ class ActionHistory(
     }
 
     /**
+     *  Sends any FHIR queue messages to the appropriate queue
+     */
+    fun queueFhirMessages(workflowEngine: WorkflowEngine) {
+        fhirQueueMessages.forEach { message ->
+            workflowEngine.queue.sendMessage(message.messageQueueName, message.serialize())
+            logger.debug("FHIR Message queued: $message")
+        }
+    }
+
+    /**
      * Use the detailed item lineage to exactly/correctly generate the report parent/child relationships.
      *
      */
@@ -814,21 +870,6 @@ class ActionHistory(
     }
 
     companion object : Logging {
-
-        // The schema_name column only support 63 characters
-        // If the schemaName is a URI grab the path and then take the last 63
-        // otherwise just take the last 63
-        // TODO: #13598
-        fun trimSchemaNameToMaxLength(schemaName: String?): String? {
-            if (schemaName == null) {
-                return schemaName
-            }
-            return try {
-                URI(schemaName).path.replace(".yml", "").takeLast(63)
-            } catch (ex: URISyntaxException) {
-                schemaName.takeLast(63)
-            }
-        }
 
         /**
          * Get rid of this once we have moved away from the old Task table.  In the meantime,

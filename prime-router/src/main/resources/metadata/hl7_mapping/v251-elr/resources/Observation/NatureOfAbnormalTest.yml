@@ -1,6 +1,0 @@
-# $schema: ./../../../../../../../../metadata/json_schema/fhir/fhir-to-hl7-mapping.json
-
-elements:
-  - name: obx-nature-of-abnormal-test-element
-    value: [ '%resource.value' ]
-    hl7Spec: [ '%{hl7OBXField}-10(%{abnormalTestIndex})' ]

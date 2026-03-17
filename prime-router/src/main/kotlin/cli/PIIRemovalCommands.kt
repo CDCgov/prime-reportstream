@@ -3,6 +3,7 @@ package gov.cdc.prime.router.cli
 import com.fasterxml.jackson.databind.json.JsonMapper
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.CliktError
+import com.github.ajalt.clikt.core.Context
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.types.file
@@ -10,6 +11,7 @@ import fhirengine.engine.CustomFhirPathFunctions
 import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirTransformer
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
+import gov.cdc.prime.router.fhirengine.translation.hl7.utils.helpers.SchemaReferenceResolverHelper
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import org.hl7.fhir.r4.model.Bundle
 import org.hl7.fhir.r4.model.ContactPoint
@@ -20,10 +22,12 @@ import org.hl7.fhir.r4.model.Patient.ContactComponent
 import org.hl7.fhir.r4.model.Practitioner
 import org.hl7.fhir.r4.model.StringType
 
-class PIIRemovalCommands : CliktCommand(
-    name = "piiRemoval",
-    help = "Remove PII"
-) {
+class PIIRemovalCommands :
+    CliktCommand(
+        name = "piiRemoval",
+    ) {
+    override fun help(context: Context): String = "Remove PII"
+
     /**
      * The input file to process.
      */
@@ -113,7 +117,9 @@ class PIIRemovalCommands : CliktCommand(
             }
 
         val bundleAfterTransform = FhirTransformer(
-            "classpath:/metadata/fhir_transforms/common/remove-pii-enrichment.yml"
+            SchemaReferenceResolverHelper.retrieveFhirSchemaReference(
+                "classpath:/metadata/fhir_transforms/common/remove-pii-enrichment.yml"
+            )
         ).process(bundle)
 
         val jsonObject = JacksonMapperUtilities.defaultMapper
@@ -201,18 +207,17 @@ class PIIRemovalCommands : CliktCommand(
     /**
      * Gets a fake value for a given type
      */
-    private fun getFakeValueForElementCall(dataType: String): String {
-        return CustomFhirPathFunctions().getFakeValueForElement(
-            mutableListOf(mutableListOf(StringType(dataType)))
-        )[0].primitiveValue()
-    }
+    private fun getFakeValueForElementCall(dataType: String): String = CustomFhirPathFunctions().getFakeValueForElement(
+        mutableListOf(mutableListOf(StringType(dataType)))
+    )[0].primitiveValue()
 
     /**
      * Gets a fake value for a given type that requires geo data
      */
-    private fun getFakeValueForElementCallUsingGeoData(dataType: String, state: String): String {
-        return CustomFhirPathFunctions().getFakeValueForElement(
-            mutableListOf(mutableListOf(StringType(dataType)), mutableListOf(StringType(state)))
-        )[0].primitiveValue()
-    }
+    private fun getFakeValueForElementCallUsingGeoData(
+        dataType: String,
+        state: String,
+    ): String = CustomFhirPathFunctions().getFakeValueForElement(
+        mutableListOf(mutableListOf(StringType(dataType)), mutableListOf(StringType(state)))
+    )[0].primitiveValue()
 }

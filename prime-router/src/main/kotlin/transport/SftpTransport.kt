@@ -11,6 +11,7 @@ import gov.cdc.prime.router.TransportType
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
+import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
 import gov.cdc.prime.router.azure.observability.event.IReportStreamEventService
 import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.credentials.CredentialHelper
@@ -38,7 +39,9 @@ import org.apache.logging.log4j.kotlin.Logging
 import java.io.InputStream
 import java.io.StringReader
 
-class SftpTransport : ITransport, Logging {
+class SftpTransport :
+    ITransport,
+    Logging {
 
     override fun send(
         transportType: TransportType,
@@ -50,6 +53,8 @@ class SftpTransport : ITransport, Logging {
         actionHistory: ActionHistory,
         reportEventService: IReportStreamEventService,
         reportService: ReportService,
+        lineages: List<ItemLineage>?,
+        queueMessage: String,
     ): RetryItems? {
         val sftpTransportType = transportType as SFTPTransportType
 
@@ -75,7 +80,9 @@ class SftpTransport : ITransport, Logging {
                 header,
                 reportEventService,
                 reportService,
-                this::class.java.simpleName
+                this::class.java.simpleName,
+                lineages,
+                queueMessage
             )
             actionHistory.trackItemLineages(Report.createItemLineagesFromDb(header, sentReportId))
             null
@@ -93,6 +100,14 @@ class SftpTransport : ITransport, Logging {
 
     companion object : Logging {
 
+        const val SFTP_HOST_OVERRIDE = "SFTP_HOST_OVERRIDE"
+        const val SFTP_PORT_OVERRIDE = "SFTP_PORT_OVERRIDE"
+        const val SFTP_HOST = "SFTP_HOST"
+        const val SFTP_PORT = "SFTP_PORT"
+        const val SFTP_CONNECTION_TIMEOUT = "SFTP_CONNECTION_TIMEOUT"
+        const val SFTP_READ_TIMEOUT = "SFTP_READ_TIMEOUT"
+        const val USE_NON_DEPRECATED_KEY_ALGORITHMS_ONLY = "USE_NON_DEPRECATED_KEY_ALGORITHMS_ONLY"
+
         /**
          * Connect to a [receiver].  If the [credential] is not specified then it is fetched from the vault.
          * @return the SFTP client connection
@@ -104,20 +119,31 @@ class SftpTransport : ITransport, Logging {
 
             // Override the SFTP host and port only if provided and in the local environment.
             val host: String = if (Environment.isLocal() &&
-                !System.getenv("SFTP_HOST_OVERRIDE").isNullOrBlank()
+                !System.getenv(SFTP_HOST_OVERRIDE).isNullOrBlank()
             ) {
-                System.getenv("SFTP_HOST_OVERRIDE")
+                System.getenv(SFTP_HOST_OVERRIDE)
             } else {
                 sftpTransportInfo.host
             }
             val port: String = if (Environment.isLocal() &&
-                !System.getenv("SFTP_PORT_OVERRIDE").isNullOrBlank()
+                !System.getenv(SFTP_PORT_OVERRIDE).isNullOrBlank()
             ) {
-                System.getenv("SFTP_PORT_OVERRIDE")
+                System.getenv(SFTP_PORT_OVERRIDE)
             } else {
                 sftpTransportInfo.port
             }
-            return connect(host, port, credential ?: lookupCredentials(receiver))
+            val properties = HashMap<String, String>()
+            properties[SFTP_HOST] = host
+            properties[SFTP_PORT] = port
+            if (!sftpTransportInfo.connectionTimeout.isNullOrBlank()) {
+                properties[SFTP_CONNECTION_TIMEOUT] = sftpTransportInfo.connectionTimeout
+            }
+            if (!sftpTransportInfo.readTimeout.isNullOrBlank()) {
+                properties[SFTP_READ_TIMEOUT] = sftpTransportInfo.readTimeout
+            }
+            properties[USE_NON_DEPRECATED_KEY_ALGORITHMS_ONLY] =
+                sftpTransportInfo.useNonDeprecatedKeyAlgorithmsOnly.toString()
+            return connect(properties, credential ?: lookupCredentials(receiver))
         }
 
         /**
@@ -143,14 +169,21 @@ class SftpTransport : ITransport, Logging {
         }
 
         private fun connect(
-            host: String,
-            port: String,
+            properties: Map<String, String>,
             credential: SftpCredential,
         ): SSHClient {
-            val sshClient = createDefaultSSHClient()
+            val host = properties[SFTP_HOST]
+            val port = properties[SFTP_PORT]?.toInt() ?: 22
+            val sshClient = createDefaultSSHClient(properties[USE_NON_DEPRECATED_KEY_ALGORITHMS_ONLY].toBoolean())
+            if (!properties[SFTP_CONNECTION_TIMEOUT].isNullOrBlank()) {
+                sshClient.connectTimeout = properties[SFTP_CONNECTION_TIMEOUT]?.toInt()!!
+            }
+            if (!properties[SFTP_READ_TIMEOUT].isNullOrBlank()) {
+                sshClient.timeout = properties[SFTP_READ_TIMEOUT]?.toInt()!!
+            }
             try {
                 sshClient.addHostKeyVerifier(PromiscuousVerifier())
-                sshClient.connect(host, port.toInt())
+                sshClient.connect(host, port)
                 when (credential) {
                     is UserPassCredential -> sshClient.authPassword(credential.user, credential.pass)
                     is UserPemCredential -> {
@@ -222,9 +255,7 @@ class SftpTransport : ITransport, Logging {
             }
         }
 
-        fun ls(sshClient: SSHClient, path: String): List<String> {
-            return ls(sshClient, path, null)
-        }
+        fun ls(sshClient: SSHClient, path: String): List<String> = ls(sshClient, path, null)
 
         fun ls(sshClient: SSHClient, path: String, resourceFilter: RemoteResourceFilter?): List<String> {
             val lsResults = mutableListOf<String>()
@@ -292,60 +323,63 @@ class SftpTransport : ITransport, Logging {
             return pwd
         }
 
-        private fun makeSourceFile(contents: ByteArray, fileName: String): LocalSourceFile {
-            return object : InMemorySourceFile() {
-                override fun getName(): String {
-                    return fileName
-                }
+        private fun makeSourceFile(contents: ByteArray, fileName: String): LocalSourceFile =
+            object : InMemorySourceFile() {
+                override fun getName(): String = fileName
 
-                override fun getLength(): Long {
-                    return contents.size.toLong()
-                }
+                override fun getLength(): Long = contents.size.toLong()
 
-                override fun getInputStream(): InputStream {
-                    return contents.inputStream()
-                }
+                override fun getInputStream(): InputStream = contents.inputStream()
 
-                override fun isDirectory(): Boolean {
-                    return false
-                }
+                override fun isDirectory(): Boolean = false
 
-                override fun isFile(): Boolean {
-                    return true
-                }
+                override fun isFile(): Boolean = true
 
-                override fun getPermissions(): Int {
-                    return 777
-                }
+                override fun getPermissions(): Int = 777
             }
-        }
 
         // allow us to mock SSHClient because there is no dependency injection in this class
-        fun createDefaultSSHClient(): SSHClient {
+        fun createDefaultSSHClient(useNonDeprecatedKeyAlgorithmsOnly: Boolean): SSHClient {
             val sshConfig = DefaultConfig()
 
-            // Started from version 0.33.0, SSHJ doesn't try to determine RSA-SHA2-* support on fly.
-            // Instead, it looks only config.getKeyAlgorithms(), which may or may not contain ssh-rsa
-            // and rsa-sha2-* in any order.  The default config stops working with old servers like
-            // Apache SSHD that doesn't rsa-sha2-* signatures.  To make it works with old servers,
-            // we need to include the KeyAlgorithms.SSHRSA at the top of the list or have higher
-            // priority than other as below.
-            sshConfig.keyAlgorithms = listOf(
-                KeyAlgorithms.SSHRSA(),
-                KeyAlgorithms.EdDSA25519CertV01(),
-                KeyAlgorithms.EdDSA25519(),
-                KeyAlgorithms.ECDSASHANistp521CertV01(),
-                KeyAlgorithms.ECDSASHANistp521(),
-                KeyAlgorithms.ECDSASHANistp384CertV01(),
-                KeyAlgorithms.ECDSASHANistp384(),
-                KeyAlgorithms.ECDSASHANistp256CertV01(),
-                KeyAlgorithms.ECDSASHANistp256(),
-                KeyAlgorithms.RSASHA512(),
-                KeyAlgorithms.RSASHA256(),
-                KeyAlgorithms.SSHRSACertV01(),
-                KeyAlgorithms.SSHDSSCertV01(),
-                KeyAlgorithms.SSHDSA()
-            )
+            if (useNonDeprecatedKeyAlgorithmsOnly) {
+                sshConfig.keyAlgorithms = listOf(
+                    KeyAlgorithms.EdDSA25519CertV01(),
+                    KeyAlgorithms.EdDSA25519(),
+                    KeyAlgorithms.ECDSASHANistp521CertV01(),
+                    KeyAlgorithms.ECDSASHANistp521(),
+                    KeyAlgorithms.ECDSASHANistp384CertV01(),
+                    KeyAlgorithms.ECDSASHANistp384(),
+                    KeyAlgorithms.ECDSASHANistp256CertV01(),
+                    KeyAlgorithms.ECDSASHANistp256(),
+                    KeyAlgorithms.RSASHA512(),
+                    KeyAlgorithms.RSASHA256()
+                )
+            } else {
+                // Started from version 0.33.0, SSHJ doesn't try to determine RSA-SHA2-* support on fly.
+                // Instead, it looks only config.getKeyAlgorithms(), which may or may not contain ssh-rsa
+                // and rsa-sha2-* in any order.  The default config stops working with old servers like
+                // Apache SSHD that doesn't rsa-sha2-* signatures.  To make it works with old servers,
+                // we need to include the KeyAlgorithms.SSHRSA at the top of the list or have higher
+                // priority than other as below.
+                sshConfig.keyAlgorithms = listOf(
+                    KeyAlgorithms.SSHRSA(),
+                    KeyAlgorithms.EdDSA25519CertV01(),
+                    KeyAlgorithms.EdDSA25519(),
+                    KeyAlgorithms.ECDSASHANistp521CertV01(),
+                    KeyAlgorithms.ECDSASHANistp521(),
+                    KeyAlgorithms.ECDSASHANistp384CertV01(),
+                    KeyAlgorithms.ECDSASHANistp384(),
+                    KeyAlgorithms.ECDSASHANistp256CertV01(),
+                    KeyAlgorithms.ECDSASHANistp256(),
+                    KeyAlgorithms.RSASHA512(),
+                    KeyAlgorithms.RSASHA256(),
+                    KeyAlgorithms.SSHRSACertV01(),
+                    KeyAlgorithms.SSHDSSCertV01(),
+                    KeyAlgorithms.SSHDSA()
+                )
+            }
+
             return SSHClient(sshConfig)
         }
     }

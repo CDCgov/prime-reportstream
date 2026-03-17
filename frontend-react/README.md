@@ -1,8 +1,21 @@
+# ⚠️ WARNING: SUNSET PAGE
+
+**This folder contains the sunset/static page version of the application.**
+
+The original React application has been backed up to `/frontend-react-original`.
+
+**To restore the original application:**
+
+1. Remove this `frontend-react` folder
+2. Rename `frontend-react-original` to `frontend-react`
+
+---
+
 # Getting started with ReportStream's React application
 
 ## Run the React application
 
-Our new React front-end is easy to get up and running on your machine. First, ensure the following dependencies
+Our new React front-end is straightforward to get up and running on your machine. First, ensure the following dependencies are
 installed:
 
 - `node` (see .nvmrc for version specification) via `nvm`
@@ -47,7 +60,7 @@ for any error status codes.
 ```bash
 yarn # Will install all dependencies in package.json
 
-yarn run dev # Runs the React app use for localdev
+yarn run dev # Runs the React app use for local development
 yarn run build:staging # Builds the React app for staging
 yarn run build:production # Builds the React app for production
 

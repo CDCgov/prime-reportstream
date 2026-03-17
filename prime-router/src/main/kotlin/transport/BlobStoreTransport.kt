@@ -9,6 +9,7 @@ import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
+import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
 import gov.cdc.prime.router.azure.observability.event.IReportStreamEventService
 import gov.cdc.prime.router.report.ReportService
 
@@ -23,6 +24,8 @@ class BlobStoreTransport : ITransport {
         actionHistory: ActionHistory,
         reportEventService: IReportStreamEventService,
         reportService: ReportService,
+        lineages: List<ItemLineage>?,
+        queueMessage: String,
     ): RetryItems? {
         val blobTransportType = transportType as BlobStoreTransportType
         val envVar: String = blobTransportType.containerName
@@ -31,7 +34,11 @@ class BlobStoreTransport : ITransport {
             val receiver = header.receiver ?: error("No receiver defined for report ${header.reportFile.reportId}")
             val bodyUrl = header.reportFile.bodyUrl ?: error("Report ${header.reportFile.reportId} has no blob to copy")
             context.logger.info("About to copy $bodyUrl to $envVar:$storageName")
-            val newUrl = BlobAccess.copyBlob(bodyUrl, BlobAccess.BlobContainerMetadata.build(transportType))
+            val blobConnection = BlobAccess.BlobContainerMetadata.build(transportType)
+            val blobFile = BlobAccess.downloadBlobAsByteArray(bodyUrl)
+            context.logger.info("New blob filename will be $externalFileName")
+            val newUrl = BlobAccess.uploadBlob(externalFileName, blobFile, blobConnection)
+            context.logger.info("New blob URL is $newUrl")
             val msg = "Successfully copied $bodyUrl to $newUrl"
             context.logger.info(msg)
             actionHistory.trackActionResult(msg)
@@ -44,7 +51,9 @@ class BlobStoreTransport : ITransport {
                 header,
                 reportEventService,
                 reportService,
-                this::class.java.simpleName
+                this::class.java.simpleName,
+                lineages,
+                queueMessage
             )
             actionHistory.trackItemLineages(Report.createItemLineagesFromDb(header, sentReportId))
             null

@@ -71,29 +71,19 @@ class SubmissionControllerTest {
     @TestConfiguration
     class Config {
         @Bean
-        fun blobContainerClient(): BlobContainerClient {
-            return mock()
-        }
+        fun blobContainerClient(): BlobContainerClient = mock()
 
         @Bean
-        fun queueClient(): QueueClient {
-            return mock()
-        }
+        fun queueClient(): QueueClient = mock()
 
         @Bean
-        fun tableClient(): TableClient {
-            return mock()
-        }
+        fun tableClient(): TableClient = mock()
 
         @Bean
-        fun telemetryService(): TelemetryService {
-            return mock()
-        }
+        fun telemetryService(): TelemetryService = mock()
 
         @Bean
-        fun authZService(): AuthZService {
-            return mock()
-        }
+        fun authZService(): AuthZService = mock()
     }
 
     private lateinit var objectMapper: ObjectMapper
@@ -159,8 +149,6 @@ class SubmissionControllerTest {
 
         `when`(blobClient.blobUrl).thenReturn(expectedBlobUrl)
         `when`(queueClient.sendMessage(anyString())).thenReturn(sendMessageResult)
-        `when`(authZService.isSenderAuthorized(org.mockito.kotlin.any(), org.mockito.kotlin.any<(String) -> String>()))
-            .thenReturn(true)
 
         mockMvc.perform(
             MockMvcRequestBuilders.post("/api/v1/reports")
@@ -208,8 +196,6 @@ class SubmissionControllerTest {
 
         `when`(blobClient.blobUrl).thenReturn(expectedBlobUrl)
         `when`(queueClient.sendMessage(anyString())).thenReturn(sendMessageResult)
-        `when`(authZService.isSenderAuthorized(org.mockito.kotlin.any(), org.mockito.kotlin.any<(String) -> String>()))
-            .thenReturn(true)
 
         mockMvc.perform(
             MockMvcRequestBuilders.post("/api/v1/reports")
@@ -280,8 +266,6 @@ class SubmissionControllerTest {
         val data = mapOf("key" to "value")
         val requestBody = objectMapper.writeValueAsString(data)
 
-        `when`(authZService.isSenderAuthorized(org.mockito.kotlin.any(), org.mockito.kotlin.any<(String) -> String>()))
-            .thenReturn(true)
         doThrow(RuntimeException("Blob storage failure"))
             .`when`(blobClient).upload(any(ByteArrayInputStream::class.java), anyLong())
 
@@ -305,8 +289,6 @@ class SubmissionControllerTest {
         val data = mapOf("key" to "value")
         val requestBody = objectMapper.writeValueAsString(data)
 
-        `when`(authZService.isSenderAuthorized(org.mockito.kotlin.any(), org.mockito.kotlin.any<(String) -> String>()))
-            .thenReturn(true)
         doNothing().`when`(blobClient).upload(any(ByteArrayInputStream::class.java), anyLong())
         doThrow(RuntimeException("Queue service failure")).`when`(queueClient).sendMessage(anyString())
 
@@ -328,8 +310,7 @@ class SubmissionControllerTest {
     @Test
     fun `submitReport should log SUBMISSION_RECEIVED with correct details`() {
         // Helper function to safely cast the captured map to Map<String, String>
-        fun mapToStringString(input: Map<*, *>): Map<String, String> {
-            return input.mapNotNull { (key, value) ->
+        fun mapToStringString(input: Map<*, *>): Map<String, String> = input.mapNotNull { (key, value) ->
                 val stringKey = key as? String
                 val stringValue = value as? String
                 if (stringKey != null && stringValue != null) {
@@ -338,7 +319,6 @@ class SubmissionControllerTest {
                     null
                 }
             }.toMap()
-        }
 
         val data = mapOf("key" to "value")
         val requestBody = objectMapper.writeValueAsString(data)
@@ -348,8 +328,6 @@ class SubmissionControllerTest {
         // Mock the UUID generation to ensure a predictable report ID
         val uuidMockedStatic = mockStatic(UUID::class.java)
         uuidMockedStatic.`when`<UUID> { UUID.randomUUID() }.thenReturn(reportId)
-        `when`(authZService.isSenderAuthorized(org.mockito.kotlin.any(), org.mockito.kotlin.any<(String) -> String>()))
-            .thenReturn(true)
 
         mockMvc.perform(
             MockMvcRequestBuilders.post("/api/v1/reports")

@@ -6,9 +6,9 @@ import assertk.assertions.isInstanceOf
 import io.konform.validation.Invalid
 import io.konform.validation.Valid
 import io.konform.validation.Validation
-import io.konform.validation.jsonschema.minItems
-import io.konform.validation.jsonschema.minLength
-import io.konform.validation.jsonschema.minimum
+import io.konform.validation.constraints.minItems
+import io.konform.validation.constraints.minLength
+import io.konform.validation.constraints.minimum
 import io.konform.validation.onEach
 import kotlin.test.Test
 
@@ -58,13 +58,9 @@ class ValueValidationTest {
         )
 
         val invalid = validation.validate(test)
-        assertThat(invalid).isInstanceOf<Invalid<TestDataClass>>()
+        assertThat(invalid).isInstanceOf<Invalid>()
         assertThat(invalid.errors).hasSize(4)
     }
 }
 
-private data class TestDataClass(
-    val string: String,
-    val nullable: Int?,
-    val list: List<String>,
-)
+private data class TestDataClass(val string: String, val nullable: Int?, val list: List<String>)

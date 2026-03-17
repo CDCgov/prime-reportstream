@@ -25,7 +25,7 @@ locals {
     tf_secrets_vault      = "pdh${local.init.environment}-keyvault"
   }
   ad = {
-    terraform_object_id       = "4d81288c-27a3-4df8-b776-c9da8e688bc7"
+    terraform_object_id       = "a58ee002-62c7-4a91-a2dc-4a837663aa00"
     aad_object_keyvault_admin = "5c6a951e-a4c2-4890-b62c-0ed8179501bb"
     aad_group_postgres_admin  = "c4031f1f-229c-4a8a-b3b9-23bae9dbf197"
   }
@@ -36,13 +36,13 @@ locals {
     delete_pii_storage_after_days = 60
   }
   database = {
-    db_sku_name         = "MO_Gen5_32"
-    db_version          = "11"
-    db_storage_mb       = 5120
-    db_auto_grow        = true
-    db_prevent_destroy  = true
-    db_threat_detection = true
-    db_replica          = true
+    postgres_server_id   = "/subscriptions/7d1e3999-6577-4cd5-b296-f518e5c8e677/resourceGroups/ddphss-prim-prd-moderate-rg/providers/Microsoft.DBforPostgreSQL/servers/dppa-prim-azpgsql-01"
+    postgres_server_name = "dppa-prim-azpgsql-01"
+    postgres_server_fqdn = "dppa-prim-azpgsql-01.postgres.database.azure.com"
+    postgres_replica_ids = {
+      "dppa-prim-azpgsql-01-1" = "/subscriptions/7d1e3999-6577-4cd5-b296-f518e5c8e677/resourceGroups/ddphss-prim-prd-moderate-rg/providers/Microsoft.DBforPostgreSQL/servers/dppa-prim-azpgsql-01-1"
+      "dppa-prim-azpgsql-01-2" = "/subscriptions/7d1e3999-6577-4cd5-b296-f518e5c8e677/resourceGroups/ddphss-prim-prd-moderate-rg/providers/Microsoft.DBforPostgreSQL/servers/dppa-prim-azpgsql-01-2"
+    }
   }
   log_analytics_workspace = {
     law_retention_period = "730"

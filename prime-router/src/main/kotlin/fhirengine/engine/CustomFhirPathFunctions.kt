@@ -44,13 +44,11 @@ class CustomFhirPathFunctions : FhirPathFunctions {
              * Get from a [functionName].
              * @return the function name enum or null if not found
              */
-            fun get(functionName: String?): CustomFhirPathFunctionNames? {
-                return try {
+            fun get(functionName: String?): CustomFhirPathFunctionNames? = try {
                     functionName?.let { CustomFhirPathFunctionNames.valueOf(it.replaceFirstChar(Char::titlecase)) }
                 } catch (e: IllegalArgumentException) {
                     null
                 }
-            }
         }
     }
 
@@ -61,8 +59,7 @@ class CustomFhirPathFunctions : FhirPathFunctions {
     override fun resolveFunction(
         functionName: String?,
         additionalFunctions: FhirPathFunctions?,
-    ): FunctionDetails? {
-        return when (CustomFhirPathFunctionNames.get(functionName)) {
+    ): FunctionDetails? = when (CustomFhirPathFunctionNames.get(functionName)) {
             CustomFhirPathFunctionNames.LivdTableLookup -> {
                 FunctionDetails(
                     "looks up data in the LIVD table that match the information provided",
@@ -95,7 +92,6 @@ class CustomFhirPathFunctions : FhirPathFunctions {
 
             else -> null
         }
-    }
 
     /**
      * Execute the function on a [focus] resource for a given [functionName] and [parameters].
@@ -191,7 +187,6 @@ class CustomFhirPathFunctions : FhirPathFunctions {
 
     /**
      * Get a fake value to use for a specific type of field
-     * @param focus not actually required here. What we call it on is completely irrelevant
      * @param parameters takes a field type which is based off of element type with an optional second param for state,
      * required for types city, postal code,
      * @param metadata used to get the geo data table
@@ -202,7 +197,8 @@ class CustomFhirPathFunctions : FhirPathFunctions {
         metadata: Metadata = Metadata.getInstance(),
     ): MutableList<Base> {
         val type = GeoData.DataTypes.valueOf(parameters!!.first().first().primitiveValue())
-        if (type == GeoData.DataTypes.CITY || type == GeoData.DataTypes.COUNTY ||
+        if (type == GeoData.DataTypes.CITY ||
+            type == GeoData.DataTypes.COUNTY ||
             type == GeoData.DataTypes.POSTAL_CODE
         ) {
             if (parameters.size != 2) {

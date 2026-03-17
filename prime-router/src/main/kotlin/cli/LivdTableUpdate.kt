@@ -1,6 +1,8 @@
 package gov.cdc.prime.router.cli
 
 import com.github.ajalt.clikt.core.CliktCommand
+import com.github.ajalt.clikt.core.Context
+import com.github.ajalt.clikt.core.main
 import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
@@ -45,12 +47,14 @@ import java.net.URL
  *
  */
 
-class LivdTableUpdate : CliktCommand(
-    name = "livd-table-update",
-    help = """
+class LivdTableUpdate :
+    CliktCommand(
+        name = "livd-table-update",
+    ) {
+    override fun help(context: Context): String = """
         This updates the LIVD lookup table with a new version.
     """
-) {
+
     /**
      * The environment to connect to.
      */
@@ -169,7 +173,8 @@ class LivdTableUpdate : CliktCommand(
                                 if (cell.stringCellValue.last() == '*') stringValue = cell.stringCellValue.dropLast(1)
 
                                 // Add " to a string that contains quoted strings (i.e ""string"")
-                                if (stringValue.contains("\n") || stringValue.contains(",") ||
+                                if (stringValue.contains("\n") ||
+                                    stringValue.contains(",") ||
                                     (stringValue.contains("\""))
                                 ) {
                                     // String that contain special character(s)

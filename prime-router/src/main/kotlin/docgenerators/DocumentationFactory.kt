@@ -37,13 +37,11 @@ abstract class DocumentationFactory {
             schema: Schema,
             includeTimestamps: Boolean,
             fileExtension: String,
-        ): String {
-            return (outputFileName ?: canonicalizeSchemaName(schema)) + if (includeTimestamps) {
+        ): String = (outputFileName ?: canonicalizeSchemaName(schema)) + if (includeTimestamps) {
                 "-${LocalDate.now().format(formatter)}.$fileExtension"
             } else {
                 ".$fileExtension"
             }
-        }
 
         /**
          * Verifies the output directory exists and creates it if it doesn't

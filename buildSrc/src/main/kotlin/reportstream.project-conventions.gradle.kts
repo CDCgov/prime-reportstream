@@ -1,41 +1,40 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.jlleitschuh.gradle.ktlint.KtlintExtension
+
+apply(from = rootProject.file("buildSrc/shared.gradle.kts"))
 
 plugins {
     kotlin("jvm")
     id("org.jlleitschuh.gradle.ktlint")
 }
 
+ktlint {
+    version = "1.6.0"
+}
+
 group = "gov.cdc.prime.reportstream"
 version = "0.0.1-SNAPSHOT"
 
-repositories {
-    mavenCentral()
-}
+val jvmTarget = JvmTarget.JVM_17
 
 kotlin {
-    jvmToolchain(17)
+    jvmToolchain(jvmTarget.target.toInt())
 }
 
-val majorJavaVersion = 17
 java {
-    sourceCompatibility = JavaVersion.toVersion(majorJavaVersion)
-    targetCompatibility = JavaVersion.toVersion(majorJavaVersion)
+    sourceCompatibility = JavaVersion.toVersion(jvmTarget.target)
+    targetCompatibility = JavaVersion.toVersion(jvmTarget.target)
     toolchain {
-        languageVersion = JavaLanguageVersion.of(majorJavaVersion)
+        languageVersion = JavaLanguageVersion.of(jvmTarget.target)
     }
 }
 val compileKotlin: KotlinCompile by tasks
 val compileTestKotlin: KotlinCompile by tasks
-compileKotlin.kotlinOptions.jvmTarget = "$majorJavaVersion"
-compileKotlin.kotlinOptions.allWarningsAsErrors = true
-compileTestKotlin.kotlinOptions.jvmTarget = "$majorJavaVersion"
-compileTestKotlin.kotlinOptions.allWarningsAsErrors = true
-
-configure<KtlintExtension> {
-    // See ktlint versions at https://github.com/pinterest/ktlint/releases
-    version.set("1.1.1")
-}
+compileKotlin.compilerOptions.jvmTarget.set(jvmTarget)
+compileKotlin.compilerOptions.allWarningsAsErrors = true
+compileTestKotlin.compilerOptions.jvmTarget.set(jvmTarget)
+compileTestKotlin.compilerOptions.allWarningsAsErrors = true
 
 tasks.withType<Test> {
     useJUnitPlatform()
@@ -49,7 +48,7 @@ dependencies {
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonVersion")
     implementation("com.azure:azure-core:1.49.0")
-    implementation("com.azure:azure-core-http-netty:1.15.0")
+    implementation("com.azure:azure-core-http-netty:1.16.1")
     implementation("com.azure:azure-data-tables:12.2.0")
     implementation("com.azure:azure-storage-queue:12.21.0") {
         exclude(group = "com.azure", module = "azure-core")

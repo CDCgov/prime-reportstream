@@ -151,6 +151,19 @@ abstract class FHIREngine(
                         reportService ?: ReportService()
                     )
                 )
+                TaskAction.receiver_enrichment -> FHIRReceiverEnrichment(
+                    metadata ?: Metadata.getInstance(),
+                    settingsProvider!!,
+                    databaseAccess ?: databaseAccessSingleton,
+                    blobAccess ?: BlobAccess(),
+                    azureEventService ?: AzureEventServiceImpl(),
+                    reportService ?: ReportService(),
+                    ReportStreamEventService(
+                        databaseAccess ?: databaseAccessSingleton,
+                        azureEventService ?: AzureEventServiceImpl(),
+                        reportService ?: ReportService()
+                    )
+                )
                 TaskAction.receiver_filter -> FHIRReceiverFilter(
                     metadata ?: Metadata.getInstance(),
                     settingsProvider!!,
@@ -268,59 +281,6 @@ abstract class FHIREngine(
             actionLogger.error(InvalidReportMessage(ex.message ?: ""))
             // The error gets logged but rethrown so that the passed in transaction can get rolled back
             throw ex
-        }
-    }
-
-    /**
-     * The name of the lookup table to load the shorthand replacement key/value pairs from
-     */
-    private val fhirPathFilterShorthandTableName = "fhirpath_filter_shorthand"
-
-    /**
-     * The name of the column in the shorthand replacement lookup table that will be used as the key.
-     */
-    private val fhirPathFilterShorthandTableKeyColumnName = "variable"
-
-    /**
-     * The name of the column in the shorthand replacement lookup table that will be used as the value.
-     */
-    private val fhirPathFilterShorthandTableValueColumnName = "fhirPath"
-
-    /**
-     * Lookup table `fhirpath_filter_shorthand` containing all the shorthand fhirpath replacements for filtering.
-     */
-    protected val shorthandLookupTable by lazy { loadFhirPathShorthandLookupTable() }
-
-    /**
-     * Load the fhirpath_filter_shorthand lookup table into a map if it can be found and has the expected columns,
-     * otherwise log warnings and return an empty lookup table with the correct columns. This is valid since having
-     * a populated lookup table is not required to run the universal pipeline routing
-     *
-     * @returns Map containing all the values in the fhirpath_filter_shorthand lookup table. Empty map if the
-     * lookup table was not found, or it does not contain the expected columns. If an empty map is returned, a
-     * warning indicating why will be logged.
-     */
-    internal fun loadFhirPathShorthandLookupTable(): MutableMap<String, String> {
-        val lookup = metadata.findLookupTable(fhirPathFilterShorthandTableName)
-        // log a warning and return an empty table if either lookup table is missing or has incorrect columns
-        return if (lookup != null &&
-            lookup.hasColumn(fhirPathFilterShorthandTableKeyColumnName) &&
-            lookup.hasColumn(fhirPathFilterShorthandTableValueColumnName)
-        ) {
-            lookup.table.associate {
-                it.getString(fhirPathFilterShorthandTableKeyColumnName) to
-                    it.getString(fhirPathFilterShorthandTableValueColumnName)
-            }.toMutableMap()
-        } else {
-            if (lookup == null) {
-                logger.warn("Unable to find $fhirPathFilterShorthandTableName lookup table")
-            } else {
-                logger.warn(
-                    "$fhirPathFilterShorthandTableName does not contain " +
-                        "expected columns 'variable' and 'fhirPath'"
-                )
-            }
-            emptyMap<String, String>().toMutableMap()
         }
     }
 }

@@ -134,16 +134,9 @@ data class Element(
         BLANK,
     }
 
-    data class CsvField(
-        val name: String,
-        val format: String?,
-    )
+    data class CsvField(val name: String, val format: String?)
 
-    data class HDFields(
-        val name: String,
-        val universalId: String?,
-        val universalIdSystem: String?,
-    )
+    data class HDFields(val name: String, val universalId: String?, val universalIdSystem: String?)
 
     data class EIFields(
         val name: String,
@@ -156,11 +149,7 @@ data class Element(
      * An element can have subfields, for example when more than CSV field makes up a single element.
      * See ElementTests for an example.
      **/
-    data class SubValue(
-        val name: String,
-        val value: String,
-        val format: String?,
-    )
+    data class SubValue(val name: String, val value: String, val format: String?)
 
     /**
      * @property ZERO_OR_ONE Can be null or present (default)
@@ -174,19 +163,18 @@ data class Element(
         // ZERO is not a value, just remove the element to represent this concept
         // Other values including conditionals in the future.
 
-        fun toFormatted(): String {
-            return when (this) {
+        fun toFormatted(): String = when (this) {
                 ZERO_OR_ONE -> "[0..1]"
                 ONE -> "[1..1]"
             }
-        }
     }
 
     val isCodeType get() = this.type == Type.CODE
 
     val isOptional
         get() = this.cardinality == null ||
-            this.cardinality == Cardinality.ZERO_OR_ONE || canBeBlank
+            this.cardinality == Cardinality.ZERO_OR_ONE ||
+            canBeBlank
 
     val canBeBlank
         get() = type == Type.TEXT_OR_BLANK ||
@@ -212,8 +200,7 @@ data class Element(
             }
         }
 
-    fun inheritFrom(baseElement: Element): Element {
-        return Element(
+    fun inheritFrom(baseElement: Element): Element = Element(
             name = this.name,
             type = this.type ?: baseElement.type,
             valueSet = this.valueSet ?: baseElement.valueSet,
@@ -240,7 +227,6 @@ data class Element(
             csvFields = this.csvFields ?: baseElement.csvFields,
             delimiter = this.delimiter ?: baseElement.delimiter
         )
-    }
 
     /**
      * Generate validation error messages if this element is not valid.
@@ -284,22 +270,18 @@ data class Element(
         return errorList
     }
 
-    fun nameContains(substring: String): Boolean {
-        return name.contains(substring, ignoreCase = true)
-    }
+    fun nameContains(substring: String): Boolean = name.contains(substring, ignoreCase = true)
 
     /**
      * Is there a default value for this element?
      *
      * @param defaultValues a dynamic set of default values to use
      */
-    fun hasDefaultValue(defaultValues: DefaultValues): Boolean {
-        return defaultValues.containsKey(name) || default?.isNotBlank() == true
-    }
+    fun hasDefaultValue(
+        defaultValues: DefaultValues,
+    ): Boolean = defaultValues.containsKey(name) || default?.isNotBlank() == true
 
-    fun defaultValue(defaultValues: DefaultValues): String {
-        return defaultValues.getOrDefault(name, default ?: "")
-    }
+    fun defaultValue(defaultValues: DefaultValues): String = defaultValues.getOrDefault(name, default ?: "")
 
     /**
      * A formatted string is the Element's normalized value formatted using the format string passed in
@@ -941,7 +923,8 @@ data class Element(
                     tokenizeMapperValue(elementName, itemIndex)
                 } else {
                     val valueElement = schema.findElement(elementName)
-                    if (valueElement != null && allElementValues.containsKey(elementName) &&
+                    if (valueElement != null &&
+                        allElementValues.containsKey(elementName) &&
                         !allElementValues[elementName].isNullOrEmpty()
                     ) {
                         ElementAndValue(valueElement, allElementValues[elementName]!!)
@@ -1050,6 +1033,7 @@ data class Element(
         // A regex to check for the presence of only valid phone number characters. This will fail if
         // someone passes through character values, like a name, or some other text info. This checks for
         // proper format which is crucial when parsing data.
+
         /**
          * Breaking down the regex
          * The following regex is broken down in three main parts
@@ -1144,9 +1128,7 @@ data class Element(
             "UM" // US Minor Outlying Islands
         )
 
-        fun csvFields(name: String, format: String? = null): List<CsvField> {
-            return listOf(CsvField(name, format))
-        }
+        fun csvFields(name: String, format: String? = null): List<CsvField> = listOf(CsvField(name, format))
 
         fun parseHD(value: String, maximumLength: Int? = null): HDFields {
             val parts = value.split(hdDelimiter)
@@ -1177,6 +1159,7 @@ data class Element(
         //  into if the 'maybeAPhoneNumber' regex is even still needed. It appears the 'default region' list is
         //  not needed, as in a real use case it never gets past 'US' since it is just assigning default region
         //  if there is not a country code. Leaving this here for now (9/22/2022) for future tech debt evaluation
+
         /**
          * Given [cleanedValue] this method checks to see if it is possibly a phone number in a safe
          * way without blowing up all the processing of rows in a report. If the phone number is probably
