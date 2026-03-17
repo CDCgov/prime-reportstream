@@ -206,7 +206,7 @@ runs:
           echo "has_frontend_change=${{ steps.filter.outputs.frontend_react }}" >> $GITHUB_OUTPUT
         fi
 
-    - uses: azure/login@v2
+    - uses: azure/login@v3
       if: inputs.sp-creds != 'false'
       with:
         creds: ${{ inputs.sp-creds }}
