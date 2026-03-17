@@ -3,7 +3,7 @@ import { userEvent } from "@testing-library/user-event";
 import { Suspense } from "react";
 
 import FileHandlerFileUploadStep from "./FileHandlerFileUploadStep";
-import { fakeFile, mockSendFileWithErrors, mockSendValidFile } from "../../__mocks__/validation";
+import { fakeFile, mockSendFileWithErrors, mockSendValidFile } from "../../__fixtures__/validation";
 import { sendersGenerator } from "../../__mockServers__/OrganizationMockServer";
 import { RSSender } from "../../config/endpoints/settings";
 import { UseSenderResourceHookResult } from "../../hooks/api/organizations/UseOrganizationSender/UseOrganizationSender";
