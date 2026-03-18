@@ -145,47 +145,45 @@ test.describe("Admin Receiver Status Page", () => {
 
             test.describe("Functions correctly", () => {
                 test.describe("filters", () => {
-                    test.describe("date range", () => {
-                        test("works through calendar", async ({ adminReceiverStatusPage }) => {
-                            const { valueDisplay } = adminReceiverStatusPage.filterFormInputs.dateRange;
-                            const now = new Date();
-                            const targetFrom = startOfDay(subDays(now, 3));
-                            const targetTo = addDays(endOfDay(now), 1);
+                    test("date range works through calendar", async ({ adminReceiverStatusPage }) => {
+                        const { valueDisplay } = adminReceiverStatusPage.filterFormInputs.dateRange;
+                        const now = new Date();
+                        const targetFrom = startOfDay(subDays(now, 3));
+                        const targetTo = addDays(endOfDay(now), 1);
 
-                            const reqUrl = await adminReceiverStatusPage.updateFilters({
-                                dateRange: {
-                                    value: [targetFrom, targetTo],
-                                },
-                            });
-                            expect(reqUrl).toBeDefined();
+                        const reqUrl = await adminReceiverStatusPage.updateFilters({
+                            dateRange: {
+                                value: [targetFrom, targetTo],
+                            },
+                        });
+                        expect(reqUrl).toBeDefined();
 
-                            await expect(valueDisplay).toHaveText(adminReceiverStatusPage.expectedDateRangeLabelText);
-                            expect(Object.fromEntries(reqUrl!.searchParams.entries())).toMatchObject({
-                                start_date: targetFrom.toISOString(),
-                                end_date: targetTo.toISOString(),
-                            });
+                        await expect(valueDisplay).toHaveText(adminReceiverStatusPage.expectedDateRangeLabelText);
+                        expect(Object.fromEntries(reqUrl!.searchParams.entries())).toMatchObject({
+                            start_date: targetFrom.toISOString(),
+                            end_date: targetTo.toISOString(),
+                        });
+                    });
+
+                    test("date range works through textboxes", async ({ adminReceiverStatusPage }) => {
+                        const { valueDisplay } = adminReceiverStatusPage.filterFormInputs.dateRange;
+                        await expect(adminReceiverStatusPage.receiverStatusRowsLocator).not.toHaveCount(0);
+                        const now = new Date();
+                        const targetFrom = startOfDay(subDays(now, 3));
+                        const targetTo = addDays(endOfDay(now), 1);
+
+                        const reqUrl = await adminReceiverStatusPage.updateFilters({
+                            dateRange: {
+                                value: [targetFrom, targetTo],
+                            },
                         });
 
-                        test("works through textboxes", async ({ adminReceiverStatusPage }) => {
-                            const { valueDisplay } = adminReceiverStatusPage.filterFormInputs.dateRange;
-                            await expect(adminReceiverStatusPage.receiverStatusRowsLocator).not.toHaveCount(0);
-                            const now = new Date();
-                            const targetFrom = startOfDay(subDays(now, 3));
-                            const targetTo = addDays(endOfDay(now), 1);
+                        expect(reqUrl).toBeDefined();
 
-                            const reqUrl = await adminReceiverStatusPage.updateFilters({
-                                dateRange: {
-                                    value: [targetFrom, targetTo],
-                                },
-                            });
-
-                            expect(reqUrl).toBeDefined();
-
-                            await expect(valueDisplay).toHaveText(adminReceiverStatusPage.expectedDateRangeLabelText);
-                            expect(Object.fromEntries(reqUrl!.searchParams.entries())).toMatchObject({
-                                start_date: targetFrom.toISOString(),
-                                end_date: targetTo.toISOString(),
-                            });
+                        await expect(valueDisplay).toHaveText(adminReceiverStatusPage.expectedDateRangeLabelText);
+                        expect(Object.fromEntries(reqUrl!.searchParams.entries())).toMatchObject({
+                            start_date: targetFrom.toISOString(),
+                            end_date: targetTo.toISOString(),
                         });
                     });
 
@@ -259,36 +257,34 @@ test.describe("Admin Receiver Status Page", () => {
                 });
 
                 test.describe("receiver statuses", () => {
-                    test.describe("date range length changes", () => {
-                        test("increases", async ({ adminReceiverStatusPage }) => {
-                            const rows = adminReceiverStatusPage.receiverStatusRowsLocator;
-                            const days = rows.nthCustom(0).days;
-                            await expect(rows).not.toHaveCount(0);
-                            const now = new Date();
-                            const targetFrom = startOfDay(subDays(now, 3));
-                            const targetTo = endOfDay(now);
-                            await adminReceiverStatusPage.updateFilters({
-                                dateRange: {
-                                    value: [targetFrom, targetTo],
-                                },
-                            });
-                            await expect(days).toHaveCount(4);
+                    test("date range length increases", async ({ adminReceiverStatusPage }) => {
+                        const rows = adminReceiverStatusPage.receiverStatusRowsLocator;
+                        const days = rows.nthCustom(0).days;
+                        await expect(rows).not.toHaveCount(0);
+                        const now = new Date();
+                        const targetFrom = startOfDay(subDays(now, 3));
+                        const targetTo = endOfDay(now);
+                        await adminReceiverStatusPage.updateFilters({
+                            dateRange: {
+                                value: [targetFrom, targetTo],
+                            },
                         });
+                        await expect(days).toHaveCount(4);
+                    });
 
-                        test("decreases", async ({ adminReceiverStatusPage }) => {
-                            const rows = adminReceiverStatusPage.receiverStatusRowsLocator;
-                            const days = rows.nthCustom(0).days;
-                            await expect(rows).not.toHaveCount(0);
-                            const now = new Date();
-                            const targetFrom = startOfDay(subDays(now, 1));
-                            const targetTo = endOfDay(now);
-                            await adminReceiverStatusPage.updateFilters({
-                                dateRange: {
-                                    value: [targetFrom, targetTo],
-                                },
-                            });
-                            await expect(days).toHaveCount(2);
+                    test("date range length decreases", async ({ adminReceiverStatusPage }) => {
+                        const rows = adminReceiverStatusPage.receiverStatusRowsLocator;
+                        const days = rows.nthCustom(0).days;
+                        await expect(rows).not.toHaveCount(0);
+                        const now = new Date();
+                        const targetFrom = startOfDay(subDays(now, 1));
+                        const targetTo = endOfDay(now);
+                        await adminReceiverStatusPage.updateFilters({
+                            dateRange: {
+                                value: [targetFrom, targetTo],
+                            },
                         });
+                        await expect(days).toHaveCount(2);
                     });
 
                     test("time period modals", async ({ adminReceiverStatusPage }) => {
