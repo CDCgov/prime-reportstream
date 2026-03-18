@@ -82,7 +82,7 @@ jobs:
           # Check for deprecations in the plan, print them out if found
           .github/scripts/tf-deprecations/check_tf_deprecations.py tfplan.json
       - name: Comment Plan on PR
-        uses: borchero/terraform-plan-comment@v2
+        uses: borchero/terraform-plan-comment@v3
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           planfile: ${{ needs.pre_job.outputs.env_name }}-${{ github.sha }}.tfplan
