@@ -140,26 +140,27 @@ test.describe("Code Mapping Tool Page", () => {
             await expect(codeMappingPage.page.getByText("Bad Request 400")).toBeVisible();
         });
 
-        test.skip("uploads a CSV file and 'Download table as CSV' button should download the file", async ({
-            codeMappingPage,
-        }) => {
-            const downloadProm = codeMappingPage.page.waitForEvent("download");
+        test.fixme(
+            "uploads a CSV file and 'Download table as CSV' button should download the file",
+            async ({ codeMappingPage }) => {
+                const downloadProm = codeMappingPage.page.waitForEvent("download");
 
-            await codeMappingPage.page.goto("/onboarding/code-mapping");
-            const fileInput = codeMappingPage.page.locator("input.usa-file-input__input");
-            await fileInput.setInputFiles("e2e/fixtures/codemapping_success.csv", { noWaitAfter: true });
-            await codeMappingPage.page.click('button:has-text("Submit")');
+                await codeMappingPage.page.goto("/onboarding/code-mapping");
+                const fileInput = codeMappingPage.page.locator("input.usa-file-input__input");
+                await fileInput.setInputFiles("e2e/fixtures/codemapping_success.csv", { noWaitAfter: true });
+                await codeMappingPage.page.click('button:has-text("Submit")');
 
-            const fileName = codeMappingPage.page.locator("h2 span > p:last-child");
-            await expect(fileName).toHaveText("codemapping_success.csv");
+                const fileName = codeMappingPage.page.locator("h2 span > p:last-child");
+                await expect(fileName).toHaveText("codemapping_success.csv");
 
-            await codeMappingPage.page.click('button:has-text("Download table as CSV")');
+                await codeMappingPage.page.click('button:has-text("Download table as CSV")');
 
-            const download = await downloadProm;
+                const download = await downloadProm;
 
-            // assert filename
-            expect(download.suggestedFilename()).toBe(fileName);
-        });
+                // assert filename
+                expect(download.suggestedFilename()).toBe(fileName);
+            },
+        );
     });
 
     /*
@@ -169,7 +170,7 @@ test.describe("Code Mapping Tool Page", () => {
      * */
     // This does not work as expected,
     // a receiver user should see an error on page
-    test.skip("receiver user", () => {
+    test.fixme("receiver user", () => {
         test.use({ storageState: "e2e/.auth/receiver.json" });
 
         test("user", async ({ codeMappingPage }) => {

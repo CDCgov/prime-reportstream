@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { lazy } from "react";
 import { createMemoryRouter, RouterProvider } from "react-router";
-import * as md from "./__mocks__/markdown-example.mdx";
+import * as md from "./__fixtures__/markdown-example.mdx";
 
 import { lazyRouteMarkdown } from "./LazyRouteMarkdown";
 
