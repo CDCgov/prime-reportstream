@@ -72,6 +72,7 @@ test.describe(
                 });
 
                 test("table column 'Failed At' has expected data", async ({ lastMileFailuresPage, isMockDisabled }) => {
+                    // eslint-disable-next-line playwright/no-skipped-test -- runtime environment guard, not a broken test
                     test.skip(!isMockDisabled, "Mocks are ENABLED, test");
                     const areDatesInRange = await lastMileFailuresPage.tableColumnDateTimeInRange(200);
                     expect(areDatesInRange).toBe(true);
@@ -87,21 +88,22 @@ test.describe(
                 await expect(modal).toContainText(`Report ID:${reportIdCell}`);
             });
 
-            test.skip("table column 'Receiver' will open receiver edit page", async ({
-                lastMileFailuresPage,
-                isMockDisabled,
-            }) => {
-                test.skip(!isMockDisabled, "Mocks are ENABLED, skipping test");
-                const receiver = tableRows(lastMileFailuresPage.page).nth(0).locator("td").nth(2);
-                const receiverCell = await receiver.getByRole("link").innerText();
-                const orgName = receiverCell.slice(0, receiverCell.indexOf("."));
-                const receiverName = receiverCell.slice(receiverCell.indexOf(".") + 1);
-                await receiver.getByRole("link").click();
+            test.fixme(
+                "table column 'Receiver' will open receiver edit page",
+                async ({ lastMileFailuresPage, isMockDisabled }) => {
+                    // eslint-disable-next-line playwright/no-skipped-test -- runtime environment guard, not a broken test
+                    test.skip(!isMockDisabled, "Mocks are ENABLED, skipping test");
+                    const receiver = tableRows(lastMileFailuresPage.page).nth(0).locator("td").nth(2);
+                    const receiverCell = await receiver.getByRole("link").innerText();
+                    const orgName = receiverCell.slice(0, receiverCell.indexOf("."));
+                    const receiverName = receiverCell.slice(receiverCell.indexOf(".") + 1);
+                    await receiver.getByRole("link").click();
 
-                await expect(lastMileFailuresPage.page).toHaveURL(
-                    `/admin/orgreceiversettings/org/${orgName}/receiver/${receiverName}/action/edit`,
-                );
-            });
+                    await expect(lastMileFailuresPage.page).toHaveURL(
+                        `/admin/orgreceiversettings/org/${orgName}/receiver/${receiverName}/action/edit`,
+                    );
+                },
+            );
         });
     },
 );

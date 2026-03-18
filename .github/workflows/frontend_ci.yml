@@ -29,7 +29,7 @@ jobs:
       is_permitted: ${{ github.event_name == 'pull_request' && steps.build_vars.outputs.has_frontend_change == 'true' && steps.build_vars.outputs.is_deployment_pr == 'false' }}
     steps:
       - name: "Check out changes"
-        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8
       - name: Build vars
         id: build_vars
         uses: ./.github/actions/build-vars
@@ -43,9 +43,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out changes
-        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8
       - name: Use Node.js with yarn
-        uses: actions/setup-node@395ad3262231945c25e8478fd5baf05154b1d79f
+        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238
         with:
           node-version-file: frontend-react/.nvmrc
           cache: yarn
@@ -62,9 +62,9 @@ jobs:
     
     steps:
       - name: Check out changes
-        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8
       - name: Use Node.js with yarn
-        uses: actions/setup-node@395ad3262231945c25e8478fd5baf05154b1d79f
+        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238
         with:
           node-version-file: frontend-react/.nvmrc
           cache: yarn
@@ -168,9 +168,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out changes
-        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8
       - name: Use Node.js with yarn
-        uses: actions/setup-node@395ad3262231945c25e8478fd5baf05154b1d79f
+        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238
         with:
           node-version-file: "frontend-react/.nvmrc"
           cache: yarn
@@ -205,9 +205,9 @@ jobs:
           sudo swapon --show
           df -h
       - name: Check out changes
-        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8
       - name: Use Node.js with yarn
-        uses: actions/setup-node@395ad3262231945c25e8478fd5baf05154b1d79f
+        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238
         with:
           node-version-file: "frontend-react/.nvmrc"
           cache: yarn
@@ -223,7 +223,7 @@ jobs:
         run: yarn run test:e2e --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}
       - name: Upload blob report to GitHub Actions Artifacts
         if: ${{ !cancelled() }}
-        uses: actions/upload-artifact@50769540e7f4bd5e21e526ee35c689e35e0d6874
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f
         with:
           name: frontend-e2e-data--shard-${{ matrix.shardIndex }}
           path: frontend-react/e2e-data
@@ -263,9 +263,9 @@ jobs:
       WARNING_LOG_FILE: e2e-data/frontend-warnings.json
     steps:
       - name: Check out changes
-        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8
       - name: Use Node.js with yarn
-        uses: actions/setup-node@395ad3262231945c25e8478fd5baf05154b1d79f
+        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238
         with:
           node-version-file: "frontend-react/.nvmrc"
           cache: yarn
@@ -273,7 +273,7 @@ jobs:
       - name: Yarn install
         run: yarn install
       - name: Download blob reports from GitHub Actions Artifacts
-        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
         with:
           path: frontend-react/e2e-data
           pattern: frontend-e2e-data--shard-*
@@ -288,7 +288,7 @@ jobs:
           mv ./playwright-report/* ./e2e-data/report && rmdir ./playwright-report && rm ./e2e-data/report/*.zip && rm -rf ./e2e-data/report/resources
           free; df -h
       - name: Upload final e2e-data
-        uses: actions/upload-artifact@50769540e7f4bd5e21e526ee35c689e35e0d6874
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f
         with:
           name: frontend-e2e-data--attempt-${{ github.run_attempt }}
           path: frontend-react/e2e-data
@@ -342,7 +342,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout - On Pull Request
-        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8
         with:
           fetch-depth: 0
           # By default the pull_request event will run on a ephermeral merge commit which simulates a merge between the pull request
@@ -350,7 +350,7 @@ jobs:
           # Hopefully by checking out the HEAD commit of a PR instead of the merge commit we can avoid some of those issues.
           ref: ${{ github.event.pull_request.head.sha }}
       - name: Use Node.js with yarn
-        uses: actions/setup-node@395ad3262231945c25e8478fd5baf05154b1d79f
+        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238
         with:
           node-version-file: "frontend-react/.nvmrc"
           cache: yarn
@@ -359,7 +359,7 @@ jobs:
         run: yarn install
       - name: Run Chromatic
         id: chromatic
-        uses: chromaui/action@4c20b95e9d3209ecfdf9cd6aace6bbde71ba1694
+        uses: chromaui/action@07791f8243f4cb2698bf4d00426baf4b2d1cb7e0
         with:
           workingDir: frontend-react
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -412,7 +412,7 @@ jobs:
   #     security-events: write
   #   steps:
   #     - name: Check out changes
-  #       uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938
+  #       uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8
   #     - name: Initialize CodeQL
   #       uses: github/codeql-action/init@65c74964a9ed8c44ed9f19d4bbc5757a6a8e9ab9
   #       with:
@@ -430,11 +430,11 @@ jobs:
   #   runs-on: ubuntu-latest
   #   steps:
   #     - name: Check out changes
-  #       uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938
+  #       uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8
   #       with:
   #         fetch-depth: 0
   #     - name: Use Node.js with yarn
-  #       uses: actions/setup-node@395ad3262231945c25e8478fd5baf05154b1d79f
+  #       uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238
   #       with:
   #         node-version-file: "frontend-react/.nvmrc"
   #         cache: yarn
@@ -463,9 +463,9 @@ jobs:
   #   runs-on: ubuntu-latest
   #   steps:
   #     - name: Check out changes
-  #       uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938
+  #       uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8
   #     - name: Use Node.js with yarn
-  #       uses: actions/setup-node@395ad3262231945c25e8478fd5baf05154b1d79f
+  #       uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238
   #       with:
   #         node-version-file: "frontend-react/.nvmrc"
   #         cache: yarn

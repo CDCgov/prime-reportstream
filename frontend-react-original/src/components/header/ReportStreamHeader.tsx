@@ -25,7 +25,6 @@ import { Icon } from "../../shared";
 import { MembershipSettings } from "../../utils/OrganizationUtils";
 import SenderModeBanner from "../SenderModeBanner";
 import Spinner from "../Spinner";
-import SunsetNoticeBanner from "../SunsetNoticeBanner";
 import { USLink, USLinkButton, USSmartLink } from "../USLink";
 
 const primaryLinkClasses = (isActive: boolean) => {
@@ -68,7 +67,7 @@ function Dropdown({
                 data-testid="navDropDownButton"
                 className={classes}
                 aria-expanded={isCurrentDropdown}
-                aria-controls={menuName.toLowerCase()}
+                aria-controls={`${menuName.toLowerCase().replace(/\s+/g, "-")}-dropdown`}
                 type="button"
                 onClick={(e) => {
                     handleToggle(e);
@@ -79,7 +78,7 @@ function Dropdown({
             <Menu
                 items={dropdownList}
                 isOpen={isCurrentDropdown}
-                id={`${menuName}Dropdown`}
+                id={`${menuName.toLowerCase().replace(/\s+/g, "-")}-dropdown`}
             />
         </>
     );
@@ -460,12 +459,12 @@ const ReportStreamHeader = ({
     return (
         <>
             <GovBanner aria-label="Official government website" />
-            <SunsetNoticeBanner />
             {!isNavHidden && <SenderModeBanner />}
             {!isNavHidden && (activeMembership ?? user.claims) && (
                 <Header
                     data-testid="auth-header"
                     basic={true}
+                    aria-label="Secondary navigation"
                     className={classnames(styles.AuthNavbar)}
                 >
                     <div className="usa-nav-container">
@@ -485,6 +484,7 @@ const ReportStreamHeader = ({
             )}
             <Header
                 basic={true}
+                aria-label="Primary navigation"
                 className={classnames(styles.Navbar, {
                     [styles.NavbarBlueVariant]: blueVariant,
                     [styles.NavbarDefault]: !blueVariant,
@@ -493,7 +493,7 @@ const ReportStreamHeader = ({
                 <div className="usa-nav-container">
                     <div className="usa-navbar">
                         <Title>
-                            <USLink href="/" title="Home" aria-label="Home">
+                            <USLink href="/" aria-label="ReportStream home">
                                 ReportStream
                                 {config.IS_PREVIEW && (
                                     <span className={styles.ClientEnv}>

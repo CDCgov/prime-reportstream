@@ -41,10 +41,10 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Set up Node.js
-        uses: actions/setup-node@395ad3262231945c25e8478fd5baf05154b1d79f # Using v3.5.1
+        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # Using v3.5.1
         with:
           node-version-file: '${{ env.WORKING_DIRECTORY }}/.nvmrc'
           # Yarn caching will be handled by a separate actions/cache step
@@ -85,13 +85,13 @@ jobs:
       pull-requests: write # For PR comments
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0 # Required by Chromatic
           ref: ${{ github.event.pull_request.head.sha }} # Checkout PR HEAD commit
 
       - name: Set up Node.js
-        uses: actions/setup-node@395ad3262231945c25e8478fd5baf05154b1d79f
+        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238
         with:
           node-version-file: '${{ env.WORKING_DIRECTORY }}/.nvmrc'
           # Yarn caching will be handled by a separate actions/cache step
@@ -112,7 +112,7 @@ jobs:
 
       - name: Run Chromatic
         id: chromatic
-        uses: chromaui/action@4c20b95e9d3209ecfdf9cd6aace6bbde71ba1694 # Specific SHA from frontend_ci.yml
+        uses: chromaui/action@07791f8243f4cb2698bf4d00426baf4b2d1cb7e0 # Specific SHA from frontend_ci.yml
         with:
           workingDir: ${{ env.WORKING_DIRECTORY }}
           projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
@@ -168,7 +168,7 @@ jobs:
       packages: write # Required to push to GHCR
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Get short SHA
         id: get_sha
@@ -193,11 +193,11 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v4
 
       - name: Build Docker image
         id: build_and_push # Give this step an id to reference its outputs if needed later
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: ${{ env.WORKING_DIRECTORY }}
           file: ${{ env.WORKING_DIRECTORY }}/Dockerfile
@@ -253,10 +253,10 @@ jobs:
           sudo swapon --show
 
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Set up Node.js
-        uses: actions/setup-node@395ad3262231945c25e8478fd5baf05154b1d79f
+        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238
         with:
           node-version-file: '${{ env.WORKING_DIRECTORY }}/.nvmrc'
           # Yarn caching will be handled by a separate actions/cache step
@@ -306,7 +306,7 @@ jobs:
 
       - name: Upload E2E test data
         if: ${{ !cancelled() }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: frontend-e2e-data--shard-${{ matrix.shardIndex }}
           path: ${{ env.WORKING_DIRECTORY }}/e2e-data 
@@ -345,10 +345,10 @@ jobs:
       WARNING_LOG_FILE: e2e-data/frontend-warnings.json
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Set up Node.js
-        uses: actions/setup-node@395ad3262231945c25e8478fd5baf05154b1d79f
+        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238
         with:
           node-version-file: '${{ env.WORKING_DIRECTORY }}/.nvmrc'
           # Yarn caching will be handled by a separate actions/cache step
@@ -368,7 +368,7 @@ jobs:
         run: yarn install --immutable
 
       - name: Download E2E reports
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           path: ${{ env.WORKING_DIRECTORY }}/downloaded-e2e-artifacts
           pattern: frontend-e2e-data--shard-*
@@ -392,7 +392,7 @@ jobs:
           rm -rf e2e-data/report/resources || true
 
       - name: Upload final E2E data
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: frontend-e2e-data--attempt-${{ github.run_attempt }}
           path: ${{ env.WORKING_DIRECTORY }}/e2e-data
@@ -465,7 +465,7 @@ jobs:
 #      PUPPETEER_LAUNCH_ARGS: "--no-sandbox --disable-setuid-sandbox"
 #    steps:
 #      - name: Checkout code
-#        uses: actions/checkout@v4
+#        uses: actions/checkout@v6
 #
 #      - name: Set up Node.js
 #        uses: actions/setup-node@v4
@@ -563,10 +563,10 @@ jobs:
 
   #   steps:
   #     - name: Checkout code
-  #       uses: actions/checkout@v4
+  #       uses: actions/checkout@v6
 
   #     - name: Set up Docker Buildx
-  #       uses: docker/setup-buildx-action@v3
+  #       uses: docker/setup-buildx-action@v4
 
   #     - name: Log in to Azure
   #       uses: azure/login@v2
@@ -582,7 +582,7 @@ jobs:
   #         # Username and password are not needed when using azure/login@v2 with sufficient permissions
 
   #     - name: Build and push Docker image
-  #       uses: docker/build-push-action@v6
+  #       uses: docker/build-push-action@v7
   #       with:
   #         context: ${{ env.WORKING_DIRECTORY }}
   #         file: ${{ env.WORKING_DIRECTORY }}/Dockerfile
