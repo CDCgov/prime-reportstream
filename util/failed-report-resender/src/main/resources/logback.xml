@@ -1,0 +1,38 @@
+<!-- logback.xml -->
+<configuration>
+<!--    <appender name="FILE" class="ch.qos.logback.core.FileAppender">-->
+<!--        <file>${user.home}/database.log</file>-->
+<!--        <append>false</append>-->
+<!--        <encoder>-->
+<!--            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>-->
+<!--        </encoder>-->
+<!--    </appender>-->
+    <property name="LOG_FILE_NAME" value="failed-report-resender" />
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_FILE_NAME}.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_FILE_NAME}-%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+            <!-- each archived file's size will be max 10MB -->
+            <maxFileSize>10MB</maxFileSize>
+            <!-- 30 days to keep -->
+            <maxHistory>30</maxHistory>
+            <!-- total size of all archive files, if total size > 100GB, it will delete old archived file -->
+            <totalSizeCap>100GB</totalSizeCap>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <root level="INFO">
+        <appender-ref ref="CONSOLE" />
+        <appender-ref ref="FILE" />
+    </root>
+
+    <logger name="gov.cdc.prime.router.poster" level="INFO" />
+</configuration>

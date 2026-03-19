@@ -2,6 +2,7 @@ package gov.cdc.prime.router.cli
 
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.CliktError
+import com.github.ajalt.clikt.core.Context
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.file
@@ -14,9 +15,10 @@ import java.io.IOException
  */
 class MappingCommands :
     CliktCommand(
-    name = "data-mapping",
-    help = "CLI tool for data mapping tasks"
-) {
+        name = "data-mapping",
+    ) {
+    override fun help(context: Context): String = "CLI tool for data mapping tasks"
+
     /**
      * The directory to scan for unreferenced files.
      * This option is required when the `--find-unreferenced` flag is provided.
@@ -99,7 +101,7 @@ class MappingCommands :
                         
                         Reminder: The paths are relative to the input directory. The input dir should be the top level of the mapping suite
                     """.trimIndent()
-                    )
+                )
             }
         } else {
             echo("All files are referenced.")
@@ -123,7 +125,7 @@ class MappingCommands :
                 // Build regex: match the path if it's followed by a path delimiter (/) or end of word
                 val regex = Regex(
                     "\\b$relativePath(\\.\\w+)?\\b" // Match with or without file extension
-                    )
+                )
 
                 // If the pattern is found, add the relative path to referenced files
                 if (regex.containsMatchIn(content)) {

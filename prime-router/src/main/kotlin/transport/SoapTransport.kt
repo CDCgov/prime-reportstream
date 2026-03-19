@@ -158,6 +158,7 @@ class SoapTransport(private val httpClient: HttpClient? = null) : ITransport {
         reportEventService: IReportStreamEventService,
         reportService: ReportService,
         lineages: List<ItemLineage>?,
+        queueMessage: String,
     ): RetryItems? {
         // verify that we have a SOAP transport type for our parameters. I think if we ever fell
         // into this scenario with different parameters there's something seriously wrong in the system,
@@ -217,7 +218,8 @@ class SoapTransport(private val httpClient: HttpClient? = null) : ITransport {
                         reportEventService,
                         reportService,
                         this::class.java.simpleName,
-                        lineages
+                        lineages,
+                        queueMessage
                     )
                     actionHistory.trackItemLineages(Report.createItemLineagesFromDb(header, sentReportId))
                 }

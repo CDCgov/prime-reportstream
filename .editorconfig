@@ -61,6 +61,7 @@ ktlint_standard_property-naming = disabled
 ktlint_standard_enum-entry-name-case = disabled
 ktlint_standard_function-naming = disabled
 ktlint_standard_filename = disabled
+ktlint_standard_final-newline = disabled
 
 [{*.har,*.jsb2,*.jsb3,*.json,*.fhir,.babelrc,.eslintrc,.stylelintrc,bowerrc,jest.config}]
 indent_size = 2

@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import json
+import os
 import sys
 
 def find_deprecations(plan):
@@ -27,15 +28,36 @@ def find_deprecations(plan):
 
 def main():
     if len(sys.argv) != 2:
-        print("Usage: python parse_deprecations.py <plan.json>")
+        script_name = os.path.basename(sys.argv[0])
+        print(f"Usage: python {script_name} <plan.json>")
         sys.exit(1)
     
-    plan_file = sys.argv[1]
+    plan_file_input = sys.argv[1]
+    abs_plan_file = "" # Initialize to ensure it's defined for error messages
+
     try:
-        with open(plan_file, 'r') as f:
+        abs_plan_file = os.path.realpath(plan_file_input)
+        allowed_base_dir = os.path.realpath(os.getcwd())
+
+        if os.path.commonpath([abs_plan_file, allowed_base_dir]) != allowed_base_dir:
+            print(f"Error: Path traversal attempt. Input file '{plan_file_input}' resolves to '{abs_plan_file}', which is outside the allowed directory '{allowed_base_dir}'.")
+            sys.exit(1)
+        
+        if not os.path.isfile(abs_plan_file):
+            print(f"Error: The path '{abs_plan_file}' is not a file or does not exist.")
+            sys.exit(1)
+
+        with open(abs_plan_file, 'r') as f:
             plan = json.load(f)
+    except FileNotFoundError: # Should be caught by os.path.isfile, but good for explicit error
+        print(f"Error: File not found at '{abs_plan_file}'.")
+        sys.exit(1)
+    except json.JSONDecodeError:
+        print(f"Error: Could not decode JSON from '{abs_plan_file}'. Malformed JSON.")
+        sys.exit(1)
     except Exception as e:
-        print(f"Error reading {plan_file}: {e}")
+        # Catch other errors related to path validation or file operations
+        print(f"Error processing file '{plan_file_input}' (resolved to '{abs_plan_file}'): {e}")
         sys.exit(1)
 
     deprecations = find_deprecations(plan)

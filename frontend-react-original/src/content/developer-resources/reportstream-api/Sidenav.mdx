@@ -1,0 +1,13 @@
+import site from "../../../content/site.json";
+
+<SideNav items={[
+    <SideNavItem href={site.developerResources.url} items={[
+        <SideNavItem href={site.developerResources.apiOnboardingGuide.url}>API onboarding guide</SideNavItem>,
+        <SideNavItem href={site.developerResources.documentation.url} items={[
+            <SideNavItem href={site.developerResources.documentation.submissionStatusAndErrors.url} items={[]}>Submission
+                status and errors</SideNavItem>,
+        ]}>Documentation</SideNavItem>,
+    ]}>
+        Developers
+    </SideNavItem>
+]}/>

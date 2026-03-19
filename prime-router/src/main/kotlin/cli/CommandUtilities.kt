@@ -103,7 +103,7 @@ class CommandUtilities {
 
                     node.isObject -> {
                         val parentPath = if (path.isBlank()) "" else "$path."
-                        node.fields().forEach { entry ->
+                        node.properties().forEach { entry ->
                             walkTree(entry.value, "$parentPath${entry.key}", visitor)
                         }
                     }

@@ -20,8 +20,6 @@ import org.hl7.fhir.r4.model.ValueSet
 import java.lang.IllegalArgumentException
 import java.lang.NumberFormatException
 
-private const val s = "appendToIndex"
-
 /**
  * Context used for resolving [constants] and custom FHIR functions. The class is for us to add our customer function
  * [customFhirFunctions], customer [config] object for us to pass any object to our custom translation function
@@ -254,8 +252,14 @@ class FhirPathCustomResolver(private val customFhirFunctions: FhirPathFunctions?
     ): MutableList<Base> {
         check(focus != null)
         return when {
-            CustomFHIRFunctions.resolveFunction(functionName, customFhirFunctions) != null -> {
-                CustomFHIRFunctions.executeFunction(focus, functionName, parameters, customFhirFunctions)
+                CustomFHIRFunctions.resolveFunction(
+                    functionName,
+                    (appContext as CustomContext).customFhirFunctions
+                ) != null -> {
+                CustomFHIRFunctions.executeFunction(
+                    focus, functionName, parameters,
+                    appContext.customFhirFunctions
+                )
             }
 
             else -> throw IllegalStateException("Tried to execute invalid FHIR Path function $functionName")

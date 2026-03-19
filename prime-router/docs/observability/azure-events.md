@@ -104,6 +104,7 @@ Additional Parameters
 | Convert | REPORT_NOT_PROCESSABLE |
 | Convert | ITEM_FAILED_VALIDATION |
 | Convert | ITEM_ACCEPTED |
+| Convert | ITEM_INVALID_CONDITION_MAPPING |
 | Destination Filter | ITEM_NOT_ROUTED |
 | Destination Filter | ITEM_ROUTED |
 | Receiver Enrichment | ITEM_TRANSFORMED |

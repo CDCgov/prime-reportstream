@@ -49,6 +49,7 @@ import gov.cdc.prime.router.fhirengine.translation.HL7toFhirTranslator
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirTransformer
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
+import gov.cdc.prime.router.fhirengine.translation.hl7.utils.helpers.SchemaReferenceResolverHelper
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.fhirengine.utils.HL7Reader.Companion.parseHL7Message
 import gov.cdc.prime.router.fhirengine.utils.getObservations
@@ -99,6 +100,7 @@ class FHIRConverter(
      * @param schemaName the FHIR transform to apply
      * @param blobURL the URL for the blob to convert
      * @param blobDigest the digest of the blob contents
+     * @param queueMessage the original azure queue message
      */
     data class FHIRConvertInput(
         val reportId: UUID,
@@ -107,6 +109,7 @@ class FHIRConverter(
         val blobURL: String,
         val blobDigest: String,
         val blobSubFolderName: String,
+        val queueMessage: String,
     ) {
 
         companion object {
@@ -136,7 +139,8 @@ class FHIRConverter(
                     schemaName,
                     blobUrl,
                     blobDigest,
-                    blobSubFolderName
+                    blobSubFolderName,
+                    message.toString()
                 )
             }
 
@@ -189,7 +193,8 @@ class FHIRConverter(
                     schemaName,
                     blobUrl,
                     blobDigest,
-                    blobSubFolderName
+                    blobSubFolderName,
+                    message.toString()
                 )
             }
         }
@@ -306,6 +311,7 @@ class FHIRConverter(
                                     report,
                                     TaskAction.convert,
                                     processedItem.validationError!!.message,
+                                    input.queueMessage,
                                     shouldQueue = true
                                 ) {
                                     parentReportId(input.reportId)
@@ -380,6 +386,7 @@ class FHIRConverter(
                                 ReportStreamEventName.ITEM_ACCEPTED,
                                 report,
                                 TaskAction.convert,
+                                input.queueMessage,
                                 shouldQueue = true
                             ) {
                                 parentReportId(input.reportId)
@@ -424,7 +431,8 @@ class FHIRConverter(
                     ReportStreamEventName.REPORT_NOT_PROCESSABLE,
                     report,
                     TaskAction.convert,
-                    "Submitted report was either empty or could not be parsed into HL7"
+                    "Submitted report was either empty or could not be parsed into HL7",
+                    input.queueMessage
                 ) {
                     parentReportId(input.reportId)
                     params(
@@ -523,14 +531,56 @@ class FHIRConverter(
                                 if (result.failures.isEmpty()) {
                                     logger.warn(UnmappableConditionMessage())
                                 } else {
-                                    logger.warn(
-                                        result.failures.map {
-                                            UnmappableConditionMessage(
-                                                it.failures.map { it.code },
-                                                it.source
+                                    val actionLogMessage = result.failures.map {
+                                        UnmappableConditionMessage(
+                                            it.failures.map { it.code },
+                                            it.source
+                                        )
+                                    }
+                                    logger.warn(actionLogMessage)
+
+                                    actionLogMessage.forEach {
+                                        val report = Report(
+                                            MimeFormat.FHIR,
+                                            emptyList(),
+                                            parentItemLineageData = listOf(
+                                                Report.ParentItemLineageData(input.reportId, item.index + 1)
+                                            ),
+                                            metadata = this.metadata,
+                                            topic = input.topic,
+                                            nextAction = TaskAction.destination_filter
+                                        )
+                                        val bundleDigestExtractor = BundleDigestExtractor(
+                                            FhirPathBundleDigestLabResultExtractorStrategy(
+                                                CustomContext(
+                                                    item.bundle!!,
+                                                    item.bundle!!,
+                                                    mutableMapOf(),
+                                                    CustomFhirPathFunctions()
+                                                )
+                                            )
+                                        )
+                                        reportEventService.sendItemProcessingError(
+                                            ReportStreamEventName.ITEM_INVALID_CONDITION_MAPPING,
+                                            report,
+                                            TaskAction.convert,
+                                            it.message,
+                                            input.queueMessage,
+                                            shouldQueue = true,
+                                        ) {
+                                            parentReportId(input.reportId)
+                                            parentItemIndex(item.index + 1)
+                                            trackingId(item.bundle!!)
+                                            params(
+                                                mapOf(
+                                                    ReportStreamEventProperties.BUNDLE_DIGEST
+                                                        to bundleDigestExtractor.generateDigest(item.bundle!!),
+                                                    ReportStreamEventProperties.ITEM_FORMAT to format,
+                                                    ReportStreamEventProperties.ENRICHMENTS to input.schemaName
+                                                )
                                             )
                                         }
-                                    )
+                                    }
                                 }
                             }
                         }
@@ -749,7 +799,7 @@ class FHIRConverter(
         withLoggingContext(mapOf("schemaName" to schemaName)) {
             logger.info("Apply a sender transform to the items in the report")
         }
-        FhirTransformer(schemaName)
+        FhirTransformer(SchemaReferenceResolverHelper.retrieveFhirSchemaReference(schemaName))
     } else {
         null
     }

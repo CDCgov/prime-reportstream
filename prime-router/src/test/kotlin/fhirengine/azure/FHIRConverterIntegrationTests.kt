@@ -43,6 +43,7 @@ import gov.cdc.prime.router.azure.observability.event.ReportStreamEventName
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventProperties
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventService
 import gov.cdc.prime.router.azure.observability.event.ReportStreamItemEvent
+import gov.cdc.prime.router.azure.observability.event.SubmissionEventData
 import gov.cdc.prime.router.cli.tests.CompareData
 import gov.cdc.prime.router.common.TestcontainersUtils
 import gov.cdc.prime.router.common.UniversalPipelineTestUtils.fetchChildReports
@@ -166,15 +167,15 @@ class FHIRConverterIntegrationTests {
         sender: Sender,
     ): String = """
         {
-            "type": "convert",
-            "reportId": "${report.id}",
-            "blobURL": "${report.bodyURL}",
-            "digest": "${BlobUtils.digestToString(BlobUtils.sha256Digest(blobContents.toByteArray()))}",
-            "blobSubFolderName": "${sender.fullName}",
-            "topic": "${sender.topic.jsonVal}",
-            "schemaName": "${sender.schemaName}"
+        "type":"convert",
+        "reportId":"${report.id}",
+        "blobURL":"${report.bodyURL}",
+        "digest":"${BlobUtils.digestToString(BlobUtils.sha256Digest(blobContents.toByteArray()))}",
+        "blobSubFolderName":"${sender.fullName}",
+        "topic":"${sender.topic.jsonVal}",
+        "schemaName":"${sender.schemaName}"
         }
-    """.trimIndent()
+        """.trimIndent().replace("\n", "")
 
     private fun generateFHIRConvertSubmissionQueueMessage(
         report: Report,
@@ -184,20 +185,25 @@ class FHIRConverterIntegrationTests {
         // TODO: something is wrong with the Jackson configuration as it should not require the type to parse this
         val headers = mapOf("client_id" to sender.fullName)
         val headersStringMap = headers.entries.joinToString(separator = ",\n") { (key, value) ->
-            """"$key": "$value""""
+            """"$key":"$value""""
         }
         val headersString = "[\"java.util.LinkedHashMap\",{$headersStringMap}]"
         return """
         {
-            "type": "receive-fhir",
-            "reportId": "${report.id}",
-            "blobURL": "${report.bodyURL}",
-            "digest": "${BlobUtils.digestToString(BlobUtils.sha256Digest(blobContents.toByteArray()))}",
-            "blobSubFolderName": "${sender.fullName}",
-            "headers":$headersString
+        "type":"receive",
+        "reportId":"${report.id}",
+        "blobURL":"${report.bodyURL}",
+        "digest":"${BlobUtils.digestToString(BlobUtils.sha256Digest(blobContents.toByteArray()))}",
+        "blobSubFolderName":"${sender.fullName}",
+        "headers":$headersString
         }
-    """.trimIndent()
+        """.trimIndent().replace("\n", "")
     }
+
+    private fun appendMessageQueueName(
+        queueMessage: String,
+        messageQueueName: String,
+    ): String = queueMessage.substringBeforeLast("}") + ",\"messageQueueName\":\"$messageQueueName\"}"
 
     @BeforeEach
     fun beforeEach() {
@@ -474,22 +480,27 @@ class FHIRConverterIntegrationTests {
                 ReportEventData(
                     routedReports[1].reportId,
                     receiveReport.id,
-                    listOf(receiveReport.id),
                     Topic.FULL_ELR,
                     routedReports[1].bodyUrl,
                     TaskAction.convert,
                     OffsetDateTime.now(),
-                    Version.commitId
+                    Version.commitId,
+                    appendMessageQueueName(queueMessage, QueueMessage.Companion.elrSubmissionConvertQueueName)
                 ),
                 ReportEventData::timestamp
             )
-            assertThat(event.itemEventData).isEqualToIgnoringGivenProperties(
+            assertThat(event.submissionEventData).isEqualTo(
+                SubmissionEventData(
+                    listOf(receiveReport.id),
+                    listOf("phd.hl7-elr-no-transform")
+                )
+            )
+            assertThat(event.itemEventData).isEqualTo(
                 ItemEventData(
                     1,
                     2,
                     2,
-                    "371784",
-                    "phd.hl7-elr-no-transform"
+                    "371784"
                 )
             )
             assertThat(event.params).isEqualTo(
@@ -641,22 +652,27 @@ class FHIRConverterIntegrationTests {
                 ReportEventData(
                     routedReports[1].reportId,
                     receiveReport.id,
-                    listOf(receiveReport.id),
                     Topic.FULL_ELR,
                     routedReports[1].bodyUrl,
                     TaskAction.convert,
                     OffsetDateTime.now(),
-                    Version.commitId
+                    Version.commitId,
+                    appendMessageQueueName(queueMessage, QueueMessage.Companion.elrConvertQueueName)
                 ),
                 ReportEventData::timestamp
             )
-            assertThat(event.itemEventData).isEqualToIgnoringGivenProperties(
+            assertThat(event.submissionEventData).isEqualTo(
+                SubmissionEventData(
+                    listOf(receiveReport.id),
+                    listOf("phd.hl7-elr-no-transform")
+                )
+            )
+            assertThat(event.itemEventData).isEqualTo(
                 ItemEventData(
                     1,
                     2,
                     2,
-                    "371784",
-                    "phd.hl7-elr-no-transform"
+                    "371784"
                 )
             )
             assertThat(event.params).isEqualTo(
@@ -828,22 +844,27 @@ class FHIRConverterIntegrationTests {
                 ReportEventData(
                     routedReports[1].reportId,
                     receiveReport.id,
-                    listOf(receiveReport.id),
                     Topic.FULL_ELR,
                     routedReports[1].bodyUrl,
                     TaskAction.convert,
                     OffsetDateTime.now(),
-                    Version.commitId
+                    Version.commitId,
+                    appendMessageQueueName(queueMessage, QueueMessage.Companion.elrConvertQueueName)
                 ),
                 ReportEventData::timestamp
             )
-            assertThat(event.itemEventData).isEqualToIgnoringGivenProperties(
+            assertThat(event.submissionEventData).isEqualTo(
+                SubmissionEventData(
+                    listOf(receiveReport.id),
+                    listOf("phd.fhir-elr-no-transform")
+                )
+            )
+            assertThat(event.itemEventData).isEqualTo(
                 ItemEventData(
                     1,
                     3,
                     3,
-                    "1234d1d1-95fe-462c-8ac6-46728dbau8cd",
-                    "phd.fhir-elr-no-transform"
+                    "1234d1d1-95fe-462c-8ac6-46728dbau8cd"
                 )
             )
             assertThat(event.params).isEqualTo(
@@ -965,22 +986,27 @@ class FHIRConverterIntegrationTests {
                 ReportEventData(
                     notRouted.first().reportId,
                     receiveReport.id,
-                    listOf(receiveReport.id),
                     Topic.MARS_OTC_ELR,
                     "",
                     TaskAction.convert,
                     OffsetDateTime.now(),
-                    Version.commitId
+                    Version.commitId,
+                    appendMessageQueueName(queueMessage, QueueMessage.Companion.elrConvertQueueName)
                 ),
                 ReportEventData::timestamp
             )
-            assertThat(event.itemEventData).isEqualToIgnoringGivenProperties(
+            assertThat(event.submissionEventData).isEqualTo(
+                SubmissionEventData(
+                    listOf(receiveReport.id),
+                    listOf("phd.marsotc-hl7-sender")
+                )
+            )
+            assertThat(event.itemEventData).isEqualTo(
                 ItemEventData(
                     1,
                     2,
                     2,
-                    null,
-                    "phd.marsotc-hl7-sender"
+                    null
                 )
             )
             @Suppress("ktlint:standard:max-line-length")

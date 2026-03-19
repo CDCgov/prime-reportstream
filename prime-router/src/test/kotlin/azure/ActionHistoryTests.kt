@@ -374,17 +374,18 @@ class ActionHistoryTests {
         } returns ReportEventData(
             UUID.randomUUID(),
             uuid,
-            emptyList(),
             Topic.TEST,
             "http://blobUrl",
             TaskAction.send,
             OffsetDateTime.now(),
+            "",
             ""
         )
         every {
-            mockReportEventService.sendReportEvent(any(), any<ReportFile>(), any(), any(), any())
+            mockReportEventService.sendReportEvent(any(), any<ReportFile>(), any(), any(), any(), any())
         } returns Unit
-        every { mockReportEventService.sendItemEvent(any(), any<ReportFile>(), any(), any(), any()) } returns Unit
+        every { mockReportEventService.sendItemEvent(any(), any<ReportFile>(), any(), any(), any(), any()) } returns
+            Unit
         mockkObject(Report)
         mockkObject(FhirTranscoder)
         every { FhirTranscoder.decode(any(), any()) } returns mockk<Bundle>()
@@ -412,7 +413,8 @@ class ActionHistoryTests {
             mockReportEventService,
             mockReportService,
             "",
-            lineages
+            lineages,
+            ""
         )
 
         // assert
@@ -432,8 +434,8 @@ class ActionHistoryTests {
         assertThat(reportFile.itemCount).isEqualTo(15)
         assertThat(actionHistory1.action.externalName).isEqualTo("filename1")
         verify(exactly = 1) {
-            mockReportEventService.sendReportEvent(any(), any<ReportFile>(), any(), any(), any())
-            mockReportEventService.sendItemEvent(any(), any<ReportFile>(), any(), any(), any())
+            mockReportEventService.sendReportEvent(any(), any<ReportFile>(), any(), any(), any(), any())
+            mockReportEventService.sendItemEvent(any(), any<ReportFile>(), any(), any(), any(), any())
         }
         // not allowed to track the same report twice.
         assertFailure {
@@ -447,7 +449,8 @@ class ActionHistoryTests {
                 mockReportEventService,
                 mockReportService,
                 "",
-                lineages
+                lineages,
+                ""
             )
         }
     }
@@ -496,11 +499,11 @@ class ActionHistoryTests {
         } returns ReportEventData(
             UUID.randomUUID(),
             uuid,
-            emptyList(),
             Topic.TEST,
             "http://blobUrl",
             TaskAction.send,
             OffsetDateTime.now(),
+            "",
             ""
         )
         mockkObject(BlobAccess.Companion)
@@ -517,9 +520,10 @@ class ActionHistoryTests {
         every { anyConstructed<BundleDigestExtractor>().generateDigest(any()) } returns mockk<BundleDigest>()
         val header = mockk<WorkflowEngine.Header>()
         every {
-            mockReportEventService.sendReportEvent(any(), any<ReportFile>(), any(), any(), any())
+            mockReportEventService.sendReportEvent(any(), any<ReportFile>(), any(), any(), any(), any())
         } returns Unit
-        every { mockReportEventService.sendItemEvent(any(), any<ReportFile>(), any(), any(), any()) } returns Unit
+        every { mockReportEventService.sendItemEvent(any(), any<ReportFile>(), any(), any(), any(), any()) } returns
+            Unit
         val inReportFile = mockk<ReportFile>()
         every { header.reportFile } returns inReportFile
         every { header.content } returns "".toByteArray()
@@ -539,7 +543,8 @@ class ActionHistoryTests {
             mockReportEventService,
             mockReportService,
             "",
-            lineages
+            lineages,
+            ""
         )
 
         val actionHistory2 = ActionHistory(TaskAction.receive)
@@ -553,19 +558,20 @@ class ActionHistoryTests {
             mockReportEventService,
             mockReportService,
             "",
-            lineages
+            lineages,
+            ""
         )
 
         // assert
         assertThat(actionHistory1.reportsOut[uuid]).isNotNull()
         assertThat(actionHistory1.reportsOut[uuid]?.schemaName)
-            .isEqualTo("g/receivers/STLTs/REALLY_LONG_STATE_NAME/REALLY_LONG_STATE_NAME")
+            .isEqualTo(longNameWithClasspath)
         assertThat(actionHistory2.reportsOut[uuid]).isNotNull()
         assertThat(actionHistory2.reportsOut[uuid]?.schemaName)
-            .isEqualTo("STED/NESTED/STLTs/REALLY_LONG_STATE_NAME/REALLY_LONG_STATE_NAME")
+            .isEqualTo(longNameWithoutClasspath)
         verify(exactly = 2) {
-            mockReportEventService.sendReportEvent(any(), any<ReportFile>(), any(), any(), any())
-            mockReportEventService.sendItemEvent(any(), any<ReportFile>(), any(), any(), any())
+            mockReportEventService.sendReportEvent(any(), any<ReportFile>(), any(), any(), any(), any())
+            mockReportEventService.sendItemEvent(any(), any<ReportFile>(), any(), any(), any(), any())
         }
     }
 
@@ -594,7 +600,8 @@ class ActionHistoryTests {
         mockkConstructor(BundleDigestExtractor::class)
         every { anyConstructed<BundleDigestExtractor>().generateDigest(any()) } returns mockk<BundleDigest>()
 
-        every { mockReportEventService.sendItemEvent(any(), any<ReportFile>(), any(), any(), any()) } returns Unit
+        every { mockReportEventService.sendItemEvent(any(), any<ReportFile>(), any(), any(), any(), any()) } returns
+            Unit
 
         // act
         val actionHistory1 = ActionHistory(TaskAction.receive)
@@ -612,7 +619,7 @@ class ActionHistoryTests {
 
         // assert
         verify(exactly = 2) {
-            mockReportEventService.sendItemEvent(eventName, reportFile, TaskAction.send, any(), any())
+            mockReportEventService.sendItemEvent(eventName, reportFile, TaskAction.send, any(), any(), any())
         }
     }
 
@@ -646,7 +653,7 @@ class ActionHistoryTests {
 
         // assert
         verify(exactly = 0) {
-            mockReportEventService.sendItemEvent(any(), any<ReportFile>(), any(), any(), any())
+            mockReportEventService.sendItemEvent(any(), any<ReportFile>(), any(), any(), any(), any())
         }
     }
 
@@ -675,7 +682,7 @@ class ActionHistoryTests {
 
         // assert
         verify(exactly = 0) {
-            mockReportEventService.sendItemEvent(any(), any<ReportFile>(), any(), any(), any())
+            mockReportEventService.sendItemEvent(any(), any<ReportFile>(), any(), any(), any(), any())
         }
     }
 
@@ -866,11 +873,11 @@ class ActionHistoryTests {
         } returns ReportEventData(
             UUID.randomUUID(),
             uuid,
-            emptyList(),
             Topic.TEST,
             "http://blobUrl",
             TaskAction.send,
             OffsetDateTime.now(),
+            "",
             ""
         )
         mockkObject(BlobAccess.Companion)
@@ -887,9 +894,10 @@ class ActionHistoryTests {
         every { anyConstructed<BundleDigestExtractor>().generateDigest(any()) } returns mockk<BundleDigest>()
         val header = mockk<WorkflowEngine.Header>()
         every {
-            mockReportEventService.sendReportEvent(any(), any<ReportFile>(), any(), any(), any())
+            mockReportEventService.sendReportEvent(any(), any<ReportFile>(), any(), any(), any(), any())
         } returns Unit
-        every { mockReportEventService.sendItemEvent(any(), any<ReportFile>(), any(), any(), any()) } returns Unit
+        every { mockReportEventService.sendItemEvent(any(), any<ReportFile>(), any(), any(), any(), any()) } returns
+            Unit
         val inReportFile = mockk<ReportFile>()
         every { header.reportFile } returns inReportFile
         every { header.content } returns "".toByteArray()
@@ -909,7 +917,8 @@ class ActionHistoryTests {
             mockReportEventService,
             mockReportService,
             "",
-            lineages
+            lineages,
+            ""
         )
         val actionHistory2 = ActionHistory(TaskAction.receive)
         actionHistory2.action
@@ -923,7 +932,8 @@ class ActionHistoryTests {
             mockReportEventService,
             mockReportService,
             "",
-            lineages
+            lineages,
+            ""
         )
         assertThat(actionHistory1.reportsOut[uuid]).isNotNull()
         assertThat(actionHistory2.reportsOut[uuid2]).isNotNull()
@@ -931,16 +941,9 @@ class ActionHistoryTests {
         assertContains(blobUrls[0], org.receivers[0].fullName)
         assertContains(blobUrls[1], org.receivers[1].fullName)
         verify(exactly = 2) {
-            mockReportEventService.sendReportEvent(any(), any<ReportFile>(), any(), any(), any())
-            mockReportEventService.sendItemEvent(any(), any<ReportFile>(), any(), any(), any())
+            mockReportEventService.sendReportEvent(any(), any<ReportFile>(), any(), any(), any(), any())
+            mockReportEventService.sendItemEvent(any(), any<ReportFile>(), any(), any(), any(), any())
         }
-    }
-
-    @Test
-    fun `test trimSchemaNameToMaxLength malformed URI`() {
-        val longMalformedURI = ":very_very:_long_name//with a badly formed URI that causes a parse exception"
-        val trimmed = ActionHistory.trimSchemaNameToMaxLength((longMalformedURI))
-        assertThat(trimmed).isEqualTo("ong_name//with a badly formed URI that causes a parse exception")
     }
 
     @Test

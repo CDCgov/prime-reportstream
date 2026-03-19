@@ -36,6 +36,7 @@ import gov.cdc.prime.router.azure.observability.event.ReportStreamEventName
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventProperties
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventService
 import gov.cdc.prime.router.azure.observability.event.ReportStreamItemEvent
+import gov.cdc.prime.router.azure.observability.event.SubmissionEventData
 import gov.cdc.prime.router.common.TestcontainersUtils
 import gov.cdc.prime.router.common.UniversalPipelineTestUtils
 import gov.cdc.prime.router.common.UniversalPipelineTestUtils.fetchChildReports
@@ -133,17 +134,22 @@ class FHIRDestinationFilterIntegrationTests : Logging {
         )
     }
 
-    fun generateQueueMessage(action: TaskAction, report: Report, blobContents: String, sender: Sender): String = """
-            {
-                "type": "${action.literal}",
-                "reportId": "${report.id}",
-                "blobURL": "${report.bodyURL}",
-                "digest": "${BlobUtils.digestToString(BlobUtils.sha256Digest(blobContents.toByteArray()))}",
-                "blobSubFolderName": "${sender.fullName}",
-                "topic": "${sender.topic.jsonVal}",
-                "schemaName": "${sender.schemaName}" 
-            }
-        """.trimIndent()
+    private fun generateQueueMessage(action: TaskAction, report: Report, blobContents: String, sender: Sender): String = """
+        {
+        "type":"${action.literal}",
+        "reportId":"${report.id}",
+        "blobURL":"${report.bodyURL}",
+        "digest":"${BlobUtils.digestToString(BlobUtils.sha256Digest(blobContents.toByteArray()))}",
+        "blobSubFolderName":"${sender.fullName}",
+        "topic":"${sender.topic.jsonVal}",
+        "schemaName":"${sender.schemaName}"
+        }
+        """.trimIndent().replace("\n", "")
+
+    private fun appendTestMessage(
+        queueMessage: String,
+    ): String = queueMessage.replace(",\"schemaName\":\"\"", "").substringBeforeLast("}") +
+            ",\"messageQueueName\":\"${QueueMessage.Companion.elrDestinationFilterQueueName}\"}"
 
     @Test
     fun `should send valid FHIR report only to receivers listening to full-elr`() {
@@ -353,22 +359,27 @@ class FHIRDestinationFilterIntegrationTests : Logging {
                 ReportEventData(
                     routedReport.reportId,
                     report.id,
-                    listOf(report.id),
                     Topic.FULL_ELR,
                     routedReport.bodyUrl,
                     TaskAction.destination_filter,
                     OffsetDateTime.now(),
-                    Version.commitId
+                    Version.commitId,
+                    appendTestMessage(queueMessage)
                 ),
                 ReportEventData::timestamp
+            )
+            assertThat(event.submissionEventData).isEqualTo(
+                SubmissionEventData(
+                    listOf(report.id),
+                    listOf("phd.Test Sender")
+                )
             )
             assertThat(event.itemEventData).isEqualTo(
                 ItemEventData(
                     1,
                     1,
                     1,
-                    "MT_COCNB_ORU_NBPHELR.1.5348467",
-                    "phd.Test Sender"
+                    "MT_COCNB_ORU_NBPHELR.1.5348467"
                 )
             )
             assertThat(event.params).isEqualTo(
@@ -460,23 +471,28 @@ class FHIRDestinationFilterIntegrationTests : Logging {
             ReportEventData(
                 UUID.randomUUID(),
                 report.id,
-                listOf(report.id),
                 Topic.FULL_ELR,
                 "",
                 TaskAction.destination_filter,
                 OffsetDateTime.now(),
-                Version.commitId
+                Version.commitId,
+                appendTestMessage(queueMessage)
             ),
             ReportEventData::timestamp,
             ReportEventData::childReportId
+        )
+        assertThat(event.submissionEventData).isEqualTo(
+            SubmissionEventData(
+                listOf(report.id),
+                listOf("phd.Test Sender")
+            )
         )
         assertThat(event.itemEventData).isEqualTo(
             ItemEventData(
                 1,
                 1,
                 1,
-                "MT_COCNB_ORU_NBPHELR.1.5348467",
-                "phd.Test Sender"
+                "MT_COCNB_ORU_NBPHELR.1.5348467"
             )
         )
         assertThat(event.params).isEqualTo(

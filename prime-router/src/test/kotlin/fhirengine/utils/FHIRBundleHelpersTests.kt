@@ -33,6 +33,11 @@ import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.LookupTableConditionMapper
 import gov.cdc.prime.router.fhirengine.engine.RSMessageType
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
+import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirBundleUtils.deleteResource
+import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirBundleUtils.filterReferenceProperties
+import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirBundleUtils.getChildProperties
+import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirBundleUtils.getResourceProperties
+import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirBundleUtils.getResourceReferences
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import gov.cdc.prime.router.metadata.LookupTable
 import gov.cdc.prime.router.metadata.ObservationMappingConstants
@@ -509,7 +514,7 @@ class FHIRBundleHelpersTests {
         diagnosticReport.result.add(reference)
         val property = Property("Diagnostic Report", null, null, 0, 0, diagnosticReport)
 
-        assertThat(FHIRBundleHelpers.getChildProperties(property).collect(Collectors.toList())).isNotEmpty()
+        assertThat(getChildProperties(property).collect(Collectors.toList())).isNotEmpty()
     }
 
     @Test
@@ -529,7 +534,7 @@ class FHIRBundleHelpersTests {
         organizationReference.reference = organization.id
         observation.extension.add(Extension("", organizationReference))
 
-        val references = FHIRBundleHelpers.filterReferenceProperties(observation.getResourceProperties())
+        val references = filterReferenceProperties(observation.getResourceProperties())
         assertThat(references).isNotEmpty()
         assertThat(references.count()).isEqualTo(2)
     }

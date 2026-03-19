@@ -26,6 +26,8 @@ val mockElimsTestOrg = Organization(
     null,
     listOf("ELIMS_DATA"),
 )
+
+// Note: These tests are testing DatabaseDeliveryAccess.kt and not HistoryDatabaseAccessTests.kt
 class HistoryDatabaseAccessTests {
     @Test
     fun `test organizationFilter`() {
@@ -50,13 +52,13 @@ class HistoryDatabaseAccessTests {
               (
                 (
                   "public"."report_file"."next_action" = 'send'
-                  and lower(cast("public"."report_file"."schema_topic" as varchar)) <> lower('elr-elims')
+                  and lower("public"."report_file"."schema_topic") <> lower('elr-elims')
                 )
                 or (
                   "public"."report_file"."next_action" is null
                   and "public"."report_file"."transport_params" is not null
                   and "public"."report_file"."transport_result" not like '%downloadedBy%'
-                  and lower(cast("public"."report_file"."schema_topic" as varchar)) = lower('elr-elims')
+                  and lower("public"."report_file"."schema_topic") = lower('elr-elims')
                 )
               )
               and "public"."report_file"."receiving_org" = 'test'

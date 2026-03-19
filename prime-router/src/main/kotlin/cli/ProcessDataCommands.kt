@@ -2,6 +2,7 @@ package gov.cdc.prime.router.cli
 
 import com.github.ajalt.clikt.completion.CompletionCandidates
 import com.github.ajalt.clikt.core.CliktCommand
+import com.github.ajalt.clikt.core.Context
 import com.github.ajalt.clikt.parameters.groups.mutuallyExclusiveOptions
 import com.github.ajalt.clikt.parameters.groups.single
 import com.github.ajalt.clikt.parameters.options.convert
@@ -55,7 +56,9 @@ class ProcessData(
     private val fileSettingsInstance: FileSettings? = null,
 ) : CliktCommand(
     name = "data",
-    help = """
+) {
+    override val printHelpOnEmptyArgs = true
+    override fun help(context: Context): String = """
     process data
      
     Use this command to process data in a variety of ways, similar to how the
@@ -75,9 +78,8 @@ class ProcessData(
     transformations. For example, to generate 5 rows of test data using the
     Florida COVID-19 schema:
     > prime data --input-fake 5 --input-schema fl/fl-covid-19 --output florida-data.csv
-    """,
-    printHelpOnEmptyArgs = true,
-) {
+    """
+
     // Input
     private val inputSource: InputSource? by mutuallyExclusiveOptions(
         option(
@@ -374,10 +376,10 @@ class ProcessData(
     private fun getOutputFormat(default: MimeFormat): MimeFormat = if (forcedFormat !=
         null
     ) {
-            MimeFormat.valueOf(forcedFormat!!)
-        } else {
-            default
-        }
+        MimeFormat.valueOf(forcedFormat!!)
+    } else {
+        default
+    }
 
     private fun getDefaultValues(): DefaultValues {
         val values = mutableMapOf<String, String>()

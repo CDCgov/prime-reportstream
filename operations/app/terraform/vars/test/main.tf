@@ -72,34 +72,19 @@ module "container_registry" {
 # ## 03-Persistent
 # ##########
 
-# module "database" {
-#   source                   = "../../modules/database"
-#   environment              = local.init.environment
-#   resource_group           = local.init.resource_group_name
-#   resource_prefix          = local.init.resource_prefix
-#   location                 = local.init.location
-#   rsa_key_2048             = data.azurerm_key_vault_key.pdhtest-2048-key.id
-#   aad_group_postgres_admin = local.ad.aad_group_postgres_admin
-#   is_metabase_env          = local.init.is_metabase_env
-#   use_cdc_managed_vnet     = local.network.use_cdc_managed_vnet
-#   postgres_user            = data.azurerm_key_vault_secret.postgres_user.value
-#   postgres_pass            = data.azurerm_key_vault_secret.postgres_pass.value
-#   postgres_readonly_user   = data.azurerm_key_vault_secret.postgres_readonly_user.value
-#   postgres_readonly_pass   = data.azurerm_key_vault_secret.postgres_readonly_pass.value
-#   db_sku_name              = local.database.db_sku_name
-#   db_version               = local.database.db_version
-#   db_storage_mb            = local.database.db_storage_mb
-#   db_auto_grow             = local.database.db_auto_grow
-#   db_prevent_destroy       = local.database.db_prevent_destroy
-#   db_threat_detection      = local.database.db_threat_detection
-#   subnets                  = module.network.subnets
-#   db_replica               = local.database.db_replica
-#   application_key_vault_id = module.key_vault.application_key_vault_id
-#   dns_vnet                 = local.network.dns_vnet
-#   dns_zones                = module.network.dns_zones
-#   flex_sku_name            = local.database.flex_sku_name
-#   flex_instances           = local.database.flex_instances
-# }
+module "database" {
+  source = "../../modules/database"
+
+  environment     = local.init.environment
+  resource_group  = local.init.resource_group_name
+  is_metabase_env = local.init.is_metabase_env
+
+  # Parameters for looking up the external database resources
+  database_resource_group_name = local.database.database_resource_group_name
+  primary_server_name          = local.database.primary_server_name
+  replica_server_names         = local.database.replica_server_names
+  database_names               = local.database.database_names
+}
 
 module "storage" {
   source                        = "../../modules/storage"
@@ -238,7 +223,7 @@ module "metabase" {
   ai_connection_string   = module.application_insights.metabase_connection_string
   use_cdc_managed_vnet   = local.network.use_cdc_managed_vnet
   service_plan_id        = module.app_service_plan.service_plan_id
-  postgres_server_name   = module.database.postgres_server_name
+  postgres_server_name   = local.init.environment == "prod" ? keys(module.database.postgres_replicas)[0] : module.database.postgres_server_name
   postgres_user          = data.azurerm_key_vault_secret.postgres_user.value
   postgres_pass          = data.azurerm_key_vault_secret.postgres_pass.value
   sendgrid_password      = data.azurerm_key_vault_secret.sendgrid_password.value

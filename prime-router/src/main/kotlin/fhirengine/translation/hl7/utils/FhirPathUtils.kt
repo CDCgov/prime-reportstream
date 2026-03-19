@@ -12,6 +12,7 @@ import org.hl7.fhir.r4.fhirpath.ExpressionNode
 import org.hl7.fhir.r4.fhirpath.FHIRLexer
 import org.hl7.fhir.r4.fhirpath.FHIRPathEngine
 import org.hl7.fhir.r4.hapi.ctx.HapiWorkerContext
+import org.hl7.fhir.r4.model.Address
 import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.BaseDateTimeType
 import org.hl7.fhir.r4.model.BooleanType
@@ -103,6 +104,13 @@ object FhirPathUtils : Logging {
             // This happens when a non-string value is given to an extension field.
             logger.error("${e.javaClass.name}: FHIR path could not find a specified field in $expression.")
             emptyList()
+        }
+
+        if (expression.equals("%resource.postalCode.getStateFromZipCode()")) {
+            if (retVal != null && retVal.first().toString()?.isEmpty() == true) {
+                val msg = "getStateFromZipCode() lookup failed for zip code: ${(focusResource as Address)?.postalCode}"
+                logger.error(msg)
+            }
         }
         logger.trace("Evaluated '$expression' to '$retVal'")
         return retVal

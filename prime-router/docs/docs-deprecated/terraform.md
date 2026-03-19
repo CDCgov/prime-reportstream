@@ -51,7 +51,7 @@ We utilize several custom modules that are as follows
   * private_endpoint - Creates private endpoints for whichever service calls it
   * vnet_dns_zones - DNS virtual network links
 * container_registry - Location for the build docker containers
-* database - Deploy our Postgresql database and replica
+* database - Looks up our externally-managed PostgreSQL database and replicas
 * front_door - Spins up and configures Front Door
 * function_app - Creates our main function app
 * key_vault - Builds our terraform responsible key vaults

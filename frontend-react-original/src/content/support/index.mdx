@@ -1,0 +1,392 @@
+---
+title: Support
+subtitle: If you need to learn more or solve an issue, we're here to help.
+meta:
+    title: ReportStream support
+    description: Find quick answers to common problems or connect with our expert team to troubleshoot issues throughout your use of ReportStream.
+    openGraph:
+        image:
+            src: /assets/img/opengraph/reportstream-tagline.png
+            altText: '"ReportStream" surrounded by an illustration of lines and boxes connected by colorful dots.'
+backToTop: true
+---
+
+import site from "../../content/site.json";
+
+<HeroWrapper>
+    <GridContainer className="usa-section">
+        <CardGroup>
+            <Card className="grid-col-fill">
+                <CardHeader className="font-sans-lg">
+                    ## Welcome to ReportStream
+                </CardHeader>
+                <CardBody className="text-base">
+                    Learn more about how ReportStream works and how we can help you.
+
+                    [Will I ever have to pay to use ReportStream?](#will-i-ever-have-to-pay-to-use-reportstream)
+
+                    [What conditions can I send or receive?](#what-conditions-can-i-send-or-receive)
+
+                    [View all topics](#welcome-to-reportstream-1)
+                </CardBody>
+            </Card>
+
+            <Card className="grid-col-fill">
+                <CardHeader className="font-sans-lg">
+                    ## Getting started
+                </CardHeader>
+                <CardBody className="text-base">
+                    Get information and tips for setting up your ReportStream connection.
+
+                    [How do I map to the LIVD table?](#how-do-i-map-to-the-livd-table)
+
+                    [How do I set up my public/private key pair?](#how-do-i-set-up-my-public-private-key-pair)
+
+                    [View all topics](#getting-started-1)
+                </CardBody>
+            </Card>
+
+            <Card className="grid-col-fill">
+                <CardHeader className="font-sans-lg">
+                    ## Using ReportStream
+                </CardHeader>
+                <CardBody className="text-base">
+                    Find solutions as an organization currently connected to ReportStream.
+
+                    [How do I update or reset my password?](#how-do-i-update-or-reset-my-password)
+
+                    [How can I start sending or receiving more conditions?](#how-can-i-start-sending-or-receiving-more-conditions)
+
+                    [View all topics](#using-reportstream-1)
+                </CardBody>
+            </Card>
+        </CardGroup>
+    </GridContainer>
+</HeroWrapper>
+
+<HeroWrapper className="bg-blue-5">
+    <GridContainer className="usa-section">
+        <Grid col className="usa-prose rs-text-align-center">
+            ## Support request
+
+            <p className="usa-intro">For issues with an existing connection, <A href={site.forms.contactUs.url}>submit a ticket</A>.<br/>
+            Our support team will respond as soon as possible to keep your data flowing.</p>
+        </Grid>
+    </GridContainer>
+</HeroWrapper>
+
+<HeroWrapper>
+    <GridContainer className="usa-section usa-prose">
+        ## Welcome to ReportStream
+
+        <hr className="rs-hr--alternate" />
+
+        <Grid row gap>
+            <Grid col="fill" className="usa-prose">
+                <h3 className="text-base">Quick answers</h3>
+
+                <Accordion multiselectable items={[
+                    {
+                        id: "what-conditions-can-i-send-or-receive",
+                        headingLevel: "h4",
+                        title: "What conditions can I send or receive?",
+                        content: (<>
+                            <p>
+                            ReportStream now supports all reportable conditions. We are currently receiving data for COVID, mpox, flu, and RSV.
+                            </p>
+                        </>)
+                    },
+                    {
+                        id: "should-i-use-reportstream-or-simplereport",
+                        headingLevel: "h4",
+                        title: "Should I use ReportStream or SimpleReport?",
+                        content: (<>
+                            <p>
+                            If you are a <b>public health agency</b>, you only need to connect to ReportStream.
+                            You will get data from testing facilities who connect to ReportStream through our API and those
+                            facilities who report through <A href="https://www.simplereport.gov">SimpleReport</A>. SimpleReport data will flow directly to you through
+                            ReportStream, so you do not need to onboard to SimpleReport.
+                            </p>
+
+                            <p>
+                            If you are a <b>healthcare organization</b>, ReportStream and SimpleReport offer two different
+                            ways to send your data. ReportStream uses an API connection to send HL7 and FHIR data to public health
+                            departments. Some technical expertise is required to set up an API connection. 
+                            If you currently send data via SFTP, this may be a process you are familiar with.
+                            </p>
+
+                            <p>
+                            <A href="https://www.simplereport.gov">SimpleReport</A> can be used for manual, single entry reporting or CSV
+                            upload. There is no technical experience necessary to use SimpleReport.
+                            </p>
+
+                            <p>Both SimpleReport and ReportStream are free.</p>
+                        </>)
+                    },
+                    {
+                        id: "will-i-ever-have-to-pay-to-use-reportstream",
+                        headingLevel: "h4",
+                        title: "Will I ever have to pay to use ReportStream?",
+                        content: (<p>ReportStream is 100% free and provided by the CDC.</p>)
+                    },
+                    {
+                        id: "how-does-reportstream-make-sure-public-health-agencies-dont-receive-duplicate-data",
+                        headingLevel: "h4",
+                        title: "How does ReportStream make sure public health agencies don't receive duplicate data?",
+                        content: (<p>
+                            Our filtering process uses CLIA numbers to remove any duplicate data.
+                            The filters are based on which organizations are already connected directly to a public health
+                            agency.
+                        </p>)
+                    },
+                    {
+                        id: "what-testing-devices-does-reportstream-support",
+                        headingLevel: "h4",
+                        title: "What testing devices does ReportStream support?",
+                        content: (<p>
+                            All approved devices can be found on the {" "}
+                            <A href="https://www.cdc.gov/csels/dls/livd-codes.html">CDC LIVD mapping table</A>.
+                            Learn more about <A href="#how-do-i-know-if-a-device-is-considered-otc-over-the-counter">devices</A>
+                            {" "} and <A href="#how-do-i-map-to-the-livd-table">LIVD mapping</A>.
+                        </p>)
+                    },
+                ]} />
+            </Grid>
+            <Grid col="4">
+                <CardGroup>
+                    <Card className="width-full">
+                        <CardHeader className="text-base">
+                            ### Related pages
+                        </CardHeader>
+                        <CardBody>
+                            - [About us](/about)
+                            - [Security](/about/security)
+                            - [Product roadmap](/about/roadmap)
+                        </CardBody>
+                    </Card>
+                </CardGroup>
+            </Grid>
+        </Grid>
+
+        ## Getting started
+
+        <hr className="rs-hr--alternate" />
+
+        <Grid row gap>
+            <Grid col="fill" className="usa-prose">
+                <h3 className="text-base">Quick answers</h3>
+
+                <Accordion multiselectable items={[
+                    {
+                        id: "how-do-i-register-for-a-reportstream-account",
+                        headingLevel: "h4",
+                        title: "How do I register for a ReportStream account?",
+                        content: (<ol>
+                            <li><strong>Request an account.</strong> <br/>
+                            Submit a <A href={site.forms.contactUs.url}>service request</A> with information about your organization and explaining that you would like a ReportStream account.</li>
+                            <li><strong>Accept the terms of service.</strong> <br/>
+                            A ReportStream team member will process your request and confirm that you accept our <A href="/terms-of-service">terms of service</A>.</li>
+                            <li><strong>Activate your account</strong>. <br/>
+                            You will receive an email from Okta with a link to activate your account. After following the activation link, you will be prompted to set up your password, security question, and multi-factor authentication.</li>
+                        </ol>)
+                    },
+                    {
+                        id: "do-i-need-to-report-to-hhs",
+                        headingLevel: "h4",
+                        title: "Do I need to report to HHS?",
+                        content: (<>
+                            <p>
+                            According to the CARES Act, labs are not required to report to both state or local health
+                            departments and HHS. The CARES Act requires labs to report all data to state or local public
+                            health departments using existing public health data reporting channels, in accordance with
+                            state law or policies. The public health department will provide these data to HHS.
+                            </p>
+
+                            <p>
+                            View specific reporting requirements for <A href="https://www.cdc.gov/covid/php/lab/reporting-lab-data.html">COVID-19</A>
+                            {" "} and for <A href="https://www.cdc.gov/mpox/hcp/laboratories/reporting-test-results.html?CDC_AAref_Val=https://www.cdc.gov/poxvirus/mpox/lab-personnel/report-results.html">mpox</A>.
+                            </p>
+                        </>)
+                    },
+                    {
+                        id: "where-can-i-find-the-hl7-v2-implementation-guide",
+                        headingLevel: "h4",
+                        title: "Where can I find the HL7 v2 Implementation Guide?",
+                        content: (<p>
+                            View the <A href="https://www.nibib.nih.gov/covid-19/radx-tech-program/mars/HL7v2-implementation-guide">HL7 v2 Implementation Guide</A>.
+                        </p>)
+                    },
+                    {
+                        id: "how-do-i-set-up-my-public-private-key-pair",
+                        headingLevel: "h4",
+                        title: "How do I set up my public/private key pair?",
+                        content: (<>
+                            <p>You can find detailed instructions in our <A href={site.developerResources.apiOnboardingGuide.url}>API onboarding guide</A>.</p>
+
+                            <p><b>Note:</b> Through this authentication process, you generate both a public and private key.
+                            You only share the public key with ReportStream.</p>
+                        </>)
+                    },
+                    {
+                        id: "what-is-a-loinc-code",
+                        headingLevel: "h4",
+                        title: "What is a LOINC Code?",
+                        content: (<p>
+                            <A href="https://loinc.org/get-started/what-loinc-is/">LOINC</A> codes help distinguish between
+                            different types of disease-specific tests. These codes are necessary when setting up data
+                            formatting to send data through ReportStream.
+                        </p>)
+                    },
+                    {
+                        id: "how-do-i-map-to-the-livd-table",
+                        headingLevel: "h4",
+                        title: "How do I map to the LIVD table?",
+                        content: (<>
+                            <p>
+                                LOINC In Vitro Diagnostic (LIVD) mapping provides several data elements you'll need for your ReportStream <A href={site.developerResources.url}>test file</A>. Including:
+                            </p>
+
+                            <ul>
+                                <li>Equipment model name</li>
+                                <li>Equipment UID</li>
+                                <li>Test performed code</li>
+                            </ul>
+
+                            <p>If you do not know what devices you'll be reporting for, contact your lab.</p>
+
+                            <p>
+                                When you know the devices you are reporting for, you can use the LIVD mapping table to
+                                identify the device identifier code. The code is in <A href="https://www.cdc.gov/csels/dls/livd-codes.html">column F</A>,
+                                labeled Test Performed LOINC Code.
+                            </p>
+                        </>)
+                    },
+                    {
+                        id: "how-do-i-know-if-a-device-is-considered-otc-over-the-counter",
+                        headingLevel: "h4",
+                        title: "How do I know if a device is considered OTC (over the counter)?",
+                        content: (<p>
+                            Refer to the <A href="https://www.fda.gov/medical-devices/home-use-devices/frequently-asked-questions-about-home-use-devices">FDA resource</A> on home use devices for more information.
+                        </p>)
+                    },
+                ]} />
+            </Grid>
+            <Grid col="4">
+                <CardGroup>
+                    <Card className="width-full">
+                        <CardHeader className="text-base">
+                            ### Related pages
+                        </CardHeader>
+                        <CardBody>
+                            - [Get started sending data](/getting-started/sending-data)
+                            - <A href={site.developerResources.apiOnboardingGuide.url}>API onboarding guide</A>
+                            - <A href={site.developerResources.url}>Developer resources</A>
+                        </CardBody>
+                    </Card>
+                </CardGroup>
+            </Grid>
+        </Grid>
+
+        ## Using ReportStream
+
+        <hr className="rs-hr--alternate" />
+
+        <Grid row gap>
+            <Grid col="fill" className="usa-prose">
+                <h3 className="text-base">Quick answers</h3>
+
+                <Accordion multiselectable items={[
+                    {
+                        id: "how-can-i-start-sending-or-receiving-more-conditions",
+                        headingLevel: "h4",
+                        title: "How can I start sending or receiving more conditions?",
+                        content: (<>
+                        <p>
+                            If you are interested in additional conditions, <A href={site.forms.connectWithRS.url}>let us know</A> more about your needs. Our team will work with you on a plan based on your needs and capacity. Your connection may need some initial updates to be able to support the new conditions. 
+                        </p>
+                        <p>
+                            We test the messages based on the requirements of public health entities receiving the data. No data will go live until those testing requirements are met.
+                        </p>
+                        </>)
+                    },
+                    {
+                        id: "can-public-health-departments-receive-a-report-on-facilities-reporting-them",
+                        headingLevel: "h4",
+                        title: "Can public health departments receive a report on facilities reporting them?",
+                        content: (<><p>
+                            You can view details on the data you have received by logging in and viewing your <A href="/daily-data">Daily Data</A>. {" "}
+                            <A href={site.forms.contactUs.url}>Contact us</A> if you need an account or help viewing the dashboard.
+                        </p>
+                        <p>
+                            To view facilities reporting through SimpleReport, <A href="mailto:support@simplereport.gov">contact SimpleReport</A> to request a CLIA dashboard.
+                        </p>
+                        </>)
+                    },
+                    {
+                        id: "how-do-i-stop-receiving-negative-test-results",
+                        headingLevel: "h4",
+                        title: "How do I stop receiving negative test results?",
+                        content: (<p>
+                            <A href={site.forms.contactUs.url}>Contact us</A> so we can update your filter settings. If you are not a current ReportStream user, you can indicate this preference during the onboarding process.
+                        </p>)
+                    },
+                    {
+                        id: "how-can-i-send-or-receive",
+                        headingLevel: "h4",
+                        title: "How do I resubmit my data?",
+                        content: (<>
+                            <p>
+                                <A href={site.forms.contactUs.url}>Submit a support request</A>,
+                                and our team will help with your resubmission. Be sure to include the following information
+                                in your request:
+                            </p>
+
+                            <p><b>Reason for requesting resubmission</b></p>
+
+                            <ul>
+                                <li>Date of the message</li>
+                                <li>Message ID</li>
+                                <li>Report ID or file name, if available</li>
+                                <li>Applicable organizations (e.g. state, lab name, etc).</li>
+                            </ul>
+                        </>)
+                    },
+                    {
+                        id: "how-do-i-update-or-reset-my-password",
+                        headingLevel: "h4",
+                        title: "How do I update or reset my password?",
+                        content: (<p>
+                            Select <strong>Need help signing in?</strong> on the <A href="/login">login</A> page.
+                            After selecting <strong>Reset password</strong>, enter your email address.
+                            Follow the instructions in the reset email you receive.
+                            To update your password, log out and follow the same steps.
+                        </p>)
+                    },
+                    {
+                        id: "how-do-i-manage-team-member-accounts",
+                        headingLevel: "h4",
+                        title: "How do I manage team member accounts?",
+                        content: (<p>
+                            ReportStream manually manages user accounts for your team. To add or remove team members, <A href={site.forms.contactUs.url}>contact us</A>.
+                        </p>)
+                    },
+                ]} />
+            </Grid>
+            <Grid col="4">
+                <CardGroup>
+                    <Card className="width-full">
+                        <CardHeader className="text-base">
+                            ### Related pages
+                        </CardHeader>
+                        <CardBody>
+                            - [Managing your connection](/managing-your-connection)
+                            - [Developer resources](/developer-resources)
+                        </CardBody>
+                    </Card>
+                </CardGroup>
+            </Grid>
+        </Grid>
+
+        <LayoutBackToTop />
+    </GridContainer>
+</HeroWrapper>

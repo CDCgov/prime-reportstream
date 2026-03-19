@@ -131,7 +131,8 @@ class SoapTransportIntegrationTests : TransportIntegrationTests() {
             actionHistory,
             mockk<IReportStreamEventService>(relaxed = true),
             mockk<ReportService>(relaxed = true),
-            listOf()
+            listOf(),
+            ""
         )
         assertThat(retryItems).isNull()
     }
@@ -153,7 +154,8 @@ class SoapTransportIntegrationTests : TransportIntegrationTests() {
             actionHistory,
             mockk<IReportStreamEventService>(relaxed = true),
             mockk<ReportService>(relaxed = true),
-            listOf()
+            listOf(),
+            ""
         )
         assertThat(retryItems).isNotNull()
     }

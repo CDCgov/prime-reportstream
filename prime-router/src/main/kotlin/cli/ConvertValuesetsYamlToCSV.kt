@@ -8,6 +8,7 @@ import com.fasterxml.jackson.module.kotlin.KotlinFeature
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.github.ajalt.clikt.core.CliktCommand
+import com.github.ajalt.clikt.core.Context
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.types.file
@@ -31,13 +32,14 @@ import java.io.FileOutputStream
  */
 class ConvertValuesetsYamlToCSV :
     CliktCommand(
-    name = "convert-valuesets-to-csv",
-    help = """
+        name = "convert-valuesets-to-csv",
+    ) {
+    override fun help(context: Context): String = """
     This is a development tool that converts sender-automation.valuesets to two CSV files
     sender_automation_value_set.csv and sender_automation_value_set_row.csv at their
     default location (prime-reportstream/prime-router/metadata/tables/local/)
     """
-) {
+
     /**
      * Command line option to specify full path to input file (sender-automation.valuesets)
      */

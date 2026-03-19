@@ -29,6 +29,7 @@ import gov.cdc.prime.router.azure.observability.event.ReportStreamEventName
 import gov.cdc.prime.router.azure.observability.event.ReportStreamEventProperties
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirTransformer
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
+import gov.cdc.prime.router.fhirengine.translation.hl7.utils.helpers.SchemaReferenceResolverHelper
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.logging.LogMeasuredTime
 import gov.cdc.prime.router.report.ReportService
@@ -106,7 +107,7 @@ class FHIRReceiverEnrichment(
                     "to reportId '${queueMessage.reportId}'"
                 )
                 val transformer = FhirTransformer(
-                    enrichmentSchemaName,
+                    SchemaReferenceResolverHelper.retrieveFhirSchemaReference(enrichmentSchemaName),
                 )
                 transformer.process(bundle)
             }
@@ -171,7 +172,8 @@ class FHIRReceiverEnrichment(
         reportEventService.sendItemEvent(
             eventName = ReportStreamEventName.ITEM_TRANSFORMED,
             childReport = report,
-            pipelineStepName = TaskAction.receiver_enrichment
+            pipelineStepName = TaskAction.receiver_enrichment,
+            queueMessage = queueMessage.toString()
         ) {
             parentReportId(queueMessage.reportId)
             params(

@@ -24,7 +24,7 @@ jobs:
       tf_change: ${{ steps.build_vars.outputs.has_terraform_change }}
     steps:
       - name: Check out changes
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Build vars
         id: build_vars
         uses: ./.github/actions/build-vars
@@ -43,7 +43,7 @@ jobs:
       change_count: ${{ steps.stats1.outputs.change-count }}
     steps:
       - name: Check Out Changes
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Connect to VPN and login to Azure
         uses: ./.github/actions/vpn-azure
         with:
@@ -62,7 +62,7 @@ jobs:
           terraform-version: 1.7.4
           add-args: "-refresh=false"
       - name: Use specific version of Terraform
-        uses: hashicorp/setup-terraform@v1
+        uses: hashicorp/setup-terraform@v4
         with:
           terraform_version: 1.7.4
       - name: Terraform Format
@@ -94,11 +94,10 @@ jobs:
         run: python ../../../../.github/scripts/tf-deprecations/check_tf_deprecations.py ${{ needs.pre_job.outputs.env_name }}-plan.json
 
       - name: Comment Plan on PR
-        uses: blinqas/tf-plan-pr-comment@v1
+        uses: borchero/terraform-plan-comment@v3
         with:
-          plan_file: operations/app/terraform/vars/${{ needs.pre_job.outputs.env_name }}/${{ needs.pre_job.outputs.env_name }}-plan.txt
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          planfile: ${{ needs.pre_job.outputs.env_name }}-tf.plan
 
   approve_deploy:
     name: Approve Deploy - ${{ needs.pre_job.outputs.env_name }}
@@ -132,7 +131,7 @@ jobs:
         working-directory: operations/app/terraform/vars/${{ needs.pre_job.outputs.env_name }}
     steps:
       - name: Check Out Changes
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Connect to VPN and login to Azure
         uses: ./.github/actions/vpn-azure
         with:
@@ -144,7 +143,7 @@ jobs:
           sp-creds: ${{ env.AZURE_CREDENTIALS }}
           tf-auth: true
       - name: Use specific version of Terraform
-        uses: hashicorp/setup-terraform@v1
+        uses: hashicorp/setup-terraform@v4
         with:
           terraform_version: 1.7.4
       - name: Terraform Init

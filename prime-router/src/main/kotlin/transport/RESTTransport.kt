@@ -95,6 +95,7 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
         reportEventService: IReportStreamEventService,
         reportService: ReportService,
         lineages: List<ItemLineage>?,
+        queueMessage: String,
     ): RetryItems? {
         val logger: Logger = context.logger
 
@@ -162,6 +163,7 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
                             reportService,
                             this::class.java.simpleName,
                             lineages,
+                            queueMessage
                         )
                         actionHistory.trackItemLineages(Report.createItemLineagesFromDb(header, sentReportId))
                     } catch (t: Throwable) {

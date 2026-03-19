@@ -1,0 +1,120 @@
+{
+  "imgPath": "/assets/",
+  "pdfPath": "/assets/pdf/",
+  "documentationPath": "/documentation/",
+  "orgs": {
+    "CDC": {
+      "name": "Centers for Disease Control and Prevention",
+      "url": "https://cdc.gov",
+      "email": "no-reply@cdc.gov"
+    },
+    "PRIME": {
+      "name": "Pandemic Ready Interoperability Modernization Effort",
+      "email": "usds@cdc.gov",
+      "url": "https://www.cdc.gov/surveillance/projects/pandemic-ready-it-systems.html"
+    },
+    "RS": {
+      "name": "ReportStream",
+      "url": "https://reportstream.cdc.gov",
+      "email": "reportstream@cdc.gov"
+    },
+    "SR": {
+      "name": "SimpleReport",
+      "url": "https://simplereport.gov",
+      "email": "support@simplereport.gov"
+    },
+    "USDS": {
+      "name": "U.S. Digital Service",
+      "url": "https://usds.gov",
+      "email": "USDS@omb.eop.gov"
+    }
+  },
+  "developerResources": {
+    "name": "developer resources",
+    "url": "/developer-resources",
+    "apiOnboardingGuide": {
+      "name": "API onboarding guide",
+      "url": "/developer-resources/api-onboarding-guide"
+    },
+    "documentation": {
+      "name": "Documentation",
+      "url": "/developer-resources/documentation",
+      "submissionStatusAndErrors": {
+        "name": "Submission status and errors",
+        "url": "/developer-resources/documentation/submission-status-and-errors"
+      }
+    }
+  },
+  "forms": {
+    "intakeElr": {
+      "name": "ELR intake form",
+      "url": "https://app.smartsheetgov.com/b/form/b0935d5d1e924c57b2d293b4ed0f2cd5"
+    },
+    "connectWithRS": {
+      "name": "Connect with ReportStream",
+      "url": "https://app.smartsheetgov.com/b/form/48f580abb9b440549b1a9cf996ba6957"
+    },
+    "contactUs": {
+      "name": "Contact us",
+      "url": "https://app.smartsheetgov.com/b/form/95d2f16b772c42d8aaa0ef5db28a6838"
+    },
+    "healthcareOrganizationInterest": {
+      "name": "Healthcare Organization Interest Form",
+      "url": "https://app.smartsheetgov.com/b/form/8c71931f25e64e42bf1fef32900bdecd"
+    }
+  },
+  "assets": {
+    "standardCsv": {
+      "path": "/assets/csv/ReportStream-StandardCSV-ExampleData-20220509.csv"
+    },
+    "programmersGuidePdf": {
+      "path": "/assets/pdf/ReportStream-Programmers-Guide-v4.7.pdf"
+    },
+    "exampleHl7": {
+      "path": "/assets/hl7/Example-hl7-file.hl7"
+    },
+    "onePager": {
+      "path": "/assets/pdf/ReportStream_Onepager_20240605.pdf"
+    },
+    "codeMapTemplate": {
+      "path": "/assets/xlsm/20241204_ReportStream-Mapping-Template.xlsm"
+    }
+  },
+  "external": {
+    "nistValidationSuite": {
+      "url": "https://hl7v2-elr-testing.nist.gov/mu-elr/"
+    },
+    "nistGeneralValidationTool": {
+      "url": "https://hl7v2-gvt.nist.gov/gvt/#/home"
+    },
+    "hl7": {
+      "url": "https://www.hl7.org/implement/standards/product_brief.cfm?product_id=185"
+    },
+    "radxmars": {
+      "url": "https://www.nibib.nih.gov/covid-19/radx-tech-program/mars/hl7v2-getting-started"
+    },
+    "github": {
+      "reportstream": {
+        "url": "https://github.com/CDCgov/prime-reportstream/blob/master/prime-router/docs/api"
+      },
+      "historyApi": {
+        "url": "https://github.com/CDCgov/prime-reportstream/blob/main/prime-router/docs/universal-pipeline/submission-history.md"
+      },
+      "historyApiHowToUse": {
+        "url": "https://github.com/CDCgov/prime-reportstream/blob/main/prime-router/docs/universal-pipeline/submission-history.md#how-to-use"
+      },
+      "historyApiCheckingStatus": {
+        "url": "https://github.com/CDCgov/prime-reportstream/blob/main/prime-router/docs/universal-pipeline/submission-history.md#checking-for-overall-status-and-destinations"
+      },
+      "historyApiCheckingFailures": {
+        "url": "https://github.com/CDCgov/prime-reportstream/blob/main/prime-router/docs/universal-pipeline/submission-history.md#checking-for-failures"
+      },
+      "historyApiJsonResponseFields": {
+        "url": "https://github.com/CDCgov/prime-reportstream/blob/main/prime-router/docs/universal-pipeline/submission-history.md#fields-returned-in-json-response"
+      },
+      "historyApiErrorsWarnings": {
+        "url": "https://github.com/CDCgov/prime-reportstream/blob/main/prime-router/docs/universal-pipeline/submission-history.md#list-of-potential-errors-and-warnings"
+      }
+    }
+  }
+}

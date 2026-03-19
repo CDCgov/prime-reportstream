@@ -533,6 +533,15 @@ class ReportFunction(
         request: HttpRequestMessage<String?>,
         sender: Sender,
     ): HttpResponseMessage {
+        // Allow only active sender (i.e sender with customerStatus="active") to pass through.
+        if (sender.customerStatus == CustomerStatus.INACTIVE) {
+            return HttpUtilities.gone(
+                request,
+                "ReportStream sunsetted on December 31, 2025. For more detail, please refer to " +
+                        "https://reportstream.cdc.gov."
+            )
+        }
+
         // determine if we should be following the sync or async workflow
         val isAsync = processingType(request, sender) == ProcessingType.async
         // allow duplicates 'override' param
@@ -601,6 +610,7 @@ class ReportFunction(
                                     to actionHistory.filterParameters(request),
                                 ReportStreamEventProperties.SENDER_NAME to sender.fullName,
                                 ReportStreamEventProperties.FILE_LENGTH to request.headers["content-length"].toString(),
+                                ReportStreamEventProperties.ITEM_COUNT to report.itemCount,
                                 getSenderIP(request)?.let { ReportStreamEventProperties.SENDER_IP to it }
                             ).toMap()
                         )

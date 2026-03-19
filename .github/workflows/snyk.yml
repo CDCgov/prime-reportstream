@@ -7,9 +7,7 @@ on:
       - main
     paths:
       -  "prime-router/**"
-      -  "submissions/**"
       -  "shared/**"
-      -  "auth/**"
 
 jobs:
   pre_job:
@@ -19,7 +17,7 @@ jobs:
       has_router_change: ${{ steps.build_vars.outputs.has_router_change }}
     steps:
       - name: "Check out changes"
-        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8
       - name: Build vars
         id: build_vars
         uses: ./.github/actions/build-vars
@@ -31,19 +29,19 @@ jobs:
     strategy:
         fail-fast: false
         matrix:
-            folder: [prime-router, submissions, auth, shared]
+            folder: [prime-router, shared]
     steps:
       - uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938
-      - uses: snyk/actions/setup@b98d498629f1c368650224d6d212bf7dfa89e4bf
-      - name: Set up JDK 17 to generate backend coverage stats
-        uses: actions/setup-java@b36c23c0d998641eff861008f374ee103c25ac73
+      - uses: snyk/actions/setup@9adf32b1121593767fc3c057af55b55db032dc04
+      - name: Set up JDK 21 to generate backend coverage stats
+        uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654
         with:
-          java-version: "17"
+          java-version: "21"
           distribution: "temurin"
           cache: "gradle"
-      - uses: gradle/actions/setup-gradle@d156388eb19639ec20ade50009f3d199ce1e2808
+      - uses: gradle/actions/setup-gradle@0723195856401067f7a2779048b490ace7a47d7c
       - name: Snyk Monitor
         working-directory: ${{ matrix.folder }}
-        run: snyk monitor --org=prime-reportstream
+        run: snyk monitor --org=prime-reportstream --target-reference="main"
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}

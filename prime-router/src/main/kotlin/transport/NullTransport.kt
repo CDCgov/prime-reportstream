@@ -25,6 +25,7 @@ class NullTransport : ITransport {
         reportEventService: IReportStreamEventService,
         reportService: ReportService,
         lineages: List<ItemLineage>?,
+        queueMessage: String,
     ): RetryItems? {
         if (header.content == null) error("No content for report ${header.reportFile.reportId}")
         val receiver = header.receiver ?: error("No receiver defined for report ${header.reportFile.reportId}")
@@ -40,7 +41,8 @@ class NullTransport : ITransport {
             reportEventService,
             reportService,
             this::class.java.simpleName,
-            lineages
+            lineages,
+            queueMessage
         )
         actionHistory.trackItemLineages(Report.createItemLineagesFromDb(header, sentReportId))
         return null

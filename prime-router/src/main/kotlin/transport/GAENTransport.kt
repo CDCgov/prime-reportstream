@@ -84,6 +84,7 @@ class GAENTransport(val httpClient: HttpClient? = null) :
         reportEventService: IReportStreamEventService,
         reportService: ReportService,
         lineages: List<ItemLineage>?,
+        queueMessage: String,
     ): RetryItems? {
         val gaenTransportInfo = transportType as GAENTransportType
         val reportId = header.reportFile.reportId
@@ -112,7 +113,13 @@ class GAENTransport(val httpClient: HttpClient? = null) :
 
             // Record the work in history and logs
             when (postResult) {
-                PostResult.SUCCESS -> recordFullSuccess(params, reportEventService, reportService, lineages)
+                PostResult.SUCCESS -> recordFullSuccess(
+                    params,
+                    reportEventService,
+                    reportService,
+                    lineages,
+                    queueMessage
+                )
                 PostResult.RETRY -> recordFailureWithRetry(params)
                 PostResult.FAIL -> recordFailure(params)
             }
@@ -134,6 +141,7 @@ class GAENTransport(val httpClient: HttpClient? = null) :
         reportEventService: IReportStreamEventService,
         reportService: ReportService,
         lineages: List<ItemLineage>?,
+        queueMessage: String,
     ) {
         val msg = "${params.receiver.fullName}: Successful exposure notifications of ${params.comboId}"
         val history = params.actionHistory
@@ -150,7 +158,8 @@ class GAENTransport(val httpClient: HttpClient? = null) :
             reportEventService,
             reportService,
             this::class.java.simpleName,
-            lineages
+            lineages,
+            queueMessage
         )
         history.trackItemLineages(Report.createItemLineagesFromDb(params.header, params.sentReportId))
     }

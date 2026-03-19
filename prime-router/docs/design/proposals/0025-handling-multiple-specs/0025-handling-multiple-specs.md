@@ -1,5 +1,8 @@
 # Handling multiple HL7 and FHIR specs
 
+_This approach is no longer being pursued in favor of a catchall data structure. This document is preserved for
+reference purposes only._
+
 ## Problem
 
 ReportStream uses the HL7 -> FHIR inventory as a guide for how to convert HL7 messages into FHIR; the inventory targets

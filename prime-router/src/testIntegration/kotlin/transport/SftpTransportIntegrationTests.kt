@@ -159,7 +159,7 @@ class SftpTransportIntegrationTests : TransportIntegrationTests() {
                 CredentialRequestReason.SFTP_UPLOAD
             )
         } returns UserPassCredential("foo", "pass")
-        every { SftpTransport.createDefaultSSHClient() } returns f.mockSSHClient
+        every { SftpTransport.createDefaultSSHClient(any()) } returns f.mockSSHClient
         every { f.mockSSHClient.addHostKeyVerifier(any<HostKeyVerifier>()) } just runs
         every { f.mockSSHClient.connect(f.transportType.host, f.transportType.port.toInt()) } just runs
         every { f.mockSSHClient.authPassword("foo", "pass") } just runs
@@ -179,7 +179,8 @@ class SftpTransportIntegrationTests : TransportIntegrationTests() {
             f.actionHistory,
             mockk<IReportStreamEventService>(relaxed = true),
             mockk<ReportService>(relaxed = true),
-            listOf()
+            listOf(),
+            ""
         )
 
         // successful SFTP upload
@@ -202,7 +203,7 @@ class SftpTransportIntegrationTests : TransportIntegrationTests() {
                 CredentialRequestReason.SFTP_UPLOAD
             )
         } returns UserPemCredential("user", "key", "keyPass", "pass")
-        every { SftpTransport.createDefaultSSHClient() } returns f.mockSSHClient
+        every { SftpTransport.createDefaultSSHClient(any()) } returns f.mockSSHClient
         every { f.mockSSHClient.addHostKeyVerifier(any<HostKeyVerifier>()) } just runs
         every { f.mockSSHClient.connect(f.transportType.host, f.transportType.port.toInt()) } just runs
         every { f.mockSSHClient.auth("user", any<List<AuthMethod>>()) } just runs
@@ -222,7 +223,8 @@ class SftpTransportIntegrationTests : TransportIntegrationTests() {
             f.actionHistory,
             mockk<IReportStreamEventService>(relaxed = true),
             mockk<ReportService>(relaxed = true),
-            listOf()
+            listOf(),
+            ""
         )
 
         // successful SFTP upload
@@ -245,7 +247,7 @@ class SftpTransportIntegrationTests : TransportIntegrationTests() {
                 CredentialRequestReason.SFTP_UPLOAD
             )
         } returns UserPpkCredential("user", "key", "keyPass", "pass")
-        every { SftpTransport.createDefaultSSHClient() } returns f.mockSSHClient
+        every { SftpTransport.createDefaultSSHClient(any()) } returns f.mockSSHClient
         every { f.mockSSHClient.addHostKeyVerifier(any<HostKeyVerifier>()) } just runs
         every { f.mockSSHClient.connect(f.transportType.host, f.transportType.port.toInt()) } just runs
         every { f.mockSSHClient.auth("user", any<List<AuthMethod>>()) } just runs
@@ -265,7 +267,8 @@ class SftpTransportIntegrationTests : TransportIntegrationTests() {
             f.actionHistory,
             mockk<IReportStreamEventService>(relaxed = true),
             mockk<ReportService>(relaxed = true),
-            listOf()
+            listOf(),
+            ""
         )
 
         // successful SFTP upload
@@ -291,7 +294,8 @@ class SftpTransportIntegrationTests : TransportIntegrationTests() {
             f.actionHistory,
             mockk<IReportStreamEventService>(relaxed = true),
             mockk<ReportService>(relaxed = true),
-            listOf()
+            listOf(),
+            ""
         )
 
         // asserts that the initial null check works
@@ -324,7 +328,8 @@ class SftpTransportIntegrationTests : TransportIntegrationTests() {
             f.actionHistory,
             mockk<IReportStreamEventService>(relaxed = true),
             mockk<ReportService>(relaxed = true),
-            listOf()
+            listOf(),
+            ""
         )
 
         // asserts that missing credentials will fail SFTP
@@ -347,7 +352,7 @@ class SftpTransportIntegrationTests : TransportIntegrationTests() {
                 CredentialRequestReason.SFTP_UPLOAD
             )
         } returns UserPassCredential("foo", "pass")
-        every { SftpTransport.createDefaultSSHClient() } returns f.mockSSHClient
+        every { SftpTransport.createDefaultSSHClient(any()) } returns f.mockSSHClient
         every { f.mockSSHClient.addHostKeyVerifier(any<HostKeyVerifier>()) } just runs
         // throws authentication exception
         every {
@@ -365,7 +370,8 @@ class SftpTransportIntegrationTests : TransportIntegrationTests() {
             f.actionHistory,
             mockk<IReportStreamEventService>(relaxed = true),
             mockk<ReportService>(relaxed = true),
-            listOf()
+            listOf(),
+            ""
         )
 
         // asserts that authentication error will result in error
@@ -399,7 +405,8 @@ class SftpTransportIntegrationTests : TransportIntegrationTests() {
             f.actionHistory,
             mockk<IReportStreamEventService>(relaxed = true),
             mockk<ReportService>(relaxed = true),
-            listOf()
+            listOf(),
+            ""
         )
 
         // asserts that invalid credential types will result in error
