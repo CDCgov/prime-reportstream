@@ -46,7 +46,7 @@ runs:
         distribution: "temurin"
         cache: "gradle"
 
-    - uses: gradle/actions/setup-gradle@4d9f0ba0025fe599b4ebab900eb7f3a1d93ef4c2
+    - uses: gradle/actions/setup-gradle@0723195856401067f7a2779048b490ace7a47d7c
 
     - name: Lint
       if: inputs.run-integration-tests == 'true'
@@ -54,7 +54,7 @@ runs:
       shell: bash
 
     - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v3
+      uses: docker/setup-buildx-action@v4
 
     - name: Spin up build containers
       working-directory: prime-router
@@ -256,7 +256,7 @@ runs:
 
     - name: Upload Artifact
       if: inputs.upload-build == 'true'
-      uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4
+      uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f
       with:
         name: prime-router-build-${{ inputs.version }}
         path: prime-router/prime-router-build.tar.gz
