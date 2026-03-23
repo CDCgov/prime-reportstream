@@ -31,7 +31,7 @@ jobs:
       has_router_change: ${{ steps.build_vars.outputs.has_router_change }}
     steps:
       - name: "Check out changes"
-        uses: actions/checkout@v6
+        uses: actions/checkout@v6.0.1
       - name: Build vars
         id: build_vars
         uses: ./.github/actions/build-vars
