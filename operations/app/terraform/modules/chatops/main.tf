@@ -1,5 +1,6 @@
 resource "azurerm_container_group" "chatops" {
   #checkov:skip=CKV2_AZURE_28: "Ensure Container Instance is configured with managed identity"
+  #checkov:skip=CKV_AZURE_245: "Public IP required for chatops container group"
   name                = "${var.resource_prefix}-chatops"
   location            = var.location
   resource_group_name = var.resource_group

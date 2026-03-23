@@ -126,11 +126,8 @@ test.describe("About page", () => {
 
     test.describe("Recommended Resources", () => {
         test("Card navigation", async ({ aboutPage }) => {
+            // Cards with a url are navigable; cards without (e.g. PDF downloads) are click-only
             const cardLinks = [
-                {
-                    name: "ReportStream overview PDF",
-                    url: "",
-                },
                 {
                     name: "Product roadmap",
                     url: "/about/roadmap",
@@ -143,11 +140,7 @@ test.describe("About page", () => {
 
             for (const cardLink of cardLinks) {
                 await aboutPage.page.getByTestId("CardGroup").getByRole("link", { name: cardLink.name }).click();
-
-                if (cardLink.url.length) {
-                    await expect(aboutPage.page).toHaveURL(cardLink.url);
-                }
-
+                await expect(aboutPage.page).toHaveURL(cardLink.url);
                 await aboutPage.page.goto(URL_ABOUT, {
                     waitUntil: "domcontentloaded",
                 });
