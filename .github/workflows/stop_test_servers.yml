@@ -31,7 +31,7 @@ jobs:
           sp-creds: ${{ env.AZURE_CREDENTIALS }}
           tf-auth: true
       # Login to Azure
-      - uses: azure/login@v2
+      - uses: azure/login@v3
         with:
           creds: ${{ env.AZURE_CREDENTIALS }}
 
