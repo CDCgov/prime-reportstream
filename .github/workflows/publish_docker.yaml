@@ -23,7 +23,7 @@ jobs:
       run_publish_sftp_alpine: ${{ steps.check_sftp_alpine_image.outputs.run_job }}
     steps:
       - name: "Check out changes"
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
       - uses: dorny/paths-filter@v4
         id: skip_check
         with:
@@ -89,7 +89,7 @@ jobs:
         AZ_ENV: [ demo1, demo2, demo3, test, staging, prod ]
     steps:
       - name: Check Out Changes
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
 
       - name: Log In to the Container Registry
         uses: docker/login-action@b45d80f862d83dbcd57f89517bcf500b2ab88fb2
@@ -116,7 +116,7 @@ jobs:
       packages: write
     steps:
       - name: Check Out Changes
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
 
       - name: Log In to the Container Registry
         uses: docker/login-action@b45d80f862d83dbcd57f89517bcf500b2ab88fb2
@@ -144,7 +144,7 @@ jobs:
       packages: write
     steps:
       - name: Check Out Changes
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
 
       - name: Log In to the Container Registry
         uses: docker/login-action@b45d80f862d83dbcd57f89517bcf500b2ab88fb2

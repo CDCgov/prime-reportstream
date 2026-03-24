@@ -24,7 +24,7 @@ jobs:
       enable_builds: 'true'
     steps:
       - name: Check out changes
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
         with:
           fetch-depth: 0
       - name: Build vars
@@ -41,7 +41,7 @@ jobs:
         working-directory: prime-router
     steps:
       - name: Check out changes
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
       - name: Build backend
         if: ${{ needs.wf_vars.outputs.enable_builds == 'true' }}
         uses: ./.github/actions/build-backend
@@ -58,7 +58,7 @@ jobs:
         working-directory: frontend-react
     steps:
       - name: Check out changes
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
       - name: Build frontend
         if: ${{ needs.wf_vars.outputs.enable_builds == 'true' }}
         uses: ./.github/actions/build-frontend
@@ -83,7 +83,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out changes
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
         with:
           fetch-depth: 0
       - name: Download router artifact
