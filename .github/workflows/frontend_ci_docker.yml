@@ -41,10 +41,10 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v6.0.1
 
       - name: Set up Node.js
-        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # Using v3.5.1
+        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # Using v3.5.1
         with:
           node-version-file: '${{ env.WORKING_DIRECTORY }}/.nvmrc'
           # Yarn caching will be handled by a separate actions/cache step
@@ -85,13 +85,13 @@ jobs:
       pull-requests: write # For PR comments
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v6.0.1
         with:
           fetch-depth: 0 # Required by Chromatic
           ref: ${{ github.event.pull_request.head.sha }} # Checkout PR HEAD commit
 
       - name: Set up Node.js
-        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238
+        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f
         with:
           node-version-file: '${{ env.WORKING_DIRECTORY }}/.nvmrc'
           # Yarn caching will be handled by a separate actions/cache step
@@ -168,7 +168,7 @@ jobs:
       packages: write # Required to push to GHCR
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v6.0.1
 
       - name: Get short SHA
         id: get_sha
@@ -186,7 +186,7 @@ jobs:
         run: echo "owner_lc=$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]' | sed 's/://g' | sed 's/[^a-z0-9-]//g')" >> $GITHUB_OUTPUT
 
       - name: Log in to GitHub Container Registry
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -253,10 +253,10 @@ jobs:
           sudo swapon --show
 
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v6.0.1
 
       - name: Set up Node.js
-        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238
+        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f
         with:
           node-version-file: '${{ env.WORKING_DIRECTORY }}/.nvmrc'
           # Yarn caching will be handled by a separate actions/cache step
@@ -279,7 +279,7 @@ jobs:
         run: npx playwright install --with-deps
 
       - name: Log in to GitHub Container Registry
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -345,10 +345,10 @@ jobs:
       WARNING_LOG_FILE: e2e-data/frontend-warnings.json
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v6.0.1
 
       - name: Set up Node.js
-        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238
+        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f
         with:
           node-version-file: '${{ env.WORKING_DIRECTORY }}/.nvmrc'
           # Yarn caching will be handled by a separate actions/cache step
@@ -465,7 +465,7 @@ jobs:
 #      PUPPETEER_LAUNCH_ARGS: "--no-sandbox --disable-setuid-sandbox"
 #    steps:
 #      - name: Checkout code
-#        uses: actions/checkout@v6
+#        uses: actions/checkout@v6.0.1
 #
 #      - name: Set up Node.js
 #        uses: actions/setup-node@v4
@@ -563,7 +563,7 @@ jobs:
 
   #   steps:
   #     - name: Checkout code
-  #       uses: actions/checkout@v6
+  #       uses: actions/checkout@v6.0.1
 
   #     - name: Set up Docker Buildx
   #       uses: docker/setup-buildx-action@v4
@@ -576,7 +576,7 @@ jobs:
   #         subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
   #     - name: Log in to Azure Container Registry
-  #       uses: docker/login-action@v3
+  #       uses: docker/login-action@v4
   #       with:
   #         registry: ${{ secrets.ACR_NAME }}.azurecr.io
   #         # Username and password are not needed when using azure/login@v2 with sufficient permissions

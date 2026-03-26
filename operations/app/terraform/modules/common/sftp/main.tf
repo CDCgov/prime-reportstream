@@ -13,6 +13,7 @@ resource "azurerm_storage_share" "sftp" {
 }
 
 resource "azurerm_container_group" "sftp" {
+  #checkov:skip=CKV_AZURE_245: "Public IP required for SFTP container group"
   name                = "${var.resource_prefix}-continst"
   resource_group_name = var.resource_group
   location            = var.location
