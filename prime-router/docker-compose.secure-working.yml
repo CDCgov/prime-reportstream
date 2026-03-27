@@ -1,0 +1,178 @@
+# Complete working secure environment for Prime Router
+services:
+  # Real Prime Router with Azure Functions compatibility
+  prime_router_secure:
+    container_name: prime-router-app
+    build:
+      context: .
+      dockerfile_inline: |
+        FROM openjdk:17-jdk-slim
+        RUN apt-get update && apt-get install -y wget curl && \
+            curl -fsSL https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > /usr/share/keyrings/microsoft-prod.gpg && \
+            echo "deb [arch=amd64,arm64,armhf signed-by=/usr/share/keyrings/microsoft-prod.gpg] https://packages.microsoft.com/repos/microsoft-ubuntu-jammy-prod jammy main" > /etc/apt/sources.list.d/microsoft-prod.list && \
+            apt-get update && apt-get install -y azure-functions-core-tools-4
+        WORKDIR /app
+        COPY build/azure-functions/prime-data-hub-router/ .
+        COPY metadata/ ./metadata/
+        COPY settings/ ./settings/
+        EXPOSE 7071
+        CMD ["func", "host", "start", "--port", "7071"]
+    working_dir: /app
+    volumes:
+      # Fat JAR with all dependencies
+      - type: bind
+        source: ./build/libs/prime-router-0.2-SNAPSHOT-all.jar
+        target: /app/prime-router-0.2-SNAPSHOT-all.jar
+        read_only: true
+      # Application configuration and metadata
+      - type: bind
+        source: ./metadata
+        target: /app/metadata
+        read_only: true
+      - type: bind
+        source: ./settings
+        target: /app/settings
+        read_only: true
+    env_file:
+      - ./.vault/env/.env.local
+    environment:
+      # Azure Storage (Azurite emulation)
+      - AzureWebJobsStorage=DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://azurite:10000/devstoreaccount1;QueueEndpoint=http://azurite:10001/devstoreaccount1;
+      - PartnerStorage=DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://azurite:10000/devstoreaccount1;QueueEndpoint=http://azurite:10001/devstoreaccount1;
+      # Database configuration  
+      - POSTGRES_USER=prime
+      - POSTGRES_PASSWORD=changeIT!
+      - POSTGRES_URL=jdbc:postgresql://postgresql:5432/prime_data_hub
+      # HikariPool connection settings to fix connection lifetime issues
+      - HIKARI_MAXIMUM_POOL_SIZE=10
+      - HIKARI_MAX_LIFETIME=120000
+      - HIKARI_CONNECTION_TIMEOUT=20000
+      - HIKARI_IDLE_TIMEOUT=300000
+      - HIKARI_VALIDATION_TIMEOUT=5000
+      - HIKARI_LEAK_DETECTION_THRESHOLD=60000
+      # Application configuration
+      - PRIME_ENVIRONMENT=local
+      - RS_OKTA_baseUrl=reportstream.oktapreview.com
+      - RS_OKTA_clientId=0oa8uvan2i07YXJLk1d7
+      - RS_OKTA_redirect=http://localhost:7071/api/download
+      - VAULT_API_ADDR=http://vault:8200
+      - FHIR_ENGINE_TEST_PIPELINE=enabled
+    depends_on:
+      postgresql:
+        condition: service_healthy
+      azurite:
+        condition: service_started
+      vault:
+        condition: service_started
+    ports:
+      - "7071:7071"  # Azure Functions port
+    networks:
+      - prime-router_build
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:7071/"]
+      interval: 30s
+      timeout: 10s
+      start_period: 60s
+      retries: 3
+
+  # PostgreSQL database
+  postgresql:
+    container_name: prime-router-postgres
+    image: prime-router-postgresql:latest
+    restart: always
+    environment:
+      POSTGRES_DB: "prime_data_hub"
+      POSTGRES_PASSWORD: "changeIT!"
+      POSTGRES_USER: "prime"
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - prime-router_build
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U prime -d prime_data_hub"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Azurite (Azure Storage emulator)
+  azurite:
+    container_name: prime-router-azurite
+    image: mcr.microsoft.com/azure-storage/azurite:3.35.0
+    command: azurite --skipApiVersionCheck --blobHost 0.0.0.0 --queueHost 0.0.0.0 --tableHost 0.0.0.0 --loose --location /data --debug /tmp/azurite.log --disableProductStyleUrl
+    volumes:
+      - ./build/azurite:/data
+    ports:
+      - "10000:10000"  # Blob service
+      - "10001:10001"  # Queue service
+      - "10002:10002"  # Table service
+    networks:
+      - prime-router_build
+    restart: always
+    environment:
+      - AZURITE_ACCOUNTS=devstoreaccount1
+      - NODE_OPTIONS=--max-old-space-size=1024
+    deploy:
+      resources:
+        limits:
+          memory: 1.5G
+          cpus: '1.0'
+    healthcheck:
+      test: ["CMD", "sh", "-c", "curl -f http://localhost:10000 || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  # Vault for configuration management
+  vault:
+    container_name: prime-router-vault
+    image: hashicorp/vault:latest
+    cap_add:
+      - IPC_LOCK
+    volumes:
+      - ./build/vault:/vault/data
+      - ./.vault:/opt/vault/.vault
+    ports:
+      - "8200:8200"
+    networks:
+      - prime-router_build
+    environment:
+      - VAULT_DEV_ROOT_TOKEN_ID=myroot
+      - VAULT_DEV_LISTEN_ADDRESS=0.0.0.0:8200
+    command: vault server -dev -dev-listen-address=0.0.0.0:8200
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "sh", "-c", "VAULT_ADDR=http://127.0.0.1:8200 vault status > /dev/null 2>&1 || nc -z localhost 8200"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+  # SFTP server for file transfers
+  sftp:
+    container_name: prime-router-sftp
+    image: atmoz/sftp:alpine
+    platform: linux/amd64
+    ports:
+      - "2222:22"
+    volumes:
+      - ./build/sftp:/home/foo/upload
+    command: foo:pass:1001:1001:upload
+    networks:
+      - prime-router_build
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "22"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+volumes:
+  postgres_data:
+
+networks:
+  prime-router_build:
+    driver: bridge
