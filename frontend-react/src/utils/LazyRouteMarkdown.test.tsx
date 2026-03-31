@@ -13,6 +13,10 @@ vi.mock("react-helmet-async", () => {
     };
 });
 
+vi.mock("../layouts/Markdown/MarkdownLayout", () => ({
+    default: ({ children }: any) => <article>{children}</article>,
+}));
+
 describe("lazyRouteMarkdown", () => {
     test("works with react-router", async () => {
         const Component = lazy(lazyRouteMarkdown(() => Promise.resolve(md)));
