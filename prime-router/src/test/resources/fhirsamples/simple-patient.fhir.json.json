@@ -1,0 +1,10 @@
+{
+  "resourceType" : "Patient",
+  "name" : [ {
+    "family" : "Simpson",
+    "given" : [ "Homer" ]
+  } ],
+  "meta" : {
+    "profile" : [ "http://hl7.org/fhir/us/ph-library/StructureDefinition/us-ph-patient" ]
+  }
+}
