@@ -911,7 +911,7 @@ dependencies {
     implementation("org.yaml:snakeyaml:2.5")
     implementation("io.github.linuxforhealth:hl7v2-fhir-converter") {
         version {
-            branch = "master"
+            branch = "main"
         }
     }
     implementation("ca.uhn.hapi.fhir:hapi-fhir-structures-r4:8.0.0")
