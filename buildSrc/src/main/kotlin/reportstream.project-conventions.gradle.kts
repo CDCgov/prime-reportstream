@@ -16,7 +16,7 @@ ktlint {
 group = "gov.cdc.prime.reportstream"
 version = "0.0.1-SNAPSHOT"
 
-val jvmTarget = JvmTarget.JVM_17
+val jvmTarget = JvmTarget.JVM_21
 
 kotlin {
     jvmToolchain(jvmTarget.target.toInt())

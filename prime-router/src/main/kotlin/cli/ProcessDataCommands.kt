@@ -33,7 +33,7 @@ import gov.cdc.prime.router.serializers.ReadResult
 import java.io.File
 import java.io.OutputStream
 import java.net.HttpURLConnection
-import java.net.URL
+import java.net.URI
 
 sealed class InputSource {
     data class FileSource(val fileName: String) : InputSource()
@@ -359,7 +359,7 @@ class ProcessData(
     // NOTE: This exists to support not-yet-implemented functionality.
     private fun postHttp(address: String, block: (stream: OutputStream) -> Unit) {
         echo("Sending to: $address")
-        val urlObj = URL(address)
+        val urlObj = URI(address).toURL()
         val connection = urlObj.openConnection() as HttpURLConnection
         connection.requestMethod = "POST"
         connection.doOutput = true
