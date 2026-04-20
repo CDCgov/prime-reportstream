@@ -1,0 +1,8 @@
+# suppressNonNPI: true
+# suppressNonNPI: true
+elements:
+- name: observation-obx-DT-reformate
+  condition: 'Bundle.entry.resource.ofType(Observation).extension("https://reportstream.cdc.gov/fhir/StructureDefinition/obx-observation").extension("OBX.2").where(value = "DT").exists()'
+  resource: 'Bundle.entry.resource.ofType(Observation).value.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time")'
+  value: [ '%resource.value.replace("-", "")' ]
+  bundleProperty: '%resource.value[x]'
