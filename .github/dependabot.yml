@@ -10,42 +10,42 @@ updates:
   - package-ecosystem: "docker"
     directory: "/operations"
     schedule:
-      interval: "weekly"
+      interval: "monthly"
       day: "sunday"
       time: "05:00"
       timezone: "US/Eastern"
   - package-ecosystem: "docker"
     directory: "/prime-router"
     schedule:
-      interval: "weekly"
+      interval: "monthly"
       day: "sunday"
       time: "05:00"
       timezone: "US/Eastern"
   - package-ecosystem: "docker"
     directory: "/.environment/docker/docker-compose"
     schedule:
-      interval: "weekly"
+      interval: "monthly"
       day: "sunday"
       time: "05:00"
       timezone: "US/Eastern"
   - package-ecosystem: "docker"
     directory: "/frontend-react"
     schedule:
-      interval: "weekly"
+      interval: "monthly"
       day: "sunday"
       time: "05:00"
       timezone: "US/Eastern"
   - package-ecosystem: "docker"
     directory: "/operations/utils/postgres"
     schedule:
-      interval: "weekly"
+      interval: "monthly"
       day: "sunday"
       time: "05:00"
       timezone: "US/Eastern"
   - package-ecosystem: "docker"
     directory: "/operations/dnsmasq"
     schedule:
-      interval: "weekly"
+      interval: "monthly"
       day: "sunday"
       time: "05:00"
       timezone: "US/Eastern"
@@ -60,110 +60,110 @@ updates:
   - package-ecosystem: "github-actions"
     # Workflow files stored in `.github/workflows`
     directory: "/"
-    open-pull-requests-limit: 100
+    open-pull-requests-limit: 10
     schedule:
-      interval: "daily"
+      interval: "monthly"
   # GitHub local actions
   # These entries need to be updated for every new action created
   - package-ecosystem: "github-actions"
     directory: "/.github/actions/Start-AzFunction"
     schedule:
-      interval: "daily"
+      interval: "monthly"
   - package-ecosystem: "github-actions"
     directory: "/.github/actions/Start-PostgresDB"
     schedule:
-      interval: "daily"
+      interval: "monthly"
   - package-ecosystem: "github-actions"
     directory: "/.github/actions/Stop-AzFunction"
     schedule:
-      interval: "daily"
+      interval: "monthly"
   - package-ecosystem: "github-actions"
     directory: "/.github/actions/Stop-PostgresDB"
     schedule:
-      interval: "daily"
+      interval: "monthly"
   - package-ecosystem: "github-actions"
     directory: "/.github/actions/notifications"
     schedule:
-      interval: "daily"
+      interval: "monthly"
   - package-ecosystem: "github-actions"
     directory: "/.github/actions/build-backend"
     schedule:
-      interval: "daily"
+      interval: "monthly"
   - package-ecosystem: "github-actions"
     directory: "/.github/actions/build-frontend"
     schedule:
-      interval: "daily"
+      interval: "monthly"
   - package-ecosystem: "github-actions"
     directory: "/.github/actions/build-vars"
     schedule:
-      interval: "daily"
+      interval: "monthly"
   - package-ecosystem: "github-actions"
     directory: "/.github/actions/db-backup"
     schedule:
-      interval: "daily"
+      interval: "monthly"
   - package-ecosystem: "github-actions"
     directory: "/.github/actions/db-query"
     schedule:
-      interval: "daily"
+      interval: "monthly"
   - package-ecosystem: "github-actions"
     directory: "/.github/actions/db-restore"
     schedule:
-      interval: "daily"
+      interval: "monthly"
   - package-ecosystem: "github-actions"
     directory: "/.github/actions/demo-env"
     schedule:
-      interval: "daily"
+      interval: "monthly"
   - package-ecosystem: "github-actions"
     directory: "/.github/actions/deploy-backend"
     schedule:
-      interval: "daily"
+      interval: "monthly"
   - package-ecosystem: "github-actions"
     directory: "/.github/actions/deploy-frontend"
     schedule:
-      interval: "daily"
+      interval: "monthly"
   - package-ecosystem: "github-actions"
     directory: "/.github/actions/mount-share"
     schedule:
-      interval: "daily"
+      interval: "monthly"
   - package-ecosystem: "github-actions"
     directory: "/.github/actions/runner-ip"
     schedule:
-      interval: "daily"
+      interval: "monthly"
   - package-ecosystem: "github-actions"
     directory: "/.github/actions/sonarcloud"
     schedule:
-      interval: "daily"
+      interval: "monthly"
   - package-ecosystem: "github-actions"
     directory: "/.github/actions/vpn-azure"
     schedule:
-      interval: "daily"
+      interval: "monthly"
   - package-ecosystem: "github-actions"
     directory: "/.github/actions/retry"
     schedule:
-      interval: "daily"
+      interval: "monthly"
   - package-ecosystem: "github-actions"
     directory: "/.github/actions/az-cost"
     schedule:
-      interval: "daily"
+      interval: "monthly"
   - package-ecosystem: "github-actions"
     directory: "/.github/actions/build-submissions"
     schedule:
-      interval: "daily"
+      interval: "monthly"
 
   - package-ecosystem: "github-actions"
     directory: "/.github/actions/connect-ovpn"
     schedule:
-      interval: "daily"
+      interval: "monthly"
 
   - package-ecosystem: "github-actions"
     directory: "/.github/actions/checksum-validate"
     schedule:
-      interval: "daily"
+      interval: "monthly"
 
   # Frontend
   - package-ecosystem: "npm"
     directory: "/frontend-react"
-    open-pull-requests-limit: 100
+    open-pull-requests-limit: 10
     schedule:
       interval: "monthly"
       day: "sunday"
@@ -436,12 +436,12 @@ updates:
   - package-ecosystem: "terraform"
     directory: "/operations/app/terraform/vars/test"
     schedule:
-      interval: "weekly"
+      interval: "monthly"
 
   # shared
   - package-ecosystem: "gradle"
     directory: "/shared"
-    open-pull-requests-limit: 100
+    open-pull-requests-limit: 10
     schedule:
       interval: "monthly"
       day: "sunday"
@@ -474,7 +474,7 @@ updates:
   # Backend
   - package-ecosystem: "gradle"
     directory: "/prime-router"
-    open-pull-requests-limit: 100
+    open-pull-requests-limit: 10
     schedule:
       interval: "monthly"
       day: "sunday"
